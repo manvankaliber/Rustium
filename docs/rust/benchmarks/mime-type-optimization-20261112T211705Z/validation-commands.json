@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "run_native.py",
+      "unit"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "coverage.py"
+    ],
+    "exit_code": 0
+  },
+  {
+    "command": [
+      "build_native.py",
+      "fuzz"
+    ],
+    "exit_code": 0
+  }
+]

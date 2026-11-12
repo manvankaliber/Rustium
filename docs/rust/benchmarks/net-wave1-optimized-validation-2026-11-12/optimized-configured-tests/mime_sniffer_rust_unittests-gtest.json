@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="288" failures="0" disabled="0" errors="0" time="0.260" timestamp="2026-11-12T21:47:46">
+  <testsuite name="MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest" tests="1" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="IsBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest" tests="9" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="IsBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/1" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/2" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/3" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/4" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/5" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/6" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/7" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/8" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest" tests="13" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="IsBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/1" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/10" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/11" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/12" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/2" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/3" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/4" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/5" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/6" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/7" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/8" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/9" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest" tests="4" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="IsBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/1" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/2" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest">
+    </testcase>
+    <testcase name="IsBinaryControlCode/3" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest" tests="3" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="EdgeCase/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest">
+    </testcase>
+    <testcase name="EdgeCase/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest">
+    </testcase>
+    <testcase name="EdgeCase/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest" tests="224" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="NotBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/1" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/10" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/100" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/101" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/102" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/103" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/104" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/105" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/106" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/107" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/108" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/109" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/11" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/110" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/111" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/112" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/113" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/114" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/115" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/116" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/117" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/118" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/119" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/12" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/120" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/121" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/122" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/123" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/124" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/125" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/126" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/127" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/128" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/129" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/13" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/130" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/131" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/132" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/133" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/134" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/135" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/136" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/137" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/138" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/139" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/14" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/140" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/141" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/142" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/143" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/144" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/145" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/146" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/147" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/148" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/149" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/15" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/150" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/151" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/152" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/153" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/154" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/155" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/156" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/157" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/158" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/159" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/16" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/160" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/161" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/162" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/163" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/164" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/165" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/166" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/167" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/168" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/169" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/17" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/170" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/171" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/172" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/173" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/174" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/175" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/176" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/177" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/178" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/179" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/18" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/180" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/181" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/182" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/183" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/184" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/185" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/186" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/187" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/188" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/189" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/19" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/190" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/191" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/192" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/193" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/194" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/195" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/196" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/197" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/198" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/199" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/2" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/20" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/200" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/201" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/202" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/203" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/204" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/205" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/206" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/207" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/208" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/209" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/21" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/210" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/211" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/212" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/213" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/214" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/215" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/216" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/217" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/218" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/219" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/22" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/220" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/221" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/222" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/223" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/23" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/24" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/25" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/26" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/27" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/28" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/29" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/3" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/30" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/31" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/32" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/33" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/34" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/35" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/36" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/37" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/38" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/39" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/4" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/40" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/41" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/42" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/43" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/44" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/45" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/46" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/47" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/48" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/49" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/5" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/50" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/51" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/52" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/53" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/54" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/55" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/56" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/57" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/58" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/59" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/6" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/60" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/61" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/62" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/63" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/64" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/65" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/66" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/67" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/68" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/69" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/7" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/70" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/71" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/72" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/73" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/74" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/75" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/76" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/77" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/78" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/79" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/8" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/80" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/81" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/82" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/83" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/84" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/85" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/86" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/87" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/88" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/89" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/9" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/90" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/91" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/92" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/93" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/94" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/95" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/96" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/97" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/98" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/99" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest" tests="5" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="NotBinaryControlCode/0" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/1" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/2" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/3" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest">
+    </testcase>
+    <testcase name="NotBinaryControlCode/4" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferRustTest" tests="13" failures="0" disabled="0" errors="0" time="0.260" timestamp="2026-11-12T21:47:46">
+    <testcase name="AliasedViewsAcrossScratchAndSniffingLimits" status="run" time="0.001" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="BinaryByteClassificationAndBoundaries" status="run" time="0.004" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="ContentMayAliasOutputWithoutReallocation" status="run" time="0.009" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="EmbeddedNulAndHighBitHints" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="EverySignatureTruncation" status="run" time="0.014" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="HintAndContentMayBothAliasOutput" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="HintMayAliasOutput" status="run" time="0.002" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="PrivateBoundaryEmptyViewsAndStaticResults" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="ShortAliasedContentWithoutReserve" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="ShouldSniffPolicyAndFirstHeaderOnly" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="SignaturesAcrossPolicyAndExtensions" status="run" time="0.034" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="SingleByteMutations" status="run" time="0.196" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+    <testcase name="XmlIterationAndWhitespaceLimits" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferRustTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeSnifferTest" tests="16" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:46">
+    <testcase name="AudioVideoTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="BasicSniffingTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="BoundaryConditionsTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="ChromeExtensionsTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="DontAllowPrivilegeEscalationTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="FlashTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="ImageTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="LooksBinary" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="MozillaCompatibleTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="OfficeTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="SniffFilesAsHtml" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="SniffableHeaders" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="SniffableSchemes" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="UnicodeTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="XMLTest" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+    <testcase name="XMLTestLargeNoAngledBracket" status="run" time="0.000" timestamp="2026-11-12T21:47:45" classname="MimeSnifferTest">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,352 @@
+{
+  "component": "dns-names",
+  "task": "optimize measured DNS-name utility regressions",
+  "status": "optimization_implemented_native_validated_parent_configured_remeasurement_pending",
+  "created_utc": "2026-11-12T21:16:10.549651+00:00",
+  "git_head": "4ebe1665496c5e99f2fb579015d3a98963a229cc",
+  "changed_owned_files": {
+    "net/dns/dns_names_core.rs": "d691d071d7d8fa5a3ec8df59d3fa163d19c763b5bfd16e5e66dc21c2a48bb393",
+    "net/dns/dns_names_ffi.h": "e3ea3bf30705142b83148cf74167e25879e6b13b6ce85729618dc7372fb7eadb",
+    "net/dns/dns_names_ffi.rs": "4e3aebacc6aca312150d6d4f03d64608bf7bb0c193708ce2d21aac583669f76d",
+    "net/dns/dns_names_rust_unittest.cc": "574bb99765bc27443a08cf193b13dc69c770d136de47528a041bfff86871880c",
+    "net/dns/dns_names_test_support.h": "b44777ddf997948012e76457921db9ba27dbb3e5e84960be60a84d25d18cc4e8",
+    "net/dns/dns_names_util.cc": "06a086d83282989279f5c92f22e5d58e7b3e7a32439d1bf0ce439813dbbb7096"
+  },
+  "all_component_source_hashes": {
+    "net/dns/dns_names_core.rs": "d691d071d7d8fa5a3ec8df59d3fa163d19c763b5bfd16e5e66dc21c2a48bb393",
+    "net/dns/dns_names_ffi.h": "e3ea3bf30705142b83148cf74167e25879e6b13b6ce85729618dc7372fb7eadb",
+    "net/dns/dns_names_ffi.rs": "4e3aebacc6aca312150d6d4f03d64608bf7bb0c193708ce2d21aac583669f76d",
+    "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+    "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+    "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+    "net/dns/dns_names_reference.h": "afea44db56a3eafac32f2a9551069d7ddad2cd913648269c1589cd290a374330",
+    "net/dns/dns_names_rust_unittest.cc": "574bb99765bc27443a08cf193b13dc69c770d136de47528a041bfff86871880c",
+    "net/dns/dns_names_test_support.h": "b44777ddf997948012e76457921db9ba27dbb3e5e84960be60a84d25d18cc4e8",
+    "net/dns/dns_names_util.cc": "06a086d83282989279f5c92f22e5d58e7b3e7a32439d1bf0ce439813dbbb7096",
+    "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+    "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+  },
+  "source_hashes_file": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z\\source-hashes.json",
+  "source_hashes_file_sha256": "be0f82f74310a09456bca3d12fb614784a7679ecadc4618046f43b68028b8d1a",
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z\\source-snapshot",
+  "before_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z\\before",
+  "durable_evidence_directory": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z",
+  "previous_accepted_evidence": {
+    "docs/rust/benchmarks/dns-names-wave1-final-2026-11-12.json": "768c9f0ef5d8b3a3d8260bb99d8ea8baa7f135d493566f65aae93dbc6377381f",
+    ".scratch/net-wave1/measurements/dns-names/wave1-boundary-final-benchmark.jsonl": "2a68f28de1195efe0d9aba26bfdde418dde7639d7db1a1a2bcf86df52df6a7b0",
+    ".scratch/net-wave1/measurements/dns-names/wave1-boundary-final-execution.json": "cf71d2978d9ffd33d18852c2f0a46930d57f5efc15a86f6cddc853c32c969192",
+    ".scratch/net-wave1/measurements/dns-names/wave1-boundary-final-source-hashes.json": "c3b5739840cb712fd65353af181039e103d75fab6d48e35b7eaff3e0db5ab072"
+  },
+  "old_evidence_modified": false,
+  "unchanged_protected_files": {
+    "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+    "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+    "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+    "net/dns/dns_names_reference.h": "afea44db56a3eafac32f2a9551069d7ddad2cd913648269c1589cd290a374330",
+    "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+    "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+  },
+  "changes": [
+    "Dotted conversion and validation share safe allocation-free label scanning; C++ allocates only the final returned vector.",
+    "Ordinary network input uses safe SliceReader monomorphization in a single bridge invocation, without cursor callbacks or intermediate Vec ownership.",
+    "An address-range ownership check selects the callback reader only when input overlaps the C++ cursor object. That path shares the same Rust parser and preserves post-commit label copies.",
+    "URL canonicalization writes directly into the eventual C++ std::string. Rust controls BROKEN fallback via callback; no Rust Vec or per-byte Vec push transport remains.",
+    "Length readers and conversion functions return scalar validity/length/consumption metadata.",
+    "DomainNameLess object disassembly ends in jmp net_dns_names_less, with no byte-span conversion calls or CXX Slice temporaries in this C++ adapter.",
+    "Rust comparator assembly retains nonempty raw-slice precondition checks and executes ASCII comparison in Rust."
+  ],
+  "safety": {
+    "safe_core": "pub mod dns_names_core; #![forbid(unsafe_code)]",
+    "raw_ffi": "Private net_dns_names_less has two documented from_raw_parts sites. Each is limited to a nonempty readable string_view range <= isize::MAX; zero lengths map to &[] without touching the pointer. Inputs can alias; no reference retained or mutation. Public C++ API/export unchanged.",
+    "cxx": "Shared buffer layout generated by CXX. C++ initializes NameBuffer and LabelChunk before borrowed Rust references. CanonicalName is a stack-only raw_ref to a fresh result std::string.",
+    "cursor": "The ordinary path borrows disjoint input/output, computes consumed count, ends Rust borrow and commits Skip once. If input bytes overlap any part of the SpanReader object, the same Rust parser uses callback-scoped views and post-commit copied label bytes. No C++ DNS parser or private Rust view of SpanReader exists.",
+    "packed_returns": "Conversion metadata packs consumed length in the upper 32 bits and output-length-plus-one in the lower 32 bits (zero invalid). DNS limits bound consumption below 448 and output at most 255. Length reads encode width in low two bits and U16 payload length above them, with zero invalid. Policy executes in Rust; C++ only decodes transport.",
+    "ownership": "Final outputs remain independently owned C++ string/vector/span views according to the existing API; no Rust-owned intermediate Vec is transferred or retained. Aliased length output still commits before reader assignment."
+  },
+  "validation": {
+    "native_tests": {
+      "passed": 55,
+      "unchanged_original_tests": 44,
+      "differential_tests": 11,
+      "evidence": "unit-results.log",
+      "new_tests": [
+        "CursorInsideLabelPayload: label spanning the entire mutable reader representation, rooted/truncated and both modes.",
+        "LengthOutputAliasesCursorSpan: success/failure with output pointing at the reader span subobject.",
+        "ComparatorPrefixesAndAliasedViews: long case-folded prefixes, NUL/high bytes, unequal lengths, identical aliases and null-empty views."
+      ],
+      "expanded_differential_fuzz_assertions": "Existing Check now asserts the span NetworkToDottedName overload as well as cursor overload for both modes. Exhaustive byte/label/U16/cursor and service cases retained."
+    },
+    "executions": [
+      {
+        "command": [
+          "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\unit.exe"
+        ],
+        "exit_code": 0,
+        "executable_sha256": "7076c6beeeda77481e4462ad219e87e420775f59ffce731a60c2e1eed357bb05",
+        "benchmark_timing": false
+      },
+      {
+        "command": [
+          "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\bench.exe",
+          "--verify-only"
+        ],
+        "exit_code": 0,
+        "executable_sha256": "7b2ae36a44eee372936a25b5d7fc032a8049fe46b71626e54963e229bd9aeb97",
+        "benchmark_timing": false
+      }
+    ],
+    "fuzz": {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\fuzz.exe",
+        "-runs=1000000",
+        "-max_len=1024",
+        "-seed=20261112",
+        "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\corpus"
+      ],
+      "cpu_affinity_mask": 64,
+      "cpu": 6,
+      "exit_code": 0,
+      "executable_sha256": "efc404b63e0dab6cf9869fd053be16befb7aad0f3ceee630bfc568d28cea7d4c",
+      "executions": 1000000,
+      "max_input_bytes": 1024,
+      "initial_corpus_manifest": "fuzz-initial-corpus-manifest.json",
+      "initial_corpus_directory": "fuzz-initial-corpus",
+      "scope": "Full public APIs and frozen original references, including both network overloads. C++ libFuzzer edge/cmp instrumentation; authored Rust runtime coverage measured separately."
+    },
+    "rust_coverage": {
+      "method": "Chromium rustc -Cinstrument-coverage, LLVM profile merge/export from final native unit executable",
+      "authored_files": {
+        "dns_names_core.rs": {
+          "lines": {
+            "count": 126,
+            "covered": 126,
+            "percent": 100
+          },
+          "functions": {
+            "count": 17,
+            "covered": 17,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 21,
+            "covered": 21,
+            "percent": 100
+          },
+          "regions": {
+            "count": 154,
+            "covered": 154,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        },
+        "dns_names_ffi.rs": {
+          "lines": {
+            "count": 91,
+            "covered": 91,
+            "percent": 100
+          },
+          "functions": {
+            "count": 28,
+            "covered": 28,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 28,
+            "covered": 28,
+            "percent": 100
+          },
+          "regions": {
+            "count": 99,
+            "covered": 99,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      "runtime_exclusions": "None within these two authored files. Other Chromium/vendor/generated C++/platform files are outside this claim.",
+      "branch_coverage": "Not collected; zero LLVM branch records is not evidence of branch coverage."
+    },
+    "clippy": {
+      "passed": true,
+      "warnings_denied": true,
+      "command": "python .scratch/net-wave1/dns-names/optimization/build_native.py lint",
+      "method": "Full bridge/core cargo check --release under configured Chromium clippy-driver workspace wrapper; -Dwarnings."
+    },
+    "format": {
+      "rustfmt": "Configured Chromium rustfmt --edition 2024 --check passed",
+      "clang_format": "Configured buildtools/win-format/clang-format.exe --dry-run --Werror passed",
+      "git_diff_check": "Passed for edited tracked C++ files."
+    },
+    "component_consumer_probe": {
+      "passed": true,
+      "public_cpp_import": "DomainNameLess",
+      "raw_rust_symbol_references": false,
+      "object_sha256": "b6be5dac2b4fcacfc9a04a6f86235af9c9aceeb23c15bb41cd6b386235710e01"
+    },
+    "benchmark_verify_only": {
+      "passed": true,
+      "cases": 21,
+      "timing_performed": false
+    }
+  },
+  "static_inspection": {
+    "method": "Source, generated CXX bridge, optimized Rust assembly/LLVM IR and configured Clang object disassembly; no performance timing.",
+    "observations": [
+      "Dotted conversion and validation share safe allocation-free label scanning; C++ allocates only the final returned vector.",
+      "Ordinary network input uses safe SliceReader monomorphization in a single bridge invocation, without cursor callbacks or intermediate Vec ownership.",
+      "An address-range ownership check selects the callback reader only when input overlaps the C++ cursor object. That path shares the same Rust parser and preserves post-commit label copies.",
+      "URL canonicalization writes directly into the eventual C++ std::string. Rust controls BROKEN fallback via callback; no Rust Vec or per-byte Vec push transport remains.",
+      "Length readers and conversion functions return scalar validity/length/consumption metadata.",
+      "DomainNameLess object disassembly ends in jmp net_dns_names_less, with no byte-span conversion calls or CXX Slice temporaries in this C++ adapter.",
+      "Rust comparator assembly retains nonempty raw-slice precondition checks and executes ASCII comparison in Rust."
+    ],
+    "limits": "These are structural observations, not measurements of elapsed time, allocation counts, bridge overhead or achieved speedups. Native object flags can differ from the final configured target.",
+    "files": [
+      "bridge.cc",
+      "dns_names_validation.s",
+      "dns_names_validation.ll",
+      "production-disassembly.txt"
+    ]
+  },
+  "native_build": {
+    "configured_gn_execution": false,
+    "editing_worktree": "D:\\Rustium",
+    "configured_dependencies": "D:/RustiumBuild/src/out/Default",
+    "production_adapter": "Actual net/dns/dns_names_util.cc compiled directly, not a substitute benchmark adapter.",
+    "reference_defines": "IS_DNS_NAMES_REFERENCE_IMPL when compiling frozen sources locally; no baseline source changes.",
+    "scaffolding": "native_seams.cc is unchanged exact existing service-body scaffolding to avoid unrelated net.dll linkage. URL/ICU implementations and data remain configured native services.",
+    "service_scaffolding_sha256": "0120b691886b960a4f21dc5fde02693a57148b4b51e774ca7f44a29487089ecb",
+    "commands": [
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py rust",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py coverage",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py lint",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py assembly",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py unit",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py fuzz",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py bench",
+      "python .scratch/net-wave1/dns-names/optimization/build_native.py probe"
+    ],
+    "cpp_flags": "Full per-mode response files and link commands archived. Configured /O2, /clang:-O2, C++23preview, /MD, COMPONENT_BUILD, DCHECK_ALWAYS_ON, NET_IMPLEMENTATION, IS_DNS_NAMES_REFERENCE_IMPL, configured plugins/sanitizers. Native fuzz adds inline-8bit-counters,pc-table,trace-cmp instrumentation.",
+    "rust_flags": "Release opt-level=3/codegen-units=1; -Cdebug-assertions=yes -Ccontrol-flow-guard=yes -Cpanic=abort. Coverage adds -Cinstrument-coverage; Clippy adds -Dwarnings; separate assembly build adds --emit=asm,llvm-ir.",
+    "binaries": {
+      "unit.exe": "7076c6beeeda77481e4462ad219e87e420775f59ffce731a60c2e1eed357bb05",
+      "fuzz.exe": "efc404b63e0dab6cf9869fd053be16befb7aad0f3ceee630bfc568d28cea7d4c",
+      "bench.exe": "7b2ae36a44eee372936a25b5d7fc032a8049fe46b71626e54963e229bd9aeb97",
+      "target\\release\\dns_names_validation.lib": "8ad32bcecab4ad5c77f093f56d09bbff014f149463d3ed0c808c74be5b903dfe",
+      "coverage-target\\release\\dns_names_validation.lib": "b280ab40a2d5523e2d30998019a852c628ca05c37b4c0cd5639ff6771332d424"
+    },
+    "external_runtime_hashes": {
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "VCRUNTIME140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "VCRUNTIME140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "icudtl.dat": "eccdb4c815b98d90dba72c85f156ca3ced5a2625923655f50d8702217951d15c"
+    },
+    "tool_versions": {
+      "rustc": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)\nbinary: rustc\ncommit-hash: 41b321963cf979d564d4bb447d9a09347664659f\ncommit-date: 2026-10-29\nhost: x86_64-pc-windows-msvc\nrelease: 1.101.0-nightly\nLLVM version: 24.0.0",
+      "clang": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc"
+    },
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "machine": "AMD64",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpu_count": 16,
+      "fuzz_affinity_cpu": 6,
+      "memory": "Not recorded"
+    }
+  },
+  "benchmark": {
+    "new_timings_performed": false,
+    "new_speedup_claim": null,
+    "descriptor_path": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z\\benchmark-descriptor.json",
+    "case_groups": [
+      5,
+      5,
+      3,
+      3,
+      5
+    ],
+    "test_inputs_and_timing_loops": "Unchanged; SHA-256 checked against before snapshot. Exact original inline C++ comparator remains in parent-owned reference header.",
+    "parent_action": "Rebuild configured production, validate required tests, and remeasure all 21 unchanged cases in a coordinated quiet window. Use unique run slug, preserve old evidence; import every result and refresh both dashboard surfaces.",
+    "gallery_changes_by_agent": false
+  },
+  "remaining_seams": [
+    "URL/ICU canonicalization and BROKEN classification service; Rust controls fallback.",
+    "Internet-hostname compliance, localhost and IP/URL-address services; Rust preserves validation ordering.",
+    "C++ object ownership/allocation and cursor commit callbacks for cursor-object input overlap.",
+    "Platform ABI, allocator and CXX runtime."
+  ],
+  "parent_integration": {
+    "gn_changes_required": "None; sources and existing DNS target/dependencies unchanged. Regenerate private CXX glue and rebuild configured production. Existing allow_unsafe already covers bridge and narrowly documented raw comparator adapter.",
+    "configured_targets": [
+      "net",
+      "net_unittests",
+      "dns_names_rust_unittests",
+      "dns_names_perftests",
+      "dns_names_rust_fuzzer"
+    ],
+    "integration_status": "DNS module was already integrated. This optimized source revision has native validation; parent sync/build/acceptance and timing remain pending.",
+    "shared_files_modified_by_agent": [],
+    "handoff": "D:\\Rustium\\docs\\rust\\benchmarks\\dns-names-optimization-20261112T211609Z\\HANDOFF.txt"
+  },
+  "limitations": [
+    "No measured speedup, allocation count or isolated bridge-cost attribution. Static reductions do not establish the cause or amount of prior regressions.",
+    "Native linkage validates actual adapter behavior with extracted service scaffolding and local references, not the production component DLL boundary; parent owns configured validation.",
+    "C++ output copies and initialized bounded-buffer storage remain. Alias-dependent callbacks remain required for exact cursor mutation semantics.",
+    "Tiny comparator still crosses the exported C++/private Rust boundary; the original comparator is genuinely inline. A residual loss remains acceptable if validated.",
+    "Retiring URL/IP/ownership bridges will not guarantee algorithmic parity."
+  ],
+  "optimization_follow_up": [
+    {
+      "workload": "All 21 unchanged cases",
+      "action": "Measure actual configured medians/uncertainty after integration; retain both favorable and unfavorable results and record exact residual debt."
+    },
+    {
+      "workload": "Network conversion including root/short/max/failure",
+      "action": "Profile remaining caller-buffer initialization, final C++ ownership copy and public ABI costs; do not remove alias callbacks or alter failure consumption."
+    },
+    {
+      "workload": "Canonicalization and comparator",
+      "action": "Profile URL-service callback/result ownership and private raw comparator after configured remeasurement. Keep full URL semantics and real inline baseline."
+    }
+  ],
+  "archive_excludes": [
+    "Compiled executables, Cargo caches and copied runtime DLL/data bytes remain in optimization scratch; hashes, source snapshots, exact flags, scripts, generated code, assembly/IR, profiles, test/fuzz logs and initial corpus are durable."
+  ]
+}

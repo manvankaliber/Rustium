@@ -1,0 +1,17 @@
+{
+  "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+  "net/base/mime_sniffer.cc": "950e77ee5eeb377202389b7f89a37ee05575ac661cac51729362e1c3942a7f17",
+  "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+  "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+  "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+  "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+  "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+  "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+  "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+  "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+  "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+  "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+  "net/base/mime_sniffer_rust_unittest.cc": "512b2124166e741924709e0f82ff47c407fdc0b9083471edf03576c1bb410113",
+  "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+  "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6"
+}

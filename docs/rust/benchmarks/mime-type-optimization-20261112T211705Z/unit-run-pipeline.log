@@ -1,0 +1,44 @@
+[==========] Running 13 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from MimeTypeRustTest
+[ RUN      ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs
+[       OK ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs (0 ms)
+[ RUN      ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases
+[       OK ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases (0 ms)
+[ RUN      ] MimeTypeRustTest.EveryByteAndEmbeddedNull
+[       OK ] MimeTypeRustTest.EveryByteAndEmbeddedNull (601 ms)
+[ RUN      ] MimeTypeRustTest.InputOutputAliasingSnapshots
+[       OK ] MimeTypeRustTest.InputOutputAliasingSnapshots (0 ms)
+[ RUN      ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality
+[       OK ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality (0 ms)
+[ RUN      ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues
+[       OK ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues (21 ms)
+[----------] 6 tests from MimeTypeRustTest (623 ms total)
+
+[----------] 3 tests from MimeTypeRustOptimizationTest
+[ RUN      ] MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans
+[       OK ] MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans (1 ms)
+[ RUN      ] MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput
+[       OK ] MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput (0 ms)
+[ RUN      ] MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits
+[       OK ] MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits (0 ms)
+[----------] 3 tests from MimeTypeRustOptimizationTest (2 ms total)
+
+[----------] 2 tests from MimeUtilTest
+[ RUN      ] MimeUtilTest.TestParseMimeType
+[       OK ] MimeUtilTest.TestParseMimeType (0 ms)
+[ RUN      ] MimeUtilTest.TestParseMimeTypeWithoutParameter
+[       OK ] MimeUtilTest.TestParseMimeTypeWithoutParameter (0 ms)
+[----------] 2 tests from MimeUtilTest (0 ms total)
+
+[----------] 2 tests from HttpUtilTest
+[ RUN      ] HttpUtilTest.ParseContentType
+[       OK ] HttpUtilTest.ParseContentType (0 ms)
+[ RUN      ] HttpUtilTest.ParseContentResetCharset
+[       OK ] HttpUtilTest.ParseContentResetCharset (0 ms)
+[----------] 2 tests from HttpUtilTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 13 tests from 4 test suites ran. (626 ms total)
+[  PASSED  ] 13 tests.
+

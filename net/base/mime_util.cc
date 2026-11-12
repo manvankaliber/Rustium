@@ -25,6 +25,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
+#include "net/base/mime_type_rust_adapter.h"
 #include "net/base/platform_mime_util.h"
 #include "net/http/http_util.h"
 
@@ -518,110 +519,31 @@ bool MimeUtil::MatchesMimeType(std::string_view mime_type_pattern,
 bool ParseMimeType(std::string_view type_str,
                    std::string* mime_type,
                    base::StringPairs* params) {
-  // Trim leading and trailing whitespace from type.  We include '(' in
-  // the trailing trim set to catch media-type comments, which are not at all
-  // standard, but may occur in rare cases.
-  size_t type_val = type_str.find_first_not_of(HTTP_LWS);
-  type_val = std::min(type_val, type_str.length());
-  size_t type_end = type_str.find_first_of(HTTP_LWS ";(", type_val);
-  if (type_end == std::string::npos)
-    type_end = type_str.length();
-
-  // Reject a mime-type if it does not include a slash.
-  size_t slash_pos = type_str.find_first_of('/');
-  if (slash_pos == std::string::npos || slash_pos > type_end)
+  auto parsed = mime_type_internal::parse_mime(
+      mime_type_internal::Bytes(type_str), params != nullptr);
+  if (!parsed.valid) {
     return false;
-  if (mime_type)
-    *mime_type = type_str.substr(type_val, type_end - type_val);
-
-  // Iterate over parameters. Can't split the string around semicolons
-  // preemptively because quoted strings may include semicolons. Mostly matches
-  // logic in https://mimesniff.spec.whatwg.org/. Main differences: Does not
-  // validate characters are HTTP token code points / HTTP quoted-string token
-  // code points, and ignores spaces after "=" in parameters.
-  if (params)
-    params->clear();
-  std::string::size_type offset = type_str.find_first_of(';', type_end);
-  while (offset < type_str.size()) {
-    DCHECK_EQ(';', type_str[offset]);
-    // Trim off the semicolon.
-    ++offset;
-
-    // Trim off any following spaces.
-    offset = type_str.find_first_not_of(HTTP_LWS, offset);
-    std::string::size_type param_name_start = offset;
-
-    // Extend parameter name until run into a semicolon or equals sign.  Per
-    // spec, trailing spaces are not removed.
-    offset = type_str.find_first_of(";=", offset);
-
-    // Nothing more to do if at end of string, or if there's no parameter
-    // value, since names without values aren't allowed.
-    if (offset == std::string::npos || type_str[offset] == ';')
-      continue;
-
-    auto param_name =
-        type_str.substr(param_name_start, offset - param_name_start);
-
-    // Now parse the value.
-    DCHECK_EQ('=', type_str[offset]);
-    // Trim off the '='.
-    offset++;
-
-    // Remove leading spaces. This violates the spec, though it matches
-    // pre-existing behavior.
-    //
-    // TODO(mmenke): Consider doing this (only?) after parsing quotes, which
-    // seems to align more with the spec - not the content-type spec, but the
-    // GET spec's way of getting an encoding, and the spec for handling
-    // boundary values as well.
-    // See https://encoding.spec.whatwg.org/#names-and-labels.
-    offset = type_str.find_first_not_of(HTTP_LWS, offset);
-
-    std::string param_value;
-    if (offset == std::string::npos || type_str[offset] == ';') {
-      // Nothing to do here - an unquoted string of only whitespace should be
-      // skipped.
-      continue;
-    } else if (type_str[offset] != '"') {
-      // If the first character is not a quotation mark, copy data directly.
-      std::string::size_type value_start = offset;
-      offset = type_str.find_first_of(';', offset);
-      std::string::size_type value_end = offset;
-
-      // Remove terminal whitespace. If ran off the end of the string, have to
-      // update |value_end| first.
-      if (value_end == std::string::npos)
-        value_end = type_str.size();
-      while (value_end > value_start &&
-             HttpUtil::IsLWS(type_str[value_end - 1])) {
-        --value_end;
-      }
-
-      param_value = type_str.substr(value_start, value_end - value_start);
-    } else {
-      // Otherwise, append data, with special handling for backslashes, until
-      // a close quote.  Do not trim whitespace for quoted-string.
-
-      // Skip open quote.
-      DCHECK_EQ('"', type_str[offset]);
-      ++offset;
-
-      while (offset < type_str.size() && type_str[offset] != '"') {
-        // Skip over backslash and append the next character, when not at
-        // the end of the string. Otherwise, copy the next character (Which may
-        // be a backslash).
-        if (type_str[offset] == '\\' && offset + 1 < type_str.size()) {
-          ++offset;
-        }
-        param_value += type_str[offset];
-        ++offset;
-      }
-
-      offset = type_str.find_first_of(';', offset);
+  }
+  // Materialize from input offsets before writes can invalidate an input view.
+  std::string mime_value;
+  if (mime_type) {
+    mime_value =
+        mime_type_internal::View(type_str, parsed.scratch, parsed.mime);
+  }
+  base::StringPairs parameters;
+  if (params) {
+    parameters.reserve(parsed.parameters.size());
+    for (const auto& parameter : parsed.parameters) {
+      parameters.emplace_back(
+          mime_type_internal::View(type_str, parsed.scratch, parameter.name),
+          mime_type_internal::View(type_str, parsed.scratch, parameter.value));
     }
-    if (params)
-      params->emplace_back(param_name, param_value);
+  }
+  if (mime_type) {
+    *mime_type = std::move(mime_value);
+  }
+  if (params) {
+    *params = std::move(parameters);
   }
   return true;
 }
@@ -629,21 +551,27 @@ bool ParseMimeType(std::string_view type_str,
 bool MimeUtil::ParseMimeTypeWithoutParameter(std::string_view type_string,
                                              std::string* top_level_type,
                                              std::string* subtype) const {
-  std::vector<std::string_view> components = base::SplitStringPiece(
-      type_string, "/", base::KEEP_WHITESPACE, base::SPLIT_WANT_ALL);
-  if (components.size() != 2)
+  const auto parsed = mime_type_internal::parse_without_parameters(
+      mime_type_internal::Bytes(type_string));
+  if (!parsed.valid) {
     return false;
-  components[0] = TrimWhitespaceASCII(components[0], base::TRIM_LEADING);
-  components[1] = TrimWhitespaceASCII(components[1], base::TRIM_TRAILING);
-  if (!HttpUtil::IsToken(components[0]) || !HttpUtil::IsToken(components[1]))
-    return false;
-
-  if (top_level_type)
-    top_level_type->assign(std::string(components[0]));
-
-  if (subtype)
-    subtype->assign(std::string(components[1]));
-
+  }
+  std::string top_value;
+  std::string sub_value;
+  if (top_level_type) {
+    top_value =
+        type_string.substr(parsed.top.start, parsed.top.end - parsed.top.start);
+  }
+  if (subtype) {
+    sub_value =
+        type_string.substr(parsed.sub.start, parsed.sub.end - parsed.sub.start);
+  }
+  if (top_level_type) {
+    *top_level_type = std::move(top_value);
+  }
+  if (subtype) {
+    *subtype = std::move(sub_value);
+  }
   return true;
 }
 

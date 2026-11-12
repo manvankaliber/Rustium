@@ -1,0 +1,19 @@
+[
+  "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustc.exe",
+  "--edition=2024",
+  "--crate-type=staticlib",
+  "--crate-name=auth_challenge",
+  "-C",
+  "instrument-coverage",
+  "-C",
+  "llvm-args=-enable-name-compression=false",
+  "-C",
+  "opt-level=2",
+  "-C",
+  "panic=abort",
+  "-C",
+  "target-feature=-crt-static",
+  "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+  "-o",
+  "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\auth_challenge.lib"
+]

@@ -1,0 +1,1605 @@
+{
+  "schema_version": 1,
+  "policy": "Migration-priority: correctness and safety remain required; measured slowdowns are accepted and tracked. Integrated regressions remain included in the benchmark aggregate.",
+  "entries": [
+    {
+      "id": "protocol-number-bridge",
+      "module": "Standalone protocol number APIs",
+      "status": "integrated; newer configured evidence below",
+      "policy_authorization": "User accepts slower Rust while completing full migration; 2026-11-12 conversation",
+      "evidence": "protocol-numbers-direct-abi-2026-11-12.json",
+      "measured_regressions": [
+        {
+          "case": "empty",
+          "cpp_median_ns": 3.3916,
+          "rust_median_ns": 5.4619,
+          "time_change_95_ci_percent": [
+            50.70594097779744,
+            75.16126971961424
+          ]
+        },
+        {
+          "case": "plus",
+          "cpp_median_ns": 3.8959,
+          "rust_median_ns": 4.6861999999999995,
+          "time_change_95_ci_percent": [
+            16.61829845730869,
+            29.287759393924027
+          ]
+        },
+        {
+          "case": "leading_ws",
+          "cpp_median_ns": 4.1342,
+          "rust_median_ns": 4.9623,
+          "time_change_95_ci_percent": [
+            7.931788369042425,
+            45.66436690326103
+          ]
+        },
+        {
+          "case": "strict_zero",
+          "cpp_median_ns": 3.424,
+          "rust_median_ns": 5.925599999999999,
+          "time_change_95_ci_percent": [
+            35.87149171022816,
+            93.72380065207264
+          ]
+        },
+        {
+          "case": "long_overflow_error",
+          "cpp_median_ns": 2227.125,
+          "rust_median_ns": 3149.8900000000003,
+          "time_change_95_ci_percent": [
+            34.616319274206255,
+            46.94952682122056
+          ]
+        }
+      ],
+      "cause_status": "Boundary and code-generation overhead suspected; exact contribution has not been profiled. Algorithmic costs may also remain.",
+      "follow_up": "Integrate correct Rust implementation, rerun configured benchmarks, profile calls/copies/inlining, and retire adapter seams as callers migrate. Preserve original samples and update this entry with final evidence.",
+      "superseded_by": "net-wave1-2026-11-12"
+    },
+    {
+      "id": "content-range-adapter",
+      "module": "Content-Range header API",
+      "status": "integrated; newer configured evidence below",
+      "policy_authorization": "User accepts slower Rust while completing full migration; 2026-11-12 conversation",
+      "evidence": "http-range-final-2026-11-12.json",
+      "measured_regressions": [
+        {
+          "case": "content_large",
+          "cpp_median_ns": 73.70949999999999,
+          "rust_median_ns": 76.43324999999999,
+          "time_change_95_ci_percent": [
+            2.919923265162261,
+            4.1767724909005155
+          ]
+        },
+        {
+          "case": "content_input_restore",
+          "cpp_median_ns": 50.324,
+          "rust_median_ns": 50.76225,
+          "time_change_95_ci_percent": [
+            0.1012645722189287,
+            2.318491493993391
+          ]
+        }
+      ],
+      "cause_status": "Boundary and code-generation overhead suspected; exact contribution has not been profiled. Algorithmic costs may also remain.",
+      "follow_up": "Integrate correct Rust implementation, rerun configured benchmarks, profile calls/copies/inlining, and retire adapter seams as callers migrate. Preserve original samples and update this entry with final evidence.",
+      "superseded_by": "net-wave1-2026-11-12"
+    },
+    {
+      "id": "net-wave1-protocol-numbers",
+      "module": "protocol-numbers",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/protocol-numbers-wave1-final-2026-11-12.json",
+      "scope": "Production C++ ParseInt*/ParseUint* API plus complete Rust bridge/core; warm bytes; errors included",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "empty",
+          "cpp_median_ns": 3.0155,
+          "rust_median_ns": 3.467,
+          "rust_speedup_percent": -13.022786270550913,
+          "time_change_95_ci_percent": [
+            14.597381991273316,
+            15.121449429254064
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "plus",
+          "cpp_median_ns": 3.7058,
+          "rust_median_ns": 4.0972,
+          "rust_speedup_percent": -9.552865371473196,
+          "time_change_95_ci_percent": [
+            9.770393074151752,
+            10.956057007125874
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "leading_ws",
+          "cpp_median_ns": 3.6140999999999996,
+          "rust_median_ns": 5.3530999999999995,
+          "rust_speedup_percent": -32.485849320954216,
+          "time_change_95_ci_percent": [
+            47.025776602775935,
+            48.48266696201129
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "strict_zero",
+          "cpp_median_ns": 3.1847,
+          "rust_median_ns": 5.0209,
+          "rust_speedup_percent": -36.571132665458386,
+          "time_change_95_ci_percent": [
+            57.36964296919118,
+            58.001257071024504
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "long_overflow_error",
+          "cpp_median_ns": 2108.4700000000003,
+          "rust_median_ns": 3006.21,
+          "rust_speedup_percent": -29.862850565995046,
+          "time_change_95_ci_percent": [
+            41.5314408809399,
+            43.71946931250117
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/protocol-numbers-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-http-range",
+      "module": "http-range",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/http-range-wave1-final-2026-11-12.json",
+      "scope": "Whole production C++ header API plus Rust bridge/core; result allocation, vector append, cleanup/destruction and alias handling included. Warm input; no network/disk IO.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "content_large",
+          "cpp_median_ns": 74.39325,
+          "rust_median_ns": 76.231,
+          "rust_speedup_percent": -2.410764649552022,
+          "time_change_95_ci_percent": [
+            1.3739776753603161,
+            3.375948726598077
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_input_restore",
+          "cpp_median_ns": 57.32875,
+          "rust_median_ns": 67.63650000000001,
+          "rust_speedup_percent": -15.239922231339609,
+          "time_change_95_ci_percent": [
+            -38.23136699551356,
+            67.8567963049216
+          ],
+          "classification": "point estimate slower; no measurable difference at 95%"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/http-range-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-http-status-code",
+      "module": "http-status-code",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/http-status-code-wave1-final-2026-11-12.json",
+      "scope": "Nanoseconds per whole public API call including FFI and returned view/optional consumption; warmup/setup excluded; no whole-browser claim",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "status-phrase-ok",
+          "cpp_median_ns": 2.2786999999999997,
+          "rust_median_ns": 5.0150500000000005,
+          "rust_speedup_percent": -54.56276607411692,
+          "time_change_95_ci_percent": [
+            118.00258494161974,
+            121.64925831651017
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-phrase-long",
+          "cpp_median_ns": 2.23,
+          "rust_median_ns": 4.92075,
+          "rust_speedup_percent": -54.68170502464056,
+          "time_change_95_ci_percent": [
+            118.93333928651155,
+            122.20502467474202
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-parse-known",
+          "cpp_median_ns": 2.4907500000000002,
+          "rust_median_ns": 3.7441,
+          "rust_speedup_percent": -33.47533452632141,
+          "time_change_95_ci_percent": [
+            50.03311324730579,
+            51.69193694145999
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-parse-unknown",
+          "cpp_median_ns": 6.21265,
+          "rust_median_ns": 6.3717500000000005,
+          "rust_speedup_percent": -2.496959234119367,
+          "time_change_95_ci_percent": [
+            2.155279952999134,
+            3.093057749975814
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/http-status-code-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-mime-type",
+      "module": "mime-type",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json",
+      "scope": "Public C++ API, CXX bridge and Rust grammar; preloaded warm bytes; caller string/pair construction, allocation, output consumption and destruction included. 20 paired repetitions with deterministic randomized order. Single isolated operation; not Chromium end-to-end performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "parse_simple",
+          "cpp_median_ns": 50.63249999999999,
+          "rust_median_ns": 175.337,
+          "rust_speedup_percent": -71.12275218579079,
+          "time_change_95_ci_percent": [
+            242.9076001878522,
+            247.96154495525826
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_quoted",
+          "cpp_median_ns": 276.58849999999995,
+          "rust_median_ns": 703.2370000000001,
+          "rust_speedup_percent": -60.669233842929216,
+          "time_change_95_ci_percent": [
+            153.1012275242047,
+            155.01591621025705
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_malformed_quote",
+          "cpp_median_ns": 191.18200000000002,
+          "rust_median_ns": 540.807,
+          "rust_speedup_percent": -64.64875639553482,
+          "time_change_95_ci_percent": [
+            181.52990815544206,
+            186.92665227143212
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_many",
+          "cpp_median_ns": 1849.255,
+          "rust_median_ns": 5834.3099999999995,
+          "rust_speedup_percent": -68.30379256501625,
+          "time_change_95_ci_percent": [
+            213.86755926630906,
+            226.3405140957375
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_bytes",
+          "cpp_median_ns": 140.84750000000003,
+          "rust_median_ns": 439.13800000000003,
+          "rust_speedup_percent": -67.92636938729966,
+          "time_change_95_ci_percent": [
+            210.15042113675096,
+            213.67010096627465
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "strict_simple",
+          "cpp_median_ns": 205.2715,
+          "rust_median_ns": 348.1005,
+          "rust_speedup_percent": -41.03096663176296,
+          "time_change_95_ci_percent": [
+            68.37344446485724,
+            70.76184224333363
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "strict_whitespace",
+          "cpp_median_ns": 207.20499999999998,
+          "rust_median_ns": 299.8285,
+          "rust_speedup_percent": -30.89216001814371,
+          "time_change_95_ci_percent": [
+            44.226725568116066,
+            44.8853068815871
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_simple",
+          "cpp_median_ns": 136.121,
+          "rust_median_ns": 322.68449999999996,
+          "rust_speedup_percent": -57.816071115904236,
+          "time_change_95_ci_percent": [
+            134.65062501363465,
+            138.6006957009815
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_charset",
+          "cpp_median_ns": 224.0705,
+          "rust_median_ns": 554.4005,
+          "rust_speedup_percent": -59.58327959660931,
+          "time_change_95_ci_percent": [
+            146.62385500682885,
+            150.09745634489758
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_boundary",
+          "cpp_median_ns": 293.188,
+          "rust_median_ns": 615.8205,
+          "rust_speedup_percent": -52.3906722819393,
+          "time_change_95_ci_percent": [
+            108.72335149530552,
+            111.63500979395167
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_duplicate",
+          "cpp_median_ns": 514.957,
+          "rust_median_ns": 1076.202,
+          "rust_speedup_percent": -52.1505256448139,
+          "time_change_95_ci_percent": [
+            107.99358182397415,
+            109.58357290484994
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_empty_charset",
+          "cpp_median_ns": 189.862,
+          "rust_median_ns": 450.356,
+          "rust_speedup_percent": -57.84179626784145,
+          "time_change_95_ci_percent": [
+            135.31318180855342,
+            138.706647018578
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_exact_wildcard",
+          "cpp_median_ns": 47.819500000000005,
+          "rust_median_ns": 132.1325,
+          "rust_speedup_percent": -63.80943371237204,
+          "time_change_95_ci_percent": [
+            173.3466663903338,
+            179.8824010313493
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_malformed",
+          "cpp_median_ns": 43.7715,
+          "rust_median_ns": 76.7175,
+          "rust_speedup_percent": -42.944569361618925,
+          "time_change_95_ci_percent": [
+            74.20145459519847,
+            77.1643895785653
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_same_type",
+          "cpp_median_ns": 69.9155,
+          "rust_median_ns": 287.88,
+          "rust_speedup_percent": -75.71366541614562,
+          "time_change_95_ci_percent": [
+            307.3589844629588,
+            315.26515288256746
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_changed_type",
+          "cpp_median_ns": 100.64699999999999,
+          "rust_median_ns": 306.8635,
+          "rust_speedup_percent": -67.20137781130698,
+          "time_change_95_ci_percent": [
+            202.34798522150484,
+            206.65882786693305
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_alias_boundary",
+          "cpp_median_ns": 232.84949999999998,
+          "rust_median_ns": 641.091,
+          "rust_speedup_percent": -63.679181270677645,
+          "time_change_95_ci_percent": [
+            173.85793210285993,
+            177.74490537478124
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/mime-type-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-dns-names",
+      "module": "dns-names",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/dns-names-wave1-final-2026-11-12.json",
+      "scope": "Same-process paired public APIs including Rust FFI, per-label cursor callbacks, input adaptation, output allocation/copying and destruction. Inputs constructed and warmed outside timing; no DNS query, network I/O or disk I/O. Each pair times 20,000 operations per implementation; 20 randomized-order pairs, seed 20261112. Checksums and timing calls included for both implementations; printing and ICU initialization excluded. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "dns_dotted_short",
+          "cpp_median_ns": 110.0325,
+          "rust_median_ns": 183.79500000000002,
+          "rust_speedup_percent": -40.13302864604588,
+          "time_change_95_ci_percent": [
+            66.5139487412112,
+            67.80574312802672
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_dotted_max",
+          "cpp_median_ns": 218.9,
+          "rust_median_ns": 404.89,
+          "rust_speedup_percent": -45.93593321642915,
+          "time_change_95_ci_percent": [
+            84.23513541321321,
+            85.88461011374537
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_dotted_invalid",
+          "cpp_median_ns": 68.39750000000001,
+          "rust_median_ns": 80.6325,
+          "rust_speedup_percent": -15.173782283818538,
+          "time_change_95_ci_percent": [
+            17.202654415518115,
+            19.88449448059071
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_dotted_bytes",
+          "cpp_median_ns": 93.305,
+          "rust_median_ns": 159.78,
+          "rust_speedup_percent": -41.6040806108399,
+          "time_change_95_ci_percent": [
+            70.53858520900323,
+            71.702258781919
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_dotted_strict",
+          "cpp_median_ns": 130.60750000000002,
+          "rust_median_ns": 242.36,
+          "rust_speedup_percent": -46.1101254332398,
+          "time_change_95_ci_percent": [
+            84.93740668427702,
+            86.70506912442397
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_root",
+          "cpp_median_ns": 45.525000000000006,
+          "rust_median_ns": 97.66499999999999,
+          "rust_speedup_percent": -53.386576562739975,
+          "time_change_95_ci_percent": [
+            112.95575415318825,
+            115.28830313014824
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_short",
+          "cpp_median_ns": 143.7475,
+          "rust_median_ns": 472.3325,
+          "rust_speedup_percent": -69.56646006785473,
+          "time_change_95_ci_percent": [
+            226.5706171642308,
+            230.6763621181546
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_max",
+          "cpp_median_ns": 407.2575,
+          "rust_median_ns": 792.8075,
+          "rust_speedup_percent": -48.63097284019135,
+          "time_change_95_ci_percent": [
+            93.37312668430744,
+            95.81310530077135
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_truncated",
+          "cpp_median_ns": 60.292500000000004,
+          "rust_median_ns": 142.8825,
+          "rust_speedup_percent": -57.80274001364758,
+          "time_change_95_ci_percent": [
+            136.08499357991963,
+            138.1126432962286
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_oversize",
+          "cpp_median_ns": 43.86,
+          "rust_median_ns": 86.1625,
+          "rust_speedup_percent": -49.09618453503553,
+          "time_change_95_ci_percent": [
+            96.32311024968647,
+            96.8029230417904
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_read_u8",
+          "cpp_median_ns": 42.525,
+          "rust_median_ns": 52.0275,
+          "rust_speedup_percent": -18.264379414732602,
+          "time_change_95_ci_percent": [
+            20.96727315003197,
+            22.64451122503095
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_read_u16",
+          "cpp_median_ns": 43.05,
+          "rust_median_ns": 52.5125,
+          "rust_speedup_percent": -18.01951916210427,
+          "time_change_95_ci_percent": [
+            21.732566916332807,
+            22.52073355916364
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_read_truncated",
+          "cpp_median_ns": 27.4625,
+          "rust_median_ns": 30.0,
+          "rust_speedup_percent": -8.458333333333334,
+          "time_change_95_ci_percent": [
+            8.794197642792367,
+            9.655674986336304
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_record_valid",
+          "cpp_median_ns": 226.135,
+          "rust_median_ns": 295.10749999999996,
+          "rust_speedup_percent": -23.371991562396744,
+          "time_change_95_ci_percent": [
+            29.306212204507975,
+            32.12399591709936
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_record_localhost",
+          "cpp_median_ns": 121.5875,
+          "rust_median_ns": 141.4275,
+          "rust_speedup_percent": -14.028389103957862,
+          "time_change_95_ci_percent": [
+            15.878753029120606,
+            16.976614584408356
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_record_ip",
+          "cpp_median_ns": 290.8825,
+          "rust_median_ns": 374.2425,
+          "rust_speedup_percent": -22.2743274748325,
+          "time_change_95_ci_percent": [
+            27.562015173471988,
+            29.630014549989614
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_ascii",
+          "cpp_median_ns": 173.13,
+          "rust_median_ns": 490.9325,
+          "rust_speedup_percent": -64.73445942161091,
+          "time_change_95_ci_percent": [
+            181.75108830397556,
+            186.54955503377101
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_unicode",
+          "cpp_median_ns": 1051.885,
+          "rust_median_ns": 1450.37,
+          "rust_speedup_percent": -27.474713349007484,
+          "time_change_95_ci_percent": [
+            37.27443738331946,
+            38.73215540272514
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_broken",
+          "cpp_median_ns": 155.07999999999998,
+          "rust_median_ns": 518.585,
+          "rust_speedup_percent": -70.0955484636077,
+          "time_change_95_ci_percent": [
+            231.79671688778947,
+            236.2466574831862
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_compare_ascii",
+          "cpp_median_ns": 12.787500000000001,
+          "rust_median_ns": 38.355000000000004,
+          "rust_speedup_percent": -66.66014861165428,
+          "time_change_95_ci_percent": [
+            199.1796875,
+            200.66614420062692
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_compare_bytes",
+          "cpp_median_ns": 2.23,
+          "rust_median_ns": 26.67,
+          "rust_speedup_percent": -91.63854518185227,
+          "time_change_95_ci_percent": [
+            1087.8923766816145,
+            1101.2331838565024
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/dns-names-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-auth-challenges",
+      "module": "auth-challenges",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/auth-challenges-wave1-final-2026-11-12.json",
+      "scope": "One complete public tokenizer and parameter iteration and first and later round call, including C++ ownership, FFI, decoding, outputs and destruction; warm input, 20 randomized-order pairs; isolated operation, not browser performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "auth_empty",
+          "cpp_median_ns": 212.199,
+          "rust_median_ns": 226.83800000000002,
+          "rust_speedup_percent": -6.45350426295418,
+          "time_change_95_ci_percent": [
+            6.476672989876597,
+            7.587458636820643
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "auth_valid",
+          "cpp_median_ns": 333.379,
+          "rust_median_ns": 432.7205,
+          "rust_speedup_percent": -22.957428640427246,
+          "time_change_95_ci_percent": [
+            28.94001483334958,
+            30.945299892922318
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "auth_padding",
+          "cpp_median_ns": 489.3025,
+          "rust_median_ns": 649.5129999999999,
+          "rust_speedup_percent": -24.666249944188944,
+          "time_change_95_ci_percent": [
+            32.370498630494595,
+            33.29776153719317
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "auth_invalid",
+          "cpp_median_ns": 338.496,
+          "rust_median_ns": 416.8835,
+          "rust_speedup_percent": -18.803214807014434,
+          "time_change_95_ci_percent": [
+            22.140291170353564,
+            24.171666772867994
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "auth_mismatch",
+          "cpp_median_ns": 242.526,
+          "rust_median_ns": 283.2165,
+          "rust_speedup_percent": -14.367277330240292,
+          "time_change_95_ci_percent": [
+            16.286949747107293,
+            17.217322002262915
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "auth_params",
+          "cpp_median_ns": 490.529,
+          "rust_median_ns": 581.7574999999999,
+          "rust_speedup_percent": -15.681533972488527,
+          "time_change_95_ci_percent": [
+            18.16878291059303,
+            18.9589198599879
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/auth-challenges-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-net-diagnostics-debug-formatting",
+      "module": "net-diagnostics-debug-formatting",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-final-2026-11-12.json",
+      "scope": "Warm same-process public C++ API; includes Rust FFI, C++ string allocation/conversion/destruction; 20 randomized-order pairs per case; no I/O, startup, or whole-browser work LoadFlagsToString and its reference cross matched component DLL boundaries. The original non-exported PrivacyModeToDebugString and frozen reference are compiled locally on both sides; its Rust FFI is included.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "normal",
+          "cpp_median_ns": 70.20105000000001,
+          "rust_median_ns": 232.0804,
+          "rust_speedup_percent": -69.75140942535431,
+          "time_change_95_ci_percent": [
+            227.90749897314254,
+            232.13306611172632
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "single",
+          "cpp_median_ns": 191.0124,
+          "rust_median_ns": 368.4598,
+          "rust_speedup_percent": -48.15922931076877,
+          "time_change_95_ci_percent": [
+            91.33330092713099,
+            94.12235955748145
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "combined-small",
+          "cpp_median_ns": 337.19945,
+          "rust_median_ns": 365.6324,
+          "rust_speedup_percent": -7.776375944801394,
+          "time_change_95_ci_percent": [
+            7.9392904581165435,
+            9.280282247127737
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "combined-wide",
+          "cpp_median_ns": 333.25165,
+          "rust_median_ns": 375.5702,
+          "rust_speedup_percent": -11.2678135805237,
+          "time_change_95_ci_percent": [
+            12.411746351723396,
+            13.104256007816307
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "top-flag",
+          "cpp_median_ns": 294.64635,
+          "rust_median_ns": 365.5303,
+          "rust_speedup_percent": -19.39208596387222,
+          "time_change_95_ci_percent": [
+            23.805633265621438,
+            24.30608411790558
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "disabled",
+          "cpp_median_ns": 2.13025,
+          "rust_median_ns": 2.73365,
+          "rust_speedup_percent": -22.073052512208946,
+          "time_change_95_ci_percent": [
+            27.68858846171902,
+            28.655259019317892
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "enabled",
+          "cpp_median_ns": 2.11945,
+          "rust_median_ns": 2.72385,
+          "rust_speedup_percent": -22.18918075518108,
+          "time_change_95_ci_percent": [
+            27.714855199906218,
+            28.795663445675235
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "no-client-certs",
+          "cpp_median_ns": 2.1196,
+          "rust_median_ns": 2.7239500000000003,
+          "rust_speedup_percent": -22.186530589768537,
+          "time_change_95_ci_percent": [
+            28.14710374809073,
+            28.67730362537766
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "partitioned",
+          "cpp_median_ns": 2.1321,
+          "rust_median_ns": 2.7405,
+          "rust_speedup_percent": -22.200328407224955,
+          "time_change_95_ci_percent": [
+            28.356251024854174,
+            28.657892884791302
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-port-policy",
+      "module": "port-policy",
+      "status": "Historical measurement; superseded by optimized configured run",
+      "evidence": "docs/rust/benchmarks/port-policy-wave1-final-2026-11-12.json",
+      "scope": "Same-process public API including Rust FFI and state ownership. 20 randomized-order pairs, seed 20261112, 20000 operations per sample. Setup and warmup outside timing; one endpoint construction per measured sample and exception destruction or multiset reset in their respective workloads included. Feature defaults and empty localhost parameter; excludes networking and configuration startup. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "port_invalid",
+          "cpp_median_ns": 2.245,
+          "rust_median_ns": 15.485,
+          "rust_speedup_percent": -85.50209880529545,
+          "time_change_95_ci_percent": [
+            589.7550111358573,
+            589.8663697104677
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_restricted",
+          "cpp_median_ns": 6.725,
+          "rust_median_ns": 15.535,
+          "rust_speedup_percent": -56.710653363373034,
+          "time_change_95_ci_percent": [
+            130.40415276232852,
+            131.00371747211898
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_regular",
+          "cpp_median_ns": 34.48,
+          "rust_median_ns": 37.5025,
+          "rust_speedup_percent": -8.059462702486508,
+          "time_change_95_ci_percent": [
+            8.309164733178665,
+            8.852958236658948
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_localhost",
+          "cpp_median_ns": 37.875,
+          "rust_median_ns": 63.235,
+          "rust_speedup_percent": -40.10437257847711,
+          "time_change_95_ci_percent": [
+            66.50648410242907,
+            67.64317761942465
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_scoped",
+          "cpp_median_ns": 67.10249999999999,
+          "rust_median_ns": 93.7575,
+          "rust_speedup_percent": -28.429725621950254,
+          "time_change_95_ci_percent": [
+            38.63400917566968,
+            40.71010767110019
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Bridge presence and timed ownership/adaptation are verified by code and timing boundaries. Their contribution versus algorithmic costs has not been profiled; no bridge-only cause is asserted.",
+      "follow_up": "Profile the affected complete public-API path, separately measure adaptation/allocation/locking costs where applicable, optimize the Rust policy and owner transitions, and remeasure every case after each change. Preserve this accepted run, regressions and uncertainty; removing a bridge is not a guarantee of parity.",
+      "superseded_by": "docs/rust/benchmarks/port-policy-wave1-optimized-2026-11-12.json"
+    },
+    {
+      "id": "net-wave1-optimized-protocol-numbers",
+      "module": "protocol-numbers",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/protocol-numbers-wave1-optimized-2026-11-12.json",
+      "scope": "Production C++ ParseInt*/ParseUint* API plus complete Rust bridge/core; warm bytes; errors included",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "empty",
+          "cpp_median_ns": 3.0282999999999998,
+          "rust_median_ns": 3.2546,
+          "rust_speedup_percent": -6.953235420635417,
+          "time_change_95_ci_percent": [
+            7.193318367885904,
+            7.788079470198661
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "plus",
+          "cpp_median_ns": 3.7138,
+          "rust_median_ns": 4.1824,
+          "rust_speedup_percent": -11.204093343534815,
+          "time_change_95_ci_percent": [
+            12.235515526280416,
+            12.973717619729364
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "leading_ws",
+          "cpp_median_ns": 3.6198,
+          "rust_median_ns": 4.1295,
+          "rust_speedup_percent": -12.342898656011625,
+          "time_change_95_ci_percent": [
+            12.788161563733746,
+            14.48670462712145
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "strict_zero",
+          "cpp_median_ns": 3.1759,
+          "rust_median_ns": 4.8458000000000006,
+          "rust_speedup_percent": -34.46077015147139,
+          "time_change_95_ci_percent": [
+            52.24274406332452,
+            53.099238562708464
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-http-range",
+      "module": "http-range",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/http-range-wave1-optimized-2026-11-12.json",
+      "scope": "Whole production C++ header API plus Rust bridge/core; result allocation, vector append, cleanup/destruction and alias handling included. Warm input; no network/disk IO.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "range_wrong_unit",
+          "cpp_median_ns": 31.62525,
+          "rust_median_ns": 46.95775,
+          "rust_speedup_percent": -32.65169221268054,
+          "time_change_95_ci_percent": [
+            -21.592408556585198,
+            140.53150107245423
+          ],
+          "classification": "Point estimate slower; no measurable difference at 95%"
+        },
+        {
+          "case": "content_input_restore",
+          "cpp_median_ns": 49.1635,
+          "rust_median_ns": 51.44775,
+          "rust_speedup_percent": -4.439941494040067,
+          "time_change_95_ci_percent": [
+            2.913504704200287,
+            4.866494840109614
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-http-status-code",
+      "module": "http-status-code",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/http-status-code-wave1-optimized-2026-11-12.json",
+      "scope": "Nanoseconds per whole public API call including FFI and returned view/optional consumption; warmup/setup excluded; no whole-browser claim Both production adapter source and original C++ reference are compiled locally into the harness, in separate translation units with matched flags. The common production net.dll import boundary is excluded on both sides; Rust FFI remains included. These ratios describe the isolated matched-local API experiment.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI; static length-prefixed byte record and scalar recognized-code result",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "status-phrase-ok",
+          "cpp_median_ns": 2.22895,
+          "rust_median_ns": 3.2194,
+          "rust_speedup_percent": -30.76504938808473,
+          "time_change_95_ci_percent": [
+            44.24701427323039,
+            44.881571864345936
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-phrase-long",
+          "cpp_median_ns": 2.22795,
+          "rust_median_ns": 3.2215,
+          "rust_speedup_percent": -30.841223032748722,
+          "time_change_95_ci_percent": [
+            44.397818818302156,
+            44.995511669658875
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-phrase-unknown",
+          "cpp_median_ns": 9.3406,
+          "rust_median_ns": 9.375599999999999,
+          "rust_speedup_percent": -0.3733094415290572,
+          "time_change_95_ci_percent": [
+            0.0032033827721988928,
+            1.259023719491248
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-parse-known",
+          "cpp_median_ns": 2.4865500000000003,
+          "rust_median_ns": 3.72565,
+          "rust_speedup_percent": -33.25862601156844,
+          "time_change_95_ci_percent": [
+            48.77653508333164,
+            50.68066196135206
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "status-parse-unknown",
+          "cpp_median_ns": 6.1451,
+          "rust_median_ns": 6.18735,
+          "rust_speedup_percent": -0.6828448366425044,
+          "time_change_95_ci_percent": [
+            0.2847056143947091,
+            1.0162585061733287
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-mime-type",
+      "module": "mime-type",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/mime-type-wave1-optimized-2026-11-12.json",
+      "scope": "Public C++ API, CXX bridge and offset-based Rust grammar plans with selective materialization and lazy Content-Type state getters; preloaded warm bytes; caller string/pair construction, allocation, output consumption and destruction included. 20 paired repetitions with deterministic randomized order. Single isolated operation; not Chromium end-to-end performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "parse_simple",
+          "cpp_median_ns": 50.602000000000004,
+          "rust_median_ns": 107.923,
+          "rust_speedup_percent": -53.112867507389524,
+          "time_change_95_ci_percent": [
+            108.49661595532667,
+            127.51018073892935
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_quoted",
+          "cpp_median_ns": 271.70050000000003,
+          "rust_median_ns": 403.1485,
+          "rust_speedup_percent": -32.60535509867951,
+          "time_change_95_ci_percent": [
+            46.007803105797905,
+            50.239939987423845
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_malformed_quote",
+          "cpp_median_ns": 266.9205,
+          "rust_median_ns": 350.71349999999995,
+          "rust_speedup_percent": -23.892151285878636,
+          "time_change_95_ci_percent": [
+            22.256203571993048,
+            51.23479948253555
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_many",
+          "cpp_median_ns": 1872.635,
+          "rust_median_ns": 2874.0299999999997,
+          "rust_speedup_percent": -34.84288612157841,
+          "time_change_95_ci_percent": [
+            51.983429876870325,
+            54.276049729231744
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "parse_bytes",
+          "cpp_median_ns": 142.526,
+          "rust_median_ns": 266.9595,
+          "rust_speedup_percent": -46.611377381213245,
+          "time_change_95_ci_percent": [
+            85.9757936146192,
+            91.70718350353329
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_exact_wildcard",
+          "cpp_median_ns": 48.533500000000004,
+          "rust_median_ns": 60.3515,
+          "rust_speedup_percent": -19.581949081630114,
+          "time_change_95_ci_percent": [
+            23.47760185166221,
+            25.031032770605766
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_malformed",
+          "cpp_median_ns": 45.42100000000001,
+          "rust_median_ns": 61.4025,
+          "rust_speedup_percent": -26.027441879402303,
+          "time_change_95_ci_percent": [
+            33.34355693817639,
+            61.632199594093336
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_same_type",
+          "cpp_median_ns": 71.4435,
+          "rust_median_ns": 92.809,
+          "rust_speedup_percent": -23.020935469620397,
+          "time_change_95_ci_percent": [
+            27.654818715374894,
+            34.519447576099196
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "content_changed_type",
+          "cpp_median_ns": 102.25450000000001,
+          "rust_median_ns": 181.0685,
+          "rust_speedup_percent": -43.52717341779492,
+          "time_change_95_ci_percent": [
+            74.01313865767362,
+            80.56882263521794
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-content-disposition",
+      "module": "content-disposition",
+      "status": "Integrated; no point regression in this run",
+      "evidence": "docs/rust/benchmarks/content-disposition-wave1-optimized-2026-11-12.json",
+      "scope": "Warm same-process public C++ string constructor, complete parsing and charset services, result consumption and destruction; preloaded inputs; no I/O, response-header assembly, whole-browser work, startup or ICU initialization Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-dns-names",
+      "module": "dns-names",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/dns-names-wave1-optimized-2026-11-12.json",
+      "scope": "Same-process paired public APIs including Rust FFI, batched ordinary cursor decoding (alias-safe callbacks for reader-overlap inputs), caller-owned output buffers, input adaptation, output allocation and destruction. Inputs constructed and warmed outside timing; no DNS query, network I/O or disk I/O. Each pair times 20,000 operations per implementation; 20 randomized-order pairs, seed 20261112. Checksums and timing calls included for both implementations; printing and ICU initialization excluded. Free public functions cross matched component DLL boundaries. The comparator retains the original inline C++ wrapper and original base ASCII comparator, while Rust uses its exported C++ adapter and direct scalar C ABI; this real abstraction difference is included.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX operations; direct scalar C ABI comparator",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "dns_dotted_max",
+          "cpp_median_ns": 222.7975,
+          "rust_median_ns": 274.595,
+          "rust_speedup_percent": -18.8632349460114,
+          "time_change_95_ci_percent": [
+            21.460376979477026,
+            23.928161501586654
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_dotted_strict",
+          "cpp_median_ns": 130.26999999999998,
+          "rust_median_ns": 143.17000000000002,
+          "rust_speedup_percent": -9.010267514144044,
+          "time_change_95_ci_percent": [
+            9.432332847163604,
+            10.405420925691967
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_network_root",
+          "cpp_median_ns": 44.3525,
+          "rust_median_ns": 48.2175,
+          "rust_speedup_percent": -8.015761912168816,
+          "time_change_95_ci_percent": [
+            8.223647204409957,
+            9.168359286842698
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_read_u8",
+          "cpp_median_ns": 43.0175,
+          "rust_median_ns": 44.805,
+          "rust_speedup_percent": -3.989510099319271,
+          "time_change_95_ci_percent": [
+            3.9559164733178553,
+            4.433984193398399
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_read_u16",
+          "cpp_median_ns": 44.18,
+          "rust_median_ns": 45.49,
+          "rust_speedup_percent": -2.8797537920422167,
+          "time_change_95_ci_percent": [
+            2.132914234396055,
+            3.174963147749188
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_ascii",
+          "cpp_median_ns": 175.575,
+          "rust_median_ns": 209.0725,
+          "rust_speedup_percent": -16.02195410682897,
+          "time_change_95_ci_percent": [
+            15.115475038030702,
+            46.40434770269886
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_unicode",
+          "cpp_median_ns": 1081.925,
+          "rust_median_ns": 1156.005,
+          "rust_speedup_percent": -6.408276780809786,
+          "time_change_95_ci_percent": [
+            6.184343899741984,
+            7.804303097194398
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_canonical_broken",
+          "cpp_median_ns": 155.075,
+          "rust_median_ns": 211.7725,
+          "rust_speedup_percent": -26.77283405541324,
+          "time_change_95_ci_percent": [
+            35.282396263410455,
+            37.42852051643422
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "dns_compare_bytes",
+          "cpp_median_ns": 3.615,
+          "rust_median_ns": 5.275,
+          "rust_speedup_percent": -31.469194312796212,
+          "time_change_95_ci_percent": [
+            45.71823204419889,
+            46.12188365650971
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-referrer-policy",
+      "module": "referrer-policy",
+      "status": "Integrated; no point regression in this run",
+      "evidence": "docs/rust/benchmarks/referrer-policy-wave1-optimized-2026-11-12.json",
+      "scope": "Nanoseconds per public API call, including original allocations/destruction, Rust FFI and returned optional consumption; input construction and warmup excluded. Isolated benchmark, not whole-browser performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-auth-challenges",
+      "module": "auth-challenges",
+      "status": "Integrated; no point regression in this run",
+      "evidence": "docs/rust/benchmarks/auth-challenges-wave1-optimized-2026-11-12.json",
+      "scope": "Complete public tokenizer, parameter iteration and first/later round calls, including ownership, FFI, decoding, output consumption and destruction. Constructor, destructor, base64_param, param_pairs and first/later parser APIs preserve their original out-of-line call boundaries in separate components. Inline field getters remain inline on both sides. Original base::ToLowerASCII DLL call is retained. Warm input and setup excluded; isolated operation, not whole-browser performance.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI; scheme offsets, batched round policy and initialized C++ decode output",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-net-diagnostics-debug-formatting",
+      "module": "net-diagnostics-debug-formatting",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-optimized-2026-11-12.json",
+      "scope": "Warm same-process public C++ API; includes Rust FFI, C++ string allocation/conversion/destruction; 20 randomized-order pairs per case; no I/O, startup, or whole-browser work LoadFlagsToString and its reference cross matched component DLL boundaries. The original non-exported PrivacyModeToDebugString and frozen reference are compiled locally on both sides; its Rust FFI is included.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI; caller-owned formatting buffer; static privacy labels",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "disabled",
+          "cpp_median_ns": 2.13705,
+          "rust_median_ns": 2.5976999999999997,
+          "rust_speedup_percent": -17.732994572121484,
+          "time_change_95_ci_percent": [
+            16.763763131419473,
+            39.28521307947796
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "enabled",
+          "cpp_median_ns": 2.13495,
+          "rust_median_ns": 2.97655,
+          "rust_speedup_percent": -28.274344459189336,
+          "time_change_95_ci_percent": [
+            24.901484604105594,
+            40.294794160446855
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "no-client-certs",
+          "cpp_median_ns": 2.1298500000000002,
+          "rust_median_ns": 2.96965,
+          "rust_speedup_percent": -28.27942686848618,
+          "time_change_95_ci_percent": [
+            21.437614291742868,
+            40.117813383600385
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "partitioned",
+          "cpp_median_ns": 2.13085,
+          "rust_median_ns": 2.9712500000000004,
+          "rust_speedup_percent": -28.284392090870845,
+          "time_change_95_ci_percent": [
+            17.235638921453678,
+            40.16783744283625
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-port-policy",
+      "module": "port-policy",
+      "status": "Integrated; accepted measured optimization debt",
+      "evidence": "docs/rust/benchmarks/port-policy-wave1-optimized-2026-11-12.json",
+      "scope": "Same-process public API including Rust FFI and state ownership. 20 randomized-order pairs, seed 20261112, 20000 operations per sample. Setup and warmup outside timing; one endpoint construction per measured sample and exception destruction or multiset reset in their respective workloads included. Feature defaults and empty localhost parameter; excludes networking and configuration startup. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [
+        {
+          "case": "port_invalid",
+          "cpp_median_ns": 2.235,
+          "rust_median_ns": 3.7875,
+          "rust_speedup_percent": -40.990099009900995,
+          "time_change_95_ci_percent": [
+            61.372950819672134,
+            74.04921700223714
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_restricted",
+          "cpp_median_ns": 6.685,
+          "rust_median_ns": 7.672499999999999,
+          "rust_speedup_percent": -12.87064190289997,
+          "time_change_95_ci_percent": [
+            14.73448017950636,
+            14.857784431137722
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_regular",
+          "cpp_median_ns": 34.265,
+          "rust_median_ns": 37.935,
+          "rust_speedup_percent": -9.674443126400423,
+          "time_change_95_ci_percent": [
+            10.33226464587582,
+            12.496294100207518
+          ],
+          "classification": "measurably slower"
+        },
+        {
+          "case": "port_localhost",
+          "cpp_median_ns": 37.81,
+          "rust_median_ns": 40.75,
+          "rust_speedup_percent": -7.214723926380362,
+          "time_change_95_ci_percent": [
+            5.621340273259601,
+            8.488310308182779
+          ],
+          "classification": "measurably slower"
+        }
+      ],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "net-wave1-optimized-hsts",
+      "module": "hsts",
+      "status": "Integrated; no point regression in this run",
+      "evidence": "docs/rust/benchmarks/hsts-wave1-optimized-2026-11-12.json",
+      "scope": "C++ public HSTS parse API + Rust bridge + reused Rust number parser; caller output construction and policy consumption; warm preloaded input; no network/TLS/browser startup",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Production public API and reused Rust numeric parser; no isolated bridge-cost measurement."
+      },
+      "measured_regressions": [],
+      "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
+      "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    }
+  ]
+}

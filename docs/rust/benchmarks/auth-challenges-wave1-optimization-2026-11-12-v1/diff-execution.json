@@ -1,0 +1,9 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\diff.exe"
+  ],
+  "exit_code": 0,
+  "affinity_mask": 2,
+  "sha256": "65ef3eb47f0583f09d138371cb7238b7077b1ea92e5404e0bdaecdf76dabc967",
+  "benchmark": false
+}

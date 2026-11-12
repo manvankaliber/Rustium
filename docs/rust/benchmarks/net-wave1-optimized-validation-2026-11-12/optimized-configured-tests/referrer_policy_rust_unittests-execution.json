@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\RustiumBuild\\src\\out\\Default\\referrer_policy_rust_unittests.exe",
+    "--test-launcher-jobs=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\referrer_policy_rust_unittests-summary.json",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\referrer_policy_rust_unittests-gtest.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.2104782999958843,
+  "binary_sha256": "58e5a51ec7455b7afbf2a1fcafa7bcc408c7253cc5b4ddd4f3bb98d7c009af8c",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

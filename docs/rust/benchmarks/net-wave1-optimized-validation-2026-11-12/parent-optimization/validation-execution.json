@@ -1,0 +1,150 @@
+[
+  {
+    "command": [
+      "python",
+      "net/http/http_status_code_generate.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "status-generator.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\http\\http_status_code_ffi.rs"
+    ],
+    "exit_code": 0,
+    "log": "status-rustfmt.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\clippy-driver.exe",
+      "--edition",
+      "2024",
+      "--crate-type",
+      "lib",
+      "D:\\Rustium\\net\\http\\http_status_code_ffi.rs",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status-clippy.rlib",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "log": "status-clippy.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustc.exe",
+      "--edition",
+      "2024",
+      "--test",
+      "-C",
+      "opt-level=2",
+      "-C",
+      "instrument-coverage",
+      "D:\\Rustium\\net\\http\\http_status_code_ffi.rs",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status-rust-tests-final.exe"
+    ],
+    "exit_code": 0,
+    "log": "status-rust-test-build.log"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status-rust-tests-final.exe"
+    ],
+    "exit_code": 0,
+    "log": "status-rust-tests-final.log"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-profdata.exe",
+      "merge",
+      "-sparse",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\rust-tests-30984.profraw",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\rust-tests-3956.profraw",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\unit-28732.profraw",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\all.profdata"
+    ],
+    "exit_code": 0,
+    "log": "status-coverage-merge.log"
+  },
+  {
+    "command": [
+      "python",
+      "net/base/net_diagnostics_generate.py",
+      "--check"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-generator.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\base\\net_diagnostics_debug_formatting_ffi.rs"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-rustfmt.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\clippy-driver.exe",
+      "--edition",
+      "2024",
+      "--crate-type",
+      "lib",
+      "D:\\Rustium\\net\\base\\net_diagnostics_debug_formatting_ffi.rs",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics-clippy.rlib",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-clippy.log"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustc.exe",
+      "--edition",
+      "2024",
+      "--test",
+      "-C",
+      "opt-level=2",
+      "-C",
+      "instrument-coverage",
+      "D:\\Rustium\\net\\base\\net_diagnostics_debug_formatting_ffi.rs",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics-rust-tests-final.exe"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-rust-test-build.log"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics-rust-tests-final.exe"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-rust-tests-final.log"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-profdata.exe",
+      "merge",
+      "-sparse",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\rust-tests-28124.profraw",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\rust-tests-6800.profraw",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\unit-36204.profraw",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\all.profdata"
+    ],
+    "exit_code": 0,
+    "log": "diagnostics-coverage-merge.log"
+  }
+]

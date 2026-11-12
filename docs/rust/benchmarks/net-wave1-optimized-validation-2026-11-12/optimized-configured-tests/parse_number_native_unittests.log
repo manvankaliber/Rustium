@@ -1,0 +1,74 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = ParseNumberNativeTest.NumericBoundariesAndTrailingGarbage:ParseNumberNativeTest.EveryOneAndTwoByteInput:ParseNumberNativeTest.LongZerosOverflowAndMalformedSuffix:ParseNumberNativeTest.EveryDecimalValueAroundTypeLimits:ParseNumberNativeTest.MutatedLongDecimalInputs:ParseNumberNativeTest.FailureDoesNotTouchNullOutputStorage:ParseNumberNativeTest.InputMayAliasOutputStorage:ParseNumberNativeTest.LegacyUnknownSignedFormatBehavior:ParseNumberNativeTest.UnsignedRejectsSignedFormats:ParseNumberNativeTest.NullEmptyAndUninitializedSuccessOutputs
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from ParseNumberNativeTest
+[ RUN      ] ParseNumberNativeTest.NumericBoundariesAndTrailingGarbage
+[       OK ] ParseNumberNativeTest.NumericBoundariesAndTrailingGarbage (0 ms)
+[ RUN      ] ParseNumberNativeTest.EveryOneAndTwoByteInput
+[       OK ] ParseNumberNativeTest.EveryOneAndTwoByteInput (33 ms)
+[ RUN      ] ParseNumberNativeTest.LongZerosOverflowAndMalformedSuffix
+[       OK ] ParseNumberNativeTest.LongZerosOverflowAndMalformedSuffix (0 ms)
+[ RUN      ] ParseNumberNativeTest.EveryDecimalValueAroundTypeLimits
+[       OK ] ParseNumberNativeTest.EveryDecimalValueAroundTypeLimits (1 ms)
+[ RUN      ] ParseNumberNativeTest.MutatedLongDecimalInputs
+[       OK ] ParseNumberNativeTest.MutatedLongDecimalInputs (15 ms)
+[ RUN      ] ParseNumberNativeTest.FailureDoesNotTouchNullOutputStorage
+[       OK ] ParseNumberNativeTest.FailureDoesNotTouchNullOutputStorage (0 ms)
+[ RUN      ] ParseNumberNativeTest.InputMayAliasOutputStorage
+[       OK ] ParseNumberNativeTest.InputMayAliasOutputStorage (0 ms)
+[ RUN      ] ParseNumberNativeTest.LegacyUnknownSignedFormatBehavior
+[       OK ] ParseNumberNativeTest.LegacyUnknownSignedFormatBehavior (0 ms)
+[ RUN      ] ParseNumberNativeTest.UnsignedRejectsSignedFormats
+[       OK ] ParseNumberNativeTest.UnsignedRejectsSignedFormats (75 ms)
+[ RUN      ] ParseNumberNativeTest.NullEmptyAndUninitializedSuccessOutputs
+[       OK ] ParseNumberNativeTest.NullEmptyAndUninitializedSuccessOutputs (0 ms)
+[----------] 10 tests from ParseNumberNativeTest (129 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (130 ms total)
+[  PASSED  ] 10 tests.
+[1/15] ParseNumberNativeTest.NumericBoundariesAndTrailingGarbage (0 ms)
+[2/15] ParseNumberNativeTest.EveryOneAndTwoByteInput (33 ms)
+[3/15] ParseNumberNativeTest.LongZerosOverflowAndMalformedSuffix (0 ms)
+[4/15] ParseNumberNativeTest.EveryDecimalValueAroundTypeLimits (1 ms)
+[5/15] ParseNumberNativeTest.MutatedLongDecimalInputs (15 ms)
+[6/15] ParseNumberNativeTest.FailureDoesNotTouchNullOutputStorage (0 ms)
+[7/15] ParseNumberNativeTest.InputMayAliasOutputStorage (0 ms)
+[8/15] ParseNumberNativeTest.LegacyUnknownSignedFormatBehavior (0 ms)
+[9/15] ParseNumberNativeTest.UnsignedRejectsSignedFormats (75 ms)
+[10/15] ParseNumberNativeTest.NullEmptyAndUninitializedSuccessOutputs (0 ms)
+Note: Google Test filter = ParseNumberNativeTest.OverflowTailBlocksPreserveMalformedPrecedence:ParseNumberTest.ParseInt32:ParseNumberTest.ParseInt64:ParseNumberTest.ParseUint32:ParseNumberTest.ParseUint64
+[==========] Running 5 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from ParseNumberNativeTest
+[ RUN      ] ParseNumberNativeTest.OverflowTailBlocksPreserveMalformedPrecedence
+[       OK ] ParseNumberNativeTest.OverflowTailBlocksPreserveMalformedPrecedence (73 ms)
+[----------] 1 test from ParseNumberNativeTest (74 ms total)
+
+[----------] 4 tests from ParseNumberTest
+[ RUN      ] ParseNumberTest.ParseInt32
+[       OK ] ParseNumberTest.ParseInt32 (0 ms)
+[ RUN      ] ParseNumberTest.ParseInt64
+[       OK ] ParseNumberTest.ParseInt64 (0 ms)
+[ RUN      ] ParseNumberTest.ParseUint32
+[       OK ] ParseNumberTest.ParseUint32 (0 ms)
+[ RUN      ] ParseNumberTest.ParseUint64
+[       OK ] ParseNumberTest.ParseUint64 (0 ms)
+[----------] 4 tests from ParseNumberTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 2 test suites ran. (75 ms total)
+[  PASSED  ] 5 tests.
+[11/15] ParseNumberNativeTest.OverflowTailBlocksPreserveMalformedPrecedence (73 ms)
+[12/15] ParseNumberTest.ParseInt32 (0 ms)
+[13/15] ParseNumberTest.ParseInt64 (0 ms)
+[14/15] ParseNumberTest.ParseUint32 (0 ms)
+[15/15] ParseNumberTest.ParseUint64 (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

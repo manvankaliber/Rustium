@@ -1,0 +1,49 @@
+{
+  "module": "net-diagnostics-debug-formatting",
+  "status": "focused C++ public API and Rust FFI validation passed; parent configured GN integration and benchmark timing pending",
+  "frozen_source_snapshot": "docs/rust/benchmarks/net-diagnostics-debug-formatting/",
+  "source_manifest": "docs/rust/benchmarks/net-diagnostics-debug-formatting/source-manifest.json",
+  "native_validation": "docs/rust/benchmarks/net-diagnostics-debug-formatting/native-validation.json",
+  "ffi_contract": "Rust formatter documents non-null/aligned/writable out_len and defensively rejects null. Success returns an owned pointer/length pair; invalid flags return null and leave out_len unchanged. C++ header documents the same. std::string copy is wrapped in UNSAFE_BUFFERS with a safety explanation; unique_ptr frees through Rust exactly once after copying. Privacy labels are process-lifetime static NUL-terminated strings. Removed production LIVE_OUTPUTS atomic counter.",
+  "native_api_validation": "PASS configured Clang/LLD standalone build and run against the actual Rust-backed C++ public adapters and frozen original C++ references. All 2^20 defined flag combinations and 1,000,000 deterministic bounded defined inputs matched. Four privacy modes matched. 100,000 direct FFI ownership cycles passed. Invalid flag/null out_len behavior passed. Five fatal child cases emitted the expected CHECK/NOTREACHED diagnostics.",
+  "gtest_source": "net/base/net_diagnostics_debug_formatting_unittest.cc compiled successfully with configured net_unittests flags. GTest runner itself was not linked/run; equivalent assertions were executed by the standalone native harness.",
+  "rust_tests": "cargo test --release: 5 passed. cargo clippy --all-targets -- -D warnings, cargo fmt --check, production rustfmt --check, and generator --check --stamp passed.",
+  "runtime_coverage": {
+    "core": "127 regions; 3 missed (97.64%); 73 lines; 3 missed (95.89%).",
+    "ffi": "100 regions; 1 missed (99.00%); 53 lines; 1 missed (98.11%).",
+    "combined": "227 regions; 4 missed (98.24%); 126 lines; 4 missed (96.83%); all 15 functions executed.",
+    "branches": "llvm-cov reported no branches for this Rust build.",
+    "artifact": "docs/rust/benchmarks/net-diagnostics-debug-formatting/runtime-coverage.txt"
+  },
+  "native_build": "Script .scratch/net-wave1/debug-formatting/build_native.py used configured Chromium Clang/LLD tools and compiler environment without GN/Ninja. Actual response files, logs, executable/staticlib/object hashes are archived in native-validation.json and adjacent files.",
+  "clang_format": "Applied configured local clang-format to all authored C++ sources and harness.",
+  "gn_fragment": ".scratch/net-wave1/debug-formatting/gn-fragments.txt",
+  "benchmark": {
+    "descriptor": ".scratch/net-wave1/debug-formatting/benchmark-descriptor.json",
+    "raw_report": null,
+    "timing": "Not run; parent owns coordinated quiet window."
+  },
+  "known_gaps": [
+    "Full GN/Ninja integration remains parent-owned.",
+    "No benchmark timing/chart result.",
+    "Focused GTest translation unit compiled but GTest runner was not linked/run."
+  ],
+  "optimization_debt": "No performance evidence. Include Rust formatting allocation, FFI, C++ string copy/destruction and Rust free in parent timing; diagnose any measured change from evidence.",
+  "owned_files": [
+    "net/base/load_flags_to_string.cc",
+    "net/base/privacy_mode.cc",
+    "net/base/net_diagnostics_debug_formatting_core.rs",
+    "net/base/net_diagnostics_debug_formatting_ffi.rs",
+    "net/base/net_diagnostics_debug_formatting_ffi.h",
+    "net/base/net_diagnostics_debug_formatting_unittest.cc",
+    "net/base/net_diagnostics_load_flags_generated.rs",
+    "net/base/net_diagnostics_generate.py",
+    "net/base/net_diagnostics_debug_formatting_perftest.cc",
+    "net/base/net_diagnostics_debug_formatting_fuzzer.cc",
+    "net/base/net_diagnostics_load_flags_reference.cc",
+    "net/base/net_diagnostics_load_flags_reference.h",
+    "net/base/net_diagnostics_load_flags_reference_list.h",
+    "net/base/net_diagnostics_privacy_mode_reference.cc",
+    "net/base/net_diagnostics_privacy_mode_reference.h"
+  ]
+}

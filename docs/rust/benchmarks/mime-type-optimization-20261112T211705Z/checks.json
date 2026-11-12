@@ -1,0 +1,57 @@
+{
+  "clippy": {
+    "command": [
+      "python",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\build_native.py",
+      "lint"
+    ],
+    "exit_code": 0
+  },
+  "rustfmt": {
+    "command": [
+      "D:/RustiumBuild/src/third_party/rust-toolchain/bin/rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\base\\mime_type_parser.rs",
+      "D:\\Rustium\\net\\base\\mime_type_ffi.rs"
+    ],
+    "exit_code": 0
+  },
+  "clang-format": {
+    "command": [
+      "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+      "--dry-run",
+      "--Werror",
+      "D:\\Rustium\\net\\base\\mime_type_rust_adapter.h",
+      "D:\\Rustium\\net\\base\\mime_type_rust_fuzzer.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_optimization_unittest.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_state.h",
+      "D:\\Rustium\\net\\base\\mime_type_rust_test_support.h",
+      "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc"
+    ],
+    "exit_code": 0
+  },
+  "scope": {
+    "only_owned_mime_util_methods_changed": true
+  },
+  "unchanged_reference_workloads_and_evidence": {
+    "net/base/mime_util.h": "2eaf40fd2a8bb60b44baef7247bfab79397cc2583a0010df7d69ad5a875a96a5",
+    "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+    "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+    "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+    "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+    "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+    "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json": "2b85b32446a2980bc98078ffc342cb21df23fde66a167649c077f2233a1a7c58"
+  },
+  "native_method_bodies_match_final_production_or_parent_patch": true,
+  "unit": {
+    "exit_code": 0,
+    "binary_sha256": "47e5a6becfa6af246d0d56f264513b22f966c486af8d0f6436f9ff316ed341fd"
+  },
+  "fuzz": {
+    "exit_code": 0,
+    "binary_sha256": "b804553aaefbc092b9d8aa3d0c22dee74968ab661747d7a9beefcef84d24ccbb"
+  },
+  "benchmark_timing_executed": false
+}

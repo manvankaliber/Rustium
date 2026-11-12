@@ -1,0 +1,18 @@
+[
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\unit.exe"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.12646080000558868,
+    "binary_sha256": "fbdc1c27e91d27525f11931f20963158840ab2aa5e45f16723ba45355001c7d1"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\status\\differential.exe"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.5573470999952406,
+    "binary_sha256": "1c972c5983d3d4ce660114ccb5392effb7b2354d1b28b89580ef5245993ef5d3"
+  }
+]

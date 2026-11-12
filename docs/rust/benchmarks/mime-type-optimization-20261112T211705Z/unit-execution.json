@@ -1,0 +1,11 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit.exe",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit-results.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.6945550441741943,
+  "affinity_mask": 64,
+  "sha256": "47e5a6becfa6af246d0d56f264513b22f966c486af8d0f6436f9ff316ed341fd",
+  "benchmark": false
+}

@@ -1,0 +1,26 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = HttpStatusCodeRust.FrozenDifferential:HttpStatusCode.GetHttpReasonPhrase
+[==========] Running 2 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from HttpStatusCodeRust
+[ RUN      ] HttpStatusCodeRust.FrozenDifferential
+[       OK ] HttpStatusCodeRust.FrozenDifferential (11 ms)
+[----------] 1 test from HttpStatusCodeRust (11 ms total)
+
+[----------] 1 test from HttpStatusCode
+[ RUN      ] HttpStatusCode.GetHttpReasonPhrase
+[       OK ] HttpStatusCode.GetHttpReasonPhrase (0 ms)
+[----------] 1 test from HttpStatusCode (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 2 test suites ran. (12 ms total)
+[  PASSED  ] 2 tests.
+[1/2] HttpStatusCodeRust.FrozenDifferential (11 ms)
+[2/2] HttpStatusCode.GetHttpReasonPhrase (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

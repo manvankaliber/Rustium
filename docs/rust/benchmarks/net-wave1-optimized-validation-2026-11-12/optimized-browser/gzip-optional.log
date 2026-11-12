@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html><head><title>Rewrite integration</title></head><body><p>rustium-gzip-optional-ok</p></body></html>
+
+[42320:41172:1112/224833.775:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[42320:41172:1112/224833.934:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[42320:41172:1112/224833.934:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.

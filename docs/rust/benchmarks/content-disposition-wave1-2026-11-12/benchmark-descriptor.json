@@ -1,0 +1,92 @@
+{
+  "module": "content-disposition",
+  "source": "content-disposition",
+  "label": "Content-Disposition Rust policy",
+  "baseline": "Frozen original C++ HttpContentDisposition including frozen tokenizer, HTTP helpers, base64, URL unescape and charset helper bodies",
+  "chart_baseline": "Original C++ public parser",
+  "measurement": "Warm same-process public C++ string constructor, complete parsing and charset services, result consumption and destruction; preloaded inputs; no I/O, response-header assembly, whole-browser work, startup or ICU initialization",
+  "chart_scope": "Isolated Content-Disposition parser benchmark including C++ ownership and charset interoperability",
+  "groups": [
+    {
+      "id": "content-disposition-basic",
+      "title": "Basic disposition parsing",
+      "operation": "parse",
+      "cases": [
+        {
+          "key": "empty",
+          "label": "Empty header"
+        },
+        {
+          "key": "inline",
+          "label": "Inline type"
+        },
+        {
+          "key": "ascii",
+          "label": "ASCII filename"
+        },
+        {
+          "key": "quoted",
+          "label": "Quoted separators and escape"
+        },
+        {
+          "key": "priority",
+          "label": "Extended filename priority"
+        }
+      ]
+    },
+    {
+      "id": "content-disposition-decoders",
+      "title": "Filename decoders",
+      "operation": "parse",
+      "cases": [
+        {
+          "key": "q-word",
+          "label": "RFC2047 Q"
+        },
+        {
+          "key": "b-word",
+          "label": "RFC2047 B"
+        },
+        {
+          "key": "adjacent",
+          "label": "Adjacent encoded words"
+        },
+        {
+          "key": "percent",
+          "label": "Percent escaped UTF-8"
+        },
+        {
+          "key": "normalize",
+          "label": "RFC5987 normalization"
+        }
+      ]
+    },
+    {
+      "id": "content-disposition-compatibility",
+      "title": "Compatibility and larger headers",
+      "operation": "parse",
+      "cases": [
+        {
+          "key": "legacy-charset",
+          "label": "Latin-1 referrer"
+        },
+        {
+          "key": "os-fallback",
+          "label": "OS charset fallback"
+        },
+        {
+          "key": "malformed",
+          "label": "Malformed encoded word fallback"
+        },
+        {
+          "key": "long-quoted",
+          "label": "4096 byte quoted filename"
+        },
+        {
+          "key": "many-parameters",
+          "label": "64 unknown parameters"
+        }
+      ]
+    }
+  ]
+}

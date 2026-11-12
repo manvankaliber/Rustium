@@ -1,0 +1,3318 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "final",
+  "label": "Final configured GN build",
+  "measurement": "Same-process paired original C++ and Rust-backed GZipHeader APIs; warm input buffers; ns per complete detection/header-feed operation",
+  "baseline": "Frozen original parser, same object size/alignment and out-of-line C++ API calls, same Chromium C++ compilation flags",
+  "compiler": "Chromium Clang 24 and Rust 1.101; opt-level 3, debug assertions, CFG, panic abort",
+  "repetitions": 20,
+  "affinity_mask": 16,
+  "warmup": "iterations_per_sample / 5 for each implementation",
+  "order": "Seeded randomized reader order per paired repetition",
+  "scope_excludes": [
+    "disk I/O",
+    "payload decompression",
+    "network I/O",
+    "browser startup"
+  ],
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+    "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+    "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+    "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+    "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+    "net/filter/gzip_header_fuzzer.cc": "4535ed6299e55bbf570e2e65af4608d1e25e0704e1703dbb0d20f5003990cebc",
+    "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+    "net/filter/gzip_header_perftest.cc": "67c4209cd53f42a4be75815febcd2dc2ad227a4f578f314dadca1ab8abae62f0",
+    "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+    "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+    "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77",
+    "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee"
+  },
+  "raw_report_sha256": "e4babad5105add04f567e1ac8433291232b437b0e9f6867820a82aaa15b98b02",
+  "cases": [
+    {
+      "key": "fixed",
+      "label": "Fixed header",
+      "run": "final",
+      "baseline_median_ns": 46.716499999999996,
+      "rust_median_ns": 15.5559,
+      "change_percent": -66.70148662678068,
+      "bootstrap_95_ci_percent": [
+        -66.82299097669637,
+        -66.53457678531092
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "fixed_with_payload",
+      "label": "With payload",
+      "run": "final",
+      "baseline_median_ns": 58.3225,
+      "rust_median_ns": 22.7605,
+      "change_percent": -60.97475245402717,
+      "bootstrap_95_ci_percent": [
+        -61.65274665580227,
+        -59.919689461343054
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "not_gzip",
+      "label": "Non-gzip",
+      "run": "final",
+      "baseline_median_ns": 13.4138,
+      "rust_median_ns": 12.3938,
+      "change_percent": -7.604109200972131,
+      "bootstrap_95_ci_percent": [
+        -7.737540711150192,
+        -7.374527752475101
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "short_rejection",
+      "label": "Short invalid",
+      "run": "final",
+      "baseline_median_ns": 15.9025,
+      "rust_median_ns": 14.934000000000001,
+      "change_percent": -6.090237384059105,
+      "bootstrap_95_ci_percent": [
+        -7.145921545951395,
+        -5.814298240633853
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "bad_method",
+      "label": "Bad method",
+      "run": "final",
+      "baseline_median_ns": 20.187399999999997,
+      "rust_median_ns": 13.4107,
+      "change_percent": -33.56895885552373,
+      "bootstrap_95_ci_percent": [
+        -34.018435721179415,
+        -33.12969643818142
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "all_options",
+      "label": "All options",
+      "run": "final",
+      "baseline_median_ns": 113.26625,
+      "rust_median_ns": 72.75625,
+      "change_percent": -35.76528754152274,
+      "bootstrap_95_ci_percent": [
+        -36.26190570374962,
+        -34.0104033770687
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "empty_extra",
+      "label": "Empty extra",
+      "run": "final",
+      "baseline_median_ns": 58.483599999999996,
+      "rust_median_ns": 17.1547,
+      "change_percent": -70.66750336846569,
+      "bootstrap_95_ci_percent": [
+        -70.74737315018696,
+        -70.50498684787374
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "long_name",
+      "label": "Long name",
+      "run": "final",
+      "baseline_median_ns": 307.4025,
+      "rust_median_ns": 239.76749999999998,
+      "change_percent": -22.002098226266863,
+      "bootstrap_95_ci_percent": [
+        -22.347804996361877,
+        -21.57265961613789
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations_per_sample": 20000
+    },
+    {
+      "key": "long_comment",
+      "label": "Long comment",
+      "run": "final",
+      "baseline_median_ns": 310.78499999999997,
+      "rust_median_ns": 244.8725,
+      "change_percent": -21.20839165339382,
+      "bootstrap_95_ci_percent": [
+        -21.416176612359006,
+        -20.98733585380206
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations_per_sample": 20000
+    },
+    {
+      "key": "large_extra",
+      "label": "Large extra",
+      "run": "final",
+      "baseline_median_ns": 58.438500000000005,
+      "rust_median_ns": 17.11625,
+      "change_percent": -70.71066163573671,
+      "bootstrap_95_ci_percent": [
+        -70.84851127870984,
+        -70.52524003366483
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "fixed_one_byte",
+      "label": "Fixed / 1 B",
+      "run": "final",
+      "baseline_median_ns": 205.485,
+      "rust_median_ns": 113.14099999999999,
+      "change_percent": -44.939533299267595,
+      "bootstrap_95_ci_percent": [
+        -45.88094156845508,
+        -44.58289350151529
+      ],
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations_per_sample": 100000
+    },
+    {
+      "key": "options_one_byte",
+      "label": "Options / 1 B",
+      "run": "final",
+      "baseline_median_ns": 1549.156,
+      "rust_median_ns": 795.9390000000001,
+      "change_percent": -48.621120145421116,
+      "bootstrap_95_ci_percent": [
+        -49.2128393342226,
+        -48.13761456617629
+      ],
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations_per_sample": 50000
+    },
+    {
+      "key": "options_two_bytes",
+      "label": "Options / 2 B",
+      "run": "final",
+      "baseline_median_ns": 829.9380000000001,
+      "rust_median_ns": 607.1695,
+      "change_percent": -26.8415833471898,
+      "bootstrap_95_ci_percent": [
+        -27.155307897687376,
+        -26.524509543432163
+      ],
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations_per_sample": 100000
+    },
+    {
+      "key": "options_eight_bytes",
+      "label": "Options / 8 B",
+      "run": "final",
+      "baseline_median_ns": 285.87025,
+      "rust_median_ns": 195.61725,
+      "change_percent": -31.571316007874195,
+      "bootstrap_95_ci_percent": [
+        -32.076367897263424,
+        -31.10391973725176
+      ],
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "options_64_bytes",
+      "label": "Options / 64 B",
+      "run": "final",
+      "baseline_median_ns": 122.086,
+      "rust_median_ns": 56.204499999999996,
+      "change_percent": -53.96318988254182,
+      "bootstrap_95_ci_percent": [
+        -54.547220474177614,
+        -53.431695428797255
+      ],
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    }
+  ],
+  "samples": [
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 46.437,
+      "rust_ns": 15.565
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 46.661,
+      "rust_ns": 15.4854
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 46.288,
+      "rust_ns": 15.5552
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 46.3154,
+      "rust_ns": 15.5508
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 46.3832,
+      "rust_ns": 15.559
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 46.9252,
+      "rust_ns": 15.6284
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 46.8542,
+      "rust_ns": 15.5938
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 47.2412,
+      "rust_ns": 15.5478
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 47.7828,
+      "rust_ns": 15.5566
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 46.7364,
+      "rust_ns": 15.6102
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 46.7478,
+      "rust_ns": 15.5726
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 46.6378,
+      "rust_ns": 15.4572
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 50.211,
+      "rust_ns": 15.52
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 46.4034,
+      "rust_ns": 15.5266
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 46.6966,
+      "rust_ns": 15.5154
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 46.4014,
+      "rust_ns": 15.6138
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 46.53,
+      "rust_ns": 15.5328
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 47.8052,
+      "rust_ns": 15.5806
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 59.6306,
+      "rust_ns": 19.9834
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 46.768,
+      "rust_ns": 15.5188
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 58.9718,
+      "rust_ns": 22.3944
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 58.2176,
+      "rust_ns": 22.6096
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 58.3516,
+      "rust_ns": 22.8064
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 58.226,
+      "rust_ns": 22.092
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 58.3714,
+      "rust_ns": 22.4834
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 66.8654,
+      "rust_ns": 23.0816
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 63.1808,
+      "rust_ns": 22.6602
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 59.5376,
+      "rust_ns": 22.2698
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 58.908,
+      "rust_ns": 22.388
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 57.6114,
+      "rust_ns": 22.261
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 57.7044,
+      "rust_ns": 22.8356
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 57.6828,
+      "rust_ns": 23.4196
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 58.0696,
+      "rust_ns": 23.697
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 58.2934,
+      "rust_ns": 22.7146
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 62.5978,
+      "rust_ns": 23.313
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 58.2172,
+      "rust_ns": 25.2792
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 60.8026,
+      "rust_ns": 24.9388
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 58.2508,
+      "rust_ns": 23.4352
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 59.29,
+      "rust_ns": 25.201
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 57.68,
+      "rust_ns": 22.5696
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 13.4582,
+      "rust_ns": 12.4304
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 13.369,
+      "rust_ns": 12.396
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 13.42,
+      "rust_ns": 12.3654
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 13.37,
+      "rust_ns": 12.4092
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 13.4204,
+      "rust_ns": 12.431
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 13.4024,
+      "rust_ns": 12.3732
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 13.4154,
+      "rust_ns": 12.3784
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 13.3986,
+      "rust_ns": 12.4196
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 13.3576,
+      "rust_ns": 12.3806
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 13.4256,
+      "rust_ns": 12.3644
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 13.4482,
+      "rust_ns": 12.3894
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 13.4122,
+      "rust_ns": 12.3872
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 13.3902,
+      "rust_ns": 12.4022
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 13.423,
+      "rust_ns": 12.3688
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 13.3876,
+      "rust_ns": 12.3506
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 13.3934,
+      "rust_ns": 12.42
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 13.3282,
+      "rust_ns": 12.3916
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 13.5078,
+      "rust_ns": 12.4416
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 13.4362,
+      "rust_ns": 12.45
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 14.3124,
+      "rust_ns": 13.2422
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 17.028,
+      "rust_ns": 14.9998
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 15.83,
+      "rust_ns": 14.8988
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 15.6806,
+      "rust_ns": 14.9144
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 16.1308,
+      "rust_ns": 14.838
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 15.8996,
+      "rust_ns": 14.9774
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 16.9906,
+      "rust_ns": 15.0194
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 16.1516,
+      "rust_ns": 14.8676
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 15.8862,
+      "rust_ns": 14.8474
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 16.0358,
+      "rust_ns": 14.9814
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 16.0002,
+      "rust_ns": 15.4972
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 16.1672,
+      "rust_ns": 15.2748
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 15.8678,
+      "rust_ns": 14.9312
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 15.8988,
+      "rust_ns": 14.9368
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 15.9836,
+      "rust_ns": 14.93
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 15.9054,
+      "rust_ns": 15.077
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 16.3654,
+      "rust_ns": 14.7418
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 15.7234,
+      "rust_ns": 14.9392
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 15.7766,
+      "rust_ns": 14.8516
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 15.804,
+      "rust_ns": 14.8394
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 15.8368,
+      "rust_ns": 14.9558
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 20.0086,
+      "rust_ns": 13.3992
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 20.0102,
+      "rust_ns": 13.3698
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 19.8726,
+      "rust_ns": 13.3924
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 20.176,
+      "rust_ns": 13.4234
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 20.1222,
+      "rust_ns": 13.4952
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 20.1988,
+      "rust_ns": 13.39
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 19.8592,
+      "rust_ns": 13.3658
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 20.2574,
+      "rust_ns": 13.4004
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 20.1266,
+      "rust_ns": 13.5054
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 47.005,
+      "rust_ns": 13.6946
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 23.7956,
+      "rust_ns": 14.8294
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 22.4692,
+      "rust_ns": 13.3986
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 20.974,
+      "rust_ns": 13.4016
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 20.287,
+      "rust_ns": 13.425
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 20.4592,
+      "rust_ns": 13.3796
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 20.3594,
+      "rust_ns": 13.4956
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 19.9612,
+      "rust_ns": 13.4198
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 19.8416,
+      "rust_ns": 13.4628
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 20.1386,
+      "rust_ns": 13.439
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 20.2572,
+      "rust_ns": 13.3406
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 110.944,
+      "rust_ns": 73.767
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 119.664,
+      "rust_ns": 77.6435
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 112.763,
+      "rust_ns": 73.6465
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 110.281,
+      "rust_ns": 74.229
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 113.643,
+      "rust_ns": 72.7165
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 114.403,
+      "rust_ns": 72.796
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 113.331,
+      "rust_ns": 76.1935
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 125.0335,
+      "rust_ns": 77.689
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 113.484,
+      "rust_ns": 71.7365
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 112.445,
+      "rust_ns": 71.211
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 113.8525,
+      "rust_ns": 74.969
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 111.8495,
+      "rust_ns": 72.085
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 109.6605,
+      "rust_ns": 72.2035
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 113.6645,
+      "rust_ns": 72.217
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 113.2015,
+      "rust_ns": 72.4295
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 115.178,
+      "rust_ns": 74.7345
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 108.402,
+      "rust_ns": 76.8585
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 109.864,
+      "rust_ns": 72.0745
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 109.642,
+      "rust_ns": 71.642
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 115.393,
+      "rust_ns": 72.5075
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 58.6582,
+      "rust_ns": 17.2066
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 58.4804,
+      "rust_ns": 17.1244
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 58.5656,
+      "rust_ns": 17.3428
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 59.6984,
+      "rust_ns": 17.3768
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 58.2694,
+      "rust_ns": 17.2722
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 58.9032,
+      "rust_ns": 17.119
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 58.3464,
+      "rust_ns": 17.0888
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 58.485,
+      "rust_ns": 17.2398
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 58.3672,
+      "rust_ns": 17.3482
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 58.3594,
+      "rust_ns": 17.034
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 58.42,
+      "rust_ns": 17.043
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 58.3536,
+      "rust_ns": 17.1284
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 58.5138,
+      "rust_ns": 17.1084
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 58.5874,
+      "rust_ns": 17.1562
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 58.8604,
+      "rust_ns": 17.3042
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 58.3412,
+      "rust_ns": 17.1532
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 58.8038,
+      "rust_ns": 17.2148
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 59.2876,
+      "rust_ns": 17.623
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 58.4822,
+      "rust_ns": 17.0228
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 58.1654,
+      "rust_ns": 17.064
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 308.28,
+      "rust_ns": 238.415
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 302.265,
+      "rust_ns": 238.515
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 305.94,
+      "rust_ns": 238.415
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 306.005,
+      "rust_ns": 237.93
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 308.065,
+      "rust_ns": 239.785
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 310.99,
+      "rust_ns": 240.34
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 311.365,
+      "rust_ns": 239.1
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 305.925,
+      "rust_ns": 239.75
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 304.6,
+      "rust_ns": 240.705
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 308.63,
+      "rust_ns": 239.47
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 308.135,
+      "rust_ns": 242.145
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 305.795,
+      "rust_ns": 239.52
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 308.025,
+      "rust_ns": 239.105
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 309.225,
+      "rust_ns": 240.46
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 306.78,
+      "rust_ns": 240.2
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 306.485,
+      "rust_ns": 240.315
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 304.885,
+      "rust_ns": 239.9
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 309.53,
+      "rust_ns": 239.465
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 305.1,
+      "rust_ns": 242.52
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 309.445,
+      "rust_ns": 241.39
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 311.19,
+      "rust_ns": 245.23
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 310.03,
+      "rust_ns": 245.315
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 308.955,
+      "rust_ns": 244.93
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 320.155,
+      "rust_ns": 248.91
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 311.21,
+      "rust_ns": 244.56
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 311.335,
+      "rust_ns": 244.465
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 311.995,
+      "rust_ns": 245.275
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 312.3,
+      "rust_ns": 244.56
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 310.83,
+      "rust_ns": 244.525
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 309.605,
+      "rust_ns": 244.815
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 310.68,
+      "rust_ns": 244.47
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 307.195,
+      "rust_ns": 246.79
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 313.565,
+      "rust_ns": 246.66
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 312.68,
+      "rust_ns": 244.46
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 308.955,
+      "rust_ns": 245.15
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 310.09,
+      "rust_ns": 244.53
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 310.6,
+      "rust_ns": 244.475
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 310.74,
+      "rust_ns": 245.475
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 311.07,
+      "rust_ns": 244.72
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 310.225,
+      "rust_ns": 245.15
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 58.1775,
+      "rust_ns": 17.2265
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 58.396,
+      "rust_ns": 17.174
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 58.7735,
+      "rust_ns": 17.0995
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 58.0635,
+      "rust_ns": 17.4465
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 58.5775,
+      "rust_ns": 17.1945
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 58.221,
+      "rust_ns": 17.0845
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 58.7205,
+      "rust_ns": 17.189
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 58.62,
+      "rust_ns": 17.181
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 60.2195,
+      "rust_ns": 17.109
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 58.2255,
+      "rust_ns": 17.1235
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 59.49,
+      "rust_ns": 17.024
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 58.025,
+      "rust_ns": 16.965
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 57.818,
+      "rust_ns": 17.14
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 58.06,
+      "rust_ns": 17.464
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 58.5435,
+      "rust_ns": 17.1255
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 58.121,
+      "rust_ns": 17.0675
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 58.631,
+      "rust_ns": 16.986
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 58.481,
+      "rust_ns": 16.913
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 58.55,
+      "rust_ns": 16.9125
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 58.2035,
+      "rust_ns": 17.0205
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 205.97,
+      "rust_ns": 110.077
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 205.639,
+      "rust_ns": 109.792
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 204.359,
+      "rust_ns": 113.914
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 203.642,
+      "rust_ns": 115.832
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 206.191,
+      "rust_ns": 107.915
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 206.893,
+      "rust_ns": 113.718
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 205.331,
+      "rust_ns": 113.148
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 205.263,
+      "rust_ns": 109.666
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 208.483,
+      "rust_ns": 111.426
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 204.799,
+      "rust_ns": 113.134
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 203.791,
+      "rust_ns": 112.882
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 205.141,
+      "rust_ns": 111.215
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 204.947,
+      "rust_ns": 113.545
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 204.867,
+      "rust_ns": 113.445
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 205.811,
+      "rust_ns": 111.254
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 205.15,
+      "rust_ns": 114.337
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 207.285,
+      "rust_ns": 114.413
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 208.398,
+      "rust_ns": 114.298
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 220.93,
+      "rust_ns": 115.791
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 206.413,
+      "rust_ns": 112.39
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 1540.03,
+      "rust_ns": 788.066
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 1541.616,
+      "rust_ns": 795.912
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 1545.072,
+      "rust_ns": 794.832
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 1522.022,
+      "rust_ns": 838.794
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 1539.026,
+      "rust_ns": 783.248
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 1552.834,
+      "rust_ns": 782.25
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 1560.378,
+      "rust_ns": 795.966
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 1564.27,
+      "rust_ns": 788.214
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 1554.78,
+      "rust_ns": 786.904
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 1523.89,
+      "rust_ns": 801.988
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 1516.886,
+      "rust_ns": 781.444
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 1541.996,
+      "rust_ns": 800.088
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 1551.89,
+      "rust_ns": 801.996
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 1546.332,
+      "rust_ns": 796.08
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 1559.23,
+      "rust_ns": 810.14
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 1603.304,
+      "rust_ns": 793.46
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 1648.14,
+      "rust_ns": 788.39
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 1611.372,
+      "rust_ns": 811.994
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 1546.422,
+      "rust_ns": 802.658
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 1553.294,
+      "rust_ns": 814.7
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 833.839,
+      "rust_ns": 609.752
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 824.195,
+      "rust_ns": 607.936
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 838.406,
+      "rust_ns": 602.573
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 830.357,
+      "rust_ns": 603.146
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 827.598,
+      "rust_ns": 608.824
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 829.671,
+      "rust_ns": 607.017
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 825.475,
+      "rust_ns": 609.773
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 831.853,
+      "rust_ns": 604.864
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 821.303,
+      "rust_ns": 604.236
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 826.802,
+      "rust_ns": 606.309
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 907.067,
+      "rust_ns": 599.125
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 828.766,
+      "rust_ns": 613.071
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 830.205,
+      "rust_ns": 607.322
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 824.562,
+      "rust_ns": 606.58
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 837.544,
+      "rust_ns": 604.871
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 829.629,
+      "rust_ns": 606.97
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 840.664,
+      "rust_ns": 607.871
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 833.201,
+      "rust_ns": 610.043
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 828.004,
+      "rust_ns": 615.011
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 832.015,
+      "rust_ns": 615.398
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 286.221,
+      "rust_ns": 194.567
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 287.3115,
+      "rust_ns": 193.302
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 285.5755,
+      "rust_ns": 193.2785
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 284.221,
+      "rust_ns": 196.1835
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 286.484,
+      "rust_ns": 196.9345
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 283.6095,
+      "rust_ns": 196.612
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 284.806,
+      "rust_ns": 195.5285
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 284.895,
+      "rust_ns": 195.6455
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 286.8765,
+      "rust_ns": 198.651
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 296.943,
+      "rust_ns": 194.9295
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 297.5635,
+      "rust_ns": 192.781
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 292.992,
+      "rust_ns": 195.589
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 287.233,
+      "rust_ns": 194.3585
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 285.533,
+      "rust_ns": 195.781
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 283.611,
+      "rust_ns": 194.1775
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 283.957,
+      "rust_ns": 194.482
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 341.568,
+      "rust_ns": 200.146
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 285.2325,
+      "rust_ns": 200.951
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 283.7825,
+      "rust_ns": 200.4005
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 286.165,
+      "rust_ns": 198.365
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 123.1925,
+      "rust_ns": 55.97
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 121.529,
+      "rust_ns": 56.4745
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 120.9275,
+      "rust_ns": 56.693
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 120.718,
+      "rust_ns": 56.556
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 122.2465,
+      "rust_ns": 56.564
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 125.4205,
+      "rust_ns": 56.2195
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 123.909,
+      "rust_ns": 56.4395
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 121.383,
+      "rust_ns": 57.2505
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 122.713,
+      "rust_ns": 56.5965
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 131.0035,
+      "rust_ns": 56.151
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 141.9595,
+      "rust_ns": 55.3085
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 120.91,
+      "rust_ns": 55.9385
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 121.9255,
+      "rust_ns": 55.103
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 131.326,
+      "rust_ns": 55.9905
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 121.2355,
+      "rust_ns": 55.9715
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 121.304,
+      "rust_ns": 56.1635
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 123.1445,
+      "rust_ns": 56.014
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 127.489,
+      "rust_ns": 57.4125
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 120.8275,
+      "rust_ns": 57.188
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 120.4605,
+      "rust_ns": 56.1895
+    }
+  ],
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 13.502093499999319,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\gzip_header_perftests.exe"
+    ],
+    "executable_sha256": "7a0d3a66136cc1d750316acb72d01d1b691a7f66e1f9f7d059145675d4ba31a1",
+    "module": "gzip-header",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "candidate pending validation",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "gzip_header_perftests": {
+        "defines": "-DNET_IMPLEMENTATION -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "gzip_header_test_reference": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "gzip_header_parser": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "gzip_header_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "e4babad5105add04f567e1ac8433291232b437b0e9f6867820a82aaa15b98b02",
+    "source_hashes_file_sha256": "7e16a98e0f4ec2e2d0833af42ca401d31705022a7d8679dd348b2caf34849c09"
+  }
+}

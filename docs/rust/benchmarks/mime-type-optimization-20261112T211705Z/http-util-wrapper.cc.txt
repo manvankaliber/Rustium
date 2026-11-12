@@ -1,0 +1,40 @@
+// Parent replaces HttpUtil::ParseContentType; existing adapter include remains.
+
+void HttpUtil::ParseContentType(std::string_view content_type_str,
+                                std::string* mime_type,
+                                std::string* charset,
+                                bool* had_charset,
+                                std::string* boundary) {
+  const mime_type_internal::ContentTypeState state(mime_type, had_charset);
+  const auto plan = mime_type_internal::parse_content_type(
+      mime_type_internal::Bytes(content_type_str), state, boundary != nullptr,
+      boundary == mime_type);
+  // Rust decides grammar, normalization, state reads and which writes occur.
+  // Stage every selected value before any caller mutation can invalidate input.
+  std::string mime_value;
+  std::string charset_value;
+  std::string boundary_value;
+  if (plan.write_mime) {
+    mime_value =
+        mime_type_internal::View(content_type_str, plan.scratch, plan.mime);
+  }
+  if (plan.write_charset) {
+    charset_value =
+        mime_type_internal::View(content_type_str, plan.scratch, plan.charset);
+  }
+  if (plan.write_boundary) {
+    boundary_value =
+        mime_type_internal::View(content_type_str, plan.scratch, plan.boundary);
+  }
+  // Preserve boundary-before-MIME-before-charset order for output aliases.
+  if (plan.write_boundary) {
+    *boundary = std::move(boundary_value);
+  }
+  if (plan.write_mime) {
+    *mime_type = std::move(mime_value);
+  }
+  if (plan.write_charset) {
+    *had_charset = true;
+    *charset = std::move(charset_value);
+  }
+}

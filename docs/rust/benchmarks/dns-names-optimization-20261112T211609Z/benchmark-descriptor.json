@@ -1,0 +1,147 @@
+{
+  "module": "dns-names",
+  "source": "dns-names",
+  "label": "DNS name utilities",
+  "measurement": "Same-process paired unchanged public-API benchmark, including FFI, caller-owned initialized bounded buffers, cursor adaptation, final C++ allocation/copy/destruction and external URL/IP/ICU services. The optimized ordinary network path uses one Rust call; cursor-object input aliases retain incremental callbacks. 20 randomized-order pairs with 20,000 operations per implementation, seed 20261112. Input construction, warmup, ICU initialization and JSON output remain outside timing. Canonical production and reference component DLL boundaries must be preserved.",
+  "baseline": "Frozen original dns_names_util.cc and ASCII comparator, with frozen hostname, localhost and IP wrapper policy; URL IP parsing and URL/IDNA canonicalization remain shared external services.",
+  "groups": [
+    {
+      "id": "dns-names-dotted",
+      "title": "Dotted to network",
+      "operation": "DottedNameToNetwork",
+      "cases": [
+        {
+          "key": "dns_dotted_short",
+          "label": "Three labels"
+        },
+        {
+          "key": "dns_dotted_max",
+          "label": "253-byte maximum dotted name"
+        },
+        {
+          "key": "dns_dotted_invalid",
+          "label": "Empty interior label"
+        },
+        {
+          "key": "dns_dotted_bytes",
+          "label": "Embedded NUL / non-ASCII"
+        },
+        {
+          "key": "dns_dotted_strict",
+          "label": "Internet-hostname service"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "dns-names-network",
+      "title": "Network to dotted",
+      "operation": "NetworkToDottedName",
+      "cases": [
+        {
+          "key": "dns_network_root",
+          "label": "Root only"
+        },
+        {
+          "key": "dns_network_short",
+          "label": "Three complete labels"
+        },
+        {
+          "key": "dns_network_max",
+          "label": "255-byte wire name"
+        },
+        {
+          "key": "dns_network_truncated",
+          "label": "Truncated second label"
+        },
+        {
+          "key": "dns_network_oversize",
+          "label": "64-byte label consumed then rejected"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "dns-names-length",
+      "title": "Length-prefixed readers",
+      "operation": "ReadU8LengthPrefixed / ReadU16LengthPrefixed",
+      "cases": [
+        {
+          "key": "dns_read_u8",
+          "label": "U8 payload"
+        },
+        {
+          "key": "dns_read_u16",
+          "label": "U16 payload"
+        },
+        {
+          "key": "dns_read_truncated",
+          "label": "Truncated U16 payload"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "dns-names-record",
+      "title": "DNS record validation",
+      "operation": "IsValidDnsRecordName",
+      "cases": [
+        {
+          "key": "dns_record_valid",
+          "label": "Service record name"
+        },
+        {
+          "key": "dns_record_localhost",
+          "label": "Localhost rejection"
+        },
+        {
+          "key": "dns_record_ip",
+          "label": "IPv6 URL hostname rejection"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "dns-names-canonical-compare",
+      "title": "Canonicalization and ordering",
+      "operation": "UrlCanonicalizeNameIfAble / DomainNameComparator",
+      "cases": [
+        {
+          "key": "dns_canonical_ascii",
+          "label": "ASCII canonicalization"
+        },
+        {
+          "key": "dns_canonical_unicode",
+          "label": "IDNA canonicalization"
+        },
+        {
+          "key": "dns_canonical_broken",
+          "label": "Broken URL host fallback"
+        },
+        {
+          "key": "dns_compare_ascii",
+          "label": "ASCII case-insensitive comparator"
+        },
+        {
+          "key": "dns_compare_bytes",
+          "label": "Non-ASCII / NUL comparator"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "CXX",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  }
+}

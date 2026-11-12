@@ -1,0 +1,13 @@
+{
+  "adapter_default_rejects_deferred_content_mismatch": true,
+  "explicit_candidate_mode_checks_both_integrated_methods": true,
+  "failed_execution_rejected_before_page_mutation": true,
+  "mismatched_module_rejected_before_page_mutation": true,
+  "unbound_final_execution_rejected": true,
+  "tampered_raw_report_digest_rejected": true,
+  "source_sha256": {
+    "tools\\run_rust_rewrite_benchmarks.py": "54f42c902e9bbd7865bcc411824e0478b8fc002e62b0d28d4ebf014872390808",
+    "tools\\update_rust_benchmark_charts.py": "29ca43eef164b343fa0b73814871d2b222b0407345ea7ebe39cd187b9f34ccb3",
+    "tools\\update_gzip_header_charts.py": "a8e6afcef6a10fa700e26fd1867a980c5a773ea907de2631a65f1bf28786bb25"
+  }
+}

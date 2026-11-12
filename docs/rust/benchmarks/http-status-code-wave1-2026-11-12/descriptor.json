@@ -1,0 +1,46 @@
+{
+  "module": "http-status-code",
+  "source": "http-status-code",
+  "label": "HTTP status code",
+  "baseline": "Frozen original C++ switches, frozen macro list",
+  "measurement": "Nanoseconds per whole public API call including FFI and returned view/optional consumption; warmup/setup excluded; no whole-browser claim",
+  "groups": [
+    {
+      "id": "http-status-code-api",
+      "title": "HTTP status public API",
+      "operation": "Reason phrase or status validation",
+      "cases": [
+        {
+          "key": "status-phrase-ok",
+          "label": "Known OK",
+          "code": 200,
+          "api": "GetHttpReasonPhrase"
+        },
+        {
+          "key": "status-phrase-long",
+          "label": "Known long phrase",
+          "code": 511,
+          "api": "GetHttpReasonPhrase"
+        },
+        {
+          "key": "status-phrase-unknown",
+          "label": "Unknown phrase fallback",
+          "code": -1,
+          "api": "GetHttpReasonPhrase"
+        },
+        {
+          "key": "status-parse-known",
+          "label": "Known sentinel",
+          "code": 600,
+          "api": "TryToGetHttpStatusCode"
+        },
+        {
+          "key": "status-parse-unknown",
+          "label": "Unknown status",
+          "code": 599,
+          "api": "TryToGetHttpStatusCode"
+        }
+      ]
+    }
+  ]
+}

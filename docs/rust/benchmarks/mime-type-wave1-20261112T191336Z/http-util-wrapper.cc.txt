@@ -1,0 +1,31 @@
+// Add #include "net/base/mime_type_rust_adapter.h" to net/http/http_util.cc
+
+void HttpUtil::ParseContentType(std::string_view content_type_str,
+                                std::string* mime_type,
+                                std::string* charset,
+                                bool* had_charset,
+                                std::string* boundary) {
+  auto selection = mime_type_internal::select_content_type(
+      mime_type_internal::Bytes(content_type_str), boundary != nullptr);
+  if (!selection.valid) {
+    return;
+  }
+  auto update = mime_type_internal::plan_content_type(
+      std::move(selection), mime_type_internal::Bytes(*mime_type),
+      boundary == mime_type);
+  if (update.needs_had_charset) {
+    mime_type_internal::resolve_charset(update, *had_charset);
+  }
+  // Preserve the legacy mutation order even when string outputs alias. All
+  // input borrows have ended and the Rust update owns its bytes before writes.
+  if (update.write_boundary) {
+    *boundary = mime_type_internal::String(update.boundary);
+  }
+  if (update.write_mime) {
+    *mime_type = mime_type_internal::String(update.mime);
+  }
+  if (update.write_charset) {
+    *had_charset = true;
+    *charset = mime_type_internal::String(update.charset);
+  }
+}

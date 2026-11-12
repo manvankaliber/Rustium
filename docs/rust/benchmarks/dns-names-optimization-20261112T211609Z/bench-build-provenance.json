@@ -1,0 +1,32 @@
+{
+  "mode": "bench",
+  "source_hashes": {
+    "net/dns/dns_names_core.rs": "d691d071d7d8fa5a3ec8df59d3fa163d19c763b5bfd16e5e66dc21c2a48bb393",
+    "net/dns/dns_names_ffi.h": "e3ea3bf30705142b83148cf74167e25879e6b13b6ce85729618dc7372fb7eadb",
+    "net/dns/dns_names_ffi.rs": "4e3aebacc6aca312150d6d4f03d64608bf7bb0c193708ce2d21aac583669f76d",
+    "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+    "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+    "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+    "net/dns/dns_names_reference.h": "afea44db56a3eafac32f2a9551069d7ddad2cd913648269c1589cd290a374330",
+    "net/dns/dns_names_rust_unittest.cc": "574bb99765bc27443a08cf193b13dc69c770d136de47528a041bfff86871880c",
+    "net/dns/dns_names_test_support.h": "b44777ddf997948012e76457921db9ba27dbb3e5e84960be60a84d25d18cc4e8",
+    "net/dns/dns_names_util.cc": "06a086d83282989279f5c92f22e5d58e7b3e7a32439d1bf0ce439813dbbb7096",
+    "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+    "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+  },
+  "executable_sha256": "7b2ae36a44eee372936a25b5d7fc032a8049fe46b71626e54963e229bd9aeb97",
+  "rust_library_sha256": "8ad32bcecab4ad5c77f093f56d09bbff014f149463d3ed0c808c74be5b903dfe",
+  "compile_response_files": {
+    "bridge.rsp": "b11252b35c678f1ac0bd5070cdc3664acfebc22b09368df4e71c402fb1b73b28",
+    "driver.rsp": "1cd2c79500c130a9f88dc046878306d60f2911b11aed5e37cfb761e2d1c06254",
+    "export_probe.rsp": "0ad484683662cd26ffa8b2fd1572a700f8ec4c4ae46b7ac2a768ae8eacb1c4f7",
+    "native_seams.rsp": "16f7ecee7f762f121ef803790aa4ca46dc03de4392e6d705db23bd24cdee61cf",
+    "original_unit.rsp": "30b845fa19c5f293930c24167d5319702ed73c3f442039dbe9d89d5221838d86",
+    "production.rsp": "9399653112ec2fc14d19bb2001980aed118eb55f7c81f5cc20e181fd51a5401f",
+    "reference.rsp": "81c53e11658957427237285af4dd6e0ac53f5a7629cdd6b9d7a21e74f6844f40",
+    "unit.rsp": "c0935ee284f4afc14eb998b019f0b486681abd93803bffc4fa58cb8f46d0c81e",
+    "unit_main.rsp": "576455087551d56a81fb006dc4c1d271235d76d1f0b2c43f73a8d7508202c771"
+  },
+  "link_command_file": "bench-link-command.json",
+  "configured_build": false
+}

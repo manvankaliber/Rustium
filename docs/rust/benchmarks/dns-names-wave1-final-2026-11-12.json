@@ -1,0 +1,4114 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "wave1-final",
+  "label": "Integrated wave 1",
+  "validation_stage": "final",
+  "metadata": {
+    "module": "dns-names",
+    "source": "dns-names",
+    "label": "DNS name utilities",
+    "measurement": "Same-process paired public APIs including Rust FFI, per-label cursor callbacks, input adaptation, output allocation/copying and destruction. Inputs constructed and warmed outside timing; no DNS query, network I/O or disk I/O. Each pair times 20,000 operations per implementation; 20 randomized-order pairs, seed 20261112. Checksums and timing calls included for both implementations; printing and ICU initialization excluded. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+    "baseline": "Frozen original dns_names_util.cc and ASCII comparator, with frozen hostname, localhost and IP wrapper policy; URL IP parsing and URL/IDNA canonicalization remain shared external services.",
+    "groups": [
+      {
+        "id": "dns-names-dotted",
+        "title": "Dotted to network",
+        "operation": "DottedNameToNetwork",
+        "cases": [
+          {
+            "key": "dns_dotted_short",
+            "label": "Three labels"
+          },
+          {
+            "key": "dns_dotted_max",
+            "label": "253-byte maximum dotted name"
+          },
+          {
+            "key": "dns_dotted_invalid",
+            "label": "Empty interior label"
+          },
+          {
+            "key": "dns_dotted_bytes",
+            "label": "Embedded NUL / non-ASCII"
+          },
+          {
+            "key": "dns_dotted_strict",
+            "label": "Internet-hostname service"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "dns-names-network",
+        "title": "Network to dotted",
+        "operation": "NetworkToDottedName",
+        "cases": [
+          {
+            "key": "dns_network_root",
+            "label": "Root only"
+          },
+          {
+            "key": "dns_network_short",
+            "label": "Three complete labels"
+          },
+          {
+            "key": "dns_network_max",
+            "label": "255-byte wire name"
+          },
+          {
+            "key": "dns_network_truncated",
+            "label": "Truncated second label"
+          },
+          {
+            "key": "dns_network_oversize",
+            "label": "64-byte label consumed then rejected"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "dns-names-length",
+        "title": "Length-prefixed readers",
+        "operation": "ReadU8LengthPrefixed / ReadU16LengthPrefixed",
+        "cases": [
+          {
+            "key": "dns_read_u8",
+            "label": "U8 payload"
+          },
+          {
+            "key": "dns_read_u16",
+            "label": "U16 payload"
+          },
+          {
+            "key": "dns_read_truncated",
+            "label": "Truncated U16 payload"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "dns-names-record",
+        "title": "DNS record validation",
+        "operation": "IsValidDnsRecordName",
+        "cases": [
+          {
+            "key": "dns_record_valid",
+            "label": "Service record name"
+          },
+          {
+            "key": "dns_record_localhost",
+            "label": "Localhost rejection"
+          },
+          {
+            "key": "dns_record_ip",
+            "label": "IPv6 URL hostname rejection"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "dns-names-canonical-compare",
+        "title": "Canonicalization and ordering",
+        "operation": "UrlCanonicalizeNameIfAble / DomainNameComparator",
+        "cases": [
+          {
+            "key": "dns_canonical_ascii",
+            "label": "ASCII canonicalization"
+          },
+          {
+            "key": "dns_canonical_unicode",
+            "label": "IDNA canonicalization"
+          },
+          {
+            "key": "dns_canonical_broken",
+            "label": "Broken URL host fallback"
+          },
+          {
+            "key": "dns_compare_ascii",
+            "label": "ASCII case-insensitive comparator"
+          },
+          {
+            "key": "dns_compare_bytes",
+            "label": "Non-ASCII / NUL comparator"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      }
+    ],
+    "production_status": "integrated",
+    "include_in_average": true,
+    "bridge": {
+      "present": true,
+      "included_in_timing": true,
+      "separately_measured": false,
+      "kind": "CXX",
+      "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+    }
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 3.925899900001241,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\dns_names_perftests.exe"
+    ],
+    "executable_sha256": "7459af7275e8e7b6de742274ec8eee2558225970c69bcec15b82bf10cfda1c48",
+    "module": "dns-names",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "integrated; acceptance validation recorded separately",
+    "started_utc": "2026-11-12T20:38:11.313862+00:00",
+    "completed_utc": "2026-11-12T20:38:15.239764+00:00",
+    "local_dll_sha256": {
+      "net_dns_names_reference.dll": "cf124b9aa6793ae6487fbdc93d49c7321a81e2132ab571d1fc2af79d295c8f33",
+      "net.dll": "b47118bc5d15f2186daffd569dec940f2e3d27baf348ba1b993a3b05ac060fb9",
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "vcruntime140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "dbghelp.dll": "2d2ec94891162a61d86789133623b47d64d74c15d6be99473b25ad7a6468cf39",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "vcruntime140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "net_third_party_quiche.dll": "55d57cdebffbb9bd05c73e848a11dc98c7e6369f1c9f6977cf91132a74116883",
+      "components_unexportable_keys.dll": "26f9efe75b8b97532c777ec7b2772b9729bda2ced69dd7aa901eb0d1f36cd05e",
+      "sql.dll": "485f5beae9408cb0b5b6c8a6e52b0c5458912d0deea7127d0fb120c0acc36bba",
+      "components_performance_manager_scenario_api.dll": "af0c63ff96e51bea637af05b736a6228d569ad6f1f54b61b4be85c665c52a408",
+      "components_sqlite_vfs.dll": "c10c622d9266e19150780148185801dd3a0914af48b788ba0b028c66ea35d197",
+      "third_party_protobuf_protobuf_full_and_lite_library.dll": "afe2106912c58ed9469721d1469a1b3c0e5f69ad96f9983e474c478d6f7a919e",
+      "crcrypto.dll": "35a83714f10e80a76f35968f7783fe2828e6f3e2c5c0413c12623eb79a6ce3fd",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "net_third_party_uri_template.dll": "2192781c9cc1958d8d1a64b89730a0d3c2f3fa8d1477e3fe67f4109ed837978d",
+      "components_sqlite_vfs_pending_file_set.dll": "2923cc24a989d7ada791225498e8a901e69220bbd15c5b55d0ef54203cf11013",
+      "third_party_sqlite_chromium_sqlite3.dll": "931861a83054dbd2e8f3309d3404b50744198c9b9b47d591326424b39b251bd1"
+    },
+    "system_dll_imports": [
+      "advapi32.dll",
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-delayload-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-kernel32-legacy-l1-1-0.dll",
+      "api-ms-win-core-libraryloader-l1-1-0.dll",
+      "api-ms-win-core-localization-l1-1-0.dll",
+      "api-ms-win-core-localregistry-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-misc-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-realtime-l1-1-1.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-threadpool-l1-1-0.dll",
+      "api-ms-win-core-util-l1-1-0.dll",
+      "api-ms-win-core-winrt-l1-1-0.dll",
+      "api-ms-win-core-winrt-string-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "api-ms-win-crt-private-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-eventing-provider-l1-1-0.dll",
+      "api-ms-win-power-base-l1-1-0.dll",
+      "api-ms-win-security-base-l1-1-0.dll",
+      "api-ms-win-shcore-scaling-l1-1-1.dll",
+      "bcrypt.dll",
+      "bcryptprimitives.dll",
+      "cfgmgr32.dll",
+      "crypt32.dll",
+      "dhcpcsvc.dll",
+      "gdi32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ncrypt.dll",
+      "ntdll.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "pdh.dll",
+      "propsys.dll",
+      "rpcrt4.dll",
+      "secur32.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "shlwapi.dll",
+      "tbs.dll",
+      "urlmon.dll",
+      "user32.dll",
+      "userenv.dll",
+      "version.dll",
+      "winhttp.dll",
+      "winmm.dll",
+      "wintrust.dll",
+      "ws2_32.dll"
+    ],
+    "dependency_inspector": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\dumpbin.exe",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "dns_names_perftests": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "dns_names_reference": {
+        "defines": "-DIS_DNS_NAMES_REFERENCE_IMPL -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "dns_names_rust": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "net": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc$:inline /Gw",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "obj/net/dns/dns.ninja": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "dns_names_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "642048534eed715e671838be032eb26cbdde64b992e0236de4aa4a508dd52ccf",
+    "source_hashes_file_sha256": "f794a3bf9d3d92967bb74435d778b17c525e95c12ea8199e0ed5629dbc53eb4f"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+    "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7",
+    "net/dns/BUILD.gn": "ae5d4cac09b5bd9042ae3de550ead153ce186edac5c5865d61fedaecc6ac9c8b",
+    "net/dns/dns_names_core.rs": "525e095d72460b9def37ba0653fb763ec81b035eb230be8e194169be08da7bb7",
+    "net/dns/dns_names_ffi.h": "e81a8fdaef72c25b7f1682b762ae9fd403224342b7f387ed3a9aa9d6a291a4d3",
+    "net/dns/dns_names_ffi.rs": "12090867befbf0f1f4a60adeda6ddacdad23bc782f1532b729a106cda04b526f",
+    "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+    "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+    "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+    "net/dns/dns_names_reference.h": "77bc5e14ddd8ed10f55993b4a6c060569e43ac12964959f551aedf48ea88f35d",
+    "net/dns/dns_names_rust_unittest.cc": "503a13dca0f0c1ad2d57b24ab36e742b60d9e5164758230bb4f20737014b906a",
+    "net/dns/dns_names_test_support.h": "c4dbcc9c46a7666ab2e72a2a3507741ade290608f1b21f656d6591932955264c",
+    "net/dns/dns_names_util.cc": "7b900930df473347fdbc37d68a69894cd471eb0a318fa0f649eefb4ddefbfe33",
+    "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+    "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+  },
+  "raw_report_sha256": "642048534eed715e671838be032eb26cbdde64b992e0236de4aa4a508dd52ccf",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "dns_dotted_short",
+      "label": "Three labels",
+      "run": "wave1-final",
+      "baseline_median_ns": 110.0325,
+      "rust_median_ns": 183.79500000000002,
+      "change_percent": 67.03701179197057,
+      "bootstrap_95_ci_percent": [
+        66.5139487412112,
+        67.80574312802672
+      ],
+      "absolute_time_change_ns": 73.76250000000002,
+      "bootstrap_90_ci_time_change_ns": [
+        73.37500000000001,
+        74.49499999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_dotted_max",
+      "label": "253-byte maximum dotted name",
+      "run": "wave1-final",
+      "baseline_median_ns": 218.9,
+      "rust_median_ns": 404.89,
+      "change_percent": 84.96573777980811,
+      "bootstrap_95_ci_percent": [
+        84.23513541321321,
+        85.88461011374537
+      ],
+      "absolute_time_change_ns": 185.98999999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        184.725,
+        187.77249999999998
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_dotted_invalid",
+      "label": "Empty interior label",
+      "run": "wave1-final",
+      "baseline_median_ns": 68.39750000000001,
+      "rust_median_ns": 80.6325,
+      "change_percent": 17.88808070470409,
+      "bootstrap_95_ci_percent": [
+        17.202654415518115,
+        19.88449448059071
+      ],
+      "absolute_time_change_ns": 12.234999999999985,
+      "bootstrap_90_ci_time_change_ns": [
+        11.855000000000004,
+        13.444999999999993
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_dotted_bytes",
+      "label": "Embedded NUL / non-ASCII",
+      "run": "wave1-final",
+      "baseline_median_ns": 93.305,
+      "rust_median_ns": 159.78,
+      "change_percent": 71.24484218423449,
+      "bootstrap_95_ci_percent": [
+        70.53858520900323,
+        71.702258781919
+      ],
+      "absolute_time_change_ns": 66.475,
+      "bootstrap_90_ci_time_change_ns": [
+        65.86249999999998,
+        66.86000000000001
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_dotted_strict",
+      "label": "Internet-hostname service",
+      "run": "wave1-final",
+      "baseline_median_ns": 130.60750000000002,
+      "rust_median_ns": 242.36,
+      "change_percent": 85.56361617824398,
+      "bootstrap_95_ci_percent": [
+        84.93740668427702,
+        86.70506912442397
+      ],
+      "absolute_time_change_ns": 111.7525,
+      "bootstrap_90_ci_time_change_ns": [
+        111.0975,
+        112.685
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_network_root",
+      "label": "Root only",
+      "run": "wave1-final",
+      "baseline_median_ns": 45.525000000000006,
+      "rust_median_ns": 97.66499999999999,
+      "change_percent": 114.53047775947276,
+      "bootstrap_95_ci_percent": [
+        112.95575415318825,
+        115.28830313014824
+      ],
+      "absolute_time_change_ns": 52.139999999999986,
+      "bootstrap_90_ci_time_change_ns": [
+        51.52,
+        52.455
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_network_short",
+      "label": "Three complete labels",
+      "run": "wave1-final",
+      "baseline_median_ns": 143.7475,
+      "rust_median_ns": 472.3325,
+      "change_percent": 228.58484495382524,
+      "bootstrap_95_ci_percent": [
+        226.5706171642308,
+        230.6763621181546
+      ],
+      "absolute_time_change_ns": 328.585,
+      "bootstrap_90_ci_time_change_ns": [
+        327.49,
+        330.775
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_network_max",
+      "label": "255-byte wire name",
+      "run": "wave1-final",
+      "baseline_median_ns": 407.2575,
+      "rust_median_ns": 792.8075,
+      "change_percent": 94.66983419580978,
+      "bootstrap_95_ci_percent": [
+        93.37312668430744,
+        95.81310530077135
+      ],
+      "absolute_time_change_ns": 385.55,
+      "bootstrap_90_ci_time_change_ns": [
+        382.99749999999995,
+        388.25750000000005
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_network_truncated",
+      "label": "Truncated second label",
+      "run": "wave1-final",
+      "baseline_median_ns": 60.292500000000004,
+      "rust_median_ns": 142.8825,
+      "change_percent": 136.98221171787534,
+      "bootstrap_95_ci_percent": [
+        136.08499357991963,
+        138.1126432962286
+      ],
+      "absolute_time_change_ns": 82.58999999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        82.2025,
+        83.0625
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_network_oversize",
+      "label": "64-byte label consumed then rejected",
+      "run": "wave1-final",
+      "baseline_median_ns": 43.86,
+      "rust_median_ns": 86.1625,
+      "change_percent": 96.44892840857273,
+      "bootstrap_95_ci_percent": [
+        96.32311024968647,
+        96.8029230417904
+      ],
+      "absolute_time_change_ns": 42.302499999999995,
+      "bootstrap_90_ci_time_change_ns": [
+        42.285000000000004,
+        42.387499999999996
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_read_u8",
+      "label": "U8 payload",
+      "run": "wave1-final",
+      "baseline_median_ns": 42.525,
+      "rust_median_ns": 52.0275,
+      "change_percent": 22.3456790123457,
+      "bootstrap_95_ci_percent": [
+        20.96727315003197,
+        22.64451122503095
+      ],
+      "absolute_time_change_ns": 9.502500000000005,
+      "bootstrap_90_ci_time_change_ns": [
+        9.162500000000001,
+        9.604999999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_read_u16",
+      "label": "U16 payload",
+      "run": "wave1-final",
+      "baseline_median_ns": 43.05,
+      "rust_median_ns": 52.5125,
+      "change_percent": 21.980255516840906,
+      "bootstrap_95_ci_percent": [
+        21.732566916332807,
+        22.52073355916364
+      ],
+      "absolute_time_change_ns": 9.462500000000006,
+      "bootstrap_90_ci_time_change_ns": [
+        9.387500000000003,
+        9.587499999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_read_truncated",
+      "label": "Truncated U16 payload",
+      "run": "wave1-final",
+      "baseline_median_ns": 27.4625,
+      "rust_median_ns": 30.0,
+      "change_percent": 9.23987255348202,
+      "bootstrap_95_ci_percent": [
+        8.794197642792367,
+        9.655674986336304
+      ],
+      "absolute_time_change_ns": 2.5375000000000014,
+      "bootstrap_90_ci_time_change_ns": [
+        2.4549999999999983,
+        2.625
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_record_valid",
+      "label": "Service record name",
+      "run": "wave1-final",
+      "baseline_median_ns": 226.135,
+      "rust_median_ns": 295.10749999999996,
+      "change_percent": 30.5005859331815,
+      "bootstrap_95_ci_percent": [
+        29.306212204507975,
+        32.12399591709936
+      ],
+      "absolute_time_change_ns": 68.97249999999997,
+      "bootstrap_90_ci_time_change_ns": [
+        66.90750000000003,
+        72.15499999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_record_localhost",
+      "label": "Localhost rejection",
+      "run": "wave1-final",
+      "baseline_median_ns": 121.5875,
+      "rust_median_ns": 141.4275,
+      "change_percent": 16.317466844864814,
+      "bootstrap_95_ci_percent": [
+        15.878753029120606,
+        16.976614584408356
+      ],
+      "absolute_time_change_ns": 19.840000000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        19.409999999999997,
+        20.47999999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_record_ip",
+      "label": "IPv6 URL hostname rejection",
+      "run": "wave1-final",
+      "baseline_median_ns": 290.8825,
+      "rust_median_ns": 374.2425,
+      "change_percent": 28.657619485531093,
+      "bootstrap_95_ci_percent": [
+        27.562015173471988,
+        29.630014549989614
+      ],
+      "absolute_time_change_ns": 83.36000000000001,
+      "bootstrap_90_ci_time_change_ns": [
+        81.34750000000003,
+        84.65500000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_canonical_ascii",
+      "label": "ASCII canonicalization",
+      "run": "wave1-final",
+      "baseline_median_ns": 173.13,
+      "rust_median_ns": 490.9325,
+      "change_percent": 183.56292959048116,
+      "bootstrap_95_ci_percent": [
+        181.75108830397556,
+        186.54955503377101
+      ],
+      "absolute_time_change_ns": 317.8025,
+      "bootstrap_90_ci_time_change_ns": [
+        315.79,
+        321.585
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_canonical_unicode",
+      "label": "IDNA canonicalization",
+      "run": "wave1-final",
+      "baseline_median_ns": 1051.885,
+      "rust_median_ns": 1450.37,
+      "change_percent": 37.88294347766153,
+      "bootstrap_95_ci_percent": [
+        37.27443738331946,
+        38.73215540272514
+      ],
+      "absolute_time_change_ns": 398.4849999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        394.83000000000015,
+        404.3425
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_canonical_broken",
+      "label": "Broken URL host fallback",
+      "run": "wave1-final",
+      "baseline_median_ns": 155.07999999999998,
+      "rust_median_ns": 518.585,
+      "change_percent": 234.3983750322415,
+      "bootstrap_95_ci_percent": [
+        231.79671688778947,
+        236.2466574831862
+      ],
+      "absolute_time_change_ns": 363.50500000000005,
+      "bootstrap_90_ci_time_change_ns": [
+        361.2075,
+        364.6025
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_compare_ascii",
+      "label": "ASCII case-insensitive comparator",
+      "run": "wave1-final",
+      "baseline_median_ns": 12.787500000000001,
+      "rust_median_ns": 38.355000000000004,
+      "change_percent": 199.94134897360703,
+      "bootstrap_95_ci_percent": [
+        199.1796875,
+        200.66614420062692
+      ],
+      "absolute_time_change_ns": 25.567500000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        25.505,
+        25.605
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "dns_compare_bytes",
+      "label": "Non-ASCII / NUL comparator",
+      "run": "wave1-final",
+      "baseline_median_ns": 2.23,
+      "rust_median_ns": 26.67,
+      "change_percent": 1095.9641255605382,
+      "bootstrap_95_ci_percent": [
+        1087.8923766816145,
+        1101.2331838565024
+      ],
+      "absolute_time_change_ns": 24.44,
+      "bootstrap_90_ci_time_change_ns": [
+        24.28,
+        24.54
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "dns_dotted_short",
+      "repeat": 0,
+      "baseline_ns": 109.79,
+      "rust_ns": 192.905,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 1,
+      "baseline_ns": 109.915,
+      "rust_ns": 183.5,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 2,
+      "baseline_ns": 111.595,
+      "rust_ns": 186.055,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 3,
+      "baseline_ns": 110.64,
+      "rust_ns": 184.36,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 4,
+      "baseline_ns": 111.25,
+      "rust_ns": 184.685,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 5,
+      "baseline_ns": 110.45,
+      "rust_ns": 184.41,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 6,
+      "baseline_ns": 110.145,
+      "rust_ns": 183.995,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 7,
+      "baseline_ns": 109.9,
+      "rust_ns": 186.24,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 8,
+      "baseline_ns": 110.305,
+      "rust_ns": 185.01,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 9,
+      "baseline_ns": 109.985,
+      "rust_ns": 183.485,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 10,
+      "baseline_ns": 109.46,
+      "rust_ns": 200.785,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 11,
+      "baseline_ns": 109.305,
+      "rust_ns": 182.235,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 12,
+      "baseline_ns": 112.945,
+      "rust_ns": 183.485,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 13,
+      "baseline_ns": 109.895,
+      "rust_ns": 183.2,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 14,
+      "baseline_ns": 110.11,
+      "rust_ns": 182.735,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 15,
+      "baseline_ns": 111.565,
+      "rust_ns": 183.21,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 16,
+      "baseline_ns": 110.0,
+      "rust_ns": 183.595,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 17,
+      "baseline_ns": 110.015,
+      "rust_ns": 184.515,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 18,
+      "baseline_ns": 109.85,
+      "rust_ns": 183.475,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_short",
+      "repeat": 19,
+      "baseline_ns": 110.05,
+      "rust_ns": 183.125,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 0,
+      "baseline_ns": 222.01,
+      "rust_ns": 404.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 1,
+      "baseline_ns": 219.07,
+      "rust_ns": 411.94,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 2,
+      "baseline_ns": 225.745,
+      "rust_ns": 407.305,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 3,
+      "baseline_ns": 218.905,
+      "rust_ns": 404.94,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 4,
+      "baseline_ns": 215.865,
+      "rust_ns": 407.2,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 5,
+      "baseline_ns": 219.365,
+      "rust_ns": 406.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 6,
+      "baseline_ns": 219.14,
+      "rust_ns": 406.425,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 7,
+      "baseline_ns": 228.825,
+      "rust_ns": 434.24,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 8,
+      "baseline_ns": 217.115,
+      "rust_ns": 406.72,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 9,
+      "baseline_ns": 215.745,
+      "rust_ns": 402.695,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 10,
+      "baseline_ns": 218.77,
+      "rust_ns": 402.89,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 11,
+      "baseline_ns": 218.895,
+      "rust_ns": 404.84,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 12,
+      "baseline_ns": 213.67,
+      "rust_ns": 400.08,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 13,
+      "baseline_ns": 218.705,
+      "rust_ns": 403.495,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 14,
+      "baseline_ns": 213.705,
+      "rust_ns": 399.2,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 15,
+      "baseline_ns": 219.06,
+      "rust_ns": 400.105,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 16,
+      "baseline_ns": 218.91,
+      "rust_ns": 408.09,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 17,
+      "baseline_ns": 218.83,
+      "rust_ns": 405.08,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 18,
+      "baseline_ns": 218.595,
+      "rust_ns": 404.455,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_max",
+      "repeat": 19,
+      "baseline_ns": 219.135,
+      "rust_ns": 401.625,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 0,
+      "baseline_ns": 68.395,
+      "rust_ns": 86.62,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 1,
+      "baseline_ns": 69.35,
+      "rust_ns": 80.275,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 2,
+      "baseline_ns": 68.325,
+      "rust_ns": 80.285,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 3,
+      "baseline_ns": 68.39,
+      "rust_ns": 80.27,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 4,
+      "baseline_ns": 68.18,
+      "rust_ns": 80.265,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 5,
+      "baseline_ns": 68.36,
+      "rust_ns": 82.025,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 6,
+      "baseline_ns": 68.565,
+      "rust_ns": 81.575,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 7,
+      "baseline_ns": 69.785,
+      "rust_ns": 80.825,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 8,
+      "baseline_ns": 68.6,
+      "rust_ns": 79.84,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 9,
+      "baseline_ns": 68.4,
+      "rust_ns": 80.495,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 10,
+      "baseline_ns": 68.445,
+      "rust_ns": 80.205,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 11,
+      "baseline_ns": 70.46,
+      "rust_ns": 80.3,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 12,
+      "baseline_ns": 68.58,
+      "rust_ns": 82.11,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 13,
+      "baseline_ns": 68.27,
+      "rust_ns": 82.165,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 14,
+      "baseline_ns": 68.39,
+      "rust_ns": 80.325,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 15,
+      "baseline_ns": 68.395,
+      "rust_ns": 80.395,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 16,
+      "baseline_ns": 68.095,
+      "rust_ns": 81.965,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 17,
+      "baseline_ns": 68.72,
+      "rust_ns": 80.77,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 18,
+      "baseline_ns": 69.275,
+      "rust_ns": 82.175,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_invalid",
+      "repeat": 19,
+      "baseline_ns": 68.39,
+      "rust_ns": 82.265,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 0,
+      "baseline_ns": 93.475,
+      "rust_ns": 163.835,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 1,
+      "baseline_ns": 93.9,
+      "rust_ns": 159.975,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 2,
+      "baseline_ns": 93.3,
+      "rust_ns": 159.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 3,
+      "baseline_ns": 100.095,
+      "rust_ns": 158.87,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 4,
+      "baseline_ns": 93.335,
+      "rust_ns": 159.16,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 5,
+      "baseline_ns": 94.135,
+      "rust_ns": 158.76,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 6,
+      "baseline_ns": 93.12,
+      "rust_ns": 160.185,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 7,
+      "baseline_ns": 93.055,
+      "rust_ns": 160.04,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 8,
+      "baseline_ns": 93.285,
+      "rust_ns": 158.845,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 9,
+      "baseline_ns": 93.17,
+      "rust_ns": 161.375,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 10,
+      "baseline_ns": 93.345,
+      "rust_ns": 159.025,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 11,
+      "baseline_ns": 93.315,
+      "rust_ns": 159.065,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 12,
+      "baseline_ns": 93.715,
+      "rust_ns": 160.275,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 13,
+      "baseline_ns": 93.29,
+      "rust_ns": 161.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 14,
+      "baseline_ns": 93.21,
+      "rust_ns": 159.165,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 15,
+      "baseline_ns": 93.35,
+      "rust_ns": 159.835,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 16,
+      "baseline_ns": 93.305,
+      "rust_ns": 160.22,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 17,
+      "baseline_ns": 93.305,
+      "rust_ns": 159.56,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 18,
+      "baseline_ns": 93.155,
+      "rust_ns": 159.725,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_bytes",
+      "repeat": 19,
+      "baseline_ns": 93.295,
+      "rust_ns": 160.87,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 0,
+      "baseline_ns": 130.355,
+      "rust_ns": 241.345,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 1,
+      "baseline_ns": 130.2,
+      "rust_ns": 244.215,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 2,
+      "baseline_ns": 130.875,
+      "rust_ns": 241.65,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 3,
+      "baseline_ns": 130.73,
+      "rust_ns": 242.63,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 4,
+      "baseline_ns": 130.605,
+      "rust_ns": 241.79,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 5,
+      "baseline_ns": 130.02,
+      "rust_ns": 242.195,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 6,
+      "baseline_ns": 129.41,
+      "rust_ns": 243.565,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 7,
+      "baseline_ns": 133.71,
+      "rust_ns": 242.445,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 8,
+      "baseline_ns": 129.745,
+      "rust_ns": 244.98,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 9,
+      "baseline_ns": 135.39,
+      "rust_ns": 242.52,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 10,
+      "baseline_ns": 130.935,
+      "rust_ns": 243.83,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 11,
+      "baseline_ns": 130.62,
+      "rust_ns": 241.655,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 12,
+      "baseline_ns": 130.61,
+      "rust_ns": 244.65,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 13,
+      "baseline_ns": 129.62,
+      "rust_ns": 245.295,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 14,
+      "baseline_ns": 129.76,
+      "rust_ns": 241.315,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 15,
+      "baseline_ns": 129.53,
+      "rust_ns": 243.09,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 16,
+      "baseline_ns": 131.58,
+      "rust_ns": 240.23,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 17,
+      "baseline_ns": 130.76,
+      "rust_ns": 239.68,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 18,
+      "baseline_ns": 130.93,
+      "rust_ns": 242.275,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_dotted_strict",
+      "repeat": 19,
+      "baseline_ns": 130.49,
+      "rust_ns": 241.42,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 0,
+      "baseline_ns": 45.615,
+      "rust_ns": 99.065,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 1,
+      "baseline_ns": 45.53,
+      "rust_ns": 98.015,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 2,
+      "baseline_ns": 45.65,
+      "rust_ns": 98.615,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 3,
+      "baseline_ns": 45.52,
+      "rust_ns": 97.93,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 4,
+      "baseline_ns": 45.595,
+      "rust_ns": 98.05,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 5,
+      "baseline_ns": 47.955,
+      "rust_ns": 97.97,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 6,
+      "baseline_ns": 45.605,
+      "rust_ns": 96.41,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 7,
+      "baseline_ns": 45.52,
+      "rust_ns": 98.55,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 8,
+      "baseline_ns": 45.605,
+      "rust_ns": 97.39,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 9,
+      "baseline_ns": 45.59,
+      "rust_ns": 96.485,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 10,
+      "baseline_ns": 45.52,
+      "rust_ns": 96.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 11,
+      "baseline_ns": 45.31,
+      "rust_ns": 98.01,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 12,
+      "baseline_ns": 45.24,
+      "rust_ns": 97.04,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 13,
+      "baseline_ns": 45.785,
+      "rust_ns": 96.97,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 14,
+      "baseline_ns": 45.24,
+      "rust_ns": 96.39,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 15,
+      "baseline_ns": 45.515,
+      "rust_ns": 98.035,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 16,
+      "baseline_ns": 45.595,
+      "rust_ns": 97.74,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 17,
+      "baseline_ns": 45.52,
+      "rust_ns": 97.165,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 18,
+      "baseline_ns": 45.465,
+      "rust_ns": 97.59,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_root",
+      "repeat": 19,
+      "baseline_ns": 45.24,
+      "rust_ns": 95.79,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 0,
+      "baseline_ns": 144.79,
+      "rust_ns": 474.9,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 1,
+      "baseline_ns": 149.85,
+      "rust_ns": 476.29,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 2,
+      "baseline_ns": 145.115,
+      "rust_ns": 471.865,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 3,
+      "baseline_ns": 143.715,
+      "rust_ns": 473.05,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 4,
+      "baseline_ns": 143.565,
+      "rust_ns": 475.54,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 5,
+      "baseline_ns": 142.615,
+      "rust_ns": 471.11,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 6,
+      "baseline_ns": 142.49,
+      "rust_ns": 479.255,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 7,
+      "baseline_ns": 143.475,
+      "rust_ns": 470.41,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 8,
+      "baseline_ns": 145.735,
+      "rust_ns": 471.88,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 9,
+      "baseline_ns": 144.125,
+      "rust_ns": 479.945,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 10,
+      "baseline_ns": 143.29,
+      "rust_ns": 480.52,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 11,
+      "baseline_ns": 143.95,
+      "rust_ns": 470.185,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 12,
+      "baseline_ns": 146.84,
+      "rust_ns": 471.385,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 13,
+      "baseline_ns": 143.71,
+      "rust_ns": 471.605,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 14,
+      "baseline_ns": 144.39,
+      "rust_ns": 473.48,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 15,
+      "baseline_ns": 143.78,
+      "rust_ns": 472.785,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 16,
+      "baseline_ns": 143.595,
+      "rust_ns": 469.905,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 17,
+      "baseline_ns": 145.12,
+      "rust_ns": 470.155,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 18,
+      "baseline_ns": 141.98,
+      "rust_ns": 471.555,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_short",
+      "repeat": 19,
+      "baseline_ns": 142.89,
+      "rust_ns": 475.215,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 0,
+      "baseline_ns": 410.035,
+      "rust_ns": 804.11,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 1,
+      "baseline_ns": 412.475,
+      "rust_ns": 794.71,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 2,
+      "baseline_ns": 403.65,
+      "rust_ns": 801.675,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 3,
+      "baseline_ns": 404.82,
+      "rust_ns": 805.25,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 4,
+      "baseline_ns": 409.99,
+      "rust_ns": 800.21,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 5,
+      "baseline_ns": 411.995,
+      "rust_ns": 800.785,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 6,
+      "baseline_ns": 405.865,
+      "rust_ns": 791.9,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 7,
+      "baseline_ns": 405.145,
+      "rust_ns": 792.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 8,
+      "baseline_ns": 407.745,
+      "rust_ns": 792.19,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 9,
+      "baseline_ns": 403.435,
+      "rust_ns": 795.345,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 10,
+      "baseline_ns": 406.37,
+      "rust_ns": 790.24,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 11,
+      "baseline_ns": 403.26,
+      "rust_ns": 783.25,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 12,
+      "baseline_ns": 405.715,
+      "rust_ns": 777.53,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 13,
+      "baseline_ns": 406.77,
+      "rust_ns": 794.47,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 14,
+      "baseline_ns": 413.675,
+      "rust_ns": 786.54,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 15,
+      "baseline_ns": 404.705,
+      "rust_ns": 788.86,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 16,
+      "baseline_ns": 412.1,
+      "rust_ns": 793.1,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 17,
+      "baseline_ns": 408.31,
+      "rust_ns": 788.02,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 18,
+      "baseline_ns": 408.36,
+      "rust_ns": 792.695,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_max",
+      "repeat": 19,
+      "baseline_ns": 412.985,
+      "rust_ns": 791.125,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 0,
+      "baseline_ns": 59.74,
+      "rust_ns": 144.81,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 1,
+      "baseline_ns": 60.265,
+      "rust_ns": 142.93,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 2,
+      "baseline_ns": 60.995,
+      "rust_ns": 144.125,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 3,
+      "baseline_ns": 60.24,
+      "rust_ns": 143.01,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 4,
+      "baseline_ns": 59.825,
+      "rust_ns": 142.155,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 5,
+      "baseline_ns": 59.98,
+      "rust_ns": 143.31,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 6,
+      "baseline_ns": 61.365,
+      "rust_ns": 143.325,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 7,
+      "baseline_ns": 60.355,
+      "rust_ns": 142.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 8,
+      "baseline_ns": 60.195,
+      "rust_ns": 141.23,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 9,
+      "baseline_ns": 60.185,
+      "rust_ns": 142.28,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 10,
+      "baseline_ns": 60.36,
+      "rust_ns": 144.24,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 11,
+      "baseline_ns": 60.49,
+      "rust_ns": 141.635,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 12,
+      "baseline_ns": 61.35,
+      "rust_ns": 142.665,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 13,
+      "baseline_ns": 60.36,
+      "rust_ns": 144.655,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 14,
+      "baseline_ns": 60.115,
+      "rust_ns": 159.005,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 15,
+      "baseline_ns": 60.0,
+      "rust_ns": 143.315,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 16,
+      "baseline_ns": 60.32,
+      "rust_ns": 142.785,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 17,
+      "baseline_ns": 60.185,
+      "rust_ns": 142.835,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 18,
+      "baseline_ns": 62.35,
+      "rust_ns": 142.495,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_truncated",
+      "repeat": 19,
+      "baseline_ns": 60.32,
+      "rust_ns": 141.655,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 0,
+      "baseline_ns": 43.875,
+      "rust_ns": 85.965,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 1,
+      "baseline_ns": 43.855,
+      "rust_ns": 86.25,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 2,
+      "baseline_ns": 43.785,
+      "rust_ns": 85.935,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 3,
+      "baseline_ns": 44.1,
+      "rust_ns": 86.395,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 4,
+      "baseline_ns": 43.94,
+      "rust_ns": 86.165,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 5,
+      "baseline_ns": 43.6,
+      "rust_ns": 86.16,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 6,
+      "baseline_ns": 43.785,
+      "rust_ns": 86.16,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 7,
+      "baseline_ns": 43.865,
+      "rust_ns": 86.24,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 8,
+      "baseline_ns": 43.87,
+      "rust_ns": 86.09,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 9,
+      "baseline_ns": 44.525,
+      "rust_ns": 85.705,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 10,
+      "baseline_ns": 43.59,
+      "rust_ns": 85.9,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 11,
+      "baseline_ns": 43.865,
+      "rust_ns": 86.185,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 12,
+      "baseline_ns": 43.785,
+      "rust_ns": 86.16,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 13,
+      "baseline_ns": 43.62,
+      "rust_ns": 86.15,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 14,
+      "baseline_ns": 43.81,
+      "rust_ns": 86.045,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 15,
+      "baseline_ns": 43.93,
+      "rust_ns": 89.19,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 16,
+      "baseline_ns": 43.79,
+      "rust_ns": 86.195,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 17,
+      "baseline_ns": 43.865,
+      "rust_ns": 86.63,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 18,
+      "baseline_ns": 44.14,
+      "rust_ns": 86.625,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_network_oversize",
+      "repeat": 19,
+      "baseline_ns": 43.79,
+      "rust_ns": 86.89,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 0,
+      "baseline_ns": 43.295,
+      "rust_ns": 52.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 1,
+      "baseline_ns": 42.795,
+      "rust_ns": 54.325,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 2,
+      "baseline_ns": 43.155,
+      "rust_ns": 52.035,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 3,
+      "baseline_ns": 42.39,
+      "rust_ns": 52.035,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 4,
+      "baseline_ns": 43.29,
+      "rust_ns": 52.11,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 5,
+      "baseline_ns": 42.425,
+      "rust_ns": 52.02,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 6,
+      "baseline_ns": 43.295,
+      "rust_ns": 52.03,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 7,
+      "baseline_ns": 42.5,
+      "rust_ns": 51.925,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 8,
+      "baseline_ns": 42.425,
+      "rust_ns": 52.12,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 9,
+      "baseline_ns": 43.19,
+      "rust_ns": 54.81,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 10,
+      "baseline_ns": 43.3,
+      "rust_ns": 52.195,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 11,
+      "baseline_ns": 41.525,
+      "rust_ns": 51.395,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 12,
+      "baseline_ns": 42.55,
+      "rust_ns": 52.155,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 13,
+      "baseline_ns": 41.16,
+      "rust_ns": 50.955,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 14,
+      "baseline_ns": 42.43,
+      "rust_ns": 51.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 15,
+      "baseline_ns": 42.43,
+      "rust_ns": 52.02,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 16,
+      "baseline_ns": 41.805,
+      "rust_ns": 52.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 17,
+      "baseline_ns": 42.575,
+      "rust_ns": 50.7,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 18,
+      "baseline_ns": 42.86,
+      "rust_ns": 51.38,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u8",
+      "repeat": 19,
+      "baseline_ns": 42.425,
+      "rust_ns": 52.035,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 0,
+      "baseline_ns": 43.28,
+      "rust_ns": 52.545,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 1,
+      "baseline_ns": 42.805,
+      "rust_ns": 52.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 2,
+      "baseline_ns": 43.105,
+      "rust_ns": 52.62,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 3,
+      "baseline_ns": 43.12,
+      "rust_ns": 52.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 4,
+      "baseline_ns": 43.05,
+      "rust_ns": 52.72,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 5,
+      "baseline_ns": 43.05,
+      "rust_ns": 52.585,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 6,
+      "baseline_ns": 43.045,
+      "rust_ns": 53.445,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 7,
+      "baseline_ns": 42.06,
+      "rust_ns": 52.505,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 8,
+      "baseline_ns": 42.745,
+      "rust_ns": 52.28,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 9,
+      "baseline_ns": 43.05,
+      "rust_ns": 52.515,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 10,
+      "baseline_ns": 42.055,
+      "rust_ns": 52.515,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 11,
+      "baseline_ns": 43.115,
+      "rust_ns": 52.64,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 12,
+      "baseline_ns": 43.065,
+      "rust_ns": 52.415,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 13,
+      "baseline_ns": 41.935,
+      "rust_ns": 52.125,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 14,
+      "baseline_ns": 43.49,
+      "rust_ns": 52.12,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 15,
+      "baseline_ns": 42.43,
+      "rust_ns": 53.075,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 16,
+      "baseline_ns": 43.125,
+      "rust_ns": 52.33,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 17,
+      "baseline_ns": 42.91,
+      "rust_ns": 52.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 18,
+      "baseline_ns": 43.05,
+      "rust_ns": 52.53,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_u16",
+      "repeat": 19,
+      "baseline_ns": 43.145,
+      "rust_ns": 52.51,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 0,
+      "baseline_ns": 28.015,
+      "rust_ns": 29.995,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 1,
+      "baseline_ns": 27.61,
+      "rust_ns": 30.18,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 2,
+      "baseline_ns": 27.695,
+      "rust_ns": 30.06,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 3,
+      "baseline_ns": 27.605,
+      "rust_ns": 30.355,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 4,
+      "baseline_ns": 28.23,
+      "rust_ns": 30.33,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 5,
+      "baseline_ns": 27.32,
+      "rust_ns": 30.12,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 6,
+      "baseline_ns": 27.32,
+      "rust_ns": 29.995,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 7,
+      "baseline_ns": 27.415,
+      "rust_ns": 29.995,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 8,
+      "baseline_ns": 27.63,
+      "rust_ns": 29.815,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 9,
+      "baseline_ns": 27.405,
+      "rust_ns": 29.875,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 10,
+      "baseline_ns": 27.475,
+      "rust_ns": 29.875,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 11,
+      "baseline_ns": 27.32,
+      "rust_ns": 29.875,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 12,
+      "baseline_ns": 27.39,
+      "rust_ns": 29.87,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 13,
+      "baseline_ns": 27.32,
+      "rust_ns": 29.875,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 14,
+      "baseline_ns": 27.25,
+      "rust_ns": 32.27,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 15,
+      "baseline_ns": 27.525,
+      "rust_ns": 30.07,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 16,
+      "baseline_ns": 27.44,
+      "rust_ns": 30.0,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 17,
+      "baseline_ns": 27.54,
+      "rust_ns": 30.0,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 18,
+      "baseline_ns": 27.45,
+      "rust_ns": 37.16,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_read_truncated",
+      "repeat": 19,
+      "baseline_ns": 27.545,
+      "rust_ns": 30.0,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 0,
+      "baseline_ns": 224.465,
+      "rust_ns": 295.49,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 1,
+      "baseline_ns": 228.49,
+      "rust_ns": 295.46,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 2,
+      "baseline_ns": 226.29,
+      "rust_ns": 293.745,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 3,
+      "baseline_ns": 224.785,
+      "rust_ns": 297.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 4,
+      "baseline_ns": 224.985,
+      "rust_ns": 291.475,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 5,
+      "baseline_ns": 225.33,
+      "rust_ns": 331.36,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 6,
+      "baseline_ns": 224.26,
+      "rust_ns": 290.07,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 7,
+      "baseline_ns": 227.54,
+      "rust_ns": 293.56,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 8,
+      "baseline_ns": 228.135,
+      "rust_ns": 294.535,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 9,
+      "baseline_ns": 227.615,
+      "rust_ns": 291.455,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 10,
+      "baseline_ns": 225.54,
+      "rust_ns": 292.57,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 11,
+      "baseline_ns": 224.995,
+      "rust_ns": 294.755,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 12,
+      "baseline_ns": 231.485,
+      "rust_ns": 294.01,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 13,
+      "baseline_ns": 224.36,
+      "rust_ns": 293.1,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 14,
+      "baseline_ns": 225.98,
+      "rust_ns": 304.115,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 15,
+      "baseline_ns": 227.385,
+      "rust_ns": 299.54,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 16,
+      "baseline_ns": 225.56,
+      "rust_ns": 298.055,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 17,
+      "baseline_ns": 338.155,
+      "rust_ns": 356.59,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 18,
+      "baseline_ns": 338.77,
+      "rust_ns": 448.235,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_valid",
+      "repeat": 19,
+      "baseline_ns": 227.365,
+      "rust_ns": 382.755,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 0,
+      "baseline_ns": 121.605,
+      "rust_ns": 140.995,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 1,
+      "baseline_ns": 123.895,
+      "rust_ns": 140.9,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 2,
+      "baseline_ns": 121.4,
+      "rust_ns": 140.36,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 3,
+      "baseline_ns": 121.94,
+      "rust_ns": 140.535,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 4,
+      "baseline_ns": 123.445,
+      "rust_ns": 140.62,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 5,
+      "baseline_ns": 121.68,
+      "rust_ns": 141.185,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 6,
+      "baseline_ns": 122.675,
+      "rust_ns": 142.165,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 7,
+      "baseline_ns": 121.065,
+      "rust_ns": 142.935,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 8,
+      "baseline_ns": 121.025,
+      "rust_ns": 141.505,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 9,
+      "baseline_ns": 120.85,
+      "rust_ns": 141.35,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 10,
+      "baseline_ns": 122.94,
+      "rust_ns": 141.935,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 11,
+      "baseline_ns": 121.0,
+      "rust_ns": 140.9,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 12,
+      "baseline_ns": 120.93,
+      "rust_ns": 142.205,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 13,
+      "baseline_ns": 121.095,
+      "rust_ns": 141.685,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 14,
+      "baseline_ns": 120.855,
+      "rust_ns": 140.99,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 15,
+      "baseline_ns": 121.15,
+      "rust_ns": 141.565,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 16,
+      "baseline_ns": 121.79,
+      "rust_ns": 142.275,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 17,
+      "baseline_ns": 121.59,
+      "rust_ns": 141.135,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 18,
+      "baseline_ns": 121.585,
+      "rust_ns": 142.445,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_localhost",
+      "repeat": 19,
+      "baseline_ns": 124.765,
+      "rust_ns": 142.455,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 0,
+      "baseline_ns": 290.94,
+      "rust_ns": 386.335,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 1,
+      "baseline_ns": 291.525,
+      "rust_ns": 390.3,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 2,
+      "baseline_ns": 290.2,
+      "rust_ns": 379.555,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 3,
+      "baseline_ns": 292.185,
+      "rust_ns": 374.295,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 4,
+      "baseline_ns": 286.425,
+      "rust_ns": 374.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 5,
+      "baseline_ns": 285.77,
+      "rust_ns": 371.245,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 6,
+      "baseline_ns": 290.345,
+      "rust_ns": 371.825,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 7,
+      "baseline_ns": 296.11,
+      "rust_ns": 373.11,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 8,
+      "baseline_ns": 293.275,
+      "rust_ns": 375.295,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 9,
+      "baseline_ns": 287.12,
+      "rust_ns": 372.675,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 10,
+      "baseline_ns": 295.265,
+      "rust_ns": 375.075,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 11,
+      "baseline_ns": 297.065,
+      "rust_ns": 375.78,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 12,
+      "baseline_ns": 302.61,
+      "rust_ns": 374.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 13,
+      "baseline_ns": 293.505,
+      "rust_ns": 396.985,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 14,
+      "baseline_ns": 290.29,
+      "rust_ns": 374.45,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 15,
+      "baseline_ns": 285.565,
+      "rust_ns": 374.19,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 16,
+      "baseline_ns": 285.925,
+      "rust_ns": 369.17,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 17,
+      "baseline_ns": 285.965,
+      "rust_ns": 370.09,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 18,
+      "baseline_ns": 290.825,
+      "rust_ns": 372.99,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_record_ip",
+      "repeat": 19,
+      "baseline_ns": 295.44,
+      "rust_ns": 372.92,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 0,
+      "baseline_ns": 172.25,
+      "rust_ns": 490.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 1,
+      "baseline_ns": 172.2,
+      "rust_ns": 494.13,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 2,
+      "baseline_ns": 174.145,
+      "rust_ns": 488.805,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 3,
+      "baseline_ns": 173.94,
+      "rust_ns": 487.255,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 4,
+      "baseline_ns": 172.855,
+      "rust_ns": 490.275,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 5,
+      "baseline_ns": 172.1,
+      "rust_ns": 556.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 6,
+      "baseline_ns": 172.765,
+      "rust_ns": 488.505,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 7,
+      "baseline_ns": 173.19,
+      "rust_ns": 490.01,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 8,
+      "baseline_ns": 172.485,
+      "rust_ns": 494.255,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 9,
+      "baseline_ns": 176.255,
+      "rust_ns": 491.59,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 10,
+      "baseline_ns": 172.025,
+      "rust_ns": 494.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 11,
+      "baseline_ns": 173.435,
+      "rust_ns": 484.505,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 12,
+      "baseline_ns": 173.07,
+      "rust_ns": 488.185,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 13,
+      "baseline_ns": 173.47,
+      "rust_ns": 489.185,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 14,
+      "baseline_ns": 171.315,
+      "rust_ns": 491.195,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 15,
+      "baseline_ns": 172.19,
+      "rust_ns": 588.075,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 16,
+      "baseline_ns": 299.785,
+      "rust_ns": 524.83,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 17,
+      "baseline_ns": 190.75,
+      "rust_ns": 487.23,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 18,
+      "baseline_ns": 176.935,
+      "rust_ns": 500.28,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_ascii",
+      "repeat": 19,
+      "baseline_ns": 174.615,
+      "rust_ns": 531.195,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 0,
+      "baseline_ns": 1058.595,
+      "rust_ns": 1498.05,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 1,
+      "baseline_ns": 1060.13,
+      "rust_ns": 1468.46,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 2,
+      "baseline_ns": 1063.23,
+      "rust_ns": 1461.3,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 3,
+      "baseline_ns": 1059.215,
+      "rust_ns": 1463.515,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 4,
+      "baseline_ns": 1061.02,
+      "rust_ns": 1455.415,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 5,
+      "baseline_ns": 1059.185,
+      "rust_ns": 1461.325,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 6,
+      "baseline_ns": 1053.31,
+      "rust_ns": 1458.16,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 7,
+      "baseline_ns": 1044.515,
+      "rust_ns": 1443.27,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 8,
+      "baseline_ns": 1041.46,
+      "rust_ns": 1448.8,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 9,
+      "baseline_ns": 1040.16,
+      "rust_ns": 1442.24,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 10,
+      "baseline_ns": 1054.35,
+      "rust_ns": 1465.875,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 11,
+      "baseline_ns": 1046.155,
+      "rust_ns": 1449.345,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 12,
+      "baseline_ns": 1044.495,
+      "rust_ns": 1443.18,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 13,
+      "baseline_ns": 1041.025,
+      "rust_ns": 1446.725,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 14,
+      "baseline_ns": 1057.325,
+      "rust_ns": 1436.925,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 15,
+      "baseline_ns": 1046.185,
+      "rust_ns": 1441.1,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 16,
+      "baseline_ns": 1036.0,
+      "rust_ns": 1436.355,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 17,
+      "baseline_ns": 1058.38,
+      "rust_ns": 1454.99,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 18,
+      "baseline_ns": 1044.42,
+      "rust_ns": 1451.395,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_unicode",
+      "repeat": 19,
+      "baseline_ns": 1050.46,
+      "rust_ns": 1445.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 0,
+      "baseline_ns": 156.5,
+      "rust_ns": 527.285,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 1,
+      "baseline_ns": 155.645,
+      "rust_ns": 514.3,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 2,
+      "baseline_ns": 154.01,
+      "rust_ns": 514.06,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 3,
+      "baseline_ns": 152.855,
+      "rust_ns": 518.965,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 4,
+      "baseline_ns": 153.505,
+      "rust_ns": 518.73,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 5,
+      "baseline_ns": 154.745,
+      "rust_ns": 514.795,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 6,
+      "baseline_ns": 153.42,
+      "rust_ns": 515.765,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 7,
+      "baseline_ns": 153.09,
+      "rust_ns": 519.01,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 8,
+      "baseline_ns": 159.13,
+      "rust_ns": 522.895,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 9,
+      "baseline_ns": 155.26,
+      "rust_ns": 516.895,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 10,
+      "baseline_ns": 156.93,
+      "rust_ns": 516.33,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 11,
+      "baseline_ns": 155.155,
+      "rust_ns": 517.03,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 12,
+      "baseline_ns": 157.23,
+      "rust_ns": 521.695,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 13,
+      "baseline_ns": 155.945,
+      "rust_ns": 520.1,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 14,
+      "baseline_ns": 154.715,
+      "rust_ns": 521.1,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 15,
+      "baseline_ns": 155.005,
+      "rust_ns": 518.44,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 16,
+      "baseline_ns": 155.8,
+      "rust_ns": 516.425,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 17,
+      "baseline_ns": 154.075,
+      "rust_ns": 519.295,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 18,
+      "baseline_ns": 156.315,
+      "rust_ns": 515.695,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_canonical_broken",
+      "repeat": 19,
+      "baseline_ns": 154.45,
+      "rust_ns": 523.975,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 0,
+      "baseline_ns": 12.69,
+      "rust_ns": 38.365,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 1,
+      "baseline_ns": 12.73,
+      "rust_ns": 38.245,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 2,
+      "baseline_ns": 12.93,
+      "rust_ns": 38.13,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 3,
+      "baseline_ns": 12.645,
+      "rust_ns": 38.275,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 4,
+      "baseline_ns": 12.8,
+      "rust_ns": 38.37,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 5,
+      "baseline_ns": 13.2,
+      "rust_ns": 38.415,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 6,
+      "baseline_ns": 12.765,
+      "rust_ns": 38.345,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 7,
+      "baseline_ns": 12.775,
+      "rust_ns": 38.425,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 8,
+      "baseline_ns": 12.8,
+      "rust_ns": 38.285,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 9,
+      "baseline_ns": 12.77,
+      "rust_ns": 38.365,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 10,
+      "baseline_ns": 12.8,
+      "rust_ns": 38.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 11,
+      "baseline_ns": 12.85,
+      "rust_ns": 38.18,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 12,
+      "baseline_ns": 12.62,
+      "rust_ns": 38.41,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 13,
+      "baseline_ns": 12.755,
+      "rust_ns": 39.135,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 14,
+      "baseline_ns": 12.72,
+      "rust_ns": 37.89,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 15,
+      "baseline_ns": 12.8,
+      "rust_ns": 38.635,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 16,
+      "baseline_ns": 12.775,
+      "rust_ns": 38.305,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 17,
+      "baseline_ns": 12.875,
+      "rust_ns": 38.305,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 18,
+      "baseline_ns": 12.805,
+      "rust_ns": 38.305,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_ascii",
+      "repeat": 19,
+      "baseline_ns": 12.95,
+      "rust_ns": 38.38,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 0,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.51,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 1,
+      "baseline_ns": 2.215,
+      "rust_ns": 27.605,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 2,
+      "baseline_ns": 2.215,
+      "rust_ns": 26.325,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 3,
+      "baseline_ns": 2.215,
+      "rust_ns": 26.325,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 4,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.68,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 5,
+      "baseline_ns": 2.225,
+      "rust_ns": 26.805,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 6,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.77,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 7,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.47,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 8,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.675,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 9,
+      "baseline_ns": 2.24,
+      "rust_ns": 27.1,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 10,
+      "baseline_ns": 2.245,
+      "rust_ns": 26.935,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 11,
+      "baseline_ns": 2.245,
+      "rust_ns": 26.73,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 12,
+      "baseline_ns": 2.32,
+      "rust_ns": 25.975,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 13,
+      "baseline_ns": 2.235,
+      "rust_ns": 26.265,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 14,
+      "baseline_ns": 2.23,
+      "rust_ns": 27.77,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 15,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.54,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 16,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.3,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 17,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.59,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 18,
+      "baseline_ns": 2.23,
+      "rust_ns": 26.665,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "dns_compare_bytes",
+      "repeat": 19,
+      "baseline_ns": 2.24,
+      "rust_ns": 26.84,
+      "iterations": 20000,
+      "rust_first": true
+    }
+  ],
+  "recorded_at": "2026-11-12T20:38:11.313862+00:00"
+}

@@ -1,0 +1,868 @@
+{
+  "date": "2026-11-12",
+  "status": "Combined configured build and checks passed",
+  "build": {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+      "-C",
+      "out/Default",
+      "-j4",
+      "chrome",
+      "parse_number_candidate_unittests",
+      "hsts_unittests",
+      "hsts_perftests",
+      "mime_sniffer_rust_unittests",
+      "mime_sniffer_rust_perftests",
+      "http_range_unittests",
+      "http_range_perftests",
+      "gzip_header_unittests",
+      "gzip_header_perftests",
+      "ui_base_unittests"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 120.1000892000011,
+    "source_sha256": {
+      "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+      "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+      "net/base/mime_sniffer.cc": "950e77ee5eeb377202389b7f89a37ee05575ac661cac51729362e1c3942a7f17",
+      "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+      "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+      "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+      "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+      "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+      "net/base/mime_sniffer_fuzzer_corpus/html.mime": "626cb99d9b58b193a6230c392f6083a89197be8ed43bb50906697e6901791f67",
+      "net/base/mime_sniffer_fuzzer_corpus/joint-alias.mime": "f7e1aca99343cdefe7a3d1a059f9a1570c772b85982e5412e503df869aa2fc28",
+      "net/base/mime_sniffer_fuzzer_corpus/office.mime": "891854fc02374ea5474618dc93616bf9ab943493813e182f50c5d120ad33bff9",
+      "net/base/mime_sniffer_fuzzer_corpus/png.mime": "13244ba64fc1bbe258a046102583dfb97e5e392591f96ec0efd7a8d3993c2465",
+      "net/base/mime_sniffer_fuzzer_corpus/xml.mime": "deb1734616744d01463719604b3b9dcfe25e3b188f0fd4c1db52f62c5eb7b99a",
+      "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+      "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+      "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+      "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+      "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+      "net/base/mime_sniffer_rust_unittest.cc": "512b2124166e741924709e0f82ff47c407fdc0b9083471edf03576c1bb410113",
+      "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+      "net/base/parse_number.cc": "ada2eac77e58359fa11fdf4573d22574901962946461604e8e80603685c2b996",
+      "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+      "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+      "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+      "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+      "net/base/parse_number_fuzzer_corpus/maximum.number": "2cdb26265b4dc65e3b44d694f121fd6de99b9e4b8ae7f08d84bfa9537635ae43",
+      "net/base/parse_number_fuzzer_corpus/overflow.number": "17c583379a93a734050fabd37064517fec7b83fc6d49cf6946e2c3fb61eea8ad",
+      "net/base/parse_number_fuzzer_corpus/signed.number": "85386477f3af47e4a0b308ee3b3a688df16e8b2228105dd7d4dcd42a9807cb78",
+      "net/base/parse_number_fuzzer_corpus/strict.number": "5b83ffc2cd348607d997b2b54d972cb1b51dc2b5656f5051f673af6b231d3d9f",
+      "net/base/parse_number_fuzzer_corpus/zero.number": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+      "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+      "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+      "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+      "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+      "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+      "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+      "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+      "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee",
+      "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+      "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+      "net/http/hsts_fuzzer_corpus/empty-directives.header": "c151efac2a101fda0be52d02efd9ce4722fd88ac2f9c6568518ace4a7c629c01",
+      "net/http/hsts_fuzzer_corpus/invalid.header": "7c394299426e64ebcf78fa9666d706d42b320b58e47333373c0a672643cd3bb6",
+      "net/http/hsts_fuzzer_corpus/nul.header": "e434e96c8839e98b91d14a1f82b0fcc9f79361bf4085fba76269d47c0ecfa7b0",
+      "net/http/hsts_fuzzer_corpus/overflow.header": "32445e10bec64e47b31da95b0974c34f5395fec9ccc0e8924a9fad1f1a0dea45",
+      "net/http/hsts_fuzzer_corpus/quoted.header": "1706f84f0860d0c1c0efd09f954bac8c0049cb7c9ac649dc074ede813e238e70",
+      "net/http/hsts_fuzzer_corpus/standard.header": "bc2f0214b5394c2b8d206b430e85d5a940fcae00ac6a29130be685c84f9c71b4",
+      "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+      "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+      "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+      "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+      "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+      "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+      "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+      "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+      "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+      "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+      "net/http/http_range_fuzzer.cc": "83f73eff3644eb42ac58e05854d573c6e5aae45e73b7544153d1485865821810",
+      "net/http/http_range_fuzzer_corpus/bounded.range": "573fa78868b8207a1e546654cf3998492b151f4bdcc296f9fa0f3935e4f51ade",
+      "net/http/http_range_fuzzer_corpus/content.range": "fcc67b95d0f9104750a51477453b5252cd80ebcb455af43ded00c379a63680b8",
+      "net/http/http_range_fuzzer_corpus/fetch.range": "66d992b285cfceb12a712999042fcdfed4874da01c0d43f4a8ff16cf6e761957",
+      "net/http/http_range_fuzzer_corpus/multi.range": "508e199c271678ec2ed78bee31a530cb70695fb3126e8d9f8c33cd76934886a4",
+      "net/http/http_range_fuzzer_corpus/overflow.range": "d319d34f0e75d2850ff9bf9b87bb1daf16bd298e9684c5266f03abc48b6a64c8",
+      "net/http/http_range_original_unittest.cc": "9c7f493c6f8cfab44f4a4ac23f365e9ada95cfb8d766ed1b25594ec030a4b956",
+      "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+      "net/http/http_range_perftest.cc": "b4920317d4c6c26ea9062172a4794d65e6d3f579ffa3779ea030fd219bf76ce7",
+      "net/http/http_range_test_support.cc": "7227d9048ab1fd5f08c399098870ef8b0a01a718636debde191610f59d49f67c",
+      "net/http/http_range_test_support.h": "718d1ba34d87021f9fe7f18d4f62f378ebb9402e7b251659fc81bba1bf3b1fcc",
+      "net/http/http_range_unittest.cc": "f3397f3dd1e68a878a916bb393176d094269e5d5b0702b7c07962dd982bf8be4",
+      "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+      "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+      "net/http/http_security_headers_hsts_fuzzer.cc": "71d5e33f6d329086bb6a60a347a659117ad408d79a3c0a6066f4fe358b7b39f2",
+      "net/http/http_security_headers_unittest.cc": "9be184ef216ba50d2c3c11386d6dc4ba76d4c948f460ec778eb2c76b796807c7",
+      "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936"
+    }
+  },
+  "gn_dependency_checks": {
+    "check--net-": {
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "check",
+        "out/Default",
+        "//net:*"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.978206900006626,
+      "source_sha256": {
+        "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+        "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+        "net/base/mime_sniffer.cc": "950e77ee5eeb377202389b7f89a37ee05575ac661cac51729362e1c3942a7f17",
+        "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+        "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+        "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+        "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+        "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+        "net/base/mime_sniffer_fuzzer_corpus/html.mime": "626cb99d9b58b193a6230c392f6083a89197be8ed43bb50906697e6901791f67",
+        "net/base/mime_sniffer_fuzzer_corpus/joint-alias.mime": "f7e1aca99343cdefe7a3d1a059f9a1570c772b85982e5412e503df869aa2fc28",
+        "net/base/mime_sniffer_fuzzer_corpus/office.mime": "891854fc02374ea5474618dc93616bf9ab943493813e182f50c5d120ad33bff9",
+        "net/base/mime_sniffer_fuzzer_corpus/png.mime": "13244ba64fc1bbe258a046102583dfb97e5e392591f96ec0efd7a8d3993c2465",
+        "net/base/mime_sniffer_fuzzer_corpus/xml.mime": "deb1734616744d01463719604b3b9dcfe25e3b188f0fd4c1db52f62c5eb7b99a",
+        "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+        "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+        "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+        "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+        "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+        "net/base/mime_sniffer_rust_unittest.cc": "512b2124166e741924709e0f82ff47c407fdc0b9083471edf03576c1bb410113",
+        "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+        "net/base/parse_number.cc": "ada2eac77e58359fa11fdf4573d22574901962946461604e8e80603685c2b996",
+        "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+        "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+        "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+        "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+        "net/base/parse_number_fuzzer_corpus/maximum.number": "2cdb26265b4dc65e3b44d694f121fd6de99b9e4b8ae7f08d84bfa9537635ae43",
+        "net/base/parse_number_fuzzer_corpus/overflow.number": "17c583379a93a734050fabd37064517fec7b83fc6d49cf6946e2c3fb61eea8ad",
+        "net/base/parse_number_fuzzer_corpus/signed.number": "85386477f3af47e4a0b308ee3b3a688df16e8b2228105dd7d4dcd42a9807cb78",
+        "net/base/parse_number_fuzzer_corpus/strict.number": "5b83ffc2cd348607d997b2b54d972cb1b51dc2b5656f5051f673af6b231d3d9f",
+        "net/base/parse_number_fuzzer_corpus/zero.number": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+        "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+        "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+        "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+        "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+        "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+        "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+        "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee",
+        "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+        "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+        "net/http/hsts_fuzzer_corpus/empty-directives.header": "c151efac2a101fda0be52d02efd9ce4722fd88ac2f9c6568518ace4a7c629c01",
+        "net/http/hsts_fuzzer_corpus/invalid.header": "7c394299426e64ebcf78fa9666d706d42b320b58e47333373c0a672643cd3bb6",
+        "net/http/hsts_fuzzer_corpus/nul.header": "e434e96c8839e98b91d14a1f82b0fcc9f79361bf4085fba76269d47c0ecfa7b0",
+        "net/http/hsts_fuzzer_corpus/overflow.header": "32445e10bec64e47b31da95b0974c34f5395fec9ccc0e8924a9fad1f1a0dea45",
+        "net/http/hsts_fuzzer_corpus/quoted.header": "1706f84f0860d0c1c0efd09f954bac8c0049cb7c9ac649dc074ede813e238e70",
+        "net/http/hsts_fuzzer_corpus/standard.header": "bc2f0214b5394c2b8d206b430e85d5a940fcae00ac6a29130be685c84f9c71b4",
+        "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+        "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+        "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+        "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+        "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+        "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+        "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+        "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+        "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+        "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+        "net/http/http_range_fuzzer.cc": "83f73eff3644eb42ac58e05854d573c6e5aae45e73b7544153d1485865821810",
+        "net/http/http_range_fuzzer_corpus/bounded.range": "573fa78868b8207a1e546654cf3998492b151f4bdcc296f9fa0f3935e4f51ade",
+        "net/http/http_range_fuzzer_corpus/content.range": "fcc67b95d0f9104750a51477453b5252cd80ebcb455af43ded00c379a63680b8",
+        "net/http/http_range_fuzzer_corpus/fetch.range": "66d992b285cfceb12a712999042fcdfed4874da01c0d43f4a8ff16cf6e761957",
+        "net/http/http_range_fuzzer_corpus/multi.range": "508e199c271678ec2ed78bee31a530cb70695fb3126e8d9f8c33cd76934886a4",
+        "net/http/http_range_fuzzer_corpus/overflow.range": "d319d34f0e75d2850ff9bf9b87bb1daf16bd298e9684c5266f03abc48b6a64c8",
+        "net/http/http_range_original_unittest.cc": "9c7f493c6f8cfab44f4a4ac23f365e9ada95cfb8d766ed1b25594ec030a4b956",
+        "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+        "net/http/http_range_perftest.cc": "b4920317d4c6c26ea9062172a4794d65e6d3f579ffa3779ea030fd219bf76ce7",
+        "net/http/http_range_test_support.cc": "7227d9048ab1fd5f08c399098870ef8b0a01a718636debde191610f59d49f67c",
+        "net/http/http_range_test_support.h": "718d1ba34d87021f9fe7f18d4f62f378ebb9402e7b251659fc81bba1bf3b1fcc",
+        "net/http/http_range_unittest.cc": "f3397f3dd1e68a878a916bb393176d094269e5d5b0702b7c07962dd982bf8be4",
+        "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+        "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+        "net/http/http_security_headers_hsts_fuzzer.cc": "71d5e33f6d329086bb6a60a347a659117ad408d79a3c0a6066f4fe358b7b39f2",
+        "net/http/http_security_headers_unittest.cc": "9be184ef216ba50d2c3c11386d6dc4ba76d4c948f460ec778eb2c76b796807c7",
+        "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936"
+      }
+    },
+    "check--net-base-registry_controlled_domains": {
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "check",
+        "out/Default",
+        "//net/base:registry_controlled_domains"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 14.783374600003299,
+      "source_sha256": {
+        "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+        "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+        "net/base/mime_sniffer.cc": "950e77ee5eeb377202389b7f89a37ee05575ac661cac51729362e1c3942a7f17",
+        "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+        "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+        "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+        "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+        "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+        "net/base/mime_sniffer_fuzzer_corpus/html.mime": "626cb99d9b58b193a6230c392f6083a89197be8ed43bb50906697e6901791f67",
+        "net/base/mime_sniffer_fuzzer_corpus/joint-alias.mime": "f7e1aca99343cdefe7a3d1a059f9a1570c772b85982e5412e503df869aa2fc28",
+        "net/base/mime_sniffer_fuzzer_corpus/office.mime": "891854fc02374ea5474618dc93616bf9ab943493813e182f50c5d120ad33bff9",
+        "net/base/mime_sniffer_fuzzer_corpus/png.mime": "13244ba64fc1bbe258a046102583dfb97e5e392591f96ec0efd7a8d3993c2465",
+        "net/base/mime_sniffer_fuzzer_corpus/xml.mime": "deb1734616744d01463719604b3b9dcfe25e3b188f0fd4c1db52f62c5eb7b99a",
+        "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+        "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+        "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+        "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+        "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+        "net/base/mime_sniffer_rust_unittest.cc": "512b2124166e741924709e0f82ff47c407fdc0b9083471edf03576c1bb410113",
+        "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+        "net/base/parse_number.cc": "ada2eac77e58359fa11fdf4573d22574901962946461604e8e80603685c2b996",
+        "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+        "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+        "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+        "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+        "net/base/parse_number_fuzzer_corpus/maximum.number": "2cdb26265b4dc65e3b44d694f121fd6de99b9e4b8ae7f08d84bfa9537635ae43",
+        "net/base/parse_number_fuzzer_corpus/overflow.number": "17c583379a93a734050fabd37064517fec7b83fc6d49cf6946e2c3fb61eea8ad",
+        "net/base/parse_number_fuzzer_corpus/signed.number": "85386477f3af47e4a0b308ee3b3a688df16e8b2228105dd7d4dcd42a9807cb78",
+        "net/base/parse_number_fuzzer_corpus/strict.number": "5b83ffc2cd348607d997b2b54d972cb1b51dc2b5656f5051f673af6b231d3d9f",
+        "net/base/parse_number_fuzzer_corpus/zero.number": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+        "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+        "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+        "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+        "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+        "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+        "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+        "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+        "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee",
+        "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+        "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+        "net/http/hsts_fuzzer_corpus/empty-directives.header": "c151efac2a101fda0be52d02efd9ce4722fd88ac2f9c6568518ace4a7c629c01",
+        "net/http/hsts_fuzzer_corpus/invalid.header": "7c394299426e64ebcf78fa9666d706d42b320b58e47333373c0a672643cd3bb6",
+        "net/http/hsts_fuzzer_corpus/nul.header": "e434e96c8839e98b91d14a1f82b0fcc9f79361bf4085fba76269d47c0ecfa7b0",
+        "net/http/hsts_fuzzer_corpus/overflow.header": "32445e10bec64e47b31da95b0974c34f5395fec9ccc0e8924a9fad1f1a0dea45",
+        "net/http/hsts_fuzzer_corpus/quoted.header": "1706f84f0860d0c1c0efd09f954bac8c0049cb7c9ac649dc074ede813e238e70",
+        "net/http/hsts_fuzzer_corpus/standard.header": "bc2f0214b5394c2b8d206b430e85d5a940fcae00ac6a29130be685c84f9c71b4",
+        "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+        "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+        "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+        "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+        "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+        "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+        "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+        "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+        "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+        "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+        "net/http/http_range_fuzzer.cc": "83f73eff3644eb42ac58e05854d573c6e5aae45e73b7544153d1485865821810",
+        "net/http/http_range_fuzzer_corpus/bounded.range": "573fa78868b8207a1e546654cf3998492b151f4bdcc296f9fa0f3935e4f51ade",
+        "net/http/http_range_fuzzer_corpus/content.range": "fcc67b95d0f9104750a51477453b5252cd80ebcb455af43ded00c379a63680b8",
+        "net/http/http_range_fuzzer_corpus/fetch.range": "66d992b285cfceb12a712999042fcdfed4874da01c0d43f4a8ff16cf6e761957",
+        "net/http/http_range_fuzzer_corpus/multi.range": "508e199c271678ec2ed78bee31a530cb70695fb3126e8d9f8c33cd76934886a4",
+        "net/http/http_range_fuzzer_corpus/overflow.range": "d319d34f0e75d2850ff9bf9b87bb1daf16bd298e9684c5266f03abc48b6a64c8",
+        "net/http/http_range_original_unittest.cc": "9c7f493c6f8cfab44f4a4ac23f365e9ada95cfb8d766ed1b25594ec030a4b956",
+        "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+        "net/http/http_range_perftest.cc": "b4920317d4c6c26ea9062172a4794d65e6d3f579ffa3779ea030fd219bf76ce7",
+        "net/http/http_range_test_support.cc": "7227d9048ab1fd5f08c399098870ef8b0a01a718636debde191610f59d49f67c",
+        "net/http/http_range_test_support.h": "718d1ba34d87021f9fe7f18d4f62f378ebb9402e7b251659fc81bba1bf3b1fcc",
+        "net/http/http_range_unittest.cc": "f3397f3dd1e68a878a916bb393176d094269e5d5b0702b7c07962dd982bf8be4",
+        "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+        "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+        "net/http/http_security_headers_hsts_fuzzer.cc": "71d5e33f6d329086bb6a60a347a659117ad408d79a3c0a6066f4fe358b7b39f2",
+        "net/http/http_security_headers_unittest.cc": "9be184ef216ba50d2c3c11386d6dc4ba76d4c948f460ec778eb2c76b796807c7",
+        "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936"
+      }
+    }
+  },
+  "unit_tests": {
+    "parse_number_candidate_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\parse_number_candidate_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\parse_number_candidate_unittests-summary.json"
+      ],
+      "elapsed_seconds": 0.4101537999958964,
+      "tests": 13,
+      "statuses": {
+        "SUCCESS": 13
+      }
+    },
+    "hsts_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\hsts_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\hsts_unittests-summary.json"
+      ],
+      "elapsed_seconds": 0.204125500000373,
+      "tests": 14,
+      "statuses": {
+        "SUCCESS": 14
+      }
+    },
+    "mime_sniffer_rust_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\mime_sniffer_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\mime_sniffer_rust_unittests-summary.json"
+      ],
+      "elapsed_seconds": 1.3998397999966983,
+      "tests": 288,
+      "statuses": {
+        "SUCCESS": 288
+      }
+    },
+    "http_range_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\http_range_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\http_range_unittests-summary.json"
+      ],
+      "elapsed_seconds": 0.23078190000524046,
+      "tests": 24,
+      "statuses": {
+        "SUCCESS": 24
+      }
+    },
+    "gzip_header_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\gzip_header_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\gzip_header_unittests-summary.json"
+      ],
+      "elapsed_seconds": 0.6079218999948353,
+      "tests": 123,
+      "statuses": {
+        "SUCCESS": 123
+      }
+    },
+    "ui_base_unittests": {
+      "exit_code": 0,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\ui_base_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\parallel-rewrites\\ui_base_unittests-summary.json",
+        "--gtest_filter=*DataPack*:*ResourceBundle*"
+      ],
+      "elapsed_seconds": 12.002535600004194,
+      "tests": 60,
+      "statuses": {
+        "SUCCESS": 60
+      }
+    }
+  },
+  "total_tests": 522,
+  "browser_smoke": {
+    "browser": {
+      "cases": [
+        {
+          "case": "mime",
+          "passed": true,
+          "exit_code": 0,
+          "elapsed_seconds": 5.1039917999951285,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\browser\\profile-mime",
+            "--dump-dom",
+            "--virtual-time-budget=7000",
+            "http://127.0.0.1:53709/mime"
+          ]
+        },
+        {
+          "case": "gzip",
+          "passed": true,
+          "exit_code": 0,
+          "elapsed_seconds": 2.1553566999937175,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\browser\\profile-gzip",
+            "--dump-dom",
+            "--virtual-time-budget=7000",
+            "http://127.0.0.1:53709/gzip"
+          ]
+        },
+        {
+          "case": "gzip-optional",
+          "passed": true,
+          "exit_code": 0,
+          "elapsed_seconds": 2.2882098000045517,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\browser\\profile-gzip-optional",
+            "--dump-dom",
+            "--virtual-time-budget=7000",
+            "http://127.0.0.1:53709/gzip-optional"
+          ]
+        },
+        {
+          "case": "range-document",
+          "passed": true,
+          "exit_code": 0,
+          "elapsed_seconds": 1.561963600004674,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\browser\\profile-range-document",
+            "--dump-dom",
+            "--virtual-time-budget=7000",
+            "http://127.0.0.1:53709/range-document"
+          ]
+        },
+        {
+          "case": "range-cors",
+          "passed": true,
+          "exit_code": 0,
+          "elapsed_seconds": 2.0512958000035724,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\browser\\profile-range-cors",
+            "--dump-dom",
+            "--virtual-time-budget=7000",
+            "http://127.0.0.1:53709/"
+          ]
+        }
+      ],
+      "server_events": [
+        {
+          "method": "GET",
+          "path": "/mime",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/favicon.ico",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/gzip",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/favicon.ico",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/gzip-optional",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/favicon.ico",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/range-document",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/favicon.ico",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/",
+          "range": null
+        },
+        {
+          "method": "GET",
+          "path": "/cors-valid",
+          "range": "bytes=0-3"
+        },
+        {
+          "method": "OPTIONS",
+          "path": "/cors-case"
+        },
+        {
+          "method": "GET",
+          "path": "/cors-case",
+          "range": "bytes=0-3"
+        },
+        {
+          "method": "GET",
+          "path": "/favicon.ico",
+          "range": null
+        }
+      ],
+      "scope": "Functional local HTTP integration only; no browser performance claim. HSTS grammar checked separately by focused native tests.",
+      "binary_sha256": {
+        "chrome.exe": "cede367f0bf4217c3e1a8f1a06402c55672232887c8b747bd54a855c8777212d",
+        "net.dll": "fd6fa21ea2edc7665b58157996ca95ecdd572c4271814dfeda51d0c9c2e5a04f"
+      }
+    },
+    "hsts-browser": {
+      "cases": [
+        {
+          "case": "control",
+          "passed": true,
+          "rendered": false,
+          "expected_render": false,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--no-proxy-server",
+            "--disable-features=HttpsUpgrades",
+            "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+            "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\hsts-browser\\profile-zmdfy3w5",
+            "--dump-dom",
+            "http://rustium-hsts.invalid:52747/control"
+          ],
+          "exit_code": 0
+        },
+        {
+          "case": "learn",
+          "passed": true,
+          "rendered": true,
+          "expected_render": true,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--no-proxy-server",
+            "--disable-features=HttpsUpgrades",
+            "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+            "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\hsts-browser\\profile-zmdfy3w5",
+            "--dump-dom",
+            "https://rustium-hsts.invalid:52747/learn"
+          ],
+          "exit_code": 0
+        },
+        {
+          "case": "probe",
+          "passed": true,
+          "rendered": true,
+          "expected_render": true,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--no-proxy-server",
+            "--disable-features=HttpsUpgrades",
+            "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+            "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\hsts-browser\\profile-zmdfy3w5",
+            "--dump-dom",
+            "http://rustium-hsts.invalid:52747/probe"
+          ],
+          "exit_code": 0
+        },
+        {
+          "case": "subdomain",
+          "passed": true,
+          "rendered": true,
+          "expected_render": true,
+          "command": [
+            "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+            "--headless=new",
+            "--disable-gpu",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--disable-background-networking",
+            "--disable-background-mode",
+            "--disable-component-update",
+            "--no-proxy-server",
+            "--disable-features=HttpsUpgrades",
+            "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+            "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+            "--user-data-dir=D:\\Rustium\\.scratch\\parallel-rewrites\\hsts-browser\\profile-zmdfy3w5",
+            "--dump-dom",
+            "http://child.rustium-hsts.invalid:52747/subdomain"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "tls_server_events": [
+        "/learn",
+        "/favicon.ico",
+        "/probe",
+        "/favicon.ico",
+        "/subdomain"
+      ],
+      "scope": "Functional HSTS learning and includeSubDomains upgrades on a local TLS server; automatic HTTPS upgrades disabled; fixed fixture SPKI bypass only.",
+      "net_dll_sha256": "fd6fa21ea2edc7665b58157996ca95ecdd572c4271814dfeda51d0c9c2e5a04f"
+    }
+  },
+  "performance": {
+    "hsts": {
+      "archive": "docs/rust/benchmarks/hsts-final-2026-11-12.json",
+      "sha256": "692f4dedf68ad9d542b69328518373849bd03675c354fbc2fdddd1ba2a068ad5",
+      "cases": 15,
+      "integrated_cases": 15,
+      "candidate_cases": [],
+      "faster_95_ci": 15,
+      "within_predeclared_bound": [],
+      "unresolved_95_ci": []
+    },
+    "mime-sniffer": {
+      "archive": "docs/rust/benchmarks/mime-sniffer-final-2026-11-12.json",
+      "sha256": "57090135ebb679d0064870d4c1b481e686faf56d0231f88f574388f2b78d69b9",
+      "cases": 30,
+      "integrated_cases": 30,
+      "candidate_cases": [],
+      "faster_95_ci": 28,
+      "within_predeclared_bound": [
+        "binary_early",
+        "binary_empty"
+      ],
+      "unresolved_95_ci": [
+        "binary_early",
+        "binary_empty"
+      ]
+    },
+    "http-range": {
+      "archive": "docs/rust/benchmarks/http-range-final-2026-11-12.json",
+      "sha256": "85a7c2aebe329e9cb4ed72e5fe8aaf8fa4cc10f2a8174c03a963fa9dd4ed55a0",
+      "cases": 35,
+      "integrated_cases": 20,
+      "candidate_cases": [
+        "content_all_alias",
+        "content_descending",
+        "content_empty",
+        "content_first_last_alias",
+        "content_first_length_alias",
+        "content_input_restore",
+        "content_large",
+        "content_last_length_alias",
+        "content_long_zeros",
+        "content_overflow",
+        "content_plus",
+        "content_small",
+        "content_small_instance",
+        "content_wrong_unit",
+        "content_ws"
+      ],
+      "faster_95_ci": 20,
+      "within_predeclared_bound": [],
+      "unresolved_95_ci": []
+    },
+    "gzip-header": {
+      "archive": "docs/rust/benchmarks/gzip-header-final-2026-11-12.json",
+      "sha256": "13ca6de3b0b6dcc527b365c422436f34eb42d8de3602855ab41077e29abdde85",
+      "cases": 15,
+      "integrated_cases": 15,
+      "candidate_cases": [],
+      "faster_95_ci": 15,
+      "within_predeclared_bound": [],
+      "unresolved_95_ci": []
+    }
+  },
+  "source_sha256": {
+    "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+    "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+    "net/base/mime_sniffer.cc": "950e77ee5eeb377202389b7f89a37ee05575ac661cac51729362e1c3942a7f17",
+    "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+    "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+    "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+    "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+    "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+    "net/base/mime_sniffer_fuzzer_corpus/html.mime": "626cb99d9b58b193a6230c392f6083a89197be8ed43bb50906697e6901791f67",
+    "net/base/mime_sniffer_fuzzer_corpus/joint-alias.mime": "f7e1aca99343cdefe7a3d1a059f9a1570c772b85982e5412e503df869aa2fc28",
+    "net/base/mime_sniffer_fuzzer_corpus/office.mime": "891854fc02374ea5474618dc93616bf9ab943493813e182f50c5d120ad33bff9",
+    "net/base/mime_sniffer_fuzzer_corpus/png.mime": "13244ba64fc1bbe258a046102583dfb97e5e392591f96ec0efd7a8d3993c2465",
+    "net/base/mime_sniffer_fuzzer_corpus/xml.mime": "deb1734616744d01463719604b3b9dcfe25e3b188f0fd4c1db52f62c5eb7b99a",
+    "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+    "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+    "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+    "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+    "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+    "net/base/mime_sniffer_rust_unittest.cc": "512b2124166e741924709e0f82ff47c407fdc0b9083471edf03576c1bb410113",
+    "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+    "net/base/parse_number.cc": "ada2eac77e58359fa11fdf4573d22574901962946461604e8e80603685c2b996",
+    "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+    "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+    "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+    "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+    "net/base/parse_number_fuzzer_corpus/maximum.number": "2cdb26265b4dc65e3b44d694f121fd6de99b9e4b8ae7f08d84bfa9537635ae43",
+    "net/base/parse_number_fuzzer_corpus/overflow.number": "17c583379a93a734050fabd37064517fec7b83fc6d49cf6946e2c3fb61eea8ad",
+    "net/base/parse_number_fuzzer_corpus/signed.number": "85386477f3af47e4a0b308ee3b3a688df16e8b2228105dd7d4dcd42a9807cb78",
+    "net/base/parse_number_fuzzer_corpus/strict.number": "5b83ffc2cd348607d997b2b54d972cb1b51dc2b5656f5051f673af6b231d3d9f",
+    "net/base/parse_number_fuzzer_corpus/zero.number": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9",
+    "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+    "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+    "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+    "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+    "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+    "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+    "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+    "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee",
+    "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+    "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+    "net/http/hsts_fuzzer_corpus/empty-directives.header": "c151efac2a101fda0be52d02efd9ce4722fd88ac2f9c6568518ace4a7c629c01",
+    "net/http/hsts_fuzzer_corpus/invalid.header": "7c394299426e64ebcf78fa9666d706d42b320b58e47333373c0a672643cd3bb6",
+    "net/http/hsts_fuzzer_corpus/nul.header": "e434e96c8839e98b91d14a1f82b0fcc9f79361bf4085fba76269d47c0ecfa7b0",
+    "net/http/hsts_fuzzer_corpus/overflow.header": "32445e10bec64e47b31da95b0974c34f5395fec9ccc0e8924a9fad1f1a0dea45",
+    "net/http/hsts_fuzzer_corpus/quoted.header": "1706f84f0860d0c1c0efd09f954bac8c0049cb7c9ac649dc074ede813e238e70",
+    "net/http/hsts_fuzzer_corpus/standard.header": "bc2f0214b5394c2b8d206b430e85d5a940fcae00ac6a29130be685c84f9c71b4",
+    "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+    "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+    "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+    "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+    "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+    "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+    "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+    "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+    "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+    "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+    "net/http/http_range_fuzzer.cc": "83f73eff3644eb42ac58e05854d573c6e5aae45e73b7544153d1485865821810",
+    "net/http/http_range_fuzzer_corpus/bounded.range": "573fa78868b8207a1e546654cf3998492b151f4bdcc296f9fa0f3935e4f51ade",
+    "net/http/http_range_fuzzer_corpus/content.range": "fcc67b95d0f9104750a51477453b5252cd80ebcb455af43ded00c379a63680b8",
+    "net/http/http_range_fuzzer_corpus/fetch.range": "66d992b285cfceb12a712999042fcdfed4874da01c0d43f4a8ff16cf6e761957",
+    "net/http/http_range_fuzzer_corpus/multi.range": "508e199c271678ec2ed78bee31a530cb70695fb3126e8d9f8c33cd76934886a4",
+    "net/http/http_range_fuzzer_corpus/overflow.range": "d319d34f0e75d2850ff9bf9b87bb1daf16bd298e9684c5266f03abc48b6a64c8",
+    "net/http/http_range_original_unittest.cc": "9c7f493c6f8cfab44f4a4ac23f365e9ada95cfb8d766ed1b25594ec030a4b956",
+    "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+    "net/http/http_range_perftest.cc": "b4920317d4c6c26ea9062172a4794d65e6d3f579ffa3779ea030fd219bf76ce7",
+    "net/http/http_range_test_support.cc": "7227d9048ab1fd5f08c399098870ef8b0a01a718636debde191610f59d49f67c",
+    "net/http/http_range_test_support.h": "718d1ba34d87021f9fe7f18d4f62f378ebb9402e7b251659fc81bba1bf3b1fcc",
+    "net/http/http_range_unittest.cc": "f3397f3dd1e68a878a916bb393176d094269e5d5b0702b7c07962dd982bf8be4",
+    "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+    "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+    "net/http/http_security_headers_hsts_fuzzer.cc": "71d5e33f6d329086bb6a60a347a659117ad408d79a3c0a6066f4fe358b7b39f2",
+    "net/http/http_security_headers_unittest.cc": "9be184ef216ba50d2c3c11386d6dc4ba76d4c948f460ec778eb2c76b796807c7",
+    "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936"
+  },
+  "scope": "Windows x64; isolated public C++ APIs including Rust bridges. No whole-browser performance claim.",
+  "deferred": {
+    "module": "Public protocol number conversion APIs",
+    "reason": "Measured bridge costs failed acceptance; original production C++ preserved.",
+    "validation": "protocol-number-validation-2026-11-12.json"
+  },
+  "raw_evidence": {
+    "hsts": {
+      "benchmark.jsonl": {
+        "path": "docs/rust/benchmarks/hsts-canonical-2026-11-12-benchmark.jsonl",
+        "sha256": "b40a3e090a7bc2457a90e8c0113901aaadd276fae6fd8ae727d4f81411053a55"
+      },
+      "source-hashes.json": {
+        "path": "docs/rust/benchmarks/hsts-canonical-2026-11-12-source-hashes.json",
+        "sha256": "80dc4766870b5d00c0adc9354f5756be5153053d1cf65d08412587f01c8aee8e"
+      },
+      "execution.json": {
+        "path": "docs/rust/benchmarks/hsts-canonical-2026-11-12-execution.json",
+        "sha256": "9ec0633b0e63510d834f8ef3627c04f3d1b72099e3878660de607b426f5352f6"
+      }
+    },
+    "mime-sniffer": {
+      "benchmark.jsonl": {
+        "path": "docs/rust/benchmarks/mime-sniffer-canonical-2026-11-12-benchmark.jsonl",
+        "sha256": "8808fbf010bf6eb52205a80eb730ea795df56c12aa3eb8d759883c5c48f12b22"
+      },
+      "source-hashes.json": {
+        "path": "docs/rust/benchmarks/mime-sniffer-canonical-2026-11-12-source-hashes.json",
+        "sha256": "0c3bef0ddff79c64e1789cf2479eb2d49eebd1de4f53ce7b19289cffe1983c4d"
+      },
+      "execution.json": {
+        "path": "docs/rust/benchmarks/mime-sniffer-canonical-2026-11-12-execution.json",
+        "sha256": "bcd79efe24b8ce78002d02034c24c8803d08e1fd8bc6057f4b3fabef3534de18"
+      }
+    },
+    "http-range": {
+      "benchmark.jsonl": {
+        "path": "docs/rust/benchmarks/http-range-canonical-2026-11-12-benchmark.jsonl",
+        "sha256": "a51b4adb1a0abbfa3cc41930d5f1878fe89d37293ec47e5dd5b13c4f2f3f0ffa"
+      },
+      "source-hashes.json": {
+        "path": "docs/rust/benchmarks/http-range-canonical-2026-11-12-source-hashes.json",
+        "sha256": "e8e7510299941f847d9f7cb9139c47e4d717b34b9edee9539ca4bf8466197902"
+      },
+      "execution.json": {
+        "path": "docs/rust/benchmarks/http-range-canonical-2026-11-12-execution.json",
+        "sha256": "023b0b0b9a307e366f7fee98d9c8de6bebf798c6b371aeb89aac3e0dbe80abcb"
+      }
+    },
+    "gzip-header": {
+      "benchmark.jsonl": {
+        "path": "docs/rust/benchmarks/gzip-header-canonical-2026-11-12-benchmark.jsonl",
+        "sha256": "e4babad5105add04f567e1ac8433291232b437b0e9f6867820a82aaa15b98b02"
+      },
+      "source-hashes.json": {
+        "path": "docs/rust/benchmarks/gzip-header-canonical-2026-11-12-source-hashes.json",
+        "sha256": "7e16a98e0f4ec2e2d0833af42ca401d31705022a7d8679dd348b2caf34849c09"
+      },
+      "execution.json": {
+        "path": "docs/rust/benchmarks/gzip-header-canonical-2026-11-12-execution.json",
+        "sha256": "5a040c54650341d542bdb59268a2d6095ccda14bb827720331b110f6b66dbe62"
+      }
+    }
+  },
+  "gallery_validation": {
+    "report": "parallel-gallery-validation-2026-11-12.json",
+    "report_sha256": "3d539fe255e21b9e49aced20329914421c6ccac10f4d770162ebcf1a37f1df57",
+    "html_sha256": "9c0d93dec579fe60428ecb9d7eccb6c184152b125f0e7139d588583b8185eb3d",
+    "data_sha256": "358ca483538eefc567f1e7b005510ba4eb44da059871669fa1da5b89a5e19635",
+    "raw_history_rows": 835,
+    "table_selections": 4008,
+    "png_downloads": 30,
+    "layout_checks": 4104,
+    "export_geometry_checks": 480,
+    "passed": true
+  },
+  "measurement_tool_validation": "benchmark-tool-validation-2026-11-12.json"
+}

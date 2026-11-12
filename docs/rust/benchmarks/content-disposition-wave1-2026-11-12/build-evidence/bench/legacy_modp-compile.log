@@ -1,0 +1,6 @@
+Note: including file: D:\Rustium\net/http/content_disposition_modp_reference.h
+Note: including file:  ../../third_party/libc++/src/include\stddef.h
+Note: including file:   ../../third_party/libc++/src/include\__config
+Note: including file:    ../../buildtools/third_party/libc++\__config_site
+Note: including file: D:\Rustium\net/http/content_disposition_modp_data_reference.h
+[unsafe-buffers] file 'D:/Rustium/net/http/content_disposition_modp_reference.cc' bad test against path '../../'

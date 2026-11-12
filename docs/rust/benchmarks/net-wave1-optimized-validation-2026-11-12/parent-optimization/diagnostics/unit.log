@@ -1,0 +1,22 @@
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from NetDiagnosticsDebugFormattingTest
+[ RUN      ] NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations
+[       OK ] NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations (1575 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials
+[       OK ] NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials (1560 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics
+[       OK ] NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics (488 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode
+[       OK ] NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode (0 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached
+[       OK ] NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached (146 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime
+[       OK ] NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime (161 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract
+[       OK ] NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract (0 ms)
+[----------] 7 tests from NetDiagnosticsDebugFormattingTest (3932 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (3934 ms total)
+[  PASSED  ] 7 tests.

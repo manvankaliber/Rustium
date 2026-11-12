@@ -1,0 +1,38 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations:NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials:NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics:NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode:NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached:NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime:NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract
+[==========] Running 7 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 7 tests from NetDiagnosticsDebugFormattingTest
+[ RUN      ] NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations
+[       OK ] NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations (961 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials
+[       OK ] NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials (1148 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics
+[       OK ] NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics (113 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode
+[       OK ] NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode (0 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached
+[       OK ] NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached (73 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime
+[       OK ] NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime (110 ms)
+[ RUN      ] NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract
+[       OK ] NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract (0 ms)
+[----------] 7 tests from NetDiagnosticsDebugFormattingTest (2407 ms total)
+
+[----------] Global test environment tear-down
+[==========] 7 tests from 1 test suite ran. (2408 ms total)
+[  PASSED  ] 7 tests.
+[1/7] NetDiagnosticsDebugFormattingTest.ExhaustiveDefinedLoadFlagCombinations (961 ms)
+[2/7] NetDiagnosticsDebugFormattingTest.MillionBoundedPublicApiDifferentials (1148 ms)
+[3/7] NetDiagnosticsDebugFormattingTest.InvalidFlagsKeepCheckDiagnostics (113 ms)
+[4/7] NetDiagnosticsDebugFormattingTest.PrivacyLabelsMatchFrozenCppForEveryMode (0 ms)
+[5/7] NetDiagnosticsDebugFormattingTest.InvalidPrivacyModesKeepNotReached (73 ms)
+[6/7] NetDiagnosticsDebugFormattingTest.RustFfiOwnershipAndStaticLifetime (110 ms)
+[7/7] NetDiagnosticsDebugFormattingTest.DirectWriterCapacityAndFailureContract (0 ms)
+SUCCESS: all tests passed.
+Tests took 2 seconds.

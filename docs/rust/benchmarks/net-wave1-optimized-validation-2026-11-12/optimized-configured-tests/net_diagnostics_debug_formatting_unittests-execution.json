@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\RustiumBuild\\src\\out\\Default\\net_diagnostics_debug_formatting_unittests.exe",
+    "--test-launcher-jobs=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\net_diagnostics_debug_formatting_unittests-summary.json",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\net_diagnostics_debug_formatting_unittests-gtest.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 2.5438183000078425,
+  "binary_sha256": "5bd9088a9a5dd2de0e9d1a514847290fb20736fbf6fed28f63abc46ef3ee177e",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

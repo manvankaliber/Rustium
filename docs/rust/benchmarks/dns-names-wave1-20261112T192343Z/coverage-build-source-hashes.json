@@ -1,0 +1,14 @@
+{
+  "net/dns/dns_names_core.rs": "525e095d72460b9def37ba0653fb763ec81b035eb230be8e194169be08da7bb7",
+  "net/dns/dns_names_ffi.h": "e81a8fdaef72c25b7f1682b762ae9fd403224342b7f387ed3a9aa9d6a291a4d3",
+  "net/dns/dns_names_ffi.rs": "12090867befbf0f1f4a60adeda6ddacdad23bc782f1532b729a106cda04b526f",
+  "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+  "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+  "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+  "net/dns/dns_names_reference.h": "c07fb4b875e94c2b6f73a8b8d429f45e85e59cfb542a92c979ab9c2e2d99490c",
+  "net/dns/dns_names_rust_unittest.cc": "503a13dca0f0c1ad2d57b24ab36e742b60d9e5164758230bb4f20737014b906a",
+  "net/dns/dns_names_test_support.h": "c4dbcc9c46a7666ab2e72a2a3507741ade290608f1b21f656d6591932955264c",
+  "net/dns/dns_names_util.cc": "13521115050e58918a4e00f8f5716e8583a1875b1bebdf2160b47596756cf3f7",
+  "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+  "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+}

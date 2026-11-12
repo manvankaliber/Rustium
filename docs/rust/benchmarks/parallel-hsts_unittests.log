@@ -1,0 +1,71 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = HstsRustTest.QuotedValuesAndEscapes:HstsRustTest.EveryByteInNamesAndValues:HstsRustTest.EveryByteAsWhitespace:HstsRustTest.ClampingAndMalformedOverflow:HstsRustTest.DuplicatesAndEmptyDirectives:HstsRustTest.LongInputAndEmbeddedNul:HstsRustTest.EverySingleByteMutation:HstsRustTest.DeterministicGrammarMutations:HstsRustTest.BridgeLimitAndScalarLayout:HttpSecurityHeadersTest.LeadingTrailingSemicolons
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from HstsRustTest
+[ RUN      ] HstsRustTest.QuotedValuesAndEscapes
+[       OK ] HstsRustTest.QuotedValuesAndEscapes (1 ms)
+[ RUN      ] HstsRustTest.EveryByteInNamesAndValues
+[       OK ] HstsRustTest.EveryByteInNamesAndValues (0 ms)
+[ RUN      ] HstsRustTest.EveryByteAsWhitespace
+[       OK ] HstsRustTest.EveryByteAsWhitespace (0 ms)
+[ RUN      ] HstsRustTest.ClampingAndMalformedOverflow
+[       OK ] HstsRustTest.ClampingAndMalformedOverflow (0 ms)
+[ RUN      ] HstsRustTest.DuplicatesAndEmptyDirectives
+[       OK ] HstsRustTest.DuplicatesAndEmptyDirectives (0 ms)
+[ RUN      ] HstsRustTest.LongInputAndEmbeddedNul
+[       OK ] HstsRustTest.LongInputAndEmbeddedNul (4 ms)
+[ RUN      ] HstsRustTest.EverySingleByteMutation
+[       OK ] HstsRustTest.EverySingleByteMutation (24 ms)
+[ RUN      ] HstsRustTest.DeterministicGrammarMutations
+[       OK ] HstsRustTest.DeterministicGrammarMutations (18 ms)
+[ RUN      ] HstsRustTest.BridgeLimitAndScalarLayout
+[       OK ] HstsRustTest.BridgeLimitAndScalarLayout (0 ms)
+[----------] 9 tests from HstsRustTest (52 ms total)
+
+[----------] 1 test from HttpSecurityHeadersTest
+[ RUN      ] HttpSecurityHeadersTest.LeadingTrailingSemicolons
+[       OK ] HttpSecurityHeadersTest.LeadingTrailingSemicolons (0 ms)
+[----------] 1 test from HttpSecurityHeadersTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (53 ms total)
+[  PASSED  ] 10 tests.
+[1/14] HstsRustTest.QuotedValuesAndEscapes (1 ms)
+[2/14] HstsRustTest.EveryByteInNamesAndValues (0 ms)
+[3/14] HstsRustTest.EveryByteAsWhitespace (0 ms)
+[4/14] HstsRustTest.ClampingAndMalformedOverflow (0 ms)
+[5/14] HstsRustTest.DuplicatesAndEmptyDirectives (0 ms)
+[6/14] HstsRustTest.LongInputAndEmbeddedNul (4 ms)
+[7/14] HstsRustTest.EverySingleByteMutation (24 ms)
+[8/14] HstsRustTest.DeterministicGrammarMutations (18 ms)
+[9/14] HstsRustTest.BridgeLimitAndScalarLayout (0 ms)
+[10/14] HttpSecurityHeadersTest.LeadingTrailingSemicolons (0 ms)
+Note: Google Test filter = HttpSecurityHeadersTest.InvalidDirectiveNames:HttpSecurityHeadersTest.InvalidDirectiveValues:HttpSecurityHeadersTest.BogusHeaders:HttpSecurityHeadersTest.ValidSTSHeaders
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from HttpSecurityHeadersTest
+[ RUN      ] HttpSecurityHeadersTest.InvalidDirectiveNames
+[       OK ] HttpSecurityHeadersTest.InvalidDirectiveNames (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.InvalidDirectiveValues
+[       OK ] HttpSecurityHeadersTest.InvalidDirectiveValues (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.BogusHeaders
+[       OK ] HttpSecurityHeadersTest.BogusHeaders (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.ValidSTSHeaders
+[       OK ] HttpSecurityHeadersTest.ValidSTSHeaders (0 ms)
+[----------] 4 tests from HttpSecurityHeadersTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+[11/14] HttpSecurityHeadersTest.InvalidDirectiveNames (0 ms)
+[12/14] HttpSecurityHeadersTest.InvalidDirectiveValues (0 ms)
+[13/14] HttpSecurityHeadersTest.BogusHeaders (0 ms)
+[14/14] HttpSecurityHeadersTest.ValidSTSHeaders (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

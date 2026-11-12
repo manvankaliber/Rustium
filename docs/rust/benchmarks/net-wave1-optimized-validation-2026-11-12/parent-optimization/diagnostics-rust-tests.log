@@ -1,0 +1,11 @@
+
+running 6 tests
+test core::tests::invalid_flags_and_all_privacy_modes ... ok
+test tests::direct_writer_preserves_failure_and_suffix_bytes ... ok
+test tests::formatter_ffi_ownership_and_invalid_output_contract ... ok
+test tests::privacy_ffi_returns_stable_static_nul_terminated_labels ... ok
+test core::tests::exhaustive_valid_combinations ... ok
+test core::tests::million_defined_differential_inputs ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.34s
+

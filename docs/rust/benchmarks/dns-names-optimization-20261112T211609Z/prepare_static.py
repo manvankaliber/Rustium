@@ -1,0 +1,2 @@
+from pathlib import Path
+p=Path('.scratch/net-wave1/dns-names/optimization/build_native.py');s=p.read_text().replace("('rust','coverage','lint')", "('rust','coverage','lint','assembly')");s=s.replace("'check' if mode=='lint' else 'build'", "'check' if mode=='lint' else 'rustc' if mode=='assembly' else 'build'");s=s.replace(" if mode=='lint':\n", " if mode=='assembly':\n  env['CARGO_TARGET_DIR']=str(work/'assembly-target')\n  cmd+=['--','--emit=asm,llvm-ir']\n if mode=='lint':\n");p.write_text(s)

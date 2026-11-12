@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html><head><title>HSTS</title></head><body><p>rustium-hsts-subdomain-ok</p></body></html>
+
+[26812:31440:1112/224846.634:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[26812:31440:1112/224846.771:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[26812:31440:1112/224846.771:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[37856:35632:1112/224847.381:ERROR:base\threading\platform_thread_win.cc:399] Failed to set thread priority to 65536: The thread is already in background processing mode. (0x190)

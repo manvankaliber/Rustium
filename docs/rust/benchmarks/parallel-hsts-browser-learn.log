@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html><head><title>HSTS</title></head><body><p>rustium-hsts-learn-ok</p></body></html>
+
+[3496:35320:1112/191003.378:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[3496:35320:1112/191003.504:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[3496:35320:1112/191003.504:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.

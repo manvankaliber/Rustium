@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\RustiumBuild\\src\\out\\Default\\dns_names_rust_unittests.exe",
+    "--test-launcher-jobs=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\dns_names_rust_unittests-summary.json",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\dns_names_rust_unittests-gtest.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.5915397000062512,
+  "binary_sha256": "c1b84a8eeee4d441a83dd486c84114162e1debfbe732d4906c9e4c0e0c33ecb3",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\RustiumBuild\\src\\out\\Default\\parse_number_native_unittests.exe",
+    "--test-launcher-jobs=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_native_unittests-summary.json",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_native_unittests-gtest.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.9047014999960084,
+  "binary_sha256": "02794d5f43d7f9595ba09de1c55189415f32d35297d4fdae649ee291fbbbe33c",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="15" failures="0" disabled="0" errors="0" time="0.197" timestamp="2026-11-12T21:47:38">
+  <testsuite name="ParseNumberNativeTest" tests="11" failures="0" disabled="0" errors="0" time="0.197" timestamp="2026-11-12T21:47:38">
+    <testcase name="EveryDecimalValueAroundTypeLimits" status="run" time="0.001" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="EveryOneAndTwoByteInput" status="run" time="0.033" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="FailureDoesNotTouchNullOutputStorage" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="InputMayAliasOutputStorage" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="LegacyUnknownSignedFormatBehavior" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="LongZerosOverflowAndMalformedSuffix" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="MutatedLongDecimalInputs" status="run" time="0.015" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="NullEmptyAndUninitializedSuccessOutputs" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="NumericBoundariesAndTrailingGarbage" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="OverflowTailBlocksPreserveMalformedPrecedence" status="run" time="0.073" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+    <testcase name="UnsignedRejectsSignedFormats" status="run" time="0.075" timestamp="2026-11-12T21:47:38" classname="ParseNumberNativeTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="ParseNumberTest" tests="4" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:38">
+    <testcase name="ParseInt32" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberTest">
+    </testcase>
+    <testcase name="ParseInt64" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberTest">
+    </testcase>
+    <testcase name="ParseUint32" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberTest">
+    </testcase>
+    <testcase name="ParseUint64" status="run" time="0.000" timestamp="2026-11-12T21:47:38" classname="ParseNumberTest">
+    </testcase>
+  </testsuite>
+</testsuites>

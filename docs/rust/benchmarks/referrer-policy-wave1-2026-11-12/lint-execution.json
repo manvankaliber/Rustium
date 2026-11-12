@@ -1,0 +1,27 @@
+[
+  {
+    "command": [
+      "C:/Users/jackv/.cargo/bin/cargo.exe",
+      "clippy",
+      "--manifest-path",
+      "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\Cargo.toml",
+      "--offline",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "output": "    Checking referrer_policy_validation v0.1.0 (D:\\Rustium\\.scratch\\net-wave1\\referrer-policy)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.33s\n"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+      "--edition",
+      "2024",
+      "D:\\Rustium\\net\\url_request\\referrer_policy_ffi.rs"
+    ],
+    "exit_code": 0,
+    "output": ""
+  }
+]

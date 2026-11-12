@@ -1,0 +1,3263 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "refined",
+  "label": "Vectorized scan and shared state",
+  "measurement": "Same-process paired original C++ and Rust-backed GZipHeader APIs; warm input buffers; ns per complete detection/header-feed operation",
+  "baseline": "Frozen original parser, same object size/alignment and out-of-line C++ API calls, same Chromium C++ compilation flags",
+  "compiler": "Chromium Clang 24 and Rust 1.101; opt-level 3, debug assertions, CFG, panic abort",
+  "repetitions": 20,
+  "affinity_mask": 16,
+  "warmup": "iterations_per_sample / 5 for each implementation",
+  "order": "Seeded randomized reader order per paired repetition",
+  "scope_excludes": [
+    "disk I/O",
+    "payload decompression",
+    "network I/O",
+    "browser startup"
+  ],
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "machine": "AMD64"
+  },
+  "source_sha256": {
+    "net/filter/gzip_header_parser.rs": "3d16d512db174c6dca7901cb2d515e28eef5bb869014ebbdd3b1e3097bd2c305",
+    "net/filter/gzip_header_ffi.rs": "943c664171379f78e638380b539d64d2df672d145ea45e40b99ae9f234dfd28a",
+    "net/filter/gzip_header.cc": "5005db31c325a085c49496c6f3e5fdafc6b9bda2bbeb4d3d2d7094b5c041b7dc",
+    "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+    "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+    "net/filter/gzip_header_perftest.cc": "4619a2328e4aad62a0e3ed60e04334795d94367fb8bb2baf6cab297cb545f346",
+    "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+    "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77"
+  },
+  "raw_report_sha256": "bd9b457c5ae18b3311a4631e41cd84b38e257e15a88c397cdc80ce6ab467d74d",
+  "cases": [
+    {
+      "key": "fixed",
+      "label": "Fixed header",
+      "run": "refined",
+      "baseline_median_ns": 47.0214,
+      "rust_median_ns": 15.4536,
+      "change_percent": -67.13496408018477,
+      "bootstrap_95_ci_percent": [
+        -67.58262271435238,
+        -66.74206103722034
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "fixed_with_payload",
+      "label": "With payload",
+      "run": "refined",
+      "baseline_median_ns": 58.329499999999996,
+      "rust_median_ns": 35.7755,
+      "change_percent": -38.66654094411918,
+      "bootstrap_95_ci_percent": [
+        -39.84989411266413,
+        -37.86783801540319
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "not_gzip",
+      "label": "Non-gzip",
+      "run": "refined",
+      "baseline_median_ns": 14.3349,
+      "rust_median_ns": 11.9566,
+      "change_percent": -16.590977265275654,
+      "bootstrap_95_ci_percent": [
+        -16.799442896935936,
+        -16.286184164680627
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "short_rejection",
+      "label": "Short invalid",
+      "run": "refined",
+      "baseline_median_ns": 16.837699999999998,
+      "rust_median_ns": 14.737200000000001,
+      "change_percent": -12.474981737410673,
+      "bootstrap_95_ci_percent": [
+        -34.03023107662014,
+        -11.3187706132594
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "bad_method",
+      "label": "Bad method",
+      "run": "refined",
+      "baseline_median_ns": 20.587,
+      "rust_median_ns": 12.5164,
+      "change_percent": -39.20240928741438,
+      "bootstrap_95_ci_percent": [
+        -39.88078629090454,
+        -38.93430052822473
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "all_options",
+      "label": "All options",
+      "run": "refined",
+      "baseline_median_ns": 118.10075,
+      "rust_median_ns": 41.705749999999995,
+      "change_percent": -64.68629538762455,
+      "bootstrap_95_ci_percent": [
+        -66.93138245255913,
+        -57.38858137931962
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "empty_extra",
+      "label": "Empty extra",
+      "run": "refined",
+      "baseline_median_ns": 59.0987,
+      "rust_median_ns": 17.1634,
+      "change_percent": -70.9580752199287,
+      "bootstrap_95_ci_percent": [
+        -71.10465312742879,
+        -70.66545925405599
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations_per_sample": 500000
+    },
+    {
+      "key": "long_name",
+      "label": "Long name",
+      "run": "refined",
+      "baseline_median_ns": 311.365,
+      "rust_median_ns": 66.7925,
+      "change_percent": -78.5484881088112,
+      "bootstrap_95_ci_percent": [
+        -78.6625174443785,
+        -78.40958360766304
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations_per_sample": 20000
+    },
+    {
+      "key": "long_comment",
+      "label": "Long comment",
+      "run": "refined",
+      "baseline_median_ns": 316.5825,
+      "rust_median_ns": 67.485,
+      "change_percent": -78.68328160905925,
+      "bootstrap_95_ci_percent": [
+        -78.83135639368327,
+        -78.49287618927406
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations_per_sample": 20000
+    },
+    {
+      "key": "large_extra",
+      "label": "Large extra",
+      "run": "refined",
+      "baseline_median_ns": 60.060249999999996,
+      "rust_median_ns": 17.437,
+      "change_percent": -70.96748681532294,
+      "bootstrap_95_ci_percent": [
+        -71.15816516802718,
+        -70.75832377532872
+      ],
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "fixed_one_byte",
+      "label": "Fixed / 1 B",
+      "run": "refined",
+      "baseline_median_ns": 112.767,
+      "rust_median_ns": 123.667,
+      "change_percent": 9.665948371420718,
+      "bootstrap_95_ci_percent": [
+        9.23218847573093,
+        10.18564444129526
+      ],
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations_per_sample": 100000
+    },
+    {
+      "key": "options_one_byte",
+      "label": "Options / 1 B",
+      "run": "refined",
+      "baseline_median_ns": 1238.182,
+      "rust_median_ns": 879.468,
+      "change_percent": -28.97102364595835,
+      "bootstrap_95_ci_percent": [
+        -31.554198548963384,
+        -27.94425647166612
+      ],
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations_per_sample": 50000
+    },
+    {
+      "key": "options_two_bytes",
+      "label": "Options / 2 B",
+      "run": "refined",
+      "baseline_median_ns": 672.8340000000001,
+      "rust_median_ns": 485.96000000000004,
+      "change_percent": -27.77416123442038,
+      "bootstrap_95_ci_percent": [
+        -28.27101097167697,
+        -27.267900293925873
+      ],
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations_per_sample": 100000
+    },
+    {
+      "key": "options_eight_bytes",
+      "label": "Options / 8 B",
+      "run": "refined",
+      "baseline_median_ns": 232.4925,
+      "rust_median_ns": 164.0765,
+      "change_percent": -29.4271858231986,
+      "bootstrap_95_ci_percent": [
+        -30.934786955286388,
+        -28.35639859350302
+      ],
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    },
+    {
+      "key": "options_64_bytes",
+      "label": "Options / 64 B",
+      "run": "refined",
+      "baseline_median_ns": 111.89025000000001,
+      "rust_median_ns": 46.25175,
+      "change_percent": -58.66328835622407,
+      "bootstrap_95_ci_percent": [
+        -59.53041134084318,
+        -57.85956344401679
+      ],
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations_per_sample": 200000
+    }
+  ],
+  "samples": [
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 47.5884,
+      "rust_ns": 15.2822
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 47.142,
+      "rust_ns": 15.7502
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 47.0646,
+      "rust_ns": 15.7964
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 47.2354,
+      "rust_ns": 15.5602
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 47.5752,
+      "rust_ns": 15.2454
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 47.1092,
+      "rust_ns": 15.198
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 47.6732,
+      "rust_ns": 15.167
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 48.5508,
+      "rust_ns": 16.5564
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 47.4712,
+      "rust_ns": 15.5084
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 46.5552,
+      "rust_ns": 15.7574
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 46.5992,
+      "rust_ns": 15.449
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 46.0306,
+      "rust_ns": 15.5372
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 47.2392,
+      "rust_ns": 15.4752
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 46.9126,
+      "rust_ns": 15.1198
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 46.2526,
+      "rust_ns": 15.4322
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 46.691,
+      "rust_ns": 15.4252
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 46.1376,
+      "rust_ns": 14.8846
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 46.5432,
+      "rust_ns": 15.1036
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 46.9782,
+      "rust_ns": 15.4582
+    },
+    {
+      "case": "fixed",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 46.5176,
+      "rust_ns": 15.8228
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 62.0762,
+      "rust_ns": 34.9398
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 57.126,
+      "rust_ns": 35.9078
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 57.025,
+      "rust_ns": 34.764
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 57.494,
+      "rust_ns": 38.5682
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 60.4892,
+      "rust_ns": 36.9292
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 58.0592,
+      "rust_ns": 36.126
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 57.602,
+      "rust_ns": 35.225
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 57.3822,
+      "rust_ns": 35.2656
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 58.6564,
+      "rust_ns": 35.5418
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 59.4448,
+      "rust_ns": 35.5036
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 58.0616,
+      "rust_ns": 35.2772
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 58.8528,
+      "rust_ns": 35.8584
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 60.3542,
+      "rust_ns": 36.4266
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 63.977,
+      "rust_ns": 40.9408
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 60.6804,
+      "rust_ns": 35.0654
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 58.4936,
+      "rust_ns": 36.1714
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 58.1654,
+      "rust_ns": 35.2958
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 58.6052,
+      "rust_ns": 36.0814
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 58.1438,
+      "rust_ns": 36.5272
+    },
+    {
+      "case": "fixed_with_payload",
+      "chunk_bytes": 0,
+      "input_bytes": 65536,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 57.8976,
+      "rust_ns": 35.6926
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 16.9232,
+      "rust_ns": 16.3478
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 14.2588,
+      "rust_ns": 11.9822
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 14.2968,
+      "rust_ns": 11.9068
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 14.3684,
+      "rust_ns": 12.0946
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 14.345,
+      "rust_ns": 11.8796
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 14.2192,
+      "rust_ns": 11.9642
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 14.3258,
+      "rust_ns": 11.9496
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 14.386,
+      "rust_ns": 11.9592
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 14.344,
+      "rust_ns": 11.9664
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 14.3164,
+      "rust_ns": 12.0252
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 14.1666,
+      "rust_ns": 11.9362
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 14.2612,
+      "rust_ns": 11.9206
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 14.4074,
+      "rust_ns": 12.0028
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 14.3564,
+      "rust_ns": 11.9396
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 14.3636,
+      "rust_ns": 11.9476
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 14.4424,
+      "rust_ns": 11.8298
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 14.3002,
+      "rust_ns": 12.0234
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 14.3016,
+      "rust_ns": 11.8908
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 14.2788,
+      "rust_ns": 11.954
+    },
+    {
+      "case": "not_gzip",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 14.384,
+      "rust_ns": 12.076
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 16.8912,
+      "rust_ns": 14.706
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 16.6492,
+      "rust_ns": 14.7344
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 16.6118,
+      "rust_ns": 14.7418
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 16.7368,
+      "rust_ns": 14.7244
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 16.531,
+      "rust_ns": 14.6506
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 16.9406,
+      "rust_ns": 14.6616
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 16.7842,
+      "rust_ns": 14.7472
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 16.5804,
+      "rust_ns": 14.7276
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 16.5184,
+      "rust_ns": 14.6858
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 16.4944,
+      "rust_ns": 14.7136
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 202.5726,
+      "rust_ns": 129.023
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 27.1128,
+      "rust_ns": 17.8342
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 25.356,
+      "rust_ns": 18.0052
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 23.9074,
+      "rust_ns": 16.9502
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 23.1514,
+      "rust_ns": 16.3804
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 22.3454,
+      "rust_ns": 14.74
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 21.94,
+      "rust_ns": 14.7134
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 22.5488,
+      "rust_ns": 14.7266
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 16.6548,
+      "rust_ns": 14.8424
+    },
+    {
+      "case": "short_rejection",
+      "chunk_bytes": 0,
+      "input_bytes": 2,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 16.6002,
+      "rust_ns": 14.8766
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 20.5716,
+      "rust_ns": 12.5622
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 20.789,
+      "rust_ns": 12.4964
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 20.5358,
+      "rust_ns": 12.6084
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 20.7834,
+      "rust_ns": 12.5338
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 20.4938,
+      "rust_ns": 12.5256
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 21.1012,
+      "rust_ns": 12.5072
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 20.8368,
+      "rust_ns": 12.5446
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 20.829,
+      "rust_ns": 12.5418
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 20.6024,
+      "rust_ns": 12.4788
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 20.4612,
+      "rust_ns": 12.5646
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 20.4518,
+      "rust_ns": 12.4922
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 20.5452,
+      "rust_ns": 12.4738
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 21.4378,
+      "rust_ns": 12.536
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 20.7952,
+      "rust_ns": 12.503
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 20.3592,
+      "rust_ns": 12.4828
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 20.5294,
+      "rust_ns": 12.637
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 21.197,
+      "rust_ns": 12.5604
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 22.107,
+      "rust_ns": 12.4966
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 20.4584,
+      "rust_ns": 12.4766
+    },
+    {
+      "case": "bad_method",
+      "chunk_bytes": 0,
+      "input_bytes": 10,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 20.4172,
+      "rust_ns": 12.4284
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 666.69,
+      "rust_ns": 176.2825
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 150.4205,
+      "rust_ns": 60.5875
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 128.039,
+      "rust_ns": 52.9785
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 114.4935,
+      "rust_ns": 42.035
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 117.9065,
+      "rust_ns": 40.478
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 112.2415,
+      "rust_ns": 40.168
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 112.194,
+      "rust_ns": 39.8145
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 112.143,
+      "rust_ns": 40.9525
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 114.8915,
+      "rust_ns": 39.765
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 113.5215,
+      "rust_ns": 40.1575
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 114.209,
+      "rust_ns": 457.83
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 948.2955,
+      "rust_ns": 402.834
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 153.004,
+      "rust_ns": 50.3835
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 155.135,
+      "rust_ns": 50.5045
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 142.1305,
+      "rust_ns": 44.2235
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 119.4425,
+      "rust_ns": 40.489
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 118.295,
+      "rust_ns": 40.4685
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 117.4535,
+      "rust_ns": 40.3125
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 114.63,
+      "rust_ns": 41.3765
+    },
+    {
+      "case": "all_options",
+      "chunk_bytes": 0,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 143.9625,
+      "rust_ns": 65.6245
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 73.7716,
+      "rust_ns": 17.5118
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 59.2784,
+      "rust_ns": 18.333
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 59.087,
+      "rust_ns": 17.3544
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 61.4346,
+      "rust_ns": 17.2732
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 59.2786,
+      "rust_ns": 17.2288
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 60.2406,
+      "rust_ns": 17.102
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 59.125,
+      "rust_ns": 17.128
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 59.1104,
+      "rust_ns": 17.4706
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 58.9296,
+      "rust_ns": 17.4244
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 59.2482,
+      "rust_ns": 17.1726
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 58.652,
+      "rust_ns": 17.307
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 58.6654,
+      "rust_ns": 17.1542
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 60.125,
+      "rust_ns": 17.4146
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 59.247,
+      "rust_ns": 17.018
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 58.9484,
+      "rust_ns": 16.9332
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 58.5892,
+      "rust_ns": 16.9948
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 59.072,
+      "rust_ns": 17.1512
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 58.4072,
+      "rust_ns": 17.0178
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 58.171,
+      "rust_ns": 16.8404
+    },
+    {
+      "case": "empty_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 12,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 57.816,
+      "rust_ns": 16.8448
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 310.375,
+      "rust_ns": 66.495
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 309.1,
+      "rust_ns": 66.39
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 310.405,
+      "rust_ns": 67.495
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 313.635,
+      "rust_ns": 66.525
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 312.44,
+      "rust_ns": 66.46
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 311.205,
+      "rust_ns": 66.89
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 312.625,
+      "rust_ns": 66.03
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 312.915,
+      "rust_ns": 67.225
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 311.525,
+      "rust_ns": 67.265
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 307.97,
+      "rust_ns": 66.52
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 309.645,
+      "rust_ns": 66.745
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 315.775,
+      "rust_ns": 66.915
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 314.27,
+      "rust_ns": 66.875
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 307.675,
+      "rust_ns": 66.775
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 310.0,
+      "rust_ns": 66.585
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 308.2,
+      "rust_ns": 67.61
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 315.845,
+      "rust_ns": 66.81
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 310.035,
+      "rust_ns": 67.35
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 313.01,
+      "rust_ns": 67.425
+    },
+    {
+      "case": "long_name",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 311.885,
+      "rust_ns": 66.76
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 316.725,
+      "rust_ns": 67.46
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 312.085,
+      "rust_ns": 67.405
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 316.67,
+      "rust_ns": 67.67
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 311.33,
+      "rust_ns": 67.455
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 314.58,
+      "rust_ns": 66.75
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 313.01,
+      "rust_ns": 67.015
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 333.0,
+      "rust_ns": 67.1
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 316.495,
+      "rust_ns": 66.57
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 315.75,
+      "rust_ns": 66.92
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 313.26,
+      "rust_ns": 68.21
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 315.325,
+      "rust_ns": 68.05
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 311.95,
+      "rust_ns": 66.915
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 321.84,
+      "rust_ns": 67.61
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 321.38,
+      "rust_ns": 68.145
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 316.96,
+      "rust_ns": 66.92
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 314.725,
+      "rust_ns": 68.155
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 316.83,
+      "rust_ns": 67.9
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 324.87,
+      "rust_ns": 72.02
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 323.945,
+      "rust_ns": 67.51
+    },
+    {
+      "case": "long_comment",
+      "chunk_bytes": 0,
+      "input_bytes": 4107,
+      "iterations": 20000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 320.615,
+      "rust_ns": 68.745
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 59.8915,
+      "rust_ns": 17.351
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 59.748,
+      "rust_ns": 17.422
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 59.9615,
+      "rust_ns": 17.4
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 59.7875,
+      "rust_ns": 17.831
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 60.2315,
+      "rust_ns": 17.443
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 59.94,
+      "rust_ns": 17.355
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 60.4265,
+      "rust_ns": 17.7925
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 60.3325,
+      "rust_ns": 17.472
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 63.2075,
+      "rust_ns": 17.6915
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 63.816,
+      "rust_ns": 18.16
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 60.159,
+      "rust_ns": 17.9615
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 60.45,
+      "rust_ns": 17.3795
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 60.727,
+      "rust_ns": 17.431
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 60.654,
+      "rust_ns": 17.401
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 59.817,
+      "rust_ns": 17.4885
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 59.172,
+      "rust_ns": 17.307
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 59.686,
+      "rust_ns": 17.1435
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 59.1175,
+      "rust_ns": 17.3285
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 60.7065,
+      "rust_ns": 17.8125
+    },
+    {
+      "case": "large_extra",
+      "chunk_bytes": 0,
+      "input_bytes": 16396,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 59.2385,
+      "rust_ns": 17.4915
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 112.861,
+      "rust_ns": 123.436
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 112.212,
+      "rust_ns": 122.273
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 208.127,
+      "rust_ns": 122.874
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 112.672,
+      "rust_ns": 122.895
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 112.165,
+      "rust_ns": 123.144
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 112.485,
+      "rust_ns": 122.827
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 113.64,
+      "rust_ns": 139.057
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 112.904,
+      "rust_ns": 124.825
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 112.8,
+      "rust_ns": 123.292
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 112.843,
+      "rust_ns": 124.226
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 112.998,
+      "rust_ns": 124.613
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 113.294,
+      "rust_ns": 122.338
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 112.597,
+      "rust_ns": 124.2
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 112.373,
+      "rust_ns": 123.955
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 112.875,
+      "rust_ns": 124.608
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 112.514,
+      "rust_ns": 123.472
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 112.671,
+      "rust_ns": 125.003
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 112.335,
+      "rust_ns": 123.862
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 134.255,
+      "rust_ns": 123.285
+    },
+    {
+      "case": "fixed_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 10,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 112.734,
+      "rust_ns": 124.157
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 1230.302,
+      "rust_ns": 912.282
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 1232.094,
+      "rust_ns": 871.56
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 1229.466,
+      "rust_ns": 872.68
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 1225.178,
+      "rust_ns": 867.75
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 1214.878,
+      "rust_ns": 871.388
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 1264.26,
+      "rust_ns": 880.28
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 1224.582,
+      "rust_ns": 886.878
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 1228.118,
+      "rust_ns": 878.656
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 1225.492,
+      "rust_ns": 875.478
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 1244.27,
+      "rust_ns": 1052.13
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 1348.594,
+      "rust_ns": 883.688
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 1311.712,
+      "rust_ns": 870.204
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 1251.218,
+      "rust_ns": 888.054
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 1280.22,
+      "rust_ns": 952.742
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 1301.934,
+      "rust_ns": 896.568
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 1226.902,
+      "rust_ns": 869.992
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 1226.734,
+      "rust_ns": 867.01
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 1512.038,
+      "rust_ns": 876.554
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 4330.896,
+      "rust_ns": 899.482
+    },
+    {
+      "case": "options_one_byte",
+      "chunk_bytes": 1,
+      "input_bytes": 64,
+      "iterations": 50000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 2183.556,
+      "rust_ns": 1023.01
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 673.58,
+      "rust_ns": 489.74
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 670.917,
+      "rust_ns": 484.024
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 671.758,
+      "rust_ns": 1272.933
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 1777.985,
+      "rust_ns": 507.423
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 669.24,
+      "rust_ns": 485.608
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 703.772,
+      "rust_ns": 480.672
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 682.207,
+      "rust_ns": 486.606
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 694.13,
+      "rust_ns": 489.669
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 680.069,
+      "rust_ns": 510.088
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 675.33,
+      "rust_ns": 511.376
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 673.18,
+      "rust_ns": 482.968
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 672.488,
+      "rust_ns": 488.641
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 670.734,
+      "rust_ns": 486.312
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 668.366,
+      "rust_ns": 484.768
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 668.167,
+      "rust_ns": 482.137
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 669.035,
+      "rust_ns": 483.595
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 671.44,
+      "rust_ns": 484.634
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 673.418,
+      "rust_ns": 505.363
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 671.968,
+      "rust_ns": 483.386
+    },
+    {
+      "case": "options_two_bytes",
+      "chunk_bytes": 2,
+      "input_bytes": 64,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 687.876,
+      "rust_ns": 477.489
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 232.432,
+      "rust_ns": 169.864
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 239.967,
+      "rust_ns": 166.755
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 230.008,
+      "rust_ns": 167.535
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 230.814,
+      "rust_ns": 161.614
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 1528.642,
+      "rust_ns": 594.8405
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 296.971,
+      "rust_ns": 165.307
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 232.006,
+      "rust_ns": 157.539
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 232.1745,
+      "rust_ns": 193.283
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 245.717,
+      "rust_ns": 161.953
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 237.119,
+      "rust_ns": 166.566
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 230.992,
+      "rust_ns": 160.1435
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 232.553,
+      "rust_ns": 163.3395
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 232.944,
+      "rust_ns": 163.3365
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 232.1345,
+      "rust_ns": 164.2375
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 231.8695,
+      "rust_ns": 164.997
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 232.022,
+      "rust_ns": 162.6655
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 232.162,
+      "rust_ns": 163.9155
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 237.5675,
+      "rust_ns": 163.0135
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 236.2545,
+      "rust_ns": 160.1205
+    },
+    {
+      "case": "options_eight_bytes",
+      "chunk_bytes": 8,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 302.103,
+      "rust_ns": 217.671
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 118.085,
+      "rust_ns": 46.287
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 109.273,
+      "rust_ns": 46.3875
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 111.98,
+      "rust_ns": 45.9735
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 119.5455,
+      "rust_ns": 46.4135
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 114.3175,
+      "rust_ns": 45.5575
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 111.11,
+      "rust_ns": 44.9415
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 108.865,
+      "rust_ns": 46.8075
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 109.5905,
+      "rust_ns": 45.947
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 108.778,
+      "rust_ns": 46.1995
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 110.6485,
+      "rust_ns": 46.2165
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 114.535,
+      "rust_ns": 47.447
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 111.563,
+      "rust_ns": 45.768
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 113.6795,
+      "rust_ns": 45.861
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 113.9625,
+      "rust_ns": 46.012
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 114.1825,
+      "rust_ns": 46.7315
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 113.711,
+      "rust_ns": 49.271
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 108.766,
+      "rust_ns": 46.725
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 107.9935,
+      "rust_ns": 46.78
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 111.8005,
+      "rust_ns": 45.8975
+    },
+    {
+      "case": "options_64_bytes",
+      "chunk_bytes": 64,
+      "input_bytes": 64,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 115.816,
+      "rust_ns": 48.015
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="15" failures="0" disabled="0" errors="0" time="0.052" timestamp="2026-11-12T21:47:40">
+  <testsuite name="ContentDispositionRustTest" tests="3" failures="0" disabled="0" errors="0" time="0.050" timestamp="2026-11-12T21:47:40">
+    <testcase name="DifferentialEdgeCases" status="run" time="0.048" timestamp="2026-11-12T21:47:40" classname="ContentDispositionRustTest">
+    </testcase>
+    <testcase name="IteratorFailureAndByteBoundaries" status="run" time="0.002" timestamp="2026-11-12T21:47:40" classname="ContentDispositionRustTest">
+    </testcase>
+    <testcase name="ResponseHeaderConstructorAndOwnership" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="ContentDispositionRustTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="HttpContentDispositionTest" tests="12" failures="0" disabled="0" errors="0" time="0.002" timestamp="2026-11-12T21:47:40">
+    <testcase name="ContainsNul/0" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="ContainsNul/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="Filename/0" status="run" time="0.002" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="Filename/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="MultipleContentDisposition/0" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="MultipleContentDisposition/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="NoContentDisposition/0" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="NoContentDisposition/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="ParseResult/0" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="ParseResult/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="tc2231/0" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+    <testcase name="tc2231/1" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="HttpContentDispositionTest">
+    </testcase>
+  </testsuite>
+</testsuites>

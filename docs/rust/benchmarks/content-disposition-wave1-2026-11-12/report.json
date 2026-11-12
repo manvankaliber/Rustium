@@ -1,0 +1,464 @@
+{
+  "schema_version": 1,
+  "component": "content-disposition",
+  "date": "2026-11-12",
+  "generated_utc": "2026-11-12T19:18:45.737897+00:00",
+  "status": "Complete Rust parser/decoder policy implemented in editing checkout; focused native validation passed; parent-owned canonical integration pending",
+  "editing_checkout": "D:\\Rustium",
+  "configured_checkout": "D:/RustiumBuild/src",
+  "head_commit_context": "4ebe1665496c5e99f2fb579015d3a98963a229cc",
+  "dirty_source_snapshot_is_authoritative": true,
+  "owned_files_sha256": {
+    "net/http/http_content_disposition.cc": "2e02263dd1f239a0bfbd6aeba4d48c24acef0e495b02a0c3887acaeb3b33181c",
+    "net/http/http_content_disposition.h": "c4aeff3ab4dbdbb19bf7675d1e9a09e66c0883fd11451a93d6cac34a8ea8f02f",
+    "net/http/content_disposition_ffi.rs": "f30bf1fc731269b70bfcdde8904e9934893cccb737e2a8654f2dfe3a8f845ecf",
+    "net/http/content_disposition_fuzzer.cc": "80cc2e1a8a39645036c6ef013fcb0d2dcdde77f63749d8ddb4e1fe877312fcf5",
+    "net/http/content_disposition_http_util_reference.cc": "04cae48f042b80dd6e1e78875e0cd263b6310dd9ad50b8790428bb39f2dd2ee2",
+    "net/http/content_disposition_http_util_reference.h": "bb4444dce6163b256528e92f768f65133f7fdbeac0ffbc25e7d9490dba710880",
+    "net/http/content_disposition_modp_data_reference.h": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+    "net/http/content_disposition_modp_reference.cc": "4e8194da9e6684ddec9614a90f698ec235930fddbf23d699b39b7196309d803e",
+    "net/http/content_disposition_modp_reference.h": "09f7af68bdeaae786055618ffd30e8c52e71645a04fcbdb56643cf1b18aa73bc",
+    "net/http/content_disposition_parser.rs": "157c5b9660b2055dbf8a5fe9acdef7e3ee58fbca665226c932399fbb119e9618",
+    "net/http/content_disposition_perftest.cc": "7f5bed478443c0118ea1d71dfcb8205020e00fbacb29a5da7af4f942222908de",
+    "net/http/content_disposition_reference.cc": "0e939d28c83ca40b711b05a3e340928b961c5c767ceb7eb4c12b6f4fb2cd781f",
+    "net/http/content_disposition_reference.h": "ac76bbfabb8e83a585f65a27d3c48b2a7a69cb3ef96a3263555e1091a4381e06",
+    "net/http/content_disposition_services.cc": "15261b8debf1a6e04439922e8b896909ef77e110cad58dcbc1903dc676bff0de",
+    "net/http/content_disposition_services.h": "e5cda4ea3a29da6195793fdacbbd55a68520a559cad318f0294caf34d9e06bd4",
+    "net/http/content_disposition_services_reference.cc": "a841bb84cc14a3ff205f5aebb22f13d35b980836483b44bbad65042ca024de2c",
+    "net/http/content_disposition_services_reference.h": "9313b7cb17acfa3c457b1fe435da9ecb8e855b51b5dc85d120e01dbd9424984d",
+    "net/http/content_disposition_tokenizer_reference.h": "abe976fd0de59e15daf78f02649531c380b36b16d31fc096cc5a4e1f70443664",
+    "net/http/content_disposition_unittest.cc": "641e84fdf2b2e7101311e1089920a29c0c9be7bcea8b497dbc08cf1c5ce992c9"
+  },
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\source-snapshot",
+  "original_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\original",
+  "original_initial_manifest": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\original-initial-source-hashes.json",
+  "source_manifest": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\source-hashes.json",
+  "original_tests_preserved": {
+    "file": "net/http/http_content_disposition_unittest.cc",
+    "sha256": "47b261e283f595eca3eb881537e02c5cc57c9af450df3c8142595a598d3ec091",
+    "changed": false
+  },
+  "migration": {
+    "policy_in_rust": [
+      "first comma-separated field and semicolon parameter tokenization including quoted/backslash behavior",
+      "LWS trimming, token validity and disposition type",
+      "first nonempty filename and filename* selection and extended-value priority",
+      "all parse-result flags including nonwinning filename flags",
+      "quoted-value recovery, duplicate handling, iterator stop-on-error behavior",
+      "RFC2047 Q and strict B decoding, skipped empty fields and malformed/truncated compatibility",
+      "binary URL percent decoding and strict Chromium UTF-8/noncharacter validation",
+      "RFC5987 components and ASCII/quote checks",
+      "charset fallback ordering, normalized versus non-normalized conversion selection",
+      "transactional filename/flags mutation when a token fails"
+    ],
+    "production_cpp": [
+      "HttpResponseHeaders constructor uses existing EnumerateHeader public service",
+      "public object/string lifetime and final filename ownership",
+      "whole-string charset/normalization services"
+    ],
+    "does_not_call_original_parser": true,
+    "pure_rust_claim": false,
+    "unsafe": "Pure policy has forbid(unsafe_code). CXX foreign declaration/generated glue handles slices and owned vectors. Lifetime contract in service header and Rust declaration; no input pointers retained or uninitialized output references."
+  },
+  "remaining_seams": [
+    {
+      "id": "icu-substitution",
+      "cpp": "net::ConvertToUtf8 / ucnv_open / ucnv_toAlgorithmic",
+      "use": "RFC2047 decoded bytes with original ICU substitution behavior",
+      "rust_policy": "Q/B bytes and charset selected in Rust; full string converted once",
+      "follow_up": "Port encoding service separately with the same ICU encoding aliases/error policy and differential suite; do not silently substitute a smaller charset table"
+    },
+    {
+      "id": "strict-referrer",
+      "cpp": "net::ConvertToUTF16 then base::UTF16ToUTF8",
+      "use": "raw non-UTF8 filename with referrer charset",
+      "rust_policy": "UTF8 validation, strict conversion decision and fallback ordering in Rust",
+      "follow_up": "Migrate strict charset conversion and scalar transcoding while preserving supported encodings and NUL-terminated charset semantics"
+    },
+    {
+      "id": "native-os",
+      "cpp": "base::SysNativeMBToWide then base::WideToUTF8",
+      "use": "raw invalid UTF8 when strict referrer conversion is absent/fails",
+      "rust_policy": "fallback chosen in Rust",
+      "follow_up": "Add Rust platform charset service preserving active native codepage and malformed-input behavior; Windows validated here, other OS behavior remains delegated to original platform service"
+    },
+    {
+      "id": "normalize",
+      "cpp": "net::ConvertToUtf8AndNormalize / base ICU normalization",
+      "use": "RFC5987 percent-unescaped extended filename",
+      "rust_policy": "quote/ASCII/component validation and unescape precede one whole-string normalized conversion",
+      "follow_up": "Migrate charset and NFC normalization with alias/invalid sequence compatibility"
+    },
+    {
+      "id": "header-container",
+      "cpp": "HttpResponseHeaders::EnumerateHeader",
+      "use": "preferred constructor fetches first header field through existing public container API",
+      "rust_policy": "complete received field parsed in Rust; string overload splits first comma field in Rust",
+      "follow_up": "Migrate header container separately"
+    },
+    {
+      "id": "ownership",
+      "cpp": "std::string/class members and result Vec copying",
+      "use": "stable public C++ API and destruction",
+      "rust_policy": "all parsing outputs owned in Rust until final wrapper copy",
+      "follow_up": "Retire C++ owner when callers migrate; quantify allocations before choosing a replacement ABI"
+    }
+  ],
+  "reference": {
+    "description": "Frozen original parser/class, local HTTP iterator helpers, independent tokenizer template, binary URL unescape, base64 service and renamed modp implementation/table. Charset helper method bodies frozen; base ICU/OS services remain explicitly common pinned external services.",
+    "normalized_body_checks": 27,
+    "verification": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\reference-body-verification.json",
+    "normalization": "same Chromium clang-format applied to original before token comparison; deliberate namespaces/symbol renaming reversed; comments/whitespace ignored",
+    "external_base_services": "IsStringASCII/IsStringUTF8, UTF conversion, ICU, OS conversion, ASCII/hex primitives and HttpResponseHeaders container are shared with the pinned configured libraries; initial source snapshots and handoff library hashes retained. Baseline does not call newly migrated net HTTP, URL-unescape, Base64 or tokenizer policy."
+  },
+  "validation": {
+    "canonical_gn_build_run": false,
+    "configured_tree_or_ninja_mutated": false,
+    "native_builds": {
+      "unit": "built and executed",
+      "fuzz": "built and executed",
+      "bench": "built, never timed/executed"
+    },
+    "unit": {
+      "exit_code": 0,
+      "tests": 15,
+      "passed": 14,
+      "skipped": 1,
+      "failures": 0,
+      "original_suite_instantiations": 12,
+      "original_passed": 11,
+      "original_skipped": 1,
+      "skip": "Original ContainsNul/1 skips because header container forbids NULs. Raw string NUL case passes.",
+      "authored_tests": 3,
+      "authored_differential_comparisons": {
+        "edge_cross_product": 16384,
+        "iterator_and_all_256_byte_boundaries": 1294,
+        "response_header_constructor": 5,
+        "null_empty_view": 1
+      },
+      "other_authored_checks": "public output owns storage after source string mutation; type, bytes and all flags compared",
+      "results": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\unit-results.json",
+      "execution": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\unit-execution.json"
+    },
+    "fuzz": {
+      "exit_code": 0,
+      "executed_units": 1000000,
+      "mismatches": 0,
+      "max_input_bytes": 512,
+      "affinity_mask": 2,
+      "cpu": "CPU1 (not CPU4)",
+      "seed": 20261112,
+      "structured_variants": [
+        "raw",
+        "filename",
+        "quoted",
+        "RFC2047 Q",
+        "RFC2047 B",
+        "RFC5987",
+        "referrer-charset Q"
+      ],
+      "charsets": [
+        "empty",
+        "UTF-8",
+        "ISO-8859-1",
+        "windows-1252",
+        "Shift_JIS",
+        "GB18030",
+        "unknown",
+        "embedded NUL charset"
+      ],
+      "feedback": "libFuzzer native inline counters/pc-table/trace-cmp and configured C++ sanitizers; this is not Rust branch-coverage instrumentation",
+      "log": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\fuzz-run.log",
+      "execution": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\fuzz-execution.json",
+      "corpus": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\fuzz-corpus.zip"
+    },
+    "coverage": {
+      "method": "Configured rustc -Cinstrument-coverage, optimized release Rust library linked to native unit harness; LLVM profdata merge and llvm-cov export. Authored Rust only reported separately from generated/third-party code.",
+      "raw": {
+        "content_disposition_ffi.rs": {
+          "lines": {
+            "count": 13,
+            "covered": 13,
+            "percent": 100
+          },
+          "functions": {
+            "count": 3,
+            "covered": 3,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 3,
+            "covered": 3,
+            "percent": 100
+          },
+          "regions": {
+            "count": 15,
+            "covered": 15,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        },
+        "content_disposition_parser.rs": {
+          "lines": {
+            "count": 297,
+            "covered": 295,
+            "percent": 99.32659932659934
+          },
+          "functions": {
+            "count": 25,
+            "covered": 25,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 25,
+            "covered": 25,
+            "percent": 100
+          },
+          "regions": {
+            "count": 407,
+            "covered": 404,
+            "notcovered": 3,
+            "percent": 99.26289926289927
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      "runtime_exclusions": [
+        {
+          "file": "content_disposition_parser.rs",
+          "line": 187,
+          "reason": "private decode_word receives only nonempty whitespace tokens; empty input arm unreachable from public parse"
+        },
+        {
+          "file": "content_disposition_parser.rs",
+          "line": 195,
+          "reason": "error arm of ? after native conversion; production mode2 always returns ok=true, including an empty native result"
+        },
+        {
+          "file": "content_disposition_parser.rs",
+          "line": 225,
+          "reason": "empty decoded Q/B payload is unreachable: RFC2047 empty fields are skipped, and every accepted nonempty Q/B payload decodes at least one byte"
+        }
+      ],
+      "adjusted_coverage_percentage_claimed": false,
+      "branch_coverage_collected": false,
+      "raw_evidence": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\coverage.json",
+      "profile": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\unit.profraw"
+    },
+    "lint": [
+      {
+        "name": "rustfmt",
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+          "--edition",
+          "2024",
+          "--check",
+          "D:\\Rustium\\net\\http\\content_disposition_parser.rs",
+          "D:\\Rustium\\net\\http\\content_disposition_ffi.rs"
+        ],
+        "exit_code": 0,
+        "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\rustfmt.log"
+      },
+      {
+        "name": "clang-format",
+        "command": [
+          "D:/RustiumBuild/src/buildtools/win-format/clang-format.exe",
+          "--dry-run",
+          "-Werror",
+          "D:\\Rustium\\net\\http\\http_content_disposition.cc",
+          "D:\\Rustium\\net\\http\\http_content_disposition.h",
+          "D:\\Rustium\\net\\http\\content_disposition_fuzzer.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_http_util_reference.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_modp_reference.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_perftest.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_reference.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_services.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_services_reference.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_unittest.cc",
+          "D:\\Rustium\\net\\http\\content_disposition_http_util_reference.h",
+          "D:\\Rustium\\net\\http\\content_disposition_modp_data_reference.h",
+          "D:\\Rustium\\net\\http\\content_disposition_modp_reference.h",
+          "D:\\Rustium\\net\\http\\content_disposition_reference.h",
+          "D:\\Rustium\\net\\http\\content_disposition_services.h",
+          "D:\\Rustium\\net\\http\\content_disposition_services_reference.h",
+          "D:\\Rustium\\net\\http\\content_disposition_tokenizer_reference.h"
+        ],
+        "exit_code": 0,
+        "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\clang-format.log"
+      },
+      {
+        "name": "clippy",
+        "command": [
+          "python",
+          "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\build_native.py",
+          "clippy"
+        ],
+        "exit_code": 0,
+        "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\clippy.log"
+      },
+      {
+        "name": "reference-verification",
+        "command": [
+          "python",
+          "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\verify_reference.py"
+        ],
+        "exit_code": 0,
+        "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\reference-verification.log"
+      },
+      {
+        "name": "diff-check",
+        "command": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "net/http/http_content_disposition.cc",
+          "net/http/http_content_disposition.h"
+        ],
+        "exit_code": 0,
+        "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\diff-check.log"
+      }
+    ],
+    "cpp_compile_warnings": "No warnings/errors in final compile logs; full actual configured-derived response-file flags retained.",
+    "reference_checks_passed": true
+  },
+  "build": {
+    "method": "Isolated scratch Cargo + direct clang-cl/lld-link; no GN generation or Ninja. Native flags derived from existing configured gzip_header_perftests/unittests Ninja and toolchain files, plus scratch include paths, NET_IMPLEMENTATION and ICU include paths. Exact per-mode .rsp, source hashes and link commands archived.",
+    "rust_dependencies": "std plus existing vendored CXX 1.0.205; offline Cargo. Scratch Cargo uses existing local cc/shlex/find-msvc-tools patches inherited from previous harness, not new production dependencies.",
+    "rust_release_flags": "opt-level=3; codegen-units=1; -Cdebug-assertions=yes -Ccontrol-flow-guard=yes -Cpanic=abort; coverage adds -Cinstrument-coverage",
+    "tool_versions_and_hashes": {
+      "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\clang-cl.exe": {
+        "sha256": "7a9521c7375ee78393e673767b176eecfe545de1684e5fdeb4849b1049a903b8",
+        "version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc"
+      },
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustc.exe": {
+        "sha256": "bc061651ccbf73cae42d2446e6600ad8214766af2e664cc3f9f730c8fcc1c596",
+        "version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)"
+      },
+      "D:\\RustiumBuild\\src\\buildtools\\win-format\\clang-format.exe": {
+        "sha256": "ee7a1f89733de23daf8ee035f8aebafa52410c9f4dd1f05ee12a95ce517a0953",
+        "version": "clang-format version 23.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project 20b6ec66967ac2a8f932863c1abf251e5b17a843)"
+      }
+    },
+    "native_binary_sha256": {
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\unit.exe": "72df081e1020d8403cd600414a01f442d31139470c3c78e59051f0e5ac398666",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\fuzz.exe": "05bc62b2c7f735f58cb7b877d4ebc0ca983b1b647b31de43d585bfeafa82ad62",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\bench.exe": "1babc087389cfae4c5a4c8c571d4e9255ede3980bc4fb470d062b5e87ccad287"
+    },
+    "rust_static_library_sha256": {
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\chromium-target\\release\\content_disposition_validation.lib": "a5b1420e856b442bc5aa8a8f1b27a3126e56157d87ae185ac5cd14b44158b69e",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\coverage-target\\release\\content_disposition_validation.lib": "5390b78af21678f5dd1a9d5a7849393dd8eafebc99b095e94354e425a35e9264"
+    },
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "machine": "AMD64",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "configured_out": "D:\\RustiumBuild\\src\\out\\Default",
+      "dll_lookup_note": "configured icuuc.dll and icudtl.dat copied into scratch to avoid selecting Windows system ICU"
+    },
+    "shared_runtime_binary_sha256_recorded_at_handoff": {
+      "D:\\RustiumBuild\\src\\out\\Default\\base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "D:\\RustiumBuild\\src\\out\\Default\\base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "D:\\RustiumBuild\\src\\out\\Default\\icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "D:\\RustiumBuild\\src\\out\\Default\\icudtl.dat": "eccdb4c815b98d90dba72c85f156ca3ced5a2625923655f50d8702217951d15c",
+      "D:\\RustiumBuild\\src\\out\\Default\\net.dll": "fd6fa21ea2edc7665b58157996ca95ecdd572c4271814dfeda51d0c9c2e5a04f",
+      "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "D:\\RustiumBuild\\src\\out\\Default\\third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "D:\\RustiumBuild\\src\\out\\Default\\third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll": "af09d9151d97c6b4fabe9870075cb5d63dee8b0253a7eac5498933eff1a71242",
+      "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll": "d81becf5e51c604e1a991e1816c2ba9db3d743c5111a8c1c3bae22006e7ea734"
+    },
+    "runtime_hashes_at_exact_execution_start": "not recorded",
+    "exact_flags_and_link_commands": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\build-evidence"
+  },
+  "parent_handoff": {
+    "gn_fragments": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\gn-fragments.gn",
+    "runner_module_fragment": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\runner-module-fragment.json",
+    "production_sources_to_add": [
+      "net/http/content_disposition_services.cc",
+      "net/http/content_disposition_services.h"
+    ],
+    "production_dep_to_add": ":content_disposition_parser",
+    "shared_http_util_edits_required": false,
+    "canonical_targets": [
+      "net",
+      "content_disposition_unittests",
+      "content_disposition_perftests",
+      "content_disposition_fuzzer"
+    ],
+    "actions": [
+      "Check configured worktree for independent owned-file changes, then synchronize only owned files and parent-approved GN changes",
+      "Generate/build configured GN targets and execute original plus differential tests",
+      "Run benchmark only in coordinated quiet window, using configured runner after adding supplied module entry",
+      "Bind final report/source manifest by SHA-256 and import all 15 measured cases into gallery; include actual positive/negative results after validated integration",
+      "Inspect selectors and square PNG/MP4 exports per AGENTS.md; update aggregate and any measured optimization debt"
+    ]
+  },
+  "benchmark": {
+    "ran": false,
+    "reason": "Parent owns coordinated timing and chart imports",
+    "descriptor": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12\\benchmark-descriptor.json",
+    "case_count": 15,
+    "groups": 3,
+    "cases_per_group": 5,
+    "pairs_per_case": 20,
+    "order": "seeded mt19937(20261112), randomized Rust/C++ order for each pair",
+    "units": "ns per complete public API construction/parse/result consumption/destruction",
+    "inputs": "preloaded warm header and charset strings; native allocator warmed by untimed repetitions",
+    "baseline": "Frozen original C++ parser with frozen helpers",
+    "rust": "Integrated production source public wrapper including Rust FFI/charset/ownership/destruction; canonical perftest links :net directly, with no independent adapter",
+    "excluded": "input assembly, file I/O, response-header assembly/enumeration, startup, ICU init and whole-browser/network performance",
+    "raw_measurements": [],
+    "performance_claim": null,
+    "equivalence_bound": null
+  },
+  "optimization_debt": [
+    {
+      "status": "unmeasured opportunity, not an observed regression",
+      "seam": "ownership and charset FFI",
+      "affected_workloads": [
+        "ASCII filename",
+        "RFC2047",
+        "RFC5987",
+        "legacy charset fallback"
+      ],
+      "evidence": "Source has temporary Vec allocations, whole-string C++ conversion results and final std::string copy; timing intentionally not run",
+      "verified_cause": null,
+      "suspected_cause": "allocation and copies may add overhead; no attribution made",
+      "concrete_follow_up": "After parent captures all 15 paired cases, profile allocations and charset callback costs; optimize measured hot paths independently of bridge retirement. Record regressions even if migration is otherwise correct."
+    }
+  ],
+  "known_gaps": [
+    "Canonical configured GN/Ninja validation remains parent-owned and pending.",
+    "Focused native validation was Windows x64 only; OS charset services on other platforms not newly runtime-tested.",
+    "Fuzz limit 512 bytes; long header workloads are provided for benchmark, and native ownership tests exercise a 4096-byte source overwrite.",
+    "No performance measurements, performance parity or whole-browser performance claims.",
+    "Remaining charset/normalization/platform/header-container/ownership services mean this is not a pure-Rust networking stack."
+  ],
+  "durable_archive": "D:\\Rustium\\docs\\rust\\benchmarks\\content-disposition-wave1-2026-11-12"
+}

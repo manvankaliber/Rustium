@@ -1,0 +1,51 @@
+{
+  "module": "port-policy",
+  "source": "port-policy",
+  "label": "Port validation and policy",
+  "measurement": "Same-process public API including Rust FFI and state ownership. 20 randomized-order pairs, seed 20261112, 20000 operations per sample. Setup and warmup outside timing; one endpoint construction per measured sample and exception destruction or multiset reset in their respective workloads included. Feature defaults and empty localhost parameter; excludes networking and configuration startup.",
+  "baseline": "Frozen port_util.cc and private original ParseInt32 helper; base string conversion and Chromium feature, histogram and IP helpers remain shared.",
+  "groups": [
+    {
+      "id": "port-policy-scheme",
+      "title": "Port restrictions",
+      "operation": "IsPortAllowedForScheme",
+      "cases": [
+        {
+          "key": "port_invalid",
+          "label": "Invalid negative port"
+        },
+        {
+          "key": "port_restricted",
+          "label": "Built-in restricted port"
+        },
+        {
+          "key": "port_regular",
+          "label": "Ordinary allowed port"
+        }
+      ],
+      "production_status": "deferred",
+      "include_in_average": false
+    },
+    {
+      "id": "port-policy-state",
+      "title": "Endpoint and mutable policy",
+      "operation": "Endpoint or state sequence",
+      "cases": [
+        {
+          "key": "port_localhost",
+          "label": "Localhost, empty feature set"
+        },
+        {
+          "key": "port_scoped",
+          "label": "Scoped exception and lookup"
+        },
+        {
+          "key": "port_reset",
+          "label": "Duplicate reset, count and clear"
+        }
+      ],
+      "production_status": "deferred",
+      "include_in_average": false
+    }
+  ]
+}

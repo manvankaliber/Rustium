@@ -1,0 +1,80 @@
+{
+  "files": {
+    "D:\\Rustium\\net\\base\\net_diagnostics_debug_formatting_core.rs": {
+      "lines": {
+        "count": 61,
+        "covered": 61,
+        "percent": 100
+      },
+      "functions": {
+        "count": 8,
+        "covered": 8,
+        "percent": 100
+      },
+      "instantiations": {
+        "count": 9,
+        "covered": 9,
+        "percent": 100
+      },
+      "regions": {
+        "count": 73,
+        "covered": 73,
+        "notcovered": 0,
+        "percent": 100
+      },
+      "branches": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      }
+    },
+    "D:\\Rustium\\net\\base\\net_diagnostics_debug_formatting_ffi.rs": {
+      "lines": {
+        "count": 42,
+        "covered": 40,
+        "percent": 95.23809523809523
+      },
+      "functions": {
+        "count": 6,
+        "covered": 6,
+        "percent": 100
+      },
+      "instantiations": {
+        "count": 6,
+        "covered": 6,
+        "percent": 100
+      },
+      "regions": {
+        "count": 43,
+        "covered": 41,
+        "notcovered": 2,
+        "percent": 95.34883720930233
+      },
+      "branches": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      }
+    }
+  },
+  "method": "LLVM source instrumentation using native API binary mappings (cfg(test) excluded). Profiles also include direct Rust tests; generated tables and standard library excluded. No branch coverage collected.",
+  "profiles": [
+    "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\rust-tests-28124.profraw",
+    "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\rust-tests-6800.profraw",
+    "D:\\Rustium\\.scratch\\net-wave1\\parent-optimization\\diagnostics\\unit-36204.profraw"
+  ]
+}

@@ -4,6 +4,7 @@
 
 #include "net/cert/key_pinning_state.h"
 
+#include "base/strings/string_util.h"
 #include "net/dns/dns_names_util.h"
 
 namespace net {

@@ -1,0 +1,20 @@
+[
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\unit.exe",
+      "--gtest_filter=NetUtilTest.*",
+      "--gtest_color=no"
+    ],
+    "exit_code": 0,
+    "binary_sha256": "60b6416d80ec15b92840a5e2665217653755aca3e636f48bd87076c7e9d87f85"
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\unit.exe",
+      "--gtest_filter=PortPolicyRust.*",
+      "--gtest_color=no"
+    ],
+    "exit_code": 0,
+    "binary_sha256": "60b6416d80ec15b92840a5e2665217653755aca3e636f48bd87076c7e9d87f85"
+  }
+]

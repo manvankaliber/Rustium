@@ -1,0 +1,50 @@
+[==========] Running 18 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 10 tests from HttpAuthChallengeTokenizerTest
+[ RUN      ] HttpAuthChallengeTokenizerTest.Basic
+[       OK ] HttpAuthChallengeTokenizerTest.Basic (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoQuotes
+[       OK ] HttpAuthChallengeTokenizerTest.NoQuotes (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotes
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotes (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoValue
+[       OK ] HttpAuthChallengeTokenizerTest.NoValue (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.Multiple
+[       OK ] HttpAuthChallengeTokenizerTest.Multiple (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoProperty
+[       OK ] HttpAuthChallengeTokenizerTest.NoProperty (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.Base64
+[       OK ] HttpAuthChallengeTokenizerTest.Base64 (0 ms)
+[----------] 10 tests from HttpAuthChallengeTokenizerTest (0 ms total)
+
+[----------] 7 tests from HttpAuthHandlerNegotiateParseTest
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical
+[       OK ] HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical (0 ms)
+[----------] 7 tests from HttpAuthHandlerNegotiateParseTest (0 ms total)
+
+[----------] 1 test from AuthChallengeRustTest
+[ RUN      ] AuthChallengeRustTest.BoundaryAndAliasCases
+[       OK ] AuthChallengeRustTest.BoundaryAndAliasCases (0 ms)
+[----------] 1 test from AuthChallengeRustTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 18 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 18 tests.

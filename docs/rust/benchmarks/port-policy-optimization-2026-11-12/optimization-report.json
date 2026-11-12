@@ -1,0 +1,131 @@
+{
+  "scope": "Port policy public API optimization. Production GN integration and quiet timing remain parent-owned.",
+  "prior_accepted_benchmark": "docs/rust/benchmarks/port-policy-wave1-final-2026-11-12.json",
+  "timing": "No benchmark timings collected; no speedup claim.",
+  "changes": [
+    "Validate invalid ports before accessing shared state.",
+    "Atomic empty-set hint avoids locking in the common empty explicit-set case; updates happen under the mutex and use release/acquire ordering.",
+    "Store the first distinct explicit port inline and retain multiplicities; additional distinct ports use BTreeMap, with a cached total count.",
+    "Avoid endpoint state locks for nonlocal addresses and for the initial localhost feature set before a reload or override; keep lazy initialization and first-load/reload double parse.",
+    "Use a const-initialized Mutex; feature and invalid-token callbacks remain outside that mutex."
+  ],
+  "synchronization": "Concurrent read-only calls remain safe; explicit mutations and reload are sequenced under the mutex. Atomic hints only skip the lock when the guarded state has no relevant value; a read racing with a mutation can linearize before that mutation. The original API did not support unsynchronized concurrent mutation.",
+  "generated_code": "Generated CXX wrapper uses a tail jump to the Rust cxxbridge function in inspected fuzz-instrumented object. It does not eliminate the C++/Rust boundary; no unsupported bridge-cost attribution.",
+  "unchanged": "Frozen reference algorithms, perftest inputs and timing loops, production C++ adapter (including guarded token view), feature instrumentation, histogram order and platform service seams. No GN change required.",
+  "validation": {
+    "original_tests": "4 passed, separate process",
+    "differential": "2 passed, including 1,000,000 deterministic state sequences and concurrent read-only access",
+    "rust_unit": "4 passed",
+    "fuzzer": "1,000,000 executions, up to 48 bytes, CPU 6; final source; includes out-of-order exception destruction and duplicate overflow entries",
+    "lint": "configured rust-toolchain Clippy with -D warnings passed",
+    "format": "rustfmt --check and clang-format --dry-run --Werror passed; rustfmt reported local unstable config-option warnings",
+    "runtime_coverage": {
+      "port_policy_core.rs": {
+        "lines": {
+          "count": 148,
+          "covered": 135,
+          "percent": 91.21621621621621
+        },
+        "functions": {
+          "count": 27,
+          "covered": 26,
+          "percent": 96.29629629629629
+        },
+        "instantiations": {
+          "count": 27,
+          "covered": 26,
+          "percent": 96.29629629629629
+        },
+        "regions": {
+          "count": 159,
+          "covered": 148,
+          "notcovered": 11,
+          "percent": 93.08176100628931
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "port_policy_ffi.rs": {
+        "lines": {
+          "count": 99,
+          "covered": 93,
+          "percent": 93.93939393939394
+        },
+        "functions": {
+          "count": 21,
+          "covered": 20,
+          "percent": 95.23809523809523
+        },
+        "instantiations": {
+          "count": 21,
+          "covered": 20,
+          "percent": 95.23809523809523
+        },
+        "regions": {
+          "count": 114,
+          "covered": 107,
+          "notcovered": 7,
+          "percent": 93.85964912280701
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    "coverage_note": "Runtime Rust authored lines and regions; no branch coverage collected. Generated glue and C++ not included.",
+    "native_build": "Isolated scratch, configured toolchain and DLLs; test harness statically links frozen reference using IS_PORT_POLICY_REFERENCE_IMPL and does not represent canonical separate-DLL production build."
+  },
+  "files": {
+    "net/base/port_policy_core.rs": "489a6e5c4430d27e4beb989ddb5359f6c9de073dc6646fc7e4200c1601f40a96",
+    "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_rust_unittest.cc": "36094b18b33fa98bc1aa6fd89decc9aa707d32cf03dd9742dbb62f080efef593",
+    "net/base/port_policy_fuzzer.cc": "e06f7fc673897c529ccddde98291df205a5e0d945d20dae6ab7026060b7b9074",
+    "net/base/port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7",
+    "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "3a8dca8adcf5c0cda16be4cf4a62667402a22c7b0eb9d72290d2b14898735f16",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_util_unittest.cc": "407110ae261d20218f7b6eceef22d0314e3e939ef5f044958b3abad3d0cd5a4e"
+  },
+  "before_files": {
+    "port_policy_core.rs": "b77f51cfc160ff174788d97fd9029654b8bb4ef092ce6c1ec0c93e4cba1a0c05",
+    "port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "port_policy_ffi.rs": "0ce37ef55fe45ecdcfaadee1be6151123c34f4365f60fe691535fe96c75b05d3",
+    "port_policy_fuzzer.cc": "ed52f30e508d2f1587be1051e13b3cf3c2a4d19e53aa5edc591f30dbf81f078b",
+    "port_policy_rust_unittest.cc": "a10a0cfb4b4390e449ec58964646d8f610271fe51f078777b3f95762b654ca97",
+    "port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7"
+  },
+  "limitations": [
+    "No new quantitative timing, benchmark measurements or chart updates.",
+    "No configured GN/Ninja build; parent must synchronize owned files, rebuild and validate.",
+    "Parent must remeasure every case in a coordinated quiet window and import all results; the inline representation may affect reset or multi-port workloads, so gains and regressions remain unknown.",
+    "The native harness has a static reference boundary; accepted results were measured across separate component DLLs.",
+    "Callback services and Rust state remain FFI and synchronization seams; no numerical inference about their individual costs."
+  ],
+  "source_flags": "unit-rsp/fuzz-rsp and corresponding link command, build_native.py, and Rust build logs; instrumentation is used for unit coverage and fuzz builds.",
+  "fuzz_execution": "fuzz-execution.json",
+  "unit_execution": "validation-execution.json",
+  "gn_changes": "None."
+}

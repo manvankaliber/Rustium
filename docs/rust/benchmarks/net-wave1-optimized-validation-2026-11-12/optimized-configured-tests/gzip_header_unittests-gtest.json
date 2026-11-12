@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="123" failures="0" disabled="0" errors="0" time="0.017" timestamp="2026-11-12T21:47:47">
+  <testsuite name="GZipHeaderRustTest" tests="19" failures="0" disabled="0" errors="0" time="0.014" timestamp="2026-11-12T21:47:47">
+    <testcase name="CompletionAndEmptyCalls" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="CompletionInitializesOutputStorage" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="DifferentialSingleByteMutations" status="run" time="0.006" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="EmptyNameAndComment" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="EveryFlagCombination" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="EverySplitPoint" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="EveryTruncation" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="FragmentedOptionalFields" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="HeaderCrcRemainsOpaque" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="IncompleteAndInvalidLeaveOutputUnchanged" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="InputCanAliasOutputStorage" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="InvalidBridgeStateIsRejected" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="InvalidMagicAndCompressionMethod" status="run" time="0.001" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="LongNameAndComment" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="MaximumExtraLength" status="run" time="0.007" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="OrdinaryHeaderAndPayload" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="ReservedFlagsAndTextAreAccepted" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="ResetAfterPartialInvalidAndComplete" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+    <testcase name="ZeroLengthExtraAtChunkBoundary" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GZipHeaderRustTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="GzipSourceStreamTests/GzipSourceStreamTest" tests="104" failures="0" disabled="0" errors="0" time="0.003" timestamp="2026-11-12T21:47:47">
+    <testcase name="CorruptGzipHeader/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="CorruptGzipHeader/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/3" status="run" time="0.001" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateOneBlock/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateTwoReads/7" status="run" time="0.001" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/0" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/1" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/2" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/3" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/4" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithAdler32/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/0" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/1" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/2" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/3" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/4" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithBadAdler32/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/0" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/1" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/2" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/3" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/4" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithAdler32/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/0" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/1" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/2" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/3" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/4" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="DeflateWithoutHeaderWithBadAdler32/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="EmptyStream/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectness/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/0" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/1" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/2" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/3" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/4" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/5" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/6" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipCorrectnessWithoutFooter/7" status="run" time="0.000" timestamp="2026-11-12T21:47:47" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/5" status="run" time="0.001" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="GzipOneBloc/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="IgnoreDataAfterEof/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/0" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/1" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/2" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/3" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/4" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/5" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/6" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+    <testcase name="MissingZlibHeader/7" status="run" time="0.000" timestamp="2026-11-12T21:47:46" classname="GzipSourceStreamTests/GzipSourceStreamTest">
+    </testcase>
+  </testsuite>
+</testsuites>

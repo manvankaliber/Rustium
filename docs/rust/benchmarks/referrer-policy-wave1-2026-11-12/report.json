@@ -1,0 +1,127 @@
+{
+  "module": "referrer-policy",
+  "status": "Rust parser integrated in configured net.dll; focused configured API tests pass; no timings yet",
+  "source_sha256": {
+    "net/url_request/referrer_policy.cc": "bd27045305edcc710ec2d32519a1e09089e7053b90ea00d698b25d3d1e91b61d",
+    "net/url_request/referrer_policy.h": "74be6fecccec02a4ee22d4532ab405886013985f33cb7c7b4d49222031425df1",
+    "net/url_request/referrer_policy_differential.h": "7ca73bd7d9a435138a1a8cef4da722739290819fab59f8efccdb8e8caa8a1cad",
+    "net/url_request/referrer_policy_ffi.h": "a3eedfd089c98a035d95d7371ff3de80ecd4b9ccd77dfddffd03b49d4f5ad94f",
+    "net/url_request/referrer_policy_ffi.rs": "5d7ab45fea448103764deb0e85c6397ba8bdb6902640ba93d2f6d717f9787529",
+    "net/url_request/referrer_policy_fuzzer.cc": "f5ede30b0d283f3194515485d95e4ec1f25d24163ff785700f196aeb1a5d1a51",
+    "net/url_request/referrer_policy_parser.rs": "cbf8ed09ab16af96cf05a47b042b550087bbc709bb6f046a57f71e7a9704919c",
+    "net/url_request/referrer_policy_perftest.cc": "99672aef9d3deb4b8851ec4172d1ba4b12e8a40fa1819e72dda83b7b011f2767",
+    "net/url_request/referrer_policy_reference.cc": "de85c8cb7c10e31df0135de6af325752fafd707801f896d522ca9fefc36de225",
+    "net/url_request/referrer_policy_reference.h": "9c0e46319decadef7f0dbf04f8f49bb2b631ad38dd0c69df2949b0da18ad6369",
+    "net/url_request/referrer_policy_rust_unittest.cc": "3e9a6eb95f75a4a867c2ccb40c72e125defa0f0496c583da7710bff782ce705f"
+  },
+  "original_sha256": {
+    "net/url_request/referrer_policy.cc": "12ad1b6c5b5e327d4da11b4c18253212d966acae37ee7af1e531500ef67486b3",
+    "net/url_request/referrer_policy.h": "74be6fecccec02a4ee22d4532ab405886013985f33cb7c7b4d49222031425df1",
+    "base/containers/fixed_flat_map.h": "6fd8c5a5a141c181a4bfbeb104f8db7a18d89765d5850ff2925f2e99f0492c32",
+    "base/strings/string_split.cc": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+    "base/strings/string_split.h": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+    "base/strings/string_split_internal.h": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+    "base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+    "base/strings/string_util.h": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+    "base/strings/string_util_impl_helpers.h": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+    "base/strings/string_util_internal.h": "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c",
+    "base/strings/trim_string_internal.h": "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+    "base/strings/whitespace_constants.h": "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3"
+  },
+  "native_validation": {
+    "cpp_tests_passed": 6,
+    "rust_tests_passed": 2,
+    "differential_fuzz_executions": 1000000,
+    "engine": "libFuzzer; C++ coverage-guided harness, Rust is not sanitizer-instrumented",
+    "runtime_coverage": {
+      "referrer_policy_ffi.rs": {
+        "lines": {
+          "count": 7,
+          "covered": 7,
+          "percent": 100
+        },
+        "functions": {
+          "count": 2,
+          "covered": 2,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 2,
+          "covered": 2,
+          "percent": 100
+        },
+        "regions": {
+          "count": 9,
+          "covered": 9,
+          "notcovered": 0,
+          "percent": 100
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "referrer_policy_parser.rs": {
+        "lines": {
+          "count": 19,
+          "covered": 19,
+          "percent": 100
+        },
+        "functions": {
+          "count": 5,
+          "covered": 5,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 5,
+          "covered": 5,
+          "percent": 100
+        },
+        "regions": {
+          "count": 25,
+          "covered": 25,
+          "notcovered": 0,
+          "percent": 100
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    "branches": "not collected",
+    "lint": "Clippy all targets with warnings denied passed; rustfmt applied; C++ clang-format applied",
+    "native_source_note": "Perftest-only explicit cstdint/ratio include fix followed native checks; all actual runtime/reference/test/fuzz source hashes still match exactly."
+  },
+  "configured_validation": "D:\\Rustium\\.scratch\\net-wave1\\configured-tests\\referrer_policy_rust_unittests-execution.json",
+  "benchmark": {
+    "timed": false,
+    "cases": 10,
+    "descriptor": "D:\\Rustium\\docs\\rust\\benchmarks\\referrer-policy-wave1-2026-11-12\\benchmark-descriptor.json",
+    "configured_executable": "D:/RustiumBuild/src/out/Default/referrer_policy_perftests.exe"
+  },
+  "remaining_cpp_seams": [
+    "Public optional/enum return adapter and persisted enum static assertions",
+    "Synchronous borrowed string_view passed through scalar C ABI"
+  ],
+  "remaining_scope": [
+    "URLRequest redirect policy application is separate; this module parses the header into the existing enum."
+  ],
+  "optimization_debt": "No performance measurements or verified cause yet. Measure full public adapter including FFI and original allocation costs."
+}

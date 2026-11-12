@@ -1,0 +1,272 @@
+{
+  "date": "2026-11-12",
+  "module": "net/base/mime_sniffer.cc",
+  "scope": "All signature matching, HTML/XML/Office/CRX logic, binary classification and MIME policy decisions in safe Rust; C++ retains GURL/header metadata extraction and std::string output ownership. Public C++ header/API unchanged.",
+  "source_sha256": {
+    "net/base/mime_sniffer.cc": "10e4594faf0beb0504042938b1fd3eb2a5793b6e712beff5306891a142419249",
+    "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+    "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+    "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+    "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+    "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+    "net/base/mime_sniffer_parser.rs": "98d8c4dc075432dc80e3571b898dc93800d347310b5c00f2391f310f7e159afb",
+    "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+    "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+    "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+    "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+    "net/base/mime_sniffer_rust_unittest.cc": "a41ce7e1d9af4144355fbd0086efbe6b14abcc4fafe6ec4d47ca4f31840c2b0d",
+    "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839"
+  },
+  "original_cpp_source_sha256": {
+    "net/base/mime_sniffer.cc": "dd4e83ae8caeeda70ac10e2a90ff71d810d3f9d62c4ec89153367d79a9aaba9c",
+    "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+    "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839",
+    "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+    "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba"
+  },
+  "frozen_reference_matches_original_after_namespace_and_format_normalization": true,
+  "properties": {
+    "core_forbids_unsafe": true,
+    "rust_parser_heap_allocations": false,
+    "ordinary_inputs_copied": false,
+    "content_output_alias_scratch_limit_bytes": 1024,
+    "retained_input_references": false,
+    "returned_mime_pointers": "immutable static Rust strings, never input/output pointers",
+    "boundary": "private standard C ABI over pointer/length views and repr(C) POD; sizeof/alignment/offsets and bool width asserted in both languages; narrow documented unsafe input adapter",
+    "borrow_lifetime": "all input borrows end before C++ output assignment",
+    "metadata_optimization": "GURL::SchemeIs implementation compares scheme() to its literal after DCHECK validation; adapter uses equivalent borrowed scheme views, with no URL reparse or extra callbacks",
+    "legacy_semantics": "preserves signature order, wildcard/mask behavior, greedy C++ Canon CR2 hex escape, hint/output identity and content/output overlap/subviews, output on local misses, partial-data completion and first nosniff header"
+  },
+  "native_tests": {
+    "tests": 288,
+    "failures": 0,
+    "command": [
+      "D:\\Rustium\\.scratch\\mime-sniffer\\unit.exe",
+      "--gtest_color=no"
+    ],
+    "composition": "275 preexisting MIME tests +13 added differential/ABI families; per-family matrices include all signatures, every truncation and single-byte mutation, metadata/hint combinations,256byte classification, threshold boundaries and aliases"
+  },
+  "fuzz": {
+    "command": [
+      "D:\\Rustium\\.scratch\\mime-sniffer\\fuzz.exe",
+      "D:\\Rustium\\.scratch\\mime-sniffer\\corpus",
+      "-runs=1000000",
+      "-max_len=65536",
+      "-seed=20261112",
+      "-print_final_stats=1",
+      "-timeout=10",
+      "-artifact_prefix=D:\\Rustium\\.scratch\\mime-sniffer/"
+    ],
+    "exit_code": 0,
+    "cpu": 10,
+    "elapsed_seconds": 14.775202500000887,
+    "binary_sha256": "9a2e4efba87c27cf6f14744bb257dbc3e68e1be4276f890990c29644aeddeed4",
+    "source_sha256": {
+      "net/base/mime_sniffer.cc": "10e4594faf0beb0504042938b1fd3eb2a5793b6e712beff5306891a142419249",
+      "net/base/mime_sniffer.h": "6a84408cfc0deb20ce69920bf2a2d030eae87a0f4a551c4738fc4321afc8eb4f",
+      "net/base/mime_sniffer_differential_fuzzer.cc": "cd06cf3d6632af16bfe93b976b169ed486269be6e65a796d4627d3061266a443",
+      "net/base/mime_sniffer_ffi.h": "f1533c5ccfb2f8d0a33d17bb21ccb0485ab9767c9dd2c9e459f1de28fe3db379",
+      "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+      "net/base/mime_sniffer_fuzzer.cc": "31a7441a006117e695b6fdf3b47cdbc34f57adf13580908584da621698c586fc",
+      "net/base/mime_sniffer_parser.rs": "98d8c4dc075432dc80e3571b898dc93800d347310b5c00f2391f310f7e159afb",
+      "net/base/mime_sniffer_perftest.cc": "e02036761d9f6f4fdd4eadb7abc9ff714d18565ea72e7ffcc48d9c761cd658ba",
+      "net/base/mime_sniffer_reference.cc": "a47ec4e147e787f794bfd165a58ea975bcbded20899230aa5dac6b7c27415c16",
+      "net/base/mime_sniffer_reference.h": "54c0b6156be7c6a5b4ef06e421d4c040afcc0d470fe1eba23664b9d33ada0ed9",
+      "net/base/mime_sniffer_rust_perftest.cc": "5e5b24376a9888617dc3c87a1d6ed7732d4eb254f99825c2887ba5f09710a876",
+      "net/base/mime_sniffer_rust_unittest.cc": "a41ce7e1d9af4144355fbd0086efbe6b14abcc4fafe6ec4d47ca4f31840c2b0d",
+      "net/base/mime_sniffer_unittest.cc": "7c206d650936cba56e7fb72130b4879a232e648bfb329daf1a4180e6ee82d839"
+    },
+    "executed_inputs": 1000000,
+    "mismatches_or_crashes": 0,
+    "instrumentation": "libFuzzer native harness/reference coverage; Rust checked differentially, no Rust sanitizer-coverage or ASan claim",
+    "peak_rss_mb": 36
+  },
+  "coverage": {
+    "compiler": "Chromium Rust1.101/LLVM24 with matching Chromium LLVM coverage_tools",
+    "raw_authored_totals": {
+      "lines": {
+        "count": 297,
+        "covered": 286,
+        "percent": 96.29629629629629
+      },
+      "functions": {
+        "count": 38,
+        "covered": 35,
+        "percent": 92.10526315789474
+      },
+      "instantiations": {
+        "count": 40,
+        "covered": 37,
+        "percent": 92.5
+      },
+      "regions": {
+        "count": 353,
+        "covered": 334,
+        "notcovered": 19,
+        "percent": 94.61756373937678
+      },
+      "branches": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      }
+    },
+    "files": [
+      {
+        "filename": "D:\\Rustium\\net\\base\\mime_sniffer_ffi.rs",
+        "summary": {
+          "lines": {
+            "count": 67,
+            "covered": 67,
+            "percent": 100
+          },
+          "functions": {
+            "count": 6,
+            "covered": 6,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 6,
+            "covered": 6,
+            "percent": 100
+          },
+          "regions": {
+            "count": 56,
+            "covered": 56,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\net\\base\\mime_sniffer_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 230,
+            "covered": 219,
+            "percent": 95.21739130434783
+          },
+          "functions": {
+            "count": 32,
+            "covered": 29,
+            "percent": 90.625
+          },
+          "instantiations": {
+            "count": 34,
+            "covered": 31,
+            "percent": 91.17647058823529
+          },
+          "regions": {
+            "count": 297,
+            "covered": 278,
+            "notcovered": 19,
+            "percent": 93.60269360269359
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ],
+    "compile_time_only_exclusions": {
+      "lines": 11,
+      "regions": 19,
+      "functions": [
+        {
+          "name": "_RNvMNtCs4eDycVPEFdA_23mime_sniffer_validation19mime_sniffer_parserNtB2_5Magic11insensitive",
+          "first_line": 27,
+          "last_line": 29
+        },
+        {
+          "name": "_RNvMNtCs4eDycVPEFdA_23mime_sniffer_validation19mime_sniffer_parserNtB2_5Magic3new",
+          "first_line": 22,
+          "last_line": 25
+        },
+        {
+          "name": "_RNvMNtCs4eDycVPEFdA_23mime_sniffer_validation19mime_sniffer_parserNtB2_5Magic6masked",
+          "first_line": 31,
+          "last_line": 34
+        }
+      ],
+      "reason": "The only uncovered entries are unused runtime forms of three private const constructors, called exclusively by static table initializers. No artificial runtime calls added."
+    },
+    "runtime_authored_totals": {
+      "lines": {
+        "covered": 286,
+        "count": 286
+      },
+      "regions": {
+        "covered": 334,
+        "count": 334
+      },
+      "functions": {
+        "covered": 35,
+        "count": 35
+      }
+    },
+    "branch_coverage_collected": false,
+    "vendored_or_generated_code_in_totals": false
+  },
+  "checks": {
+    "clippy": "cargo clippy --release --offline -- -D warnings passed",
+    "cpp_format": "clang-format --dry-run --Werror passed",
+    "rust_format": "rustfmt --check passed",
+    "public_header_unchanged": true
+  },
+  "benchmark_plan": {
+    "descriptor": ".scratch/mime-sniffer/descriptor-final.json",
+    "cases": 30,
+    "repetitions": 20,
+    "includes": "full public C++ API with raw-Rust boundary and output assignment; fresh output strings; alias cases include identical reset and capacity reservation",
+    "canonical_final_measurement": "root-owned final GN-built run, recorded separately after combined build"
+  },
+  "limitations": [
+    "Windows x64 executed only",
+    "Raw LLVM line coverage96.296% including compile-time constructor bodies;100% stated only for explicitly defined runtime denominator",
+    "No branch coverage collected",
+    "No whole-browser speed/startup/memory/binary-size improvement claimed",
+    "Early native prototype timings are retained in run selectors; final canonical GN run is authoritative"
+  ],
+  "archived_logs": {
+    "mime-sniffer-fuzz-final.log": {
+      "sha256": "8e00aecf91f27dfc96ea894cab361524c48b0b39a91fae26039da9fc60463743",
+      "bytes": 6144
+    },
+    "mime-sniffer-coverage-final-tests.log": {
+      "sha256": "513376480310bed5b499c0a11140748b55ded377c41d2d8d816ae6d839754227",
+      "bytes": 61489
+    },
+    "mime-sniffer-clippy-final.log": {
+      "sha256": "d0adadbd7a2626e1074d10f61b98bfd284b5cdae43fbad33fe1d26ad27b537dd",
+      "bytes": 143
+    }
+  }
+}

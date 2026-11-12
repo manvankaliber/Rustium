@@ -1,0 +1,10 @@
+
+running 2 tests
+test referrer_policy_parser::tests::all_values_and_priority ... ok
+test tests::foreign_borrow_and_nullable_empty ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling referrer_policy_validation v0.1.0 (D:\Rustium\.scratch\net-wave1\referrer-policy)
+    Finished `release` profile [optimized] target(s) in 0.78s
+     Running unittests ..\..\..\net\url_request\referrer_policy_ffi.rs (.scratch\net-wave1\referrer-policy\rust-test-target\release\deps\referrer_policy_validation-389610d100cd5519.exe)

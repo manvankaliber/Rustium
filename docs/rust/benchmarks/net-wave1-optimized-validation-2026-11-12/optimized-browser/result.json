@@ -1,0 +1,175 @@
+{
+  "cases": [
+    {
+      "case": "mime",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_seconds": 22.91014870000072,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-browser\\profile-mime",
+        "--dump-dom",
+        "--virtual-time-budget=7000",
+        "http://127.0.0.1:63283/mime"
+      ]
+    },
+    {
+      "case": "gzip",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_seconds": 2.1031416000041645,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-browser\\profile-gzip",
+        "--dump-dom",
+        "--virtual-time-budget=7000",
+        "http://127.0.0.1:63283/gzip"
+      ]
+    },
+    {
+      "case": "gzip-optional",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_seconds": 2.0520554999966407,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-browser\\profile-gzip-optional",
+        "--dump-dom",
+        "--virtual-time-budget=7000",
+        "http://127.0.0.1:63283/gzip-optional"
+      ]
+    },
+    {
+      "case": "range-document",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_seconds": 1.6647661000024527,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-browser\\profile-range-document",
+        "--dump-dom",
+        "--virtual-time-budget=7000",
+        "http://127.0.0.1:63283/range-document"
+      ]
+    },
+    {
+      "case": "range-cors",
+      "passed": true,
+      "exit_code": 0,
+      "elapsed_seconds": 2.188422100007301,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-browser\\profile-range-cors",
+        "--dump-dom",
+        "--virtual-time-budget=7000",
+        "http://127.0.0.1:63283/"
+      ]
+    }
+  ],
+  "server_events": [
+    {
+      "method": "GET",
+      "path": "/mime",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/gzip",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/gzip-optional",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/range-document",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "range": null
+    },
+    {
+      "method": "GET",
+      "path": "/",
+      "range": null
+    },
+    {
+      "method": "OPTIONS",
+      "path": "/cors-case"
+    },
+    {
+      "method": "GET",
+      "path": "/cors-valid",
+      "range": "bytes=0-3"
+    },
+    {
+      "method": "GET",
+      "path": "/cors-case",
+      "range": "bytes=0-3"
+    },
+    {
+      "method": "GET",
+      "path": "/favicon.ico",
+      "range": null
+    }
+  ],
+  "scope": "Functional local HTTP integration only; no browser performance claim. HSTS grammar checked separately by focused native tests.",
+  "binary_sha256": {
+    "chrome.exe": "cede367f0bf4217c3e1a8f1a06402c55672232887c8b747bd54a855c8777212d",
+    "net.dll": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  }
+}

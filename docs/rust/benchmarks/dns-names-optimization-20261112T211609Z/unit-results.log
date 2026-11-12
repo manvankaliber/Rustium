@@ -1,0 +1,127 @@
+[==========] Running 55 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 36 tests from DnsNamesUtilTest
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidation
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidation (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetwork
+[       OK ] DnsNamesUtilTest.DottedNameToNetwork (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsEmptyLabels
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsEmptyLabels (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkRejectsEmptyLabels
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkRejectsEmptyLabels (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidationAcceptsEmptyLabelAtEnd
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidationAcceptsEmptyLabelAtEnd (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkAcceptsEmptyLabelAtEnd
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkAcceptsEmptyLabelAtEnd (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidationAllowsLongNames
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidationAllowsLongNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkAllowsLongNames
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkAllowsLongNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsTooLongNames
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsTooLongNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkRejectsTooLongNames
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkRejectsTooLongNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsRestrictedCharacters
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkWithValidationRejectsRestrictedCharacters (0 ms)
+[ RUN      ] DnsNamesUtilTest.DottedNameToNetworkAcceptsRestrictedCharacters
+[       OK ] DnsNamesUtilTest.DottedNameToNetworkAcceptsRestrictedCharacters (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameAdvancesReader
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameAdvancesReader (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleSimpleNames
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleSimpleNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleEmpty
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleEmpty (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectEmptyIncomplete
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectEmptyIncomplete (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameComplete
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameComplete (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameNotComplete
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameNotComplete (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectEmptyWhenRequiringComplete
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectEmptyWhenRequiringComplete (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectCompression
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectCompression (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleExcessInput
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleExcessInput (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTruncatedNames
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTruncatedNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongSingleLabel
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongSingleLabel (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongSecondLabel
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongSecondLabel (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongSingleLabel
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongSingleLabel (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongSecondLabel
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongSecondLabel (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectCharMinLabels
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectCharMinLabels (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongName
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongName (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongName
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongName (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongCompleteName
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldHandleLongCompleteName (0 ms)
+[ RUN      ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongCompleteName
+[       OK ] DnsNamesUtilTest.NetworkToDottedNameShouldRejectTooLongCompleteName (0 ms)
+[ RUN      ] DnsNamesUtilTest.ValidDnsNames
+[       OK ] DnsNamesUtilTest.ValidDnsNames (0 ms)
+[ RUN      ] DnsNamesUtilTest.EmptyNotValidDnsName
+[       OK ] DnsNamesUtilTest.EmptyNotValidDnsName (0 ms)
+[ RUN      ] DnsNamesUtilTest.EmptyLabelNotValidDnsName
+[       OK ] DnsNamesUtilTest.EmptyLabelNotValidDnsName (0 ms)
+[ RUN      ] DnsNamesUtilTest.ReadU8LengthPrefixed
+[       OK ] DnsNamesUtilTest.ReadU8LengthPrefixed (0 ms)
+[ RUN      ] DnsNamesUtilTest.ReadU16LengthPrefixed
+[       OK ] DnsNamesUtilTest.ReadU16LengthPrefixed (0 ms)
+[----------] 36 tests from DnsNamesUtilTest (0 ms total)
+
+[----------] 6 tests from DnsNameUtilTest
+[ RUN      ] DnsNameUtilTest.LongLabelsInValidDnsNames
+[       OK ] DnsNameUtilTest.LongLabelsInValidDnsNames (0 ms)
+[ RUN      ] DnsNameUtilTest.TooLongLabelsInInvalidDnsNames
+[       OK ] DnsNameUtilTest.TooLongLabelsInInvalidDnsNames (0 ms)
+[ RUN      ] DnsNameUtilTest.LongValidDnsNames
+[       OK ] DnsNameUtilTest.LongValidDnsNames (0 ms)
+[ RUN      ] DnsNameUtilTest.TooLongInalidDnsNames
+[       OK ] DnsNameUtilTest.TooLongInalidDnsNames (0 ms)
+[ RUN      ] DnsNameUtilTest.LocalhostNotValidDnsRecordName
+[       OK ] DnsNameUtilTest.LocalhostNotValidDnsRecordName (0 ms)
+[ RUN      ] DnsNameUtilTest.IpAddressNotValidDnsRecordName
+[       OK ] DnsNameUtilTest.IpAddressNotValidDnsRecordName (0 ms)
+[----------] 6 tests from DnsNameUtilTest (0 ms total)
+
+[----------] 2 tests from DnsUtilTest
+[ RUN      ] DnsUtilTest.CanonicalizeNames
+[       OK ] DnsUtilTest.CanonicalizeNames (0 ms)
+[ RUN      ] DnsUtilTest.IgnoreUncanonicalizeableNames
+[       OK ] DnsUtilTest.IgnoreUncanonicalizeableNames (0 ms)
+[----------] 2 tests from DnsUtilTest (0 ms total)
+
+[----------] 11 tests from DnsNamesRustTest
+[ RUN      ] DnsNamesRustTest.ExhaustiveTwoBytes
+[       OK ] DnsNamesRustTest.ExhaustiveTwoBytes (67 ms)
+[ RUN      ] DnsNamesRustTest.ExhaustiveLabelLengthsAndAvailableBytes
+[       OK ] DnsNamesRustTest.ExhaustiveLabelLengthsAndAvailableBytes (379 ms)
+[ RUN      ] DnsNamesRustTest.ExhaustiveU16Lengths
+[       OK ] DnsNamesRustTest.ExhaustiveU16Lengths (22 ms)
+[ RUN      ] DnsNamesRustTest.AllByteComparatorPolicy
+[       OK ] DnsNamesRustTest.AllByteComparatorPolicy (2 ms)
+[ RUN      ] DnsNamesRustTest.NamesLimitsRootsAndServices
+[       OK ] DnsNamesRustTest.NamesLimitsRootsAndServices (171 ms)
+[ RUN      ] DnsNamesRustTest.NonzeroInitialCursorAndAliasedOutputView
+[       OK ] DnsNamesRustTest.NonzeroInitialCursorAndAliasedOutputView (0 ms)
+[ RUN      ] DnsNamesRustTest.CursorObjectCanBeInput
+[       OK ] DnsNamesRustTest.CursorObjectCanBeInput (0 ms)
+[ RUN      ] DnsNamesRustTest.OutputObjectCanBeInput
+[       OK ] DnsNamesRustTest.OutputObjectCanBeInput (0 ms)
+[ RUN      ] DnsNamesRustTest.CursorInsideLabelPayload
+[       OK ] DnsNamesRustTest.CursorInsideLabelPayload (0 ms)
+[ RUN      ] DnsNamesRustTest.LengthOutputAliasesCursorSpan
+[       OK ] DnsNamesRustTest.LengthOutputAliasesCursorSpan (0 ms)
+[ RUN      ] DnsNamesRustTest.ComparatorPrefixesAndAliasedViews
+[       OK ] DnsNamesRustTest.ComparatorPrefixesAndAliasedViews (99 ms)
+[----------] 11 tests from DnsNamesRustTest (742 ms total)
+
+[----------] Global test environment tear-down
+[==========] 55 tests from 4 test suites ran. (743 ms total)
+[  PASSED  ] 55 tests.

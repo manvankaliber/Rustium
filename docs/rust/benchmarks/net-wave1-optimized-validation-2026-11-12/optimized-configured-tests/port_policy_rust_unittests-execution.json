@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\RustiumBuild\\src\\out\\Default\\port_policy_rust_unittests.exe",
+    "--test-launcher-jobs=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_rust_unittests-summary.json",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_rust_unittests-gtest.json"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 0.6636789000040153,
+  "binary_sha256": "2a06d6a8fbc6d834cabae60ba05bd866cf2ee3ef4a53eeba3c45b61d66698ce4",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

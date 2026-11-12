@@ -1,0 +1,43 @@
+{
+  "module": "net-diagnostics-debug-formatting",
+  "native_build_script": ".scratch/net-wave1/debug-formatting/build_native.py",
+  "focused_harness_source": ".scratch/net-wave1/debug-formatting/native_api_main.cc",
+  "focused_gtest_source": "net/base/net_diagnostics_debug_formatting_unittest.cc",
+  "configured_environment_file": "D:/RustiumBuild/src/out/Default/environment.x64",
+  "compiler_versions": {
+    "clang-cl": [
+      "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)",
+      "Target: x86_64-pc-windows-msvc",
+      "Thread model: posix"
+    ],
+    "rustc": [
+      "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)"
+    ],
+    "lld-link": [
+      "LLD 24.0.0 (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)"
+    ]
+  },
+  "response_files_sha256": {
+    "load_flags_adapter": "6eb5cd9cae3b95cc8e7a869af13f372c8a6b92b573c251bb1752da4cb7f69b82",
+    "privacy_mode_adapter": "d3c57a085b0c0f8677b0e06d7441ae1d0f878dafc9db05c3cc74c4c14ae4e73e",
+    "load_flags_reference": "e47cfe65e2b9ca9abdea3c8fb7b4f89c408ef21893f7c95029e9ef2823e264d8",
+    "privacy_mode_reference": "53d1bc041c113612ec86a5387884a6c5d428c12194a2c4a1fb861ca71bddc2df",
+    "native_api_main": "33bd6f768031b0c26be70ec714a85c990447b9e5186058fef8d8645936826546",
+    "focused_unittest": "596bf98855ca0cc7cec6b54ac0f911b5f8ba2ff1cb76154ff0090db2bdd97954"
+  },
+  "response_file_note": "Exact configured compiler response files are included in this evidence folder. The unittest used net_unittests.ninja flags; adapters and harness used net.ninja flags.",
+  "artifact_sha256": {
+    "native-api-v5.exe": "67d99c8248f48cb75e087c0f08a3da041714477ef5aa92080142eaff18743fb6",
+    "net_diagnostics_debug_formatting.lib": "03ad37e7e991435f18a69081f682a510e3388eb054fe48a4b43480d7a5f2de47",
+    "focused_unittest.obj": "67560cbfa7c1afea85ff8c5be6e37a20a565b09d4c16f802d22d61193ef51826"
+  },
+  "execution_result": "PASS: exhaustive 2^20 defined flag combinations; 1,000,000 bounded defined public API differential inputs; all four privacy modes; 100,000 direct FFI allocated/copy/free cycles; null/invalid out_len behavior; five isolated invalid-input fatal child cases.",
+  "fatal_diagnostics": [
+    "Invalid load flags: -1",
+    "Invalid load flags: 1073741824",
+    "Invalid load flags: -2147483648",
+    "NOTREACHED hit for privacy enum -1",
+    "NOTREACHED hit for privacy enum 4"
+  ],
+  "gtest_translation_unit": "Compiled successfully. GTest runner was not linked/run; the standalone native harness executed equivalent assertions."
+}

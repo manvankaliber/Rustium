@@ -1,0 +1,19 @@
+{
+  "method": "Source, generated CXX bridge, optimized Rust assembly/LLVM IR and configured Clang object disassembly; no performance timing.",
+  "observations": [
+    "Dotted conversion and validation share safe allocation-free label scanning; C++ allocates only the final returned vector.",
+    "Ordinary network input uses safe SliceReader monomorphization in a single bridge invocation, without cursor callbacks or intermediate Vec ownership.",
+    "An address-range ownership check selects the callback reader only when input overlaps the C++ cursor object. That path shares the same Rust parser and preserves post-commit label copies.",
+    "URL canonicalization writes directly into the eventual C++ std::string. Rust controls BROKEN fallback via callback; no Rust Vec or per-byte Vec push transport remains.",
+    "Length readers and conversion functions return scalar validity/length/consumption metadata.",
+    "DomainNameLess object disassembly ends in jmp net_dns_names_less, with no byte-span conversion calls or CXX Slice temporaries in this C++ adapter.",
+    "Rust comparator assembly retains nonempty raw-slice precondition checks and executes ASCII comparison in Rust."
+  ],
+  "limits": "These are structural observations, not measurements of elapsed time, allocation counts, bridge overhead or achieved speedups. Native object flags can differ from the final configured target.",
+  "files": [
+    "bridge.cc",
+    "dns_names_validation.s",
+    "dns_names_validation.ll",
+    "production-disassembly.txt"
+  ]
+}

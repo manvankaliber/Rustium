@@ -1,0 +1,29 @@
+[
+  [
+    "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-profdata.exe",
+    "merge",
+    "-sparse",
+    "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\unit-35812.profraw",
+    "-o",
+    "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\coverage.profdata"
+  ],
+  [
+    "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-cov.exe",
+    "export",
+    "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\unit.exe",
+    "-instr-profile=D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\coverage.profdata"
+  ],
+  [
+    "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-cov.exe",
+    "export",
+    "-summary-only",
+    "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\unit.exe",
+    "-instr-profile=D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\coverage.profdata"
+  ],
+  [
+    "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-cov.exe",
+    "report",
+    "D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\unit.exe",
+    "-instr-profile=D:\\Rustium\\.scratch\\net-wave1\\referrer-policy\\coverage.profdata"
+  ]
+]

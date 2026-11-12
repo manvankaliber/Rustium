@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="24" failures="0" disabled="0" errors="0" time="0.037" timestamp="2026-11-12T21:47:39">
+  <testsuite name="HttpRangePromoteTest" tests="13" failures="0" disabled="0" errors="0" time="0.037" timestamp="2026-11-12T21:47:39">
+    <testcase name="EveryOctetAtEachGrammarPosition" status="run" time="0.013" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="EveryOneAndTwoByteInput" status="run" time="0.024" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="EveryTruncation" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="FixedBridgeHandlesNullEmptyAndAliasedStorage" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="GrammarQuirksAndPartialAppend" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="InputOutputOverlapAcrossAlignedPositions" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="IntermediateWriteCanRestoreOverlappingInput" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="InvalidListHeaderMayHaveNullOutput" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="MalformedFieldsWithOverlappingOutputs" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="ManyRangesAndLongFields" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="NumericBoundariesAndNonAscii" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="OwnedListBridgeHandlesEmptyAndPartialResults" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+    <testcase name="ScalarAliasingRetainsSequentialValidation" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpRangePromoteTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="HttpUtilTest" tests="11" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:39">
+    <testcase name="ParseContentRangeHeader" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsBoundaryValues" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsNormal" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsOpenEnded" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsSuffix" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsValidRangesInStrictMode" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeAcceptsWhitespaceWhenAllowed" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeParsesSemanticInvalid" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeRejectsInvalid" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseFetchSingleRangeSaturatesOverflow" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseRangeHeader" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+  </testsuite>
+</testsuites>

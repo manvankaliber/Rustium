@@ -1,0 +1,16 @@
+{
+  "net/base/mime_util.cc": "e08fbd7d257174372fb732aa95d8c77fb957c6054003c50463f2ce0f1f63346f",
+  "net/base/mime_type_ffi.rs": "63004e370f312309f3270fb7e6fbbd66bc0229fb0156042550e0520855855ea1",
+  "net/base/mime_type_parser.rs": "a4a7fc9a08d2c9bda44171dbd62d0b4bcd76b8f32c0d79051a539747ce473ddb",
+  "net/base/mime_type_rust_adapter.h": "632e9aba369c802bea6be60bb464534113027d1f56169a2d936989da1ee785ce",
+  "net/base/mime_type_rust_fuzzer.cc": "717b054bc6af6ce5d904d7c949bfb6552cb0cfffbb2bb25ecf5dbe52bc6976ac",
+  "net/base/mime_type_rust_optimization_unittest.cc": "58321725d0d35e11976c07d7e3cd893b2c08ba0f63cdf5974e94a7cb74b992ab",
+  "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+  "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+  "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+  "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+  "net/base/mime_type_rust_state.h": "73be4b0e9262fc6dd09b73126f50f125f56d73783ceec44ab03f87794db931d6",
+  "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+  "net/base/mime_type_rust_unittest.cc": "d5506567e3b93e5461428710a2fc23a642540d9dcb769878aa53855dfcb1031c",
+  ".scratch/net-wave1/content-type/optimization/http-util-wrapper.cc.txt": "41a5e131e8149e5a6ab4494d5c48c01871abf32e584e61361a228192edd25063"
+}

@@ -12,6 +12,7 @@ import("//build/config/locales.gni")
 import("//build/config/ozone.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 import("//build/config/ui.gni")
+import("//build/rust/rust_static_library.gni")
 import("//skia/features.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 import("//testing/test.gni")
@@ -62,11 +63,25 @@ component("ui_data_pack") {
   ]
 
   deps = [
+    ":data_pack_parser",
     "//net",
     "//third_party/zlib/google:compression_utils",
   ]
 
   defines = [ "IS_UI_DATA_PACK_IMPL" ]
+}
+
+rust_static_library("data_pack_parser") {
+  visibility = [ ":*" ]
+  crate_root = "resource/data_pack_parser_ffi.rs"
+  sources = [
+    "resource/data_pack_parser.rs",
+    "resource/data_pack_parser_ffi.rs",
+  ]
+  cxx_bindings = [ "resource/data_pack_parser_ffi.rs" ]
+
+  # Only the generated cxx bridge needs unsafe. The parser module forbids it.
+  allow_unsafe = true
 }
 
 buildflag_header("buildflags") {
@@ -837,6 +852,8 @@ test("ui_base_unittests") {
     "prediction/prediction_unittest_helpers.h",
     "resource/data_pack_literal.cc",
     "resource/data_pack_literal.h",
+    "resource/data_pack_parser_test_support.h",
+    "resource/data_pack_parser_unittest.cc",
     "resource/data_pack_unittest.cc",
     "resource/resource_bundle_unittest.cc",
     "resource/resource_scale_factor_unittest.cc",
@@ -1012,6 +1029,7 @@ test("ui_base_unittests") {
   data_deps += [ ":ui_base_test_resources_pak" ]
 
   deps += [
+    ":data_pack_parser",
     "//ui/base/accelerators/mojom:unittests",
     "//ui/base/cursor/mojom:unittests",
   ]
@@ -1173,6 +1191,31 @@ fuzzer_test("file_info_fuzzer") {
   deps = [
     "//base",
     "//ui/base/clipboard:file_info",
+  ]
+}
+
+fuzzer_test("data_pack_parser_fuzzer") {
+  sources = [
+    "resource/data_pack_parser_fuzzer.cc",
+    "resource/data_pack_parser_test_support.h",
+  ]
+  deps = [
+    ":data_pack_parser",
+    "//base",
+  ]
+  seed_corpus = "resource/data_pack_parser_fuzzer_corpus"
+}
+
+test("data_pack_parser_perftests") {
+  sources = [
+    "resource/data_pack_parser_perftest.cc",
+    "resource/data_pack_parser_test_support.h",
+  ]
+  deps = [
+    ":data_pack_parser",
+    "//base",
+    "//base/test:test_support_perf",
+    "//third_party/google_benchmark",
   ]
 }
 

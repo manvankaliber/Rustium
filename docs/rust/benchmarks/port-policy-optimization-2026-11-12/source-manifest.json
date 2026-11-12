@@ -1,0 +1,15 @@
+{
+  "net/base/port_policy_core.rs": "489a6e5c4430d27e4beb989ddb5359f6c9de073dc6646fc7e4200c1601f40a96",
+  "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+  "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+  "net/base/port_policy_rust_unittest.cc": "36094b18b33fa98bc1aa6fd89decc9aa707d32cf03dd9742dbb62f080efef593",
+  "net/base/port_policy_fuzzer.cc": "e06f7fc673897c529ccddde98291df205a5e0d945d20dae6ab7026060b7b9074",
+  "net/base/port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7",
+  "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e",
+  "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+  "net/base/port_policy_reference.h": "3a8dca8adcf5c0cda16be4cf4a62667402a22c7b0eb9d72290d2b14898735f16",
+  "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+  "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+  "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+  "net/base/port_util_unittest.cc": "407110ae261d20218f7b6eceef22d0314e3e939ef5f044958b3abad3d0cd5a4e"
+}

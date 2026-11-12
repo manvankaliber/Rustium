@@ -1,0 +1,1157 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = MimeSnifferRustTest.PrivateBoundaryEmptyViewsAndStaticResults:MimeSnifferRustTest.SignaturesAcrossPolicyAndExtensions:MimeSnifferRustTest.EverySignatureTruncation:MimeSnifferRustTest.SingleByteMutations:MimeSnifferRustTest.BinaryByteClassificationAndBoundaries:MimeSnifferRustTest.XmlIterationAndWhitespaceLimits:MimeSnifferRustTest.ShouldSniffPolicyAndFirstHeaderOnly:MimeSnifferRustTest.EmbeddedNulAndHighBitHints:MimeSnifferRustTest.HintMayAliasOutput:MimeSnifferRustTest.ContentMayAliasOutputWithoutReallocation
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferRustTest
+[ RUN      ] MimeSnifferRustTest.PrivateBoundaryEmptyViewsAndStaticResults
+[       OK ] MimeSnifferRustTest.PrivateBoundaryEmptyViewsAndStaticResults (0 ms)
+[ RUN      ] MimeSnifferRustTest.SignaturesAcrossPolicyAndExtensions
+[       OK ] MimeSnifferRustTest.SignaturesAcrossPolicyAndExtensions (34 ms)
+[ RUN      ] MimeSnifferRustTest.EverySignatureTruncation
+[       OK ] MimeSnifferRustTest.EverySignatureTruncation (14 ms)
+[ RUN      ] MimeSnifferRustTest.SingleByteMutations
+[       OK ] MimeSnifferRustTest.SingleByteMutations (196 ms)
+[ RUN      ] MimeSnifferRustTest.BinaryByteClassificationAndBoundaries
+[       OK ] MimeSnifferRustTest.BinaryByteClassificationAndBoundaries (4 ms)
+[ RUN      ] MimeSnifferRustTest.XmlIterationAndWhitespaceLimits
+[       OK ] MimeSnifferRustTest.XmlIterationAndWhitespaceLimits (0 ms)
+[ RUN      ] MimeSnifferRustTest.ShouldSniffPolicyAndFirstHeaderOnly
+[       OK ] MimeSnifferRustTest.ShouldSniffPolicyAndFirstHeaderOnly (0 ms)
+[ RUN      ] MimeSnifferRustTest.EmbeddedNulAndHighBitHints
+[       OK ] MimeSnifferRustTest.EmbeddedNulAndHighBitHints (0 ms)
+[ RUN      ] MimeSnifferRustTest.HintMayAliasOutput
+[       OK ] MimeSnifferRustTest.HintMayAliasOutput (2 ms)
+[ RUN      ] MimeSnifferRustTest.ContentMayAliasOutputWithoutReallocation
+[       OK ] MimeSnifferRustTest.ContentMayAliasOutputWithoutReallocation (9 ms)
+[----------] 10 tests from MimeSnifferRustTest (264 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (264 ms total)
+[  PASSED  ] 10 tests.
+[1/288] MimeSnifferRustTest.PrivateBoundaryEmptyViewsAndStaticResults (0 ms)
+[2/288] MimeSnifferRustTest.SignaturesAcrossPolicyAndExtensions (34 ms)
+[3/288] MimeSnifferRustTest.EverySignatureTruncation (14 ms)
+[4/288] MimeSnifferRustTest.SingleByteMutations (196 ms)
+[5/288] MimeSnifferRustTest.BinaryByteClassificationAndBoundaries (4 ms)
+[6/288] MimeSnifferRustTest.XmlIterationAndWhitespaceLimits (0 ms)
+[7/288] MimeSnifferRustTest.ShouldSniffPolicyAndFirstHeaderOnly (0 ms)
+[8/288] MimeSnifferRustTest.EmbeddedNulAndHighBitHints (0 ms)
+[9/288] MimeSnifferRustTest.HintMayAliasOutput (2 ms)
+[10/288] MimeSnifferRustTest.ContentMayAliasOutputWithoutReallocation (9 ms)
+Note: Google Test filter = MimeSnifferRustTest.HintAndContentMayBothAliasOutput:MimeSnifferRustTest.AliasedViewsAcrossScratchAndSniffingLimits:MimeSnifferRustTest.ShortAliasedContentWithoutReserve:MimeSnifferTest.SniffableSchemes:MimeSnifferTest.SniffableHeaders:MimeSnifferTest.BoundaryConditionsTest:MimeSnifferTest.BasicSniffingTest:MimeSnifferTest.ChromeExtensionsTest:MimeSnifferTest.MozillaCompatibleTest:MimeSnifferTest.DontAllowPrivilegeEscalationTest
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MimeSnifferRustTest
+[ RUN      ] MimeSnifferRustTest.HintAndContentMayBothAliasOutput
+[       OK ] MimeSnifferRustTest.HintAndContentMayBothAliasOutput (0 ms)
+[ RUN      ] MimeSnifferRustTest.AliasedViewsAcrossScratchAndSniffingLimits
+[       OK ] MimeSnifferRustTest.AliasedViewsAcrossScratchAndSniffingLimits (1 ms)
+[ RUN      ] MimeSnifferRustTest.ShortAliasedContentWithoutReserve
+[       OK ] MimeSnifferRustTest.ShortAliasedContentWithoutReserve (0 ms)
+[----------] 3 tests from MimeSnifferRustTest (2 ms total)
+
+[----------] 7 tests from MimeSnifferTest
+[ RUN      ] MimeSnifferTest.SniffableSchemes
+[       OK ] MimeSnifferTest.SniffableSchemes (0 ms)
+[ RUN      ] MimeSnifferTest.SniffableHeaders
+[       OK ] MimeSnifferTest.SniffableHeaders (0 ms)
+[ RUN      ] MimeSnifferTest.BoundaryConditionsTest
+[       OK ] MimeSnifferTest.BoundaryConditionsTest (0 ms)
+[ RUN      ] MimeSnifferTest.BasicSniffingTest
+[       OK ] MimeSnifferTest.BasicSniffingTest (0 ms)
+[ RUN      ] MimeSnifferTest.ChromeExtensionsTest
+[       OK ] MimeSnifferTest.ChromeExtensionsTest (0 ms)
+[ RUN      ] MimeSnifferTest.MozillaCompatibleTest
+[       OK ] MimeSnifferTest.MozillaCompatibleTest (0 ms)
+[ RUN      ] MimeSnifferTest.DontAllowPrivilegeEscalationTest
+[       OK ] MimeSnifferTest.DontAllowPrivilegeEscalationTest (0 ms)
+[----------] 7 tests from MimeSnifferTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (3 ms total)
+[  PASSED  ] 10 tests.
+[11/288] MimeSnifferRustTest.HintAndContentMayBothAliasOutput (0 ms)
+[12/288] MimeSnifferRustTest.AliasedViewsAcrossScratchAndSniffingLimits (1 ms)
+[13/288] MimeSnifferRustTest.ShortAliasedContentWithoutReserve (0 ms)
+[14/288] MimeSnifferTest.SniffableSchemes (0 ms)
+[15/288] MimeSnifferTest.SniffableHeaders (0 ms)
+[16/288] MimeSnifferTest.BoundaryConditionsTest (0 ms)
+[17/288] MimeSnifferTest.BasicSniffingTest (0 ms)
+[18/288] MimeSnifferTest.ChromeExtensionsTest (0 ms)
+[19/288] MimeSnifferTest.MozillaCompatibleTest (0 ms)
+[20/288] MimeSnifferTest.DontAllowPrivilegeEscalationTest (0 ms)
+Note: Google Test filter = MimeSnifferTest.SniffFilesAsHtml:MimeSnifferTest.UnicodeTest:MimeSnifferTest.FlashTest:MimeSnifferTest.XMLTest:MimeSnifferTest.XMLTestLargeNoAngledBracket:MimeSnifferTest.LooksBinary:MimeSnifferTest.OfficeTest:MimeSnifferTest.AudioVideoTest:MimeSnifferTest.ImageTest:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from MimeSnifferTest
+[ RUN      ] MimeSnifferTest.SniffFilesAsHtml
+[       OK ] MimeSnifferTest.SniffFilesAsHtml (0 ms)
+[ RUN      ] MimeSnifferTest.UnicodeTest
+[       OK ] MimeSnifferTest.UnicodeTest (0 ms)
+[ RUN      ] MimeSnifferTest.FlashTest
+[       OK ] MimeSnifferTest.FlashTest (0 ms)
+[ RUN      ] MimeSnifferTest.XMLTest
+[       OK ] MimeSnifferTest.XMLTest (0 ms)
+[ RUN      ] MimeSnifferTest.XMLTestLargeNoAngledBracket
+[       OK ] MimeSnifferTest.XMLTestLargeNoAngledBracket (0 ms)
+[ RUN      ] MimeSnifferTest.LooksBinary
+[       OK ] MimeSnifferTest.LooksBinary (0 ms)
+[ RUN      ] MimeSnifferTest.OfficeTest
+[       OK ] MimeSnifferTest.OfficeTest (0 ms)
+[ RUN      ] MimeSnifferTest.AudioVideoTest
+[       OK ] MimeSnifferTest.AudioVideoTest (0 ms)
+[ RUN      ] MimeSnifferTest.ImageTest
+[       OK ] MimeSnifferTest.ImageTest (0 ms)
+[----------] 9 tests from MimeSnifferTest (1 ms total)
+
+[----------] 1 test from MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[----------] 1 test from MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[21/288] MimeSnifferTest.SniffFilesAsHtml (0 ms)
+[22/288] MimeSnifferTest.UnicodeTest (0 ms)
+[23/288] MimeSnifferTest.FlashTest (0 ms)
+[24/288] MimeSnifferTest.XMLTest (0 ms)
+[25/288] MimeSnifferTest.XMLTestLargeNoAngledBracket (0 ms)
+[26/288] MimeSnifferTest.LooksBinary (0 ms)
+[27/288] MimeSnifferTest.OfficeTest (0 ms)
+[28/288] MimeSnifferTest.AudioVideoTest (0 ms)
+[29/288] MimeSnifferTest.ImageTest (0 ms)
+[30/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+Note: Google Test filter = MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/1:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/2:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/3:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/4:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/5:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/6:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/7:MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/8:MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest.IsBinaryControlCode/0:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/1
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/2
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/3
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/4
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/4 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/5
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/5 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/6
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/6 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/7
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/7 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/8
+[       OK ] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/8 (0 ms)
+[----------] 8 tests from MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest (0 ms total)
+
+[----------] 1 test from MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[       OK ] MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[----------] 1 test from MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest (0 ms total)
+
+[----------] 1 test from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[----------] 1 test from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[31/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[32/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[33/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[34/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/4 (0 ms)
+[35/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/5 (0 ms)
+[36/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/6 (0 ms)
+[37/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/7 (0 ms)
+[38/288] MimeSnifferBinaryTestRange1/MimeSnifferBinaryTest.IsBinaryControlCode/8 (0 ms)
+[39/288] MimeSnifferBinaryTestByte0x0B/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[40/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+Note: Google Test filter = MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/1:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/2:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/3:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/4:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/5:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/6:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/7:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/8:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/9:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/10
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/1
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/2
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/3
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/4
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/4 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/5
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/5 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/6
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/6 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/7
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/7 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/8
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/8 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/9
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/9 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/10
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/10 (0 ms)
+[----------] 10 tests from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[41/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[42/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[43/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[44/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/4 (0 ms)
+[45/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/5 (0 ms)
+[46/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/6 (0 ms)
+[47/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/7 (0 ms)
+[48/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/8 (0 ms)
+[49/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/9 (0 ms)
+[50/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/10 (0 ms)
+Note: Google Test filter = MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/11:MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/12:MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/0:MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/1:MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/2:MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/3:MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/0:MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/1:MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/2:MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/3
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/11
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/11 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/12
+[       OK ] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/12 (0 ms)
+[----------] 2 tests from MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest (0 ms total)
+
+[----------] 4 tests from MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest
+[ RUN      ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/0
+[       OK ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/1
+[       OK ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/2
+[       OK ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[ RUN      ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/3
+[       OK ] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[----------] 4 tests from MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest (0 ms total)
+
+[----------] 4 tests from MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/0
+[       OK ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/0 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/1
+[       OK ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/1 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/2
+[       OK ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/2 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/3
+[       OK ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/3 (0 ms)
+[----------] 4 tests from MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[51/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/11 (0 ms)
+[52/288] MimeSnifferBinaryTestRange2/MimeSnifferBinaryTest.IsBinaryControlCode/12 (0 ms)
+[53/288] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/0 (0 ms)
+[54/288] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/1 (0 ms)
+[55/288] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/2 (0 ms)
+[56/288] MimeSnifferBinaryTestRange3/MimeSnifferBinaryTest.IsBinaryControlCode/3 (0 ms)
+[57/288] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/0 (0 ms)
+[58/288] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/1 (0 ms)
+[59/288] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/2 (0 ms)
+[60/288] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/3 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/4:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/0:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/1:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/2:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/3:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/4:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/5:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/6:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/7:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/8
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/4
+[       OK ] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/4 (0 ms)
+[----------] 1 test from MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] 9 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/0
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/0 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/1
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/1 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/2
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/2 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/3
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/3 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/4
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/4 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/5
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/5 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/6
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/6 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/7
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/7 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/8
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/8 (0 ms)
+[----------] 9 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[61/288] MimeSnifferPlainTextTestPlainTextControlCodes/MimeSnifferPlainTextTest.NotBinaryControlCode/4 (0 ms)
+[62/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/0 (0 ms)
+[63/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/1 (0 ms)
+[64/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/2 (0 ms)
+[65/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/3 (0 ms)
+[66/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/4 (0 ms)
+[67/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/5 (0 ms)
+[68/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/6 (0 ms)
+[69/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/7 (0 ms)
+[70/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/8 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/9:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/10:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/11:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/12:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/13:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/14:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/15:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/16:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/17:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/18
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/9
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/9 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/10
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/10 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/11
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/11 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/12
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/12 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/13
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/13 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/14
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/14 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/15
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/15 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/16
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/16 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/17
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/17 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/18
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/18 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[71/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/9 (0 ms)
+[72/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/10 (0 ms)
+[73/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/11 (0 ms)
+[74/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/12 (0 ms)
+[75/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/13 (0 ms)
+[76/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/14 (0 ms)
+[77/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/15 (0 ms)
+[78/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/16 (0 ms)
+[79/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/17 (0 ms)
+[80/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/18 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/19:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/20:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/21:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/22:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/23:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/24:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/25:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/26:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/27:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/28
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/19
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/19 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/20
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/20 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/21
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/21 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/22
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/22 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/23
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/23 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/24
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/24 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/25
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/25 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/26
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/26 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/27
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/27 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/28
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/28 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[81/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/19 (0 ms)
+[82/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/20 (0 ms)
+[83/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/21 (0 ms)
+[84/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/22 (0 ms)
+[85/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/23 (0 ms)
+[86/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/24 (0 ms)
+[87/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/25 (0 ms)
+[88/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/26 (0 ms)
+[89/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/27 (0 ms)
+[90/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/28 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/29:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/30:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/31:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/32:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/33:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/34:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/35:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/36:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/37:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/38
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/29
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/29 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/30
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/30 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/31
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/31 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/32
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/32 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/33
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/33 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/34
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/34 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/35
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/35 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/36
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/36 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/37
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/37 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/38
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/38 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[91/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/29 (0 ms)
+[92/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/30 (0 ms)
+[93/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/31 (0 ms)
+[94/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/32 (0 ms)
+[95/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/33 (0 ms)
+[96/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/34 (0 ms)
+[97/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/35 (0 ms)
+[98/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/36 (0 ms)
+[99/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/37 (0 ms)
+[100/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/38 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/39:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/40:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/41:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/42:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/43:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/44:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/45:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/46:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/47:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/48
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/39
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/39 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/40
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/40 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/41
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/41 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/42
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/42 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/43
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/43 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/44
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/44 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/45
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/45 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/46
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/46 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/47
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/47 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/48
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/48 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[101/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/39 (0 ms)
+[102/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/40 (0 ms)
+[103/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/41 (0 ms)
+[104/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/42 (0 ms)
+[105/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/43 (0 ms)
+[106/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/44 (0 ms)
+[107/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/45 (0 ms)
+[108/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/46 (0 ms)
+[109/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/47 (0 ms)
+[110/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/48 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/49:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/50:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/51:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/52:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/53:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/54:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/55:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/56:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/57:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/58
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/49
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/49 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/50
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/50 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/51
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/51 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/52
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/52 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/53
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/53 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/54
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/54 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/55
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/55 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/56
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/56 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/57
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/57 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/58
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/58 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[111/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/49 (0 ms)
+[112/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/50 (0 ms)
+[113/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/51 (0 ms)
+[114/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/52 (0 ms)
+[115/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/53 (0 ms)
+[116/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/54 (0 ms)
+[117/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/55 (0 ms)
+[118/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/56 (0 ms)
+[119/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/57 (0 ms)
+[120/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/58 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/59:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/60:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/61:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/62:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/63:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/64:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/65:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/66:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/67:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/68
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/59
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/59 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/60
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/60 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/61
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/61 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/62
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/62 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/63
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/63 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/64
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/64 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/65
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/65 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/66
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/66 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/67
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/67 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/68
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/68 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[121/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/59 (0 ms)
+[122/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/60 (0 ms)
+[123/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/61 (0 ms)
+[124/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/62 (0 ms)
+[125/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/63 (0 ms)
+[126/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/64 (0 ms)
+[127/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/65 (0 ms)
+[128/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/66 (0 ms)
+[129/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/67 (0 ms)
+[130/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/68 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/69:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/70:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/71:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/72:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/73:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/74:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/75:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/76:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/77:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/78
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/69
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/69 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/70
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/70 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/71
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/71 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/72
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/72 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/73
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/73 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/74
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/74 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/75
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/75 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/76
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/76 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/77
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/77 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/78
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/78 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[131/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/69 (0 ms)
+[132/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/70 (0 ms)
+[133/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/71 (0 ms)
+[134/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/72 (0 ms)
+[135/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/73 (0 ms)
+[136/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/74 (0 ms)
+[137/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/75 (0 ms)
+[138/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/76 (0 ms)
+[139/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/77 (0 ms)
+[140/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/78 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/79:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/80:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/81:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/82:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/83:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/84:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/85:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/86:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/87:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/88
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/79
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/79 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/80
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/80 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/81
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/81 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/82
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/82 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/83
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/83 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/84
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/84 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/85
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/85 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/86
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/86 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/87
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/87 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/88
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/88 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[141/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/79 (0 ms)
+[142/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/80 (0 ms)
+[143/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/81 (0 ms)
+[144/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/82 (0 ms)
+[145/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/83 (0 ms)
+[146/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/84 (0 ms)
+[147/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/85 (0 ms)
+[148/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/86 (0 ms)
+[149/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/87 (0 ms)
+[150/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/88 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/89:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/90:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/91:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/92:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/93:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/94:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/95:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/96:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/97:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/98
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/89
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/89 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/90
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/90 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/91
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/91 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/92
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/92 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/93
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/93 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/94
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/94 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/95
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/95 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/96
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/96 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/97
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/97 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/98
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/98 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[151/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/89 (0 ms)
+[152/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/90 (0 ms)
+[153/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/91 (0 ms)
+[154/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/92 (0 ms)
+[155/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/93 (0 ms)
+[156/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/94 (0 ms)
+[157/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/95 (0 ms)
+[158/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/96 (0 ms)
+[159/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/97 (0 ms)
+[160/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/98 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/99:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/100:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/101:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/102:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/103:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/104:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/105:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/106:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/107:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/108
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/99
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/99 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/100
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/100 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/101
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/101 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/102
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/102 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/103
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/103 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/104
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/104 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/105
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/105 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/106
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/106 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/107
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/107 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/108
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/108 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[161/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/99 (0 ms)
+[162/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/100 (0 ms)
+[163/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/101 (0 ms)
+[164/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/102 (0 ms)
+[165/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/103 (0 ms)
+[166/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/104 (0 ms)
+[167/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/105 (0 ms)
+[168/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/106 (0 ms)
+[169/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/107 (0 ms)
+[170/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/108 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/109:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/110:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/111:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/112:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/113:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/114:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/115:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/116:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/117:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/118
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/109
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/109 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/110
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/110 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/111
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/111 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/112
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/112 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/113
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/113 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/114
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/114 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/115
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/115 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/116
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/116 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/117
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/117 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/118
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/118 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[171/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/109 (0 ms)
+[172/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/110 (0 ms)
+[173/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/111 (0 ms)
+[174/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/112 (0 ms)
+[175/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/113 (0 ms)
+[176/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/114 (0 ms)
+[177/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/115 (0 ms)
+[178/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/116 (0 ms)
+[179/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/117 (0 ms)
+[180/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/118 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/119:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/120:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/121:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/122:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/123:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/124:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/125:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/126:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/127:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/128
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/119
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/119 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/120
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/120 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/121
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/121 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/122
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/122 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/123
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/123 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/124
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/124 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/125
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/125 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/126
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/126 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/127
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/127 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/128
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/128 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[181/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/119 (0 ms)
+[182/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/120 (0 ms)
+[183/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/121 (0 ms)
+[184/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/122 (0 ms)
+[185/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/123 (0 ms)
+[186/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/124 (0 ms)
+[187/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/125 (0 ms)
+[188/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/126 (0 ms)
+[189/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/127 (0 ms)
+[190/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/128 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/129:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/130:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/131:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/132:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/133:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/134:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/135:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/136:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/137:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/138
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/129
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/129 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/130
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/130 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/131
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/131 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/132
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/132 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/133
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/133 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/134
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/134 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/135
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/135 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/136
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/136 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/137
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/137 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/138
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/138 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[191/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/129 (0 ms)
+[192/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/130 (0 ms)
+[193/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/131 (0 ms)
+[194/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/132 (0 ms)
+[195/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/133 (0 ms)
+[196/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/134 (0 ms)
+[197/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/135 (0 ms)
+[198/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/136 (0 ms)
+[199/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/137 (0 ms)
+[200/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/138 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/139:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/140:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/141:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/142:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/143:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/144:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/145:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/146:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/147:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/148
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/139
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/139 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/140
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/140 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/141
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/141 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/142
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/142 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/143
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/143 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/144
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/144 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/145
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/145 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/146
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/146 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/147
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/147 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/148
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/148 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[201/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/139 (0 ms)
+[202/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/140 (0 ms)
+[203/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/141 (0 ms)
+[204/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/142 (0 ms)
+[205/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/143 (0 ms)
+[206/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/144 (0 ms)
+[207/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/145 (0 ms)
+[208/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/146 (0 ms)
+[209/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/147 (0 ms)
+[210/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/148 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/149:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/150:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/151:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/152:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/153:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/154:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/155:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/156:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/157:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/158
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/149
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/149 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/150
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/150 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/151
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/151 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/152
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/152 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/153
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/153 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/154
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/154 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/155
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/155 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/156
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/156 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/157
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/157 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/158
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/158 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[211/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/149 (0 ms)
+[212/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/150 (0 ms)
+[213/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/151 (0 ms)
+[214/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/152 (0 ms)
+[215/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/153 (0 ms)
+[216/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/154 (0 ms)
+[217/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/155 (0 ms)
+[218/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/156 (0 ms)
+[219/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/157 (0 ms)
+[220/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/158 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/159:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/160:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/161:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/162:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/163:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/164:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/165:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/166:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/167:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/168
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/159
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/159 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/160
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/160 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/161
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/161 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/162
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/162 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/163
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/163 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/164
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/164 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/165
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/165 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/166
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/166 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/167
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/167 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/168
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/168 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[221/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/159 (0 ms)
+[222/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/160 (0 ms)
+[223/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/161 (0 ms)
+[224/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/162 (0 ms)
+[225/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/163 (0 ms)
+[226/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/164 (0 ms)
+[227/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/165 (0 ms)
+[228/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/166 (0 ms)
+[229/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/167 (0 ms)
+[230/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/168 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/169:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/170:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/171:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/172:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/173:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/174:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/175:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/176:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/177:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/178
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/169
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/169 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/170
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/170 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/171
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/171 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/172
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/172 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/173
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/173 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/174
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/174 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/175
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/175 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/176
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/176 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/177
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/177 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/178
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/178 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[231/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/169 (0 ms)
+[232/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/170 (0 ms)
+[233/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/171 (0 ms)
+[234/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/172 (0 ms)
+[235/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/173 (0 ms)
+[236/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/174 (0 ms)
+[237/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/175 (0 ms)
+[238/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/176 (0 ms)
+[239/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/177 (0 ms)
+[240/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/178 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/179:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/180:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/181:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/182:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/183:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/184:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/185:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/186:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/187:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/188
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/179
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/179 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/180
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/180 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/181
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/181 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/182
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/182 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/183
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/183 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/184
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/184 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/185
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/185 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/186
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/186 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/187
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/187 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/188
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/188 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[241/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/179 (0 ms)
+[242/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/180 (0 ms)
+[243/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/181 (0 ms)
+[244/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/182 (0 ms)
+[245/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/183 (0 ms)
+[246/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/184 (0 ms)
+[247/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/185 (0 ms)
+[248/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/186 (0 ms)
+[249/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/187 (0 ms)
+[250/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/188 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/189:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/190:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/191:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/192:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/193:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/194:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/195:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/196:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/197:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/198
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/189
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/189 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/190
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/190 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/191
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/191 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/192
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/192 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/193
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/193 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/194
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/194 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/195
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/195 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/196
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/196 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/197
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/197 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/198
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/198 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[251/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/189 (0 ms)
+[252/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/190 (0 ms)
+[253/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/191 (0 ms)
+[254/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/192 (0 ms)
+[255/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/193 (0 ms)
+[256/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/194 (0 ms)
+[257/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/195 (0 ms)
+[258/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/196 (0 ms)
+[259/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/197 (0 ms)
+[260/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/198 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/199:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/200:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/201:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/202:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/203:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/204:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/205:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/206:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/207:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/208
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/199
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/199 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/200
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/200 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/201
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/201 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/202
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/202 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/203
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/203 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/204
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/204 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/205
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/205 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/206
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/206 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/207
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/207 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/208
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/208 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[261/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/199 (0 ms)
+[262/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/200 (0 ms)
+[263/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/201 (0 ms)
+[264/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/202 (0 ms)
+[265/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/203 (0 ms)
+[266/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/204 (0 ms)
+[267/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/205 (0 ms)
+[268/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/206 (0 ms)
+[269/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/207 (0 ms)
+[270/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/208 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/209:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/210:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/211:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/212:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/213:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/214:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/215:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/216:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/217:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/218
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/209
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/209 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/210
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/210 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/211
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/211 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/212
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/212 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/213
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/213 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/214
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/214 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/215
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/215 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/216
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/216 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/217
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/217 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/218
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/218 (0 ms)
+[----------] 10 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[271/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/209 (0 ms)
+[272/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/210 (0 ms)
+[273/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/211 (0 ms)
+[274/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/212 (0 ms)
+[275/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/213 (0 ms)
+[276/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/214 (0 ms)
+[277/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/215 (0 ms)
+[278/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/216 (0 ms)
+[279/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/217 (0 ms)
+[280/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/218 (0 ms)
+Note: Google Test filter = MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/219:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/220:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/221:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/222:MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/223:MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/0:MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/1:MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/2
+[==========] Running 8 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 5 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/219
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/219 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/220
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/220 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/221
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/221 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/222
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/222 (0 ms)
+[ RUN      ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/223
+[       OK ] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/223 (0 ms)
+[----------] 5 tests from MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest (0 ms total)
+
+[----------] 3 tests from MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest
+[ RUN      ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/0
+[       OK ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/0 (0 ms)
+[ RUN      ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/1
+[       OK ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/1 (0 ms)
+[ RUN      ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/2
+[       OK ] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/2 (0 ms)
+[----------] 3 tests from MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 8 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 8 tests.
+[281/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/219 (0 ms)
+[282/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/220 (0 ms)
+[283/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/221 (0 ms)
+[284/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/222 (0 ms)
+[285/288] MimeSnifferPlainTextTestNotControlCodeRange/MimeSnifferPlainTextTest.NotBinaryControlCode/223 (0 ms)
+[286/288] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/0 (0 ms)
+[287/288] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/1 (0 ms)
+[288/288] MimeSnifferControlCodesEdgeCaseTest/MimeSnifferControlCodesEdgeCaseTest.EdgeCase/2 (0 ms)
+SUCCESS: all tests passed.
+Tests took 1 seconds.

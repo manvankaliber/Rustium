@@ -1,0 +1,42 @@
+[==========] Running 17 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 17 tests from GZipHeaderRustTest
+[ RUN      ] GZipHeaderRustTest.OrdinaryHeaderAndPayload
+[       OK ] GZipHeaderRustTest.OrdinaryHeaderAndPayload (0 ms)
+[ RUN      ] GZipHeaderRustTest.EveryFlagCombination
+[       OK ] GZipHeaderRustTest.EveryFlagCombination (2 ms)
+[ RUN      ] GZipHeaderRustTest.EveryTruncation
+[       OK ] GZipHeaderRustTest.EveryTruncation (1 ms)
+[ RUN      ] GZipHeaderRustTest.EverySplitPoint
+[       OK ] GZipHeaderRustTest.EverySplitPoint (0 ms)
+[ RUN      ] GZipHeaderRustTest.FragmentedOptionalFields
+[       OK ] GZipHeaderRustTest.FragmentedOptionalFields (0 ms)
+[ RUN      ] GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary
+[       OK ] GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary (0 ms)
+[ RUN      ] GZipHeaderRustTest.MaximumExtraLength
+[       OK ] GZipHeaderRustTest.MaximumExtraLength (21 ms)
+[ RUN      ] GZipHeaderRustTest.EmptyNameAndComment
+[       OK ] GZipHeaderRustTest.EmptyNameAndComment (0 ms)
+[ RUN      ] GZipHeaderRustTest.LongNameAndComment
+[       OK ] GZipHeaderRustTest.LongNameAndComment (0 ms)
+[ RUN      ] GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted
+[       OK ] GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted (0 ms)
+[ RUN      ] GZipHeaderRustTest.HeaderCrcRemainsOpaque
+[       OK ] GZipHeaderRustTest.HeaderCrcRemainsOpaque (0 ms)
+[ RUN      ] GZipHeaderRustTest.InvalidMagicAndCompressionMethod
+[       OK ] GZipHeaderRustTest.InvalidMagicAndCompressionMethod (3 ms)
+[ RUN      ] GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete
+[       OK ] GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete (0 ms)
+[ RUN      ] GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged
+[       OK ] GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged (0 ms)
+[ RUN      ] GZipHeaderRustTest.CompletionAndEmptyCalls
+[       OK ] GZipHeaderRustTest.CompletionAndEmptyCalls (0 ms)
+[ RUN      ] GZipHeaderRustTest.DifferentialSingleByteMutations
+[       OK ] GZipHeaderRustTest.DifferentialSingleByteMutations (20 ms)
+[ RUN      ] GZipHeaderRustTest.InvalidBridgeStateIsRejected
+[       OK ] GZipHeaderRustTest.InvalidBridgeStateIsRejected (0 ms)
+[----------] 17 tests from GZipHeaderRustTest (49 ms total)
+
+[----------] Global test environment tear-down
+[==========] 17 tests from 1 test suite ran. (49 ms total)
+[  PASSED  ] 17 tests.

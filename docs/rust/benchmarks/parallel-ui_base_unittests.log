@@ -1,0 +1,296 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = DataPackParserTest.ValidVersionsAndEncodings:DataPackParserTest.AliasesAndMaximumV5Counts:DataPackParserTest.EveryTruncation:DataPackParserTest.ErrorCategoriesAndPrecedence:DataPackParserTest.HugeV4CountAndOffset:DataPackParserTest.PreservePermissiveFormatRules:DataPackParserTest.UnalignedInput:DataPackParserTest.DifferentialSingleByteMutations:DataPackLookupTest.HitsMissesAndAliases:DataPackLookupTest.AliasTargetsAndResourcePrecedence
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 8 tests from DataPackParserTest
+[ RUN      ] DataPackParserTest.ValidVersionsAndEncodings
+[       OK ] DataPackParserTest.ValidVersionsAndEncodings (0 ms)
+[ RUN      ] DataPackParserTest.AliasesAndMaximumV5Counts
+[       OK ] DataPackParserTest.AliasesAndMaximumV5Counts (0 ms)
+[ RUN      ] DataPackParserTest.EveryTruncation
+[       OK ] DataPackParserTest.EveryTruncation (0 ms)
+[ RUN      ] DataPackParserTest.ErrorCategoriesAndPrecedence
+[       OK ] DataPackParserTest.ErrorCategoriesAndPrecedence (0 ms)
+[ RUN      ] DataPackParserTest.HugeV4CountAndOffset
+[       OK ] DataPackParserTest.HugeV4CountAndOffset (0 ms)
+[ RUN      ] DataPackParserTest.PreservePermissiveFormatRules
+[       OK ] DataPackParserTest.PreservePermissiveFormatRules (0 ms)
+[ RUN      ] DataPackParserTest.UnalignedInput
+[       OK ] DataPackParserTest.UnalignedInput (0 ms)
+[ RUN      ] DataPackParserTest.DifferentialSingleByteMutations
+[       OK ] DataPackParserTest.DifferentialSingleByteMutations (0 ms)
+[----------] 8 tests from DataPackParserTest (3 ms total)
+
+[----------] 2 tests from DataPackLookupTest
+[ RUN      ] DataPackLookupTest.HitsMissesAndAliases
+[       OK ] DataPackLookupTest.HitsMissesAndAliases (0 ms)
+[ RUN      ] DataPackLookupTest.AliasTargetsAndResourcePrecedence
+[       OK ] DataPackLookupTest.AliasTargetsAndResourcePrecedence (0 ms)
+[----------] 2 tests from DataPackLookupTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (4 ms total)
+[  PASSED  ] 10 tests.
+[1/60] DataPackParserTest.ValidVersionsAndEncodings (0 ms)
+[2/60] DataPackParserTest.AliasesAndMaximumV5Counts (0 ms)
+[3/60] DataPackParserTest.EveryTruncation (0 ms)
+[4/60] DataPackParserTest.ErrorCategoriesAndPrecedence (0 ms)
+[5/60] DataPackParserTest.HugeV4CountAndOffset (0 ms)
+[6/60] DataPackParserTest.PreservePermissiveFormatRules (0 ms)
+[7/60] DataPackParserTest.UnalignedInput (0 ms)
+[8/60] DataPackParserTest.DifferentialSingleByteMutations (0 ms)
+[9/60] DataPackLookupTest.HitsMissesAndAliases (0 ms)
+[10/60] DataPackLookupTest.AliasTargetsAndResourcePrecedence (0 ms)
+Note: Google Test filter = DataPackLookupTest.DuplicateAndUnsortedIdsUseLibcProbeOrder:DataPackLookupTest.EmptyRangesAndExtremeIds:DataPackLookupTest.MaximumResourceCountAndAliasTarget:DataPackLookupTest.CachedLayoutAndPostLoadCorruption:DataPackLookupTest.TruncationAndArbitraryMetadataAreChecked:DataPackLookupTest.DifferentialPostLoadByteMutations:DataPackTest.LoadFromPath:DataPackTest.LoadFromPathCompressed:DataPackTest.LoadFromFile:DataPackTest.LoadFromFileRegion
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from DataPackLookupTest
+[ RUN      ] DataPackLookupTest.DuplicateAndUnsortedIdsUseLibcProbeOrder
+[       OK ] DataPackLookupTest.DuplicateAndUnsortedIdsUseLibcProbeOrder (0 ms)
+[ RUN      ] DataPackLookupTest.EmptyRangesAndExtremeIds
+[       OK ] DataPackLookupTest.EmptyRangesAndExtremeIds (0 ms)
+[ RUN      ] DataPackLookupTest.MaximumResourceCountAndAliasTarget
+[       OK ] DataPackLookupTest.MaximumResourceCountAndAliasTarget (0 ms)
+[ RUN      ] DataPackLookupTest.CachedLayoutAndPostLoadCorruption
+[       OK ] DataPackLookupTest.CachedLayoutAndPostLoadCorruption (0 ms)
+[ RUN      ] DataPackLookupTest.TruncationAndArbitraryMetadataAreChecked
+[       OK ] DataPackLookupTest.TruncationAndArbitraryMetadataAreChecked (0 ms)
+[ RUN      ] DataPackLookupTest.DifferentialPostLoadByteMutations
+[       OK ] DataPackLookupTest.DifferentialPostLoadByteMutations (13 ms)
+[----------] 6 tests from DataPackLookupTest (15 ms total)
+
+[----------] 4 tests from DataPackTest
+[ RUN      ] DataPackTest.LoadFromPath
+[       OK ] DataPackTest.LoadFromPath (9 ms)
+[ RUN      ] DataPackTest.LoadFromPathCompressed
+[       OK ] DataPackTest.LoadFromPathCompressed (8 ms)
+[ RUN      ] DataPackTest.LoadFromFile
+[       OK ] DataPackTest.LoadFromFile (2 ms)
+[ RUN      ] DataPackTest.LoadFromFileRegion
+[       OK ] DataPackTest.LoadFromFileRegion (15 ms)
+[----------] 4 tests from DataPackTest (35 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (51 ms total)
+[  PASSED  ] 10 tests.
+[11/60] DataPackLookupTest.DuplicateAndUnsortedIdsUseLibcProbeOrder (0 ms)
+[12/60] DataPackLookupTest.EmptyRangesAndExtremeIds (0 ms)
+[13/60] DataPackLookupTest.MaximumResourceCountAndAliasTarget (0 ms)
+[14/60] DataPackLookupTest.CachedLayoutAndPostLoadCorruption (0 ms)
+[15/60] DataPackLookupTest.TruncationAndArbitraryMetadataAreChecked (0 ms)
+[16/60] DataPackLookupTest.DifferentialPostLoadByteMutations (13 ms)
+[17/60] DataPackTest.LoadFromPath (9 ms)
+[18/60] DataPackTest.LoadFromPathCompressed (8 ms)
+[19/60] DataPackTest.LoadFromFile (2 ms)
+[20/60] DataPackTest.LoadFromFileRegion (15 ms)
+Note: Google Test filter = DataPackTest.LoadFromBufferV4:DataPackTest.LoadFromBufferV5:DataPackTest.LoadFileWithTruncatedHeader:DataPackTest.LoadFileBusy:DataPackTest.LoadFileBusyThenNot:DataPackTest.Misordered:DataPackTest.FailedReloadPreservesExistingResources:DataPackTest.LookupBeforeLoading:DataPackTest.AliasIndexModifiedAfterLoading:ResourceBundleTest.DelegateGetPathForResourcePack
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from DataPackTest
+[ RUN      ] DataPackTest.LoadFromBufferV4
+[       OK ] DataPackTest.LoadFromBufferV4 (0 ms)
+[ RUN      ] DataPackTest.LoadFromBufferV5
+[       OK ] DataPackTest.LoadFromBufferV5 (0 ms)
+[ RUN      ] DataPackTest.LoadFileWithTruncatedHeader
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:349] Data pack file corruption: incomplete file header.
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:349] Data pack file corruption: incomplete file header.
+[       OK ] DataPackTest.LoadFileWithTruncatedHeader (6 ms)
+[ RUN      ] DataPackTest.LoadFileBusy
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:238] Failed to open datapack: The process cannot access the file because it is being used by another process. (0x20)
+[       OK ] DataPackTest.LoadFileBusy (333 ms)
+[ RUN      ] DataPackTest.LoadFileBusyThenNot
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:349] Data pack file corruption: incomplete file header.
+[       OK ] DataPackTest.LoadFileBusyThenNot (117 ms)
+[ RUN      ] DataPackTest.Misordered
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:351] Data pack file corruption: validation failure 8
+[       OK ] DataPackTest.Misordered (0 ms)
+[ RUN      ] DataPackTest.FailedReloadPreservesExistingResources
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:351] Data pack file corruption: validation failure 8
+[       OK ] DataPackTest.FailedReloadPreservesExistingResources (0 ms)
+[ RUN      ] DataPackTest.LookupBeforeLoading
+[       OK ] DataPackTest.LookupBeforeLoading (0 ms)
+[ RUN      ] DataPackTest.AliasIndexModifiedAfterLoading
+[20020:19676:ERROR:ui\base\resource\data_pack.cc:415] Data pack resource index is corrupt. Was the file modified?
+[       OK ] DataPackTest.AliasIndexModifiedAfterLoading (0 ms)
+[----------] 9 tests from DataPackTest (458 ms total)
+
+[----------] 1 test from ResourceBundleTest
+[ RUN      ] ResourceBundleTest.DelegateGetPathForResourcePack
+[       OK ] ResourceBundleTest.DelegateGetPathForResourcePack (0 ms)
+[----------] 1 test from ResourceBundleTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (458 ms total)
+[  PASSED  ] 10 tests.
+[21/60] DataPackTest.LoadFromBufferV4 (0 ms)
+[22/60] DataPackTest.LoadFromBufferV5 (0 ms)
+[23/60] DataPackTest.LoadFileWithTruncatedHeader (6 ms)
+[24/60] DataPackTest.LoadFileBusy (333 ms)
+[25/60] DataPackTest.LoadFileBusyThenNot (117 ms)
+[26/60] DataPackTest.Misordered (0 ms)
+[27/60] DataPackTest.FailedReloadPreservesExistingResources (0 ms)
+[28/60] DataPackTest.LookupBeforeLoading (0 ms)
+[29/60] DataPackTest.AliasIndexModifiedAfterLoading (0 ms)
+[30/60] ResourceBundleTest.DelegateGetPathForResourcePack (0 ms)
+Note: Google Test filter = ResourceBundleTest.DelegateGetImageNamed:ResourceBundleTest.DelegateGetNativeImageNamed:ResourceBundleTest.DelegateHasDataResource:ResourceBundleTest.DelegateLoadDataResourceBytes:ResourceBundleTest.DelegateGetRawDataResource:ResourceBundleTest.IsGzipped:ResourceBundleTest.IsBrotli:ResourceBundleTest.DelegateGetLocalizedString:ResourceBundleTest.OverrideStringResource:ResourceBundleTest.CanOverrideStringResources
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from ResourceBundleTest
+[ RUN      ] ResourceBundleTest.DelegateGetImageNamed
+[       OK ] ResourceBundleTest.DelegateGetImageNamed (9 ms)
+[ RUN      ] ResourceBundleTest.DelegateGetNativeImageNamed
+[       OK ] ResourceBundleTest.DelegateGetNativeImageNamed (0 ms)
+[ RUN      ] ResourceBundleTest.DelegateHasDataResource
+[       OK ] ResourceBundleTest.DelegateHasDataResource (0 ms)
+[ RUN      ] ResourceBundleTest.DelegateLoadDataResourceBytes
+[       OK ] ResourceBundleTest.DelegateLoadDataResourceBytes (0 ms)
+[ RUN      ] ResourceBundleTest.DelegateGetRawDataResource
+[       OK ] ResourceBundleTest.DelegateGetRawDataResource (0 ms)
+[ RUN      ] ResourceBundleTest.IsGzipped
+[       OK ] ResourceBundleTest.IsGzipped (9 ms)
+[ RUN      ] ResourceBundleTest.IsBrotli
+[       OK ] ResourceBundleTest.IsBrotli (3 ms)
+[ RUN      ] ResourceBundleTest.DelegateGetLocalizedString
+
+GMOCK WARNING:
+Uninteresting mock function call - returning default value.
+    Function call: GetRawDataResource(5, 0, 0xa6512ff200)
+          Returns: false
+NOTE: You can safely ignore the above warning unless this call should not happen.  Do not suppress it by adding an EXPECT_CALL() if you don't mean to enforce the call.  See https://github.com/google/googletest/blob/main/docs/gmock_cook_book.md#knowing-when-to-expect-useoncall for details.
+
+GMOCK WARNING:
+Uninteresting mock function call - returning default value.
+    Function call: GetRawDataResource(5, 0, 0xa6512ff200)
+          Returns: false
+NOTE: You can safely ignore the above warning unless this call should not happen.  Do not suppress it by adding an EXPECT_CALL() if you don't mean to enforce the call.  See https://github.com/google/googletest/blob/main/docs/gmock_cook_book.md#knowing-when-to-expect-useoncall for details.
+[       OK ] ResourceBundleTest.DelegateGetLocalizedString (0 ms)
+[ RUN      ] ResourceBundleTest.OverrideStringResource
+[24600:22140:WARNING:ui\base\resource\resource_bundle.cc:1194] locale resources are not loaded
+[       OK ] ResourceBundleTest.OverrideStringResource (0 ms)
+[ RUN      ] ResourceBundleTest.CanOverrideStringResources
+[24600:22140:WARNING:ui\base\resource\resource_bundle.cc:1194] locale resources are not loaded
+[       OK ] ResourceBundleTest.CanOverrideStringResources (0 ms)
+[----------] 10 tests from ResourceBundleTest (24 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (24 ms total)
+[  PASSED  ] 10 tests.
+[31/60] ResourceBundleTest.DelegateGetImageNamed (9 ms)
+[32/60] ResourceBundleTest.DelegateGetNativeImageNamed (0 ms)
+[33/60] ResourceBundleTest.DelegateHasDataResource (0 ms)
+[34/60] ResourceBundleTest.DelegateLoadDataResourceBytes (0 ms)
+[35/60] ResourceBundleTest.DelegateGetRawDataResource (0 ms)
+[36/60] ResourceBundleTest.IsGzipped (9 ms)
+[37/60] ResourceBundleTest.IsBrotli (3 ms)
+[38/60] ResourceBundleTest.DelegateGetLocalizedString (0 ms)
+[39/60] ResourceBundleTest.OverrideStringResource (0 ms)
+[40/60] ResourceBundleTest.CanOverrideStringResources (0 ms)
+Note: Google Test filter = ResourceBundleTest.DelegateGetLocalizedStringWithOverride:ResourceBundleTest.LocaleDataPakExists:ResourceBundleImageTest.HasDataResource:ResourceBundleImageTest.LoadDataResourceBytes:ResourceBundleImageTest.LoadDataResourceBytesNotFound:ResourceBundleImageTest.LoadDataResourceStringForScale:ResourceBundleImageTest.LoadLocalizedResourceString:ResourceBundleImageTest.LoadDataResourceString:ResourceBundleImageTest.GetRawDataResource:ResourceBundleImageTest.GetRawDataResourceWhileAddingDataPack
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from ResourceBundleTest
+[ RUN      ] ResourceBundleTest.DelegateGetLocalizedStringWithOverride
+
+GMOCK WARNING:
+Uninteresting mock function call - returning default value.
+    Function call: GetRawDataResource(5, 0, 0x2add72edf0)
+          Returns: false
+NOTE: You can safely ignore the above warning unless this call should not happen.  Do not suppress it by adding an EXPECT_CALL() if you don't mean to enforce the call.  See https://github.com/google/googletest/blob/main/docs/gmock_cook_book.md#knowing-when-to-expect-useoncall for details.
+
+GMOCK WARNING:
+Uninteresting mock function call - returning default value.
+    Function call: GetRawDataResource(5, 0, 0x2add72edf0)
+          Returns: false
+NOTE: You can safely ignore the above warning unless this call should not happen.  Do not suppress it by adding an EXPECT_CALL() if you don't mean to enforce the call.  See https://github.com/google/googletest/blob/main/docs/gmock_cook_book.md#knowing-when-to-expect-useoncall for details.
+[       OK ] ResourceBundleTest.DelegateGetLocalizedStringWithOverride (0 ms)
+[ RUN      ] ResourceBundleTest.LocaleDataPakExists
+[       OK ] ResourceBundleTest.LocaleDataPakExists (0 ms)
+[----------] 2 tests from ResourceBundleTest (1 ms total)
+
+[----------] 8 tests from ResourceBundleImageTest
+[ RUN      ] ResourceBundleImageTest.HasDataResource
+[       OK ] ResourceBundleImageTest.HasDataResource (4 ms)
+[ RUN      ] ResourceBundleImageTest.LoadDataResourceBytes
+[       OK ] ResourceBundleImageTest.LoadDataResourceBytes (4 ms)
+[ RUN      ] ResourceBundleImageTest.LoadDataResourceBytesNotFound
+[       OK ] ResourceBundleImageTest.LoadDataResourceBytesNotFound (3 ms)
+[ RUN      ] ResourceBundleImageTest.LoadDataResourceStringForScale
+[       OK ] ResourceBundleImageTest.LoadDataResourceStringForScale (9 ms)
+[ RUN      ] ResourceBundleImageTest.LoadLocalizedResourceString
+[       OK ] ResourceBundleImageTest.LoadLocalizedResourceString (3 ms)
+[ RUN      ] ResourceBundleImageTest.LoadDataResourceString
+[       OK ] ResourceBundleImageTest.LoadDataResourceString (3 ms)
+[ RUN      ] ResourceBundleImageTest.GetRawDataResource
+[       OK ] ResourceBundleImageTest.GetRawDataResource (10 ms)
+[ RUN      ] ResourceBundleImageTest.GetRawDataResourceWhileAddingDataPack
+[       OK ] ResourceBundleImageTest.GetRawDataResourceWhileAddingDataPack (9031 ms)
+[----------] 8 tests from ResourceBundleImageTest (9070 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (9072 ms total)
+[  PASSED  ] 10 tests.
+[41/60] ResourceBundleTest.DelegateGetLocalizedStringWithOverride (0 ms)
+[42/60] ResourceBundleTest.LocaleDataPakExists (0 ms)
+[43/60] ResourceBundleImageTest.HasDataResource (4 ms)
+[44/60] ResourceBundleImageTest.LoadDataResourceBytes (4 ms)
+[45/60] ResourceBundleImageTest.LoadDataResourceBytesNotFound (3 ms)
+[46/60] ResourceBundleImageTest.LoadDataResourceStringForScale (9 ms)
+[47/60] ResourceBundleImageTest.LoadLocalizedResourceString (3 ms)
+[48/60] ResourceBundleImageTest.LoadDataResourceString (3 ms)
+[49/60] ResourceBundleImageTest.GetRawDataResource (10 ms)
+[50/60] ResourceBundleImageTest.GetRawDataResourceWhileAddingDataPack (9031 ms)
+Note: Google Test filter = ResourceBundleImageTest.GetImageNamed:ResourceBundleImageTest.GetImageNamedFallback1x:ResourceBundleImageTest.FallbackToNone:ResourceBundleImageTest.Lottie:WriteBINARY/DataPackTest.Write/0:WriteBINARY/DataPackTest.WriteWithAliases/0:WriteUTF8/DataPackTest.Write/0:WriteUTF8/DataPackTest.WriteWithAliases/0:WriteUTF16/DataPackTest.Write/0:WriteUTF16/DataPackTest.WriteWithAliases/0
+[==========] Running 10 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 4 tests from ResourceBundleImageTest
+[ RUN      ] ResourceBundleImageTest.GetImageNamed
+[       OK ] ResourceBundleImageTest.GetImageNamed (26 ms)
+[ RUN      ] ResourceBundleImageTest.GetImageNamedFallback1x
+[       OK ] ResourceBundleImageTest.GetImageNamedFallback1x (10 ms)
+[ RUN      ] ResourceBundleImageTest.FallbackToNone
+[       OK ] ResourceBundleImageTest.FallbackToNone (3 ms)
+[ RUN      ] ResourceBundleImageTest.Lottie
+[       OK ] ResourceBundleImageTest.Lottie (24 ms)
+[----------] 4 tests from ResourceBundleImageTest (67 ms total)
+
+[----------] 2 tests from WriteBINARY/DataPackTest
+[ RUN      ] WriteBINARY/DataPackTest.Write/0
+[       OK ] WriteBINARY/DataPackTest.Write/0 (9 ms)
+[ RUN      ] WriteBINARY/DataPackTest.WriteWithAliases/0
+[       OK ] WriteBINARY/DataPackTest.WriteWithAliases/0 (8 ms)
+[----------] 2 tests from WriteBINARY/DataPackTest (18 ms total)
+
+[----------] 2 tests from WriteUTF8/DataPackTest
+[ RUN      ] WriteUTF8/DataPackTest.Write/0
+[       OK ] WriteUTF8/DataPackTest.Write/0 (9 ms)
+[ RUN      ] WriteUTF8/DataPackTest.WriteWithAliases/0
+[       OK ] WriteUTF8/DataPackTest.WriteWithAliases/0 (7 ms)
+[----------] 2 tests from WriteUTF8/DataPackTest (17 ms total)
+
+[----------] 2 tests from WriteUTF16/DataPackTest
+[ RUN      ] WriteUTF16/DataPackTest.Write/0
+[       OK ] WriteUTF16/DataPackTest.Write/0 (7 ms)
+[ RUN      ] WriteUTF16/DataPackTest.WriteWithAliases/0
+[       OK ] WriteUTF16/DataPackTest.WriteWithAliases/0 (8 ms)
+[----------] 2 tests from WriteUTF16/DataPackTest (16 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 4 test suites ran. (119 ms total)
+[  PASSED  ] 10 tests.
+[51/60] ResourceBundleImageTest.GetImageNamed (26 ms)
+[52/60] ResourceBundleImageTest.GetImageNamedFallback1x (10 ms)
+[53/60] ResourceBundleImageTest.FallbackToNone (3 ms)
+[54/60] ResourceBundleImageTest.Lottie (24 ms)
+[55/60] WriteBINARY/DataPackTest.Write/0 (9 ms)
+[56/60] WriteBINARY/DataPackTest.WriteWithAliases/0 (8 ms)
+[57/60] WriteUTF8/DataPackTest.Write/0 (9 ms)
+[58/60] WriteUTF8/DataPackTest.WriteWithAliases/0 (7 ms)
+[59/60] WriteUTF16/DataPackTest.Write/0 (7 ms)
+[60/60] WriteUTF16/DataPackTest.WriteWithAliases/0 (8 ms)
+SUCCESS: all tests passed.
+Tests took 10 seconds.

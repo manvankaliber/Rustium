@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html><head><title>Rewrite integration</title></head><body><p>rustium-mime-ok</p></body></html>
+
+[31448:34444:1112/190950.326:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[31448:34444:1112/190950.632:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[31448:34444:1112/190950.633:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.

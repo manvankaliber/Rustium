@@ -1,0 +1,108 @@
+{
+  "cases": [
+    {
+      "case": "control",
+      "passed": true,
+      "rendered": false,
+      "expected_render": false,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--no-proxy-server",
+        "--disable-features=HttpsUpgrades",
+        "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+        "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-hsts-browser\\profile-wwamdccc",
+        "--dump-dom",
+        "http://rustium-hsts.invalid:51358/control"
+      ],
+      "exit_code": 0
+    },
+    {
+      "case": "learn",
+      "passed": true,
+      "rendered": true,
+      "expected_render": true,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--no-proxy-server",
+        "--disable-features=HttpsUpgrades",
+        "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+        "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-hsts-browser\\profile-wwamdccc",
+        "--dump-dom",
+        "https://rustium-hsts.invalid:51358/learn"
+      ],
+      "exit_code": 0
+    },
+    {
+      "case": "probe",
+      "passed": true,
+      "rendered": true,
+      "expected_render": true,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--no-proxy-server",
+        "--disable-features=HttpsUpgrades",
+        "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+        "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-hsts-browser\\profile-wwamdccc",
+        "--dump-dom",
+        "http://rustium-hsts.invalid:51358/probe"
+      ],
+      "exit_code": 0
+    },
+    {
+      "case": "subdomain",
+      "passed": true,
+      "rendered": true,
+      "expected_render": true,
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-background-mode",
+        "--disable-component-update",
+        "--no-proxy-server",
+        "--disable-features=HttpsUpgrades",
+        "--host-resolver-rules=MAP *rustium-hsts.invalid 127.0.0.1",
+        "--ignore-certificate-errors-spki-list=Ru/08Ru275Zlf42sbI6lqi2OUun3r4YgrrK/vJ3+Yzk=",
+        "--user-data-dir=D:\\Rustium\\.scratch\\net-wave1\\optimized-hsts-browser\\profile-wwamdccc",
+        "--dump-dom",
+        "http://child.rustium-hsts.invalid:51358/subdomain"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "tls_server_events": [
+    "/learn",
+    "/favicon.ico",
+    "/probe",
+    "/subdomain"
+  ],
+  "scope": "Functional HSTS learning and includeSubDomains upgrades on a local TLS server; automatic HTTPS upgrades disabled; fixed fixture SPKI bypass only.",
+  "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+}

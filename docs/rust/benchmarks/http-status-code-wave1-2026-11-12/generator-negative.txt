@@ -1,0 +1,1 @@
+Stale Rust mapping: run net/http/http_status_code_generate.py

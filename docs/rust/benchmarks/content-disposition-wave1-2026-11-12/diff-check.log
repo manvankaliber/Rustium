@@ -1,0 +1,2 @@
+warning: in the working copy of 'net/http/http_content_disposition.cc', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'net/http/http_content_disposition.h', CRLF will be replaced by LF the next time Git touches it

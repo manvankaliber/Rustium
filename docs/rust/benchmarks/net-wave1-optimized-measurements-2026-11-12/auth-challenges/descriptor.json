@@ -1,0 +1,101 @@
+{
+  "module": "auth-challenges",
+  "source": "auth-challenges",
+  "label": "HTTP authentication challenges",
+  "baseline": "Frozen original C++ tokenizer, round policy and strict modp decoder; original base ASCII normalization, shared C++ name/value iterator and scheme metadata remain unchanged external dependencies.",
+  "measurement": "Complete public tokenizer, parameter iteration and first/later round calls, including ownership, FFI, decoding, output consumption and destruction. Constructor, destructor, base64_param, param_pairs and first/later parser APIs preserve their original out-of-line call boundaries in separate components. Inline field getters remain inline on both sides. Original base::ToLowerASCII DLL call is retained. Warm input and setup excluded; isolated operation, not whole-browser performance.",
+  "chart_scope": "Public tokenizer and first/later round, C++/Rust FFI",
+  "chart_baseline": "Baseline: frozen original C++ challenge parsing",
+  "scope_excludes": [
+    "network I/O",
+    "input construction",
+    "warmup",
+    "process startup"
+  ],
+  "build_path": "Parent captures configured build flags, binary hashes and successful run provenance.",
+  "groups": [
+    {
+      "id": "auth-challenges-api",
+      "title": "Authentication challenge parsing",
+      "operation": "Tokenizer and first/later challenge rounds",
+      "cases": [
+        {
+          "key": "auth_empty",
+          "label": "Empty challenge token",
+          "input_hex": "4e65676f7469617465",
+          "input_bytes": 9,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        },
+        {
+          "key": "auth_valid",
+          "label": "Valid token",
+          "input_hex": "4e65676f7469617465205a6d3976596d4679",
+          "input_bytes": 18,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        },
+        {
+          "key": "auth_padding",
+          "label": "Extra padding",
+          "input_hex": "4e65676f746961746520534756736247387349466476636d786b43673d3d3d",
+          "input_bytes": 31,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        },
+        {
+          "key": "auth_invalid",
+          "label": "Invalid token",
+          "input_hex": "4e65676f7469617465205a6d39762a2a2a3d",
+          "input_bytes": 18,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        },
+        {
+          "key": "auth_mismatch",
+          "label": "Scheme mismatch",
+          "input_hex": "4e544c4d205a6d3976596d4679",
+          "input_bytes": 13,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "auth-challenges-parameters",
+      "title": "Authentication challenge parameters",
+      "operation": "Tokenizer, parameter iterator and challenge rounds",
+      "production_status": "integrated",
+      "include_in_average": true,
+      "cases": [
+        {
+          "key": "auth_params",
+          "label": "Comma-delimited parameters",
+          "input_hex": "4e65676f7469617465207265616c6d3d666f6f2c20716f703d61757468",
+          "input_bytes": 29,
+          "iterations_per_pair_side": 100000,
+          "api": "tokenizer, param_pairs, first and later rounds",
+          "expected_scheme": "negotiate"
+        }
+      ]
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "scalar C ABI; scheme offsets, batched round policy and initialized C++ decode output",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  },
+  "supersedes": "auth-challenges-wave1-final-2026-11-12.json: restore original reference destructor/param_pairs and ASCII-normalization call boundaries",
+  "optimization_note": "Accepted configured remeasurement after the coordinated optimization pass; all original cases retained. Bridge presence is recorded; its contribution is not separately measured."
+}

@@ -1,0 +1,19 @@
+[
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\unit.exe"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "7076c6beeeda77481e4462ad219e87e420775f59ffce731a60c2e1eed357bb05",
+    "benchmark_timing": false
+  },
+  {
+    "command": [
+      "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\bench.exe",
+      "--verify-only"
+    ],
+    "exit_code": 0,
+    "executable_sha256": "7b2ae36a44eee372936a25b5d7fc032a8049fe46b71626e54963e229bd9aeb97",
+    "benchmark_timing": false
+  }
+]

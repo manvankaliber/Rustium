@@ -1,0 +1,185 @@
+{
+  "tests": 13,
+  "failures": 0,
+  "disabled": 0,
+  "errors": 0,
+  "timestamp": "2026-11-12T22:12:42Z",
+  "time": "0.626s",
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "MimeTypeRustTest",
+      "tests": 6,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T22:12:42Z",
+      "time": "0.623s",
+      "testsuite": [
+        {
+          "name": "FailureAndEqualTypeDoNotInspectUnusedOutputs",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 9,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:42Z",
+          "time": "0s",
+          "classname": "MimeTypeRustTest"
+        },
+        {
+          "name": "DifferentialGrammarAndBoundaryCases",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 21,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:42Z",
+          "time": "0s",
+          "classname": "MimeTypeRustTest"
+        },
+        {
+          "name": "EveryByteAndEmbeddedNull",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 52,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:42Z",
+          "time": "0.601s",
+          "classname": "MimeTypeRustTest"
+        },
+        {
+          "name": "InputOutputAliasingSnapshots",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 65,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeTypeRustTest"
+        },
+        {
+          "name": "ContentTypeAliasedInputAndBoundaryEquality",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 85,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeTypeRustTest"
+        },
+        {
+          "name": "NullEmptyViewsAndLongQuotedValues",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+          "line": 98,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0.021s",
+          "classname": "MimeTypeRustTest"
+        }
+      ]
+    },
+    {
+      "name": "MimeTypeRustOptimizationTest",
+      "tests": 3,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T22:12:43Z",
+      "time": "0.002s",
+      "testsuite": [
+        {
+          "name": "TransformedScratchGrowthAndEmptySpans",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_optimization_unittest.cc",
+          "line": 9,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0.001s",
+          "classname": "MimeTypeRustOptimizationTest"
+        },
+        {
+          "name": "InputAliasesEveryMutableOutput",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_optimization_unittest.cc",
+          "line": 30,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeTypeRustOptimizationTest"
+        },
+        {
+          "name": "HeapBackedInputSurvivesOutputCommits",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_optimization_unittest.cc",
+          "line": 59,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeTypeRustOptimizationTest"
+        }
+      ]
+    },
+    {
+      "name": "MimeUtilTest",
+      "tests": 2,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T22:12:43Z",
+      "time": "0s",
+      "testsuite": [
+        {
+          "name": "TestParseMimeType",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_original_unittest.cc",
+          "line": 10,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeUtilTest"
+        },
+        {
+          "name": "TestParseMimeTypeWithoutParameter",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_original_unittest.cc",
+          "line": 79,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "MimeUtilTest"
+        }
+      ]
+    },
+    {
+      "name": "HttpUtilTest",
+      "tests": 2,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T22:12:43Z",
+      "time": "0s",
+      "testsuite": [
+        {
+          "name": "ParseContentType",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_original_unittest.cc",
+          "line": 156,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "HttpUtilTest"
+        },
+        {
+          "name": "ParseContentResetCharset",
+          "file": "D:\\Rustium\\net\\base\\mime_type_rust_original_unittest.cc",
+          "line": 412,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T22:12:43Z",
+          "time": "0s",
+          "classname": "HttpUtilTest"
+        }
+      ]
+    }
+  ]
+}

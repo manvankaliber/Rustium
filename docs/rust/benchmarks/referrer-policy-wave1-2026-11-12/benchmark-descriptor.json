@@ -1,0 +1,72 @@
+{
+  "module": "referrer-policy",
+  "source": "referrer-policy",
+  "label": "Referrer-Policy",
+  "baseline": "Frozen original C++ SplitStringPiece, ASCII normalization and fixed-map lookup; independent component call boundary",
+  "measurement": "Nanoseconds per public API call, including original allocations/destruction, Rust FFI and returned optional consumption; input construction and warmup excluded. Isolated benchmark, not whole-browser performance.",
+  "production_status": "integrated after configured validation",
+  "include_in_average": true,
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "scalar C ABI",
+    "evidence": "net/url_request/referrer_policy.cc forwards each public parser call to rustium_referrer_policy_parse"
+  },
+  "groups": [
+    {
+      "id": "referrer-policy-common",
+      "title": "Referrer-Policy parsing",
+      "operation": "Referrer-Policy header parsing",
+      "cases": [
+        {
+          "key": "referrer-empty",
+          "label": "Empty header"
+        },
+        {
+          "key": "referrer-origin",
+          "label": "Origin"
+        },
+        {
+          "key": "referrer-strict",
+          "label": "Strict cross-origin"
+        },
+        {
+          "key": "referrer-mixed-case",
+          "label": "ASCII case / whitespace"
+        },
+        {
+          "key": "referrer-unknown",
+          "label": "Unknown policy"
+        }
+      ]
+    },
+    {
+      "id": "referrer-policy-lists",
+      "title": "Referrer-Policy lists and long inputs",
+      "operation": "Referrer-Policy header parsing",
+      "cases": [
+        {
+          "key": "referrer-list",
+          "label": "Last recognized value"
+        },
+        {
+          "key": "referrer-invalid-suffix",
+          "label": "Unknown suffix"
+        },
+        {
+          "key": "referrer-long-unknown",
+          "label": "4 KiB unknown"
+        },
+        {
+          "key": "referrer-long-prefix",
+          "label": "4 KiB prefix"
+        },
+        {
+          "key": "referrer-long-suffix",
+          "label": "4 KiB suffix"
+        }
+      ]
+    }
+  ]
+}

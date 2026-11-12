@@ -1,0 +1,220 @@
+{
+  "module": "auth-challenges",
+  "status": "production source migration implemented and native validation passed; configured GN/Ninja integration pending parent",
+  "owned_files": [
+    "net/http/http_auth_challenge_tokenizer.cc",
+    "net/http/http_auth_challenge_tokenizer.h",
+    "net/http/http_auth_multi_round_parse.cc",
+    "net/http/http_auth_multi_round_parse.h",
+    "net/http/auth_challenge_core.rs",
+    "net/http/auth_challenge_ffi.rs",
+    "net/http/auth_challenge_ffi.h",
+    "net/http/auth_challenge_reference.cc",
+    "net/http/auth_challenge_reference.h",
+    "net/http/auth_challenge_reference_tokenizer.h",
+    "net/http/auth_challenge_reference_modp.cc",
+    "net/http/auth_challenge_reference_modp.h",
+    "net/http/auth_challenge_reference_modp_data.h",
+    "net/http/auth_challenge_test_support.h",
+    "net/http/auth_challenge_rust_unittest.cc",
+    "net/http/auth_challenge_fuzzer.cc",
+    "net/http/auth_challenge_perftest.cc"
+  ],
+  "source_sha256": {
+    "net/http/http_auth_challenge_tokenizer.cc": "fbd403c3388258bf4138f5a081452c94f75c009459a7376155a793c2bb15f799",
+    "net/http/http_auth_challenge_tokenizer.h": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+    "net/http/http_auth_multi_round_parse.cc": "16ae474c7d5e8ebc2093aa8a8ad4440e11dd2697c31ffc60d33ac9417ac34379",
+    "net/http/http_auth_multi_round_parse.h": "f0f0bcc7d892851ff98192b0a1a68179a773ce2363dd08bfda334fcff92c3f91",
+    "net/http/auth_challenge_core.rs": "ed9b992539353d9a66846fb547102f567a456fd3c83cdd98e5dbee3f6fa584f1",
+    "net/http/auth_challenge_ffi.rs": "c84c18006ac8d966493413af9c9d471e8c3351d81002048de8cd49d8b5f10fab",
+    "net/http/auth_challenge_ffi.h": "820c735c8b3580dcb3e2b2a95f262a0050741975ff2e502846a83a6b43885318",
+    "net/http/auth_challenge_reference.cc": "7fc27d2410483d379ddb6905be5fa4a76eb52eff2d74d6878ef0aa040c3072ab",
+    "net/http/auth_challenge_reference.h": "94f9ebde1e7583d71eb2815a9d937f9e924c160e85d78837aeb443e7cc54f99f",
+    "net/http/auth_challenge_reference_tokenizer.h": "48392841a744e9ab952398126e612bfce3aa073b0eb6afce67e0a7144bcd07f9",
+    "net/http/auth_challenge_reference_modp.cc": "1701888fcd28f0efc134514204c9c920e7daf157a2b93fcca6cab28017c54cc5",
+    "net/http/auth_challenge_reference_modp.h": "12365159ca5b8906204f7469802d64362616a6a6928b9ac44aee55daa863aedf",
+    "net/http/auth_challenge_reference_modp_data.h": "22c3dac1503690e8111e69e1d1b3a9322a8e6a5b1face502de4c796a24f9233c",
+    "net/http/auth_challenge_test_support.h": "e658780a5dbeb7ea4272bceb323a8fd9e43d1d0dcb993a249c1d0032b676d0de",
+    "net/http/auth_challenge_rust_unittest.cc": "5235a39f415b3ed0570ffff3932ef92ae8e83802fff90f50de721b8e5dc8410c",
+    "net/http/auth_challenge_fuzzer.cc": "295cbdd5b2b6e9a9637ae3f7943811f811a974e9228ec4ded8b4ceab0705f2b1",
+    "net/http/auth_challenge_perftest.cc": "b13d3f5cbc9346556cdbc9fbfa11a6eac0d761aa7ca51a9a5eaa03fe219c4f43",
+    "net/http/http_auth_challenge_tokenizer_unittest.cc": "363f8c01a4144b91499ec8e88015737d25c060053a0153b11a9ac4149f09a6a2",
+    "net/http/http_auth_multi_round_parse_unittest.cc": "142e6748eb930d499c1761450ded5ab150e905d4f435ce91b1473e3bc733c1b8"
+  },
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12-implementation\\sources",
+  "original_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12-implementation\\original",
+  "source_manifest": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12-implementation\\manifest.json",
+  "prior_candidate_evidence": "D:/Rustium/docs/rust/benchmarks/auth-challenges-wave1-2026-11-12 (preserved)",
+  "reference": "Independent frozen original tokenizer code, original whitespace/lowercase semantics and renamed modp strict decoder source. SchemeToString metadata and name/value iterator are shared C++ seams; no calls to migrated tokenizer or Rust. Original byte copies are archived.",
+  "remaining_cpp_seams": [
+    "std::string ownership and string_view lifetime in public tokenizer and round API",
+    "HttpUtil::NameValuePairsIterator constructor and shared iterator policy; no migration claimed for iterator",
+    "HttpAuth::SchemeToString external enum/string metadata",
+    "No production base64 decoder seam for this component: Rust implements strict modp-compatible decoding. Frozen modp used by reference only.",
+    "Other authentication subsystems, policy, ownership and platform integration remain outside this component."
+  ],
+  "validation": {
+    "native_unit_tests": "18/18 passed: 17 original tests and 1 boundary/alias test",
+    "deterministic_whole_api": "1000000 generated inputs, both NEGOTIATE and NTLM expected schemes, five output alias layouts; affinity mask 2; final executable predates whitespace-only formatting of support header",
+    "libfuzzer": "1000000 runs, max_len 256, seed 20261112, affinity mask 2, frozen C++ vs public Rust-backed API; C++ instrumentation, not Rust coverage-guided",
+    "decoder_compatibility": "1000000 deterministic byte/alphabet inputs matched frozen strict modp; CRT fix /MT and Rust +crt-static; no LNK4098",
+    "coverage": {
+      "D:\\Rustium\\net\\http\\auth_challenge_core.rs": {
+        "lines": {
+          "count": 80,
+          "covered": 78,
+          "percent": 97.5
+        },
+        "functions": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "regions": {
+          "count": 110,
+          "covered": 105,
+          "notcovered": 5,
+          "percent": 95.45454545454545
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs": {
+        "lines": {
+          "count": 59,
+          "covered": 58,
+          "percent": 98.30508474576271
+        },
+        "functions": {
+          "count": 6,
+          "covered": 6,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 6,
+          "covered": 6,
+          "percent": 100
+        },
+        "regions": {
+          "count": 64,
+          "covered": 63,
+          "notcovered": 1,
+          "percent": 98.4375
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "method": "LLVM source instrumentation; native original and new unit suites; authored Rust core and adapter; no branch coverage collected",
+      "profiles": [
+        "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\auth-37856.profraw"
+      ]
+    },
+    "coverage_scope": "Authored runtime core and FFI combined 136/139 lines and 168/174 regions; raw includes all runtime lines. Uncovered empty decode/empty-success path not reachable from public later-round API and end % 4 == 1 branch cannot arise after strict length and 0-2 padding removal. No branch coverage collected.",
+    "checks": {
+      "clippy": {
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\clippy-driver.exe",
+          "--edition",
+          "2024",
+          "--crate-type",
+          "rlib",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+          "--emit",
+          "metadata",
+          "-o",
+          "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\clippy.rmeta",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0
+      },
+      "rustfmt": {
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+          "--edition",
+          "2024",
+          "--check",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+          "D:\\Rustium\\net\\http\\auth_challenge_core.rs"
+        ],
+        "exit_code": 0
+      },
+      "clang-format": {
+        "command": [
+          "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+          "--dry-run",
+          "--Werror",
+          "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer.cc",
+          "D:\\Rustium\\net\\http\\http_auth_multi_round_parse.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_reference.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_reference.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_test_support.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_rust_unittest.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_fuzzer.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_perftest.cc"
+        ],
+        "exit_code": 0
+      }
+    }
+  },
+  "native_build": "python .scratch/net-wave1/auth-challenges/build_native.py [unit|fuzz|diff|bench]; actual full production .cc files compiled, not extracted adapters; isolated DLL staging due loader search order; configured /MD and Rust -crt-static for whole-API harness; response files, commands, hashes and logs archived",
+  "benchmarks": {
+    "timed": false,
+    "descriptor": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12-implementation\\benchmark-descriptor.json",
+    "perftest_source": "net/http/auth_challenge_perftest.cc",
+    "native_binary_sha256": "4246f4b1e59a6ef8156fa566777715a72fae7fa530cfbc514e80a1704a466c0d",
+    "pairs": 20,
+    "seed": 20261112,
+    "warmup_iterations": 4096,
+    "cases": 6,
+    "group_counts": [
+      5,
+      1
+    ],
+    "candidate_status": "deferred until parent configures, builds and validates integration; parent removes defer on successful integration",
+    "measurement": "whole tokenizer, scheme/params/base64 views, shared param iterator, first/later decisions, decoding, FFI, ownership, output and destruction; no browser claim"
+  },
+  "gn_fragment": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12-implementation\\parent.gn",
+  "canonical_targets_needed": [
+    "net",
+    "net_unittests",
+    "auth_challenge_perftests",
+    "auth_challenge_fuzzer"
+  ],
+  "known_gaps": [
+    "Configured GN/Ninja integration and canonical tests remain parent-owned and not run",
+    "No timing measurements were taken",
+    "No branch coverage collected",
+    "Frozen copied third-party/reference tokenizer files intentionally retain upstream formatting and license; authored files passed clang-format",
+    "Whole API performance reference retains an independently frozen helper copy and should be reviewed alongside its provenance before parent times it."
+  ],
+  "optimization_debt": [
+    "Unmeasured: multiple FFI calls and temporary allocations may affect tiny challenge workloads; no regression or cause asserted. Parent should perform configured quiet-window paired measurements and record any actual regressions in gallery and backlog."
+  ]
+}

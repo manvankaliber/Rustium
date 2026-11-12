@@ -1,0 +1,1183 @@
+{
+  "core_clippy": {
+    "command": [
+      "C:/Users/jackv/.cargo/bin/cargo.exe",
+      "clippy",
+      "--release",
+      "--offline",
+      "--manifest-path",
+      "D:\\Rustium\\.scratch\\net-wave1\\promote\\numbers\\core\\Cargo.toml",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "source_sha256": {
+      "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+      "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+      "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+      "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+      "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+      "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+      "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+      "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+      "net/base/parse_number.cc": "5b9a78840d3156c2510c5ff856daa72a8268bbe42ba4edd92d1496dc676f2d50",
+      "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad"
+    },
+    "cpu": 9,
+    "scope": "Native focused harness using configured Chromium dependencies; canonical GN integration remains parent-owned.",
+    "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "clippy": "clippy 0.1.99 (b940084d7e 2026-09-28)",
+    "exit_code": 0,
+    "elapsed_seconds": 0.40199070000380743,
+    "source_unchanged": true
+  },
+  "module": "range",
+  "status": "native validation passed; configured GN integration remains pending and parent-owned",
+  "unit_tests": 24,
+  "unit_failures": 0,
+  "differential_fuzz_executions": 1000000,
+  "fuzz_seed": 20261112,
+  "fuzz_max_len": 512,
+  "fuzz_instrumentation": "C++ libFuzzer inline counters + trace-cmp; Rust is not sanitizer-instrumented. No sanitizer claim.",
+  "validation_commands": [
+    "python .scratch/net-wave1/promote/range/build_native.py coverage",
+    "python .scratch/net-wave1/promote/range/build_native.py unit",
+    "python .scratch/net-wave1/promote/validate.py range unit",
+    "python .scratch/net-wave1/promote/range/build_native.py rust",
+    "python .scratch/net-wave1/promote/range/build_native.py fuzz",
+    "python .scratch/net-wave1/promote/validate.py range fuzz",
+    "python .scratch/net-wave1/promote/validate.py range clippy",
+    "python .scratch/net-wave1/promote/validate.py numbers core-clippy",
+    "python .scratch/net-wave1/promote/coverage.py",
+    "python .scratch/net-wave1/promote/check.py",
+    "python .scratch/net-wave1/promote/range/build_native.py bench (compile/link only, never execute)"
+  ],
+  "executions": {
+    "unit": {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.exe",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit-results.json"
+      ],
+      "source_sha256": {
+        "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+        "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+        "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+        "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+        "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+        "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+        "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+        "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+        "net/http/http_range_promote_fuzzer.cc": "9cc278109c141ac262774d66fd295c4ed4a305b7027098a6c8a81ecbba368756",
+        "net/http/http_range_promote_perftest.cc": "823619adf374dfd2d69ca9eb3fc7b6052ccfeedcf3532b6d97171abf1b9ea69d",
+        "net/http/http_range_promote_reference.cc": "1423a336163097b9c7dd796e505153afba8332e3eba519b729be4f15309efc1e",
+        "net/http/http_range_promote_reference.h": "f43699e2db567f0efbf54ad4a42c790a6df14976d7367562730d0453d2e16f99",
+        "net/http/http_range_promote_unittest.cc": "28a47f58090a8bf6fdb1b0d1c99073b57fb30d755ccd3adcfd80e8c5c11c4654",
+        "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+        "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+        "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+        "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+        "net/http/http_byte_range.cc": "fb71d1f4ce07b966f3ae51a47720a26a2d19dde4bbf373c4b6ec48a2f9b070dc"
+      },
+      "cpu": 10,
+      "scope": "Native focused harness using configured Chromium dependencies; canonical GN integration remains parent-owned.",
+      "binary_sha256": "c95b25044c9a267598bf0b793b429d157161fcb48ca59def732b29e1cbd54fc6",
+      "link_command": [
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+        "/OUT:D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.exe",
+        "/SUBSYSTEM:CONSOLE",
+        "/INCREMENTAL:NO",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\coverage-target\\release\\http_range_promote_validation.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\third_party_abseil-cpp_absl.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll.lib",
+        "advapi32.lib",
+        "userenv.lib",
+        "ws2_32.lib",
+        "bcrypt.lib",
+        "ntdll.lib",
+        "dbghelp.lib",
+        "synchronization.lib",
+        "shlwapi.lib",
+        "shell32.lib",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_old.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\chrome_custom_temp_dir.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-assertion-result.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-death-test.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-filepath.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-matchers.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-printers.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-test-part.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-typed-test.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest_port_wrapper.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\stack_trace_getter.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\third_party_abseil-cpp_absl.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\third_party_boringssl.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\re2\\re2.lib",
+        "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libprofiler_builtins-a7f7fd32685d1bf1.rlib",
+        "/LIBPATH:C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/lib/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/ucrt/x64"
+      ],
+      "compile_responses": {
+        "byte_range.rsp": "/c D:\\Rustium\\net\\http\\http_byte_range.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.pdb\" /DNET_IMPLEMENTATION",
+        "legacy.rsp": "/c D:\\Rustium\\net\\http\\http_range_promote_reference.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.pdb\" /DNET_IMPLEMENTATION",
+        "number_ref.rsp": "/c D:\\Rustium\\net\\base\\parse_number_native_reference.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.pdb\" /DNET_IMPLEMENTATION",
+        "reader.rsp": "/c D:\\Rustium\\net\\http\\http_range_benchmark_adapter.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.pdb\" /DNET_IMPLEMENTATION",
+        "unit.rsp": "/c D:\\Rustium\\net\\http\\http_range_promote_unittest.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.pdb\" /DNET_IMPLEMENTATION",
+        "unit_main.rsp": "/c D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.pdb\" /DNET_IMPLEMENTATION",
+        "unit_old.rsp": "/c D:\\Rustium\\net\\http\\http_range_original_unittest.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_old.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_old.pdb\" /DNET_IMPLEMENTATION"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 0.19258930000069086,
+      "source_unchanged": true
+    },
+    "fuzz": {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\fuzz.exe",
+        "-runs=1000000",
+        "-max_len=512",
+        "-seed=20261112",
+        "-print_final_stats=1",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\corpus"
+      ],
+      "source_sha256": {
+        "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+        "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+        "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+        "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+        "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+        "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+        "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+        "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+        "net/http/http_range_promote_fuzzer.cc": "9cc278109c141ac262774d66fd295c4ed4a305b7027098a6c8a81ecbba368756",
+        "net/http/http_range_promote_perftest.cc": "823619adf374dfd2d69ca9eb3fc7b6052ccfeedcf3532b6d97171abf1b9ea69d",
+        "net/http/http_range_promote_reference.cc": "1423a336163097b9c7dd796e505153afba8332e3eba519b729be4f15309efc1e",
+        "net/http/http_range_promote_reference.h": "f43699e2db567f0efbf54ad4a42c790a6df14976d7367562730d0453d2e16f99",
+        "net/http/http_range_promote_unittest.cc": "28a47f58090a8bf6fdb1b0d1c99073b57fb30d755ccd3adcfd80e8c5c11c4654",
+        "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+        "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+        "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+        "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+        "net/http/http_byte_range.cc": "fb71d1f4ce07b966f3ae51a47720a26a2d19dde4bbf373c4b6ec48a2f9b070dc"
+      },
+      "cpu": 10,
+      "scope": "Native focused harness using configured Chromium dependencies; canonical GN integration remains parent-owned.",
+      "seed_corpus": {
+        "bounded.range": "573fa78868b8207a1e546654cf3998492b151f4bdcc296f9fa0f3935e4f51ade",
+        "content.range": "fcc67b95d0f9104750a51477453b5252cd80ebcb455af43ded00c379a63680b8",
+        "fetch.range": "66d992b285cfceb12a712999042fcdfed4874da01c0d43f4a8ff16cf6e761957",
+        "multi.range": "508e199c271678ec2ed78bee31a530cb70695fb3126e8d9f8c33cd76934886a4",
+        "overflow.range": "d319d34f0e75d2850ff9bf9b87bb1daf16bd298e9684c5266f03abc48b6a64c8"
+      },
+      "instrumentation": "C++ libFuzzer inline counters and trace-cmp only. Rust is not sanitizer-instrumented.",
+      "binary_sha256": "edf229ac264eb0e266bbe129d0ec37ae38c64cbe04b4ab80ebf47ed81690bba2",
+      "link_command": [
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+        "/OUT:D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\fuzz.exe",
+        "/SUBSYSTEM:CONSOLE",
+        "/INCREMENTAL:NO",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\fuzz.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\chromium-target\\release\\http_range_promote_validation.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\third_party_abseil-cpp_absl.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll.lib",
+        "advapi32.lib",
+        "userenv.lib",
+        "ws2_32.lib",
+        "bcrypt.lib",
+        "ntdll.lib",
+        "dbghelp.lib",
+        "synchronization.lib",
+        "shlwapi.lib",
+        "shell32.lib",
+        "/LIBPATH:C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/lib/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/ucrt/x64",
+        "/NODEFAULTLIB:clang_rt.ubsan_standalone-x86_64.lib",
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\lib\\clang\\24\\lib\\windows\\clang_rt.ubsan_standalone-x86_64.lib",
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\lib\\clang\\24\\lib\\windows\\clang_rt.ubsan_standalone_cxx-x86_64.lib",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerCrossOver.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerDataFlowTrace.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerDriver.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsDlsym.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsWeak.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCounters.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCountersDarwin.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCountersWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerFork.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerInterceptors.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIO.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIOPosix.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIOWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerLoop.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMain.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMerge.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMutate.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerSHA1.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerTracePC.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtil.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilDarwin.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilLinux.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilPosix.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilWindows.obj"
+      ],
+      "compile_responses": {
+        "byte_range.rsp": "/c D:\\Rustium\\net\\http\\http_byte_range.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\byte_range.pdb\" -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp -fno-sanitize-link-runtime",
+        "fuzz.rsp": "/c D:\\Rustium\\net\\http\\http_range_promote_fuzzer.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\fuzz.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\fuzz.pdb\" -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp -fno-sanitize-link-runtime",
+        "legacy.rsp": "/c D:\\Rustium\\net\\http\\http_range_promote_reference.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\legacy.pdb\" -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp -fno-sanitize-link-runtime",
+        "number_ref.rsp": "/c D:\\Rustium\\net\\base\\parse_number_native_reference.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\number_ref.pdb\" -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp -fno-sanitize-link-runtime",
+        "reader.rsp": "/c D:\\Rustium\\net\\http\\http_range_benchmark_adapter.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/zlib -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/brotli/include /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc:inline /Gw -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:net_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\reader.pdb\" -fsanitize-coverage=inline-8bit-counters,pc-table,trace-cmp -fno-sanitize-link-runtime",
+        "unit.rsp": "/c D:\\Rustium\\net\\http\\http_range_promote_unittest.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit.pdb\" /DNET_IMPLEMENTATION",
+        "unit_main.rsp": "/c D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_main.pdb\" /DNET_IMPLEMENTATION",
+        "unit_old.rsp": "/c D:\\Rustium\\net\\http\\http_range_original_unittest.cc /FoD:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_old.obj /nologo /showIncludes:user \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\" \"-imsvcC:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Auxiliary\\VS\\include\" \"-imsvcC:\\Program Files (x86)\\Windows Kits\\10\\include\\10.0.26100.0\\ucrt\" -imsvc../../../WindowsKits/10/include/10.0.28000.0/um -imsvc../../../WindowsKits/10/include/10.0.28000.0/shared -imsvc../../../WindowsKits/10/include/10.0.28000.0/winrt -imsvc../../../WindowsKits/10/include/10.0.28000.0/cppwinrt \"-imsvcC:\\Program Files (x86)\\Windows Kits\\NETFXSDK\\4.6.2\\include\\um\" -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DGTEST_API_= -DGTEST_HAS_POSIX_RE=0 -DGTEST_HAS_ABSL -DGTEST_NO_ABSL_FLAGS -DUNIT_TEST -DUSE_LIBCXX_MODULES -ID:\\Rustium\\.scratch\\net-wave1\\promote\\range\\include -ID:\\Rustium -I../.. -Igen -I../../buildtools/third_party/libc++ -I../../third_party/perfetto/include -Igen/third_party/perfetto/build_config -Igen/third_party/perfetto -I../../net/third_party/quiche/overrides -I../../net/third_party/quiche/src/quiche/common/platform/default -I../../net/third_party/quiche/src -I../../third_party/google_benchmark/src/include -I../../base/allocator/partition_allocator/src -Igen/base/allocator/partition_allocator/src -I../../third_party/abseil-cpp -I../../third_party/boringssl/src/include -I../../third_party/protobuf/src -I../../third_party/protobuf/third_party/utf8_range -Igen/net/third_party/quiche/src -I../../third_party/re2/src -I../../third_party/icu/source/common -I../../third_party/icu/source/i18n -I../../third_party/ced/src -I../../third_party/googletest/custom -I../../third_party/googletest/src/googlemock/include -I../../third_party/googletest/src/googletest/include -I../../third_party/zlib /W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang:-fno-strict-overflow -fno-ident /clang:-fno-math-errno -fcolor-diagnostics /clang:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang:-O2 /Oy- /Zc:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt -Wno-inconsistent-missing-override /wd4800 -Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c /TP -fmodule-map-file=gen/build/modules/module.modulemap -fmodule-file=//build/modules:system=obj/build/modules/system/module.pcm \"-fmodule-name=//net:gzip_header_unittests_Private\" /Fd\"D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\unit_old.pdb\" /DNET_IMPLEMENTATION"
+      },
+      "exit_code": 0,
+      "elapsed_seconds": 12.294113299998571,
+      "source_unchanged": true
+    },
+    "clippy": {
+      "command": [
+        "C:/Users/jackv/.cargo/bin/cargo.exe",
+        "clippy",
+        "--release",
+        "--offline",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "source_sha256": {
+        "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+        "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+        "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+        "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+        "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+        "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+        "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+        "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+        "net/http/http_range_promote_fuzzer.cc": "9cc278109c141ac262774d66fd295c4ed4a305b7027098a6c8a81ecbba368756",
+        "net/http/http_range_promote_perftest.cc": "823619adf374dfd2d69ca9eb3fc7b6052ccfeedcf3532b6d97171abf1b9ea69d",
+        "net/http/http_range_promote_reference.cc": "1423a336163097b9c7dd796e505153afba8332e3eba519b729be4f15309efc1e",
+        "net/http/http_range_promote_reference.h": "f43699e2db567f0efbf54ad4a42c790a6df14976d7367562730d0453d2e16f99",
+        "net/http/http_range_promote_unittest.cc": "28a47f58090a8bf6fdb1b0d1c99073b57fb30d755ccd3adcfd80e8c5c11c4654",
+        "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+        "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+        "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+        "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+        "net/http/http_byte_range.cc": "fb71d1f4ce07b966f3ae51a47720a26a2d19dde4bbf373c4b6ec48a2f9b070dc"
+      },
+      "cpu": 10,
+      "scope": "Native focused harness using configured Chromium dependencies; canonical GN integration remains parent-owned.",
+      "rustc": "rustc 1.99.0 (b940084d7 2026-09-28)",
+      "clippy": "clippy 0.1.99 (b940084d7e 2026-09-28)",
+      "exit_code": 0,
+      "elapsed_seconds": 2.83365269999922,
+      "source_unchanged": true
+    }
+  },
+  "runtime_coverage": [
+    {
+      "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\..\\..\\..\\..\\net\\http\\http_range_ffi.rs",
+      "summary": {
+        "lines": {
+          "count": 63,
+          "covered": 63,
+          "percent": 100
+        },
+        "functions": {
+          "count": 10,
+          "covered": 10,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 13,
+          "covered": 13,
+          "percent": 100
+        },
+        "regions": {
+          "count": 62,
+          "covered": 62,
+          "notcovered": 0,
+          "percent": 100
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\..\\..\\..\\..\\net\\http\\http_range_parser.rs",
+      "summary": {
+        "lines": {
+          "count": 186,
+          "covered": 186,
+          "percent": 100
+        },
+        "functions": {
+          "count": 28,
+          "covered": 28,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 28,
+          "covered": 28,
+          "percent": 100
+        },
+        "regions": {
+          "count": 269,
+          "covered": 269,
+          "notcovered": 0,
+          "percent": 100
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\range\\core\\..\\..\\..\\..\\..\\net\\base\\parse_number_parser.rs",
+      "summary": {
+        "lines": {
+          "count": 66,
+          "covered": 61,
+          "percent": 92.42424242424242
+        },
+        "functions": {
+          "count": 9,
+          "covered": 8,
+          "percent": 88.88888888888889
+        },
+        "instantiations": {
+          "count": 11,
+          "covered": 9,
+          "percent": 81.81818181818183
+        },
+        "regions": {
+          "count": 84,
+          "covered": 74,
+          "notcovered": 10,
+          "percent": 88.09523809523809
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 328,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 57,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 57,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 436,
+          "covered": 0,
+          "notcovered": 436,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\mod.rs",
+      "summary": {
+        "lines": {
+          "count": 45,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 4,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 4,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 50,
+          "covered": 0,
+          "notcovered": 50,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\packedpair\\mod.rs",
+      "summary": {
+        "lines": {
+          "count": 88,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 12,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 12,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 105,
+          "covered": 0,
+          "notcovered": 105,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\rabinkarp.rs",
+      "summary": {
+        "lines": {
+          "count": 120,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 14,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 14,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 144,
+          "covered": 0,
+          "notcovered": 144,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\shiftor.rs",
+      "summary": {
+        "lines": {
+          "count": 23,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 2,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 2,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 28,
+          "covered": 0,
+          "notcovered": 28,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\all\\twoway.rs",
+      "summary": {
+        "lines": {
+          "count": 276,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 16,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 16,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 345,
+          "covered": 0,
+          "notcovered": 345,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\generic\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 561,
+          "covered": 82,
+          "percent": 14.616755793226382
+        },
+        "functions": {
+          "count": 29,
+          "covered": 4,
+          "percent": 13.793103448275861
+        },
+        "instantiations": {
+          "count": 67,
+          "covered": 7,
+          "percent": 10.44776119402985
+        },
+        "regions": {
+          "count": 672,
+          "covered": 105,
+          "notcovered": 567,
+          "percent": 15.625
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\generic\\packedpair.rs",
+      "summary": {
+        "lines": {
+          "count": 118,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 8,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 13,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 135,
+          "covered": 0,
+          "notcovered": 135,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\x86_64\\avx2\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 366,
+          "covered": 37,
+          "percent": 10.10928961748634
+        },
+        "functions": {
+          "count": 70,
+          "covered": 5,
+          "percent": 7.142857142857142
+        },
+        "instantiations": {
+          "count": 70,
+          "covered": 5,
+          "percent": 7.142857142857142
+        },
+        "regions": {
+          "count": 358,
+          "covered": 27,
+          "notcovered": 331,
+          "percent": 7.5418994413407825
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\x86_64\\avx2\\packedpair.rs",
+      "summary": {
+        "lines": {
+          "count": 42,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 10,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 10,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 47,
+          "covered": 0,
+          "notcovered": 47,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\x86_64\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 91,
+          "covered": 25,
+          "percent": 27.472527472527474
+        },
+        "functions": {
+          "count": 11,
+          "covered": 3,
+          "percent": 27.27272727272727
+        },
+        "instantiations": {
+          "count": 35,
+          "covered": 3,
+          "percent": 8.571428571428571
+        },
+        "regions": {
+          "count": 45,
+          "covered": 16,
+          "notcovered": 29,
+          "percent": 35.55555555555556
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\x86_64\\sse2\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 287,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 63,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 63,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 296,
+          "covered": 0,
+          "notcovered": 296,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\arch\\x86_64\\sse2\\packedpair.rs",
+      "summary": {
+        "lines": {
+          "count": 37,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 10,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 10,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 40,
+          "covered": 0,
+          "notcovered": 40,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\cow.rs",
+      "summary": {
+        "lines": {
+          "count": 27,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 7,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 7,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 26,
+          "covered": 0,
+          "notcovered": 26,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\ext.rs",
+      "summary": {
+        "lines": {
+          "count": 12,
+          "covered": 6,
+          "percent": 50
+        },
+        "functions": {
+          "count": 4,
+          "covered": 2,
+          "percent": 50
+        },
+        "instantiations": {
+          "count": 5,
+          "covered": 3,
+          "percent": 60
+        },
+        "regions": {
+          "count": 13,
+          "covered": 7,
+          "notcovered": 6,
+          "percent": 53.84615384615385
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\memchr.rs",
+      "summary": {
+        "lines": {
+          "count": 208,
+          "covered": 13,
+          "percent": 6.25
+        },
+        "functions": {
+          "count": 45,
+          "covered": 3,
+          "percent": 6.666666666666667
+        },
+        "instantiations": {
+          "count": 46,
+          "covered": 3,
+          "percent": 6.521739130434782
+        },
+        "regions": {
+          "count": 214,
+          "covered": 14,
+          "notcovered": 200,
+          "percent": 6.5420560747663545
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\memmem\\mod.rs",
+      "summary": {
+        "lines": {
+          "count": 193,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 31,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 31,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 160,
+          "covered": 0,
+          "notcovered": 160,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\memmem\\searcher.rs",
+      "summary": {
+        "lines": {
+          "count": 288,
+          "covered": 0,
+          "percent": 0
+        },
+        "functions": {
+          "count": 32,
+          "covered": 0,
+          "percent": 0
+        },
+        "instantiations": {
+          "count": 32,
+          "covered": 0,
+          "percent": 0
+        },
+        "regions": {
+          "count": 272,
+          "covered": 0,
+          "notcovered": 272,
+          "percent": 0
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    {
+      "filename": "D:\\Rustium\\third_party\\rust\\chromium_crates_io\\vendor\\memchr-v2\\src\\vector.rs",
+      "summary": {
+        "lines": {
+          "count": 73,
+          "covered": 42,
+          "percent": 57.534246575342465
+        },
+        "functions": {
+          "count": 24,
+          "covered": 14,
+          "percent": 58.333333333333336
+        },
+        "instantiations": {
+          "count": 25,
+          "covered": 14,
+          "percent": 56.00000000000001
+        },
+        "regions": {
+          "count": 81,
+          "covered": 45,
+          "notcovered": 36,
+          "percent": 55.55555555555556
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    }
+  ],
+  "coverage_qualification": "LLVM source-based line/region coverage from runtime unit execution. Numeric core and direct ABI fully covered; Range parser/FFI fully covered. Range harness alone covers only paths of shared numeric core used by Range (61/66 lines, 74/84 regions); numeric harness covers all emitted numeric core runtime lines/regions. No authored runtime exclusions taken. Macro/const declarations are outside emitted runtime coverage. Branch coverage not collected; zero branch counters are not 100% branch coverage.",
+  "perftest_case_count": 35,
+  "benchmark_run": false,
+  "descriptor": ".scratch/net-wave1/promote/range-benchmark-descriptor.json",
+  "binary_sha256": {
+    "unit.exe": "c95b25044c9a267598bf0b793b429d157161fcb48ca59def732b29e1cbd54fc6",
+    "fuzz.exe": "edf229ac264eb0e266bbe129d0ec37ae38c64cbe04b4ab80ebf47ed81690bba2",
+    "bench.exe": "62f58c6ab6b154c7668a6e78ac20ef5832cb3f71069324e1585c1a1c3e6c8e7c"
+  },
+  "rust_libraries": {
+    "coverage-target": {
+      "sha256": "cb380f3442010bdcb479b5103701996b2e1689efb8ed1492c55d67693e7a3c00"
+    },
+    "chromium-target": {
+      "sha256": "2389a6ab055dd628d6335383a9d1b56cf493404466f81f5e2cda5b961f67c288"
+    }
+  },
+  "source_snapshot": "docs/rust/benchmarks/protocol-native-content-range-promotion-source-2026-11-12.zip",
+  "source_snapshot_sha256": "0bedfb0771c0a436e1937862319858274251d89bb68710f02bab4391583c3cf5",
+  "source_manifest": {
+    "net/base/parse_number.cc": "5b9a78840d3156c2510c5ff856daa72a8268bbe42ba4edd92d1496dc676f2d50",
+    "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+    "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+    "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+    "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+    "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+    "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+    "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+    "net/http/http_range_promote_fuzzer.cc": "9cc278109c141ac262774d66fd295c4ed4a305b7027098a6c8a81ecbba368756",
+    "net/http/http_range_promote_perftest.cc": "823619adf374dfd2d69ca9eb3fc7b6052ccfeedcf3532b6d97171abf1b9ea69d",
+    "net/http/http_range_promote_reference.cc": "1423a336163097b9c7dd796e505153afba8332e3eba519b729be4f15309efc1e",
+    "net/http/http_range_promote_reference.h": "f43699e2db567f0efbf54ad4a42c790a6df14976d7367562730d0453d2e16f99",
+    "net/http/http_range_promote_unittest.cc": "28a47f58090a8bf6fdb1b0d1c99073b57fb30d755ccd3adcfd80e8c5c11c4654",
+    "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+    "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+    "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+    "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936",
+    "net/http/http_range_parser.rs": "4f403c9ce8568180d663e1d85d090cdb1814dcec0e78f76ea5a36072f9bffd3d",
+    "net/http/http_range_ffi.rs": "c1131b01e9795b39402aa2ff362ee8dff27ac6073ed400dbadd48e68d43904a1",
+    "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+    "net/http/http_range_benchmark_adapter.cc": "f4ecb31b90aceb3c7b3fa0be39cacf6f667894e6dea7c285810553a7af6259a5",
+    "net/http/http_range_original_unittest.cc": "9c7f493c6f8cfab44f4a4ac23f365e9ada95cfb8d766ed1b25594ec030a4b956",
+    "net/http/http_byte_range.cc": "fb71d1f4ce07b966f3ae51a47720a26a2d19dde4bbf373c4b6ec48a2f9b070dc",
+    "net/http/http_byte_range.h": "ccded7f7ae94f56971820c013dd84d8171c41d5bbad0c26aada1c4096f418300"
+  },
+  "evidence_archive": "docs/rust/benchmarks/http-content-range-promotion-validation-2026-11-12.zip",
+  "evidence_archive_sha256": "98608dba73e01a6f4eec0d506207f00233ee8a9353547a36d9b09a823520e758",
+  "canonical_scope": "Numeric native harness compiles current public parse_number.cc. Range native harness compiles existing benchmark adapter; proposed production Content-Range wrapper token-identical. Shared http_util.cc retains original C++ Content-Range pending parent replacement."
+}

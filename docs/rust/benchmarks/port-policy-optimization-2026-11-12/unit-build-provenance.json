@@ -1,0 +1,36 @@
+{
+  "mode": "unit",
+  "source_hashes": {
+    "net/base/port_policy_core.rs": "489a6e5c4430d27e4beb989ddb5359f6c9de073dc6646fc7e4200c1601f40a96",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+    "net/base/port_policy_fuzzer.cc": "e06f7fc673897c529ccddde98291df205a5e0d945d20dae6ab7026060b7b9074",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "3a8dca8adcf5c0cda16be4cf4a62667402a22c7b0eb9d72290d2b14898735f16",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "36094b18b33fa98bc1aa6fd89decc9aa707d32cf03dd9742dbb62f080efef593",
+    "net/base/port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7",
+    "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e"
+  },
+  "executable_sha256": "47288ae12b82792690f96a561fcd3d45b13cdd852b54f8614260dd3b50e9c1d9",
+  "rust_library_sha256": "c6b704daea5d8d9fc2c31a2844c577efba8d0011cca1ecd2b7b330d5557c4b1d",
+  "compile_response_files": {
+    "bridge.rsp": "f9b2a69c28dbad159f1165ce23806493fb725e0cb86f266d8788e84e5a29fae2",
+    "driver.rsp": "d59d62185332a489d2fe717cb6c65757fdbae3856b83193a552cee8ea4110d80",
+    "ip_address.rsp": "85dbb775af27a064a644a86b18bda6f84fc97fd5386d5e093798ac26727d360d",
+    "ip_address_util.rsp": "372128c8d08dae49c52576bce665c3c7fa0ba65761328fd41ca4bf8c12cc83d0",
+    "ip_endpoint.rsp": "f5465f3fdc86f23bcf4b51aff72d9ed955d1daf8d16673787f0f68cbb50a654b",
+    "native_features.rsp": "7159e9ea0de7c05a9794b877a5e10d399af7b87aec797c68b10725e516b994b1",
+    "native_number.rsp": "bdcd3ae1e222e92a8b4387504752938d99cc321f3e20879c6aaa5551f4239927",
+    "original_unit.rsp": "79628c9f56c7e7ed9411c1b8d532ce4e92375e83a9f284c09a20063a96b009df",
+    "production.rsp": "6c04bd488f24742a9a85dea4c6d2bda452c6895c23b21eb8476195c3820e0010",
+    "reference.rsp": "0bea5cbcd88033bb00fe22dc07aac60abd4f806788ad83b42f63c4306b0aa675",
+    "reference_number.rsp": "33a636cd7e24769aff68e3cb25c8d56bd510cc4dc815ab8e1035fcb206727a3f",
+    "unit.rsp": "a6e3b875bd0d448b004dc2db797ae10d9dc232d365646e65ce98e371aba8a266",
+    "unit_main.rsp": "a6218513b41f4dbf076b030d254f152618cde1f4ae940c8ea4a4ee30438b81d5"
+  },
+  "link_command_file": "unit-link-command.json",
+  "configured_build": false
+}

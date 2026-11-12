@@ -1,0 +1,39 @@
+[==========] Running 14 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from HstsRustTest
+[ RUN      ] HstsRustTest.QuotedValuesAndEscapes
+[       OK ] HstsRustTest.QuotedValuesAndEscapes (0 ms)
+[ RUN      ] HstsRustTest.EveryByteInNamesAndValues
+[       OK ] HstsRustTest.EveryByteInNamesAndValues (1 ms)
+[ RUN      ] HstsRustTest.EveryByteAsWhitespace
+[       OK ] HstsRustTest.EveryByteAsWhitespace (1 ms)
+[ RUN      ] HstsRustTest.ClampingAndMalformedOverflow
+[       OK ] HstsRustTest.ClampingAndMalformedOverflow (0 ms)
+[ RUN      ] HstsRustTest.DuplicatesAndEmptyDirectives
+[       OK ] HstsRustTest.DuplicatesAndEmptyDirectives (0 ms)
+[ RUN      ] HstsRustTest.LongInputAndEmbeddedNul
+[       OK ] HstsRustTest.LongInputAndEmbeddedNul (19 ms)
+[ RUN      ] HstsRustTest.EverySingleByteMutation
+[       OK ] HstsRustTest.EverySingleByteMutation (72 ms)
+[ RUN      ] HstsRustTest.DeterministicGrammarMutations
+[       OK ] HstsRustTest.DeterministicGrammarMutations (46 ms)
+[ RUN      ] HstsRustTest.BridgeLimitAndScalarLayout
+[       OK ] HstsRustTest.BridgeLimitAndScalarLayout (0 ms)
+[----------] 9 tests from HstsRustTest (143 ms total)
+
+[----------] 5 tests from HttpSecurityHeadersTest
+[ RUN      ] HttpSecurityHeadersTest.LeadingTrailingSemicolons
+[       OK ] HttpSecurityHeadersTest.LeadingTrailingSemicolons (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.InvalidDirectiveNames
+[       OK ] HttpSecurityHeadersTest.InvalidDirectiveNames (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.InvalidDirectiveValues
+[       OK ] HttpSecurityHeadersTest.InvalidDirectiveValues (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.BogusHeaders
+[       OK ] HttpSecurityHeadersTest.BogusHeaders (0 ms)
+[ RUN      ] HttpSecurityHeadersTest.ValidSTSHeaders
+[       OK ] HttpSecurityHeadersTest.ValidSTSHeaders (0 ms)
+[----------] 5 tests from HttpSecurityHeadersTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 14 tests from 2 test suites ran. (145 ms total)
+[  PASSED  ] 14 tests.

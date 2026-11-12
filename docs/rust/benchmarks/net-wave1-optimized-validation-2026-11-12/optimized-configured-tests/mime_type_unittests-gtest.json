@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="13" failures="0" disabled="0" errors="0" time="0.265" timestamp="2026-11-12T21:47:39">
+  <testsuite name="HttpUtilTest" tests="2" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:39">
+    <testcase name="ParseContentResetCharset" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+    <testcase name="ParseContentType" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpUtilTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeTypeRustOptimizationTest" tests="3" failures="0" disabled="0" errors="0" time="0.001" timestamp="2026-11-12T21:47:39">
+    <testcase name="HeapBackedInputSurvivesOutputCommits" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustOptimizationTest">
+    </testcase>
+    <testcase name="InputAliasesEveryMutableOutput" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustOptimizationTest">
+    </testcase>
+    <testcase name="TransformedScratchGrowthAndEmptySpans" status="run" time="0.001" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustOptimizationTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeTypeRustTest" tests="6" failures="0" disabled="0" errors="0" time="0.264" timestamp="2026-11-12T21:47:39">
+    <testcase name="ContentTypeAliasedInputAndBoundaryEquality" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+    <testcase name="DifferentialGrammarAndBoundaryCases" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+    <testcase name="EveryByteAndEmbeddedNull" status="run" time="0.255" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+    <testcase name="FailureAndEqualTypeDoNotInspectUnusedOutputs" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+    <testcase name="InputOutputAliasingSnapshots" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+    <testcase name="NullEmptyViewsAndLongQuotedValues" status="run" time="0.009" timestamp="2026-11-12T21:47:39" classname="MimeTypeRustTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="MimeUtilTest" tests="2" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:39">
+    <testcase name="TestParseMimeType" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeUtilTest">
+    </testcase>
+    <testcase name="TestParseMimeTypeWithoutParameter" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="MimeUtilTest">
+    </testcase>
+  </testsuite>
+</testsuites>

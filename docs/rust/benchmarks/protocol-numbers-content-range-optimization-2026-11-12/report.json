@@ -1,0 +1,382 @@
+{
+  "task": "Targeted numeric parser and Content-Range regression optimization",
+  "status": "Production shared core changed in editing tree; native correctness validated. Existing Rust integration retained. Configured rebuild and full public-API performance remeasurement remain parent-owned.",
+  "date": "2026-11-12",
+  "new_benchmark_measurements": false,
+  "owned_changed_files_sha256": {
+    "net/base/parse_number_parser.rs": "1de49bdf7c80fc3957c5bc312fea916947a80633e0aabc9bc7bed1aed421605a",
+    "net/base/parse_number_native_unittest.cc": "3edf4b1458452838c933d3de7db007d9b9331f53d6c388fa3976559fb592002d",
+    "net/base/parse_number_native_core_unittest.rs": "8bcae596435dd4252dbaeb2f1856d03a761f2e5db50177154d93577c959b1525"
+  },
+  "source_snapshot": "docs/rust/benchmarks/protocol-numbers-content-range-optimization-2026-11-12/sources.zip",
+  "source_snapshot_sha256": "88c04219b42c166e2acc111339165a2fcdf10dec60bc9dad0402465fb1cfa8ae",
+  "source_manifest": "docs/rust/benchmarks/protocol-numbers-content-range-optimization-2026-11-12/source-manifest.json",
+  "source_manifest_sha256": "3af0a61adec6816c3545cbd3bdd571283564374984d3cf3d9bd8de8ed679c790",
+  "before_snapshot": "sources.zip!/before/",
+  "before_manifest": "docs/rust/benchmarks/protocol-numbers-content-range-optimization-2026-11-12/before-manifest.json",
+  "native_validation_archive": "docs/rust/benchmarks/protocol-numbers-content-range-optimization-2026-11-12/native-validation.zip",
+  "native_validation_archive_sha256": "f46a7dbaa8c9aad6029b36ee3371496ff2f8c5a519ddab17b9488772e064f77a",
+  "implementation": [
+    "Private NumberBytes abstraction retains scalar decoded-iterator tail validation; contiguous SliceBytes validates fixed-size byte blocks only after overflow when diagnostics require complete syntax classification. Safe as_chunks arrays permit vector reduction; non-digits still override overflow/underflow. No-error overflow remains a short circuit.",
+    "Signed slice parser routes positive nonzero inputs to the existing unsigned magnitude accumulator bounded by the SIGNED positive maximum. Negative and zero-prefixed inputs retain the original generic signed path. This benefits the numeric public API and existing positive Content-Range fields without changing wrappers or moving policy to C++."
+  ],
+  "api_safety": [
+    "All existing Rust slice/iterator, production C ABI and historical CXX interfaces unchanged. Shared safe core still forbids unsafe code. No allocations or new dependencies.",
+    "FFI raw output writes, byte borrow lifetimes, aliases, null-empty input, uninitialized output storage, output/error mutation and C++ unsigned enum checks are unchanged.",
+    "Current parse_number.h corrected implementation prose, shared http_util.cc, HSTS sources, Range core/FFI and accepted Range methods are byte-identical to pre-optimization snapshot.",
+    "Frozen numeric/Range/HSTS references, benchmark inputs, loops, cases and descriptors are unchanged. Original historical evidence remains immutable."
+  ],
+  "static_codegen_evidence": [
+    "sources.zip!/codegen-before/numeric_ffi.s",
+    "sources.zip!/codegen-after/numeric_ffi.s",
+    "sources.zip!/codegen-before/range_ffi.s",
+    "sources.zip!/codegen-after/range_ffi.s",
+    "sources.zip!/handoff/codegen-commands.json"
+  ],
+  "static_codegen_limits": "Generated with matching native compiler/flags and standard sysroot, plus archived configured before disassembly. Vector comparisons are visible after overflow; no quantitative speedup claim. Numeric parser was already cross-crate inlined; scalar parsing has no allocation. Existing Range helper calls remain.",
+  "validation": {
+    "numbers": {
+      "unit_tests": 15,
+      "unit_failures": 0,
+      "unit_execution": "native-validation.zip!/numbers/unit-execution.json",
+      "binary_sha256": "2bfd4ab6d7c8a6e77124d8b26143e7930801fd72607299e610aa8353b1adb7a7",
+      "source_unchanged": true,
+      "fuzz_executions": 1000000,
+      "fuzz_seed": 20261112,
+      "fuzz_max_len": 512,
+      "fuzz_cpu": 9,
+      "fuzz_source_unchanged": true,
+      "fuzz_binary_sha256": "7342dd78184cab42ac631448057b8e864b042857e23b54b4bd14a80a6e5d3713",
+      "fuzz_instrumentation": "C++ libFuzzer inline counters and trace-cmp. Rust has no sanitizer instrumentation. Runtime Rust coverage collected separately."
+    },
+    "range": {
+      "unit_tests": 24,
+      "unit_failures": 0,
+      "unit_execution": "native-validation.zip!/range/unit-execution.json",
+      "binary_sha256": "5d2168e249eea477d2351504062275a0f0de0f68566fb7589511c30ea56d7965",
+      "source_unchanged": true,
+      "fuzz_executions": 1000000,
+      "fuzz_seed": 20261112,
+      "fuzz_max_len": 512,
+      "fuzz_cpu": 10,
+      "fuzz_source_unchanged": true,
+      "fuzz_binary_sha256": "2b5d38f02e321afb0acf0621afe464d27e76e96f677f57d50a72b6cebda9ab27",
+      "fuzz_instrumentation": "C++ libFuzzer inline counters and trace-cmp. Rust has no sanitizer instrumentation. Runtime Rust coverage collected separately."
+    },
+    "candidate": {
+      "unit_tests": 13,
+      "unit_failures": 0,
+      "unit_execution": "native-validation.zip!/candidate/unit-execution.json",
+      "binary_sha256": "4c14468b675ee6c0e8d132a70669726a072bb835dddde8a3b122940f7e21319e",
+      "source_unchanged": true
+    },
+    "hsts": {
+      "unit_tests": 14,
+      "unit_failures": 0,
+      "unit_execution": "native-validation.zip!/hsts/unit-execution.json",
+      "binary_sha256": "b49d36b60960e1f5435286a5d7dc8c30bc510d114712120bee1b2e8e3c921af0",
+      "source_unchanged": true
+    }
+  },
+  "iterator_tests": {
+    "tests": 3,
+    "passed": 3,
+    "execution": "native-validation.zip!/numbers/iterator-execution.json",
+    "scope": "Decoded i64/u32 iterator versus C++-differential-validated slice APIs: every one/two-byte input, all legacy signed formats, boundary values, all-byte numeric-field mutations and overflow/underflow tails.",
+    "binary_sha256": {
+      "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\numbers\\iterator-target\\release\\deps\\iterator_contract-42962551234e9897.exe": "7c4f0dceb4f85279d441fa365464af94dda5090d8377c95401122d95daefe14f"
+    }
+  },
+  "runtime_coverage": {
+    "numbers": [
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\numbers\\..\\..\\..\\..\\..\\net\\base\\parse_number_native_core_unittest.rs",
+        "summary": {
+          "lines": {
+            "count": 61,
+            "covered": 61,
+            "percent": 100
+          },
+          "functions": {
+            "count": 7,
+            "covered": 7,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 7,
+            "covered": 7,
+            "percent": 100
+          },
+          "regions": {
+            "count": 96,
+            "covered": 96,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\numbers\\..\\..\\..\\..\\..\\net\\base\\parse_number_native_ffi.rs",
+        "summary": {
+          "lines": {
+            "count": 33,
+            "covered": 33,
+            "percent": 100
+          },
+          "functions": {
+            "count": 2,
+            "covered": 2,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 8,
+            "covered": 8,
+            "percent": 100
+          },
+          "regions": {
+            "count": 28,
+            "covered": 28,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\numbers\\core\\..\\..\\..\\..\\..\\..\\net\\base\\parse_number_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 131,
+            "covered": 131,
+            "percent": 100
+          },
+          "functions": {
+            "count": 25,
+            "covered": 25,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 64,
+            "covered": 64,
+            "percent": 100
+          },
+          "regions": {
+            "count": 167,
+            "covered": 167,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ],
+    "range": [
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\range\\..\\..\\..\\..\\..\\net\\http\\http_range_ffi.rs",
+        "summary": {
+          "lines": {
+            "count": 63,
+            "covered": 63,
+            "percent": 100
+          },
+          "functions": {
+            "count": 10,
+            "covered": 10,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 13,
+            "covered": 13,
+            "percent": 100
+          },
+          "regions": {
+            "count": 62,
+            "covered": 62,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\range\\..\\..\\..\\..\\..\\net\\http\\http_range_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 186,
+            "covered": 186,
+            "percent": 100
+          },
+          "functions": {
+            "count": 28,
+            "covered": 28,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 28,
+            "covered": 28,
+            "percent": 100
+          },
+          "regions": {
+            "count": 269,
+            "covered": 269,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\net-wave1\\promote\\optimization\\range\\core\\..\\..\\..\\..\\..\\..\\net\\base\\parse_number_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 97,
+            "covered": 81,
+            "percent": 83.50515463917526
+          },
+          "functions": {
+            "count": 13,
+            "covered": 11,
+            "percent": 84.61538461538461
+          },
+          "instantiations": {
+            "count": 14,
+            "covered": 12,
+            "percent": 85.71428571428571
+          },
+          "regions": {
+            "count": 125,
+            "covered": 98,
+            "notcovered": 27,
+            "percent": 78.4
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ]
+  },
+  "runtime_coverage_qualification": "Numeric C++ API + Rust iterator tests together cover 131/131 emitted shared-core lines and 167/167 regions; native FFI 33/33 lines and 28/28 regions. Range core/FFI remain fully runtime-covered (186/186 + 63/63 lines, 269/269 + 62/62 regions). Range alone covers only its numeric-core subset; complete raw per-file reports include that limitation. No runtime exclusions. Branch coverage not collected; zero branch counters do not mean 100%.",
+  "lint_format": "Warnings-denied Clippy passes for core, numeric root and Range root. rustfmt and clang-format checks pass; exact commands/results in checks.json and execution logs. Clippy uses installed stable 1.99; native builds use configured Chromium rustc 1.101-nightly.",
+  "intermediate_attempt": "Initial chunks_exact form passed tests/fuzz but failed a core Clippy style lint. Its source and results are preserved under native-validation.zip!/first-pass. Final safe as_chunks form reran native APIs, both one-million fuzz campaigns, impacted candidate/HSTS tests and coverage/lint.",
+  "production_gn_changes_required": [],
+  "new_optional_test_gn_fragment": ".scratch/net-wave1/promote/optimization/net-build-tests.gn.fragment",
+  "integration_instructions": ".scratch/net-wave1/promote/optimization/integration.txt",
+  "impacted_canonical_targets": [
+    "net",
+    "net_unittests",
+    "parse_number_native_unittests",
+    "parse_number_candidate_unittests",
+    "http_range_promote_unittests",
+    "http_range_unittests",
+    "hsts_unittests",
+    "parse_number_native_core_unittests (new optional test fragment)",
+    "parse_number_native_fuzzer",
+    "parse_number_candidate_fuzzer",
+    "http_range_promote_fuzzer",
+    "http_range_fuzzer",
+    "hsts_parser_fuzzer"
+  ],
+  "parent_quiet_measurements": [
+    "parse_number_native_perftests: all 35 cases",
+    "http_range_promote_perftests: all 35 cases",
+    "hsts_perftests: all shared-core consumer cases"
+  ],
+  "descriptors": [
+    ".scratch/net-wave1/promote/optimization/protocol-numbers-descriptor.json",
+    ".scratch/net-wave1/promote/optimization/http-range-descriptor.json"
+  ],
+  "retained_prior_regressions": "docs/rust/benchmarks/protocol-numbers-content-range-optimization-2026-11-12/prior-regressions.json",
+  "specific_range_case": {
+    "key": "content_large",
+    "label": "Large positions",
+    "run": "wave1-final",
+    "baseline_median_ns": 74.39325,
+    "rust_median_ns": 76.231,
+    "change_percent": 2.470318207633082,
+    "bootstrap_95_ci_percent": [
+      1.3739776753603161,
+      3.375948726598077
+    ],
+    "absolute_time_change_ns": 1.8377499999999998,
+    "bootstrap_90_ci_time_change_ns": [
+      1.2565000000000026,
+      2.3799999999999955
+    ],
+    "paired_repetitions": 20,
+    "workload": {},
+    "classification": "measured slowdown in prior canonical experiment"
+  },
+  "performance_limits": [
+    "No new latency, speedup, equivalence or bridge-overhead claim; parent must rebuild configured consumers and remeasure complete APIs including current DLL boundaries.",
+    "Native correctness harnesses compile references locally and use configured external dependencies; canonical separate-reference DLL timing topology is not reproduced or measured.",
+    "No GN generation, Ninja, configured-tree synchronization, shared wrapper/GN edits, charts, aggregate or backlog edits by agent. Existing integration is retained irrespective of residual performance losses.",
+    "HSTS and historical CXX candidate passed read-only current-source native tests; their canonical configured targets remain parent-owned.",
+    "No final chart import is warranted until new configured timing exists. Parent must retain all older runs and update HTML, evidence, aggregate/backlog and dashboard sync/check for every new measurement."
+  ]
+}

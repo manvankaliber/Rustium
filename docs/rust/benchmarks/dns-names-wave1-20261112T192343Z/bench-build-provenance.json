@@ -1,0 +1,34 @@
+{
+  "mode": "bench",
+  "source_hashes": {
+    "net/dns/dns_names_core.rs": "525e095d72460b9def37ba0653fb763ec81b035eb230be8e194169be08da7bb7",
+    "net/dns/dns_names_ffi.h": "e81a8fdaef72c25b7f1682b762ae9fd403224342b7f387ed3a9aa9d6a291a4d3",
+    "net/dns/dns_names_ffi.rs": "12090867befbf0f1f4a60adeda6ddacdad23bc782f1532b729a106cda04b526f",
+    "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+    "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+    "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+    "net/dns/dns_names_reference.h": "c07fb4b875e94c2b6f73a8b8d429f45e85e59cfb542a92c979ab9c2e2d99490c",
+    "net/dns/dns_names_rust_unittest.cc": "503a13dca0f0c1ad2d57b24ab36e742b60d9e5164758230bb4f20737014b906a",
+    "net/dns/dns_names_test_support.h": "c4dbcc9c46a7666ab2e72a2a3507741ade290608f1b21f656d6591932955264c",
+    "net/dns/dns_names_util.cc": "13521115050e58918a4e00f8f5716e8583a1875b1bebdf2160b47596756cf3f7",
+    "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+    "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+  },
+  "executable_sha256": "4a736b5fd60f1c22c3163155860b8e98a756c6f7d3407f21ace6a124a711894e",
+  "rust_library_sha256": "81002b55b0e94e8bef2736e08c2bc314db2b84243a38ab498558b6ce1665e392",
+  "compile_response_files": {
+    "bridge.rsp": "4658f9fe30bc480bdbceebd313914e6b8c414e3f977091ee30bf6b8bbea4115d",
+    "driver.rsp": "165b538dd77587d24d15930b93d29ced360124c64a2e9a42fc1c0a043580fc8e",
+    "export_probe.rsp": "f2af287a50bdae7dfebbcafc185dd50649daea4a9b1b3ef62b149bad54540065",
+    "ip_address.rsp": "a67eb9d7c27b1acabb2aab68f8ce803149442ae13a58bd60b684db68c486e47c",
+    "native_seams.rsp": "afafaa349febb33c327322bb4aca00547373509252155ae07a9ae4f8ceef6f42",
+    "original_unit.rsp": "6d20d974c510d901ef0b86cbe7f18478030141b9b482873442e8e62c9acaa14c",
+    "production.rsp": "00cdccaa9f378b0ce0255dcf23ce0a5b17a535b549d227857331355516a5c250",
+    "reference.rsp": "cd32e49cd12d2b33574d22db5ec9eed5a8ad40f056d33144a9f9c09d6a7482b8",
+    "unit.rsp": "5cb2f0ad8f31a9fbc50ca00e95fc6cb3a6d55033e1cc191d71d880f0bafdaa0a",
+    "unit_main.rsp": "733579a364035e788f6eb61a07d6c2b550b7a21f9637be9db6da20a5b2ee27d7",
+    "url_util.rsp": "f0f02f4a8dacc13f428533c4686f3044e32f63f378487b16fc9c1f1207cff49f"
+  },
+  "link_command_file": "bench-link-command.json",
+  "configured_build": false
+}

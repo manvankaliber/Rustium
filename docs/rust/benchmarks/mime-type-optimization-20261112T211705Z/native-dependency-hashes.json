@@ -1,0 +1,9 @@
+{
+  "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+  "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+  "base.dll.lib": "a801d0ea14caf92a1af69d2c5f4bde2044ea0b9691e6f69d88354520314a4a44",
+  "libc++.dll.lib": "ed9d3437449387084e8f591662643039c99f10fdddf166248e0bd30bcab6c282",
+  "obj/net/gzip_header_perftests.ninja": "59366ab554d702481e1fdc98b07dfc7b5c68f885b7b25d1be3f2aedf32e34e8e",
+  "obj/net/gzip_header_unittests.ninja": "afc15e185f5e89431471de4ee77f42d737955bb1534cb26bb35216decd898e02",
+  "toolchain.ninja": "0484faeb76814d267b596d1ff0c53a5fc780ff885cb3cdc40202d1828c7df6a6"
+}

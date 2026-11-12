@@ -1,0 +1,147 @@
+{
+  "status": "production adapter implemented; canonical GN integration and configured Chromium validation pending parent",
+  "sources": {
+    "net/base/port_policy_core.rs": "b77f51cfc160ff174788d97fd9029654b8bb4ef092ce6c1ec0c93e4cba1a0c05",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "0ce37ef55fe45ecdcfaadee1be6151123c34f4365f60fe691535fe96c75b05d3",
+    "net/base/port_policy_fuzzer.cc": "ed52f30e508d2f1587be1051e13b3cf3c2a4d19e53aa5edc591f30dbf81f078b",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "6ac23a67afe9c3cb940d6f43f70d3d534820513d198f594f79fcc76b35f482a2",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "a10a0cfb4b4390e449ec58964646d8f610271fe51f078777b3f95762b654ca97",
+    "net/base/port_util.cc": "48ee283b1a60e1b665b5939f0714910d1caeb1df10039d348ecc6ef1886fabed",
+    "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e",
+    "net/base/ip_address.cc": "b3b8c985d8e8d0339205715c2ebb4adc519cfc7b7a23a923082fe5306e57ec79",
+    "net/base/ip_address.h": "7f9aaa37992dc7efb49d1769bb00c111904458a928e45c3c0e8bd433b3eea704",
+    "net/base/ip_address_util.cc": "b1b1b52bec2055f67d4e6903dfc69c723e1ac9fc0c613436d36548d7e960b560",
+    "net/base/ip_endpoint.cc": "443b06f44364ce880f1d44efdafe6bdb604705ce5785378d9030950d85a5884d",
+    "net/base/ip_endpoint.h": "081a5b903e234cc8126a40d504844fdd6893684a65fab77265f958f049aa6692",
+    "net/base/features.cc": "25655c1ad7063ca6daf33145b1c40a6be2d7d9e048b3b73409250cdf27632b93",
+    "net/base/features.h": "d782c9dd94417d981dfc80a538d9035cef4a75c176eb7f0dd997b3428bfbeeab",
+    "base/strings/string_number_conversions.cc": "2197d2c7874be6ebd98420eace7d5cd62f69ba06076d7c1fa6722a9d664cf812",
+    "base/strings/string_split.cc": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+    "base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2"
+  },
+  "source_snapshot": "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\final-source",
+  "original_snapshot": "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\port_policy_original.cc",
+  "numeric_reference": "private renamed original parse_number.cc and HEAD parse_number.h; original base string conversions remain external; no newly migrated numeric parser used by reference",
+  "remaining_cpp_seams": [
+    "Chromium FeatureList and field-trial parameter discovery",
+    "DLOG invalid token emission",
+    "UMA histogram emission",
+    "IPAddress loopback/zero/IPv4-mapped classification",
+    "public API and scoped lifetime adapters",
+    "CHECK/DCHECK/NOTREACHED diagnostics"
+  ],
+  "concurrency": "Legacy global policy mutation requires caller sequencing; Rust mutex protects state accesses and callbacks happen without holding it; feature initialization uses OnceLock. Concurrent reload and mutation remains outside original supported synchronization assumptions.",
+  "tests": {
+    "chromium_original": "4 passed in isolated native executable",
+    "differential": "1 test passed: 1,000,000 bounded multi-operation deterministic state sequences, plus feature precedence, histogram and localhost cases",
+    "fuzzer": "1,000,000 libFuzzer inputs, max 48 bytes, seed 20261112, CPU 6; status 0",
+    "rust_unit": "3 passed",
+    "clippy": "configured Rust toolchain Clippy via workspace wrapper with -Dwarnings passed",
+    "format": "clang-format --dry-run --Werror passed; rustfmt --check passed with local config unstable-option warnings",
+    "runtime_coverage": {
+      "port_policy_core.rs": {
+        "lines": {
+          "count": 108,
+          "covered": 106,
+          "percent": 98.14814814814815
+        },
+        "functions": {
+          "count": 23,
+          "covered": 23,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 23,
+          "covered": 23,
+          "percent": 100
+        },
+        "regions": {
+          "count": 118,
+          "covered": 115,
+          "notcovered": 3,
+          "percent": 97.45762711864407
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "port_policy_ffi.rs": {
+        "lines": {
+          "count": 80,
+          "covered": 77,
+          "percent": 96.25
+        },
+        "functions": {
+          "count": 22,
+          "covered": 21,
+          "percent": 95.45454545454545
+        },
+        "instantiations": {
+          "count": 22,
+          "covered": 21,
+          "percent": 95.45454545454545
+        },
+        "regions": {
+          "count": 89,
+          "covered": 86,
+          "notcovered": 3,
+          "percent": 96.62921348314607
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      }
+    },
+    "coverage_note": "Authored Rust runtime line and region coverage only; no branch coverage collected; no coverage claim for generated CXX or C++ reference.",
+    "build": "isolated native builds, not GN/Ninja or configured-tree writes",
+    "benchmark": "No timing run. bench.exe --verify-only returned 0; 6 cases, 20 paired repetitions configured for future run."
+  },
+  "provenance": {
+    "unit": "unit-build-provenance.json",
+    "fuzz": "fuzz-build-provenance.json",
+    "bench": "bench-build-provenance.json",
+    "execution": "validation-execution.json",
+    "fuzz_execution": "fuzz-execution.json",
+    "flags": "unit-rsp, fuzz-rsp, bench-rsp and *-link-command.json; Rust flags in build_native.py",
+    "source_hash_note": "build-native mode files glob port_policy_* and omit port_util.cc, so final-source-manifest.json additionally binds production adapter; verify before timing."
+  },
+  "gn_fragments": "gn-fragments.gn",
+  "descriptor": "benchmark-descriptor.json",
+  "required_parent_actions": [
+    "Review and integrate GN fragments; synchronize only owned files to configured tree after checking independent edits.",
+    "Run configured Chromium build and native tests, including feature suites in separate processes.",
+    "Verify benchmark binary uses these production methods and frozen external helper closure; coordinate quiet timing and import all results.",
+    "Update descriptor production_status and include_in_average after canonical integration and validation."
+  ],
+  "risks_and_gaps": [
+    "No configured GN/Ninja build or actual benchmark timing performed.",
+    "No explicit death test for NOTREACHED or nested DCHECK paths; negative paths remain C++ diagnostic adapters.",
+    "Feature/metadata/UMA platform services remain external.",
+    "Reference base string-conversion and IP/feature service dependencies are shared; final timing requires source guard or separately frozen service if they change.",
+    "Runtime coverage excludes generated bridge and C++ code; measured lines/regions only."
+  ],
+  "optimization_debt": "No performance evidence yet; do not infer bridge cost or regression."
+}

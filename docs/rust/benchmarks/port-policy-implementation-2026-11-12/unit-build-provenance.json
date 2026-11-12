@@ -1,0 +1,34 @@
+{
+  "mode": "unit",
+  "source_hashes": {
+    "net/base/port_policy_core.rs": "b77f51cfc160ff174788d97fd9029654b8bb4ef092ce6c1ec0c93e4cba1a0c05",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "0ce37ef55fe45ecdcfaadee1be6151123c34f4365f60fe691535fe96c75b05d3",
+    "net/base/port_policy_fuzzer.cc": "ed52f30e508d2f1587be1051e13b3cf3c2a4d19e53aa5edc591f30dbf81f078b",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "6ac23a67afe9c3cb940d6f43f70d3d534820513d198f594f79fcc76b35f482a2",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "a10a0cfb4b4390e449ec58964646d8f610271fe51f078777b3f95762b654ca97"
+  },
+  "executable_sha256": "60b6416d80ec15b92840a5e2665217653755aca3e636f48bd87076c7e9d87f85",
+  "rust_library_sha256": "92a5471fe056bf13e9f0c6bd81b9eeece52f5a76d3d5ad33fa47aaf8b6045f2c",
+  "compile_response_files": {
+    "bridge.rsp": "8af36f60b997c37a40fb24e60421abca1c4668b688172e7d1ef97e49d4748b14",
+    "driver.rsp": "f3cf53beddc508751476de6f0c723a9a82016b1781d5026c177677e9356b4ff7",
+    "ip_address.rsp": "3a2f039b370db12a337d9ffd07ee5d3de24fb8e4e4cc2261edc2d8b3ee17782a",
+    "ip_address_util.rsp": "40f79d9668fce1128a811dce6627178575278dd8377a2d8b308a416d214099d0",
+    "ip_endpoint.rsp": "8f30a151dd027fa13d1f0722b5f421444274acbbd9376fada78a2f1950080eec",
+    "native_features.rsp": "c08e3a1d5109d670c283468a52ee57c2054f87a213574e5ac67896e2c2c9853f",
+    "native_number.rsp": "907b9a28909179a70cab760724978b1a9bde060cb1edcc0c0ce4702297c3ca45",
+    "original_unit.rsp": "ac9991ef742f244b8b1d54e81095917a14fd1102efd0928481a663f711a75cec",
+    "production.rsp": "f766407d5471e654ca35d4f34108794a131d51929267335caf54b855554ba412",
+    "reference.rsp": "f2dfe1395206c5af7ccba3e3f1e5cad8deaf111d1ed7115a4829c3e87dacce5f",
+    "reference_number.rsp": "8d9d9f7501a6ed4a4cb5b4317b1a71d31dc3f763678e1398465453ec4a3ddd4f",
+    "unit.rsp": "19b6a1010f9e285e8d4b2fb3f2de52089e08f9de63501e4a3e52002a1bb43e75",
+    "unit_main.rsp": "c7b416c7141c994fc432758791be74058d525a1409265466e7a738e8943ade62"
+  },
+  "link_command_file": "unit-link-command.json",
+  "configured_build": false
+}

@@ -1,0 +1,274 @@
+{
+  "module": "http-range",
+  "source": "http-range",
+  "repetitions": 20,
+  "scope": "Whole production C++ header API plus Rust bridge/core; result allocation, vector append, cleanup/destruction and alias handling included. Warm input; no network/disk IO.",
+  "baseline": "Frozen original three C++ methods with original same-TU trim/tokenizer helpers; unchanged HttpByteRange helpers compiled locally for both readers.",
+  "groups": [
+    {
+      "id": "http-range-list",
+      "title": "Parse HTTP Range headers",
+      "operation": "HTTP Range / lists",
+      "cases": [
+        {
+          "key": "range_single",
+          "label": "Single range"
+        },
+        {
+          "key": "range_open",
+          "label": "Open ended"
+        },
+        {
+          "key": "range_suffix",
+          "label": "Suffix"
+        },
+        {
+          "key": "range_multi4",
+          "label": "4 ranges"
+        },
+        {
+          "key": "range_multi32",
+          "label": "32 ranges"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-list-edge",
+      "title": "Handle HTTP Range edge cases",
+      "operation": "HTTP Range / edge cases",
+      "cases": [
+        {
+          "key": "range_empty",
+          "label": "Empty"
+        },
+        {
+          "key": "range_wrong_unit",
+          "label": "Wrong unit"
+        },
+        {
+          "key": "range_partial_failure",
+          "label": "Partial failure"
+        },
+        {
+          "key": "range_prepop_empty",
+          "label": "Existing + empty"
+        },
+        {
+          "key": "range_plus_ows",
+          "label": "Plus + spaces"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "CXX",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-fetch",
+      "title": "Parse Fetch single ranges",
+      "operation": "Fetch single ranges",
+      "cases": [
+        {
+          "key": "fetch_bound",
+          "label": "Bounded"
+        },
+        {
+          "key": "fetch_open",
+          "label": "Open ended"
+        },
+        {
+          "key": "fetch_suffix",
+          "label": "Suffix"
+        },
+        {
+          "key": "fetch_space",
+          "label": "Whitespace"
+        },
+        {
+          "key": "fetch_huge",
+          "label": "Saturating number"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-fetch-edge",
+      "title": "Handle Fetch range edge cases",
+      "operation": "Fetch range / edge cases",
+      "cases": [
+        {
+          "key": "fetch_empty",
+          "label": "Empty"
+        },
+        {
+          "key": "fetch_wrong_case",
+          "label": "Wrong case"
+        },
+        {
+          "key": "fetch_multi",
+          "label": "Multiple ranges"
+        },
+        {
+          "key": "fetch_descending",
+          "label": "Descending"
+        },
+        {
+          "key": "fetch_trailing",
+          "label": "Trailing space"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-content",
+      "title": "Parse Content-Range headers",
+      "operation": "Content-Range",
+      "cases": [
+        {
+          "key": "content_small",
+          "label": "Small positions"
+        },
+        {
+          "key": "content_large",
+          "label": "Large positions"
+        },
+        {
+          "key": "content_ws",
+          "label": "Whitespace"
+        },
+        {
+          "key": "content_plus",
+          "label": "Leading plus"
+        },
+        {
+          "key": "content_long_zeros",
+          "label": "Leading zeros"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-content-edge",
+      "title": "Reject invalid Content-Range headers",
+      "operation": "Content-Range / errors",
+      "cases": [
+        {
+          "key": "content_empty",
+          "label": "Empty"
+        },
+        {
+          "key": "content_wrong_unit",
+          "label": "Wrong unit"
+        },
+        {
+          "key": "content_descending",
+          "label": "Descending"
+        },
+        {
+          "key": "content_overflow",
+          "label": "Overflow"
+        },
+        {
+          "key": "content_small_instance",
+          "label": "Short instance"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    },
+    {
+      "id": "http-range-alias",
+      "title": "Preserve Content-Range aliasing",
+      "operation": "Content-Range / aliases",
+      "cases": [
+        {
+          "key": "content_first_last_alias",
+          "label": "First = last"
+        },
+        {
+          "key": "content_first_length_alias",
+          "label": "First = length"
+        },
+        {
+          "key": "content_last_length_alias",
+          "label": "Last = length"
+        },
+        {
+          "key": "content_all_alias",
+          "label": "All outputs"
+        },
+        {
+          "key": "content_input_restore",
+          "label": "Input overlap"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "scalar C ABI",
+        "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+      }
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "acceptance_note": "Use only after parent canonical integration and validation; native screening does not establish configured final provenance.",
+  "label": "HTTP Range parsing",
+  "measurement": "Whole production C++ header API plus Rust bridge/core; result allocation, vector append, cleanup/destruction and alias handling included. Warm input; no network/disk IO.",
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "CXX",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  },
+  "optimization_note": "Accepted configured remeasurement after the coordinated optimization pass; all original cases retained. Bridge presence is recorded; its contribution is not separately measured."
+}

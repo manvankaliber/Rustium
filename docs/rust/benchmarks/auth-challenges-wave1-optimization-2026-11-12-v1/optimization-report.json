@@ -1,0 +1,197 @@
+{
+  "module": "auth-challenges",
+  "status": "optimization implemented and isolated correctness validation passed; configured parent integration and quiet remeasurement pending",
+  "owned_sources": {
+    "net/http/http_auth_challenge_tokenizer.cc": "7a5a92845526269feac062c5fd6f0a8720bfddb7ac85e8c405c3f84694a66f7e",
+    "net/http/http_auth_multi_round_parse.cc": "b7995277f5989b139338f28b1601555a89770e34924618f0147a0b9867bdba6d",
+    "net/http/auth_challenge_core.rs": "3141f903e1b6d2369ba516ba777a629dfabed8dd0465f4118570aa2b5a8f1716",
+    "net/http/auth_challenge_ffi.rs": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+    "net/http/auth_challenge_ffi.h": "6b37d86cbd36bd85808ee17edfb02c0e23e11156d290d66d75c34d5bcf0745bb",
+    "net/http/auth_challenge_rust_unittest.cc": "1c144942b192a6ca2c00f298012398b954fef3e2cd2b90f6e94b2af435527506"
+  },
+  "context_sources": {
+    "net/http/http_auth_challenge_tokenizer.h": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+    "net/http/http_auth_multi_round_parse.h": "f0f0bcc7d892851ff98192b0a1a68179a773ce2363dd08bfda334fcff92c3f91",
+    "net/http/auth_challenge_reference.cc": "965d5ed02c3a4db8a06ab895cc9eaef0c643e47289e008f8a1fd022dfc07fc08",
+    "net/http/auth_challenge_reference.h": "231971cef53846cde4fe83b061dc12f75cbd15e17f24f6dcf9bed8da877a4657",
+    "net/http/auth_challenge_reference_tokenizer.h": "8cd8bf4d34095dcc6550b5938671c902322b58774c709b9a5a3c04bf4b5690f8",
+    "net/http/auth_challenge_reference_modp.cc": "0ba0e240abeeb9333b7e34d906c96a6f1f79889566f7d1c09896dd7a359963cf",
+    "net/http/auth_challenge_reference_modp.h": "4802f1c4eca14f7d14f54119aaa5ce6e3c5ba0383a3666265dd4ca7547784073",
+    "net/http/auth_challenge_reference_modp_data.h": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+    "net/http/auth_challenge_test_support.h": "e658780a5dbeb7ea4272bceb323a8fd9e43d1d0dcb993a249c1d0032b676d0de",
+    "net/http/auth_challenge_fuzzer.cc": "295cbdd5b2b6e9a9637ae3f7943811f811a974e9228ec4ded8b4ceab0705f2b1",
+    "net/http/auth_challenge_perftest.cc": "246a5b6ed8ff5607d9ed22188500cf7ea0a70a741d1061f821e2391b0c72e0ad",
+    "net/http/http_auth_challenge_tokenizer_unittest.cc": "363f8c01a4144b91499ec8e88015737d25c060053a0153b11a9ac4149f09a6a2",
+    "net/http/http_auth_multi_round_parse_unittest.cc": "142e6748eb930d499c1761450ded5ab150e905d4f435ce91b1473e3bc733c1b8"
+  },
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-optimization-2026-11-12-v1\\sources",
+  "pre_optimization_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-optimization-2026-11-12-v1\\pre-optimization",
+  "prior_evidence": "D:/Rustium/docs/rust/benchmarks/auth-challenges-wave1-2026-11-12-implementation",
+  "baseline": "Parent-owned corrected frozen reference and perftest not modified. Native correctness harness compiles reference locally using IS_AUTH_CHALLENGE_REFERENCE_IMPL; not representative of DLL timing boundary. Parent will use configured build for timing.",
+  "changes": [
+    "Rust tokenizer returns ranges and lowercases short schemes into a bounded initialized stack buffer; long schemes use one C++ string allocation followed by Rust in-place lowercasing. This removes the Rust Vec and avoids allocating the C++ scheme to challenge length.",
+    "First and later-round decisions each combine scheme comparison and current parameter padding processing into one Rust FFI call. A mismatched scheme does not read parameter bytes. base64_param remains uncached so mutable backing is observed.",
+    "Strict decoding writes into an initialized, disjoint private C++ output buffer. Failure discards partial bytes; encoded output is still assigned first and decoded output only on success. Rust performs parsing, validation and decoding.",
+    "Safe Rust core uses borrowed slices, including callable direct core policy functions; unsafe is limited to FFI slice construction under documented call-scoped and disjointness contracts."
+  ],
+  "generated_code_audit": {
+    "before": "pre-ffi.asm",
+    "after": "post-ffi.asm",
+    "command": "configured rustc --edition 2024 --crate-type lib --emit asm -C opt-level=2 -C panic=abort net/http/auth_challenge_ffi.rs",
+    "finding": "Pre-optimization tokenizer and decoder generated calls to Rust allocator/deallocator; the post-optimization assembly contains no Rust allocator/deallocator calls. This is structural evidence only, not a measured speedup."
+  },
+  "validation": {
+    "unit": "19/19 original and added native unit tests, including 63/64/65/256-byte scheme boundaries, mutable backing, output aliases, and failure cases",
+    "libfuzzer": "1000000 whole-API inputs, max length 256, seed 20261112, CPU affinity mask 2; C++ differential instrumentation against frozen reference",
+    "deterministic_differential": "1000000 whole-API inputs, two expected schemes and five alias layouts per input, affinity mask 2",
+    "decoder_differential": "1000000 byte/alphabet-biased strict decoder cases against frozen modp; /MT and Rust +crt-static; no CRT conflict",
+    "coverage": {
+      "D:\\Rustium\\net\\http\\auth_challenge_core.rs": {
+        "lines": {
+          "count": 89,
+          "covered": 86,
+          "percent": 96.62921348314607
+        },
+        "functions": {
+          "count": 13,
+          "covered": 13,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 13,
+          "covered": 13,
+          "percent": 100
+        },
+        "regions": {
+          "count": 128,
+          "covered": 119,
+          "notcovered": 9,
+          "percent": 92.96875
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs": {
+        "lines": {
+          "count": 80,
+          "covered": 80,
+          "percent": 100
+        },
+        "functions": {
+          "count": 8,
+          "covered": 8,
+          "percent": 100
+        },
+        "instantiations": {
+          "count": 8,
+          "covered": 8,
+          "percent": 100
+        },
+        "regions": {
+          "count": 81,
+          "covered": 81,
+          "notcovered": 0,
+          "percent": 100
+        },
+        "branches": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        },
+        "mcdc": {
+          "count": 0,
+          "covered": 0,
+          "notcovered": 0,
+          "percent": 0
+        }
+      },
+      "method": "LLVM source instrumentation; native original and new unit suites; authored Rust core and adapter; no branch coverage collected",
+      "profiles": [
+        "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\auth-24828.profraw"
+      ]
+    },
+    "coverage_interpretation": "166/169 authored Rust runtime lines and 200/209 regions as collected from unit test binary. No branch coverage collected; empty decoder input and unreachable strict remainder case account for uncovered defensive paths, and undersized-output safety guards are not public API paths. Raw coverage retained.",
+    "checks": {
+      "clippy": {
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\clippy-driver.exe",
+          "--edition",
+          "2024",
+          "--crate-type",
+          "rlib",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+          "--emit",
+          "metadata",
+          "-o",
+          "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\clippy.rmeta",
+          "-D",
+          "warnings"
+        ],
+        "exit_code": 0
+      },
+      "rustfmt": {
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+          "--edition",
+          "2024",
+          "--check",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+          "D:\\Rustium\\net\\http\\auth_challenge_core.rs"
+        ],
+        "exit_code": 0
+      },
+      "clang-format": {
+        "command": [
+          "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+          "--dry-run",
+          "--Werror",
+          "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer.cc",
+          "D:\\Rustium\\net\\http\\http_auth_multi_round_parse.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_ffi.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_reference.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_reference.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_test_support.h",
+          "D:\\Rustium\\net\\http\\auth_challenge_rust_unittest.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_fuzzer.cc",
+          "D:\\Rustium\\net\\http\\auth_challenge_perftest.cc"
+        ],
+        "exit_code": 0
+      }
+    }
+  },
+  "native_build": "build_native.py compiles full production C++ and Rust core; /DNET_IMPLEMENTATION /DIS_AUTH_CHALLENGE_REFERENCE_IMPL; unit uses LLVM Rust source instrumentation; response files and link commands retained. DLLs staged locally for loader; this did not change configured worktree.",
+  "benchmark": {
+    "timed": false,
+    "perftest_built": true,
+    "input_and_loop_changes": false,
+    "reason": "parent coordinates quiet configured timing, provenance, charts and backlog",
+    "interpretation": "No new speedup, parity or regression claim. Existing screening data is not a measurement of this version."
+  },
+  "remaining_seams": [
+    "C++ string ownership and output commit ordering",
+    "HttpUtil::NameValuePairsIterator constructor and shared iterator implementation",
+    "HttpAuth::SchemeToString enum-to-string metadata",
+    "Direct Rust callers should use auth_challenge_core policy and decoding rather than C++ fallback"
+  ],
+  "parent_actions": [
+    "Synchronize only task-owned changed files after checking configured tree for independent edits.",
+    "Build configured production target and canonical unit/fuzzer targets; confirm ABI and existing integration.",
+    "Measure every existing case with the corrected independent reference in the coordinated quiet window, preserving source/binary/DLL provenance; update chart, dashboard and regression backlog according to results."
+  ],
+  "limitations": [
+    "Native correctness reference is compiled locally, not the configured reference DLL; no timing inference follows.",
+    "No configured GN/Ninja work or benchmark timing was performed.",
+    "No branch coverage collected."
+  ]
+}

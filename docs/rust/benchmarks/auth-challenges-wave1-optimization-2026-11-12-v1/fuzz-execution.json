@@ -1,0 +1,15 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\fuzz.exe",
+    "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\corpus",
+    "-runs=1000000",
+    "-max_len=256",
+    "-seed=20261112",
+    "-print_final_stats=1",
+    "-artifact_prefix=D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\crash-"
+  ],
+  "exit_code": 0,
+  "affinity_mask": 2,
+  "sha256": "183428748c5481905d9410026d6e5c4770f1cbd0c0ef06b8edb088a2af3d42b1",
+  "benchmark": false
+}

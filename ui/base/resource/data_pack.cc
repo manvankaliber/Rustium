@@ -16,6 +16,7 @@
 #include "base/command_line.h"
 #include "base/compiler_specific.h"
 #include "base/containers/span.h"
+#include "base/containers/span_rust.h"
 #include "base/files/file.h"
 #include "base/files/file_util.h"
 #include "base/files/memory_mapped_file.h"
@@ -24,12 +25,15 @@
 #include "base/memory/raw_span.h"
 #include "base/memory/ref_counted_memory.h"
 #include "base/metrics/histogram_functions.h"
+#include "base/notreached.h"
+#include "base/strings/string_view_util.h"
 #include "base/synchronization/lock.h"
 #include "base/threading/platform_thread.h"
 #include "base/types/expected_macros.h"
 #include "build/build_config.h"
 #include "net/filter/gzip_header.h"
 #include "third_party/zlib/google/compression_utils.h"
+#include "ui/base/resource/data_pack_parser_ffi.rs.h"
 #include "ui/base/resource/resource_scale_factor.h"
 #include "ui/base/resource/scoped_file_writer.h"
 
@@ -38,10 +42,7 @@
 
 namespace {
 
-static const uint32_t kFileFormatV4 = 4;
 static const uint32_t kFileFormatV5 = 5;
-// uint32(version), uint32(resource_count), uint8(encoding)
-static const size_t kHeaderLengthV4 = 2 * sizeof(uint32_t) + sizeof(uint8_t);
 // uint32(version), uint8(encoding), 3 bytes padding,
 // uint16(resource_count), uint16(alias_count)
 static const size_t kHeaderLengthV5 =
@@ -80,6 +81,8 @@ void MaybePrintResourceId(uint16_t resource_id) {
 
 namespace ui {
 
+// Retain the packed-table comparators for source/ABI compatibility. Resource
+// lookup itself uses the checked Rust reader rather than these callbacks.
 // static
 int DataPack::Entry::CompareById(const void* void_key, const void* void_entry) {
   uint16_t key = *reinterpret_cast<const uint16_t*>(void_key);
@@ -306,128 +309,76 @@ bool DataPack::LoadFromBuffer(base::span<const uint8_t> buffer) {
   return LoadImpl(std::make_unique<BufferDataSource>(buffer)).has_value();
 }
 
-base::expected<void, DataPack::FailureReason>
-DataPack::SanityCheckFileAndRegisterResources(size_t margin_to_skip,
-                                              const uint8_t* data,
-                                              size_t data_length) {
-  // 1) Check we have enough entries. There's an extra entry after the last item
-  // which gives the length of the last item.
-  size_t resource_table_size = (resource_count_ + 1) * sizeof(Entry);
-  size_t alias_table_size = alias_count_ * sizeof(Alias);
-  if (margin_to_skip + resource_table_size + alias_table_size > data_length) {
-    // TODO(crbug.com/40221977): Add more information to LOG. Ditto below.
-    LOG(ERROR) << "Data pack file corruption: "
-               << "too short for number of entries. "
-               << "data length is " << data_length
-               << " bytes, expected longer than "
-               << margin_to_skip + resource_table_size + alias_table_size
-               << " bytes.";
-    return base::unexpected(FailureReason::kTooShort);
-  }
-
-  resource_table_ =
-      reinterpret_cast<const Entry*>(&UNSAFE_TODO(data[margin_to_skip]));
-  alias_table_ = reinterpret_cast<const Alias*>(
-      &UNSAFE_TODO(data[margin_to_skip + resource_table_size]));
-
-  // 2) Verify the entries are within the appropriate bounds. There's an extra
-  // entry after the last item which gives us the length of the last item.
-  for (size_t i = 0; i < resource_count_ + 1; ++i) {
-    if (UNSAFE_TODO(resource_table_[i]).file_offset > data_length) {
-      LOG(ERROR) << "Data pack file corruption: "
-                 << "Entry #" << i << " past end.";
-      return base::unexpected(FailureReason::kBoundsExceeded);
-    }
-  }
-
-  // 3) Verify the entries are ordered correctly.
-  for (size_t i = 0; i < resource_count_; ++i) {
-    if (UNSAFE_TODO(resource_table_[i]).file_offset >
-        UNSAFE_TODO(resource_table_[i + 1]).file_offset) {
-      LOG(ERROR) << "Data pack file corruption: " << "Entry #" << i + 1
-                 << " before Entry #" << i << ".";
-      return base::unexpected(FailureReason::kOrderingViolation);
-    }
-  }
-
-  // 4) Verify the aliases are within the appropriate bounds.
-  for (size_t i = 0; i < alias_count_; ++i) {
-    if (UNSAFE_TODO(alias_table_[i]).entry_index >= resource_count_) {
-      LOG(ERROR) << "Data pack file corruption: "
-                 << "Alias #" << i << " past end.";
-      return base::unexpected(FailureReason::kAliasTableCorrupt);
-    }
-  }
-
-  return base::ok();
-}
-
 base::expected<void, DataPack::FailureReason> DataPack::LoadImpl(
     std::unique_ptr<DataPack::DataSource> data_source) {
+  // Borrow the bytes only for this call. Rust retains no references and returns
+  // validated table offsets without allocating or copying resource payloads.
+  const auto parsed = data_pack_internal::parse_data_pack(
+      base::SpanToRustSlice(data_source->bytes()));
+  using data_pack_internal::ParseStatus;
+  std::optional<FailureReason> failure;
+  switch (parsed.status) {
+    case ParseStatus::Ok:
+      break;
+    case ParseStatus::IncompleteHeader:
+      failure = FailureReason::kIncompleteHeader;
+      break;
+    case ParseStatus::BadVersion:
+      failure = FailureReason::kBadPakVersion;
+      break;
+    case ParseStatus::BadEncoding:
+      failure = FailureReason::kBadEncodingType;
+      break;
+    case ParseStatus::TooShort:
+      failure = FailureReason::kTooShort;
+      break;
+    case ParseStatus::BoundsExceeded:
+      failure = FailureReason::kBoundsExceeded;
+      break;
+    case ParseStatus::OrderingViolation:
+      failure = FailureReason::kOrderingViolation;
+      break;
+    case ParseStatus::AliasTableCorrupt:
+      failure = FailureReason::kAliasTableCorrupt;
+      break;
+    default:
+      NOTREACHED();
+  }
+  if (failure) {
+    if (*failure == FailureReason::kIncompleteHeader) {
+      DLOG(ERROR) << "Data pack file corruption: incomplete file header.";
+    } else {
+      LOG(ERROR) << "Data pack file corruption: validation failure "
+                 << static_cast<int>(*failure);
+    }
+    return base::unexpected(*failure);
+  }
+
+  // Commit the new state only after validation succeeds. The source owns the
+  // bytes for the lifetime of these pointers. Lookups must still check offsets:
+  // a memory-mapped file can be modified after this validation.
   const uint8_t* data = data_source->GetData();
-  size_t data_length = data_source->GetLength();
-  // Parse the version and check for truncated header.
-  uint32_t version = 0;
-  if (data_length > sizeof(version)) {
-    UNSAFE_TODO(memcpy(&version, data, sizeof(uint32_t)));
-  }
-  size_t header_length =
-      version == kFileFormatV4 ? kHeaderLengthV4 : kHeaderLengthV5;
-  if (version == 0 || data_length < header_length) {
-    DLOG(ERROR) << "Data pack file corruption: incomplete file header.";
-    return base::unexpected(FailureReason::kIncompleteHeader);
-  }
-
-  // Parse the header of the file.
-  if (version == kFileFormatV4) {
-    UNSAFE_TODO(memcpy(&resource_count_, data + 4, sizeof(uint32_t)));
-    alias_count_ = 0;
-    text_encoding_type_ = static_cast<TextEncodingType>(UNSAFE_TODO(data[8]));
-  } else if (version == kFileFormatV5) {
-    // Version 5 added the alias table and changed the header format.
-    text_encoding_type_ = static_cast<TextEncodingType>(UNSAFE_TODO(data[4]));
-    UNSAFE_TODO(memcpy(&resource_count_, data + 8, sizeof(uint16_t)));
-    UNSAFE_TODO(memcpy(&alias_count_, data + 10, sizeof(uint16_t)));
-  } else {
-    LOG(ERROR) << "Bad data pack version: got " << version << ", expected "
-               << kFileFormatV4 << " or " << kFileFormatV5;
-    return base::unexpected(FailureReason::kBadPakVersion);
-  }
-
-  if (text_encoding_type_ != UTF8 && text_encoding_type_ != UTF16 &&
-      text_encoding_type_ != BINARY) {
-    LOG(ERROR) << "Bad data pack text encoding: got " << text_encoding_type_
-               << ", expected between " << BINARY << " and " << UTF16;
-    return base::unexpected(FailureReason::kBadEncodingType);
-  }
-
-  // Sanity check the file.
-  RETURN_IF_ERROR(
-      SanityCheckFileAndRegisterResources(header_length, data, data_length));
-
+  resource_table_ = reinterpret_cast<const Entry*>(
+      UNSAFE_TODO(data + parsed.resource_table_offset));
+  alias_table_ = reinterpret_cast<const Alias*>(
+      UNSAFE_TODO(data + parsed.alias_table_offset));
+  resource_count_ = parsed.resource_count;
+  alias_count_ = parsed.alias_count;
+  text_encoding_type_ = static_cast<TextEncodingType>(parsed.encoding);
   data_source_ = std::move(data_source);
   return base::ok();
 }
 
-const DataPack::Entry* DataPack::LookupEntryById(uint16_t resource_id) const {
-  // Search the resource table first as most resources will be in there.
-  const Entry* ret = reinterpret_cast<const Entry*>(
-      UNSAFE_TODO(bsearch(&resource_id, resource_table_, resource_count_,
-                          sizeof(Entry), Entry::CompareById)));
-  if (ret == nullptr) {
-    // Search the alias table for the ~10% of entries which are aliases.
-    const Alias* alias = reinterpret_cast<const Alias*>(
-        UNSAFE_TODO(bsearch(&resource_id, alias_table_, alias_count_,
-                            sizeof(Alias), Alias::CompareById)));
-    if (alias != nullptr) {
-      ret = &UNSAFE_TODO(resource_table_[alias->entry_index]);
-    }
-  }
-  return ret;
-}
-
 bool DataPack::HasResource(uint16_t resource_id) const {
-  return !!LookupEntryById(resource_id);
+  if (!data_source_) {
+    return false;
+  }
+  const auto bytes = data_source_->bytes();
+  const size_t table_offset =
+      reinterpret_cast<const uint8_t*>(resource_table_.get()) - bytes.data();
+  return data_pack_internal::has_data_pack_resource(
+      base::SpanToRustSlice(bytes), resource_count_, alias_count_, table_offset,
+      resource_id);
 }
 
 // static
@@ -442,36 +393,39 @@ std::string_view DataPack::GetStringViewFromOffset(uint32_t target_offset,
 
 std::optional<std::string_view> DataPack::GetStringView(
     uint16_t resource_id) const {
-  const Entry* target = LookupEntryById(resource_id);
-  if (!target)
-    return std::nullopt;
-
-  const Entry* next_entry = UNSAFE_TODO(target + 1);
-  // If the next entry points beyond the end of the file this data pack's entry
-  // table is corrupt. Log an error and return false. See
-  // http://crbug.com/371301.
-  size_t entry_offset =
-      reinterpret_cast<const uint8_t*>(next_entry) - data_source_->GetData();
-  size_t pak_size = data_source_->GetLength();
-  if (entry_offset > pak_size || next_entry->file_offset > pak_size) {
-    size_t entry_index = target - resource_table_;
-    LOG(ERROR) << "Entry #" << entry_index << " in data pack points off end "
-               << "of file. This should have been caught when loading. Was the "
-               << "file modified?";
+  if (!data_source_) {
     return std::nullopt;
   }
-  if (target->file_offset > next_entry->file_offset) {
-    size_t entry_index = target - resource_table_;
-    size_t next_index = next_entry - resource_table_;
-    LOG(ERROR) << "Entry #" << next_index << " in data pack is before Entry #"
-               << entry_index << ". This should have been caught when loading. "
-               << "Was the file modified?";
-    return std::nullopt;
+  const auto bytes = data_source_->bytes();
+  const size_t table_offset =
+      reinterpret_cast<const uint8_t*>(resource_table_.get()) - bytes.data();
+  // Search, alias resolution, and range validation share one Rust call. Rust
+  // returns only offsets; the original DataSource continues to own the bytes.
+  const auto result = data_pack_internal::lookup_data_pack_resource(
+      base::SpanToRustSlice(bytes), resource_count_, alias_count_, table_offset,
+      resource_id);
+  using data_pack_internal::LookupStatus;
+  switch (result.status) {
+    case LookupStatus::Found:
+      MaybePrintResourceId(resource_id);
+      return base::as_string_view(bytes.subspan(result.offset, result.length));
+    case LookupStatus::NotFound:
+      return std::nullopt;
+    case LookupStatus::CorruptIndex:
+      LOG(ERROR)
+          << "Data pack resource index is corrupt. Was the file modified?";
+      return std::nullopt;
+    case LookupStatus::BoundsExceeded:
+      LOG(ERROR) << "Resource in data pack points off end of file. "
+                    "Was the file modified?";
+      return std::nullopt;
+    case LookupStatus::OrderingViolation:
+      LOG(ERROR) << "Resource in data pack has misordered offsets. "
+                    "Was the file modified?";
+      return std::nullopt;
+    default:
+      NOTREACHED();
   }
-
-  MaybePrintResourceId(resource_id);
-  return GetStringViewFromOffset(target->file_offset, next_entry->file_offset,
-                                 data_source_->GetData());
 }
 
 scoped_refptr<base::RefCountedStaticMemory> DataPack::GetStaticMemory(

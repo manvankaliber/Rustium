@@ -1,0 +1,19 @@
+{
+  "net/http/http_content_disposition.cc": "e1e84d62467993b4bb37a2e2be6e6428517f87c391a3250927e41fa1184f0808",
+  "net/http/http_content_disposition.h": "097f267a1e135d555f7c6b9ce85f1818982981ca5b0816bf9303e67b00263a69",
+  "net/http/http_content_disposition_unittest.cc": "47b261e283f595eca3eb881537e02c5cc57c9af450df3c8142595a598d3ec091",
+  "net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936",
+  "net/http/http_util.h": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871",
+  "base/strings/string_tokenizer.h": "7903a2d6c826af38d216ea1ff77baf24be17051bbf4baa647984c25d4db854a7",
+  "net/base/net_string_util_icu.cc": "ff9c1e2d7d2f75967bf8dedc7f8fc262e4df4b04fa6cf463d0afedf47cc79692",
+  "net/base/net_string_util.h": "ad130253ce7d3ac30e383636fece041c968fef78d80de48a609a49a9eab2458d",
+  "base/base64.cc": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+  "base/base64.h": "ea68ee0b9f4a85304fe94e4671a2ed6dfe3d66c204b544b9cb43430aed2254a7",
+  "base/strings/escape.cc": "c9927f9d3cf4d9997f95085096d78f071937321ed3cf07a6df0ee3b510110112",
+  "base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+  "base/strings/string_util_impl_helpers.h": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+  "base/i18n/icu_string_conversions.cc": "c260dc6432e6807e9be5c4e2abe39ecd1d911d8c10ec1665165309c120668321",
+  "base/strings/sys_string_conversions_win.cc": "c2c727d69ea73f0fa20d4cb4a71661c99a86fae61f72bbfc9ec006fa6e1ea788",
+  "third_party/modp_b64/modp_b64.cc": "b38a2d490c95e6c34071b85e3f47b9ed8e634a90992f84982f97567e88fa96d2",
+  "third_party/modp_b64/modp_b64.h": "1bbd248ad2206d589fe1b820d968a86dac0355dc912557abbfd03d1d0105c0ee"
+}

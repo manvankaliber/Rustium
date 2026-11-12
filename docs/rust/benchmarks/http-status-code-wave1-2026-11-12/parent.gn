@@ -1,0 +1,31 @@
+# Add to net/BUILD.gn (rust_static_library.gni is already imported).
+action("http_status_code_generated_check") {
+  script = "http/http_status_code_generate.py"
+  inputs = [ "http/http_status_code_list.h", "http/http_status_code_generated.rs" ]
+  outputs = [ "$target_gen_dir/http_status_code_checked.stamp" ]
+  args = [ "--check", "--stamp", rebase_path(outputs[0], root_build_dir) ]
+}
+rust_static_library("http_status_code_rust") {
+  crate_root = "http/http_status_code_ffi.rs"
+  sources = [ "http/http_status_code_ffi.rs", "http/http_status_code_core.rs",
+              "http/http_status_code_generated.rs" ]
+  allow_unsafe = true # edition-2024 no_mangle attributes only; no unsafe blocks
+  deps = [ ":http_status_code_generated_check" ]
+}
+source_set("http_status_code_reference") {
+  testonly = true
+  sources = [ "http/http_status_code_reference.cc", "http/http_status_code_reference.h",
+              "http/http_status_code_reference_list.h" ]
+  deps = [ "//base" ]
+}
+test("http_status_code_perftests") {
+  sources = [ "http/http_status_code.cc", "http/http_status_code_perftest.cc" ]
+  deps = [ ":http_status_code_rust", ":http_status_code_reference", "//base" ]
+}
+fuzzer_test("http_status_code_fuzzer") {
+  sources = [ "http/http_status_code.cc", "http/http_status_code_fuzzer.cc" ]
+  deps = [ ":http_status_code_rust", ":http_status_code_reference", "//base" ]
+}
+# Existing net component: add :http_status_code_rust to deps.
+# Existing net_unittests: add http/http_status_code_rust_unittest.cc and
+# :http_status_code_reference; preserve existing http_status_code_unittest.cc.

@@ -1,0 +1,1867 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "wave1-final",
+  "label": "Integrated wave 1",
+  "validation_stage": "final",
+  "metadata": {
+    "module": "referrer-policy",
+    "source": "referrer-policy",
+    "label": "Referrer-Policy",
+    "baseline": "Frozen original C++ SplitStringPiece, ASCII normalization and fixed-map lookup; independent component call boundary",
+    "measurement": "Nanoseconds per public API call, including original allocations/destruction, Rust FFI and returned optional consumption; input construction and warmup excluded. Isolated benchmark, not whole-browser performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+    "production_status": "integrated",
+    "include_in_average": true,
+    "bridge": {
+      "present": true,
+      "included_in_timing": true,
+      "separately_measured": false,
+      "kind": "scalar C ABI",
+      "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+    },
+    "groups": [
+      {
+        "id": "referrer-policy-common",
+        "title": "Referrer-Policy parsing",
+        "operation": "Referrer-Policy header parsing",
+        "cases": [
+          {
+            "key": "referrer-empty",
+            "label": "Empty header"
+          },
+          {
+            "key": "referrer-origin",
+            "label": "Origin"
+          },
+          {
+            "key": "referrer-strict",
+            "label": "Strict cross-origin"
+          },
+          {
+            "key": "referrer-mixed-case",
+            "label": "ASCII case / whitespace"
+          },
+          {
+            "key": "referrer-unknown",
+            "label": "Unknown policy"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "referrer-policy-lists",
+        "title": "Referrer-Policy lists and long inputs",
+        "operation": "Referrer-Policy header parsing",
+        "cases": [
+          {
+            "key": "referrer-list",
+            "label": "Last recognized value"
+          },
+          {
+            "key": "referrer-invalid-suffix",
+            "label": "Unknown suffix"
+          },
+          {
+            "key": "referrer-long-unknown",
+            "label": "4 KiB unknown"
+          },
+          {
+            "key": "referrer-long-prefix",
+            "label": "4 KiB prefix"
+          },
+          {
+            "key": "referrer-long-suffix",
+            "label": "4 KiB suffix"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      }
+    ]
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 16.576141199999256,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\referrer_policy_perftests.exe"
+    ],
+    "executable_sha256": "965d6c0a1c10a12e650b3add4e2bedd42227066d739b9c4b6b572587df777e00",
+    "module": "referrer-policy",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "integrated; acceptance validation recorded separately",
+    "started_utc": "2026-11-12T20:38:23.375608+00:00",
+    "completed_utc": "2026-11-12T20:38:39.951753+00:00",
+    "local_dll_sha256": {
+      "net.dll": "b47118bc5d15f2186daffd569dec940f2e3d27baf348ba1b993a3b05ac060fb9",
+      "net_referrer_policy_reference.dll": "176c3bec9ca3b5b71112955095523cdd6ffffc65ef6ba24482fbbff5c9524ffb",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "vcruntime140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "vcruntime140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "dbghelp.dll": "2d2ec94891162a61d86789133623b47d64d74c15d6be99473b25ad7a6468cf39",
+      "net_third_party_quiche.dll": "55d57cdebffbb9bd05c73e848a11dc98c7e6369f1c9f6977cf91132a74116883",
+      "components_unexportable_keys.dll": "26f9efe75b8b97532c777ec7b2772b9729bda2ced69dd7aa901eb0d1f36cd05e",
+      "sql.dll": "485f5beae9408cb0b5b6c8a6e52b0c5458912d0deea7127d0fb120c0acc36bba",
+      "components_performance_manager_scenario_api.dll": "af0c63ff96e51bea637af05b736a6228d569ad6f1f54b61b4be85c665c52a408",
+      "components_sqlite_vfs.dll": "c10c622d9266e19150780148185801dd3a0914af48b788ba0b028c66ea35d197",
+      "third_party_protobuf_protobuf_full_and_lite_library.dll": "afe2106912c58ed9469721d1469a1b3c0e5f69ad96f9983e474c478d6f7a919e",
+      "crcrypto.dll": "35a83714f10e80a76f35968f7783fe2828e6f3e2c5c0413c12623eb79a6ce3fd",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "net_third_party_uri_template.dll": "2192781c9cc1958d8d1a64b89730a0d3c2f3fa8d1477e3fe67f4109ed837978d",
+      "components_sqlite_vfs_pending_file_set.dll": "2923cc24a989d7ada791225498e8a901e69220bbd15c5b55d0ef54203cf11013",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "third_party_sqlite_chromium_sqlite3.dll": "931861a83054dbd2e8f3309d3404b50744198c9b9b47d591326424b39b251bd1"
+    },
+    "system_dll_imports": [
+      "advapi32.dll",
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-delayload-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-kernel32-legacy-l1-1-0.dll",
+      "api-ms-win-core-libraryloader-l1-1-0.dll",
+      "api-ms-win-core-localization-l1-1-0.dll",
+      "api-ms-win-core-localregistry-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-misc-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-realtime-l1-1-1.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-threadpool-l1-1-0.dll",
+      "api-ms-win-core-util-l1-1-0.dll",
+      "api-ms-win-core-winrt-l1-1-0.dll",
+      "api-ms-win-core-winrt-string-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "api-ms-win-crt-private-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-eventing-provider-l1-1-0.dll",
+      "api-ms-win-power-base-l1-1-0.dll",
+      "api-ms-win-security-base-l1-1-0.dll",
+      "api-ms-win-shcore-scaling-l1-1-1.dll",
+      "bcrypt.dll",
+      "bcryptprimitives.dll",
+      "cfgmgr32.dll",
+      "crypt32.dll",
+      "dhcpcsvc.dll",
+      "gdi32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ncrypt.dll",
+      "ntdll.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "pdh.dll",
+      "propsys.dll",
+      "rpcrt4.dll",
+      "secur32.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "shlwapi.dll",
+      "tbs.dll",
+      "urlmon.dll",
+      "user32.dll",
+      "userenv.dll",
+      "version.dll",
+      "winhttp.dll",
+      "winmm.dll",
+      "wintrust.dll",
+      "ws2_32.dll"
+    ],
+    "dependency_inspector": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\dumpbin.exe",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "referrer_policy_perftests": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "referrer_policy_reference": {
+        "defines": "-DIS_REFERRER_POLICY_REFERENCE_IMPL -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "referrer_policy_parser": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "net": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc$:inline /Gw",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "referrer_policy_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "2fafc232f00b024e57b3f0bd52afdc0300de38946a19253ae11ca904f749f73e",
+    "source_hashes_file_sha256": "d2e1e0ca47bfef33e514525ebc25f550624239821f8514e8e1819c72db22abba"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+    "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7",
+    "net/url_request/referrer_policy.cc": "bd27045305edcc710ec2d32519a1e09089e7053b90ea00d698b25d3d1e91b61d",
+    "net/url_request/referrer_policy.h": "74be6fecccec02a4ee22d4532ab405886013985f33cb7c7b4d49222031425df1",
+    "net/url_request/referrer_policy_differential.h": "7ca73bd7d9a435138a1a8cef4da722739290819fab59f8efccdb8e8caa8a1cad",
+    "net/url_request/referrer_policy_ffi.h": "a3eedfd089c98a035d95d7371ff3de80ecd4b9ccd77dfddffd03b49d4f5ad94f",
+    "net/url_request/referrer_policy_ffi.rs": "5d7ab45fea448103764deb0e85c6397ba8bdb6902640ba93d2f6d717f9787529",
+    "net/url_request/referrer_policy_fuzzer.cc": "f5ede30b0d283f3194515485d95e4ec1f25d24163ff785700f196aeb1a5d1a51",
+    "net/url_request/referrer_policy_parser.rs": "cbf8ed09ab16af96cf05a47b042b550087bbc709bb6f046a57f71e7a9704919c",
+    "net/url_request/referrer_policy_perftest.cc": "99672aef9d3deb4b8851ec4172d1ba4b12e8a40fa1819e72dda83b7b011f2767",
+    "net/url_request/referrer_policy_reference.cc": "de85c8cb7c10e31df0135de6af325752fafd707801f896d522ca9fefc36de225",
+    "net/url_request/referrer_policy_reference.h": "9c0e46319decadef7f0dbf04f8f49bb2b631ad38dd0c69df2949b0da18ad6369",
+    "net/url_request/referrer_policy_rust_unittest.cc": "3e9a6eb95f75a4a867c2ccb40c72e125defa0f0496c583da7710bff782ce705f"
+  },
+  "raw_report_sha256": "2fafc232f00b024e57b3f0bd52afdc0300de38946a19253ae11ca904f749f73e",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "referrer-empty",
+      "label": "Empty header",
+      "run": "wave1-final",
+      "baseline_median_ns": 19.795,
+      "rust_median_ns": 14.845,
+      "change_percent": -25.006314725940893,
+      "bootstrap_95_ci_percent": [
+        -25.148115467036426,
+        -24.987367357251134
+      ],
+      "absolute_time_change_ns": -4.950000000000001,
+      "bootstrap_90_ci_time_change_ns": [
+        -4.955,
+        -4.9449999999999985
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-origin",
+      "label": "Origin",
+      "run": "wave1-final",
+      "baseline_median_ns": 119.55250000000001,
+      "rust_median_ns": 17.4025,
+      "change_percent": -85.44363355011397,
+      "bootstrap_95_ci_percent": [
+        -85.49576959946651,
+        -85.3723849372385
+      ],
+      "absolute_time_change_ns": -102.15,
+      "bootstrap_90_ci_time_change_ns": [
+        -102.36999999999999,
+        -101.905
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-strict",
+      "label": "Strict cross-origin",
+      "run": "wave1-final",
+      "baseline_median_ns": 281.9925,
+      "rust_median_ns": 30.6025,
+      "change_percent": -89.147761022013,
+      "bootstrap_95_ci_percent": [
+        -89.22516873040335,
+        -89.05008604777657
+      ],
+      "absolute_time_change_ns": -251.39000000000001,
+      "bootstrap_90_ci_time_change_ns": [
+        -251.85750000000002,
+        -249.7425
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-mixed-case",
+      "label": "ASCII case / whitespace",
+      "run": "wave1-final",
+      "baseline_median_ns": 177.245,
+      "rust_median_ns": 28.52,
+      "change_percent": -83.90927811785946,
+      "bootstrap_95_ci_percent": [
+        -84.00123651079137,
+        -83.7737137006172
+      ],
+      "absolute_time_change_ns": -148.725,
+      "bootstrap_90_ci_time_change_ns": [
+        -149.40499999999997,
+        -147.47750000000002
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-unknown",
+      "label": "Unknown policy",
+      "run": "wave1-final",
+      "baseline_median_ns": 162.8875,
+      "rust_median_ns": 21.3975,
+      "change_percent": -86.86363287545085,
+      "bootstrap_95_ci_percent": [
+        -87.50153411880216,
+        -86.7079444290423
+      ],
+      "absolute_time_change_ns": -141.48999999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        -143.0875,
+        -140.92
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-list",
+      "label": "Last recognized value",
+      "run": "wave1-final",
+      "baseline_median_ns": 294.8,
+      "rust_median_ns": 32.947500000000005,
+      "change_percent": -88.8237788331072,
+      "bootstrap_95_ci_percent": [
+        -88.8735717729045,
+        -88.74547565389605
+      ],
+      "absolute_time_change_ns": -261.8525,
+      "bootstrap_90_ci_time_change_ns": [
+        -262.3175,
+        -260.34250000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-invalid-suffix",
+      "label": "Unknown suffix",
+      "run": "wave1-final",
+      "baseline_median_ns": 413.72749999999996,
+      "rust_median_ns": 61.5175,
+      "change_percent": -85.13091346357203,
+      "bootstrap_95_ci_percent": [
+        -85.32762333241108,
+        -84.92446316201855
+      ],
+      "absolute_time_change_ns": -352.21,
+      "bootstrap_90_ci_time_change_ns": [
+        -355.4275,
+        -347.615
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-long-unknown",
+      "label": "4 KiB unknown",
+      "run": "wave1-final",
+      "baseline_median_ns": 16828.4675,
+      "rust_median_ns": 1764.995,
+      "change_percent": -89.51184948956285,
+      "bootstrap_95_ci_percent": [
+        -89.55541197623803,
+        -89.46696894339199
+      ],
+      "absolute_time_change_ns": -15063.4725,
+      "bootstrap_90_ci_time_change_ns": [
+        -15103.519999999999,
+        -15004.54
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-long-prefix",
+      "label": "4 KiB prefix",
+      "run": "wave1-final",
+      "baseline_median_ns": 1891.3274999999999,
+      "rust_median_ns": 18.9,
+      "change_percent": -99.00070188795965,
+      "bootstrap_95_ci_percent": [
+        -99.00474127630247,
+        -98.99473236054772
+      ],
+      "absolute_time_change_ns": -1872.4274999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        -1874.6325,
+        -1870.5625
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "referrer-long-suffix",
+      "label": "4 KiB suffix",
+      "run": "wave1-final",
+      "baseline_median_ns": 16911.7625,
+      "rust_median_ns": 1786.9,
+      "change_percent": -89.4339812305193,
+      "bootstrap_95_ci_percent": [
+        -89.46995019277547,
+        -89.36795474135855
+      ],
+      "absolute_time_change_ns": -15124.862500000001,
+      "bootstrap_90_ci_time_change_ns": [
+        -15147.302500000002,
+        -15070.71
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "referrer-empty",
+      "repeat": 0,
+      "baseline_ns": 19.795,
+      "rust_ns": 17.485,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 1,
+      "baseline_ns": 19.795,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 2,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.97,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 3,
+      "baseline_ns": 19.795,
+      "rust_ns": 14.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 4,
+      "baseline_ns": 19.795,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 5,
+      "baseline_ns": 19.87,
+      "rust_ns": 14.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 6,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 7,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.84,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 8,
+      "baseline_ns": 19.865,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 9,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.84,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 10,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 11,
+      "baseline_ns": 19.865,
+      "rust_ns": 14.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 12,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.84,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 13,
+      "baseline_ns": 20.195,
+      "rust_ns": 14.855,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 14,
+      "baseline_ns": 19.8,
+      "rust_ns": 14.97,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 15,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 16,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.84,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 17,
+      "baseline_ns": 19.88,
+      "rust_ns": 14.84,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 18,
+      "baseline_ns": 19.79,
+      "rust_ns": 14.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-empty",
+      "repeat": 19,
+      "baseline_ns": 19.9,
+      "rust_ns": 14.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 0,
+      "baseline_ns": 119.74,
+      "rust_ns": 17.38,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 1,
+      "baseline_ns": 123.555,
+      "rust_ns": 17.4,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 2,
+      "baseline_ns": 119.615,
+      "rust_ns": 17.465,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 3,
+      "baseline_ns": 119.965,
+      "rust_ns": 17.34,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 4,
+      "baseline_ns": 119.34,
+      "rust_ns": 17.5,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 5,
+      "baseline_ns": 120.37,
+      "rust_ns": 17.4,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 6,
+      "baseline_ns": 119.72,
+      "rust_ns": 17.4,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 7,
+      "baseline_ns": 119.5,
+      "rust_ns": 17.505,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 8,
+      "baseline_ns": 119.515,
+      "rust_ns": 17.32,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 9,
+      "baseline_ns": 121.5,
+      "rust_ns": 17.625,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 10,
+      "baseline_ns": 119.405,
+      "rust_ns": 17.43,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 11,
+      "baseline_ns": 121.085,
+      "rust_ns": 17.48,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 12,
+      "baseline_ns": 118.895,
+      "rust_ns": 17.54,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 13,
+      "baseline_ns": 117.73,
+      "rust_ns": 17.21,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 14,
+      "baseline_ns": 117.71,
+      "rust_ns": 17.405,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 15,
+      "baseline_ns": 118.83,
+      "rust_ns": 17.515,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 16,
+      "baseline_ns": 119.135,
+      "rust_ns": 17.3,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 17,
+      "baseline_ns": 119.59,
+      "rust_ns": 17.435,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 18,
+      "baseline_ns": 118.965,
+      "rust_ns": 17.105,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-origin",
+      "repeat": 19,
+      "baseline_ns": 119.975,
+      "rust_ns": 17.325,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 0,
+      "baseline_ns": 286.88,
+      "rust_ns": 31.885,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 1,
+      "baseline_ns": 293.225,
+      "rust_ns": 30.35,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 2,
+      "baseline_ns": 288.155,
+      "rust_ns": 31.965,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 3,
+      "baseline_ns": 282.2,
+      "rust_ns": 30.71,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 4,
+      "baseline_ns": 284.94,
+      "rust_ns": 31.58,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 5,
+      "baseline_ns": 280.545,
+      "rust_ns": 29.765,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 6,
+      "baseline_ns": 282.455,
+      "rust_ns": 31.595,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 7,
+      "baseline_ns": 284.075,
+      "rust_ns": 30.715,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 8,
+      "baseline_ns": 278.705,
+      "rust_ns": 29.67,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 9,
+      "baseline_ns": 280.16,
+      "rust_ns": 30.105,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 10,
+      "baseline_ns": 282.36,
+      "rust_ns": 30.2,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 11,
+      "baseline_ns": 277.63,
+      "rust_ns": 30.27,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 12,
+      "baseline_ns": 281.785,
+      "rust_ns": 30.585,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 13,
+      "baseline_ns": 282.515,
+      "rust_ns": 30.625,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 14,
+      "baseline_ns": 280.19,
+      "rust_ns": 31.285,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 15,
+      "baseline_ns": 277.78,
+      "rust_ns": 30.775,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 16,
+      "baseline_ns": 277.835,
+      "rust_ns": 30.62,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 17,
+      "baseline_ns": 282.31,
+      "rust_ns": 30.515,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 18,
+      "baseline_ns": 278.145,
+      "rust_ns": 29.905,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-strict",
+      "repeat": 19,
+      "baseline_ns": 280.57,
+      "rust_ns": 30.475,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 0,
+      "baseline_ns": 178.55,
+      "rust_ns": 28.525,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 1,
+      "baseline_ns": 177.92,
+      "rust_ns": 28.72,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 2,
+      "baseline_ns": 178.47,
+      "rust_ns": 28.465,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 3,
+      "baseline_ns": 180.265,
+      "rust_ns": 28.03,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 4,
+      "baseline_ns": 177.265,
+      "rust_ns": 28.38,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 5,
+      "baseline_ns": 178.95,
+      "rust_ns": 28.615,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 6,
+      "baseline_ns": 177.225,
+      "rust_ns": 28.36,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 7,
+      "baseline_ns": 175.36,
+      "rust_ns": 28.83,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 8,
+      "baseline_ns": 175.28,
+      "rust_ns": 28.45,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 9,
+      "baseline_ns": 174.415,
+      "rust_ns": 28.6,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 10,
+      "baseline_ns": 176.51,
+      "rust_ns": 28.625,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 11,
+      "baseline_ns": 175.525,
+      "rust_ns": 28.7,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 12,
+      "baseline_ns": 175.975,
+      "rust_ns": 28.45,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 13,
+      "baseline_ns": 176.12,
+      "rust_ns": 28.45,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 14,
+      "baseline_ns": 177.44,
+      "rust_ns": 28.54,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 15,
+      "baseline_ns": 179.035,
+      "rust_ns": 28.515,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 16,
+      "baseline_ns": 175.225,
+      "rust_ns": 28.285,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 17,
+      "baseline_ns": 177.79,
+      "rust_ns": 28.525,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 18,
+      "baseline_ns": 178.35,
+      "rust_ns": 28.715,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-mixed-case",
+      "repeat": 19,
+      "baseline_ns": 175.615,
+      "rust_ns": 28.455,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 0,
+      "baseline_ns": 163.675,
+      "rust_ns": 21.525,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 1,
+      "baseline_ns": 165.245,
+      "rust_ns": 22.355,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 2,
+      "baseline_ns": 164.485,
+      "rust_ns": 21.405,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 3,
+      "baseline_ns": 165.41,
+      "rust_ns": 22.13,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 4,
+      "baseline_ns": 164.595,
+      "rust_ns": 21.39,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 5,
+      "baseline_ns": 165.285,
+      "rust_ns": 22.13,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 6,
+      "baseline_ns": 167.455,
+      "rust_ns": 20.19,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 7,
+      "baseline_ns": 162.315,
+      "rust_ns": 21.87,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 8,
+      "baseline_ns": 162.315,
+      "rust_ns": 20.395,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 9,
+      "baseline_ns": 164.155,
+      "rust_ns": 21.51,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 10,
+      "baseline_ns": 162.96,
+      "rust_ns": 20.295,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 11,
+      "baseline_ns": 161.975,
+      "rust_ns": 20.44,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 12,
+      "baseline_ns": 162.385,
+      "rust_ns": 20.455,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 13,
+      "baseline_ns": 162.035,
+      "rust_ns": 20.165,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 14,
+      "baseline_ns": 162.17,
+      "rust_ns": 20.52,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 15,
+      "baseline_ns": 162.55,
+      "rust_ns": 20.175,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 16,
+      "baseline_ns": 161.59,
+      "rust_ns": 21.64,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 17,
+      "baseline_ns": 162.815,
+      "rust_ns": 21.64,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 18,
+      "baseline_ns": 161.705,
+      "rust_ns": 21.64,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-unknown",
+      "repeat": 19,
+      "baseline_ns": 164.15,
+      "rust_ns": 20.255,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 0,
+      "baseline_ns": 295.18,
+      "rust_ns": 32.95,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 1,
+      "baseline_ns": 290.995,
+      "rust_ns": 33.05,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 2,
+      "baseline_ns": 294.23,
+      "rust_ns": 33.16,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 3,
+      "baseline_ns": 294.665,
+      "rust_ns": 33.705,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 4,
+      "baseline_ns": 296.115,
+      "rust_ns": 32.835,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 5,
+      "baseline_ns": 295.87,
+      "rust_ns": 32.785,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 6,
+      "baseline_ns": 296.765,
+      "rust_ns": 33.165,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 7,
+      "baseline_ns": 290.39,
+      "rust_ns": 33.15,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 8,
+      "baseline_ns": 289.825,
+      "rust_ns": 32.825,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 9,
+      "baseline_ns": 296.18,
+      "rust_ns": 32.71,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 10,
+      "baseline_ns": 286.315,
+      "rust_ns": 32.89,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 11,
+      "baseline_ns": 291.49,
+      "rust_ns": 32.96,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 12,
+      "baseline_ns": 294.935,
+      "rust_ns": 32.835,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 13,
+      "baseline_ns": 295.09,
+      "rust_ns": 32.745,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 14,
+      "baseline_ns": 294.97,
+      "rust_ns": 33.16,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 15,
+      "baseline_ns": 292.74,
+      "rust_ns": 32.745,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 16,
+      "baseline_ns": 293.38,
+      "rust_ns": 32.85,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 17,
+      "baseline_ns": 293.29,
+      "rust_ns": 32.945,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 18,
+      "baseline_ns": 309.945,
+      "rust_ns": 32.95,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-list",
+      "repeat": 19,
+      "baseline_ns": 299.785,
+      "rust_ns": 33.47,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 0,
+      "baseline_ns": 424.055,
+      "rust_ns": 64.57,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 1,
+      "baseline_ns": 425.575,
+      "rust_ns": 64.58,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 2,
+      "baseline_ns": 421.785,
+      "rust_ns": 63.83,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 3,
+      "baseline_ns": 415.645,
+      "rust_ns": 60.965,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 4,
+      "baseline_ns": 408.035,
+      "rust_ns": 61.83,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 5,
+      "baseline_ns": 420.08,
+      "rust_ns": 61.165,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 6,
+      "baseline_ns": 417.06,
+      "rust_ns": 63.07,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 7,
+      "baseline_ns": 400.92,
+      "rust_ns": 62.325,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 8,
+      "baseline_ns": 411.63,
+      "rust_ns": 60.59,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 9,
+      "baseline_ns": 408.41,
+      "rust_ns": 61.695,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 10,
+      "baseline_ns": 415.89,
+      "rust_ns": 61.55,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 11,
+      "baseline_ns": 418.15,
+      "rust_ns": 60.46,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 12,
+      "baseline_ns": 405.61,
+      "rust_ns": 61.335,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 13,
+      "baseline_ns": 407.945,
+      "rust_ns": 61.72,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 14,
+      "baseline_ns": 403.215,
+      "rust_ns": 61.57,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 15,
+      "baseline_ns": 422.215,
+      "rust_ns": 61.005,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 16,
+      "baseline_ns": 408.95,
+      "rust_ns": 60.675,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 17,
+      "baseline_ns": 412.95,
+      "rust_ns": 61.485,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 18,
+      "baseline_ns": 413.84,
+      "rust_ns": 60.345,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-invalid-suffix",
+      "repeat": 19,
+      "baseline_ns": 413.615,
+      "rust_ns": 59.85,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 0,
+      "baseline_ns": 16869.925,
+      "rust_ns": 1770.145,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 1,
+      "baseline_ns": 16837.335,
+      "rust_ns": 1761.97,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 2,
+      "baseline_ns": 16770.505,
+      "rust_ns": 1766.845,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 3,
+      "baseline_ns": 16738.26,
+      "rust_ns": 1766.04,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 4,
+      "baseline_ns": 16565.85,
+      "rust_ns": 1738.14,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 5,
+      "baseline_ns": 16819.6,
+      "rust_ns": 1744.38,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 6,
+      "baseline_ns": 16989.845,
+      "rust_ns": 1758.625,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 7,
+      "baseline_ns": 16800.83,
+      "rust_ns": 1761.335,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 8,
+      "baseline_ns": 16590.975,
+      "rust_ns": 1759.175,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 9,
+      "baseline_ns": 16317.32,
+      "rust_ns": 1770.395,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 10,
+      "baseline_ns": 17470.92,
+      "rust_ns": 1780.05,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 11,
+      "baseline_ns": 17146.57,
+      "rust_ns": 1774.27,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 12,
+      "baseline_ns": 16912.46,
+      "rust_ns": 1818.615,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 13,
+      "baseline_ns": 17873.905,
+      "rust_ns": 1947.665,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 14,
+      "baseline_ns": 16857.175,
+      "rust_ns": 1764.025,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 15,
+      "baseline_ns": 16944.165,
+      "rust_ns": 1773.95,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 16,
+      "baseline_ns": 16838.83,
+      "rust_ns": 1752.52,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 17,
+      "baseline_ns": 16681.445,
+      "rust_ns": 1751.84,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 18,
+      "baseline_ns": 16718.22,
+      "rust_ns": 1765.965,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-unknown",
+      "repeat": 19,
+      "baseline_ns": 16800.765,
+      "rust_ns": 1737.435,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 0,
+      "baseline_ns": 1889.895,
+      "rust_ns": 18.625,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 1,
+      "baseline_ns": 1888.085,
+      "rust_ns": 19.17,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 2,
+      "baseline_ns": 1892.325,
+      "rust_ns": 18.99,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 3,
+      "baseline_ns": 1883.84,
+      "rust_ns": 18.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 4,
+      "baseline_ns": 1893.545,
+      "rust_ns": 19.045,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 5,
+      "baseline_ns": 1894.265,
+      "rust_ns": 18.81,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 6,
+      "baseline_ns": 1888.59,
+      "rust_ns": 18.935,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 7,
+      "baseline_ns": 1891.685,
+      "rust_ns": 19.075,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 8,
+      "baseline_ns": 1882.955,
+      "rust_ns": 18.965,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 9,
+      "baseline_ns": 1889.46,
+      "rust_ns": 19.125,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 10,
+      "baseline_ns": 1900.735,
+      "rust_ns": 18.83,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 11,
+      "baseline_ns": 1888.915,
+      "rust_ns": 18.855,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 12,
+      "baseline_ns": 1894.985,
+      "rust_ns": 18.985,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 13,
+      "baseline_ns": 1900.375,
+      "rust_ns": 18.845,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 14,
+      "baseline_ns": 1895.33,
+      "rust_ns": 19.025,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 15,
+      "baseline_ns": 1889.615,
+      "rust_ns": 19.145,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 16,
+      "baseline_ns": 1893.81,
+      "rust_ns": 18.865,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 17,
+      "baseline_ns": 1893.145,
+      "rust_ns": 18.31,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 18,
+      "baseline_ns": 1889.325,
+      "rust_ns": 18.74,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-prefix",
+      "repeat": 19,
+      "baseline_ns": 1890.97,
+      "rust_ns": 18.72,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 0,
+      "baseline_ns": 16913.195,
+      "rust_ns": 1785.115,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 1,
+      "baseline_ns": 16897.42,
+      "rust_ns": 1812.54,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 2,
+      "baseline_ns": 16832.215,
+      "rust_ns": 1802.495,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 3,
+      "baseline_ns": 16910.33,
+      "rust_ns": 1771.725,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 4,
+      "baseline_ns": 16743.365,
+      "rust_ns": 1770.98,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 5,
+      "baseline_ns": 16559.565,
+      "rust_ns": 1737.875,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 6,
+      "baseline_ns": 16546.365,
+      "rust_ns": 1747.6,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 7,
+      "baseline_ns": 16839.15,
+      "rust_ns": 1714.76,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 8,
+      "baseline_ns": 16929.285,
+      "rust_ns": 1779.26,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 9,
+      "baseline_ns": 16874.235,
+      "rust_ns": 1781.62,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 10,
+      "baseline_ns": 16773.135,
+      "rust_ns": 1828.085,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 11,
+      "baseline_ns": 16920.955,
+      "rust_ns": 1788.17,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 12,
+      "baseline_ns": 17008.105,
+      "rust_ns": 1784.37,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 13,
+      "baseline_ns": 17036.965,
+      "rust_ns": 1792.315,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 14,
+      "baseline_ns": 16950.305,
+      "rust_ns": 1791.865,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 15,
+      "baseline_ns": 17054.14,
+      "rust_ns": 1798.58,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 16,
+      "baseline_ns": 16856.34,
+      "rust_ns": 1794.385,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 17,
+      "baseline_ns": 16934.06,
+      "rust_ns": 1799.425,
+      "rust_first": false
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 18,
+      "baseline_ns": 16996.67,
+      "rust_ns": 1785.63,
+      "rust_first": true
+    },
+    {
+      "case": "referrer-long-suffix",
+      "repeat": 19,
+      "baseline_ns": 16982.93,
+      "rust_ns": 1795.995,
+      "rust_first": true
+    }
+  ],
+  "recorded_at": "2026-11-12T20:38:23.375608+00:00"
+}

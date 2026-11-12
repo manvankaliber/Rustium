@@ -1,0 +1,225 @@
+{
+  "module": "protocol-numbers",
+  "source": "protocol-numbers",
+  "repetitions": 20,
+  "scope": "Production C++ ParseInt*/ParseUint* API plus complete Rust bridge/core; warm bytes; errors included",
+  "baseline": "Frozen original C++ numeric parser; same native compilation flags and direct out-of-line API calls",
+  "groups": [
+    {
+      "id": "protocol-i32",
+      "title": "Parse signed 32-bit protocol numbers",
+      "operation": "Protocol numbers / i32",
+      "cases": [
+        {
+          "key": "i32_short",
+          "label": "3 digits"
+        },
+        {
+          "key": "i32_negative",
+          "label": "Negative"
+        },
+        {
+          "key": "i32_strict",
+          "label": "Strict"
+        },
+        {
+          "key": "i32_max",
+          "label": "Maximum"
+        },
+        {
+          "key": "i32_min",
+          "label": "Minimum"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-i64",
+      "title": "Parse signed 64-bit protocol numbers",
+      "operation": "Protocol numbers / i64",
+      "cases": [
+        {
+          "key": "i64_short",
+          "label": "3 digits"
+        },
+        {
+          "key": "i64_19digits",
+          "label": "19 digits"
+        },
+        {
+          "key": "i64_negative",
+          "label": "Negative"
+        },
+        {
+          "key": "i64_max",
+          "label": "Maximum"
+        },
+        {
+          "key": "i64_min",
+          "label": "Minimum"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-unsigned",
+      "title": "Parse unsigned protocol numbers",
+      "operation": "Protocol numbers / unsigned",
+      "cases": [
+        {
+          "key": "u32_short",
+          "label": "u32 / 3 digits"
+        },
+        {
+          "key": "u32_strict",
+          "label": "u32 / strict"
+        },
+        {
+          "key": "u32_max",
+          "label": "u32 / max"
+        },
+        {
+          "key": "u64_short",
+          "label": "u64 / 3 digits"
+        },
+        {
+          "key": "u64_max",
+          "label": "u64 / max"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-rejections",
+      "title": "Reject malformed protocol numbers",
+      "operation": "Protocol numbers / syntax",
+      "cases": [
+        {
+          "key": "empty",
+          "label": "Empty"
+        },
+        {
+          "key": "plus",
+          "label": "Leading plus"
+        },
+        {
+          "key": "leading_ws",
+          "label": "Whitespace"
+        },
+        {
+          "key": "strict_zero",
+          "label": "Leading zero"
+        },
+        {
+          "key": "embedded_nul",
+          "label": "Embedded NUL"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-bounds",
+      "title": "Detect protocol integer overflow",
+      "operation": "Protocol numbers / bounds",
+      "cases": [
+        {
+          "key": "i32_overflow",
+          "label": "i32 overflow"
+        },
+        {
+          "key": "i32_underflow",
+          "label": "i32 underflow"
+        },
+        {
+          "key": "u32_overflow",
+          "label": "u32 overflow"
+        },
+        {
+          "key": "i64_overflow",
+          "label": "i64 overflow"
+        },
+        {
+          "key": "u64_overflow",
+          "label": "u64 overflow"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-long",
+      "title": "Parse long protocol number inputs",
+      "operation": "Protocol numbers / long",
+      "cases": [
+        {
+          "key": "overflow_junk",
+          "label": "Overflow + junk"
+        },
+        {
+          "key": "negative_junk",
+          "label": "Negative + junk"
+        },
+        {
+          "key": "long_leading_zeros",
+          "label": "Leading zeros"
+        },
+        {
+          "key": "long_overflow_error",
+          "label": "Overflow / error"
+        },
+        {
+          "key": "long_overflow_no_error",
+          "label": "Overflow / no error"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "protocol-no-error",
+      "title": "Parse without an error output",
+      "operation": "Protocol numbers / no error",
+      "cases": [
+        {
+          "key": "i32_short_no_error",
+          "label": "i32 / 3 digits"
+        },
+        {
+          "key": "i64_short_no_error",
+          "label": "i64 / 3 digits"
+        },
+        {
+          "key": "u32_short_no_error",
+          "label": "u32 / 3 digits"
+        },
+        {
+          "key": "u64_short_no_error",
+          "label": "u64 / 3 digits"
+        },
+        {
+          "key": "invalid_no_error",
+          "label": "Malformed"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "acceptance_note": "Use only after parent canonical integration and validation; native screening does not establish configured final provenance.",
+  "label": "Protocol number parsing",
+  "measurement": "Production C++ ParseInt*/ParseUint* API plus complete Rust bridge/core; warm bytes; errors included",
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "scalar C ABI",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  },
+  "optimization_note": "Accepted configured remeasurement after the coordinated optimization pass; all original cases retained. Bridge presence is recorded; its contribution is not separately measured."
+}

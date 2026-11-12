@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\fuzz.exe",
+    "-runs=1000000",
+    "-max_len=1024",
+    "-seed=20261112",
+    "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\optimization\\corpus"
+  ],
+  "cpu_affinity_mask": 64,
+  "cpu": 6,
+  "exit_code": 0,
+  "executable_sha256": "efc404b63e0dab6cf9869fd053be16befb7aad0f3ceee630bfc568d28cea7d4c"
+}

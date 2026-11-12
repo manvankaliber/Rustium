@@ -1,0 +1,26 @@
+﻿# Add in net/BUILD.gn; existing Rust and fuzzer templates assumed imported.
+rust_static_library("auth_challenge_rust") {
+  crate_root = "http/auth_challenge_ffi.rs"
+  sources = [ "http/auth_challenge_ffi.rs", "http/auth_challenge_core.rs" ]
+  allow_unsafe = true # Narrow pointer adapter; core forbids unsafe.
+  visibility = [ ":*" ]
+}
+# Add :auth_challenge_rust to net's implementation dependencies and
+# http/auth_challenge_ffi.h to its source list.
+source_set("auth_challenge_reference") {
+  testonly = true
+  sources = [ "http/auth_challenge_reference.cc", "http/auth_challenge_reference.h",
+              "http/auth_challenge_reference_tokenizer.h", "http/auth_challenge_reference_modp.cc", "http/auth_challenge_reference_modp.h",
+              "http/auth_challenge_reference_modp_data.h", "http/auth_challenge_test_support.h" ]
+  deps = [ ":net", "//base" ]
+}
+# Add http/auth_challenge_rust_unittest.cc to net_unittests and add
+# :auth_challenge_reference to its deps; retain both original suites.
+test("auth_challenge_perftests") {
+  sources = [ "http/auth_challenge_perftest.cc" ]
+  deps = [ ":net", ":auth_challenge_reference", "//base" ]
+}
+fuzzer_test("auth_challenge_fuzzer") {
+  sources = [ "http/auth_challenge_fuzzer.cc" ]
+  deps = [ ":net", ":auth_challenge_reference", "//base" ]
+}

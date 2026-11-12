@@ -1,0 +1,673 @@
+{
+  "date": "2026-11-12",
+  "implementation": "Offline WebCodecs AVC encoder with unfragmented fast-start MP4 sample tables; no real-time capture or external encoder",
+  "environment": "Windows x64; installed Google Chrome headless, GPU disabled; timing includes browser-side render/encode/download initiation and host download completion; no end-to-end X upload test",
+  "html_sha256": "209681a2a7ef55f9815858caf3e7c04974bb248de44167610fe816e64e155437",
+  "benchmark_data_sha256": "8caf135c33747b02431552d20c408ff17f4536d8a97147135f0c8c568f429cd9",
+  "checks": [
+    {
+      "case": "cancellation",
+      "status": "Video export cancelled.",
+      "unlocked": true
+    },
+    {
+      "case": "unsupported",
+      "status": "H.264 generation is unavailable. Open this file in current Chrome or Edge.",
+      "unlocked": true
+    },
+    {
+      "case": "cancellation",
+      "status": "Video export cancelled.",
+      "unlocked": true
+    },
+    {
+      "case": "unsupported",
+      "status": "H.264 generation is unavailable. Open this file in current Chrome or Edge.",
+      "unlocked": true
+    }
+  ],
+  "default_chart_exports": [
+    {
+      "id": "load",
+      "seconds": 8,
+      "wallMs": 778.4255,
+      "bytes": 165324,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-load-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          723767738,
+          478608398,
+          1448012110,
+          1448012110
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.6 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "29e9d6dead00699dd9d22072604613d912404782317260fb5866913842e25801"
+    },
+    {
+      "id": "read",
+      "seconds": 8,
+      "wallMs": 679.7858999999999,
+      "bytes": 158972,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-read-resources-pak-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          450847758,
+          3773505286,
+          3969729108,
+          3969729108
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.6 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "3eaacee1318ee8f38b2644cbdf975f5389b3808056db368626a4b5e24a6ce684"
+    },
+    {
+      "id": "has",
+      "seconds": 8,
+      "wallMs": 1083.4994000000002,
+      "bytes": 158549,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-has-resources-pak-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          708505749,
+          2933514889,
+          2009622709,
+          2009622709
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.0 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "31b2f858c560f7122de8e4bab35f832909d25b9ae83b4ca97a8692779efb1bc6"
+    },
+    {
+      "id": "gzip-common",
+      "seconds": 8,
+      "wallMs": 1266.9584999999997,
+      "bytes": 166984,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-gzip-common-final-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          3472187383,
+          1699863028,
+          60364622,
+          60364622
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.2 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "5452e348ec6be0a32523afeb5712634c31a02e81f6f06799acf672d0bc2bd2ee"
+    },
+    {
+      "id": "gzip-optional",
+      "seconds": 8,
+      "wallMs": 1190.6220000000003,
+      "bytes": 176302,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-gzip-optional-final-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          590590760,
+          3755765756,
+          3205217801,
+          3205217801
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.1 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "a0a64f986f996473fc93a5dfc85dcb0140e14a0280adb76bb29b37b4022fca4e"
+    },
+    {
+      "id": "gzip-stream",
+      "seconds": 8,
+      "wallMs": 1137.3482000000004,
+      "bytes": 172700,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-gzip-stream-final-all-delta-horizontal-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          3289354505,
+          1840679013,
+          3243692762,
+          3243692762
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.0 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "671f65b4e3566c742b7c7d5eea2860df30cabcac0d3dbff90352dd00b3d33b4b"
+    },
+    {
+      "id": "average",
+      "seconds": 8,
+      "wallMs": 1320.9407,
+      "bytes": 150836,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-average-all-geometric-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          685076503,
+          1812898377,
+          3742202693,
+          3742202693
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.3 s.",
+      "archive": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-average-8s.mp4",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "ea5ff699c3eb898be8b1c17a10b557fa2e98b9119b35f2c620de6f4854f57419"
+    },
+    {
+      "id": "gzip-common",
+      "seconds": 61,
+      "wallMs": 1311.0733,
+      "bytes": 166467,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-MRXwyN\\downloads\\rustium-gzip-common-final-all-delta-horizontal-hide-hide-61s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 61,
+        "loop": false,
+        "frames": [
+          835263955,
+          1130253220,
+          3991311492,
+          3991311492
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 1.2 s.",
+      "archive": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-gzip-common-61s.mp4",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 61.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 5283000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "97adfec084182452bb224b622203dcc8cb5d2fbbf6d9f05f34df0dd4122fc2f2"
+    }
+  ],
+  "selected_option_and_reduced_motion_exports": [
+    {
+      "id": "gzip-common",
+      "seconds": 61,
+      "wallMs": 903.3762999999999,
+      "bytes": 181886,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-35hL65\\downloads\\rustium-gzip-common-final-all-time-vertical-show-show-61s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 61,
+        "loop": false,
+        "frames": [
+          1830245417,
+          823914090,
+          4202081317,
+          4202081317
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.7 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 61.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 5283000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "458dd92278098aa7cad3309719bb07f0c1f7b9bd1cc401101f122d8fe4ee51ca"
+    },
+    {
+      "id": "gzip-common",
+      "seconds": 8,
+      "wallMs": 74.18139999999994,
+      "bytes": 181886,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-35hL65\\downloads\\rustium-gzip-common-final-all-time-vertical-show-show-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          1830245417,
+          823914090,
+          4202081317,
+          4202081317
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.0 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "ecc5a001ae66c68119f8c720da8a1d46956681dcd239c96101831bd426dddda3"
+    },
+    {
+      "id": "average",
+      "seconds": 61,
+      "wallMs": 209.75390000000016,
+      "bytes": 18851,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-35hL65\\downloads\\rustium-average-all-geometric-hide-hide-61s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 61,
+        "loop": false,
+        "frames": [
+          123353047,
+          123353047,
+          123353047,
+          123353047
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.1 s.",
+      "mp4_structure": {
+        "samples": 1,
+        "duration": 61.0,
+        "timing_runs": [
+          {
+            "samples": 1,
+            "ticks_per_sample": 5490000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "fd6ea927c553c7558182ebe310ac6058c4c2d275393f879e7c98f5c0e71e60a4"
+    },
+    {
+      "id": "average",
+      "seconds": 8,
+      "wallMs": 61.85239999999976,
+      "bytes": 18851,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-35hL65\\downloads\\rustium-average-all-geometric-hide-hide-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          123353047,
+          123353047,
+          123353047,
+          123353047
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.0 s.",
+      "mp4_structure": {
+        "samples": 1,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 1,
+            "ticks_per_sample": 720000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "6247a2a245b6cad1c5132555972d3f1e829b0841b57c82f846a2fe1783d41a32"
+    },
+    {
+      "id": "read",
+      "seconds": 8,
+      "wallMs": 654.0918999999999,
+      "bytes": 104336,
+      "file": "D:\\Rustium\\.scratch\\chart-gallery-35hL65\\downloads\\rustium-read-locales-en-US-pak-miss-ratio-vertical-hide-show-8s.mp4",
+      "playback": {
+        "width": 1080,
+        "height": 1080,
+        "duration": 8,
+        "loop": false,
+        "frames": [
+          1276272109,
+          792073923,
+          973904978,
+          973904978
+        ]
+      },
+      "status": "MP4 downloaded. Generated in 0.6 s.",
+      "mp4_structure": {
+        "samples": 70,
+        "duration": 8.0,
+        "timing_runs": [
+          {
+            "samples": 69,
+            "ticks_per_sample": 3000
+          },
+          {
+            "samples": 1,
+            "ticks_per_sample": 513000
+          }
+        ],
+        "fast_start": true,
+        "dimensions": [
+          1080,
+          1080
+        ]
+      },
+      "sha256": "446191020e5f2e8b270efe8158213ee2f65598ab2ec161dd36d1b54e80bb8833"
+    }
+  ],
+  "notes": [
+    "70 encoded samples for the 2.3-second reveal and final hold, independent of 8/61-second playback length",
+    "One encoded sample for reduced-motion video",
+    "Final frame hashes match at 3 seconds and near the end of every clip",
+    "Cached duration change reuses the encoding; only MP4 timing is repackaged",
+    "Actual dimensions, exact duration, H.264 sample entry, chunk offset, sample sizes, timing sums and Chrome decode/seek verified",
+    "Recent encoding cache is bounded to three entries",
+    "No chart values or statistical intervals were changed"
+  ],
+  "png_gallery_regression": {
+    "measured_rows": 85,
+    "layouts": [
+      {
+        "width": 1400,
+        "combinations": 216,
+        "errors": [],
+        "overflow": false
+      },
+      {
+        "width": 1000,
+        "combinations": 216,
+        "errors": [],
+        "overflow": false
+      },
+      {
+        "width": 390,
+        "combinations": 216,
+        "errors": [],
+        "overflow": false
+      }
+    ],
+    "export_variant_count": 36,
+    "exports": [
+      {
+        "metric": "load",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-load-all-delta-horizontal-hide.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 129117
+      },
+      {
+        "metric": "read",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-read-resources-pak-all-delta-horizontal-hide.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 126660
+      },
+      {
+        "metric": "has",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-has-resources-pak-all-delta-horizontal-hide.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 122168
+      },
+      {
+        "metric": "gzip-common",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-gzip-common-final.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 127383
+      },
+      {
+        "metric": "gzip-optional",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-gzip-optional-final.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 129653
+      },
+      {
+        "metric": "gzip-stream",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-gzip-stream-final.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 130052
+      },
+      {
+        "metric": "average",
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\charts\\rustium-average-speedup.png",
+        "width": 1600,
+        "height": 1600,
+        "bytes": 127254
+      }
+    ],
+    "independent_aggregate_checks": [
+      {
+        "scope": "all",
+        "method": "geometric",
+        "cases": 40,
+        "percent": 45.896338819551374
+      },
+      {
+        "scope": "all",
+        "method": "arithmetic",
+        "cases": 40,
+        "percent": 54.26638698929413
+      },
+      {
+        "scope": "datapack",
+        "method": "geometric",
+        "cases": 25,
+        "percent": 27.133868639834624
+      },
+      {
+        "scope": "datapack",
+        "method": "arithmetic",
+        "cases": 25,
+        "percent": 28.970006646642222
+      },
+      {
+        "scope": "gzip",
+        "method": "geometric",
+        "cases": 15,
+        "percent": 83.51980767343545
+      },
+      {
+        "scope": "gzip",
+        "method": "arithmetic",
+        "cases": 15,
+        "percent": 96.42702089371393
+      }
+    ],
+    "console_exceptions": 0
+  },
+  "benchmark_data_raw_bytes_sha256": "ae6ad9e384310e4f144eff452a38061f299c9661a49e8ac2b25512023ced4360",
+  "benchmark_data_raw_bytes_unchanged": true,
+  "html_normalized_line_endings_sha256": "69bc0b33d0925b8ca814bce8ebb7b97c65ed6e4ded288808ecea9a8101794b52"
+}

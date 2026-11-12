@@ -1,0 +1,8 @@
+[
+  "D:\\Rustium\\.scratch\\gzip-header\\llvm-tools\\bin\\llvm-cov.exe",
+  "export",
+  "D:\\Rustium\\.scratch\\net-wave1\\dns-names\\unit.exe",
+  "-instr-profile=D:\\Rustium\\.scratch\\net-wave1\\dns-names\\coverage.profdata",
+  "-skip-functions",
+  "-ignore-filename-regex=third_party"
+]

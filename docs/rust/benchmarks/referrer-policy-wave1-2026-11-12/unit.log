@@ -1,0 +1,20 @@
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from ReferrerPolicyRust
+[ RUN      ] ReferrerPolicyRust.PersistedValuesAndAsciiCase
+[       OK ] ReferrerPolicyRust.PersistedValuesAndAsciiCase (0 ms)
+[ RUN      ] ReferrerPolicyRust.AsciiWhitespaceAndCommas
+[       OK ] ReferrerPolicyRust.AsciiWhitespaceAndCommas (0 ms)
+[ RUN      ] ReferrerPolicyRust.LastRecognizedValueWins
+[       OK ] ReferrerPolicyRust.LastRecognizedValueWins (0 ms)
+[ RUN      ] ReferrerPolicyRust.EveryByteMutationAndTruncation
+[       OK ] ReferrerPolicyRust.EveryByteMutationAndTruncation (38 ms)
+[ RUN      ] ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators
+[       OK ] ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators (0 ms)
+[ RUN      ] ReferrerPolicyRust.LongListsAndInvalidSuffixes
+[       OK ] ReferrerPolicyRust.LongListsAndInvalidSuffixes (0 ms)
+[----------] 6 tests from ReferrerPolicyRust (39 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (39 ms total)
+[  PASSED  ] 6 tests.

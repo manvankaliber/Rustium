@@ -1,0 +1,330 @@
+{
+  "date": "2026-11-12",
+  "scope": "Configured Windows Chromium integration validation for both DataPack Rust migration slices. Validation durations are not browser performance measurements.",
+  "editing_checkout": "D:\\Rustium",
+  "build_worktree": "D:/RustiumBuild/src",
+  "build_args": "is_debug = false\nis_component_build = true\nsymbol_level = 0\nblink_symbol_level = 0\nv8_symbol_level = 0\n",
+  "integration": {
+    "results": {
+      "gen": {
+        "phase": "gen",
+        "exit_code": 0,
+        "elapsed_seconds": 60.47196090000216,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+          "gen",
+          "out/Default"
+        ],
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-gen.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-gen.log"
+      },
+      "check": {
+        "phase": "check",
+        "exit_code": 0,
+        "elapsed_seconds": 25.7910078000059,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+          "check",
+          "out/Default",
+          "//ui/base:*"
+        ],
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-check.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-check.log"
+      },
+      "chrome": {
+        "phase": "chrome",
+        "exit_code": 0,
+        "elapsed_seconds": 174.1973979999966,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+          "-C",
+          "out/Default",
+          "-j4",
+          "chrome"
+        ],
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-chrome.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-chrome.log"
+      },
+      "chrome-smoke": {
+        "phase": "chrome-smoke",
+        "exit_code": 0,
+        "elapsed_seconds": 18.083635499999218,
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+          "--headless",
+          "--disable-gpu",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--user-data-dir=D:\\Rustium\\.scratch\\data-pack-lookup\\headless-profile",
+          "--dump-dom",
+          "about:blank"
+        ],
+        "blank_document_seen": true,
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-chrome-smoke.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-chrome-smoke.log"
+      },
+      "tests-build": {
+        "phase": "tests-build",
+        "exit_code": 0,
+        "elapsed_seconds": 250.73495750000438,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+          "-C",
+          "out/Default",
+          "-j4",
+          "ui_base_unittests",
+          "data_pack_parser_perftests"
+        ],
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-tests-build.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-tests-build.log"
+      },
+      "tests-run": {
+        "phase": "tests-run",
+        "exit_code": 0,
+        "elapsed_seconds": 11.570507999997062,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\ui_base_unittests.exe",
+          "--gtest_filter=*DataPack*:*ResourceBundle*",
+          "--test-launcher-jobs=1",
+          "--test-launcher-bot-mode",
+          "--test-launcher-retry-limit=0",
+          "--gtest_color=no",
+          "--test-launcher-summary-output=D:\\Rustium\\.scratch\\data-pack-lookup\\configured-test-summary.json"
+        ],
+        "test_iterations": [
+          {
+            "DataPackLookupTest.AliasTargetsAndResourcePrecedence": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.CachedLayoutAndPostLoadCorruption": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.DifferentialPostLoadByteMutations": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.DuplicateAndUnsortedIdsUseLibcProbeOrder": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.EmptyRangesAndExtremeIds": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.HitsMissesAndAliases": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.MaximumResourceCountAndAliasTarget": [
+              "SUCCESS"
+            ],
+            "DataPackLookupTest.TruncationAndArbitraryMetadataAreChecked": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.AliasesAndMaximumV5Counts": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.DifferentialSingleByteMutations": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.ErrorCategoriesAndPrecedence": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.EveryTruncation": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.HugeV4CountAndOffset": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.PreservePermissiveFormatRules": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.UnalignedInput": [
+              "SUCCESS"
+            ],
+            "DataPackParserTest.ValidVersionsAndEncodings": [
+              "SUCCESS"
+            ],
+            "DataPackTest.AliasIndexModifiedAfterLoading": [
+              "SUCCESS"
+            ],
+            "DataPackTest.FailedReloadPreservesExistingResources": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFileBusy": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFileBusyThenNot": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFileWithTruncatedHeader": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromBufferV4": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromBufferV5": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromFile": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromFileRegion": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromPath": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LoadFromPathCompressed": [
+              "SUCCESS"
+            ],
+            "DataPackTest.LookupBeforeLoading": [
+              "SUCCESS"
+            ],
+            "DataPackTest.Misordered": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.FallbackToNone": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.GetImageNamed": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.GetImageNamedFallback1x": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.GetRawDataResource": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.GetRawDataResourceWhileAddingDataPack": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.HasDataResource": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.LoadDataResourceBytes": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.LoadDataResourceBytesNotFound": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.LoadDataResourceString": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.LoadDataResourceStringForScale": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.LoadLocalizedResourceString": [
+              "SUCCESS"
+            ],
+            "ResourceBundleImageTest.Lottie": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.CanOverrideStringResources": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetImageNamed": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetLocalizedString": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetLocalizedStringWithOverride": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetNativeImageNamed": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetPathForResourcePack": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateGetRawDataResource": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateHasDataResource": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.DelegateLoadDataResourceBytes": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.IsBrotli": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.IsGzipped": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.LocaleDataPakExists": [
+              "SUCCESS"
+            ],
+            "ResourceBundleTest.OverrideStringResource": [
+              "SUCCESS"
+            ],
+            "WriteBINARY/DataPackTest.Write/0": [
+              "SUCCESS"
+            ],
+            "WriteBINARY/DataPackTest.WriteWithAliases/0": [
+              "SUCCESS"
+            ],
+            "WriteUTF16/DataPackTest.Write/0": [
+              "SUCCESS"
+            ],
+            "WriteUTF16/DataPackTest.WriteWithAliases/0": [
+              "SUCCESS"
+            ],
+            "WriteUTF8/DataPackTest.Write/0": [
+              "SUCCESS"
+            ],
+            "WriteUTF8/DataPackTest.WriteWithAliases/0": [
+              "SUCCESS"
+            ]
+          }
+        ],
+        "tests_run": 60,
+        "status_counts": {
+          "SUCCESS": 60
+        },
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-tests-run.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-tests-run.log"
+      },
+      "perftest-smoke": {
+        "phase": "perftest-smoke",
+        "exit_code": 0,
+        "elapsed_seconds": 0.4849485000013374,
+        "build_worktree": "D:\\RustiumBuild\\src",
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\data_pack_parser_perftests.exe",
+          "--benchmark_list_tests=true"
+        ],
+        "benchmarks_discovered": 16,
+        "result_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-perftest-smoke.json",
+        "log_file": "D:\\Rustium\\.scratch\\data-pack-lookup\\configured-perftest-smoke.log"
+      }
+    },
+    "integrated_source_sha256": {
+      "ui/base/BUILD.gn": "1f4e917f2dc1d1e2debc89454847d6f93bc6378f918d95f9f86bb6a0507879ca",
+      "ui/base/resource/data_pack.cc": "1612ce0f358457abfe049d6c210a9df89df8dfda921dd08de429afde801423c7",
+      "ui/base/resource/data_pack.h": "e1b0b0b9486ebfb0f2d415a4eb1e22f5526abe070c4563f0957d5df6d91227cb",
+      "ui/base/resource/data_pack_unittest.cc": "3a54b130955ff2f150783de16d12a40643537fce4cf57d1839d1a2f6c1262afb",
+      "ui/base/resource/data_pack_parser.rs": "1fdbd1d18c60f9cefb8ca8bdff7b28b99b1c6c367839b5cc181ebe25c35f1bcb",
+      "ui/base/resource/data_pack_parser_ffi.rs": "bad719ba04ac661f7db815f4ff71e0ebeb3cbaaee38d10d087899fba7f888975",
+      "ui/base/resource/data_pack_parser_fuzzer.cc": "be7957c694835736e43b61104c51bdcaa0fe135c9f8530c3e015e26cc956dbcf",
+      "ui/base/resource/data_pack_parser_fuzzer_corpus/alias-v5.pak": "d00179f49c2bd696d37d256dc1ed1f2a8c5962a2b3d1124016bcf4055d2ec160",
+      "ui/base/resource/data_pack_parser_fuzzer_corpus/empty-v4.pak": "aa8855331aa689f803d6ec82d068ff845623af1387c67e9ace578b9e303d60db",
+      "ui/base/resource/data_pack_parser_fuzzer_corpus/empty-v5.pak": "ca73097bd968b363b7145e86b64f3c595e533808b0763dc8863a27fc363cfa51",
+      "ui/base/resource/data_pack_parser_perftest.cc": "e4247da906cbb7999187161c308de36e70e9eb4c6ff41eb754fa1e477d887007",
+      "ui/base/resource/data_pack_parser_test_support.h": "d91f119aca5212d1664e8285fc5d5d23902c7e8761fdb9eab01edb773042b349",
+      "ui/base/resource/data_pack_parser_unittest.cc": "96daeb49f6fcaf69ca51ec308f3c3f0f9bdd46f27c744ad194a0f0b043a8dda4"
+    },
+    "test_build_fix": "Added documented UNSAFE_BUFFERS annotations around the frozen test-only C++ reference's already-checked libc calls, plus explicit base dependencies. No production reader change or benchmark rerun.",
+    "targeted_header_check": "//ui/base:*",
+    "global_header_check": "The initial all-project GN header check reported unrelated existing chrome dependency errors; normal GN generation and the targeted ui/base check were run separately. See configured-global-check.log.",
+    "unrelated_worktree_changes": "preserved; only the 13 DataPack migration files were copied"
+  },
+  "limitations": [
+    "UI unit tests were filtered to DataPack and ResourceBundle (60 tests); the entire ui_base test suite was not run.",
+    "The initial all-project GN header check failed on existing unrelated chrome dependencies; normal GN generation and the targeted //ui/base:* check passed.",
+    "Browser startup performance, whole-browser speed and final size changes were not measured."
+  ]
+}

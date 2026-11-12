@@ -1,0 +1,3185 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "gn-screen",
+  "label": "First configured GN acceptance",
+  "metadata": {
+    "module": "hsts",
+    "source": "hsts",
+    "label": "HSTS headers",
+    "measurement": "C++ public HSTS parse API + Rust bridge + reused Rust number parser; caller output construction and policy consumption; warm preloaded input; no network/TLS/browser startup",
+    "baseline": "Frozen original C++ HSTS parser, numeric helper and HttpUtil iterator helpers; matching native call boundaries and flags.",
+    "groups": [
+      {
+        "id": "hsts-common",
+        "title": "Parse HSTS headers",
+        "operation": "HSTS headers",
+        "cases": [
+          {
+            "key": "max_age",
+            "label": "Max-age"
+          },
+          {
+            "key": "subdomains",
+            "label": "Subdomains"
+          },
+          {
+            "key": "quoted_age",
+            "label": "Quoted age"
+          },
+          {
+            "key": "whitespace",
+            "label": "Whitespace"
+          },
+          {
+            "key": "unknown",
+            "label": "Unknown fields"
+          }
+        ]
+      },
+      {
+        "id": "hsts-invalid",
+        "title": "Reject malformed HSTS headers",
+        "operation": "HSTS validation",
+        "cases": [
+          {
+            "key": "empty",
+            "label": "Empty"
+          },
+          {
+            "key": "missing_age",
+            "label": "Missing age"
+          },
+          {
+            "key": "duplicate",
+            "label": "Duplicate age"
+          },
+          {
+            "key": "bad_digit",
+            "label": "Bad digit"
+          },
+          {
+            "key": "bad_quote",
+            "label": "Bad quote"
+          }
+        ]
+      },
+      {
+        "id": "hsts-stress",
+        "title": "Parse complex HSTS headers",
+        "operation": "HSTS complex fields",
+        "cases": [
+          {
+            "key": "overflow",
+            "label": "Overflow"
+          },
+          {
+            "key": "overflow_bad",
+            "label": "Overflow + text"
+          },
+          {
+            "key": "escaped_age",
+            "label": "Escaped age"
+          },
+          {
+            "key": "long_quoted",
+            "label": "Long quoted"
+          },
+          {
+            "key": "many_directives",
+            "label": "32 directives"
+          }
+        ]
+      }
+    ],
+    "scope_excludes": [
+      "network I/O",
+      "disk I/O",
+      "browser startup"
+    ],
+    "build_path": "Canonical configured Chromium GN build (D:/RustiumBuild/src/out/Default); actual flags and binary hashes archived.",
+    "chart_scope": "Public C++ API + Rust bridge / warm input",
+    "chart_baseline": "Baseline: original C++ HSTS parser."
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 27.58941539999796,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\hsts_perftests.exe"
+    ],
+    "executable_sha256": "de72262097026e1295ab2f12937e95bcd8b4bf40d0d3770317f17f2995a845d9",
+    "module": "hsts",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "candidate pending validation",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "hsts_perftests": {
+        "defines": "-DNET_IMPLEMENTATION -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "hsts_test_reference": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "parse_number_test_reference": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "hsts_parser": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "parse_number_core": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard -Funsafe_code --sysroot=local_rustc_sysroot"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "hsts_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+    "net/base/parse_number.cc": "ada2eac77e58359fa11fdf4573d22574901962946461604e8e80603685c2b996",
+    "net/base/parse_number.h": "6bcffcdee6fc45499b98ec535e6f2867d1f04ff668d386a8522800524805893d",
+    "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+    "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+    "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+    "net/base/parse_number_parser.rs": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+    "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+    "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+    "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+    "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+    "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+    "net/BUILD.gn": "2b46ecd74e6b9ac73bb15284ff69742056733f97b6f89768fd6fc4cb5393698d",
+    "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+    "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+    "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+    "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+    "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+    "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+    "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+    "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+    "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+    "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+    "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+    "net/http/http_security_headers_hsts_fuzzer.cc": "71d5e33f6d329086bb6a60a347a659117ad408d79a3c0a6066f4fe358b7b39f2",
+    "net/http/http_security_headers_unittest.cc": "9be184ef216ba50d2c3c11386d6dc4ba76d4c948f460ec778eb2c76b796807c7"
+  },
+  "raw_report_sha256": "ee09fb636b6167abe101ab889de88c566974fb72e6915b676cfc7b24158ce3b3",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "max_age",
+      "label": "Max-age",
+      "run": "gn-screen",
+      "baseline_median_ns": 242.2,
+      "rust_median_ns": 59.0105,
+      "change_percent": -75.63563170933114,
+      "bootstrap_95_ci_percent": [
+        -75.91429649749114,
+        -74.79687233342906
+      ],
+      "absolute_time_change_ns": -183.18949999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        -184.1255,
+        -179.2425
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "subdomains",
+      "label": "Subdomains",
+      "run": "gn-screen",
+      "baseline_median_ns": 476.65925000000004,
+      "rust_median_ns": 89.60525,
+      "change_percent": -81.20140330854798,
+      "bootstrap_95_ci_percent": [
+        -81.29481546549907,
+        -81.07768581857566
+      ],
+      "absolute_time_change_ns": -387.05400000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        -387.87175,
+        -386.42025
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "quoted_age",
+      "label": "Quoted age",
+      "run": "gn-screen",
+      "baseline_median_ns": 471.68899999999996,
+      "rust_median_ns": 107.59375,
+      "change_percent": -77.18968430470076,
+      "bootstrap_95_ci_percent": [
+        -78.41386752573331,
+        -76.53415823596197
+      ],
+      "absolute_time_change_ns": -364.09524999999996,
+      "bootstrap_90_ci_time_change_ns": [
+        -392.09625,
+        -353.5965
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "whitespace",
+      "label": "Whitespace",
+      "run": "gn-screen",
+      "baseline_median_ns": 680.61075,
+      "rust_median_ns": 152.9495,
+      "change_percent": -77.52761031176777,
+      "bootstrap_95_ci_percent": [
+        -78.10257284736085,
+        -74.7001478682208
+      ],
+      "absolute_time_change_ns": -527.6612500000001,
+      "bootstrap_90_ci_time_change_ns": [
+        -533.25625,
+        -491.98924999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "unknown",
+      "label": "Unknown fields",
+      "run": "gn-screen",
+      "baseline_median_ns": 759.558,
+      "rust_median_ns": 188.939,
+      "change_percent": -75.12513856743,
+      "bootstrap_95_ci_percent": [
+        -75.74994885453708,
+        -73.92240464832976
+      ],
+      "absolute_time_change_ns": -570.619,
+      "bootstrap_90_ci_time_change_ns": [
+        -584.857,
+        -542.5915
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "empty",
+      "label": "Empty",
+      "run": "gn-screen",
+      "baseline_median_ns": 43.4311,
+      "rust_median_ns": 14.6895,
+      "change_percent": -66.17746269378395,
+      "bootstrap_95_ci_percent": [
+        -66.92731788531347,
+        -64.45128994994225
+      ],
+      "absolute_time_change_ns": -28.7416,
+      "bootstrap_90_ci_time_change_ns": [
+        -29.471200000000003,
+        -26.7808
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "missing_age",
+      "label": "Missing age",
+      "run": "gn-screen",
+      "baseline_median_ns": 242.6132,
+      "rust_median_ns": 41.5085,
+      "change_percent": -82.89107929824098,
+      "bootstrap_95_ci_percent": [
+        -83.47617214541653,
+        -82.62128191673088
+      ],
+      "absolute_time_change_ns": -201.1047,
+      "bootstrap_90_ci_time_change_ns": [
+        -209.42710000000002,
+        -198.79399999999998
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "duplicate",
+      "label": "Duplicate age",
+      "run": "gn-screen",
+      "baseline_median_ns": 310.54175,
+      "rust_median_ns": 70.363,
+      "change_percent": -77.34185500017307,
+      "bootstrap_95_ci_percent": [
+        -77.51112699600759,
+        -77.15626086702177
+      ],
+      "absolute_time_change_ns": -240.17874999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        -241.80875,
+        -237.75825
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "bad_digit",
+      "label": "Bad digit",
+      "run": "gn-screen",
+      "baseline_median_ns": 278.35325,
+      "rust_median_ns": 53.91025,
+      "change_percent": -80.63243378692363,
+      "bootstrap_95_ci_percent": [
+        -81.29410256432618,
+        -79.55879518163367
+      ],
+      "absolute_time_change_ns": -224.443,
+      "bootstrap_90_ci_time_change_ns": [
+        -232.25900000000001,
+        -211.43600000000004
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "bad_quote",
+      "label": "Bad quote",
+      "run": "gn-screen",
+      "baseline_median_ns": 198.14325000000002,
+      "rust_median_ns": 46.822,
+      "change_percent": -76.36962147335325,
+      "bootstrap_95_ci_percent": [
+        -77.05900113221789,
+        -74.58278611572926
+      ],
+      "absolute_time_change_ns": -151.32125000000002,
+      "bootstrap_90_ci_time_change_ns": [
+        -152.8105,
+        -148.53250000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "overflow",
+      "label": "Overflow",
+      "run": "gn-screen",
+      "baseline_median_ns": 500.2765,
+      "rust_median_ns": 114.658,
+      "change_percent": -77.08107416598621,
+      "bootstrap_95_ci_percent": [
+        -78.03539187279999,
+        -76.72002077006212
+      ],
+      "absolute_time_change_ns": -385.6185,
+      "bootstrap_90_ci_time_change_ns": [
+        -398.6315,
+        -381.44
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "overflow_bad",
+      "label": "Overflow + text",
+      "run": "gn-screen",
+      "baseline_median_ns": 500.634,
+      "rust_median_ns": 114.77950000000001,
+      "change_percent": -77.07317121889444,
+      "bootstrap_95_ci_percent": [
+        -77.63049422440153,
+        -76.69796415381055
+      ],
+      "absolute_time_change_ns": -385.85450000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        -394.8505,
+        -379.87850000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "escaped_age",
+      "label": "Escaped age",
+      "run": "gn-screen",
+      "baseline_median_ns": 480.5695,
+      "rust_median_ns": 128.1485,
+      "change_percent": -73.3340338910397,
+      "bootstrap_95_ci_percent": [
+        -74.05748160563971,
+        -73.11644907308892
+      ],
+      "absolute_time_change_ns": -352.421,
+      "bootstrap_90_ci_time_change_ns": [
+        -362.001,
+        -350.3165
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "long_quoted",
+      "label": "Long quoted",
+      "run": "gn-screen",
+      "baseline_median_ns": 9807.244999999999,
+      "rust_median_ns": 2890.68,
+      "change_percent": -70.5250557113644,
+      "bootstrap_95_ci_percent": [
+        -70.70126622297522,
+        -70.44960303013438
+      ],
+      "absolute_time_change_ns": -6916.564999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        -6950.585000000001,
+        -6896.209999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "many_directives",
+      "label": "32 directives",
+      "run": "gn-screen",
+      "baseline_median_ns": 4023.9275,
+      "rust_median_ns": 938.4024999999999,
+      "change_percent": -76.67943818570289,
+      "bootstrap_95_ci_percent": [
+        -77.52872652718885,
+        -76.504501776135
+      ],
+      "absolute_time_change_ns": -3085.5249999999996,
+      "bootstrap_90_ci_time_change_ns": [
+        -3117.57,
+        -3078.8575
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 250.3555,
+      "rust_ns": 64.306
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 242.926,
+      "rust_ns": 57.459
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 237.5405,
+      "rust_ns": 59.8695
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 242.5755,
+      "rust_ns": 58.5915
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 245.873,
+      "rust_ns": 76.7715
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 241.9595,
+      "rust_ns": 57.1085
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 235.004,
+      "rust_ns": 61.166
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 259.0535,
+      "rust_ns": 59.9315
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 242.4535,
+      "rust_ns": 64.9355
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 240.243,
+      "rust_ns": 58.3715
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 245.7525,
+      "rust_ns": 59.4185
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 242.4405,
+      "rust_ns": 57.5455
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 246.4015,
+      "rust_ns": 56.492
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 235.752,
+      "rust_ns": 58.4345
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 244.085,
+      "rust_ns": 63.0615
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 238.3975,
+      "rust_ns": 58.2995
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 240.1625,
+      "rust_ns": 58.3935
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 236.53,
+      "rust_ns": 58.6025
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 235.4535,
+      "rust_ns": 59.807
+    },
+    {
+      "case": "max_age",
+      "input_bytes": 16,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 237.2925,
+      "rust_ns": 62.031
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 475.2925,
+      "rust_ns": 88.726
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 479.083,
+      "rust_ns": 89.909
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 478.909,
+      "rust_ns": 90.56
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 525.9155,
+      "rust_ns": 91.448
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 476.857,
+      "rust_ns": 88.202
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 488.745,
+      "rust_ns": 90.2215
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 476.6145,
+      "rust_ns": 88.5435
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 476.419,
+      "rust_ns": 90.174
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 474.41,
+      "rust_ns": 89.1595
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 477.167,
+      "rust_ns": 91.1205
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 476.2135,
+      "rust_ns": 90.972
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 482.759,
+      "rust_ns": 149.19
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 479.3295,
+      "rust_ns": 89.6965
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 477.2775,
+      "rust_ns": 89.222
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 476.704,
+      "rust_ns": 88.4935
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 476.5955,
+      "rust_ns": 89.175
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 473.341,
+      "rust_ns": 89.5045
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 476.266,
+      "rust_ns": 90.125
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 473.4705,
+      "rust_ns": 89.514
+    },
+    {
+      "case": "subdomains",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 474.7525,
+      "rust_ns": 88.646
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 460.9105,
+      "rust_ns": 108.8185
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 494.9475,
+      "rust_ns": 108.0555
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 461.317,
+      "rust_ns": 104.6335
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 467.09,
+      "rust_ns": 104.7955
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 457.1835,
+      "rust_ns": 104.971
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 455.9425,
+      "rust_ns": 104.3105
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 456.04,
+      "rust_ns": 105.115
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 457.9045,
+      "rust_ns": 106.0305
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 455.733,
+      "rust_ns": 106.3085
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 459.6305,
+      "rust_ns": 107.993
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 466.5525,
+      "rust_ns": 105.5275
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 639.1965,
+      "rust_ns": 159.7125
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 637.815,
+      "rust_ns": 144.0205
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 540.2775,
+      "rust_ns": 135.283
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 537.622,
+      "rust_ns": 111.4095
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 512.064,
+      "rust_ns": 118.8295
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 537.992,
+      "rust_ns": 134.872
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 488.5495,
+      "rust_ns": 129.3825
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 504.113,
+      "rust_ns": 107.0395
+    },
+    {
+      "case": "quoted_age",
+      "input_bytes": 37,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 476.288,
+      "rust_ns": 107.1945
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 700.1865,
+      "rust_ns": 167.1355
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 648.0145,
+      "rust_ns": 147.9455
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 636.212,
+      "rust_ns": 151.8715
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 638.905,
+      "rust_ns": 154.0275
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 639.092,
+      "rust_ns": 151.527
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 680.9635,
+      "rust_ns": 144.3505
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 647.3755,
+      "rust_ns": 148.959
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 683.8305,
+      "rust_ns": 155.3105
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 667.5345,
+      "rust_ns": 147.891
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 639.3625,
+      "rust_ns": 145.9525
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 684.9065,
+      "rust_ns": 148.4335
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 639.554,
+      "rust_ns": 191.907
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 695.3165,
+      "rust_ns": 187.0255
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 639.2915,
+      "rust_ns": 174.0325
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 715.0805,
+      "rust_ns": 151.429
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 777.583,
+      "rust_ns": 203.804
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 680.258,
+      "rust_ns": 166.388
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 758.3335,
+      "rust_ns": 192.343
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 701.2195,
+      "rust_ns": 180.969
+    },
+    {
+      "case": "whitespace",
+      "input_bytes": 49,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 684.942,
+      "rust_ns": 148.5605
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 798.386,
+      "rust_ns": 254.816
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 1142.716,
+      "rust_ns": 245.495
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 874.674,
+      "rust_ns": 189.885
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 852.723,
+      "rust_ns": 184.625
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 733.596,
+      "rust_ns": 187.653
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 776.027,
+      "rust_ns": 192.384
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 769.213,
+      "rust_ns": 202.145
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 751.697,
+      "rust_ns": 181.661
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 767.669,
+      "rust_ns": 187.993
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 718.267,
+      "rust_ns": 186.079
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 723.082,
+      "rust_ns": 192.4
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 744.985,
+      "rust_ns": 183.034
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 720.771,
+      "rust_ns": 202.929
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 729.813,
+      "rust_ns": 187.365
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 767.419,
+      "rust_ns": 180.311
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 782.946,
+      "rust_ns": 202.711
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 717.549,
+      "rust_ns": 183.537
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 718.456,
+      "rust_ns": 190.519
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 731.357,
+      "rust_ns": 184.834
+    },
+    {
+      "case": "unknown",
+      "input_bytes": 53,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 806.382,
+      "rust_ns": 193.236
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 40.8124,
+      "rust_ns": 14.486
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 45.2544,
+      "rust_ns": 14.3408
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 44.6374,
+      "rust_ns": 15.2012
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 43.1616,
+      "rust_ns": 14.7208
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 42.686,
+      "rust_ns": 14.6582
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 41.552,
+      "rust_ns": 14.785
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 41.009,
+      "rust_ns": 14.5066
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 43.9304,
+      "rust_ns": 14.5618
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 156.3886,
+      "rust_ns": 19.5936
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 54.9484,
+      "rust_ns": 17.1342
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 46.0816,
+      "rust_ns": 14.7574
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 41.4258,
+      "rust_ns": 14.541
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 50.8132,
+      "rust_ns": 19.7768
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 44.2424,
+      "rust_ns": 16.4506
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 40.8426,
+      "rust_ns": 14.4856
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 43.9668,
+      "rust_ns": 14.5206
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 43.7006,
+      "rust_ns": 16.1576
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 40.7954,
+      "rust_ns": 14.4628
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 40.6994,
+      "rust_ns": 14.4572
+    },
+    {
+      "case": "empty",
+      "input_bytes": 0,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 40.6878,
+      "rust_ns": 14.845
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 250.8602,
+      "rust_ns": 43.4996
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 250.991,
+      "rust_ns": 43.1382
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 265.9744,
+      "rust_ns": 41.605
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 272.1614,
+      "rust_ns": 66.1256
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 249.9458,
+      "rust_ns": 41.394
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 238.1404,
+      "rust_ns": 41.0242
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 238.5736,
+      "rust_ns": 43.164
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 240.2882,
+      "rust_ns": 41.4942
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 240.0978,
+      "rust_ns": 41.1404
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 268.2378,
+      "rust_ns": 41.3674
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 243.2586,
+      "rust_ns": 41.811
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 241.9678,
+      "rust_ns": 41.3776
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 236.8234,
+      "rust_ns": 41.0766
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 251.226,
+      "rust_ns": 41.8428
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 240.7186,
+      "rust_ns": 40.9208
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 238.2646,
+      "rust_ns": 52.1946
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 238.3926,
+      "rust_ns": 41.4324
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 251.5476,
+      "rust_ns": 41.5228
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 240.8768,
+      "rust_ns": 42.1998
+    },
+    {
+      "case": "missing_age",
+      "input_bytes": 17,
+      "iterations": 500000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 252.0158,
+      "rust_ns": 41.2804
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 307.697,
+      "rust_ns": 109.0445
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 312.6105,
+      "rust_ns": 70.809
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 343.392,
+      "rust_ns": 70.5865
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": true,
+      "baseline_ns": 310.0,
+      "rust_ns": 70.346
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 311.9665,
+      "rust_ns": 69.9925
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 309.851,
+      "rust_ns": 70.323
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 316.229,
+      "rust_ns": 70.9035
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 317.0355,
+      "rust_ns": 72.119
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 311.0835,
+      "rust_ns": 70.5125
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 335.1675,
+      "rust_ns": 80.7485
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 312.3885,
+      "rust_ns": 70.38
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 313.1815,
+      "rust_ns": 71.779
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 308.8345,
+      "rust_ns": 70.769
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 305.845,
+      "rust_ns": 69.5615
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 306.3335,
+      "rust_ns": 69.885
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 306.181,
+      "rust_ns": 68.9965
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 307.2735,
+      "rust_ns": 69.1425
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 311.7995,
+      "rust_ns": 69.69
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 305.7025,
+      "rust_ns": 69.357
+    },
+    {
+      "case": "duplicate",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 304.924,
+      "rust_ns": 69.5605
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 300.6355,
+      "rust_ns": 58.5255
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 264.049,
+      "rust_ns": 53.5855
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 274.4315,
+      "rust_ns": 53.657
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 263.1755,
+      "rust_ns": 59.2275
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 262.365,
+      "rust_ns": 54.0815
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 285.8095,
+      "rust_ns": 53.537
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 295.849,
+      "rust_ns": 53.118
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 285.642,
+      "rust_ns": 53.18
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 282.275,
+      "rust_ns": 56.615
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 269.73,
+      "rust_ns": 56.575
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 295.671,
+      "rust_ns": 59.7655
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 306.929,
+      "rust_ns": 54.665
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 259.459,
+      "rust_ns": 53.739
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 285.55,
+      "rust_ns": 62.152
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 287.499,
+      "rust_ns": 53.323
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 290.325,
+      "rust_ns": 53.3685
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 266.546,
+      "rust_ns": 54.21
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 259.4445,
+      "rust_ns": 53.3965
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 265.093,
+      "rust_ns": 53.349
+    },
+    {
+      "case": "bad_digit",
+      "input_bytes": 35,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 258.856,
+      "rust_ns": 54.2225
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 198.7545,
+      "rust_ns": 45.0245
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 195.862,
+      "rust_ns": 45.1465
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 196.939,
+      "rust_ns": 45.9665
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 194.865,
+      "rust_ns": 43.871
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 197.444,
+      "rust_ns": 48.0495
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 196.388,
+      "rust_ns": 44.5195
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 198.827,
+      "rust_ns": 46.5315
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 195.5975,
+      "rust_ns": 49.227
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 203.0845,
+      "rust_ns": 45.923
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 194.351,
+      "rust_ns": 80.036
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 218.379,
+      "rust_ns": 46.0325
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 245.4715,
+      "rust_ns": 51.217
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 203.0275,
+      "rust_ns": 57.16
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 206.388,
+      "rust_ns": 80.0345
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 198.6955,
+      "rust_ns": 57.9995
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 194.0465,
+      "rust_ns": 44.8215
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 204.3795,
+      "rust_ns": 47.1125
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 197.591,
+      "rust_ns": 44.9125
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 198.822,
+      "rust_ns": 47.6895
+    },
+    {
+      "case": "bad_quote",
+      "input_bytes": 19,
+      "iterations": 200000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 197.59,
+      "rust_ns": 71.6595
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 495.893,
+      "rust_ns": 112.972
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 496.084,
+      "rust_ns": 114.255
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 681.943,
+      "rust_ns": 116.988
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 512.273,
+      "rust_ns": 114.981
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 497.38,
+      "rust_ns": 115.671
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 495.148,
+      "rust_ns": 114.453
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 495.019,
+      "rust_ns": 115.698
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 495.323,
+      "rust_ns": 113.902
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 495.976,
+      "rust_ns": 113.836
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 551.656,
+      "rust_ns": 115.848
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 503.173,
+      "rust_ns": 114.338
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 508.442,
+      "rust_ns": 114.863
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 496.869,
+      "rust_ns": 119.097
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 496.605,
+      "rust_ns": 116.518
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 495.269,
+      "rust_ns": 114.118
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 531.752,
+      "rust_ns": 163.647
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 512.928,
+      "rust_ns": 113.082
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 548.735,
+      "rust_ns": 158.215
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": false,
+      "baseline_ns": 545.43,
+      "rust_ns": 114.36
+    },
+    {
+      "case": "overflow",
+      "input_bytes": 46,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 580.367,
+      "rust_ns": 113.637
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 538.433,
+      "rust_ns": 110.506
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 550.516,
+      "rust_ns": 114.802
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 502.349,
+      "rust_ns": 114.505
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 502.611,
+      "rust_ns": 114.114
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 519.004,
+      "rust_ns": 119.123
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 495.988,
+      "rust_ns": 118.498
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 494.773,
+      "rust_ns": 113.154
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": false,
+      "baseline_ns": 494.663,
+      "rust_ns": 114.987
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 550.54,
+      "rust_ns": 113.725
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 492.226,
+      "rust_ns": 113.578
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 494.771,
+      "rust_ns": 113.107
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 491.595,
+      "rust_ns": 114.647
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 516.469,
+      "rust_ns": 149.791
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 493.62,
+      "rust_ns": 115.498
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 493.184,
+      "rust_ns": 114.757
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 492.989,
+      "rust_ns": 115.775
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 509.745,
+      "rust_ns": 118.015
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 516.798,
+      "rust_ns": 112.305
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 498.919,
+      "rust_ns": 116.365
+    },
+    {
+      "case": "overflow_bad",
+      "input_bytes": 47,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 506.294,
+      "rust_ns": 116.056
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 587.168,
+      "rust_ns": 128.207
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 481.805,
+      "rust_ns": 129.089
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 476.987,
+      "rust_ns": 124.37
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 535.955,
+      "rust_ns": 125.368
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 477.106,
+      "rust_ns": 126.284
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 476.008,
+      "rust_ns": 129.204
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 6,
+      "rust_first": true,
+      "baseline_ns": 476.766,
+      "rust_ns": 130.367
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 535.43,
+      "rust_ns": 124.913
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 477.962,
+      "rust_ns": 129.498
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 486.834,
+      "rust_ns": 125.649
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 10,
+      "rust_first": true,
+      "baseline_ns": 526.178,
+      "rust_ns": 128.219
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 11,
+      "rust_first": true,
+      "baseline_ns": 484.389,
+      "rust_ns": 128.521
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 476.283,
+      "rust_ns": 127.97
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 478.562,
+      "rust_ns": 127.411
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 479.278,
+      "rust_ns": 126.945
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 479.334,
+      "rust_ns": 128.635
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 490.214,
+      "rust_ns": 197.463
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 479.127,
+      "rust_ns": 182.935
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 490.192,
+      "rust_ns": 128.09
+    },
+    {
+      "case": "escaped_age",
+      "input_bytes": 44,
+      "iterations": 100000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 576.785,
+      "rust_ns": 125.085
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 0,
+      "rust_first": true,
+      "baseline_ns": 9983.6,
+      "rust_ns": 2893.58
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 1,
+      "rust_first": false,
+      "baseline_ns": 9773.62,
+      "rust_ns": 2877.47
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 2,
+      "rust_first": true,
+      "baseline_ns": 9815.5,
+      "rust_ns": 2886.82
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 9837.53,
+      "rust_ns": 2884.86
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 4,
+      "rust_first": false,
+      "baseline_ns": 9832.66,
+      "rust_ns": 2889.95
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 5,
+      "rust_first": false,
+      "baseline_ns": 9767.19,
+      "rust_ns": 2893.75
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 9791.27,
+      "rust_ns": 2893.06
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 9886.24,
+      "rust_ns": 2899.47
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 8,
+      "rust_first": true,
+      "baseline_ns": 10276.21,
+      "rust_ns": 2954.27
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 9,
+      "rust_first": false,
+      "baseline_ns": 9904.78,
+      "rust_ns": 2893.47
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 9818.11,
+      "rust_ns": 2891.41
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 9798.99,
+      "rust_ns": 2883.89
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 12,
+      "rust_first": true,
+      "baseline_ns": 9980.95,
+      "rust_ns": 2880.45
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 13,
+      "rust_first": false,
+      "baseline_ns": 9793.34,
+      "rust_ns": 2914.65
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 14,
+      "rust_first": true,
+      "baseline_ns": 10431.44,
+      "rust_ns": 2887.72
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 15,
+      "rust_first": false,
+      "baseline_ns": 9753.0,
+      "rust_ns": 2883.28
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 16,
+      "rust_first": false,
+      "baseline_ns": 9754.72,
+      "rust_ns": 2884.68
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 17,
+      "rust_first": true,
+      "baseline_ns": 9768.52,
+      "rust_ns": 2886.17
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 9776.84,
+      "rust_ns": 2891.76
+    },
+    {
+      "case": "long_quoted",
+      "input_bytes": 2062,
+      "iterations": 10000,
+      "repeat": 19,
+      "rust_first": true,
+      "baseline_ns": 9786.51,
+      "rust_ns": 3270.61
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 0,
+      "rust_first": false,
+      "baseline_ns": 4168.53,
+      "rust_ns": 1009.42
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 1,
+      "rust_first": true,
+      "baseline_ns": 4026.055,
+      "rust_ns": 985.58
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 2,
+      "rust_first": false,
+      "baseline_ns": 4028.455,
+      "rust_ns": 896.675
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 3,
+      "rust_first": false,
+      "baseline_ns": 4020.97,
+      "rust_ns": 937.025
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 4,
+      "rust_first": true,
+      "baseline_ns": 4019.105,
+      "rust_ns": 940.715
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 5,
+      "rust_first": true,
+      "baseline_ns": 4017.245,
+      "rust_ns": 914.27
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 6,
+      "rust_first": false,
+      "baseline_ns": 4014.47,
+      "rust_ns": 944.2
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 7,
+      "rust_first": true,
+      "baseline_ns": 4020.575,
+      "rust_ns": 896.79
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 8,
+      "rust_first": false,
+      "baseline_ns": 4021.8,
+      "rust_ns": 902.365
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 9,
+      "rust_first": true,
+      "baseline_ns": 4019.3,
+      "rust_ns": 877.005
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 10,
+      "rust_first": false,
+      "baseline_ns": 4004.28,
+      "rust_ns": 886.145
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 11,
+      "rust_first": false,
+      "baseline_ns": 4008.585,
+      "rust_ns": 863.515
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 12,
+      "rust_first": false,
+      "baseline_ns": 4031.87,
+      "rust_ns": 939.78
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 13,
+      "rust_first": true,
+      "baseline_ns": 4286.35,
+      "rust_ns": 906.095
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 14,
+      "rust_first": false,
+      "baseline_ns": 4321.025,
+      "rust_ns": 964.59
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 15,
+      "rust_first": true,
+      "baseline_ns": 4026.075,
+      "rust_ns": 942.355
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 16,
+      "rust_first": true,
+      "baseline_ns": 4220.075,
+      "rust_ns": 920.26
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 17,
+      "rust_first": false,
+      "baseline_ns": 4245.665,
+      "rust_ns": 974.39
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 18,
+      "rust_first": true,
+      "baseline_ns": 4018.31,
+      "rust_ns": 986.575
+    },
+    {
+      "case": "many_directives",
+      "input_bytes": 304,
+      "iterations": 20000,
+      "repeat": 19,
+      "rust_first": false,
+      "baseline_ns": 4028.41,
+      "rust_ns": 946.495
+    }
+  ]
+}

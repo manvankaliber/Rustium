@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "public_cpp_import": "DomainNameLess",
+  "raw_rust_symbol_references": false,
+  "object_sha256": "b6be5dac2b4fcacfc9a04a6f86235af9c9aceeb23c15bb41cd6b386235710e01"
+}

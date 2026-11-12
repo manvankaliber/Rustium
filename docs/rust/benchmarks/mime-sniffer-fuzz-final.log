@@ -1,0 +1,63 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 20261112
+INFO: Loaded 1 modules   (355 inline 8-bit counters): 355 [00007FF6D344B7F0, 00007FF6D344B953), 
+INFO: Loaded 1 PC tables (355 PCs): 355 [00007FF6D34375B0,00007FF6D3438BE0), 
+INFO:      442 files found in D:\Rustium\.scratch\mime-sniffer\corpus
+INFO: seed corpus: files: 442 min: 1B max: 1025B total: 23047B rss: 33MB
+#443	INITED cov: 234 ft: 585 corp: 168/3018B exec/s: 221 rss: 35MB
+#512	pulse  cov: 234 ft: 585 corp: 168/3018B lim: 260 exec/s: 256 rss: 35MB
+#1024	pulse  cov: 234 ft: 585 corp: 168/3018B lim: 268 exec/s: 512 rss: 35MB
+#2048	pulse  cov: 234 ft: 585 corp: 168/3018B lim: 276 exec/s: 1024 rss: 35MB
+#4096	pulse  cov: 234 ft: 585 corp: 168/3018B lim: 300 exec/s: 2048 rss: 35MB
+#4520	REDUCE cov: 234 ft: 585 corp: 168/3016B lim: 300 exec/s: 2260 rss: 35MB L: 2/260 MS: 2 CopyPart-EraseBytes-
+#7333	REDUCE cov: 234 ft: 585 corp: 168/3015B lim: 324 exec/s: 3666 rss: 35MB L: 1/260 MS: 3 ChangeByte-CopyPart-EraseBytes-
+#7889	REDUCE cov: 234 ft: 585 corp: 168/3014B lim: 324 exec/s: 3944 rss: 35MB L: 1/260 MS: 1 EraseBytes-
+#8192	pulse  cov: 234 ft: 585 corp: 168/3014B lim: 324 exec/s: 4096 rss: 35MB
+#13188	REDUCE cov: 234 ft: 585 corp: 168/3013B lim: 372 exec/s: 6594 rss: 35MB L: 4/260 MS: 4 CopyPart-InsertByte-CrossOver-EraseBytes-
+#16384	pulse  cov: 234 ft: 585 corp: 168/3013B lim: 396 exec/s: 8192 rss: 35MB
+#17906	REDUCE cov: 234 ft: 585 corp: 168/3011B lim: 412 exec/s: 8953 rss: 35MB L: 15/260 MS: 3 EraseBytes-CopyPart-CrossOver-
+#18564	REDUCE cov: 234 ft: 585 corp: 168/3009B lim: 412 exec/s: 9282 rss: 35MB L: 2/260 MS: 3 CopyPart-ChangeByte-EraseBytes-
+#23335	REDUCE cov: 234 ft: 585 corp: 168/3007B lim: 452 exec/s: 7778 rss: 36MB L: 44/260 MS: 1 EraseBytes-
+#23681	REDUCE cov: 234 ft: 585 corp: 168/3006B lim: 452 exec/s: 7893 rss: 36MB L: 1/260 MS: 1 EraseBytes-
+#32768	pulse  cov: 234 ft: 585 corp: 168/3006B lim: 534 exec/s: 10922 rss: 36MB
+#52157	REDUCE cov: 234 ft: 585 corp: 168/3004B lim: 732 exec/s: 17385 rss: 36MB L: 60/260 MS: 1 EraseBytes-
+#65536	pulse  cov: 234 ft: 585 corp: 168/3004B lim: 858 exec/s: 21845 rss: 36MB
+#100536	REDUCE cov: 234 ft: 585 corp: 168/3003B lim: 1209 exec/s: 33512 rss: 36MB L: 43/260 MS: 1 EraseBytes-
+#131072	pulse  cov: 234 ft: 585 corp: 168/3003B lim: 1509 exec/s: 32768 rss: 36MB
+#187252	REDUCE cov: 234 ft: 585 corp: 168/3002B lim: 2071 exec/s: 46813 rss: 36MB L: 65/260 MS: 1 EraseBytes-
+#242288	REDUCE cov: 234 ft: 585 corp: 168/3001B lim: 2610 exec/s: 48457 rss: 36MB L: 12/260 MS: 1 EraseBytes-
+#243139	REDUCE cov: 234 ft: 585 corp: 168/3000B lim: 2610 exec/s: 48627 rss: 36MB L: 38/260 MS: 1 EraseBytes-
+#251705	REDUCE cov: 234 ft: 585 corp: 168/2999B lim: 2687 exec/s: 50341 rss: 36MB L: 42/260 MS: 1 EraseBytes-
+#262144	pulse  cov: 234 ft: 585 corp: 168/2999B lim: 2786 exec/s: 52428 rss: 36MB
+#295572	REDUCE cov: 234 ft: 585 corp: 168/2998B lim: 3116 exec/s: 49262 rss: 36MB L: 26/260 MS: 1 EraseBytes-
+#324368	REDUCE cov: 234 ft: 585 corp: 168/2997B lim: 3402 exec/s: 54061 rss: 36MB L: 45/260 MS: 1 EraseBytes-
+#335455	REDUCE cov: 234 ft: 585 corp: 168/2995B lim: 3512 exec/s: 55909 rss: 36MB L: 258/258 MS: 2 CopyPart-EraseBytes-
+#440978	REDUCE cov: 234 ft: 585 corp: 168/2991B lim: 4562 exec/s: 55122 rss: 36MB L: 22/258 MS: 3 InsertByte-EraseBytes-CopyPart-
+#444761	REDUCE cov: 234 ft: 585 corp: 168/2990B lim: 4598 exec/s: 55595 rss: 36MB L: 41/258 MS: 3 ShuffleBytes-CrossOver-EraseBytes-
+#500567	REDUCE cov: 234 ft: 585 corp: 168/2989B lim: 5150 exec/s: 62570 rss: 36MB L: 59/258 MS: 1 EraseBytes-
+#503018	REDUCE cov: 234 ft: 585 corp: 168/2988B lim: 5174 exec/s: 55890 rss: 36MB L: 40/258 MS: 1 EraseBytes-
+#515026	REDUCE cov: 234 ft: 585 corp: 168/2987B lim: 5282 exec/s: 57225 rss: 36MB L: 26/258 MS: 3 CopyPart-ShuffleBytes-EraseBytes-
+#521283	REDUCE cov: 234 ft: 585 corp: 168/2986B lim: 5342 exec/s: 57920 rss: 36MB L: 21/258 MS: 2 CopyPart-EraseBytes-
+#524288	pulse  cov: 234 ft: 585 corp: 168/2986B lim: 5366 exec/s: 58254 rss: 36MB
+#524864	REDUCE cov: 234 ft: 585 corp: 168/2983B lim: 5366 exec/s: 58318 rss: 36MB L: 23/258 MS: 1 EraseBytes-
+#557015	REDUCE cov: 234 ft: 585 corp: 168/2982B lim: 5678 exec/s: 61890 rss: 36MB L: 22/258 MS: 1 EraseBytes-
+#596665	REDUCE cov: 234 ft: 585 corp: 168/2980B lim: 6062 exec/s: 66296 rss: 36MB L: 40/258 MS: 2 ShuffleBytes-EraseBytes-
+#633781	REDUCE cov: 234 ft: 585 corp: 168/2979B lim: 6422 exec/s: 63378 rss: 36MB L: 37/258 MS: 1 EraseBytes-
+#654597	REDUCE cov: 234 ft: 585 corp: 168/2978B lim: 6626 exec/s: 65459 rss: 36MB L: 64/258 MS: 1 EraseBytes-
+#655128	REDUCE cov: 234 ft: 585 corp: 168/2977B lim: 6626 exec/s: 65512 rss: 36MB L: 10/258 MS: 1 EraseBytes-
+#706296	REDUCE cov: 234 ft: 585 corp: 168/2976B lim: 7130 exec/s: 64208 rss: 36MB L: 87/258 MS: 3 ChangeBit-ChangeBit-EraseBytes-
+#727677	REDUCE cov: 234 ft: 585 corp: 168/2975B lim: 7334 exec/s: 66152 rss: 36MB L: 20/258 MS: 1 EraseBytes-
+#748190	REDUCE cov: 234 ft: 585 corp: 168/2974B lim: 7538 exec/s: 68017 rss: 36MB L: 21/258 MS: 3 ChangeBit-EraseBytes-InsertByte-
+#795986	REDUCE cov: 234 ft: 585 corp: 168/2973B lim: 8006 exec/s: 66332 rss: 36MB L: 19/258 MS: 1 EraseBytes-
+#802015	REDUCE cov: 234 ft: 585 corp: 168/2972B lim: 8066 exec/s: 66834 rss: 36MB L: 5/258 MS: 4 ChangeBit-EraseBytes-ShuffleBytes-CrossOver-
+#840862	REDUCE cov: 234 ft: 585 corp: 168/2970B lim: 8445 exec/s: 70071 rss: 36MB L: 62/258 MS: 1 EraseBytes-
+#869993	REDUCE cov: 234 ft: 585 corp: 168/2969B lim: 8731 exec/s: 66922 rss: 36MB L: 30/258 MS: 1 EraseBytes-
+#900639	REDUCE cov: 234 ft: 585 corp: 168/2968B lim: 9030 exec/s: 69279 rss: 36MB L: 257/257 MS: 1 EraseBytes-
+#948365	REDUCE cov: 234 ft: 585 corp: 168/2966B lim: 9498 exec/s: 67740 rss: 36MB L: 43/257 MS: 1 EraseBytes-
+#1000000	DONE   cov: 234 ft: 585 corp: 168/2966B lim: 10005 exec/s: 71428 rss: 36MB
+Done 1000000 runs in 14 second(s), 12 second(s) without new corpus
+stat::number_of_executed_units: 1000000
+stat::average_exec_per_sec:     71428
+stat::new_units_added:          38
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              36

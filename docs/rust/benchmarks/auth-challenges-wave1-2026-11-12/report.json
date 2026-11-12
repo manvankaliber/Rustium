@@ -1,0 +1,54 @@
+{
+  "module": "auth-challenges",
+  "status": "candidate core only; public API remains C++; migration incomplete",
+  "owned_files": [
+    "net/http/auth_challenge_core.rs"
+  ],
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12\\sources",
+  "original_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12\\original",
+  "source_manifest": "D:\\Rustium\\docs\\rust\\benchmarks\\auth-challenges-wave1-2026-11-12\\manifest.json",
+  "remaining_cpp_seams": [
+    "Entire original tokenizer and first/later round APIs remain C++ pending integration",
+    "NameValuePairsIterator constructor is intended permanent migration seam for this component",
+    "HttpAuth::SchemeToString enum/string metadata remains external",
+    "base::Base64Decode still used by production pending adapter integration",
+    "C++ string ownership, view offsets, mutation ordering and output aliases require adapter"
+  ],
+  "validation": {
+    "core_unit": "1 test passed: rustc --edition 2021 --test net/http/auth_challenge_core.rs, then core_tests.exe",
+    "decoder_differential": "1000000 deterministic arbitrary and alphabet-biased byte sequences against frozen modp strict decoder; python .scratch/net-wave1/auth-challenges/decoder_diff.py; no affinity set",
+    "clippy": "clippy-driver --edition 2021 --crate-type lib net/http/auth_challenge_core.rs --emit metadata -D warnings passed using PATH toolchain",
+    "format": "rustfmt --edition 2021 applied with warnings about unstable config options",
+    "coverage": "not collected",
+    "whole_api_differential": "not run",
+    "existing_suites": "not run"
+  },
+  "benchmark": {
+    "timed": false,
+    "descriptor": "not prepared",
+    "perftest": "not prepared"
+  },
+  "canonical_targets_needed": [
+    "net",
+    "net_unittests",
+    "auth challenge perftest and fuzzer targets (not yet defined)"
+  ],
+  "gn_fragment": "not prepared",
+  "known_gaps": [
+    "No FFI or C++ production integration; do not integrate the core as a finished migration",
+    "No independently callable frozen whole-API reference; original byte snapshots only",
+    "No alias/failure differential coverage; no tokenizer differential fuzzing",
+    "No line/region coverage",
+    "No benchmark descriptor, perftest, or GN fragment",
+    "C++ linker reported LNK4098 CRT default library conflict in decoder differential harness; decoder results passed but rebuild with harmonized runtime",
+    "Source snapshot is not an integrated source revision"
+  ],
+  "optimization_debt": [
+    "Performance is unmeasured; no regression or cause asserted. Parent must coordinate paired measurements after integration."
+  ],
+  "hashes": {
+    "core": "4ecfd48b26f90b19b255a274c0420a173a3572926433d0e3c070081d20198a0d",
+    "decoder_diff.exe": "a873af2798da0d40908d8bfdc4264844e9acea67de98b2d373166830d5c94f99",
+    "core_tests.exe": "44b00512acceb46f1a844989c04dad7f9f2ce8523adf98db796df4bc73be376b"
+  }
+}

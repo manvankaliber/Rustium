@@ -1,0 +1,47 @@
+{
+  "clippy": {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\clippy-driver.exe",
+      "--edition",
+      "2024",
+      "--crate-type",
+      "rlib",
+      "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+      "--emit",
+      "metadata",
+      "-o",
+      "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\clippy.rmeta",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0
+  },
+  "rustfmt": {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\http\\auth_challenge_ffi.rs",
+      "D:\\Rustium\\net\\http\\auth_challenge_core.rs"
+    ],
+    "exit_code": 0
+  },
+  "clang-format": {
+    "command": [
+      "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+      "--dry-run",
+      "--Werror",
+      "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer.cc",
+      "D:\\Rustium\\net\\http\\http_auth_multi_round_parse.cc",
+      "D:\\Rustium\\net\\http\\auth_challenge_ffi.h",
+      "D:\\Rustium\\net\\http\\auth_challenge_reference.cc",
+      "D:\\Rustium\\net\\http\\auth_challenge_reference.h",
+      "D:\\Rustium\\net\\http\\auth_challenge_test_support.h",
+      "D:\\Rustium\\net\\http\\auth_challenge_rust_unittest.cc",
+      "D:\\Rustium\\net\\http\\auth_challenge_fuzzer.cc",
+      "D:\\Rustium\\net\\http\\auth_challenge_perftest.cc"
+    ],
+    "exit_code": 0
+  }
+}

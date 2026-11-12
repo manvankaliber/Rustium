@@ -1,0 +1,19 @@
+Note: Google Test filter = PortPolicyRust.*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from PortPolicyRust
+[ RUN      ] PortPolicyRust.StatefulDifferential
+[       OK ] PortPolicyRust.StatefulDifferential (936 ms)
+[----------] 1 test from PortPolicyRust (936 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (936 ms total)
+[  PASSED  ] 1 test.
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_policy_reference.cc:151] Ignoring invalid port for restrict_ports: 01
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_policy_reference.cc:151] Ignoring invalid port for restrict_ports: 2147483648
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_util.cc:54] Ignoring invalid port for restrict_ports: 01
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_util.cc:54] Ignoring invalid port for restrict_ports: 2147483648
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_policy_reference.cc:151] Ignoring invalid port for localhost_restrict_ports: 01
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_policy_reference.cc:151] Ignoring invalid port for localhost_restrict_ports: 01
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_util.cc:54] Ignoring invalid port for localhost_restrict_ports: 01
+[1112/210806.577:ERROR:D:\Rustium\net\base\port_util.cc:54] Ignoring invalid port for localhost_restrict_ports: 01

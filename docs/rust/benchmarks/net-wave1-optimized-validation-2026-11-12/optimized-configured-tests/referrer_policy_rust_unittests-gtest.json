@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="6" failures="0" disabled="0" errors="0" time="0.024" timestamp="2026-11-12T21:47:41">
+  <testsuite name="ReferrerPolicyRust" tests="6" failures="0" disabled="0" errors="0" time="0.024" timestamp="2026-11-12T21:47:41">
+    <testcase name="AsciiWhitespaceAndCommas" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="ReferrerPolicyRust">
+    </testcase>
+    <testcase name="EveryByteMutationAndTruncation" status="run" time="0.024" timestamp="2026-11-12T21:47:40" classname="ReferrerPolicyRust">
+    </testcase>
+    <testcase name="LastRecognizedValueWins" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="ReferrerPolicyRust">
+    </testcase>
+    <testcase name="LongListsAndInvalidSuffixes" status="run" time="0.000" timestamp="2026-11-12T21:47:41" classname="ReferrerPolicyRust">
+    </testcase>
+    <testcase name="NulAndNonAsciiAreNotWhitespaceOrTerminators" status="run" time="0.000" timestamp="2026-11-12T21:47:41" classname="ReferrerPolicyRust">
+    </testcase>
+    <testcase name="PersistedValuesAndAsciiCase" status="run" time="0.000" timestamp="2026-11-12T21:47:40" classname="ReferrerPolicyRust">
+    </testcase>
+  </testsuite>
+</testsuites>

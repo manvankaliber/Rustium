@@ -1,0 +1,18 @@
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling find-msvc-tools v0.1.14 (C:\Users\jackv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\find-msvc-tools-0.1.14)
+   Compiling shlex v2.0.1 (C:\Users\jackv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\shlex-2.0.1)
+   Compiling cxxbridge-flags v1.0.205
+   Compiling equivalent v1.0.2
+   Compiling hashbrown v0.17.1
+    Checking foldhash v0.2.0
+    Checking parse_number_core v0.1.0 (D:\Rustium\.scratch\protocol-numbers\core)
+    Checking cc v1.8.0 (C:\Users\jackv\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\cc-1.8.0)
+   Compiling indexmap v2.14.2
+    Checking link-cplusplus v1.0.12
+   Compiling syn v3.0.9
+   Compiling cxx v1.0.205
+   Compiling cxxbridge-macro v1.0.205
+    Checking hsts-validation v0.1.0 (D:\Rustium\.scratch\hsts-parser)
+    Finished `release` profile [optimized] target(s) in 22.51s

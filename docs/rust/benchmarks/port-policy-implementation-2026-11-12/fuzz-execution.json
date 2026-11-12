@@ -1,0 +1,13 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\fuzz.exe",
+    "-runs=1000000",
+    "-max_len=48",
+    "-seed=20261112",
+    "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\corpus"
+  ],
+  "cpu_affinity_mask": 64,
+  "cpu": 6,
+  "exit_code": 0,
+  "executable_sha256": "7166b3dd2aa970ba65509674feeccb5526ca8532b776c1009cd2b99ce16ac122"
+}

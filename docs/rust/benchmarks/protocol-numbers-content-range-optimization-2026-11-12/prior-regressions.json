@@ -1,0 +1,202 @@
+{
+  "new_benchmark": false,
+  "modules": [
+    {
+      "module": "protocol-numbers",
+      "existing_evidence": "docs/rust/benchmarks/protocol-numbers-wave1-final-2026-11-12.json",
+      "evidence_sha256": "e4ce4fdb383a0d1305af10b657f23a0c296eb0980dc1fde96197836345f133f9",
+      "prior_statistics": {
+        "estimator": "ratio of paired-run medians",
+        "interval": "95% paired percentile bootstrap; 5000 resamples",
+        "seed": 20261112,
+        "discarded_samples": 0
+      },
+      "retained_regressions_and_uncertain_cases": [
+        {
+          "key": "empty",
+          "label": "Empty",
+          "run": "wave1-final",
+          "baseline_median_ns": 3.0155,
+          "rust_median_ns": 3.467,
+          "change_percent": 14.972641353009465,
+          "bootstrap_95_ci_percent": [
+            14.597381991273316,
+            15.121449429254064
+          ],
+          "absolute_time_change_ns": 0.45150000000000023,
+          "bootstrap_90_ci_time_change_ns": [
+            0.4436,
+            0.4546000000000001
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        },
+        {
+          "key": "plus",
+          "label": "Leading plus",
+          "run": "wave1-final",
+          "baseline_median_ns": 3.7058,
+          "rust_median_ns": 4.0972,
+          "change_percent": 10.56182200874305,
+          "bootstrap_95_ci_percent": [
+            9.770393074151752,
+            10.956057007125874
+          ],
+          "absolute_time_change_ns": 0.39139999999999997,
+          "bootstrap_90_ci_time_change_ns": [
+            0.3660999999999994,
+            0.4048999999999996
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        },
+        {
+          "key": "leading_ws",
+          "label": "Whitespace",
+          "run": "wave1-final",
+          "baseline_median_ns": 3.6140999999999996,
+          "rust_median_ns": 5.3530999999999995,
+          "change_percent": 48.117096925929005,
+          "bootstrap_95_ci_percent": [
+            47.025776602775935,
+            48.48266696201129
+          ],
+          "absolute_time_change_ns": 1.7389999999999999,
+          "bootstrap_90_ci_time_change_ns": [
+            1.7213999999999996,
+            1.7496
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        },
+        {
+          "key": "strict_zero",
+          "label": "Leading zero",
+          "run": "wave1-final",
+          "baseline_median_ns": 3.1847,
+          "rust_median_ns": 5.0209,
+          "change_percent": 57.656922159073076,
+          "bootstrap_95_ci_percent": [
+            57.36964296919118,
+            58.001257071024504
+          ],
+          "absolute_time_change_ns": 1.8362000000000003,
+          "bootstrap_90_ci_time_change_ns": [
+            1.8306,
+            1.8439999999999994
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        },
+        {
+          "key": "long_overflow_error",
+          "label": "Overflow / error",
+          "run": "wave1-final",
+          "baseline_median_ns": 2108.4700000000003,
+          "rust_median_ns": 3006.21,
+          "change_percent": 42.57779337623964,
+          "bootstrap_95_ci_percent": [
+            41.5314408809399,
+            43.71946931250117
+          ],
+          "absolute_time_change_ns": 897.7399999999998,
+          "bootstrap_90_ci_time_change_ns": [
+            883.8199999999997,
+            917.8000000000002
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        }
+      ],
+      "scope": "Existing canonical wave1-final evidence only; no new timing or performance acceptance claim. All 35 cases must be rerun, including previously faster ones."
+    },
+    {
+      "module": "http-range",
+      "existing_evidence": "docs/rust/benchmarks/http-range-wave1-final-2026-11-12.json",
+      "evidence_sha256": "777558964ebc9cf313ca9524051ac9649aed4ef07c8aa02bbdd82ce3c2547856",
+      "prior_statistics": {
+        "estimator": "ratio of paired-run medians",
+        "interval": "95% paired percentile bootstrap; 5000 resamples",
+        "seed": 20261112,
+        "discarded_samples": 0
+      },
+      "retained_regressions_and_uncertain_cases": [
+        {
+          "key": "content_large",
+          "label": "Large positions",
+          "run": "wave1-final",
+          "baseline_median_ns": 74.39325,
+          "rust_median_ns": 76.231,
+          "change_percent": 2.470318207633082,
+          "bootstrap_95_ci_percent": [
+            1.3739776753603161,
+            3.375948726598077
+          ],
+          "absolute_time_change_ns": 1.8377499999999998,
+          "bootstrap_90_ci_time_change_ns": [
+            1.2565000000000026,
+            2.3799999999999955
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "measured slowdown in prior canonical experiment"
+        },
+        {
+          "key": "content_empty",
+          "label": "Empty",
+          "run": "wave1-final",
+          "baseline_median_ns": 8.03225,
+          "rust_median_ns": 7.003500000000001,
+          "change_percent": -12.807743782875269,
+          "bootstrap_95_ci_percent": [
+            -23.148148148148152,
+            2.759915079536013
+          ],
+          "absolute_time_change_ns": -1.0287499999999987,
+          "bootstrap_90_ci_time_change_ns": [
+            -1.4585000000000008,
+            -0.24900000000000055
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "no measurable difference in prior canonical experiment"
+        },
+        {
+          "key": "content_input_restore",
+          "label": "Input overlap",
+          "run": "wave1-final",
+          "baseline_median_ns": 57.32875,
+          "rust_median_ns": 67.63650000000001,
+          "change_percent": 17.98007108126378,
+          "bootstrap_95_ci_percent": [
+            -38.23136699551356,
+            67.8567963049216
+          ],
+          "absolute_time_change_ns": 10.307750000000013,
+          "bootstrap_90_ci_time_change_ns": [
+            -22.619749999999996,
+            30.701750000000004
+          ],
+          "paired_repetitions": 20,
+          "workload": {},
+          "classification": "no measurable difference in prior canonical experiment"
+        }
+      ],
+      "scope": "Existing canonical wave1-final evidence only; no new timing or performance acceptance claim. All 35 cases must be rerun, including previously faster ones."
+    }
+  ],
+  "verified_cause": "The previous complete public-API timing difference is measured; causation is not isolated.",
+  "static_findings": [
+    "Overflow tail was scanned with per-byte short-circuiting; new contiguous-tail reduction emits vector byte comparisons.",
+    "Public numeric Rust parser already inlines the core across crate boundaries.",
+    "Scalar numeric and Content-Range parsing do not allocate; Range list allocation/drop ownership is unchanged.",
+    "Content-Range still has its existing bytes and legacy_i64 helper call boundaries."
+  ],
+  "optimization_rationale": "Safe contiguous tail validation and positive signed-slice specialization remove work on general classes of inputs; only configured public-API remeasurement can establish latency improvement or regression.",
+  "follow_up": "Parent: configured builds/tests of all shared-core consumers; quiet unique --final numeric/Range/HSTS runs; import every result, update gallery/aggregate/backlog then dashboard sync/check. Keep every residual slowdown integrated and record exact follow-up evidence. Do not infer the amount of bridge overhead or promise that bridge retirement eliminates algorithmic losses."
+}

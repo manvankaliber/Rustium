@@ -1,0 +1,8 @@
+{
+  "capture": "At handoff; after owned parser edits. These base helper files were not edited by this component.",
+  "sha256": {
+    "base/strings/trim_string_internal.h": "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+    "base/strings/whitespace_constants.h": "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3",
+    "base/strings/string_util_internal.h": "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c"
+  }
+}

@@ -1,0 +1,40 @@
+Static review of the optimization (not a timing/allocation-count experiment)
+
+Before: ParseMimeType creates an owned Rust MIME byte vector, owned name/value
+vectors for each parameter, and a parameter vector; FFI maps the parameter
+container; C++ constructs strings from those bytes. The parameter-free API also
+creates two Rust byte vectors even though Rust already has validated input
+subranges. Content-Type first creates every parameter, then owns/copies selected
+fields, normalizes MIME even when equal, and stages state over multiple calls.
+
+After: MIME plans contain input offsets and one descriptor vector collected
+directly in the FFI result. Ordinary fields stay in input; escaped values alone
+append decoded bytes into a shared scratch vector. C++ stages final strings and
+moves the result vector/strings only after all borrowed spans have been read.
+The parameter-free API returns scalar ranges, without owned Rust token bytes.
+
+Content-Type scans the same grammar directly, retaining first charset/boundary
+descriptors instead of building a parameter container. Once all requested
+fields are selected, later parameters cannot affect the result, so they need
+not be decoded or retained. Rust requests current MIME lazily through a
+synchronous byte-slice getter after validation; when boundary aliases MIME it
+compares against the simulated boundary write. Rust requests had_charset only
+for unequal MIME, preserving the original short-circuit rule. Only output
+fields requiring decoding or actual ASCII lowercase conversion use scratch;
+unchanged MIME is never normalized or materialized.
+
+Generated CXX source has direct getter shims returning a byte slice and boolean;
+no CxxString/C++ standard-library string ABI crosses into Cargo's CXX support.
+The bridge-generated opaque state reference is never retained. Generated
+optimized LLVM IR contains getter calls on the conditional MIME comparison and
+unequal-MIME paths. Pure parsing code still has forbid(unsafe_code). Authored
+unsafe is limited to CXX external getter declarations with documented lifetime
+contracts, not parsing, pointer arithmetic, or uninitialized mutable outputs.
+CXX owns shared-struct layouts; no handwritten cross-language layout casts.
+
+Remaining costs: MIME descriptor Vec growth, transformed-byte scratch Vec growth,
+final C++ strings and StringPairs ownership, temporary staging for alias safety,
+CXX vector destruction, and synchronous state getter calls. No allocator
+instrumentation or timing was collected. These source/code-generation findings
+do not attribute the previously measured regression, establish its size, or
+promise parity. Parent must measure all unchanged cases through production DLLs.

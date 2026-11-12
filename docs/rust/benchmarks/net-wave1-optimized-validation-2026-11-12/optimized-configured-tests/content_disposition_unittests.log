@@ -1,0 +1,79 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = ContentDispositionRustTest.DifferentialEdgeCases:ContentDispositionRustTest.IteratorFailureAndByteBoundaries:ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership:HttpContentDispositionTest.Filename/0:HttpContentDispositionTest.Filename/1:HttpContentDispositionTest.tc2231/0:HttpContentDispositionTest.tc2231/1:HttpContentDispositionTest.ParseResult/0:HttpContentDispositionTest.ParseResult/1:HttpContentDispositionTest.ContainsNul/0
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from ContentDispositionRustTest
+[ RUN      ] ContentDispositionRustTest.DifferentialEdgeCases
+[       OK ] ContentDispositionRustTest.DifferentialEdgeCases (48 ms)
+[ RUN      ] ContentDispositionRustTest.IteratorFailureAndByteBoundaries
+[       OK ] ContentDispositionRustTest.IteratorFailureAndByteBoundaries (2 ms)
+[ RUN      ] ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership
+[       OK ] ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership (0 ms)
+[----------] 3 tests from ContentDispositionRustTest (51 ms total)
+
+[----------] 7 tests from HttpContentDispositionTest
+[ RUN      ] HttpContentDispositionTest.Filename/0
+[       OK ] HttpContentDispositionTest.Filename/0 (2 ms)
+[ RUN      ] HttpContentDispositionTest.Filename/1
+[       OK ] HttpContentDispositionTest.Filename/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.tc2231/0
+[       OK ] HttpContentDispositionTest.tc2231/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.tc2231/1
+[       OK ] HttpContentDispositionTest.tc2231/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ParseResult/0
+[       OK ] HttpContentDispositionTest.ParseResult/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ParseResult/1
+[       OK ] HttpContentDispositionTest.ParseResult/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ContainsNul/0
+[       OK ] HttpContentDispositionTest.ContainsNul/0 (0 ms)
+[----------] 7 tests from HttpContentDispositionTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (55 ms total)
+[  PASSED  ] 10 tests.
+[1/15] ContentDispositionRustTest.DifferentialEdgeCases (48 ms)
+[2/15] ContentDispositionRustTest.IteratorFailureAndByteBoundaries (2 ms)
+[3/15] ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership (0 ms)
+[4/15] HttpContentDispositionTest.Filename/0 (2 ms)
+[5/15] HttpContentDispositionTest.Filename/1 (0 ms)
+[6/15] HttpContentDispositionTest.tc2231/0 (0 ms)
+[7/15] HttpContentDispositionTest.tc2231/1 (0 ms)
+[8/15] HttpContentDispositionTest.ParseResult/0 (0 ms)
+[9/15] HttpContentDispositionTest.ParseResult/1 (0 ms)
+[10/15] HttpContentDispositionTest.ContainsNul/0 (0 ms)
+Note: Google Test filter = HttpContentDispositionTest.ContainsNul/1:HttpContentDispositionTest.NoContentDisposition/0:HttpContentDispositionTest.NoContentDisposition/1:HttpContentDispositionTest.MultipleContentDisposition/0:HttpContentDispositionTest.MultipleContentDisposition/1
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from HttpContentDispositionTest
+[ RUN      ] HttpContentDispositionTest.ContainsNul/1
+..\..\net\http\http_content_disposition_unittest.cc(544): Skipped
+
+
+[  SKIPPED ] HttpContentDispositionTest.ContainsNul/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.NoContentDisposition/0
+[       OK ] HttpContentDispositionTest.NoContentDisposition/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.NoContentDisposition/1
+[       OK ] HttpContentDispositionTest.NoContentDisposition/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.MultipleContentDisposition/0
+[       OK ] HttpContentDispositionTest.MultipleContentDisposition/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.MultipleContentDisposition/1
+[       OK ] HttpContentDispositionTest.MultipleContentDisposition/1 (0 ms)
+[----------] 5 tests from HttpContentDispositionTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 4 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] HttpContentDispositionTest.ContainsNul/1
+[11/15] HttpContentDispositionTest.ContainsNul/1 (0 ms)
+[12/15] HttpContentDispositionTest.NoContentDisposition/0 (0 ms)
+[13/15] HttpContentDispositionTest.NoContentDisposition/1 (0 ms)
+[14/15] HttpContentDispositionTest.MultipleContentDisposition/0 (0 ms)
+[15/15] HttpContentDispositionTest.MultipleContentDisposition/1 (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

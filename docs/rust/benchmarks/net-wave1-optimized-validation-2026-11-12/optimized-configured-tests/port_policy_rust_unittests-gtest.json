@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="2" failures="0" disabled="0" errors="0" time="0.534" timestamp="2026-11-12T21:47:44">
+  <testsuite name="PortPolicyRust" tests="2" failures="0" disabled="0" errors="0" time="0.534" timestamp="2026-11-12T21:47:44">
+    <testcase name="ConcurrentReadOnlyPolicy" status="run" time="0.008" timestamp="2026-11-12T21:47:44" classname="PortPolicyRust">
+    </testcase>
+    <testcase name="StatefulDifferential" status="run" time="0.526" timestamp="2026-11-12T21:47:43" classname="PortPolicyRust">
+    </testcase>
+  </testsuite>
+</testsuites>

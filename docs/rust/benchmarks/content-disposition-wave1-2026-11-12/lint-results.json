@@ -1,0 +1,74 @@
+[
+  {
+    "name": "rustfmt",
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\http\\content_disposition_parser.rs",
+      "D:\\Rustium\\net\\http\\content_disposition_ffi.rs"
+    ],
+    "exit_code": 0,
+    "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\rustfmt.log"
+  },
+  {
+    "name": "clang-format",
+    "command": [
+      "D:/RustiumBuild/src/buildtools/win-format/clang-format.exe",
+      "--dry-run",
+      "-Werror",
+      "D:\\Rustium\\net\\http\\http_content_disposition.cc",
+      "D:\\Rustium\\net\\http\\http_content_disposition.h",
+      "D:\\Rustium\\net\\http\\content_disposition_fuzzer.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_http_util_reference.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_modp_reference.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_perftest.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_reference.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_services.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_services_reference.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_unittest.cc",
+      "D:\\Rustium\\net\\http\\content_disposition_http_util_reference.h",
+      "D:\\Rustium\\net\\http\\content_disposition_modp_data_reference.h",
+      "D:\\Rustium\\net\\http\\content_disposition_modp_reference.h",
+      "D:\\Rustium\\net\\http\\content_disposition_reference.h",
+      "D:\\Rustium\\net\\http\\content_disposition_services.h",
+      "D:\\Rustium\\net\\http\\content_disposition_services_reference.h",
+      "D:\\Rustium\\net\\http\\content_disposition_tokenizer_reference.h"
+    ],
+    "exit_code": 0,
+    "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\clang-format.log"
+  },
+  {
+    "name": "clippy",
+    "command": [
+      "python",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\build_native.py",
+      "clippy"
+    ],
+    "exit_code": 0,
+    "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\clippy.log"
+  },
+  {
+    "name": "reference-verification",
+    "command": [
+      "python",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\verify_reference.py"
+    ],
+    "exit_code": 0,
+    "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\reference-verification.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "net/http/http_content_disposition.cc",
+      "net/http/http_content_disposition.h"
+    ],
+    "exit_code": 0,
+    "log": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\diff-check.log"
+  }
+]

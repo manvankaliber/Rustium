@@ -1,0 +1,15 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\fuzz.exe",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\corpus",
+    "-runs=1000000",
+    "-max_len=512",
+    "-seed=20261112",
+    "-print_final_stats=1",
+    "-artifact_prefix=D:\\Rustium\\.scratch\\net-wave1\\content-disposition/"
+  ],
+  "exit_code": 0,
+  "affinity_mask": 2,
+  "max_len": 512,
+  "seed": 20261112
+}

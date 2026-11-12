@@ -1,0 +1,92 @@
+[
+  {
+    "module": "protocol-numbers",
+    "cases": 35,
+    "speedup_percent": 61.797933409553885,
+    "faster": 30,
+    "slower": 5,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/protocol-numbers-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "http-range",
+    "cases": 35,
+    "speedup_percent": 58.31661555057093,
+    "faster": 32,
+    "slower": 1,
+    "uncertain": 2,
+    "evidence": "docs/rust/benchmarks/http-range-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "http-status-code",
+    "cases": 5,
+    "speedup_percent": -31.696116200077253,
+    "faster": 1,
+    "slower": 4,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/http-status-code-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "mime-type",
+    "cases": 20,
+    "speedup_percent": -49.03978151205638,
+    "faster": 3,
+    "slower": 17,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "content-disposition",
+    "cases": 15,
+    "speedup_percent": 87.32065280940986,
+    "faster": 15,
+    "slower": 0,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/content-disposition-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "dns-names",
+    "cases": 21,
+    "speedup_percent": -48.448970182871,
+    "faster": 0,
+    "slower": 21,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/dns-names-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "referrer-policy",
+    "cases": 10,
+    "speedup_percent": 758.3151014862481,
+    "faster": 10,
+    "slower": 0,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/referrer-policy-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "auth-challenges",
+    "cases": 6,
+    "speedup_percent": -17.369281845799446,
+    "faster": 0,
+    "slower": 6,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/auth-challenges-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "net-diagnostics-debug-formatting",
+    "cases": 9,
+    "speedup_percent": -30.471996329776662,
+    "faster": 0,
+    "slower": 9,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-final-2026-11-12.json"
+  },
+  {
+    "module": "port-policy",
+    "cases": 6,
+    "speedup_percent": -45.02886726787213,
+    "faster": 1,
+    "slower": 5,
+    "uncertain": 0,
+    "evidence": "docs/rust/benchmarks/port-policy-wave1-final-2026-11-12.json"
+  }
+]

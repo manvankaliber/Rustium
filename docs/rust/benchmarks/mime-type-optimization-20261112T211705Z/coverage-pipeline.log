@@ -1,0 +1,77 @@
+{
+  "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\..\\..\\..\\..\\net\\base\\mime_type_ffi.rs": {
+    "lines": {
+      "count": 43,
+      "covered": 43,
+      "percent": 100
+    },
+    "functions": {
+      "count": 9,
+      "covered": 9,
+      "percent": 100
+    },
+    "instantiations": {
+      "count": 9,
+      "covered": 9,
+      "percent": 100
+    },
+    "regions": {
+      "count": 44,
+      "covered": 44,
+      "notcovered": 0,
+      "percent": 100
+    },
+    "branches": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    }
+  },
+  "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\..\\..\\..\\..\\net\\base\\mime_type_parser.rs": {
+    "lines": {
+      "count": 186,
+      "covered": 186,
+      "percent": 100
+    },
+    "functions": {
+      "count": 14,
+      "covered": 14,
+      "percent": 100
+    },
+    "instantiations": {
+      "count": 14,
+      "covered": 14,
+      "percent": 100
+    },
+    "regions": {
+      "count": 268,
+      "covered": 268,
+      "notcovered": 0,
+      "percent": 100
+    },
+    "branches": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    }
+  },
+  "method": "LLVM source instrumentation; native unit tests; authored runtime Rust only, generated CXX/standard library excluded. No branch coverage collected.",
+  "qualified_exclusions": [],
+  "profiles": [
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\mime-type-unit-22796.profraw"
+  ]
+}

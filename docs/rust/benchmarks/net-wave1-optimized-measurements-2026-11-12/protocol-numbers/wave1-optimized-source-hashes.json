@@ -1,0 +1,23 @@
+{
+  "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+  "net/base/parse_number.cc": "5b9a78840d3156c2510c5ff856daa72a8268bbe42ba4edd92d1496dc676f2d50",
+  "net/base/parse_number.h": "b0140313a243b93c0e3dd7e787cf83adb872a747d7ac71287f7ede96a4ff2e1a",
+  "net/base/parse_number_candidate.cc": "0707553285b24cb24bacdae0acc7cdee232a2b3c9f526dd9bba14a60d143d444",
+  "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+  "net/base/parse_number_fuzzer.cc": "e4bd54f28203c6476efa05d55a4656b14d82b031b040fb4d4398d8ff4ce35499",
+  "net/base/parse_number_native_core_unittest.rs": "8bcae596435dd4252dbaeb2f1856d03a761f2e5db50177154d93577c959b1525",
+  "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+  "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+  "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+  "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+  "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+  "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+  "net/base/parse_number_native_unittest.cc": "3edf4b1458452838c933d3de7db007d9b9331f53d6c388fa3976559fb592002d",
+  "net/base/parse_number_parser.rs": "1de49bdf7c80fc3957c5bc312fea916947a80633e0aabc9bc7bed1aed421605a",
+  "net/base/parse_number_parser_unittest.cc": "8120e6c4ba3a3ccd3325f0a5edd4ab91946f8ed09fccb6c2ac793e20de25ca7c",
+  "net/base/parse_number_perftest.cc": "3438bee927653477c4c5c37c106b64701dc1053ef135324e9781e087d1b93a96",
+  "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+  "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627",
+  "net/base/parse_number_unittest.cc": "ea8c20cd9adf4ecee321dd3f4b5a3cf7a8fc5d03f246cd0511e47c671fb297ad",
+  "net/BUILD.gn": "b3cdf3d7941aa285c0165edb13d9b5547a4a6efacad3bbb31ab16d5c0cfaae3e"
+}

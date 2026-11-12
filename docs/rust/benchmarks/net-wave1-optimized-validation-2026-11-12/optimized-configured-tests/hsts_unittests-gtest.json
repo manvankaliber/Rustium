@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="14" failures="0" disabled="0" errors="0" time="0.043" timestamp="2026-11-12T21:47:44">
+  <testsuite name="HstsRustTest" tests="9" failures="0" disabled="0" errors="0" time="0.043" timestamp="2026-11-12T21:47:44">
+    <testcase name="BridgeLimitAndScalarLayout" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="ClampingAndMalformedOverflow" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="DeterministicGrammarMutations" status="run" time="0.017" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="DuplicatesAndEmptyDirectives" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="EveryByteAsWhitespace" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="EveryByteInNamesAndValues" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="EverySingleByteMutation" status="run" time="0.022" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="LongInputAndEmbeddedNul" status="run" time="0.004" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+    <testcase name="QuotedValuesAndEscapes" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HstsRustTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="HttpSecurityHeadersTest" tests="5" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:44">
+    <testcase name="BogusHeaders" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HttpSecurityHeadersTest">
+    </testcase>
+    <testcase name="InvalidDirectiveNames" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HttpSecurityHeadersTest">
+    </testcase>
+    <testcase name="InvalidDirectiveValues" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HttpSecurityHeadersTest">
+    </testcase>
+    <testcase name="LeadingTrailingSemicolons" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HttpSecurityHeadersTest">
+    </testcase>
+    <testcase name="ValidSTSHeaders" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="HttpSecurityHeadersTest">
+    </testcase>
+  </testsuite>
+</testsuites>

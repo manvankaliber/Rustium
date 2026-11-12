@@ -50,6 +50,7 @@ source_set("dns") {
     "dns_hosts.h",
     "dns_http_attempt.cc",
     "dns_http_attempt.h",
+    "dns_names_ffi.h",
     "dns_names_util.cc",
     "dns_names_util.h",
     "dns_platform_attempt_factory.h",
@@ -183,7 +184,10 @@ source_set("dns") {
     ]
   }
 
-  deps = [ "//net:net_deps" ]
+  deps = [
+    "//net:dns_names_rust",
+    "//net:net_deps",
+  ]
 
   public_deps = [
     ":dns_client",

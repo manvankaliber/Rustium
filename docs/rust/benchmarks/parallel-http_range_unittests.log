@@ -1,0 +1,110 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = HttpUtilTest.ParseContentRangeHeader:HttpUtilTest.ParseRangeHeader:HttpUtilTest.ParseFetchSingleRangeRejectsInvalid:HttpUtilTest.ParseFetchSingleRangeParsesSemanticInvalid:HttpUtilTest.ParseFetchSingleRangeAcceptsNormal:HttpUtilTest.ParseFetchSingleRangeAcceptsSuffix:HttpUtilTest.ParseFetchSingleRangeAcceptsOpenEnded:HttpUtilTest.ParseFetchSingleRangeAcceptsWhitespaceWhenAllowed:HttpUtilTest.ParseFetchSingleRangeAcceptsBoundaryValues:HttpUtilTest.ParseFetchSingleRangeAcceptsValidRangesInStrictMode
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from HttpUtilTest
+[ RUN      ] HttpUtilTest.ParseContentRangeHeader
+[       OK ] HttpUtilTest.ParseContentRangeHeader (4 ms)
+[ RUN      ] HttpUtilTest.ParseRangeHeader
+[       OK ] HttpUtilTest.ParseRangeHeader (7 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeRejectsInvalid
+[       OK ] HttpUtilTest.ParseFetchSingleRangeRejectsInvalid (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeParsesSemanticInvalid
+[       OK ] HttpUtilTest.ParseFetchSingleRangeParsesSemanticInvalid (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsNormal
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsNormal (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsSuffix
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsSuffix (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsOpenEnded
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsOpenEnded (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsWhitespaceWhenAllowed
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsWhitespaceWhenAllowed (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsBoundaryValues
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsBoundaryValues (0 ms)
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeAcceptsValidRangesInStrictMode
+[       OK ] HttpUtilTest.ParseFetchSingleRangeAcceptsValidRangesInStrictMode (0 ms)
+[----------] 10 tests from HttpUtilTest (13 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (14 ms total)
+[  PASSED  ] 10 tests.
+[1/24] HttpUtilTest.ParseContentRangeHeader (4 ms)
+[2/24] HttpUtilTest.ParseRangeHeader (7 ms)
+[3/24] HttpUtilTest.ParseFetchSingleRangeRejectsInvalid (0 ms)
+[4/24] HttpUtilTest.ParseFetchSingleRangeParsesSemanticInvalid (0 ms)
+[5/24] HttpUtilTest.ParseFetchSingleRangeAcceptsNormal (0 ms)
+[6/24] HttpUtilTest.ParseFetchSingleRangeAcceptsSuffix (0 ms)
+[7/24] HttpUtilTest.ParseFetchSingleRangeAcceptsOpenEnded (0 ms)
+[8/24] HttpUtilTest.ParseFetchSingleRangeAcceptsWhitespaceWhenAllowed (0 ms)
+[9/24] HttpUtilTest.ParseFetchSingleRangeAcceptsBoundaryValues (0 ms)
+[10/24] HttpUtilTest.ParseFetchSingleRangeAcceptsValidRangesInStrictMode (0 ms)
+Note: Google Test filter = HttpUtilTest.ParseFetchSingleRangeSaturatesOverflow:HttpRangeRustTest.GrammarQuirksAndPartialAppend:HttpRangeRustTest.InvalidListHeaderMayHaveNullOutput:HttpRangeRustTest.NumericBoundariesAndNonAscii:HttpRangeRustTest.EveryTruncation:HttpRangeRustTest.EveryOctetAtEachGrammarPosition:HttpRangeRustTest.EveryOneAndTwoByteInput:HttpRangeRustTest.ManyRangesAndLongFields:HttpRangeRustTest.ScalarAliasingRetainsSequentialValidation:HttpRangeRustTest.IntermediateWriteCanRestoreOverlappingInput
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from HttpUtilTest
+[ RUN      ] HttpUtilTest.ParseFetchSingleRangeSaturatesOverflow
+[       OK ] HttpUtilTest.ParseFetchSingleRangeSaturatesOverflow (0 ms)
+[----------] 1 test from HttpUtilTest (0 ms total)
+
+[----------] 9 tests from HttpRangeRustTest
+[ RUN      ] HttpRangeRustTest.GrammarQuirksAndPartialAppend
+[       OK ] HttpRangeRustTest.GrammarQuirksAndPartialAppend (0 ms)
+[ RUN      ] HttpRangeRustTest.InvalidListHeaderMayHaveNullOutput
+[       OK ] HttpRangeRustTest.InvalidListHeaderMayHaveNullOutput (0 ms)
+[ RUN      ] HttpRangeRustTest.NumericBoundariesAndNonAscii
+[       OK ] HttpRangeRustTest.NumericBoundariesAndNonAscii (0 ms)
+[ RUN      ] HttpRangeRustTest.EveryTruncation
+[       OK ] HttpRangeRustTest.EveryTruncation (0 ms)
+[ RUN      ] HttpRangeRustTest.EveryOctetAtEachGrammarPosition
+[       OK ] HttpRangeRustTest.EveryOctetAtEachGrammarPosition (11 ms)
+[ RUN      ] HttpRangeRustTest.EveryOneAndTwoByteInput
+[       OK ] HttpRangeRustTest.EveryOneAndTwoByteInput (21 ms)
+[ RUN      ] HttpRangeRustTest.ManyRangesAndLongFields
+[       OK ] HttpRangeRustTest.ManyRangesAndLongFields (0 ms)
+[ RUN      ] HttpRangeRustTest.ScalarAliasingRetainsSequentialValidation
+[       OK ] HttpRangeRustTest.ScalarAliasingRetainsSequentialValidation (0 ms)
+[ RUN      ] HttpRangeRustTest.IntermediateWriteCanRestoreOverlappingInput
+[       OK ] HttpRangeRustTest.IntermediateWriteCanRestoreOverlappingInput (0 ms)
+[----------] 9 tests from HttpRangeRustTest (35 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (36 ms total)
+[  PASSED  ] 10 tests.
+[11/24] HttpUtilTest.ParseFetchSingleRangeSaturatesOverflow (0 ms)
+[12/24] HttpRangeRustTest.GrammarQuirksAndPartialAppend (0 ms)
+[13/24] HttpRangeRustTest.InvalidListHeaderMayHaveNullOutput (0 ms)
+[14/24] HttpRangeRustTest.NumericBoundariesAndNonAscii (0 ms)
+[15/24] HttpRangeRustTest.EveryTruncation (0 ms)
+[16/24] HttpRangeRustTest.EveryOctetAtEachGrammarPosition (11 ms)
+[17/24] HttpRangeRustTest.EveryOneAndTwoByteInput (21 ms)
+[18/24] HttpRangeRustTest.ManyRangesAndLongFields (0 ms)
+[19/24] HttpRangeRustTest.ScalarAliasingRetainsSequentialValidation (0 ms)
+[20/24] HttpRangeRustTest.IntermediateWriteCanRestoreOverlappingInput (0 ms)
+Note: Google Test filter = HttpRangeRustTest.InputOutputOverlapAcrossAlignedPositions:HttpRangeRustTest.MalformedFieldsWithOverlappingOutputs:HttpRangeRustTest.OwnedListBridgeHandlesEmptyAndPartialResults:HttpRangeRustTest.FixedBridgeHandlesNullEmptyAndAliasedStorage
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from HttpRangeRustTest
+[ RUN      ] HttpRangeRustTest.InputOutputOverlapAcrossAlignedPositions
+[       OK ] HttpRangeRustTest.InputOutputOverlapAcrossAlignedPositions (0 ms)
+[ RUN      ] HttpRangeRustTest.MalformedFieldsWithOverlappingOutputs
+[       OK ] HttpRangeRustTest.MalformedFieldsWithOverlappingOutputs (0 ms)
+[ RUN      ] HttpRangeRustTest.OwnedListBridgeHandlesEmptyAndPartialResults
+[       OK ] HttpRangeRustTest.OwnedListBridgeHandlesEmptyAndPartialResults (0 ms)
+[ RUN      ] HttpRangeRustTest.FixedBridgeHandlesNullEmptyAndAliasedStorage
+[       OK ] HttpRangeRustTest.FixedBridgeHandlesNullEmptyAndAliasedStorage (0 ms)
+[----------] 4 tests from HttpRangeRustTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.
+[21/24] HttpRangeRustTest.InputOutputOverlapAcrossAlignedPositions (0 ms)
+[22/24] HttpRangeRustTest.MalformedFieldsWithOverlappingOutputs (0 ms)
+[23/24] HttpRangeRustTest.OwnedListBridgeHandlesEmptyAndPartialResults (0 ms)
+[24/24] HttpRangeRustTest.FixedBridgeHandlesNullEmptyAndAliasedStorage (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

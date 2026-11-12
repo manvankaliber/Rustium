@@ -1,0 +1,23 @@
+DNS names implementation handoff
+
+Production: dns_names_util.cc/.h expose the same APIs, except that a new exported C++ DomainNameLess entry point backs the public inline DomainNameComparator. Consumers include no generated Rust header and link only the usual net export. All owned dotted/network/length/comparison/validation orchestration and canonicalization selection policy executes in safe Rust. No C++ DNS parsing fallback exists.
+
+Remaining C++ seams:
+- Existing IsCanonicalizedHostCompliant internet-hostname service (external URL policy).
+- Existing HostStringIsLocalhost, IPAddress::AssignFromIPLiteral, ParseURLHostnameToAddress and their URL IP parser services. Rust preserves the original short-circuit order.
+- Existing URL CanonicalizeHostVerbose/StdStringCanonOutput/ICU IDNA. Rust selects the original bytes for BROKEN and the URL result otherwise.
+- C++ object ownership and adapters for std::string/vector/span/SpanReader. Cursor commits and copying happen in C++ callbacks; Rust decides every parsing step. Each reader input borrow ends before mutation. The post-advance payload copy preserves legal cursor/input object aliases. The bounded bridge chunk removes per-label heap allocation.
+- Platform ABI, CXX runtime, allocator and Unicode service remain native dependencies.
+
+Frozen baseline: original/ contains byte-for-byte original sources and helper snapshots with SHA-256 manifest. dns_names_reference.cc has original DNS algorithms and frozen hostname/localhost/IP wrapper helpers. Its comparator folds ASCII locally. URL parser/IDNA implementations are shared external services, never a newly migrated DNS helper. The preserved original dns_names_util_unittest.cc is unchanged.
+
+Native validation: build_native.py uses the configured Clang/Rust toolchain and captured configured C++ flags, but no GN/Ninja/build-tree writes. Native production is the actual owned dns_names_util.cc, not an adapter replacement. Native service methods in native_seams.cc are extracted exact bodies from the unmodified URL/IP sources to avoid loading an unrelated stale net.dll dependency chain. Original CreateNamePointer is extracted for the unchanged test. They are service scaffolding only, not a new production algorithm. URL/ICU DLL dependencies and runtime data are copied into this scratch directory for deterministic native loading. These copies are not edits to the configured worktree.
+
+Parent integration:
+1. Apply gn-fragments.gn, including the direct //net/dns:dns dependency and Rust target visibility. Validate GN target details in the configured build; fragments are ungenerated proposals.
+2. Add dns-names to run_rust_rewrite_benchmarks.py patterns (net/dns/dns_names*, plus URL/IP service manifests) and targets [dns_names_perftests,dns_names_reference,dns_names_rust]. No separate benchmark adapter check is needed: the harness invokes public integrated APIs directly.
+3. Safely sync owned files only after checking independent configured-worktree edits. Build net / net_unittests / focused test / perftest/fuzzer targets and exercise component-build comparator import visibility.
+4. Use a coordinated quiet window for the configured perftest. Normal invocation measures; --verify-only exercises all 21 cases without a clock or measurements. Benchmark descriptor has five groups of 5/5/3/3/5 cases. Never run normal perftest while agents compile/fuzz.
+5. Archive configured execution and source digests; import every case into rust-performance.html. Do not label these integrated/accepted until canonical build and required tests pass. No timing has been run by this agent, so no performance gallery or aggregate edit was made.
+
+Optimization follow-up, currently unmeasured: network conversion crosses the bridge for current spans and each cursor commit, and copies through a 256-byte value; dotted/network/canonical APIs copy Rust-owned outputs into C++ ownership. Canonicalization copies the URL result to Rust and back, including an ignored canonicalized result for BROKEN hosts. Measure the prepared workloads before assigning any regression to these seams. Investigate direct owned-buffer transfer and smaller bounded chunks while retaining alias and failure semantics. Retiring URL/IP bridges does not guarantee any algorithmic regression vanishes.

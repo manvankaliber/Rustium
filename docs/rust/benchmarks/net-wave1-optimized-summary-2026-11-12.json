@@ -1,0 +1,126 @@
+{
+  "run": "wave1-optimized",
+  "cases": 177,
+  "modules": [
+    {
+      "module": "protocol-numbers",
+      "cases": 35,
+      "speedup_percent": 64.49341202694958,
+      "measurably_faster": 31,
+      "measurably_slower": 4,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/protocol-numbers-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": 61.797933409553885,
+      "previous_evidence": "docs/rust/benchmarks/protocol-numbers-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "http-range",
+      "cases": 35,
+      "speedup_percent": 51.121541220583765,
+      "measurably_faster": 32,
+      "measurably_slower": 1,
+      "no_measurable_difference": 2,
+      "evidence": "docs/rust/benchmarks/http-range-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": 58.31661555057093,
+      "previous_evidence": "docs/rust/benchmarks/http-range-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "http-status-code",
+      "cases": 5,
+      "speedup_percent": -20.568354055742844,
+      "measurably_faster": 0,
+      "measurably_slower": 5,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/http-status-code-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -31.696116200077253,
+      "previous_evidence": "docs/rust/benchmarks/http-status-code-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "mime-type",
+      "cases": 20,
+      "speedup_percent": 8.34407287290162,
+      "measurably_faster": 10,
+      "measurably_slower": 9,
+      "no_measurable_difference": 1,
+      "evidence": "docs/rust/benchmarks/mime-type-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -49.03978151205638,
+      "previous_evidence": "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "content-disposition",
+      "cases": 15,
+      "speedup_percent": 78.98097829566733,
+      "measurably_faster": 14,
+      "measurably_slower": 0,
+      "no_measurable_difference": 1,
+      "evidence": "docs/rust/benchmarks/content-disposition-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": 87.32065280940986,
+      "previous_evidence": "docs/rust/benchmarks/content-disposition-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "dns-names",
+      "cases": 21,
+      "speedup_percent": 15.260594796380222,
+      "measurably_faster": 11,
+      "measurably_slower": 9,
+      "no_measurable_difference": 1,
+      "evidence": "docs/rust/benchmarks/dns-names-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -46.64236414562565,
+      "previous_evidence": "docs/rust/benchmarks/dns-names-wave1-boundary-final-2026-11-12.json"
+    },
+    {
+      "module": "referrer-policy",
+      "cases": 10,
+      "speedup_percent": 789.4906330473242,
+      "measurably_faster": 10,
+      "measurably_slower": 0,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/referrer-policy-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": 758.3151014862481,
+      "previous_evidence": "docs/rust/benchmarks/referrer-policy-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "auth-challenges",
+      "cases": 6,
+      "speedup_percent": 22.86383801844312,
+      "measurably_faster": 5,
+      "measurably_slower": 0,
+      "no_measurable_difference": 1,
+      "evidence": "docs/rust/benchmarks/auth-challenges-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -13.512429816175642,
+      "previous_evidence": "docs/rust/benchmarks/auth-challenges-wave1-boundary-final-2026-11-12.json"
+    },
+    {
+      "module": "net-diagnostics-debug-formatting",
+      "cases": 9,
+      "speedup_percent": 36.56249963238161,
+      "measurably_faster": 5,
+      "measurably_slower": 4,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -30.471996329776662,
+      "previous_evidence": "docs/rust/benchmarks/net-diagnostics-debug-formatting-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "port-policy",
+      "cases": 6,
+      "speedup_percent": -2.1127818711590307,
+      "measurably_faster": 2,
+      "measurably_slower": 4,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/port-policy-wave1-optimized-2026-11-12.json",
+      "previous_speedup_percent": -45.02886726787213,
+      "previous_evidence": "docs/rust/benchmarks/port-policy-wave1-final-2026-11-12.json"
+    },
+    {
+      "module": "hsts",
+      "cases": 15,
+      "speedup_percent": 336.8437800802475,
+      "measurably_faster": 15,
+      "measurably_slower": 0,
+      "no_measurable_difference": 0,
+      "evidence": "docs/rust/benchmarks/hsts-wave1-optimized-2026-11-12.json"
+    }
+  ],
+  "comparison_note": "Each run compares C++ and Rust in paired randomized-order samples. Before/after optimization figures are separate experiment runs; their differences are not a paired estimate of the optimization alone. Warm isolated public APIs, including recorded interop, are not whole-browser performance."
+}

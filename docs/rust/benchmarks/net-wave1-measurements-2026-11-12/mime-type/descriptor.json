@@ -1,0 +1,304 @@
+{
+  "module": "mime-type",
+  "source": "mime-type",
+  "label": "Content-Type and MIME parsing",
+  "baseline": "Frozen original C++ ParseMimeType, parameter-free parser, Content-Type selection and HTTP whitespace/token helpers; no migrated public helper calls.",
+  "measurement": "Public C++ API, CXX bridge and Rust grammar; preloaded warm bytes; caller string/pair construction, allocation, output consumption and destruction included. 20 paired repetitions with deterministic randomized order. Single isolated operation; not Chromium end-to-end performance. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+  "chart_scope": "Public C++ API + Rust bridge / warm input",
+  "chart_baseline": "Baseline: original C++ MIME and Content-Type parsers.",
+  "scope_excludes": [
+    "network I/O",
+    "browser startup",
+    "disk I/O",
+    "input construction",
+    "environment setup"
+  ],
+  "build_path": "Parent must capture canonical configured GN flags, executable/source hashes and successful execution; native harness is validation only.",
+  "groups": [
+    {
+      "id": "mime-type-parameters",
+      "title": "Parse MIME parameters",
+      "operation": "Parse MIME parameters",
+      "cases": [
+        {
+          "key": "parse_simple",
+          "label": "Simple MIME",
+          "input_hex": "6170706c69636174696f6e2f6a736f6e",
+          "input_bytes": 16,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "parse_quoted",
+          "label": "Quoted escapes",
+          "input_hex": "746578742f68746d6c3b206e616d653d22613b625c2263223b20636861727365743d5554462d38",
+          "input_bytes": 39,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "parse_malformed_quote",
+          "label": "Unterminated quote",
+          "input_hex": "612f623b20783d22756e7465726d696e617465645c",
+          "input_bytes": 21,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "parse_many",
+          "label": "32 parameters",
+          "input_hex": "612f623b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c63223b20703d22613b625c6322",
+          "input_bytes": 355,
+          "iterations_per_pair_side": 10000,
+          "api": "ParseMimeType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "parse_bytes",
+          "label": "Non-ASCII and NUL",
+          "input_hex": "612fff3b20783d2200802200",
+          "input_bytes": 12,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "mime-type-tokens",
+      "title": "Validate parameter-free MIME",
+      "operation": "Validate parameter-free MIME",
+      "cases": [
+        {
+          "key": "strict_simple",
+          "label": "Simple tokens",
+          "input_hex": "6170706c69636174696f6e2f6a736f6e",
+          "input_bytes": 16,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeTypeWithoutParameter",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "strict_whitespace",
+          "label": "Outer ASCII whitespace",
+          "input_hex": "0b0d0a20544558542f506c61696e090c",
+          "input_bytes": 16,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeTypeWithoutParameter",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "strict_invalid",
+          "label": "Internal whitespace",
+          "input_hex": "74657874202f706c61696e",
+          "input_bytes": 11,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeTypeWithoutParameter",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "strict_nonascii",
+          "label": "Non-ASCII token",
+          "input_hex": "612fff",
+          "input_bytes": 3,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeTypeWithoutParameter",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "strict_multislash",
+          "label": "Multiple slashes",
+          "input_hex": "612f622f63",
+          "input_bytes": 5,
+          "iterations_per_pair_side": 100000,
+          "api": "ParseMimeTypeWithoutParameter",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "mime-type-content",
+      "title": "Parse Content-Type parameters",
+      "operation": "Parse Content-Type parameters",
+      "cases": [
+        {
+          "key": "content_simple",
+          "label": "Type only",
+          "input_hex": "6170706c69636174696f6e2f6a736f6e",
+          "input_bytes": 16,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_charset",
+          "label": "Charset",
+          "input_hex": "746578742f68746d6c3b20636861727365743d5554462d38",
+          "input_bytes": 24,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_boundary",
+          "label": "Quoted boundary",
+          "input_hex": "6d756c7469706172742f666f726d2d646174613b20626f756e646172793d222062205c782022",
+          "input_bytes": 38,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_duplicate",
+          "label": "First duplicate wins",
+          "input_hex": "746578742f68746d6c3b20636861727365743d66697273743b20636861727365743d6c6173743b20626f756e646172793d6f6e653b20626f756e646172793d74776f",
+          "input_bytes": 66,
+          "iterations_per_pair_side": 50000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_empty_charset",
+          "label": "Empty quoted charset",
+          "input_hex": "746578742f68746d6c3b20636861727365743d2222",
+          "input_bytes": 21,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    },
+    {
+      "id": "mime-type-state",
+      "title": "Preserve Content-Type state",
+      "operation": "Preserve Content-Type state",
+      "cases": [
+        {
+          "key": "content_exact_wildcard",
+          "label": "Exact wildcard ignored",
+          "input_hex": "2a2f2a",
+          "input_bytes": 3,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_malformed",
+          "label": "Invalid type",
+          "input_hex": "696e76616c69643b20636861727365743d5554462d38",
+          "input_bytes": 22,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_same_type",
+          "label": "Same MIME keeps charset",
+          "input_hex": "544558542f48544d4c",
+          "input_bytes": 9,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_changed_type",
+          "label": "Changed MIME resets charset",
+          "input_hex": "544558542f504c41494e",
+          "input_bytes": 10,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        },
+        {
+          "key": "content_alias_boundary",
+          "label": "Boundary aliases MIME",
+          "input_hex": "746578742f68746d6c3b20626f756e646172793d22544558542f48544d4c22",
+          "input_bytes": 31,
+          "iterations_per_pair_side": 100000,
+          "api": "HttpUtil::ParseContentType with boundary==mime",
+          "initial_mime": "Text/Html",
+          "initial_charset": "OLD",
+          "initial_had_charset": true,
+          "initial_boundary": "keep"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "CXX",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  }
+}

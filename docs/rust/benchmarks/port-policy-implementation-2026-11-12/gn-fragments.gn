@@ -1,0 +1,38 @@
+﻿# Parent-owned net/BUILD.gn fragments. Add rust_static_library import if absent.
+rust_static_library("port_policy_rust") {
+  crate_root = "base/port_policy_ffi.rs"
+  sources = [ "base/port_policy_core.rs", "base/port_policy_ffi.rs" ]
+  cxx_bindings = [ "base/port_policy_ffi.rs" ]
+  allow_unsafe = true  # Generated CXX only. The policy core forbids unsafe.
+  visibility = [ ":*" ]
+  deps = [ "//base" ]
+}
+# Add :port_policy_rust to the target compiling base/port_util.cc, and
+# base/port_policy_ffi.h to that target's sources. The bridge callbacks live in
+# port_util.cc. Public C++ callers depend on the existing net target.
+source_set("port_policy_reference") {
+  testonly = true
+  sources = [ "base/port_policy_reference.cc", "base/port_policy_reference.h", "base/port_policy_reference_number.cc", "base/port_policy_reference_number.h" ]
+  deps = [ ":net", "//base" ]
+}
+test("port_policy_rust_unittests") {
+  sources = [ "base/port_policy_rust_unittest.cc", "test/run_all_unittests.cc" ]
+  deps = [ ":port_policy_reference", ":net", ":test_support", "//base", "//base/test:test_support", "//testing/gtest" ]
+}
+test("port_policy_perftests") {
+  sources = [ "base/port_policy_perftest.cc" ]
+  deps = [ ":port_policy_reference", ":net", "//base" ]
+}
+# Run feature-initializing differential suite separately from original tests:
+# each original implementation caches its feature parameter sets process-wide.
+
+fuzzer_test("port_policy_rust_fuzzer") {
+  sources = [ "base/port_policy_fuzzer.cc" ]
+  deps = [ ":port_policy_reference", ":net", "//base" ]
+  libfuzzer_options = [ "max_len=48" ]
+}
+
+test("port_policy_original_unittests") {
+  sources = [ "base/port_util_unittest.cc", "test/run_all_unittests.cc" ]
+  deps = [ ":net", ":test_support", "//base", "//base/test:test_support", "//testing/gtest" ]
+}

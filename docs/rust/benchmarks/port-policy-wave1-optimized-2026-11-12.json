@@ -1,0 +1,1369 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "wave1-optimized",
+  "label": "Optimized production APIs",
+  "validation_stage": "final",
+  "metadata": {
+    "module": "port-policy",
+    "source": "port-policy",
+    "label": "Port validation and policy",
+    "measurement": "Same-process public API including Rust FFI and state ownership. 20 randomized-order pairs, seed 20261112, 20000 operations per sample. Setup and warmup outside timing; one endpoint construction per measured sample and exception destruction or multiset reset in their respective workloads included. Feature defaults and empty localhost parameter; excludes networking and configuration startup. Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+    "baseline": "Frozen port_util.cc and private original ParseInt32 helper; base string conversion and Chromium feature, histogram and IP helpers remain shared.",
+    "groups": [
+      {
+        "id": "port-policy-scheme",
+        "title": "Port restrictions",
+        "operation": "IsPortAllowedForScheme",
+        "cases": [
+          {
+            "key": "port_invalid",
+            "label": "Invalid negative port"
+          },
+          {
+            "key": "port_restricted",
+            "label": "Built-in restricted port"
+          },
+          {
+            "key": "port_regular",
+            "label": "Ordinary allowed port"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "port-policy-state",
+        "title": "Endpoint and mutable policy",
+        "operation": "Endpoint or state sequence",
+        "cases": [
+          {
+            "key": "port_localhost",
+            "label": "Localhost, empty feature set"
+          },
+          {
+            "key": "port_scoped",
+            "label": "Scoped exception and lookup"
+          },
+          {
+            "key": "port_reset",
+            "label": "Duplicate reset, count and clear"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      }
+    ],
+    "production_status": "integrated",
+    "include_in_average": true,
+    "bridge": {
+      "present": true,
+      "included_in_timing": true,
+      "separately_measured": false,
+      "kind": "CXX",
+      "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+    },
+    "optimization_note": "Accepted configured remeasurement after the coordinated optimization pass; all original cases retained. Bridge presence is recorded; its contribution is not separately measured."
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 0.29053929999645334,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\port_policy_perftests.exe"
+    ],
+    "executable_sha256": "45ab826eec260ffb2d5fade73eaedfb4b30825b00a3484805edd2c4c5208f558",
+    "module": "port-policy",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "integrated; acceptance validation recorded separately",
+    "started_utc": "2026-11-12T21:57:22.710278+00:00",
+    "completed_utc": "2026-11-12T21:57:23.000824+00:00",
+    "local_dll_sha256": {
+      "net.dll": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2",
+      "net_port_policy_reference.dll": "44344643cb9d5e438f7c692b9afd0e88524234da702495cc97342a0bac0fbddb",
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "vcruntime140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "vcruntime140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "dbghelp.dll": "2d2ec94891162a61d86789133623b47d64d74c15d6be99473b25ad7a6468cf39",
+      "net_third_party_quiche.dll": "55d57cdebffbb9bd05c73e848a11dc98c7e6369f1c9f6977cf91132a74116883",
+      "components_unexportable_keys.dll": "26f9efe75b8b97532c777ec7b2772b9729bda2ced69dd7aa901eb0d1f36cd05e",
+      "sql.dll": "485f5beae9408cb0b5b6c8a6e52b0c5458912d0deea7127d0fb120c0acc36bba",
+      "components_performance_manager_scenario_api.dll": "af0c63ff96e51bea637af05b736a6228d569ad6f1f54b61b4be85c665c52a408",
+      "components_sqlite_vfs.dll": "c10c622d9266e19150780148185801dd3a0914af48b788ba0b028c66ea35d197",
+      "third_party_protobuf_protobuf_full_and_lite_library.dll": "afe2106912c58ed9469721d1469a1b3c0e5f69ad96f9983e474c478d6f7a919e",
+      "crcrypto.dll": "35a83714f10e80a76f35968f7783fe2828e6f3e2c5c0413c12623eb79a6ce3fd",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "net_third_party_uri_template.dll": "2192781c9cc1958d8d1a64b89730a0d3c2f3fa8d1477e3fe67f4109ed837978d",
+      "components_sqlite_vfs_pending_file_set.dll": "2923cc24a989d7ada791225498e8a901e69220bbd15c5b55d0ef54203cf11013",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "third_party_sqlite_chromium_sqlite3.dll": "931861a83054dbd2e8f3309d3404b50744198c9b9b47d591326424b39b251bd1"
+    },
+    "system_dll_imports": [
+      "advapi32.dll",
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-delayload-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-kernel32-legacy-l1-1-0.dll",
+      "api-ms-win-core-libraryloader-l1-1-0.dll",
+      "api-ms-win-core-localization-l1-1-0.dll",
+      "api-ms-win-core-localregistry-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-misc-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-realtime-l1-1-1.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-threadpool-l1-1-0.dll",
+      "api-ms-win-core-util-l1-1-0.dll",
+      "api-ms-win-core-winrt-l1-1-0.dll",
+      "api-ms-win-core-winrt-string-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "api-ms-win-crt-private-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-eventing-provider-l1-1-0.dll",
+      "api-ms-win-power-base-l1-1-0.dll",
+      "api-ms-win-security-base-l1-1-0.dll",
+      "api-ms-win-shcore-scaling-l1-1-1.dll",
+      "bcrypt.dll",
+      "bcryptprimitives.dll",
+      "cfgmgr32.dll",
+      "crypt32.dll",
+      "dhcpcsvc.dll",
+      "gdi32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ncrypt.dll",
+      "ntdll.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "pdh.dll",
+      "propsys.dll",
+      "rpcrt4.dll",
+      "secur32.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "shlwapi.dll",
+      "tbs.dll",
+      "urlmon.dll",
+      "user32.dll",
+      "userenv.dll",
+      "version.dll",
+      "winhttp.dll",
+      "winmm.dll",
+      "wintrust.dll",
+      "ws2_32.dll"
+    ],
+    "dependency_inspector": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\dumpbin.exe",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "port_policy_perftests": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "port_policy_reference": {
+        "defines": "-DIS_PORT_POLICY_REFERENCE_IMPL -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "port_policy_rust": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "net": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc$:inline /Gw",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "port_policy_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "631ce8b12de71bee591f20f7803f3ec39a6f52183627c701f4ef1b457a05666a",
+    "source_hashes_file_sha256": "9fc622a0dd48bc03d93ac5c9752503dce2238a2ba11c534065d80b372ada7d46"
+  },
+  "source_sha256": {
+    "base/strings/string_number_conversions.cc": "2197d2c7874be6ebd98420eace7d5cd62f69ba06076d7c1fa6722a9d664cf812",
+    "base/strings/string_number_conversions.h": "dcecf9161bb1e2bd2ee0482e68c199263289bf0a60874cd50d2cc426de6b3b2c",
+    "base/strings/string_number_conversions_fuzzer.cc": "6ed91af51d65ca31c81f61df998eadd303d4a75a17258ad113ccfce0fcd2ef83",
+    "base/strings/string_number_conversions_internal.h": "c60c3610dd1bb9e355af3e66f04ec96e11f282f7e8e9c9c2e6cff79cd362ae6d",
+    "base/strings/string_number_conversions_unittest.cc": "e3aae7076e23513cd115f18550216233500ea3b0375582ade16bbb6d502022e8",
+    "base/strings/string_number_conversions_win.cc": "95341cd5e0184775524326cc14e521ec9e0f7aba0b71db3f1e1dce685e0ea6e6",
+    "base/strings/string_number_conversions_win.h": "788975b49d6b3a43e420a669f759d495cf5d7c7b39d09ca55ba361ea884bf3bd",
+    "base/strings/string_split.cc": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+    "base/strings/string_split.h": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+    "base/strings/string_split_internal.h": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+    "base/strings/string_split_nocompile.nc": "a7439b9867db90af2a1422cfc654d699a8852f3d1a600454022b4df5c73a21b1",
+    "base/strings/string_split_unittest.cc": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+    "base/strings/string_split_win.h": "3948ad4dba15161de85f732b9864cea7b21bf5647c11adec95673a9a0d2c4024",
+    "base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+    "base/strings/string_util.h": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+    "base/strings/string_util_impl_helpers.h": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+    "base/strings/string_util_internal.h": "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c",
+    "base/strings/string_util_perftest.cc": "a121e83c34389dbb7b6a9846e6e39e01ad835db97039763129f4fb487a2e5675",
+    "base/strings/string_util_posix.h": "efb87b972f035030aab5d42b9dea120d88b7649c24726df80ce0bb60a5f4c9ac",
+    "base/strings/string_util_unittest.cc": "3e9a11941409eb813ad0d947e0927f010302c652560876fca20f94a75238f840",
+    "base/strings/string_util_win.cc": "cf033c158816a3a038ea99d4590db66680e1e5303bed6dcb400fe1f74bca3b4b",
+    "base/strings/string_util_win.h": "f89fb7d7c5556b3045935f6378fbc150ba16b6f97cc3e832d8217ae042b1d8ae",
+    "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+    "net/base/features.cc": "25655c1ad7063ca6daf33145b1c40a6be2d7d9e048b3b73409250cdf27632b93",
+    "net/base/features.h": "d782c9dd94417d981dfc80a538d9035cef4a75c176eb7f0dd997b3428bfbeeab",
+    "net/base/ip_address.cc": "b3b8c985d8e8d0339205715c2ebb4adc519cfc7b7a23a923082fe5306e57ec79",
+    "net/base/ip_address.h": "7f9aaa37992dc7efb49d1769bb00c111904458a928e45c3c0e8bd433b3eea704",
+    "net/base/ip_address_unittest.cc": "62198af1c7e50ee3a38b6f8b4819bb2a739941769b5cc7b294f580dac9cb8813",
+    "net/base/ip_address_util.cc": "b1b1b52bec2055f67d4e6903dfc69c723e1ac9fc0c613436d36548d7e960b560",
+    "net/base/ip_address_util.h": "faada2d10195124bca34011c8a77b922d4473d0b8cce210c322d5bd15a9c636f",
+    "net/base/ip_address_util_unittest.cc": "ff2997b1009cc566598bda6cf6773b5500ba6699169ab568895ceaf0137f655a",
+    "net/base/ip_endpoint.cc": "443b06f44364ce880f1d44efdafe6bdb604705ce5785378d9030950d85a5884d",
+    "net/base/ip_endpoint.h": "081a5b903e234cc8126a40d504844fdd6893684a65fab77265f958f049aa6692",
+    "net/base/port_policy_core.rs": "489a6e5c4430d27e4beb989ddb5359f6c9de073dc6646fc7e4200c1601f40a96",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+    "net/base/port_policy_fuzzer.cc": "e06f7fc673897c529ccddde98291df205a5e0d945d20dae6ab7026060b7b9074",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "3a8dca8adcf5c0cda16be4cf4a62667402a22c7b0eb9d72290d2b14898735f16",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "36094b18b33fa98bc1aa6fd89decc9aa707d32cf03dd9742dbb62f080efef593",
+    "net/base/port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7",
+    "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e",
+    "net/BUILD.gn": "b3cdf3d7941aa285c0165edb13d9b5547a4a6efacad3bbb31ab16d5c0cfaae3e"
+  },
+  "raw_report_sha256": "631ce8b12de71bee591f20f7803f3ec39a6f52183627c701f4ef1b457a05666a",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "port_invalid",
+      "label": "Invalid negative port",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 2.235,
+      "rust_median_ns": 3.7875,
+      "change_percent": 69.46308724832215,
+      "bootstrap_95_ci_percent": [
+        61.372950819672134,
+        74.04921700223714
+      ],
+      "absolute_time_change_ns": 1.5525000000000002,
+      "bootstrap_90_ci_time_change_ns": [
+        1.48,
+        1.6375000000000002
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "port_restricted",
+      "label": "Built-in restricted port",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 6.685,
+      "rust_median_ns": 7.672499999999999,
+      "change_percent": 14.771877337322369,
+      "bootstrap_95_ci_percent": [
+        14.73448017950636,
+        14.857784431137722
+      ],
+      "absolute_time_change_ns": 0.9874999999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        0.9850000000000003,
+        0.9924999999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "port_regular",
+      "label": "Ordinary allowed port",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 34.265,
+      "rust_median_ns": 37.935,
+      "change_percent": 10.710637676929814,
+      "bootstrap_95_ci_percent": [
+        10.33226464587582,
+        12.496294100207518
+      ],
+      "absolute_time_change_ns": 3.6700000000000017,
+      "bootstrap_90_ci_time_change_ns": [
+        3.5749999999999957,
+        3.7724999999999937
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "port_localhost",
+      "label": "Localhost, empty feature set",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 37.81,
+      "rust_median_ns": 40.75,
+      "change_percent": 7.775720708807188,
+      "bootstrap_95_ci_percent": [
+        5.621340273259601,
+        8.488310308182779
+      ],
+      "absolute_time_change_ns": 2.9399999999999977,
+      "bootstrap_90_ci_time_change_ns": [
+        2.197499999999998,
+        3.155000000000001
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "port_scoped",
+      "label": "Scoped exception and lookup",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 66.76750000000001,
+      "rust_median_ns": 46.4825,
+      "change_percent": -30.381547908787965,
+      "bootstrap_95_ci_percent": [
+        -31.256939817899188,
+        -30.228893058161354
+      ],
+      "absolute_time_change_ns": -20.28500000000001,
+      "bootstrap_90_ci_time_change_ns": [
+        -20.965000000000003,
+        -20.17
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "port_reset",
+      "label": "Duplicate reset, count and clear",
+      "run": "wave1-optimized",
+      "baseline_median_ns": 168.9275,
+      "rust_median_ns": 118.85,
+      "change_percent": -29.644374065797464,
+      "bootstrap_95_ci_percent": [
+        -30.312481610074737,
+        -28.9666202647869
+      ],
+      "absolute_time_change_ns": -50.077500000000015,
+      "bootstrap_90_ci_time_change_ns": [
+        -51.26750000000001,
+        -49.06499999999998
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "port_invalid",
+      "repeat": 0,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.72,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 1,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.855,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 2,
+      "baseline_ns": 2.235,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 3,
+      "baseline_ns": 2.235,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 4,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 5,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 6,
+      "baseline_ns": 2.235,
+      "rust_ns": 3.895,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 7,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 8,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 9,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 10,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 11,
+      "baseline_ns": 2.23,
+      "rust_ns": 3.715,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 12,
+      "baseline_ns": 4.55,
+      "rust_ns": 6.14,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 13,
+      "baseline_ns": 3.55,
+      "rust_ns": 5.68,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 14,
+      "baseline_ns": 2.36,
+      "rust_ns": 3.855,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 15,
+      "baseline_ns": 2.575,
+      "rust_ns": 3.98,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 16,
+      "baseline_ns": 3.665,
+      "rust_ns": 6.465,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 17,
+      "baseline_ns": 2.51,
+      "rust_ns": 4.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 18,
+      "baseline_ns": 2.37,
+      "rust_ns": 3.89,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_invalid",
+      "repeat": 19,
+      "baseline_ns": 2.595,
+      "rust_ns": 4.26,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 0,
+      "baseline_ns": 7.305,
+      "rust_ns": 8.09,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 1,
+      "baseline_ns": 6.87,
+      "rust_ns": 8.725,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 2,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 3,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 4,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 5,
+      "baseline_ns": 6.78,
+      "rust_ns": 7.675,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 6,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.985,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 7,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 8,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 9,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.675,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 10,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 11,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.675,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 12,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 13,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.765,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 14,
+      "baseline_ns": 6.715,
+      "rust_ns": 7.675,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 15,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 16,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.675,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 17,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 18,
+      "baseline_ns": 6.68,
+      "rust_ns": 7.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_restricted",
+      "repeat": 19,
+      "baseline_ns": 6.685,
+      "rust_ns": 7.79,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 0,
+      "baseline_ns": 32.285,
+      "rust_ns": 37.855,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 1,
+      "baseline_ns": 33.115,
+      "rust_ns": 37.85,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 2,
+      "baseline_ns": 32.295,
+      "rust_ns": 37.85,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 3,
+      "baseline_ns": 34.31,
+      "rust_ns": 37.855,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 4,
+      "baseline_ns": 33.195,
+      "rust_ns": 39.735,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 5,
+      "baseline_ns": 32.29,
+      "rust_ns": 40.265,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 6,
+      "baseline_ns": 54.715,
+      "rust_ns": 44.07,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 7,
+      "baseline_ns": 34.615,
+      "rust_ns": 38.04,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 8,
+      "baseline_ns": 32.895,
+      "rust_ns": 37.855,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 9,
+      "baseline_ns": 34.42,
+      "rust_ns": 37.85,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 10,
+      "baseline_ns": 34.265,
+      "rust_ns": 37.925,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 11,
+      "baseline_ns": 34.265,
+      "rust_ns": 37.855,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 12,
+      "baseline_ns": 34.455,
+      "rust_ns": 37.85,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 13,
+      "baseline_ns": 34.265,
+      "rust_ns": 37.945,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 14,
+      "baseline_ns": 34.265,
+      "rust_ns": 38.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 15,
+      "baseline_ns": 34.27,
+      "rust_ns": 37.865,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 16,
+      "baseline_ns": 34.265,
+      "rust_ns": 37.975,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 17,
+      "baseline_ns": 38.585,
+      "rust_ns": 37.97,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_regular",
+      "repeat": 18,
+      "baseline_ns": 34.8,
+      "rust_ns": 38.035,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_regular",
+      "repeat": 19,
+      "baseline_ns": 34.27,
+      "rust_ns": 37.97,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 0,
+      "baseline_ns": 38.54,
+      "rust_ns": 40.575,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 1,
+      "baseline_ns": 38.66,
+      "rust_ns": 40.575,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 2,
+      "baseline_ns": 38.425,
+      "rust_ns": 40.575,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 3,
+      "baseline_ns": 38.75,
+      "rust_ns": 40.975,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 4,
+      "baseline_ns": 39.21,
+      "rust_ns": 40.825,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 5,
+      "baseline_ns": 38.35,
+      "rust_ns": 40.845,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 6,
+      "baseline_ns": 37.36,
+      "rust_ns": 42.48,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 7,
+      "baseline_ns": 37.825,
+      "rust_ns": 41.02,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 8,
+      "baseline_ns": 40.84,
+      "rust_ns": 50.15,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 9,
+      "baseline_ns": 37.625,
+      "rust_ns": 40.595,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 10,
+      "baseline_ns": 37.64,
+      "rust_ns": 40.57,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 11,
+      "baseline_ns": 37.43,
+      "rust_ns": 40.575,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 12,
+      "baseline_ns": 37.425,
+      "rust_ns": 40.575,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 13,
+      "baseline_ns": 37.695,
+      "rust_ns": 40.82,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 14,
+      "baseline_ns": 38.44,
+      "rust_ns": 40.605,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 15,
+      "baseline_ns": 37.77,
+      "rust_ns": 40.68,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 16,
+      "baseline_ns": 37.605,
+      "rust_ns": 40.905,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 17,
+      "baseline_ns": 37.795,
+      "rust_ns": 40.495,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 18,
+      "baseline_ns": 37.335,
+      "rust_ns": 57.775,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_localhost",
+      "repeat": 19,
+      "baseline_ns": 39.835,
+      "rust_ns": 70.04,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 0,
+      "baseline_ns": 88.71,
+      "rust_ns": 46.44,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 1,
+      "baseline_ns": 66.58,
+      "rust_ns": 46.485,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 2,
+      "baseline_ns": 67.385,
+      "rust_ns": 46.425,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 3,
+      "baseline_ns": 67.95,
+      "rust_ns": 46.53,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 4,
+      "baseline_ns": 66.37,
+      "rust_ns": 46.485,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 5,
+      "baseline_ns": 74.285,
+      "rust_ns": 46.41,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 6,
+      "baseline_ns": 67.7,
+      "rust_ns": 46.42,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 7,
+      "baseline_ns": 66.48,
+      "rust_ns": 46.41,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 8,
+      "baseline_ns": 67.235,
+      "rust_ns": 46.58,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 9,
+      "baseline_ns": 66.585,
+      "rust_ns": 46.485,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 10,
+      "baseline_ns": 67.795,
+      "rust_ns": 46.485,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 11,
+      "baseline_ns": 66.58,
+      "rust_ns": 46.625,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 12,
+      "baseline_ns": 66.775,
+      "rust_ns": 46.24,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 13,
+      "baseline_ns": 67.825,
+      "rust_ns": 46.41,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 14,
+      "baseline_ns": 66.76,
+      "rust_ns": 46.41,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 15,
+      "baseline_ns": 66.655,
+      "rust_ns": 46.41,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 16,
+      "baseline_ns": 66.73,
+      "rust_ns": 46.48,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 17,
+      "baseline_ns": 66.595,
+      "rust_ns": 46.5,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 18,
+      "baseline_ns": 66.655,
+      "rust_ns": 46.555,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_scoped",
+      "repeat": 19,
+      "baseline_ns": 67.39,
+      "rust_ns": 46.52,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 0,
+      "baseline_ns": 221.965,
+      "rust_ns": 113.84,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 1,
+      "baseline_ns": 168.655,
+      "rust_ns": 120.515,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 2,
+      "baseline_ns": 178.825,
+      "rust_ns": 121.19,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 3,
+      "baseline_ns": 170.305,
+      "rust_ns": 118.42,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 4,
+      "baseline_ns": 168.51,
+      "rust_ns": 119.7,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 5,
+      "baseline_ns": 168.3,
+      "rust_ns": 119.355,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 6,
+      "baseline_ns": 169.485,
+      "rust_ns": 118.225,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 7,
+      "baseline_ns": 168.785,
+      "rust_ns": 117.91,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 8,
+      "baseline_ns": 169.93,
+      "rust_ns": 122.605,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 9,
+      "baseline_ns": 168.88,
+      "rust_ns": 120.845,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 10,
+      "baseline_ns": 169.09,
+      "rust_ns": 118.32,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 11,
+      "baseline_ns": 187.055,
+      "rust_ns": 118.695,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 12,
+      "baseline_ns": 168.41,
+      "rust_ns": 122.5,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 13,
+      "baseline_ns": 168.11,
+      "rust_ns": 120.13,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 14,
+      "baseline_ns": 203.32,
+      "rust_ns": 118.595,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 15,
+      "baseline_ns": 170.435,
+      "rust_ns": 117.7,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 16,
+      "baseline_ns": 168.975,
+      "rust_ns": 117.62,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 17,
+      "baseline_ns": 168.2,
+      "rust_ns": 117.62,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "port_reset",
+      "repeat": 18,
+      "baseline_ns": 167.985,
+      "rust_ns": 119.005,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "port_reset",
+      "repeat": 19,
+      "baseline_ns": 168.42,
+      "rust_ns": 119.08,
+      "iterations": 20000,
+      "rust_first": true
+    }
+  ],
+  "recorded_at": "2026-11-12T21:57:22.710278+00:00"
+}

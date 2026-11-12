@@ -1,0 +1,89 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = AuthChallengeRustTest.BoundaryAndAliasCases:AuthChallengeRustTest.LongSchemesAndMutableBacking:HttpAuthChallengeTokenizerTest.Basic:HttpAuthChallengeTokenizerTest.NoQuotes:HttpAuthChallengeTokenizerTest.MismatchedQuotes:HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue:HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces:HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple:HttpAuthChallengeTokenizerTest.NoValue:HttpAuthChallengeTokenizerTest.Multiple
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from AuthChallengeRustTest
+[ RUN      ] AuthChallengeRustTest.BoundaryAndAliasCases
+[       OK ] AuthChallengeRustTest.BoundaryAndAliasCases (0 ms)
+[ RUN      ] AuthChallengeRustTest.LongSchemesAndMutableBacking
+[       OK ] AuthChallengeRustTest.LongSchemesAndMutableBacking (0 ms)
+[----------] 2 tests from AuthChallengeRustTest (0 ms total)
+
+[----------] 8 tests from HttpAuthChallengeTokenizerTest
+[ RUN      ] HttpAuthChallengeTokenizerTest.Basic
+[       OK ] HttpAuthChallengeTokenizerTest.Basic (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoQuotes
+[       OK ] HttpAuthChallengeTokenizerTest.NoQuotes (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotes
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotes (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple
+[       OK ] HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoValue
+[       OK ] HttpAuthChallengeTokenizerTest.NoValue (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.Multiple
+[       OK ] HttpAuthChallengeTokenizerTest.Multiple (0 ms)
+[----------] 8 tests from HttpAuthChallengeTokenizerTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 10 tests.
+[1/19] AuthChallengeRustTest.BoundaryAndAliasCases (0 ms)
+[2/19] AuthChallengeRustTest.LongSchemesAndMutableBacking (0 ms)
+[3/19] HttpAuthChallengeTokenizerTest.Basic (0 ms)
+[4/19] HttpAuthChallengeTokenizerTest.NoQuotes (0 ms)
+[5/19] HttpAuthChallengeTokenizerTest.MismatchedQuotes (0 ms)
+[6/19] HttpAuthChallengeTokenizerTest.MismatchedQuotesNoValue (0 ms)
+[7/19] HttpAuthChallengeTokenizerTest.MismatchedQuotesSpaces (0 ms)
+[8/19] HttpAuthChallengeTokenizerTest.MismatchedQuotesMultiple (0 ms)
+[9/19] HttpAuthChallengeTokenizerTest.NoValue (0 ms)
+[10/19] HttpAuthChallengeTokenizerTest.Multiple (0 ms)
+Note: Google Test filter = HttpAuthChallengeTokenizerTest.NoProperty:HttpAuthChallengeTokenizerTest.Base64:HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge:HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken:HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme:HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge:HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken:HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken:HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical
+[==========] Running 9 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 2 tests from HttpAuthChallengeTokenizerTest
+[ RUN      ] HttpAuthChallengeTokenizerTest.NoProperty
+[       OK ] HttpAuthChallengeTokenizerTest.NoProperty (0 ms)
+[ RUN      ] HttpAuthChallengeTokenizerTest.Base64
+[       OK ] HttpAuthChallengeTokenizerTest.Base64 (0 ms)
+[----------] 2 tests from HttpAuthChallengeTokenizerTest (0 ms total)
+
+[----------] 7 tests from HttpAuthHandlerNegotiateParseTest
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken
+[       OK ] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken (0 ms)
+[ RUN      ] HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical
+[       OK ] HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical (0 ms)
+[----------] 7 tests from HttpAuthHandlerNegotiateParseTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 2 test suites ran. (1 ms total)
+[  PASSED  ] 9 tests.
+[11/19] HttpAuthChallengeTokenizerTest.NoProperty (0 ms)
+[12/19] HttpAuthChallengeTokenizerTest.Base64 (0 ms)
+[13/19] HttpAuthHandlerNegotiateParseTest.ParseFirstRoundChallenge (0 ms)
+[14/19] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_UnexpectedToken (0 ms)
+[15/19] HttpAuthHandlerNegotiateParseTest.ParseFirstNegotiateChallenge_BadScheme (0 ms)
+[16/19] HttpAuthHandlerNegotiateParseTest.ParseLaterRoundChallenge (0 ms)
+[17/19] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_MissingToken (0 ms)
+[18/19] HttpAuthHandlerNegotiateParseTest.ParseAnotherNegotiateChallenge_InvalidToken (0 ms)
+[19/19] HttpAuthHandlerNegotiateParseTest.AllSchemesAreCanonical (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

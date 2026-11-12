@@ -1,0 +1,17 @@
+[package]
+name = "dns-names-validation"
+version = "0.1.0"
+edition = "2024"
+[lib]
+path = "D:/Rustium/net/dns/dns_names_ffi.rs"
+crate-type = ["staticlib"]
+[dependencies]
+cxx = "=1.0.205"
+[profile.release]
+opt-level = 3
+codegen-units = 1
+[patch.crates-io]
+cc = { path = "C:/Users/jackv/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cc-1.8.0" }
+shlex = { path = "C:/Users/jackv/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shlex-2.0.1" }
+find-msvc-tools = { path = "C:/Users/jackv/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/find-msvc-tools-0.1.14" }
+

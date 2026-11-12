@@ -1,0 +1,46 @@
+[==========] Running 15 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from ContentDispositionRustTest
+[ RUN      ] ContentDispositionRustTest.DifferentialEdgeCases
+[       OK ] ContentDispositionRustTest.DifferentialEdgeCases (65 ms)
+[ RUN      ] ContentDispositionRustTest.IteratorFailureAndByteBoundaries
+[       OK ] ContentDispositionRustTest.IteratorFailureAndByteBoundaries (4 ms)
+[ RUN      ] ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership
+[       OK ] ContentDispositionRustTest.ResponseHeaderConstructorAndOwnership (0 ms)
+[----------] 3 tests from ContentDispositionRustTest (70 ms total)
+
+[----------] 12 tests from HttpContentDispositionTest
+[ RUN      ] HttpContentDispositionTest.Filename/0
+[       OK ] HttpContentDispositionTest.Filename/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.Filename/1
+[       OK ] HttpContentDispositionTest.Filename/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.tc2231/0
+[       OK ] HttpContentDispositionTest.tc2231/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.tc2231/1
+[       OK ] HttpContentDispositionTest.tc2231/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ParseResult/0
+[       OK ] HttpContentDispositionTest.ParseResult/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ParseResult/1
+[       OK ] HttpContentDispositionTest.ParseResult/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ContainsNul/0
+[       OK ] HttpContentDispositionTest.ContainsNul/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.ContainsNul/1
+D:\Rustium\net\http\http_content_disposition_unittest.cc(544): Skipped
+
+
+[  SKIPPED ] HttpContentDispositionTest.ContainsNul/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.NoContentDisposition/0
+[       OK ] HttpContentDispositionTest.NoContentDisposition/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.NoContentDisposition/1
+[       OK ] HttpContentDispositionTest.NoContentDisposition/1 (0 ms)
+[ RUN      ] HttpContentDispositionTest.MultipleContentDisposition/0
+[       OK ] HttpContentDispositionTest.MultipleContentDisposition/0 (0 ms)
+[ RUN      ] HttpContentDispositionTest.MultipleContentDisposition/1
+[       OK ] HttpContentDispositionTest.MultipleContentDisposition/1 (0 ms)
+[----------] 12 tests from HttpContentDispositionTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 2 test suites ran. (72 ms total)
+[  PASSED  ] 14 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] HttpContentDispositionTest.ContainsNul/1

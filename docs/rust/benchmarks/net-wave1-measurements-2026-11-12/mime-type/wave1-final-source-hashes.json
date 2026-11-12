@@ -1,0 +1,17 @@
+{
+  "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+  "net/base/mime_type_ffi.rs": "33b2564f5c06ada725fc6906d6ef7fc0600d751802c7b2f6163a1940bdbf2911",
+  "net/base/mime_type_parser.rs": "22e61a5d1030f2e27ae6906ee89e30d17c862be9eef012387576e41e1d409226",
+  "net/base/mime_type_rust_adapter.h": "feacf151be355e576204052a03add8360b6d4d3446213069f9125e3706153551",
+  "net/base/mime_type_rust_fuzzer.cc": "717b054bc6af6ce5d904d7c949bfb6552cb0cfffbb2bb25ecf5dbe52bc6976ac",
+  "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+  "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+  "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+  "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+  "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+  "net/base/mime_type_rust_unittest.cc": "d5506567e3b93e5461428710a2fc23a642540d9dcb769878aa53855dfcb1031c",
+  "net/base/mime_util.cc": "8b5a313e232106625f23168a373732e0847276a306b67853ecc10776b314c4bf",
+  "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7",
+  "net/http/http_util.cc": "6d8a43e4e9ed10a342b59b4cd31b684023f37a56bf413a1e1f4bbf67a0bda04a",
+  "net/http/http_util.h": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871"
+}

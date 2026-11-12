@@ -1,0 +1,379 @@
+{
+  "component": "Content-Type and MIME parameter parsing",
+  "status": "Concrete optimization and native validation complete; parent must apply coordinated wrapper/GN changes, build configured production, and remeasure",
+  "created_utc": "2026-11-12T21:17:08.971845+00:00",
+  "prior_accepted_revision_remains_accepted": true,
+  "historical_evidence_untouched": true,
+  "new_performance_measurements": false,
+  "modified_or_new_files": {
+    "net/base/mime_util.cc": "e08fbd7d257174372fb732aa95d8c77fb957c6054003c50463f2ce0f1f63346f",
+    "net/base/mime_type_ffi.rs": "63004e370f312309f3270fb7e6fbbd66bc0229fb0156042550e0520855855ea1",
+    "net/base/mime_type_parser.rs": "a4a7fc9a08d2c9bda44171dbd62d0b4bcd76b8f32c0d79051a539747ce473ddb",
+    "net/base/mime_type_rust_adapter.h": "632e9aba369c802bea6be60bb464534113027d1f56169a2d936989da1ee785ce",
+    "net/base/mime_type_rust_optimization_unittest.cc": "58321725d0d35e11976c07d7e3cd893b2c08ba0f63cdf5974e94a7cb74b992ab",
+    "net/base/mime_type_rust_state.h": "73be4b0e9262fc6dd09b73126f50f125f56d73783ceec44ab03f87794db931d6",
+    ".scratch/net-wave1/content-type/optimization/http-util-wrapper.cc.txt": "41a5e131e8149e5a6ab4494d5c48c01871abf32e584e61361a228192edd25063"
+  },
+  "source_sha256": {
+    "net/base/mime_util.cc": "e08fbd7d257174372fb732aa95d8c77fb957c6054003c50463f2ce0f1f63346f",
+    "net/base/mime_type_ffi.rs": "63004e370f312309f3270fb7e6fbbd66bc0229fb0156042550e0520855855ea1",
+    "net/base/mime_type_parser.rs": "a4a7fc9a08d2c9bda44171dbd62d0b4bcd76b8f32c0d79051a539747ce473ddb",
+    "net/base/mime_type_rust_adapter.h": "632e9aba369c802bea6be60bb464534113027d1f56169a2d936989da1ee785ce",
+    "net/base/mime_type_rust_fuzzer.cc": "717b054bc6af6ce5d904d7c949bfb6552cb0cfffbb2bb25ecf5dbe52bc6976ac",
+    "net/base/mime_type_rust_optimization_unittest.cc": "58321725d0d35e11976c07d7e3cd893b2c08ba0f63cdf5974e94a7cb74b992ab",
+    "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+    "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+    "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+    "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+    "net/base/mime_type_rust_state.h": "73be4b0e9262fc6dd09b73126f50f125f56d73783ceec44ab03f87794db931d6",
+    "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+    "net/base/mime_type_rust_unittest.cc": "d5506567e3b93e5461428710a2fc23a642540d9dcb769878aa53855dfcb1031c",
+    ".scratch/net-wave1/content-type/optimization/http-util-wrapper.cc.txt": "41a5e131e8149e5a6ab4494d5c48c01871abf32e584e61361a228192edd25063"
+  },
+  "before_manifest": "D:/Rustium/.scratch/net-wave1/content-type/optimization/before-manifest.json",
+  "source_snapshot": "D:/Rustium/docs/rust/benchmarks/mime-type-optimization-20261112T211705Z/source-snapshot.zip",
+  "source_snapshot_sha256": "c486623362c67ffbdc36a9df905ae51c7f3422d13948180726313f6a39fd2740",
+  "durable_evidence_directory": "D:/Rustium/docs/rust/benchmarks/mime-type-optimization-20261112T211705Z",
+  "canonical_regression_evidence": {
+    "path": "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json",
+    "sha256": "2b85b32446a2980bc98078ffc342cb21df23fde66a167649c077f2233a1a7c58",
+    "cause_attribution": "No measured attribution collected; static redundant allocation/copy/call paths identified and changed."
+  },
+  "implemented_optimizations": [
+    "Borrowed scalar offsets for MIME and parameter-free tokens, replacing owned Rust token byte vectors",
+    "One final MIME parameter descriptor vector built directly by FFI; names/unchanged values borrow input by offset",
+    "Shared transformed-byte scratch only for required unescaping or actual ASCII lowercase output",
+    "Content-Type selects first requested parameters directly from the byte iterator without a full parameter vector",
+    "Skip decoding/retaining unused or later duplicate Content-Type parameters",
+    "Single Content-Type plan call with synchronous Rust-controlled lazy state getters; unchanged MIME does not materialize a normalized output",
+    "C++ materializes final selected values once before any aliased output writes and commits in original mutation order"
+  ],
+  "policy_location": "All grammar, token validation, unescaping, ASCII normalization, first-parameter selection, alias-aware MIME equality, lazy state reads and charset retention/reset remain in safe Rust (mime_type_parser.rs forbids unsafe_code).",
+  "ffi_safety": {
+    "authored_unsafe": "Only unsafe extern C++ declarations for immutable, synchronous state getters; documented validity/lifetime contract. No handwritten Rust pointer arithmetic/dereference or uninitialized mutable outputs.",
+    "state_getters": "C++ returns borrowed bytes or bool; no CxxString ABI crosses Cargo support library. No input/state borrow survives the FFI call.",
+    "layouts": "Shared structs and opaque C++ state are generated by CXX; explicit field conversion between core and FFI avoids handwritten layout casts.",
+    "alias_ownership": "C++ stages all selected strings/pairs before output writes; offsets remain valid across scratch-vector reallocations; commit order remains MIME then parameter vector, top then subtype, and boundary then MIME then charset."
+  },
+  "static_review": {
+    "notes": "D:/Rustium/.scratch/net-wave1/content-type/optimization/static-review.txt",
+    "generated_bridge_sha256": "c66b6ae8939afde0c9256d2ac1d3da7d332e742446fcc6c9faaecdddf042153c",
+    "optimized_llvm_sha256": "af12735edd16ef77ecae096265f808326e60fe13e8ee54685277008c41683c1a",
+    "kind": "Source/generated-code inspection only; no timing or allocator instrumentation. No speedup or parity claimed."
+  },
+  "unchanged_frozen_baseline_and_workloads": {
+    "net/base/mime_util.h": "2eaf40fd2a8bb60b44baef7247bfab79397cc2583a0010df7d69ad5a875a96a5",
+    "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+    "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+    "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+    "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+    "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+    "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json": "2b85b32446a2980bc98078ffc342cb21df23fde66a167649c077f2233a1a7c58"
+  },
+  "validation": {
+    "unit_tests": 13,
+    "original_test_bodies": 4,
+    "new_optimization_tests": 3,
+    "new_cases": [
+      "scratch growth with escaped/empty values and embedded NUL/non-ASCII bytes",
+      "incoming Content-Type aliases every mutable string output across all output alias partitions",
+      "heap-backed strict parser input/output alias snapshots and MIME output inside existing parameter storage"
+    ],
+    "unit_execution": {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit.exe",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit-results.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.6945550441741943,
+      "affinity_mask": 64,
+      "sha256": "47e5a6becfa6af246d0d56f264513b22f966c486af8d0f6436f9ff316ed341fd",
+      "benchmark": false
+    },
+    "fuzz_execution": {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\fuzz.exe",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\corpus",
+        "-runs=1000000",
+        "-max_len=512",
+        "-seed=20261112",
+        "-print_final_stats=1",
+        "-artifact_prefix=D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\crash-"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 49.87129998207092,
+      "affinity_mask": 64,
+      "sha256": "b804553aaefbc092b9d8aa3d0c22dee74968ab661747d7a9beefcef84d24ccbb",
+      "benchmark": false
+    },
+    "differential_fuzz_executions": 1000000,
+    "fuzz_affinity_cpu": 6,
+    "fuzz_max_input_bytes": 512,
+    "fuzz_corpus": "Fresh authored seeds; exact starting corpus zipped before execution; final corpus archived. libFuzzer instruments C++ adapters/oracle; each invocation checks full candidate public API results.",
+    "coverage": {
+      "authored_runtime_lines_covered": 229,
+      "authored_runtime_lines_total": 229,
+      "authored_runtime_regions_covered": 312,
+      "authored_runtime_regions_total": 312,
+      "branch_coverage_collected": false,
+      "qualified_runtime_exclusions": [],
+      "outside_authored_runtime_scope": [
+        "generated CXX glue",
+        "vendored crates",
+        "standard library"
+      ],
+      "raw": "coverage-raw.json"
+    },
+    "lint_and_format": {
+      "clippy": {
+        "command": [
+          "python",
+          "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\build_native.py",
+          "lint"
+        ],
+        "exit_code": 0
+      },
+      "rustfmt": {
+        "command": [
+          "D:/RustiumBuild/src/third_party/rust-toolchain/bin/rustfmt.exe",
+          "--edition",
+          "2024",
+          "--check",
+          "D:\\Rustium\\net\\base\\mime_type_parser.rs",
+          "D:\\Rustium\\net\\base\\mime_type_ffi.rs"
+        ],
+        "exit_code": 0
+      },
+      "clang-format": {
+        "command": [
+          "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+          "--dry-run",
+          "--Werror",
+          "D:\\Rustium\\net\\base\\mime_type_rust_adapter.h",
+          "D:\\Rustium\\net\\base\\mime_type_rust_fuzzer.cc",
+          "D:\\Rustium\\net\\base\\mime_type_rust_optimization_unittest.cc",
+          "D:\\Rustium\\net\\base\\mime_type_rust_state.h",
+          "D:\\Rustium\\net\\base\\mime_type_rust_test_support.h",
+          "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc"
+        ],
+        "exit_code": 0
+      },
+      "scope": {
+        "only_owned_mime_util_methods_changed": true
+      },
+      "unchanged_reference_workloads_and_evidence": {
+        "net/base/mime_util.h": "2eaf40fd2a8bb60b44baef7247bfab79397cc2583a0010df7d69ad5a875a96a5",
+        "net/base/mime_type_rust_original_unittest.cc": "b1711ef79e87a47528e8dfb8fc1d377f2630cce057d6e5210b860cea774af2e4",
+        "net/base/mime_type_rust_perftest.cc": "91780e8f4ef796957c2af367f0b2e545d356f339af5ad089a1004d5b43ef6014",
+        "net/base/mime_type_rust_reference.cc": "f9a033042126464cdabb725d3700ee753bac6c57eca77154556a6ada97b8232d",
+        "net/base/mime_type_rust_reference.h": "ba30e90c9c8527bb108458374ac6db92324cf7d8b15d8aa60c39014b6aefa86e",
+        "net/base/mime_type_rust_test_support.h": "ba71a8b0c1e1c665f77fc968c5bd5b7b92cd6f2092de0d49ed27429e6e44da5d",
+        "docs/rust/benchmarks/mime-type-wave1-final-2026-11-12.json": "2b85b32446a2980bc98078ffc342cb21df23fde66a167649c077f2233a1a7c58"
+      },
+      "native_method_bodies_match_final_production_or_parent_patch": true,
+      "unit": {
+        "exit_code": 0,
+        "binary_sha256": "47e5a6becfa6af246d0d56f264513b22f966c486af8d0f6436f9ff316ed341fd"
+      },
+      "fuzz": {
+        "exit_code": 0,
+        "binary_sha256": "b804553aaefbc092b9d8aa3d0c22dee74968ab661747d7a9beefcef84d24ccbb"
+      },
+      "benchmark_timing_executed": false
+    },
+    "production_compile": "Owned mime_util.cc compiled in full with configured Chromium Clang flags; native program links exact extracted owned method bodies and proposed HttpUtil wrapper, verified by SHA-256. Full configured GN link is parent-owned.",
+    "native_reference_define": "IS_MIME_TYPE_TEST_REFERENCE_IMPL for local focused reference compilation; reference source/header algorithms unchanged."
+  },
+  "native_binaries": {
+    "unit": {
+      "sha256": "47e5a6becfa6af246d0d56f264513b22f966c486af8d0f6436f9ff316ed341fd",
+      "link_command": [
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+        "/OUT:D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit.exe",
+        "/SUBSYSTEM:CONSOLE",
+        "/INCREMENTAL:NO",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\reader.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\reference.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\bridge.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\optimization_unit.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\original_unit.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\unit_main.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\coverage-target\\release\\mime_type_validation.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll.lib",
+        "advapi32.lib",
+        "userenv.lib",
+        "ws2_32.lib",
+        "bcrypt.lib",
+        "ntdll.lib",
+        "dbghelp.lib",
+        "synchronization.lib",
+        "shlwapi.lib",
+        "shell32.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\chrome_custom_temp_dir.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-assertion-result.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-death-test.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-filepath.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-matchers.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-printers.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-test-part.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest-typed-test.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\gtest_port_wrapper.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\obj\\third_party\\googletest\\gtest\\stack_trace_getter.obj",
+        "D:\\RustiumBuild\\src\\out\\Default\\third_party_abseil-cpp_absl.dll.lib",
+        "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libprofiler_builtins-a7f7fd32685d1bf1.rlib",
+        "/LIBPATH:C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/lib/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/ucrt/x64"
+      ],
+      "compile_response_files": {
+        "bridge.rsp": "6a6142c7e7df95443d235dc3bc76f0ea53e7aec09bdb77ba47f4fb6e66ad9e12",
+        "optimization_unit.rsp": "1c49dc7062ce921f2dcdacd7f5577fef5eee9a1b6b38e5a35cd00000239f49b9",
+        "original_unit.rsp": "9c67262dad70c821045a6fca50af83270d55bcd60fd77422872c7734037ad930",
+        "production_mime.rsp": "aa590944e8419f75a6f6fde7ea38fd9bc06e62de67a6b49c360ccd10bf66bc48",
+        "reader.rsp": "c01c6093858ce16d0458ad7f10fd2a08b107fefee3e68f79aaea1fd8f351e1ca",
+        "reference.rsp": "d7b9b806bc9120b1c121b2f4656aab34872f58c40bd3ec44bc57a46f94fa577c",
+        "unit.rsp": "e567ffefd983ced2e2104ca9e81db5864393b13d2020062d4f12aa7af62f4bda",
+        "unit_main.rsp": "8b2367fbc4dd87796c70157fb5a999a752cd0322806578b87e0c2f975eadb29f"
+      },
+      "configured_template": "D:\\RustiumBuild\\src\\out\\Default\\toolchain.ninja",
+      "configured_variables": "D:\\RustiumBuild\\src\\out\\Default\\obj\\net\\gzip_header_unittests.ninja"
+    },
+    "fuzz": {
+      "sha256": "b804553aaefbc092b9d8aa3d0c22dee74968ab661747d7a9beefcef84d24ccbb",
+      "link_command": [
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+        "/OUT:D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\fuzz.exe",
+        "/SUBSYSTEM:CONSOLE",
+        "/INCREMENTAL:NO",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\reader.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\reference.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\bridge.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\fuzz.obj",
+        "D:\\Rustium\\.scratch\\net-wave1\\content-type\\optimization\\chromium-target\\release\\mime_type_validation.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll.lib",
+        "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll.lib",
+        "advapi32.lib",
+        "userenv.lib",
+        "ws2_32.lib",
+        "bcrypt.lib",
+        "ntdll.lib",
+        "dbghelp.lib",
+        "synchronization.lib",
+        "shlwapi.lib",
+        "shell32.lib",
+        "/LIBPATH:C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/lib/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64",
+        "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/ucrt/x64",
+        "/NODEFAULTLIB:clang_rt.ubsan_standalone-x86_64.lib",
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\lib\\clang\\24\\lib\\windows\\clang_rt.ubsan_standalone-x86_64.lib",
+        "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\lib\\clang\\24\\lib\\windows\\clang_rt.ubsan_standalone_cxx-x86_64.lib",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerCrossOver.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerDataFlowTrace.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerDriver.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsDlsym.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsWeak.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtFunctionsWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCounters.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCountersDarwin.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerExtraCountersWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerFork.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerInterceptors.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIO.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIOPosix.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerIOWindows.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerLoop.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMain.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMerge.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerMutate.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerSHA1.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerTracePC.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtil.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilDarwin.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilLinux.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilPosix.obj",
+        "D:\\Rustium\\.scratch\\data-pack\\fuzzer-engine\\FuzzerUtilWindows.obj"
+      ],
+      "compile_response_files": {
+        "bridge.rsp": "361c5dc0092ae2b7cf96278719f753b7ddfa7a2cdf241d7e070eda8752fd4435",
+        "fuzz.rsp": "943cc0219cdaea4b287daa126b0beabdb1618ce39bf0e931d906e1420e58dd01",
+        "reader.rsp": "62063fd70d328205043c9e488ef32b03cc352cf138e4d6a27de4b07507753452",
+        "reference.rsp": "758e294f43b0e43139e9ba966c57c80bd0d5062770d61e07cb9701066506150b"
+      },
+      "configured_template": "D:\\RustiumBuild\\src\\out\\Default\\toolchain.ninja",
+      "configured_variables": "D:\\RustiumBuild\\src\\out\\Default\\obj\\net\\gzip_header_perftests.ninja"
+    }
+  },
+  "rust_flags": {
+    "release": "-Cdebug-assertions=yes -Ccontrol-flow-guard=yes -Cpanic=abort; Cargo release opt-level=3 codegen-units=1",
+    "coverage_addition": "-Cinstrument-coverage",
+    "ir_addition": "--emit=llvm-ir",
+    "dependencies": "Offline cxx 1.0.205 and existing vendored/cache dependencies; Cargo.lock in snapshot"
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+    "logical_cpus": 16,
+    "toolchain": {
+      "rustc": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)\nbinary: rustc\ncommit-hash: 41b321963cf979d564d4bb447d9a09347664659f\ncommit-date: 2026-10-29\nhost: x86_64-pc-windows-msvc\nrelease: 1.101.0-nightly\nLLVM version: 24.0.0",
+      "clang-cl": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+      "cxxbridge": "cxxbridge 1.0.205",
+      "clang-format": "clang-format version 23.1.5"
+    },
+    "configured_root": "D:/RustiumBuild/src/out/Default"
+  },
+  "commands": [
+    "python .scratch/net-wave1/content-type/optimization/build_native.py coverage",
+    "python .scratch/net-wave1/content-type/optimization/build_native.py unit",
+    "python .scratch/net-wave1/content-type/optimization/run_native.py unit",
+    "python .scratch/net-wave1/content-type/optimization/coverage.py",
+    "python .scratch/net-wave1/content-type/optimization/build_native.py rust",
+    "python .scratch/net-wave1/content-type/optimization/build_native.py fuzz",
+    "python .scratch/net-wave1/content-type/optimization/run_native.py fuzz",
+    "python .scratch/net-wave1/content-type/optimization/build_native.py ir",
+    "python .scratch/net-wave1/content-type/optimization/checks.py"
+  ],
+  "parent_integration": {
+    "http_util_replacement": "D:/Rustium/.scratch/net-wave1/content-type/optimization/http-util-wrapper.cc.txt",
+    "gn_fragment": "D:/Rustium/.scratch/net-wave1/content-type/optimization/gn-fragments.gn.txt",
+    "abi_coordination": "Apply wrapper and new FFI together; old shared wrapper calls removed intermediate owned-value functions. New header-only state target/public dependency enables generated CXX includes without a net dependency cycle.",
+    "configured_tests": [
+      "net production link",
+      "mime_type_unittests including new optimization source",
+      "mime_type_parser_fuzzer",
+      "applicable net_unittests MIME/Content-Type/response-header consumers"
+    ],
+    "benchmarks": "All unchanged 20 mime_type_perftests cases through real net.dll and frozen reference component DLL. No native timing was run. Use unique accepted run slug; archive/import all results, update gallery/backlog, sync dashboard per AGENTS.",
+    "configured_tree_sync_or_gn_ninja_performed_by_agent": false
+  },
+  "remaining_cpp_seams": [
+    "caller std::string/StringPairs ownership and final staging/ordered commits",
+    "synchronous read-only string/boolean state getter adaptation",
+    "MimeUtil singleton/public forwarding",
+    "extension/MIME tables and platform lookups",
+    "MIME matching and its independent matching-specific parameter parser",
+    "top-level MIME tables/validation, enumeration, multipart generation/formatting and media-type extraction wrapper",
+    "all unrelated HttpUtil and GURL/platform algorithms outside this component"
+  ],
+  "limitations": [
+    "No speedup or allocation-count measurement; prior slowdown attribution remains unverified.",
+    "Final canonical build, native component DLL interoperability and all-case performance measurement require parent integration.",
+    "Runtime coverage is line/region coverage, not branch coverage or proof of memory safety; C++ oracle instrumentation guides the fuzzer.",
+    "MIME descriptor/scratch vector growth, final C++ storage, alias staging and bridge/getter/destructor calls remain. These changes do not guarantee parity."
+  ],
+  "optimization_followup": {
+    "verified": "The listed redundant owning-token paths and unused Content-Type materialization are removed from source/generated code.",
+    "unverified": "Performance effect, relative bridge contribution and residual algorithmic regression.",
+    "next": "Parent remeasures every unchanged case. Keep integrated slower cases accepted and in aggregate; archive all differences and exact residual regressions before further targeted optimization."
+  }
+}

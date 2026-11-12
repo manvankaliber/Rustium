@@ -1,0 +1,497 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = GZipHeaderRustTest.OrdinaryHeaderAndPayload:GZipHeaderRustTest.CompletionInitializesOutputStorage:GZipHeaderRustTest.InputCanAliasOutputStorage:GZipHeaderRustTest.EveryFlagCombination:GZipHeaderRustTest.EveryTruncation:GZipHeaderRustTest.EverySplitPoint:GZipHeaderRustTest.FragmentedOptionalFields:GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary:GZipHeaderRustTest.MaximumExtraLength:GZipHeaderRustTest.EmptyNameAndComment
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GZipHeaderRustTest
+[ RUN      ] GZipHeaderRustTest.OrdinaryHeaderAndPayload
+[       OK ] GZipHeaderRustTest.OrdinaryHeaderAndPayload (0 ms)
+[ RUN      ] GZipHeaderRustTest.CompletionInitializesOutputStorage
+[       OK ] GZipHeaderRustTest.CompletionInitializesOutputStorage (0 ms)
+[ RUN      ] GZipHeaderRustTest.InputCanAliasOutputStorage
+[       OK ] GZipHeaderRustTest.InputCanAliasOutputStorage (0 ms)
+[ RUN      ] GZipHeaderRustTest.EveryFlagCombination
+[       OK ] GZipHeaderRustTest.EveryFlagCombination (0 ms)
+[ RUN      ] GZipHeaderRustTest.EveryTruncation
+[       OK ] GZipHeaderRustTest.EveryTruncation (0 ms)
+[ RUN      ] GZipHeaderRustTest.EverySplitPoint
+[       OK ] GZipHeaderRustTest.EverySplitPoint (0 ms)
+[ RUN      ] GZipHeaderRustTest.FragmentedOptionalFields
+[       OK ] GZipHeaderRustTest.FragmentedOptionalFields (0 ms)
+[ RUN      ] GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary
+[       OK ] GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary (0 ms)
+[ RUN      ] GZipHeaderRustTest.MaximumExtraLength
+[       OK ] GZipHeaderRustTest.MaximumExtraLength (7 ms)
+[ RUN      ] GZipHeaderRustTest.EmptyNameAndComment
+[       OK ] GZipHeaderRustTest.EmptyNameAndComment (0 ms)
+[----------] 10 tests from GZipHeaderRustTest (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (10 ms total)
+[  PASSED  ] 10 tests.
+[1/123] GZipHeaderRustTest.OrdinaryHeaderAndPayload (0 ms)
+[2/123] GZipHeaderRustTest.CompletionInitializesOutputStorage (0 ms)
+[3/123] GZipHeaderRustTest.InputCanAliasOutputStorage (0 ms)
+[4/123] GZipHeaderRustTest.EveryFlagCombination (0 ms)
+[5/123] GZipHeaderRustTest.EveryTruncation (0 ms)
+[6/123] GZipHeaderRustTest.EverySplitPoint (0 ms)
+[7/123] GZipHeaderRustTest.FragmentedOptionalFields (0 ms)
+[8/123] GZipHeaderRustTest.ZeroLengthExtraAtChunkBoundary (0 ms)
+[9/123] GZipHeaderRustTest.MaximumExtraLength (7 ms)
+[10/123] GZipHeaderRustTest.EmptyNameAndComment (0 ms)
+Note: Google Test filter = GZipHeaderRustTest.LongNameAndComment:GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted:GZipHeaderRustTest.HeaderCrcRemainsOpaque:GZipHeaderRustTest.InvalidMagicAndCompressionMethod:GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete:GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged:GZipHeaderRustTest.CompletionAndEmptyCalls:GZipHeaderRustTest.DifferentialSingleByteMutations:GZipHeaderRustTest.InvalidBridgeStateIsRejected:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/0
+[==========] Running 10 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 9 tests from GZipHeaderRustTest
+[ RUN      ] GZipHeaderRustTest.LongNameAndComment
+[       OK ] GZipHeaderRustTest.LongNameAndComment (0 ms)
+[ RUN      ] GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted
+[       OK ] GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted (0 ms)
+[ RUN      ] GZipHeaderRustTest.HeaderCrcRemainsOpaque
+[       OK ] GZipHeaderRustTest.HeaderCrcRemainsOpaque (0 ms)
+[ RUN      ] GZipHeaderRustTest.InvalidMagicAndCompressionMethod
+[       OK ] GZipHeaderRustTest.InvalidMagicAndCompressionMethod (1 ms)
+[ RUN      ] GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete
+[       OK ] GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete (0 ms)
+[ RUN      ] GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged
+[       OK ] GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged (0 ms)
+[ RUN      ] GZipHeaderRustTest.CompletionAndEmptyCalls
+[       OK ] GZipHeaderRustTest.CompletionAndEmptyCalls (0 ms)
+[ RUN      ] GZipHeaderRustTest.DifferentialSingleByteMutations
+[       OK ] GZipHeaderRustTest.DifferentialSingleByteMutations (6 ms)
+[ RUN      ] GZipHeaderRustTest.InvalidBridgeStateIsRejected
+[       OK ] GZipHeaderRustTest.InvalidBridgeStateIsRejected (0 ms)
+[----------] 9 tests from GZipHeaderRustTest (9 ms total)
+
+[----------] 1 test from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/0 (0 ms)
+[----------] 1 test from GzipSourceStreamTests/GzipSourceStreamTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 2 test suites ran. (9 ms total)
+[  PASSED  ] 10 tests.
+[11/123] GZipHeaderRustTest.LongNameAndComment (0 ms)
+[12/123] GZipHeaderRustTest.ReservedFlagsAndTextAreAccepted (0 ms)
+[13/123] GZipHeaderRustTest.HeaderCrcRemainsOpaque (0 ms)
+[14/123] GZipHeaderRustTest.InvalidMagicAndCompressionMethod (1 ms)
+[15/123] GZipHeaderRustTest.ResetAfterPartialInvalidAndComplete (0 ms)
+[16/123] GZipHeaderRustTest.IncompleteAndInvalidLeaveOutputUnchanged (0 ms)
+[17/123] GZipHeaderRustTest.CompletionAndEmptyCalls (0 ms)
+[18/123] GZipHeaderRustTest.DifferentialSingleByteMutations (6 ms)
+[19/123] GZipHeaderRustTest.InvalidBridgeStateIsRejected (0 ms)
+[20/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/0 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/1:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/2:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/3:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/4:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/5:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/6:GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/0:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/2
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/2 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (3 ms total)
+[  PASSED  ] 10 tests.
+[21/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/1 (0 ms)
+[22/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/2 (0 ms)
+[23/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/3 (0 ms)
+[24/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/4 (0 ms)
+[25/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/5 (0 ms)
+[26/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/6 (0 ms)
+[27/123] GzipSourceStreamTests/GzipSourceStreamTest.EmptyStream/7 (0 ms)
+[28/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/0 (0 ms)
+[29/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/1 (0 ms)
+[30/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/2 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/4:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/6:GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/7:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/0:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/1:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/2:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/3:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/4
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/3 (1 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/4 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 10 tests.
+[31/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/3 (1 ms)
+[32/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/4 (0 ms)
+[33/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/5 (0 ms)
+[34/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/6 (0 ms)
+[35/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateOneBlock/7 (0 ms)
+[36/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/0 (0 ms)
+[37/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/1 (0 ms)
+[38/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/2 (0 ms)
+[39/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/3 (0 ms)
+[40/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/4 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/5:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/6:GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/0:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/2:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/4:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/6
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/5 (1 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/6 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 10 tests.
+[41/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/5 (1 ms)
+[42/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/6 (0 ms)
+[43/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipOneBloc/7 (0 ms)
+[44/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/0 (0 ms)
+[45/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/1 (0 ms)
+[46/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/2 (0 ms)
+[47/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/3 (0 ms)
+[48/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/4 (0 ms)
+[49/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/5 (0 ms)
+[50/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/6 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/7:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/0:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/1:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/2:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/3:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/4:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/5:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/6:GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/7:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/0
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/7 (1 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/0 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 10 tests.
+[51/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateTwoReads/7 (1 ms)
+[52/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/0 (0 ms)
+[53/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/1 (0 ms)
+[54/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/2 (0 ms)
+[55/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/3 (0 ms)
+[56/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/4 (0 ms)
+[57/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/5 (0 ms)
+[58/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/6 (0 ms)
+[59/123] GzipSourceStreamTests/GzipSourceStreamTest.IgnoreDataAfterEof/7 (0 ms)
+[60/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/0 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/1:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/2:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/3:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/4:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/5:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/6:GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/7:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/0:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/1:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/2
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/2 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 10 tests.
+[61/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/1 (0 ms)
+[62/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/2 (0 ms)
+[63/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/3 (0 ms)
+[64/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/4 (0 ms)
+[65/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/5 (0 ms)
+[66/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/6 (0 ms)
+[67/123] GzipSourceStreamTests/GzipSourceStreamTest.MissingZlibHeader/7 (0 ms)
+[68/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/0 (0 ms)
+[69/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/1 (0 ms)
+[70/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/2 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/3:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/4:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/5:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/6:GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/7:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/0:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/1:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/2:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/3:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/4
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/4 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 10 tests.
+[71/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/3 (0 ms)
+[72/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/4 (0 ms)
+[73/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/5 (0 ms)
+[74/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/6 (0 ms)
+[75/123] GzipSourceStreamTests/GzipSourceStreamTest.CorruptGzipHeader/7 (0 ms)
+[76/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/0 (0 ms)
+[77/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/1 (0 ms)
+[78/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/2 (0 ms)
+[79/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/3 (0 ms)
+[80/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/4 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/5:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/6:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/7:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/0:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/1:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/2:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/3:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/4:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/5:GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/6
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/6 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 10 tests.
+[81/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/5 (0 ms)
+[82/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/6 (0 ms)
+[83/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectness/7 (0 ms)
+[84/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/0 (0 ms)
+[85/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/1 (0 ms)
+[86/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/2 (0 ms)
+[87/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/3 (0 ms)
+[88/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/4 (0 ms)
+[89/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/5 (0 ms)
+[90/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/6 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/0:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/2:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/4:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/6:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/0
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/0 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 10 tests.
+[91/123] GzipSourceStreamTests/GzipSourceStreamTest.GzipCorrectnessWithoutFooter/7 (0 ms)
+[92/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/0 (0 ms)
+[93/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/1 (0 ms)
+[94/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/2 (0 ms)
+[95/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/3 (0 ms)
+[96/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/4 (0 ms)
+[97/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/5 (0 ms)
+[98/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/6 (0 ms)
+[99/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithAdler32/7 (0 ms)
+[100/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/0 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/2:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/4:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/6:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/0:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/2
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/2 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 10 tests.
+[101/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/1 (0 ms)
+[102/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/2 (0 ms)
+[103/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/3 (0 ms)
+[104/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/4 (0 ms)
+[105/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/5 (0 ms)
+[106/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/6 (0 ms)
+[107/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithBadAdler32/7 (0 ms)
+[108/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/0 (0 ms)
+[109/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/1 (0 ms)
+[110/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/2 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/4:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/6:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/7:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/0:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/1:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/2:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/3:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/4
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/4 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/7 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/0
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/0 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/1
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/1 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/2
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/2 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/3
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/3 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/4
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/4 (0 ms)
+[----------] 10 tests from GzipSourceStreamTests/GzipSourceStreamTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (2 ms total)
+[  PASSED  ] 10 tests.
+[111/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/3 (0 ms)
+[112/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/4 (0 ms)
+[113/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/5 (0 ms)
+[114/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/6 (0 ms)
+[115/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithAdler32/7 (0 ms)
+[116/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/0 (0 ms)
+[117/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/1 (0 ms)
+[118/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/2 (0 ms)
+[119/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/3 (0 ms)
+[120/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/4 (0 ms)
+Note: Google Test filter = GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/5:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/6:GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/7
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from GzipSourceStreamTests/GzipSourceStreamTest
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/5
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/5 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/6
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/6 (0 ms)
+[ RUN      ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/7
+[       OK ] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/7 (0 ms)
+[----------] 3 tests from GzipSourceStreamTests/GzipSourceStreamTest (1 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (1 ms total)
+[  PASSED  ] 3 tests.
+[121/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/5 (0 ms)
+[122/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/6 (0 ms)
+[123/123] GzipSourceStreamTests/GzipSourceStreamTest.DeflateWithoutHeaderWithBadAdler32/7 (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

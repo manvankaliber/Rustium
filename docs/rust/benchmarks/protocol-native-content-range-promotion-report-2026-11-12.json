@@ -1,0 +1,89 @@
+{
+  "task": "Promote four protocol-number APIs and Content-Range under migration-priority policy",
+  "status": "implementation prepared; native checks passed; canonical integration pending parent",
+  "owned_files_sha256": {
+    "net/base/parse_number.cc": "5b9a78840d3156c2510c5ff856daa72a8268bbe42ba4edd92d1496dc676f2d50",
+    "net/base/parse_number_native_ffi.h": "bc039ba78d647576805be62e77c5c41825bd5e3191d005c8dc600a0661d7fe76",
+    "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+    "net/base/parse_number_native_fuzzer.cc": "edc3eec37dd50009ed9e1f960508fb23cc6282711a98b5116a8c19216d74e438",
+    "net/base/parse_number_native_perftest.cc": "e46b861b1795462ac57e759b151db50f402427d7f0817ce37c56f7153866fb31",
+    "net/base/parse_number_native_reference.cc": "4eed176158f4fac92987963e395d0fd18736b615b84d80ec516b7a6e56832898",
+    "net/base/parse_number_native_reference.h": "97ad6bd7c00c28c841c003acc25b44badea2812f9a0fbb396c49f83d0f3ed7b4",
+    "net/base/parse_number_native_unittest.cc": "2bc1764ad9ebf129d256496f352bd1ff9a82764a6887b37d14ece3ef6b11a31f",
+    "net/http/http_range_promote_fuzzer.cc": "9cc278109c141ac262774d66fd295c4ed4a305b7027098a6c8a81ecbba368756",
+    "net/http/http_range_promote_perftest.cc": "823619adf374dfd2d69ca9eb3fc7b6052ccfeedcf3532b6d97171abf1b9ea69d",
+    "net/http/http_range_promote_reference.cc": "1423a336163097b9c7dd796e505153afba8332e3eba519b729be4f15309efc1e",
+    "net/http/http_range_promote_reference.h": "f43699e2db567f0efbf54ad4a42c790a6df14976d7367562730d0453d2e16f99",
+    "net/http/http_range_promote_unittest.cc": "28a47f58090a8bf6fdb1b0d1c99073b57fb30d755ccd3adcfd80e8c5c11c4654"
+  },
+  "source_manifest": ".scratch/net-wave1/promote/source-manifest.json",
+  "source_manifest_sha256": "9e6ce0ecd3d633e7f74494cbb5742da121fb4b60afc33f0a82274f7d9023340d",
+  "source_snapshot": "docs/rust/benchmarks/protocol-native-content-range-promotion-source-2026-11-12.zip",
+  "source_snapshot_sha256": "0bedfb0771c0a436e1937862319858274251d89bb68710f02bab4391583c3cf5",
+  "frozen_original_cpp_and_helpers": ".scratch/net-wave1/promote/baseline/",
+  "frozen_original_manifest": ".scratch/net-wave1/promote/baseline-manifest.json",
+  "remaining_cpp_seams": [
+    "Public numeric scalar API, unsigned format CHECKs, enum ABI assertions and borrowed string_view-to-bytes forwarding. Decimal/strictness/bounds/error policy is unchanged Rust core.",
+    "Content-Range method remains original C++ in shared http_util.cc until parent applies exact wrapper text. Its native-validated Rust core/FFI executes initialization/grammar/trim/partial writes/sequential aliases/reset logic.",
+    "Accepted other Range APIs retain object/vector construction and owned Rust buffer/drop glue, unchanged.",
+    "Frozen C++ numeric/Range references still use original base conversion DLL; imported binary hashes recorded. No reference calls migrated net numeric functions."
+  ],
+  "public_wrapper": ".scratch/net-wave1/promote/content-range-wrapper.cc.txt",
+  "gn_fragments": [
+    ".scratch/net-wave1/promote/net-build.gn.fragment",
+    ".scratch/net-wave1/promote/base-build.gn.fragment"
+  ],
+  "integration_instructions": ".scratch/net-wave1/promote/integration.txt",
+  "validation": {
+    "numbers": {
+      "path": "docs/rust/benchmarks/protocol-number-native-promotion-2026-11-12.json",
+      "sha256": "f4d1af35524d8194bf03ae786c10308c858db4c271149ffe814a1bc6e83c8e36",
+      "unit_tests": 14,
+      "fuzz_executions": 1000000,
+      "evidence_archive": "docs/rust/benchmarks/protocol-number-native-promotion-validation-2026-11-12.zip"
+    },
+    "range": {
+      "path": "docs/rust/benchmarks/http-content-range-promotion-2026-11-12.json",
+      "sha256": "dfec5bd512ce1ece398595ea0702078551df87e0289b8ff184a31062b904f5ce",
+      "unit_tests": 24,
+      "fuzz_executions": 1000000,
+      "evidence_archive": "docs/rust/benchmarks/http-content-range-promotion-validation-2026-11-12.zip"
+    }
+  },
+  "toolchain_and_native_flags": ".scratch/net-wave1/promote/toolchain-dependencies.json",
+  "formatting_and_identity": ".scratch/net-wave1/promote/identity-format-checks.json",
+  "benchmark_descriptors": [
+    ".scratch/net-wave1/promote/numbers-benchmark-descriptor.json",
+    ".scratch/net-wave1/promote/range-benchmark-descriptor.json"
+  ],
+  "benchmarks_run": false,
+  "benchmark_note": "Both 35-case perftests compiled/linked only. Parent owns canonical run, charts/aggregate/backlog. Historical regressions preserved separately; no new performance or equivalence claim. Descriptor integrated labels must be used only after actual canonical integration/validation.",
+  "optimization_debt": ".scratch/net-wave1/promote/optimization-debt.json",
+  "canonical_targets_needed": [
+    "net",
+    "net_unittests",
+    "parse_number_native_unittests",
+    "parse_number_native_fuzzer",
+    "parse_number_native_perftests",
+    "http_range_promote_unittests",
+    "http_range_promote_fuzzer",
+    "http_range_promote_perftests"
+  ],
+  "known_gaps": [
+    "No shared GN/http_util edits or configured worktree synchronization by agent. No GN generation/Ninja/canonical test execution.",
+    "Range native validation exercises exact proposed wrapper through existing benchmark adapter, not current shared http_util.cc original method.",
+    "Clippy warnings-denied used installed stable rustc 1.99; native compilation used configured Chromium rustc 1.101-nightly. Actual versions and commands saved.",
+    "LLVM coverage initial stable-tool attempt failed due to compressed profiles; successful exports use pre-existing gzip-header LLVM tools.",
+    "Fuzz instrumentation covers C++ harness only; runtime Rust line/region coverage came separately from source-instrumented unit harness. Branch coverage unavailable.",
+    "No end-to-end Chromium performance timing or practical equivalence claim. Shared runner candidate guard/targets/status must be updated by parent before final provenance."
+  ],
+  "preserved_unchanged": [
+    "net/base/parse_number_parser.rs",
+    "net/base/parse_number_ffi.rs",
+    "net/base/parse_number_candidate.cc",
+    "net/http/http_range_parser.rs",
+    "net/http/http_range_ffi.rs",
+    "net/http/http_range_benchmark_adapter.cc"
+  ],
+  "no_shared_or_configured_files_edited": true
+}

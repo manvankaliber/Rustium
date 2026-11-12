@@ -1,0 +1,253 @@
+{
+  "date": "2026-11-12",
+  "status": "Native validation complete; parent owns canonical GN integration and final performance acceptance",
+  "module": "net::ParseHSTSHeader / http_security_headers.cc",
+  "scope": "Full HSTS grammar, strict quoted-string decoding, token checks, max-age clamping and duplicate directives. Existing C++ API and TimeDelta ownership retained.",
+  "source_sha256": {
+    "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+    "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+    "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+    "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+    "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+    "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+    "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+    "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+    "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+    "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+    "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+    "net/base/parse_number_parser.rs": "005cc477c4d2900d88be105b3382f47cbc7227e18663790668d7a1c6f2b22c4d",
+    "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+    "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627"
+  },
+  "frozen_baseline": {
+    "hsts_baseline_matches_original_after_renaming_and_formatting": true,
+    "shared_numeric_reference_matches_original_after_renaming_and_formatting": true,
+    "numeric_reference_namespace": "net::parse_number_internal::test",
+    "http_util_reference_separate_translation_unit": true,
+    "http_util_iterator_size_static_asserts": "passed",
+    "one_cpp_rust_bridge_per_header": true,
+    "core_forbids_unsafe": true,
+    "parser_allocates_heap": false,
+    "returned_input_references": false
+  },
+  "properties": {
+    "rust_core_forbids_unsafe": true,
+    "heap_allocations_in_parser": false,
+    "retained_input_references": false,
+    "bridge_calls_per_public_header_parse": 1,
+    "numeric_core_reused_without_ffi": "parse_number_core rlib; slice and decoded-byte iterator APIs",
+    "bridge_result": "u64 scalar containing uint32 age plus valid/include flags"
+  },
+  "unit_tests": {
+    "count": 14,
+    "failures": 0,
+    "disabled": 0,
+    "run": {
+      "command": [
+        "D:\\Rustium\\.scratch\\hsts-parser\\unit.exe",
+        "--gtest_color=no",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\hsts-parser\\unit-results.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.2060739000007743
+    },
+    "new_suites": 9,
+    "preexisting_suites": 5
+  },
+  "rust_coverage": {
+    "compiler": "Chromium Rust1.101 / LLVM24 and matching LLVM24 coverage tools",
+    "totals": {
+      "lines": {
+        "count": 145,
+        "covered": 145,
+        "percent": 100
+      },
+      "functions": {
+        "count": 13,
+        "covered": 13,
+        "percent": 100
+      },
+      "instantiations": {
+        "count": 13,
+        "covered": 13,
+        "percent": 100
+      },
+      "regions": {
+        "count": 163,
+        "covered": 163,
+        "notcovered": 0,
+        "percent": 100
+      },
+      "branches": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      }
+    },
+    "files": [
+      {
+        "filename": "D:\\Rustium\\.scratch\\hsts-parser\\..\\..\\net\\http\\hsts_ffi.rs",
+        "summary": {
+          "lines": {
+            "count": 5,
+            "covered": 5,
+            "percent": 100
+          },
+          "functions": {
+            "count": 1,
+            "covered": 1,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 1,
+            "covered": 1,
+            "percent": 100
+          },
+          "regions": {
+            "count": 7,
+            "covered": 7,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\hsts-parser\\..\\..\\net\\http\\hsts_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 140,
+            "covered": 140,
+            "percent": 100
+          },
+          "functions": {
+            "count": 12,
+            "covered": 12,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 12,
+            "covered": 12,
+            "percent": 100
+          },
+          "regions": {
+            "count": 156,
+            "covered": 156,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ],
+    "branch_coverage_collected": false,
+    "excludes": "shared numeric core and generated/vendored code"
+  },
+  "fuzz": {
+    "command": [
+      "D:\\Rustium\\.scratch\\hsts-parser\\fuzz.exe",
+      "D:\\Rustium\\.scratch\\hsts-parser\\final-corpus",
+      "-runs=1000000",
+      "-max_len=4096",
+      "-print_final_stats=1",
+      "-seed=20261112",
+      "-dict=D:\\Rustium\\net\\data\\fuzzer_dictionaries\\net_http_security_headers_fuzzer.dict",
+      "-artifact_prefix=D:\\Rustium\\.scratch\\hsts-parser\\fuzz-artifact-"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 29.641928799996094,
+    "affinity_mask": 256,
+    "executable_sha256": "547aae059561654beabcf6f6a101dd1dac51d3bc0957e6c28912424bae54a38d",
+    "source_sha256": {
+      "net/http/http_security_headers.cc": "cfaccaa8dadcabda3f34ad60d7fc32ffa5d643b2246a9b01d2c97c89e372bba3",
+      "net/http/http_security_headers.h": "5b9fc2ab06009269efa7778d21b3c01f0361aab0f5a20776a784017d5a035f9a",
+      "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+      "net/http/hsts_fuzzer.cc": "b176892b7dfa569a28a840cd9d98a1e21e18bf62098bdf47a924c3b7ec6e697d",
+      "net/http/hsts_http_util_reference.cc": "ab00fda32fa6864cb49d85ce0aa00ca2f4fab38b515539f89c2f6c433c10e3a3",
+      "net/http/hsts_http_util_reference.h": "602cea7a3fe747a3378d14a7211d7e8dc797c195cbb3c5890cf41f6b0a4d8f22",
+      "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+      "net/http/hsts_perftest.cc": "e2ed712b93567b8e326d2dbf7252c58a7dc14eb76234c822889d5274b0d2ff3d",
+      "net/http/hsts_test_support.cc": "3d0c442e8cfc24a388c4f6b91f263b55217a4abae521f78bb8cfe1b5c51b922a",
+      "net/http/hsts_test_support.h": "bbef0908f03c21db9fcb88d90c20c8505bb78cd5538b475fed7328bc96c7ddf6",
+      "net/http/hsts_unittest.cc": "68d80da6ec5bc856bcf5373001e468fb992a1293622787f18189f1e726cb3e3b",
+      "net/base/parse_number_parser.rs": "005cc477c4d2900d88be105b3382f47cbc7227e18663790668d7a1c6f2b22c4d",
+      "net/base/parse_number_test_support.cc": "add00a29b63b2859fdc4c5f1a9d55c7e1329f4f61a77b053c1e297f584b2281b",
+      "net/base/parse_number_test_support.h": "7f18251635624fc7b7bd91e1f3314de40cc271b4b4734b3b25ac7a9ada932627"
+    },
+    "instrumentation": "Native C++ harness/reference coverage guided; Rust checked differentially, no Rust ASan claim",
+    "executed_inputs": 1000000,
+    "mismatches_or_crashes": 0,
+    "peak_rss_mb": 33
+  },
+  "clippy": {
+    "command": [
+      "C:/Users/jackv/.cargo/bin/cargo.exe",
+      "clippy",
+      "--release",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "compiler": "installed stable Clippy; Chromium clang-cl for CXX native glue"
+  },
+  "archived_logs": {
+    "hsts-unit-2026-11-12.log": {
+      "sha256": "fc9f00ca49a46b227b5213df8416d3d8278aacb905cf6cfed26a5f8007d736d0",
+      "bytes": 2080
+    },
+    "hsts-fuzz-2026-11-12.log": {
+      "sha256": "30c08da67a1dcc2ca1a60f7cdb3383fd1b68e598464df2cdf132d78dfa104a48",
+      "bytes": 168500
+    },
+    "hsts-clippy-2026-11-12.log": {
+      "sha256": "7c085b02a8e2c84f48ba0d479c324a3be49d3870bf32357d600aacab0620b89b",
+      "bytes": 952
+    },
+    "hsts-coverage-2026-11-12.json": {
+      "sha256": "08049387c040e499e6de026bf28db31034f77ba381765223c08129fa65b40bad",
+      "bytes": 10747
+    }
+  },
+  "limitations": [
+    "Windows x64 execution only",
+    "No Rust ASan or branch-coverage claim",
+    "Native Cargo prototype is not the final GN-built performance result",
+    "No browser-wide performance or startup/memory/size measurements"
+  ],
+  "parent_follow_up": [
+    "Run canonical hsts_unittests after shared GN integration",
+    "Measure final hsts_perftests in a quiet CPU-pinned window",
+    "Link all native and final benchmark archives and retain every run in gallery"
+  ]
+}

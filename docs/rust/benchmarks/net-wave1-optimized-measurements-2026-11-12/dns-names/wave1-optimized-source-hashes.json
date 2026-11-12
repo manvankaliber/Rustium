@@ -1,0 +1,19 @@
+{
+  "base/strings/string_util.h": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+  "base/strings/string_util_internal.h": "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c",
+  "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+  "net/BUILD.gn": "b3cdf3d7941aa285c0165edb13d9b5547a4a6efacad3bbb31ab16d5c0cfaae3e",
+  "net/dns/BUILD.gn": "ae5d4cac09b5bd9042ae3de550ead153ce186edac5c5865d61fedaecc6ac9c8b",
+  "net/dns/dns_names_core.rs": "d691d071d7d8fa5a3ec8df59d3fa163d19c763b5bfd16e5e66dc21c2a48bb393",
+  "net/dns/dns_names_ffi.h": "e3ea3bf30705142b83148cf74167e25879e6b13b6ce85729618dc7372fb7eadb",
+  "net/dns/dns_names_ffi.rs": "4e3aebacc6aca312150d6d4f03d64608bf7bb0c193708ce2d21aac583669f76d",
+  "net/dns/dns_names_fuzzer.cc": "03cdfc4f4e53091247de8acdd3e2c82efcde081b7f642a06285ebc1bd2f0ca1e",
+  "net/dns/dns_names_perftest.cc": "2b7bb515ef98856b1929939d7f8a4ffaa3394ba5ed69d7e3f54ecb203f6d8b5a",
+  "net/dns/dns_names_reference.cc": "eea591829aae3c13144b6a111ca932c827bd4c8c6b48f86664e242270c91e29e",
+  "net/dns/dns_names_reference.h": "afea44db56a3eafac32f2a9551069d7ddad2cd913648269c1589cd290a374330",
+  "net/dns/dns_names_rust_unittest.cc": "574bb99765bc27443a08cf193b13dc69c770d136de47528a041bfff86871880c",
+  "net/dns/dns_names_test_support.h": "b44777ddf997948012e76457921db9ba27dbb3e5e84960be60a84d25d18cc4e8",
+  "net/dns/dns_names_util.cc": "06a086d83282989279f5c92f22e5d58e7b3e7a32439d1bf0ce439813dbbb7096",
+  "net/dns/dns_names_util.h": "fdf26553c40ebab12263424f32991bb58e5926b77dc9ab5005257e2bc1294e59",
+  "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5"
+}

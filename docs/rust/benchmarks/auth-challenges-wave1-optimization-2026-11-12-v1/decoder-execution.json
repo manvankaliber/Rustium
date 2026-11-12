@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\optimization\\decoder_diff.py"
+  ],
+  "exit_code": 0,
+  "binary_sha256": "70d646a8aa800d5989d8e5734dc9ddf9d7f117af824185a104ce5075fb2a1405",
+  "benchmark": false
+}

@@ -1,0 +1,109 @@
+{
+  "module": "hsts",
+  "source": "hsts",
+  "label": "HSTS headers",
+  "measurement": "C++ public HSTS parse API + Rust bridge + reused Rust number parser; caller output construction and policy consumption; warm preloaded input; no network/TLS/browser startup",
+  "baseline": "Frozen original C++ HSTS parser, numeric helper and HttpUtil iterator helpers; matching native call boundaries and flags.",
+  "groups": [
+    {
+      "id": "hsts-common",
+      "title": "Parse HSTS headers",
+      "operation": "HSTS headers",
+      "cases": [
+        {
+          "key": "max_age",
+          "label": "Max-age"
+        },
+        {
+          "key": "subdomains",
+          "label": "Subdomains"
+        },
+        {
+          "key": "quoted_age",
+          "label": "Quoted age"
+        },
+        {
+          "key": "whitespace",
+          "label": "Whitespace"
+        },
+        {
+          "key": "unknown",
+          "label": "Unknown fields"
+        }
+      ]
+    },
+    {
+      "id": "hsts-invalid",
+      "title": "Reject malformed HSTS headers",
+      "operation": "HSTS validation",
+      "cases": [
+        {
+          "key": "empty",
+          "label": "Empty"
+        },
+        {
+          "key": "missing_age",
+          "label": "Missing age"
+        },
+        {
+          "key": "duplicate",
+          "label": "Duplicate age"
+        },
+        {
+          "key": "bad_digit",
+          "label": "Bad digit"
+        },
+        {
+          "key": "bad_quote",
+          "label": "Bad quote"
+        }
+      ]
+    },
+    {
+      "id": "hsts-stress",
+      "title": "Parse complex HSTS headers",
+      "operation": "HSTS complex fields",
+      "cases": [
+        {
+          "key": "overflow",
+          "label": "Overflow"
+        },
+        {
+          "key": "overflow_bad",
+          "label": "Overflow + text"
+        },
+        {
+          "key": "escaped_age",
+          "label": "Escaped age"
+        },
+        {
+          "key": "long_quoted",
+          "label": "Long quoted"
+        },
+        {
+          "key": "many_directives",
+          "label": "32 directives"
+        }
+      ]
+    }
+  ],
+  "scope_excludes": [
+    "network I/O",
+    "disk I/O",
+    "browser startup"
+  ],
+  "build_path": "Canonical configured Chromium GN build (D:/RustiumBuild/src/out/Default); actual flags and binary hashes archived.",
+  "chart_scope": "Public C++ API + Rust bridge / warm input",
+  "chart_baseline": "Baseline: original C++ HSTS parser.",
+  "production_status": "integrated",
+  "include_in_average": true,
+  "category": "Security",
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "CXX",
+    "evidence": "Production public API and reused Rust numeric parser; no isolated bridge-cost measurement."
+  },
+  "optimization_note": "Remeasured every case because the shared Rust numeric core was optimized."
+}

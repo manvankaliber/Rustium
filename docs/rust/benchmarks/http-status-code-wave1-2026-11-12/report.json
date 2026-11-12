@@ -1,0 +1,100 @@
+{
+  "module": "http-status-code",
+  "status": "implemented; isolated validation passed; configured integration pending parent",
+  "owned_files": [
+    "net/http/http_status_code.cc",
+    "net/http/http_status_code.h",
+    "net/http/http_status_code_list.h",
+    "net/http/http_status_code_core.rs",
+    "net/http/http_status_code_ffi.rs",
+    "net/http/http_status_code_generated.rs",
+    "net/http/http_status_code_reference.cc",
+    "net/http/http_status_code_reference.h",
+    "net/http/http_status_code_reference_list.h",
+    "net/http/http_status_code_generate.py",
+    "net/http/http_status_code_ffi.h",
+    "net/http/http_status_code_differential.h",
+    "net/http/http_status_code_rust_unittest.cc",
+    "net/http/http_status_code_fuzzer.cc",
+    "net/http/http_status_code_perftest.cc"
+  ],
+  "source_sha256": {
+    "net/http/http_status_code.cc": "4826ba8795847b4117e8d4a022a556b5c24bb389681373e1515a8322e52c5deb",
+    "net/http/http_status_code.h": "af29e787c35316f822f011d9201ba49caa2c82ea323290051bc7ab3124b053ab",
+    "net/http/http_status_code_list.h": "5e5ea0866c87d0df3c3f6fa8b5a7ded7e68e8ba6e2de29086a24d08069f0a0d1",
+    "net/http/http_status_code_core.rs": "5d8d4dc519746eb30ea95168ab8c64f45166bafed1490350a8be6b84069c86b2",
+    "net/http/http_status_code_ffi.rs": "a37d11a674e2836b777b27af4d3e10c74ee8271872269e7432c655a370b861da",
+    "net/http/http_status_code_generated.rs": "a1dfed2ad8a14eb206ef20e98787244ba0a4683e20bacd7e4715eba9de9f6392",
+    "net/http/http_status_code_reference.cc": "21e7194e4682550d70c7628ed21d21493afb8ad18d4b9049a69a1ec3dc1d0852",
+    "net/http/http_status_code_reference.h": "379fa67af9b2f9b6fa2a03279f5ec9edb26563c357b443bcb244a60da220110e",
+    "net/http/http_status_code_reference_list.h": "5e5ea0866c87d0df3c3f6fa8b5a7ded7e68e8ba6e2de29086a24d08069f0a0d1",
+    "net/http/http_status_code_generate.py": "d87bb430427b707176b4e903b02789bd8edac771d5a3e9657ef5112ee86918b2",
+    "net/http/http_status_code_ffi.h": "c0999194fd1ec914d0df3e9cec06c5ba9fd41791ccd01445d4cbd44b121c550a",
+    "net/http/http_status_code_differential.h": "2697b8b188b271f627c27ccf4efbb831549460f24cce02815f237d0132951526",
+    "net/http/http_status_code_rust_unittest.cc": "61838b380457b132c37f82cdb6fecf894f9fa1698b36a4a7245ad98ca31734ca",
+    "net/http/http_status_code_fuzzer.cc": "57a829d382e64e9e6fcd2e2d3c89d044823a1f192a91d2126a7e8c85be58eb64",
+    "net/http/http_status_code_perftest.cc": "fbc6adcc4729e483c3c4fac6ceb79e512fdb6afd75fbfcc01d1fe98058a99924"
+  },
+  "source_snapshot": "D:\\Rustium\\docs\\rust\\benchmarks\\http-status-code-wave1-2026-11-12\\sources",
+  "original_reference": "http_status_code_reference.cc + frozen http_status_code_reference_list.h; original byte copies and manifest in scratch",
+  "remaining_cpp_seams": [
+    "Public enum/header ABI and int overload preserved",
+    "string_view and optional return construction; Rust returns static immutable pointer/length POD; caller default never crosses FFI",
+    "GN linkage and canonical net_unittests parent-owned"
+  ],
+  "algorithm": "Both complete mapping functions execute in Rust, generated from canonical macro list; no C++ switch fallback",
+  "generator": {
+    "command": "python net/http/http_status_code_generate.py --check",
+    "result": "pass; isolated appended status rejected",
+    "gn_enforcement": "parent.gn action dependency fails build on stale checked-in generated Rust"
+  },
+  "validation": {
+    "native_existing_and_new_tests": "2/2 passed",
+    "differential": "all frozen defined entries; -65536..65536 plus INT_MIN/MAX; null-empty, nonnull-empty and embedded-NUL defaults; unknown pointer/length identity checked",
+    "fuzz": "1000000 deterministic xorshift arbitrary i32 differential executions; affinity mask 2; three defaults per execution; standalone harness, not libFuzzer engine",
+    "coverage": "75/75 regions, 75/75 lines, 3/3 functions; Rust FFI and generated core mapping; core.rs only reexports in production; cfg(test) test excluded; branch coverage not collected",
+    "coverage_flags": "rustc --edition 2024 --crate-type staticlib -C opt-level=0 -C panic=abort -C instrument-coverage -C llvm-args=-enable-name-compression=false",
+    "lint": "configured clippy-driver --edition 2024 --crate-type rlib net/http/http_status_code_ffi.rs --emit metadata -D warnings passed",
+    "rustfmt": "configured rustfmt --edition 2024 --check on ffi/core including generated module passed",
+    "clang_format": "not available at checked configured/tool paths; canonical format check pending"
+  },
+  "native_build": "python .scratch/net-wave1/status-codes/build_native.py [unit|bench|differential]; configured clang-cl/lld and actual net.ninja flags, response files archived; no GN/Ninja run",
+  "rust_optimized_flags": "--edition 2024 --crate-type staticlib -C opt-level=3 -C panic=abort",
+  "benchmarks": {
+    "timed": false,
+    "descriptor": "D:\\Rustium\\.scratch\\net-wave1\\status-codes\\descriptor.json",
+    "executable": "D:\\Rustium\\.scratch\\net-wave1\\status-codes\\bench.exe",
+    "pairs": 20,
+    "seed": 20261112,
+    "warmup": 4096,
+    "iterations_per_sample": 1000000,
+    "timing": "whole public API including FFI and returned result consumption; excludes setup/warmup; deterministic randomized pair order",
+    "performance_claim": "none; five cases prepared only"
+  },
+  "canonical_targets_needed": [
+    "net",
+    "net_unittests",
+    "http_status_code_perftests",
+    "http_status_code_fuzzer"
+  ],
+  "gn_fragment": "D:\\Rustium\\.scratch\\net-wave1\\status-codes\\parent.gn",
+  "optimization_debt": [
+    {
+      "workload": "tiny known/unknown reason and validation calls",
+      "evidence": "unmeasured; no asserted regression",
+      "suspected_cause": "FFI call overhead possible, unverified",
+      "follow_up": "parent quiet configured paired run; archive every case and update gallery/backlog including regressions; investigate only after measurement"
+    }
+  ],
+  "known_gaps": [
+    "Configured GN/Ninja integration not run by design",
+    "LibFuzzer entry supplied; one-million executions performed in deterministic native differential driver",
+    "C++ formatter unavailable; parent format check required",
+    "No performance measurements or acceptance/equivalence claim"
+  ],
+  "binary_sha256": {
+    "bench.exe": "87a6369e707ccf1fd2c206a0d14eae4a36658b30639be5f497e862d06355cdd7",
+    "differential.exe": "a6f349aeacbd30b7abbaeeb16e579d99fe5ab637144e197eb601882676fe7627",
+    "unit.exe": "618bc8ee1d7e174b85f34b9b4ebfc438d9bcc58be5ef98f40f7da69478c4e4d8"
+  }
+}

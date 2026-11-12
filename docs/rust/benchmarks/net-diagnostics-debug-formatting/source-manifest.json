@@ -1,0 +1,33 @@
+{
+  "module": "net-diagnostics-debug-formatting",
+  "snapshot_date": "2026-11-12",
+  "production_sha256": {
+    "load_flags_to_string.cc": "6bcfe17d547faf86466c28e07cad1f1999e5e529335dd7791575aa51b9fb72b8",
+    "privacy_mode.cc": "7a6425c94516a9d78620ff728f4b0d90d8ba2b8a92739304027be1b986b63b35",
+    "net_diagnostics_debug_formatting_core.rs": "07f895811d8ac33d4eb1456744ae53a91619bf8a74d7f43f66af4a75d4b8079b",
+    "net_diagnostics_debug_formatting_ffi.rs": "c93919c3e9513e15edd4b48908ff7ed6df3e3d20f4aed672fee464df8a98893e",
+    "net_diagnostics_debug_formatting_ffi.h": "a47ac600aae61086f4774aaa3a01d1bd78cf8b9f34caf546971d7e7ebf07729b",
+    "net_diagnostics_debug_formatting_unittest.cc": "eda55fcad594811886db515dc4873b685cf78b7586a8e93077b3197667c57577",
+    "net_diagnostics_load_flags_generated.rs": "4fc259a76f08fb1e609940eed26b6f7271e6e8e25b9cb09028c6efd67ef499db",
+    "net_diagnostics_generate.py": "2eb351a7cf6500b5e557300679dd58f83af1660ebcd0914dc9b174476872bcff",
+    "net_diagnostics_debug_formatting_perftest.cc": "7fcf98aad8a1223a0ae5a2effe7d0a2c1fd71897f83e6a8606f363af0fadc46b",
+    "net_diagnostics_debug_formatting_fuzzer.cc": "ebc72925ab208111de340df63ae825a17b9708615711bc16171325857825094e",
+    "net_diagnostics_load_flags_reference.cc": "ed7637f4d9506b117c069998b6a88e8f468917f5b5e32eb6e673ce36418bacc7",
+    "net_diagnostics_load_flags_reference.h": "08b406abeedc54947c27c1110955b4ee24126e100cfa1d37ed29647f4991672e",
+    "net_diagnostics_load_flags_reference_list.h": "5477547c6fc671ed55487d1e2fc84f7ddb99cef9c747b2b259d5627217660208",
+    "net_diagnostics_privacy_mode_reference.cc": "170ef4e76f03d10e3a24cc4e23abbd93b5da50194a95b90bdba5ed00378cc9b9",
+    "net_diagnostics_privacy_mode_reference.h": "8a0d81e475b85ae76cf5194913c6b80694f23c1c61934246b27a090c87ac64bb"
+  },
+  "frozen_original_sha256": {
+    "load_flags_to_string_original.cc": "e05366aad841f9b21aee8bbd7a0d2c22724dd9b34b2721c7e7b2d329d4eb7e3c",
+    "privacy_mode_original.cc": "263463ad75b5823c23671c0219b6d828639c391a55d0fcd84cd0e707c4eea1ad",
+    "load_flags_list_original.h": "5477547c6fc671ed55487d1e2fc84f7ddb99cef9c747b2b259d5627217660208",
+    "privacy_mode_header_original.h": "e225686c47cd06e8c4955c59faed7527a0e79dbb36cb1c5170c297c945e0a283"
+  },
+  "canonical_load_flags_sha256": "5477547c6fc671ed55487d1e2fc84f7ddb99cef9c747b2b259d5627217660208",
+  "native_harness_sha256": "4b47d863536ff89e5a736472efada047aefabd64eb45b2ff757c342a3ec32fc0",
+  "native_gtest_source_sha256": "eda55fcad594811886db515dc4873b685cf78b7586a8e93077b3197667c57577",
+  "native_executable_sha256": "67d99c8248f48cb75e087c0f08a3da041714477ef5aa92080142eaff18743fb6",
+  "benchmark_report": null,
+  "benchmark_status": "not run; parent coordinates quiet timing window"
+}

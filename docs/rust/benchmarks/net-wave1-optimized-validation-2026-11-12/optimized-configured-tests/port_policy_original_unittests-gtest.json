@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="4" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:44">
+  <testsuite name="NetUtilTest" tests="4" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:44">
+    <testcase name="RestrictedAbusePortsLocalhostTest" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="NetUtilTest">
+    </testcase>
+    <testcase name="RestrictedAbusePortsLocalhostTestNoParamSet" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="NetUtilTest">
+    </testcase>
+    <testcase name="RestrictedAbusePortsTest" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="NetUtilTest">
+    </testcase>
+    <testcase name="SetExplicitlyAllowedPortsTest" status="run" time="0.000" timestamp="2026-11-12T21:47:44" classname="NetUtilTest">
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,6 @@
+[source.crates-io]
+replace-with = "vendored-sources"
+[source.vendored-sources]
+directory = "D:/Rustium/third_party/rust/chromium_crates_io/vendor"
+[net]
+offline = true

@@ -1,0 +1,41 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 20261112
+INFO: Loaded 1 modules   (1158 inline 8-bit counters): 1158 [00007FF6E41EBA78, 00007FF6E41EBEFE), 
+INFO: Loaded 1 PC tables (1158 PCs): 1158 [00007FF6E41D3370,00007FF6E41D7BD0), 
+INFO:      108 files found in D:\Rustium\.scratch\net-wave1\port-policy\corpus
+INFO: seed corpus: files: 108 min: 1B max: 48B total: 2571B rss: 33MB
+#109	INITED cov: 136 ft: 637 corp: 70/1452B exec/s: 0 rss: 33MB
+#1443	REDUCE cov: 136 ft: 637 corp: 70/1448B lim: 48 exec/s: 0 rss: 34MB L: 28/48 MS: 4 ChangeByte-InsertByte-EraseBytes-InsertByte-
+#12303	REDUCE cov: 136 ft: 637 corp: 70/1447B lim: 48 exec/s: 0 rss: 34MB L: 9/48 MS: 5 InsertByte-ChangeBinInt-ChangeBit-CMP-EraseBytes- DE: "\002\000\000\000\000\000\000\000"-
+#13079	REDUCE cov: 136 ft: 637 corp: 70/1445B lim: 48 exec/s: 0 rss: 34MB L: 8/48 MS: 1 EraseBytes-
+#13196	REDUCE cov: 136 ft: 637 corp: 70/1444B lim: 48 exec/s: 0 rss: 34MB L: 15/48 MS: 2 ShuffleBytes-EraseBytes-
+#14094	REDUCE cov: 136 ft: 637 corp: 70/1443B lim: 48 exec/s: 0 rss: 34MB L: 8/48 MS: 3 EraseBytes-ChangeByte-InsertByte-
+#14779	REDUCE cov: 136 ft: 637 corp: 70/1442B lim: 48 exec/s: 0 rss: 34MB L: 27/48 MS: 5 ChangeBinInt-ChangeByte-InsertByte-ChangeASCIIInt-EraseBytes-
+#18412	REDUCE cov: 136 ft: 637 corp: 70/1441B lim: 48 exec/s: 0 rss: 34MB L: 26/48 MS: 3 ChangeBinInt-ChangeBit-EraseBytes-
+#23437	REDUCE cov: 136 ft: 637 corp: 70/1438B lim: 48 exec/s: 0 rss: 34MB L: 33/48 MS: 5 EraseBytes-ChangeBinInt-ChangeBit-ChangeBinInt-ChangeByte-
+#26493	REDUCE cov: 136 ft: 637 corp: 70/1437B lim: 48 exec/s: 0 rss: 34MB L: 14/48 MS: 1 EraseBytes-
+#29895	REDUCE cov: 136 ft: 637 corp: 70/1435B lim: 48 exec/s: 0 rss: 34MB L: 8/48 MS: 2 CopyPart-EraseBytes-
+#36238	REDUCE cov: 136 ft: 637 corp: 70/1434B lim: 48 exec/s: 0 rss: 34MB L: 25/48 MS: 3 EraseBytes-InsertByte-ChangeBit-
+#37385	REDUCE cov: 136 ft: 637 corp: 70/1433B lim: 48 exec/s: 0 rss: 34MB L: 35/48 MS: 2 EraseBytes-CrossOver-
+#38058	REDUCE cov: 136 ft: 637 corp: 70/1432B lim: 48 exec/s: 0 rss: 34MB L: 24/48 MS: 3 PersAutoDict-EraseBytes-InsertByte- DE: "\002\000\000\000\000\000\000\000"-
+#43576	REDUCE cov: 136 ft: 637 corp: 70/1431B lim: 48 exec/s: 0 rss: 34MB L: 12/48 MS: 3 ShuffleBytes-ChangeBinInt-EraseBytes-
+#44127	REDUCE cov: 136 ft: 637 corp: 70/1428B lim: 48 exec/s: 0 rss: 34MB L: 32/48 MS: 1 EraseBytes-
+#53798	REDUCE cov: 136 ft: 637 corp: 70/1426B lim: 48 exec/s: 0 rss: 34MB L: 8/48 MS: 1 EraseBytes-
+#55029	REDUCE cov: 136 ft: 637 corp: 70/1425B lim: 48 exec/s: 0 rss: 34MB L: 32/48 MS: 1 EraseBytes-
+#85010	REDUCE cov: 136 ft: 637 corp: 70/1424B lim: 48 exec/s: 85010 rss: 34MB L: 31/48 MS: 1 EraseBytes-
+#89946	REDUCE cov: 136 ft: 637 corp: 70/1422B lim: 48 exec/s: 89946 rss: 34MB L: 30/48 MS: 1 EraseBytes-
+#101297	REDUCE cov: 136 ft: 637 corp: 70/1421B lim: 48 exec/s: 101297 rss: 34MB L: 30/48 MS: 1 EraseBytes-
+#107324	REDUCE cov: 136 ft: 637 corp: 70/1420B lim: 48 exec/s: 107324 rss: 34MB L: 33/48 MS: 2 InsertByte-EraseBytes-
+#113642	REDUCE cov: 136 ft: 637 corp: 70/1419B lim: 48 exec/s: 113642 rss: 34MB L: 41/48 MS: 3 InsertByte-InsertByte-EraseBytes-
+#135088	REDUCE cov: 136 ft: 637 corp: 70/1417B lim: 48 exec/s: 135088 rss: 34MB L: 31/48 MS: 1 EraseBytes-
+#192848	REDUCE cov: 136 ft: 637 corp: 70/1416B lim: 48 exec/s: 96424 rss: 34MB L: 30/48 MS: 4 InsertByte-ChangeBinInt-EraseBytes-InsertByte-
+#262144	pulse  cov: 136 ft: 637 corp: 70/1416B lim: 48 exec/s: 87381 rss: 34MB
+#454287	REDUCE cov: 136 ft: 637 corp: 70/1415B lim: 48 exec/s: 90857 rss: 34MB L: 40/48 MS: 2 ChangeASCIIInt-EraseBytes-
+#517091	REDUCE cov: 136 ft: 637 corp: 70/1413B lim: 48 exec/s: 103418 rss: 34MB L: 28/48 MS: 4 CopyPart-CrossOver-CopyPart-EraseBytes-
+#524288	pulse  cov: 136 ft: 637 corp: 70/1413B lim: 48 exec/s: 104857 rss: 34MB
+#686323	REDUCE cov: 136 ft: 637 corp: 70/1411B lim: 48 exec/s: 98046 rss: 34MB L: 36/48 MS: 2 ChangeByte-EraseBytes-
+#1000000	DONE   cov: 136 ft: 637 corp: 70/1411B lim: 48 exec/s: 90909 rss: 34MB
+###### Recommended dictionary. ######
+"\002\000\000\000\000\000\000\000" # Uses: 82928
+###### End of recommended dictionary. ######
+Done 1000000 runs in 11 second(s), 11 second(s) without new corpus

@@ -1,0 +1,14 @@
+{
+  "net/base/BUILD.gn": "0f69f656c3ac870c8f2b0aaa48a376c9ac446e0aa9c7c8dd43238a951bb68367",
+  "net/BUILD.gn": "ad985c505001ba7912eb4d515113ff7aacea50ab922f18a4a5ded358c6a7efc6",
+  "net/filter/gzip_header.cc": "1afa321b970f10009212197a4ec3141dbc50f70bf14e82dd571770868bb9d19a",
+  "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+  "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+  "net/filter/gzip_header_fuzzer.cc": "4535ed6299e55bbf570e2e65af4608d1e25e0704e1703dbb0d20f5003990cebc",
+  "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+  "net/filter/gzip_header_perftest.cc": "67c4209cd53f42a4be75815febcd2dc2ad227a4f578f314dadca1ab8abae62f0",
+  "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+  "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+  "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77",
+  "net/filter/gzip_header_unittest.cc": "92f1cf6932667d684806d2a444b48815539b5a8c216fc955b6c446259e225bee"
+}

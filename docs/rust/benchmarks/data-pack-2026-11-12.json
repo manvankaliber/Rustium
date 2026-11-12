@@ -1,0 +1,3456 @@
+{
+  "schema_version": 1,
+  "snapshot_date": "2026-11-12",
+  "sources": {
+    "load": {
+      "source_path": ".scratch/data-pack/native-benchmark-results.json",
+      "sha256": "f007b354361f78a10e5f9744b28c419b5abb820f378e2c0ec7da4cd2b6d51326"
+    },
+    "lookup": {
+      "source_path": ".scratch/data-pack-lookup/benchmark.json",
+      "sha256": "afc216c927a8b9a010fe6c9a09aa6af7fc3be6cc3bb3e654b0ca3f5ad97531ca"
+    }
+  },
+  "implementation_provenance": {
+    "load": {
+      "validation_report_sha256": "dfd879365a0a56fcd8efe35aafa151148c9130af33458a51d56e6c83fabe3d0c",
+      "source_snapshot_sha256": {
+        "ui/base/BUILD.gn": "c7506ea4a3eeb56ad7691630ed2d327c9f36101c1e9a1f1e9ff8724667db0d45",
+        "ui/base/resource/data_pack.cc": "19fc65a6f1b26515ab03974d7d327a1159fa3a0ff69ecce54fbd2bae89e5063c",
+        "ui/base/resource/data_pack.h": "6bed20611285c641bc9e8e845236aa998e7225865bfee6fb151834c56e50f5b4",
+        "ui/base/resource/data_pack_parser.rs": "2c43d007f21eee02be412f7cc4ef23c2ea7829e28c958df14c049a705ad41214",
+        "ui/base/resource/data_pack_parser_ffi.rs": "f7c04491d0823424fe106fc2ebcf4eabb81486fd6dd11f182d974cfadcf82de4",
+        "ui/base/resource/data_pack_parser_unittest.cc": "61084f90a67017b36aec36549f1f3f84274f5f1b63217323344ab00d3db8e6a7",
+        "ui/base/resource/data_pack_parser_test_support.h": "64af3ace83045e79dfc1616be9a2289e5301e3416185e925c1043bbae6971d57",
+        "ui/base/resource/data_pack_parser_fuzzer.cc": "67102b133c37de30a69f23dba7a97b3cfbf60f875e6ec261087f7e2911ee7e0e",
+        "ui/base/resource/data_pack_parser_perftest.cc": "8a49f0791c436a9f8454d711723435711ae5316d5f813f56cefd1ecb4a92a121",
+        "ui/base/resource/data_pack_unittest.cc": "fbb9da78ee3eac6a582d254501f9ecc04af520ae707610bc0bb510a37edaea2b"
+      },
+      "baseline": {
+        "commit": "4ebe1665496c5e99f2fb579015d3a98963a229cc"
+      },
+      "note": "Hashes recorded for this measurement slice; not hashes of the current working tree."
+    },
+    "lookup": {
+      "validation_report_sha256": "16619f01a938323dbeb04ccbb84d1b0392dd251c69f2ac653582a64468f70e71",
+      "source_snapshot_sha256": {
+        "ui/base/resource/data_pack.cc": "1612ce0f358457abfe049d6c210a9df89df8dfda921dd08de429afde801423c7",
+        "ui/base/resource/data_pack.h": "e1b0b0b9486ebfb0f2d415a4eb1e22f5526abe070c4563f0957d5df6d91227cb",
+        "ui/base/resource/data_pack_parser.rs": "1fdbd1d18c60f9cefb8ca8bdff7b28b99b1c6c367839b5cc181ebe25c35f1bcb",
+        "ui/base/resource/data_pack_parser_ffi.rs": "bad719ba04ac661f7db815f4ff71e0ebeb3cbaaee38d10d087899fba7f888975",
+        "ui/base/resource/data_pack_parser_unittest.cc": "96daeb49f6fcaf69ca51ec308f3c3f0f9bdd46f27c744ad194a0f0b043a8dda4",
+        "ui/base/resource/data_pack_parser_test_support.h": "2ede7f235ff2d5132869b1043613085da894c3e5a433a00d25f1838a7ac47551",
+        "ui/base/resource/data_pack_parser_fuzzer.cc": "be7957c694835736e43b61104c51bdcaa0fe135c9f8530c3e015e26cc956dbcf",
+        "ui/base/resource/data_pack_parser_perftest.cc": "e4247da906cbb7999187161c308de36e70e9eb4c6ff41eb754fa1e477d887007",
+        "ui/base/resource/data_pack_unittest.cc": "3a54b130955ff2f150783de16d12a40643537fce4cf57d1839d1a2f6c1262afb",
+        "ui/base/BUILD.gn": "c7506ea4a3eeb56ad7691630ed2d327c9f36101c1e9a1f1e9ff8724667db0d45"
+      },
+      "baseline": {
+        "description": "Snapshot of the preceding Rust-validation slice with its original C++ lookup, renamed LegacyDataPack only to link both readers in one native process. Both use the same load-time Rust validator.",
+        "cpp_sha256": "19fc65a6f1b26515ab03974d7d327a1159fa3a0ff69ecce54fbd2bae89e5063c",
+        "header_sha256": "6bed20611285c641bc9e8e845236aa998e7225865bfee6fb151834c56e50f5b4"
+      },
+      "note": "Hashes recorded for this measurement slice; not hashes of the current working tree."
+    }
+  },
+  "not_recorded_in_benchmark_reports": [
+    "CPU model",
+    "Windows build",
+    "machine power/thermal state"
+  ],
+  "reports": {
+    "load": {
+      "measurement": "Native DataPack construction + LoadFromBuffer + destruction; file bytes preloaded; warm cache",
+      "compiler": "Chromium Clang 24 and Chromium Rust 1.101 (LLVM 24); release optimization",
+      "affinity_mask": 16,
+      "repetitions": 20,
+      "baseline": "Unmodified DataPack C++ implementation from HEAD, compiled with same Chromium flags and linked dependencies",
+      "browser_startup_measured": false,
+      "cases": [
+        {
+          "case": "empty",
+          "input": "D:\\Rustium\\.scratch\\data-pack\\native-0.pak",
+          "iterations_per_sample": 400000,
+          "samples_ns_per_load": {
+            "legacy": [
+              65.5955,
+              65.98575,
+              65.95425,
+              65.66,
+              67.485,
+              65.5465,
+              65.70975,
+              63.879,
+              63.279,
+              65.20975,
+              65.255,
+              65.8755,
+              66.028,
+              66.3315,
+              65.935,
+              65.58825,
+              65.9085,
+              65.90775,
+              65.90925,
+              66.95525
+            ],
+            "rust": [
+              72.221,
+              72.32475,
+              72.667,
+              72.741,
+              72.5885,
+              72.54825,
+              72.53475,
+              72.1965,
+              72.6025,
+              72.11675,
+              71.733,
+              72.87825,
+              74.27375,
+              73.56525,
+              74.0565,
+              72.59275,
+              73.2985,
+              72.54075,
+              78.367,
+              72.9255
+            ]
+          },
+          "legacy_median_ns": 65.891625,
+          "rust_median_ns": 72.597625,
+          "change_percent": 10.177317678840048,
+          "bootstrap_95_ci_percent": [
+            10.07482006201814,
+            10.682135207445631
+          ]
+        },
+        {
+          "case": "16 resources",
+          "input": "D:\\Rustium\\.scratch\\data-pack\\native-16.pak",
+          "iterations_per_sample": 400000,
+          "samples_ns_per_load": {
+            "legacy": [
+              80.4895,
+              80.309,
+              80.52525,
+              80.313,
+              79.81925,
+              79.5505,
+              80.7965,
+              79.7635,
+              80.954,
+              80.36675,
+              78.40125,
+              81.1505,
+              84.85725,
+              78.26825,
+              81.128,
+              81.082,
+              76.68475,
+              80.5575,
+              81.17875,
+              75.9425
+            ],
+            "rust": [
+              83.98075,
+              83.55025,
+              83.88575,
+              83.77825,
+              83.74875,
+              86.71075,
+              95.857,
+              84.351,
+              85.8775,
+              83.6595,
+              86.1655,
+              84.42925,
+              84.361,
+              84.66475,
+              85.14075,
+              85.309,
+              84.2485,
+              83.369,
+              87.05775,
+              84.3945
+            ]
+          },
+          "legacy_median_ns": 80.428125,
+          "rust_median_ns": 84.37774999999999,
+          "change_percent": 4.910751058786955,
+          "bootstrap_95_ci_percent": [
+            4.317279077585878,
+            6.089213769869439
+          ]
+        },
+        {
+          "case": "1024 resources",
+          "input": "D:\\Rustium\\.scratch\\data-pack\\native-1024.pak",
+          "iterations_per_sample": 100000,
+          "samples_ns_per_load": {
+            "legacy": [
+              634.735,
+              632.817,
+              714.813,
+              639.977,
+              635.124,
+              638.273,
+              637.358,
+              645.465,
+              635.924,
+              639.467,
+              639.949,
+              640.38,
+              634.127,
+              636.404,
+              658.833,
+              653.149,
+              641.199,
+              638.35,
+              658.28,
+              637.537
+            ],
+            "rust": [
+              468.885,
+              473.927,
+              464.991,
+              476.373,
+              599.934,
+              468.649,
+              484.78,
+              468.802,
+              528.057,
+              471.731,
+              467.835,
+              472.251,
+              483.615,
+              489.28,
+              514.849,
+              574.438,
+              473.321,
+              465.923,
+              466.897,
+              472.909
+            ]
+          },
+          "legacy_median_ns": 638.9085,
+          "rust_median_ns": 473.115,
+          "change_percent": -25.94949041998972,
+          "bootstrap_95_ci_percent": [
+            -26.738967721571395,
+            -24.065092222879937
+          ]
+        },
+        {
+          "case": "resources.pak",
+          "input": "D:\\RustiumBuild\\src\\out\\Default\\resources.pak",
+          "iterations_per_sample": 20000,
+          "samples_ns_per_load": {
+            "legacy": [
+              3100.315,
+              3095.42,
+              3091.38,
+              3085.72,
+              3183.835,
+              3163.66,
+              3205.035,
+              3122.58,
+              3098.045,
+              3161.945,
+              3098.215,
+              3165.115,
+              3699.205,
+              3252.635,
+              3140.875,
+              3095.44,
+              3147.76,
+              3306.85,
+              3121.285,
+              3804.135
+            ],
+            "rust": [
+              2180.58,
+              2178.45,
+              2167.415,
+              2157.5,
+              2187.59,
+              2236.31,
+              2246.385,
+              2181.445,
+              2179.27,
+              2238.435,
+              2234.785,
+              2238.475,
+              2227.415,
+              2239.305,
+              2245.18,
+              2197.67,
+              2400.345,
+              2214.33,
+              2202.595,
+              2334.095
+            ]
+          },
+          "legacy_median_ns": 3144.3175,
+          "rust_median_ns": 2220.8725,
+          "change_percent": -29.368694478213474,
+          "bootstrap_95_ci_percent": [
+            -30.27252105523418,
+            -28.625745749070607
+          ]
+        },
+        {
+          "case": "en-US.pak",
+          "input": "D:\\RustiumBuild\\src\\out\\Default\\locales\\en-US.pak",
+          "iterations_per_sample": 20000,
+          "samples_ns_per_load": {
+            "legacy": [
+              7757.925,
+              7705.45,
+              7756.905,
+              7704.855,
+              7742.18,
+              7701.295,
+              7656.16,
+              8975.865,
+              7901.7,
+              7897.86,
+              7916.285,
+              7857.065,
+              7821.15,
+              7833.57,
+              7912.025,
+              8153.705,
+              7957.995,
+              7887.74,
+              7997.13,
+              8357.005
+            ],
+            "rust": [
+              5330.785,
+              5241.54,
+              5397.85,
+              5338.4,
+              5669.845,
+              5324.215,
+              5211.43,
+              6260.575,
+              5340.495,
+              5345.1,
+              5545.025,
+              5330.895,
+              6565.93,
+              5312.935,
+              5322.31,
+              5463.81,
+              5426.005,
+              5349.155,
+              5337.51,
+              5375.27
+            ]
+          },
+          "legacy_median_ns": 7872.4025,
+          "rust_median_ns": 5342.797500000001,
+          "change_percent": -32.13256690063802,
+          "bootstrap_95_ci_percent": [
+            -32.473196357848266,
+            -31.04461988948638
+          ]
+        }
+      ]
+    },
+    "lookup": {
+      "measurement": "Native DataPack GetStringView and HasResource, same-process paired readers, already-loaded real packs",
+      "baseline": "C++ lookup captured immediately before this rewrite; both readers share identical input bytes and the current Rust load-time validator",
+      "compiler": "Chromium Clang 24 / Rust 1.101 LLVM 24, opt-level=3, debug-assertions=yes, control-flow-guard=yes, panic=abort",
+      "affinity_mask": 16,
+      "repetitions": 20,
+      "iterations_per_sample": 500000,
+      "warmup_lookups_per_sample": 100000,
+      "same_object_size": true,
+      "browser_startup_measured": false,
+      "cases": [
+        {
+          "pack": "resources.pak",
+          "method": "read",
+          "pattern": "hot",
+          "baseline_median_ns": 48.6564,
+          "rust_median_ns": 37.7586,
+          "change_percent": -22.39746467062914,
+          "bootstrap_95_ci_percent": [
+            -23.989950841254693,
+            -20.45620975548167
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 0,
+              "baseline_ns": 47.073,
+              "rust_ns": 38.0734
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 1,
+              "baseline_ns": 52.0188,
+              "rust_ns": 38.0278
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 2,
+              "baseline_ns": 51.8274,
+              "rust_ns": 37.7966
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 3,
+              "baseline_ns": 46.0714,
+              "rust_ns": 37.3622
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 4,
+              "baseline_ns": 45.8242,
+              "rust_ns": 37.5812
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 5,
+              "baseline_ns": 49.5906,
+              "rust_ns": 37.241
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 6,
+              "baseline_ns": 45.5586,
+              "rust_ns": 36.5922
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 7,
+              "baseline_ns": 48.174,
+              "rust_ns": 37.3364
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 8,
+              "baseline_ns": 47.2116,
+              "rust_ns": 37.172
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 9,
+              "baseline_ns": 47.522,
+              "rust_ns": 38.029
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 10,
+              "baseline_ns": 46.458,
+              "rust_ns": 37.659
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 11,
+              "baseline_ns": 51.699,
+              "rust_ns": 37.8008
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 12,
+              "baseline_ns": 48.3036,
+              "rust_ns": 37.8096
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 13,
+              "baseline_ns": 49.6758,
+              "rust_ns": 37.7206
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 14,
+              "baseline_ns": 48.6322,
+              "rust_ns": 37.349
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 15,
+              "baseline_ns": 48.7558,
+              "rust_ns": 37.14
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 16,
+              "baseline_ns": 51.791,
+              "rust_ns": 38.2374
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 17,
+              "baseline_ns": 48.6806,
+              "rust_ns": 38.1834
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 18,
+              "baseline_ns": 48.8284,
+              "rust_ns": 37.8848
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 19,
+              "baseline_ns": 51.3912,
+              "rust_ns": 38.005
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "read",
+          "pattern": "direct",
+          "baseline_median_ns": 88.8594,
+          "rust_median_ns": 83.2642,
+          "change_percent": -6.296688926551375,
+          "bootstrap_95_ci_percent": [
+            -6.91611560568658,
+            -5.575232136582963
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 0,
+              "baseline_ns": 89.8834,
+              "rust_ns": 84.8868
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 1,
+              "baseline_ns": 89.8408,
+              "rust_ns": 85.0608
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 2,
+              "baseline_ns": 90.7532,
+              "rust_ns": 84.4988
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 3,
+              "baseline_ns": 89.9396,
+              "rust_ns": 84.5362
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 4,
+              "baseline_ns": 92.6564,
+              "rust_ns": 84.683
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 5,
+              "baseline_ns": 89.6102,
+              "rust_ns": 84.2144
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 6,
+              "baseline_ns": 89.535,
+              "rust_ns": 83.709
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 7,
+              "baseline_ns": 88.091,
+              "rust_ns": 83.5798
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 8,
+              "baseline_ns": 88.0852,
+              "rust_ns": 82.1648
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 9,
+              "baseline_ns": 87.3838,
+              "rust_ns": 82.7526
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 10,
+              "baseline_ns": 87.7966,
+              "rust_ns": 81.7972
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 11,
+              "baseline_ns": 88.0708,
+              "rust_ns": 82.419
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 12,
+              "baseline_ns": 87.4856,
+              "rust_ns": 82.285
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 13,
+              "baseline_ns": 88.7984,
+              "rust_ns": 82.0482
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 14,
+              "baseline_ns": 89.7704,
+              "rust_ns": 83.9676
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 15,
+              "baseline_ns": 95.6896,
+              "rust_ns": 84.3976
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 16,
+              "baseline_ns": 88.9204,
+              "rust_ns": 82.9486
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 17,
+              "baseline_ns": 88.109,
+              "rust_ns": 82.5614
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 18,
+              "baseline_ns": 88.6486,
+              "rust_ns": 82.004
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 19,
+              "baseline_ns": 87.5584,
+              "rust_ns": 82.6698
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "read",
+          "pattern": "alias",
+          "baseline_median_ns": 116.6233,
+          "rust_median_ns": 77.1192,
+          "change_percent": -33.87324831315869,
+          "bootstrap_95_ci_percent": [
+            -34.14806394412887,
+            -33.143116585594946
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 0,
+              "baseline_ns": 113.1644,
+              "rust_ns": 75.0466
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 1,
+              "baseline_ns": 113.514,
+              "rust_ns": 74.9656
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 2,
+              "baseline_ns": 113.5128,
+              "rust_ns": 75.105
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 3,
+              "baseline_ns": 113.3558,
+              "rust_ns": 77.161
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 4,
+              "baseline_ns": 117.1876,
+              "rust_ns": 76.6664
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 5,
+              "baseline_ns": 114.3602,
+              "rust_ns": 76.41
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 6,
+              "baseline_ns": 114.2964,
+              "rust_ns": 77.2614
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 7,
+              "baseline_ns": 116.8766,
+              "rust_ns": 76.9902
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 8,
+              "baseline_ns": 116.528,
+              "rust_ns": 77.0644
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 9,
+              "baseline_ns": 116.6048,
+              "rust_ns": 76.9846
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 10,
+              "baseline_ns": 117.8434,
+              "rust_ns": 77.2806
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 11,
+              "baseline_ns": 127.9908,
+              "rust_ns": 77.5238
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 12,
+              "baseline_ns": 117.2118,
+              "rust_ns": 77.3168
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 13,
+              "baseline_ns": 116.6418,
+              "rust_ns": 77.281
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 14,
+              "baseline_ns": 116.2636,
+              "rust_ns": 77.0774
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 15,
+              "baseline_ns": 120.045,
+              "rust_ns": 77.4716
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 16,
+              "baseline_ns": 116.9308,
+              "rust_ns": 77.076
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 17,
+              "baseline_ns": 116.5472,
+              "rust_ns": 77.5686
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 18,
+              "baseline_ns": 431.6804,
+              "rust_ns": 77.5038
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 19,
+              "baseline_ns": 143.1304,
+              "rust_ns": 290.536
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "read",
+          "pattern": "miss",
+          "baseline_median_ns": 91.4388,
+          "rust_median_ns": 56.8735,
+          "change_percent": -37.80156782459962,
+          "bootstrap_95_ci_percent": [
+            -38.09804316597175,
+            -37.49417430480037
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 0,
+              "baseline_ns": 101.2072,
+              "rust_ns": 60.5412
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 1,
+              "baseline_ns": 94.4458,
+              "rust_ns": 57.1136
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 2,
+              "baseline_ns": 92.1248,
+              "rust_ns": 60.0534
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 3,
+              "baseline_ns": 91.5464,
+              "rust_ns": 57.1186
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 4,
+              "baseline_ns": 91.6504,
+              "rust_ns": 58.7436
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 5,
+              "baseline_ns": 93.0402,
+              "rust_ns": 57.8044
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 6,
+              "baseline_ns": 92.703,
+              "rust_ns": 56.9978
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 7,
+              "baseline_ns": 106.7764,
+              "rust_ns": 56.9682
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 8,
+              "baseline_ns": 92.0102,
+              "rust_ns": 57.0344
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 9,
+              "baseline_ns": 91.221,
+              "rust_ns": 56.7096
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 10,
+              "baseline_ns": 90.891,
+              "rust_ns": 56.6612
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 11,
+              "baseline_ns": 90.038,
+              "rust_ns": 56.329
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 12,
+              "baseline_ns": 90.4554,
+              "rust_ns": 56.7788
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 13,
+              "baseline_ns": 91.3312,
+              "rust_ns": 56.5358
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 14,
+              "baseline_ns": 90.8058,
+              "rust_ns": 56.5218
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 15,
+              "baseline_ns": 90.198,
+              "rust_ns": 56.239
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 16,
+              "baseline_ns": 89.5794,
+              "rust_ns": 55.8
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 17,
+              "baseline_ns": 89.6668,
+              "rust_ns": 56.1654
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 18,
+              "baseline_ns": 89.4722,
+              "rust_ns": 56.1652
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 19,
+              "baseline_ns": 91.7208,
+              "rust_ns": 57.1554
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "read",
+          "pattern": "mixed",
+          "baseline_median_ns": 103.029,
+          "rust_median_ns": 79.3313,
+          "change_percent": -23.00099971852585,
+          "bootstrap_95_ci_percent": [
+            -23.26183603664954,
+            -22.407117386393427
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 0,
+              "baseline_ns": 101.9878,
+              "rust_ns": 81.3354
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 1,
+              "baseline_ns": 107.033,
+              "rust_ns": 85.4568
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 2,
+              "baseline_ns": 102.177,
+              "rust_ns": 80.7312
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 3,
+              "baseline_ns": 102.7356,
+              "rust_ns": 78.7126
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 4,
+              "baseline_ns": 102.7474,
+              "rust_ns": 79.2344
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 5,
+              "baseline_ns": 102.4086,
+              "rust_ns": 79.1152
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 6,
+              "baseline_ns": 102.919,
+              "rust_ns": 78.9802
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 7,
+              "baseline_ns": 101.8818,
+              "rust_ns": 78.5382
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 8,
+              "baseline_ns": 102.5854,
+              "rust_ns": 79.0698
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 9,
+              "baseline_ns": 103.1998,
+              "rust_ns": 79.7724
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 10,
+              "baseline_ns": 102.479,
+              "rust_ns": 79.4488
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 11,
+              "baseline_ns": 103.3848,
+              "rust_ns": 81.7468
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 12,
+              "baseline_ns": 103.27,
+              "rust_ns": 79.2114
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 13,
+              "baseline_ns": 104.9062,
+              "rust_ns": 83.1976
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 14,
+              "baseline_ns": 103.4344,
+              "rust_ns": 79.267
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 15,
+              "baseline_ns": 103.139,
+              "rust_ns": 79.0482
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 16,
+              "baseline_ns": 109.7804,
+              "rust_ns": 79.314
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 17,
+              "baseline_ns": 102.4858,
+              "rust_ns": 79.663
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 18,
+              "baseline_ns": 103.3736,
+              "rust_ns": 79.5742
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 19,
+              "baseline_ns": 331.2696,
+              "rust_ns": 79.3486
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "has",
+          "pattern": "hot",
+          "baseline_median_ns": 40.7415,
+          "rust_median_ns": 32.690799999999996,
+          "change_percent": -19.76044082814822,
+          "bootstrap_95_ci_percent": [
+            -25.51402972067647,
+            -15.668692538668694
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 0,
+              "baseline_ns": 44.0636,
+              "rust_ns": 34.1748
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 1,
+              "baseline_ns": 40.85,
+              "rust_ns": 32.9512
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 2,
+              "baseline_ns": 37.8814,
+              "rust_ns": 32.4294
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 3,
+              "baseline_ns": 38.382,
+              "rust_ns": 32.4528
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 4,
+              "baseline_ns": 38.1426,
+              "rust_ns": 32.6912
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 5,
+              "baseline_ns": 38.8038,
+              "rust_ns": 32.5554
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 6,
+              "baseline_ns": 37.93,
+              "rust_ns": 32.481
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 7,
+              "baseline_ns": 40.633,
+              "rust_ns": 32.2998
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 8,
+              "baseline_ns": 321.3724,
+              "rust_ns": 32.0094
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 9,
+              "baseline_ns": 53.025,
+              "rust_ns": 42.6638
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 10,
+              "baseline_ns": 52.1698,
+              "rust_ns": 33.6996
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 11,
+              "baseline_ns": 45.7926,
+              "rust_ns": 33.5052
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 12,
+              "baseline_ns": 42.3852,
+              "rust_ns": 34.9086
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 13,
+              "baseline_ns": 42.5214,
+              "rust_ns": 34.5058
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 14,
+              "baseline_ns": 46.4424,
+              "rust_ns": 33.6724
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 15,
+              "baseline_ns": 46.3336,
+              "rust_ns": 34.9824
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 16,
+              "baseline_ns": 39.3878,
+              "rust_ns": 32.6904
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 17,
+              "baseline_ns": 37.6564,
+              "rust_ns": 32.1032
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 18,
+              "baseline_ns": 39.3764,
+              "rust_ns": 32.327
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 19,
+              "baseline_ns": 37.3908,
+              "rust_ns": 31.9478
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "has",
+          "pattern": "direct",
+          "baseline_median_ns": 75.4654,
+          "rust_median_ns": 74.06970000000001,
+          "change_percent": -1.8494568371730469,
+          "bootstrap_95_ci_percent": [
+            -2.743104377922001,
+            -1.2158276337960627
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 0,
+              "baseline_ns": 76.4386,
+              "rust_ns": 74.2428
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 1,
+              "baseline_ns": 74.7414,
+              "rust_ns": 73.7632
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 2,
+              "baseline_ns": 75.0868,
+              "rust_ns": 73.4184
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 3,
+              "baseline_ns": 75.1022,
+              "rust_ns": 73.4426
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 4,
+              "baseline_ns": 74.9238,
+              "rust_ns": 73.8966
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 5,
+              "baseline_ns": 75.1972,
+              "rust_ns": 73.6624
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 6,
+              "baseline_ns": 77.8864,
+              "rust_ns": 75.0888
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 7,
+              "baseline_ns": 75.6652,
+              "rust_ns": 74.8938
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 8,
+              "baseline_ns": 77.3182,
+              "rust_ns": 74.4388
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 9,
+              "baseline_ns": 77.5202,
+              "rust_ns": 79.3924
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 10,
+              "baseline_ns": 77.0648,
+              "rust_ns": 75.4002
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 11,
+              "baseline_ns": 76.7316,
+              "rust_ns": 74.402
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 12,
+              "baseline_ns": 75.3644,
+              "rust_ns": 73.7146
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 13,
+              "baseline_ns": 75.3648,
+              "rust_ns": 73.6822
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 14,
+              "baseline_ns": 75.201,
+              "rust_ns": 73.7994
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 15,
+              "baseline_ns": 75.566,
+              "rust_ns": 73.7016
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 16,
+              "baseline_ns": 75.1962,
+              "rust_ns": 73.3774
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 17,
+              "baseline_ns": 75.2942,
+              "rust_ns": 75.2234
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 18,
+              "baseline_ns": 76.4598,
+              "rust_ns": 75.225
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 19,
+              "baseline_ns": 76.2902,
+              "rust_ns": 74.5872
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "has",
+          "pattern": "alias",
+          "baseline_median_ns": 100.6791,
+          "rust_median_ns": 75.0746,
+          "change_percent": -25.4317926958028,
+          "bootstrap_95_ci_percent": [
+            -26.12903732902082,
+            -25.094005092934147
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 0,
+              "baseline_ns": 101.4694,
+              "rust_ns": 75.1512
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 1,
+              "baseline_ns": 100.0992,
+              "rust_ns": 74.7924
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 2,
+              "baseline_ns": 100.255,
+              "rust_ns": 74.426
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 3,
+              "baseline_ns": 100.4924,
+              "rust_ns": 75.0908
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 4,
+              "baseline_ns": 100.5164,
+              "rust_ns": 75.5394
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 5,
+              "baseline_ns": 100.0352,
+              "rust_ns": 74.9358
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 6,
+              "baseline_ns": 100.5804,
+              "rust_ns": 74.8304
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 7,
+              "baseline_ns": 104.6018,
+              "rust_ns": 74.8956
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 8,
+              "baseline_ns": 103.1928,
+              "rust_ns": 77.3724
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 9,
+              "baseline_ns": 103.2374,
+              "rust_ns": 76.6758
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 10,
+              "baseline_ns": 101.7814,
+              "rust_ns": 76.542
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 11,
+              "baseline_ns": 100.4474,
+              "rust_ns": 74.7892
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 12,
+              "baseline_ns": 100.5132,
+              "rust_ns": 75.2226
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 13,
+              "baseline_ns": 100.4976,
+              "rust_ns": 74.8404
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 14,
+              "baseline_ns": 100.8456,
+              "rust_ns": 74.9232
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 15,
+              "baseline_ns": 100.5014,
+              "rust_ns": 74.8116
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 16,
+              "baseline_ns": 100.7778,
+              "rust_ns": 75.0584
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 17,
+              "baseline_ns": 102.7686,
+              "rust_ns": 76.8194
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 18,
+              "baseline_ns": 102.7346,
+              "rust_ns": 76.8364
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 19,
+              "baseline_ns": 102.2874,
+              "rust_ns": 76.4316
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "has",
+          "pattern": "miss",
+          "baseline_median_ns": 85.5339,
+          "rust_median_ns": 54.3168,
+          "change_percent": -36.49675742600302,
+          "bootstrap_95_ci_percent": [
+            -36.686659757977544,
+            -36.36491339792005
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 0,
+              "baseline_ns": 85.7314,
+              "rust_ns": 54.3578
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 1,
+              "baseline_ns": 85.5752,
+              "rust_ns": 54.1444
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 2,
+              "baseline_ns": 85.4784,
+              "rust_ns": 54.3758
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 3,
+              "baseline_ns": 85.4566,
+              "rust_ns": 54.364
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 4,
+              "baseline_ns": 85.4174,
+              "rust_ns": 54.0728
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 5,
+              "baseline_ns": 85.5716,
+              "rust_ns": 54.2358
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 6,
+              "baseline_ns": 85.6466,
+              "rust_ns": 54.2026
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 7,
+              "baseline_ns": 85.8456,
+              "rust_ns": 54.4396
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 8,
+              "baseline_ns": 87.6658,
+              "rust_ns": 55.131
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 9,
+              "baseline_ns": 86.3976,
+              "rust_ns": 55.108
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 10,
+              "baseline_ns": 86.3454,
+              "rust_ns": 54.865
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 11,
+              "baseline_ns": 85.598,
+              "rust_ns": 54.2766
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 12,
+              "baseline_ns": 84.9384,
+              "rust_ns": 54.477
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 13,
+              "baseline_ns": 85.4962,
+              "rust_ns": 54.1166
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 14,
+              "baseline_ns": 84.9126,
+              "rust_ns": 54.086
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 15,
+              "baseline_ns": 84.7508,
+              "rust_ns": 54.363
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 16,
+              "baseline_ns": 86.1024,
+              "rust_ns": 54.1046
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 17,
+              "baseline_ns": 85.2256,
+              "rust_ns": 54.357
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 18,
+              "baseline_ns": 85.2448,
+              "rust_ns": 54.2578
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 19,
+              "baseline_ns": 85.3938,
+              "rust_ns": 53.8706
+            }
+          ]
+        },
+        {
+          "pack": "resources.pak",
+          "method": "has",
+          "pattern": "mixed",
+          "baseline_median_ns": 90.441,
+          "rust_median_ns": 73.8555,
+          "change_percent": -18.338474806780102,
+          "bootstrap_95_ci_percent": [
+            -18.98598459695513,
+            -17.42684395501667
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 0,
+              "baseline_ns": 89.226,
+              "rust_ns": 74.2544
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 1,
+              "baseline_ns": 90.2246,
+              "rust_ns": 73.4566
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 2,
+              "baseline_ns": 89.274,
+              "rust_ns": 72.9644
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 3,
+              "baseline_ns": 88.627,
+              "rust_ns": 72.7208
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 4,
+              "baseline_ns": 88.648,
+              "rust_ns": 72.504
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 5,
+              "baseline_ns": 89.6314,
+              "rust_ns": 72.7446
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 6,
+              "baseline_ns": 87.7354,
+              "rust_ns": 72.5616
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 7,
+              "baseline_ns": 88.6594,
+              "rust_ns": 72.9688
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 8,
+              "baseline_ns": 88.5004,
+              "rust_ns": 72.7834
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 9,
+              "baseline_ns": 88.2396,
+              "rust_ns": 72.6088
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 10,
+              "baseline_ns": 90.6574,
+              "rust_ns": 73.4338
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 11,
+              "baseline_ns": 91.4464,
+              "rust_ns": 75.0584
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 12,
+              "baseline_ns": 91.4466,
+              "rust_ns": 74.6998
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 13,
+              "baseline_ns": 91.3852,
+              "rust_ns": 75.0324
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 14,
+              "baseline_ns": 91.4828,
+              "rust_ns": 75.0748
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 15,
+              "baseline_ns": 91.5192,
+              "rust_ns": 74.7282
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 16,
+              "baseline_ns": 91.5306,
+              "rust_ns": 74.9118
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 17,
+              "baseline_ns": 91.5574,
+              "rust_ns": 74.9846
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 18,
+              "baseline_ns": 97.8396,
+              "rust_ns": 74.8588
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 19,
+              "baseline_ns": 91.4578,
+              "rust_ns": 75.4702
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "read",
+          "pattern": "hot",
+          "baseline_median_ns": 44.1864,
+          "rust_median_ns": 36.2019,
+          "change_percent": -18.070039650209115,
+          "bootstrap_95_ci_percent": [
+            -18.431120724618076,
+            -17.192670808573574
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 0,
+              "baseline_ns": 48.1314,
+              "rust_ns": 36.8122
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 1,
+              "baseline_ns": 48.2968,
+              "rust_ns": 36.4832
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 2,
+              "baseline_ns": 44.132,
+              "rust_ns": 36.5842
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 3,
+              "baseline_ns": 44.0458,
+              "rust_ns": 36.1068
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 4,
+              "baseline_ns": 44.468,
+              "rust_ns": 36.0318
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 5,
+              "baseline_ns": 43.9166,
+              "rust_ns": 36.1366
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 6,
+              "baseline_ns": 43.7152,
+              "rust_ns": 36.8518
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 7,
+              "baseline_ns": 44.2088,
+              "rust_ns": 36.213
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 8,
+              "baseline_ns": 44.3372,
+              "rust_ns": 39.7728
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 9,
+              "baseline_ns": 44.065,
+              "rust_ns": 35.9538
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 10,
+              "baseline_ns": 43.7098,
+              "rust_ns": 36.4644
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 11,
+              "baseline_ns": 46.1754,
+              "rust_ns": 36.6562
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 12,
+              "baseline_ns": 44.643,
+              "rust_ns": 36.958
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 13,
+              "baseline_ns": 44.382,
+              "rust_ns": 36.733
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 14,
+              "baseline_ns": 44.416,
+              "rust_ns": 36.1814
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 15,
+              "baseline_ns": 44.169,
+              "rust_ns": 36.007
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 16,
+              "baseline_ns": 44.2038,
+              "rust_ns": 36.1908
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 17,
+              "baseline_ns": 44.0962,
+              "rust_ns": 36.019
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 18,
+              "baseline_ns": 43.7224,
+              "rust_ns": 35.8652
+            },
+            {
+              "method": "read",
+              "pattern": "hot",
+              "repeat": 19,
+              "baseline_ns": 44.051,
+              "rust_ns": 35.6874
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "read",
+          "pattern": "direct",
+          "baseline_median_ns": 96.8324,
+          "rust_median_ns": 90.3691,
+          "change_percent": -6.674728706507327,
+          "bootstrap_95_ci_percent": [
+            -6.9935409547743905,
+            -6.053218673525185
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 0,
+              "baseline_ns": 95.7798,
+              "rust_ns": 89.6296
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 1,
+              "baseline_ns": 95.6694,
+              "rust_ns": 90.46
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 2,
+              "baseline_ns": 96.0682,
+              "rust_ns": 89.8084
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 3,
+              "baseline_ns": 95.8484,
+              "rust_ns": 89.6738
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 4,
+              "baseline_ns": 95.9884,
+              "rust_ns": 90.0274
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 5,
+              "baseline_ns": 98.4514,
+              "rust_ns": 90.7408
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 6,
+              "baseline_ns": 98.532,
+              "rust_ns": 91.233
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 7,
+              "baseline_ns": 97.8088,
+              "rust_ns": 91.0768
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 8,
+              "baseline_ns": 97.641,
+              "rust_ns": 91.3908
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 9,
+              "baseline_ns": 97.0628,
+              "rust_ns": 91.0654
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 10,
+              "baseline_ns": 97.1968,
+              "rust_ns": 90.403
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 11,
+              "baseline_ns": 96.899,
+              "rust_ns": 90.7494
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 12,
+              "baseline_ns": 96.796,
+              "rust_ns": 90.2814
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 13,
+              "baseline_ns": 96.1918,
+              "rust_ns": 90.3352
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 14,
+              "baseline_ns": 97.4962,
+              "rust_ns": 91.9824
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 15,
+              "baseline_ns": 97.6634,
+              "rust_ns": 91.355
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 16,
+              "baseline_ns": 96.8688,
+              "rust_ns": 89.4662
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 17,
+              "baseline_ns": 96.4278,
+              "rust_ns": 89.8536
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 18,
+              "baseline_ns": 95.5096,
+              "rust_ns": 88.8168
+            },
+            {
+              "method": "read",
+              "pattern": "direct",
+              "repeat": 19,
+              "baseline_ns": 95.8,
+              "rust_ns": 89.3504
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "read",
+          "pattern": "alias",
+          "baseline_median_ns": 165.4799,
+          "rust_median_ns": 117.74510000000001,
+          "change_percent": -28.8462828416019,
+          "bootstrap_95_ci_percent": [
+            -29.139709001851287,
+            -28.580329091327695
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 0,
+              "baseline_ns": 165.716,
+              "rust_ns": 118.0014
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 1,
+              "baseline_ns": 166.1892,
+              "rust_ns": 117.7244
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 2,
+              "baseline_ns": 169.0592,
+              "rust_ns": 122.2462
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 3,
+              "baseline_ns": 167.734,
+              "rust_ns": 118.2952
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 4,
+              "baseline_ns": 165.7202,
+              "rust_ns": 117.7636
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 5,
+              "baseline_ns": 164.7416,
+              "rust_ns": 117.3028
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 6,
+              "baseline_ns": 165.0552,
+              "rust_ns": 117.4748
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 7,
+              "baseline_ns": 164.9414,
+              "rust_ns": 117.2678
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 8,
+              "baseline_ns": 166.5594,
+              "rust_ns": 118.8902
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 9,
+              "baseline_ns": 165.8978,
+              "rust_ns": 118.4866
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 10,
+              "baseline_ns": 164.6736,
+              "rust_ns": 117.3726
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 11,
+              "baseline_ns": 165.1984,
+              "rust_ns": 117.0476
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 12,
+              "baseline_ns": 164.5464,
+              "rust_ns": 117.585
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 13,
+              "baseline_ns": 165.2438,
+              "rust_ns": 118.2812
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 14,
+              "baseline_ns": 168.1944,
+              "rust_ns": 118.5502
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 15,
+              "baseline_ns": 165.1462,
+              "rust_ns": 117.8764
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 16,
+              "baseline_ns": 164.6962,
+              "rust_ns": 117.7266
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 17,
+              "baseline_ns": 164.1934,
+              "rust_ns": 118.0892
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 18,
+              "baseline_ns": 166.2146,
+              "rust_ns": 116.8008
+            },
+            {
+              "method": "read",
+              "pattern": "alias",
+              "repeat": 19,
+              "baseline_ns": 166.1582,
+              "rust_ns": 117.5682
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "read",
+          "pattern": "miss",
+          "baseline_median_ns": 94.892,
+          "rust_median_ns": 55.5403,
+          "change_percent": -41.46998693251275,
+          "bootstrap_95_ci_percent": [
+            -41.89413659283508,
+            -41.296236827205036
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 0,
+              "baseline_ns": 95.0762,
+              "rust_ns": 55.7636
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 1,
+              "baseline_ns": 94.5442,
+              "rust_ns": 55.2114
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 2,
+              "baseline_ns": 94.4552,
+              "rust_ns": 55.0212
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 3,
+              "baseline_ns": 94.3916,
+              "rust_ns": 54.8492
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 4,
+              "baseline_ns": 92.8444,
+              "rust_ns": 54.1036
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 5,
+              "baseline_ns": 91.0714,
+              "rust_ns": 53.8708
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 6,
+              "baseline_ns": 92.5088,
+              "rust_ns": 54.3924
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 7,
+              "baseline_ns": 91.876,
+              "rust_ns": 54.0556
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 8,
+              "baseline_ns": 95.0866,
+              "rust_ns": 55.0248
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 9,
+              "baseline_ns": 94.9116,
+              "rust_ns": 56.1412
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 10,
+              "baseline_ns": 360.4472,
+              "rust_ns": 56.0702
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 11,
+              "baseline_ns": 390.1626,
+              "rust_ns": 79.8442
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 12,
+              "baseline_ns": 101.003,
+              "rust_ns": 55.448
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 13,
+              "baseline_ns": 103.4584,
+              "rust_ns": 55.5452
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 14,
+              "baseline_ns": 95.45,
+              "rust_ns": 55.9734
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 15,
+              "baseline_ns": 94.8508,
+              "rust_ns": 55.705
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 16,
+              "baseline_ns": 94.6648,
+              "rust_ns": 55.6792
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 17,
+              "baseline_ns": 94.8724,
+              "rust_ns": 55.5354
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 18,
+              "baseline_ns": 95.289,
+              "rust_ns": 55.723
+            },
+            {
+              "method": "read",
+              "pattern": "miss",
+              "repeat": 19,
+              "baseline_ns": 94.9344,
+              "rust_ns": 55.5718
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "read",
+          "pattern": "mixed",
+          "baseline_median_ns": 119.1807,
+          "rust_median_ns": 92.83500000000001,
+          "change_percent": -22.105676506347084,
+          "bootstrap_95_ci_percent": [
+            -22.501903272301462,
+            -21.498570227081583
+          ],
+          "samples": [
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 0,
+              "baseline_ns": 119.8034,
+              "rust_ns": 92.701
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 1,
+              "baseline_ns": 119.2826,
+              "rust_ns": 95.3682
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 2,
+              "baseline_ns": 123.3558,
+              "rust_ns": 94.7894
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 3,
+              "baseline_ns": 122.0542,
+              "rust_ns": 93.559
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 4,
+              "baseline_ns": 120.5818,
+              "rust_ns": 93.319
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 5,
+              "baseline_ns": 118.9,
+              "rust_ns": 92.078
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 6,
+              "baseline_ns": 118.9272,
+              "rust_ns": 92.6108
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 7,
+              "baseline_ns": 119.1074,
+              "rust_ns": 93.5918
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 8,
+              "baseline_ns": 119.024,
+              "rust_ns": 92.254
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 9,
+              "baseline_ns": 119.1774,
+              "rust_ns": 92.0188
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 10,
+              "baseline_ns": 117.8838,
+              "rust_ns": 91.7654
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 11,
+              "baseline_ns": 117.6552,
+              "rust_ns": 93.3382
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 12,
+              "baseline_ns": 118.5704,
+              "rust_ns": 97.3672
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 13,
+              "baseline_ns": 124.7826,
+              "rust_ns": 95.2042
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 14,
+              "baseline_ns": 118.7864,
+              "rust_ns": 92.5082
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 15,
+              "baseline_ns": 119.184,
+              "rust_ns": 92.8018
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 16,
+              "baseline_ns": 119.1844,
+              "rust_ns": 92.4432
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 17,
+              "baseline_ns": 118.3162,
+              "rust_ns": 91.6794
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 18,
+              "baseline_ns": 120.983,
+              "rust_ns": 93.6554
+            },
+            {
+              "method": "read",
+              "pattern": "mixed",
+              "repeat": 19,
+              "baseline_ns": 120.3046,
+              "rust_ns": 92.8682
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "has",
+          "pattern": "hot",
+          "baseline_median_ns": 34.790499999999994,
+          "rust_median_ns": 32.4371,
+          "change_percent": -6.7644903062617505,
+          "bootstrap_95_ci_percent": [
+            -13.242269628915416,
+            -6.053952683208297
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 0,
+              "baseline_ns": 40.2506,
+              "rust_ns": 32.4878
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 1,
+              "baseline_ns": 34.66,
+              "rust_ns": 32.5922
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 2,
+              "baseline_ns": 34.6132,
+              "rust_ns": 32.2748
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 3,
+              "baseline_ns": 34.5504,
+              "rust_ns": 32.751
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 4,
+              "baseline_ns": 34.5878,
+              "rust_ns": 31.8772
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 5,
+              "baseline_ns": 34.7084,
+              "rust_ns": 32.1862
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 6,
+              "baseline_ns": 34.542,
+              "rust_ns": 32.2938
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 7,
+              "baseline_ns": 34.5846,
+              "rust_ns": 37.7082
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 8,
+              "baseline_ns": 34.8726,
+              "rust_ns": 32.4324
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 9,
+              "baseline_ns": 37.7954,
+              "rust_ns": 32.3428
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 10,
+              "baseline_ns": 38.0586,
+              "rust_ns": 31.3668
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 11,
+              "baseline_ns": 40.0758,
+              "rust_ns": 32.2508
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 12,
+              "baseline_ns": 34.555,
+              "rust_ns": 32.4418
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 13,
+              "baseline_ns": 34.7006,
+              "rust_ns": 32.5312
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 14,
+              "baseline_ns": 36.8776,
+              "rust_ns": 31.2076
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 15,
+              "baseline_ns": 34.6032,
+              "rust_ns": 31.1232
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 16,
+              "baseline_ns": 257.3652,
+              "rust_ns": 49.2722
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 17,
+              "baseline_ns": 43.2324,
+              "rust_ns": 33.0482
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 18,
+              "baseline_ns": 35.8288,
+              "rust_ns": 35.7638
+            },
+            {
+              "method": "has",
+              "pattern": "hot",
+              "repeat": 19,
+              "baseline_ns": 35.5782,
+              "rust_ns": 32.6362
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "has",
+          "pattern": "direct",
+          "baseline_median_ns": 86.2901,
+          "rust_median_ns": 83.3672,
+          "change_percent": -3.3872947186293634,
+          "bootstrap_95_ci_percent": [
+            -3.6908101297079887,
+            -3.2369066956050907
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 0,
+              "baseline_ns": 86.1392,
+              "rust_ns": 83.3666
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 1,
+              "baseline_ns": 86.2938,
+              "rust_ns": 83.476
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 2,
+              "baseline_ns": 380.216,
+              "rust_ns": 83.3678
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 3,
+              "baseline_ns": 97.4,
+              "rust_ns": 86.643
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 4,
+              "baseline_ns": 86.55,
+              "rust_ns": 83.4602
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 5,
+              "baseline_ns": 85.8656,
+              "rust_ns": 83.1354
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 6,
+              "baseline_ns": 87.1338,
+              "rust_ns": 87.7894
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 7,
+              "baseline_ns": 90.2096,
+              "rust_ns": 85.6016
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 8,
+              "baseline_ns": 87.508,
+              "rust_ns": 88.751
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 9,
+              "baseline_ns": 86.2778,
+              "rust_ns": 84.9944
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 10,
+              "baseline_ns": 86.7778,
+              "rust_ns": 83.2868
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 11,
+              "baseline_ns": 85.9922,
+              "rust_ns": 83.0368
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 12,
+              "baseline_ns": 86.1354,
+              "rust_ns": 83.3322
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 13,
+              "baseline_ns": 86.153,
+              "rust_ns": 82.9908
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 14,
+              "baseline_ns": 86.2714,
+              "rust_ns": 83.3534
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 15,
+              "baseline_ns": 86.372,
+              "rust_ns": 83.2504
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 16,
+              "baseline_ns": 86.2328,
+              "rust_ns": 83.3596
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 17,
+              "baseline_ns": 86.3458,
+              "rust_ns": 83.3546
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 18,
+              "baseline_ns": 86.2282,
+              "rust_ns": 83.5008
+            },
+            {
+              "method": "has",
+              "pattern": "direct",
+              "repeat": 19,
+              "baseline_ns": 86.2864,
+              "rust_ns": 83.4704
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "has",
+          "pattern": "alias",
+          "baseline_median_ns": 152.2068,
+          "rust_median_ns": 119.465,
+          "change_percent": -21.511391081081786,
+          "bootstrap_95_ci_percent": [
+            -22.08096825972008,
+            -20.89428537005482
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 0,
+              "baseline_ns": 156.4112,
+              "rust_ns": 126.3256
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 1,
+              "baseline_ns": 155.505,
+              "rust_ns": 121.8812
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 2,
+              "baseline_ns": 153.6582,
+              "rust_ns": 121.7522
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 3,
+              "baseline_ns": 151.6092,
+              "rust_ns": 119.1004
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 4,
+              "baseline_ns": 150.9438,
+              "rust_ns": 119.08
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 5,
+              "baseline_ns": 156.5302,
+              "rust_ns": 120.8788
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 6,
+              "baseline_ns": 151.0614,
+              "rust_ns": 123.0402
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 7,
+              "baseline_ns": 154.496,
+              "rust_ns": 119.1262
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 8,
+              "baseline_ns": 152.8604,
+              "rust_ns": 120.3564
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 9,
+              "baseline_ns": 151.1242,
+              "rust_ns": 119.283
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 10,
+              "baseline_ns": 149.9506,
+              "rust_ns": 118.4662
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 11,
+              "baseline_ns": 152.8044,
+              "rust_ns": 121.4004
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 12,
+              "baseline_ns": 158.9888,
+              "rust_ns": 119.6836
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 13,
+              "baseline_ns": 152.8846,
+              "rust_ns": 119.115
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 14,
+              "baseline_ns": 151.5536,
+              "rust_ns": 119.681
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 15,
+              "baseline_ns": 150.2598,
+              "rust_ns": 119.4982
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 16,
+              "baseline_ns": 150.3124,
+              "rust_ns": 118.1878
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 17,
+              "baseline_ns": 150.1072,
+              "rust_ns": 118.6308
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 18,
+              "baseline_ns": 151.4746,
+              "rust_ns": 118.9762
+            },
+            {
+              "method": "has",
+              "pattern": "alias",
+              "repeat": 19,
+              "baseline_ns": 153.221,
+              "rust_ns": 119.4318
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "has",
+          "pattern": "miss",
+          "baseline_median_ns": 88.9305,
+          "rust_median_ns": 53.331900000000005,
+          "change_percent": -40.02968610319293,
+          "bootstrap_95_ci_percent": [
+            -40.47008119786286,
+            -39.87731992960795
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 0,
+              "baseline_ns": 90.287,
+              "rust_ns": 54.4158
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 1,
+              "baseline_ns": 90.376,
+              "rust_ns": 54.1312
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 2,
+              "baseline_ns": 90.1374,
+              "rust_ns": 53.9588
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 3,
+              "baseline_ns": 89.9166,
+              "rust_ns": 53.4674
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 4,
+              "baseline_ns": 88.4878,
+              "rust_ns": 52.9432
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 5,
+              "baseline_ns": 88.3556,
+              "rust_ns": 53.2846
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 6,
+              "baseline_ns": 88.3476,
+              "rust_ns": 53.342
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 7,
+              "baseline_ns": 88.5034,
+              "rust_ns": 53.0338
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 8,
+              "baseline_ns": 88.788,
+              "rust_ns": 53.1112
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 9,
+              "baseline_ns": 88.5344,
+              "rust_ns": 53.1968
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 10,
+              "baseline_ns": 93.5706,
+              "rust_ns": 53.7186
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 11,
+              "baseline_ns": 90.1826,
+              "rust_ns": 53.9286
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 12,
+              "baseline_ns": 90.2708,
+              "rust_ns": 53.9534
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 13,
+              "baseline_ns": 89.3496,
+              "rust_ns": 53.266
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 14,
+              "baseline_ns": 88.8782,
+              "rust_ns": 53.0846
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 15,
+              "baseline_ns": 89.5174,
+              "rust_ns": 53.4196
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 16,
+              "baseline_ns": 88.756,
+              "rust_ns": 52.9758
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 17,
+              "baseline_ns": 88.8952,
+              "rust_ns": 53.5306
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 18,
+              "baseline_ns": 88.6868,
+              "rust_ns": 53.3218
+            },
+            {
+              "method": "has",
+              "pattern": "miss",
+              "repeat": 19,
+              "baseline_ns": 88.9658,
+              "rust_ns": 53.1016
+            }
+          ]
+        },
+        {
+          "pack": "locales/en-US.pak",
+          "method": "has",
+          "pattern": "mixed",
+          "baseline_median_ns": 105.8603,
+          "rust_median_ns": 86.5564,
+          "change_percent": -18.235259110355816,
+          "bootstrap_95_ci_percent": [
+            -18.60543765891083,
+            -18.040275541614104
+          ],
+          "samples": [
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 0,
+              "baseline_ns": 104.7182,
+              "rust_ns": 85.3804
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 1,
+              "baseline_ns": 105.435,
+              "rust_ns": 86.1822
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 2,
+              "baseline_ns": 107.461,
+              "rust_ns": 85.8758
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 3,
+              "baseline_ns": 105.724,
+              "rust_ns": 86.8562
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 4,
+              "baseline_ns": 106.2098,
+              "rust_ns": 86.898
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 5,
+              "baseline_ns": 121.1582,
+              "rust_ns": 86.7102
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 6,
+              "baseline_ns": 108.1236,
+              "rust_ns": 88.3512
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 7,
+              "baseline_ns": 107.1574,
+              "rust_ns": 88.2446
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 8,
+              "baseline_ns": 105.5742,
+              "rust_ns": 86.373
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 9,
+              "baseline_ns": 105.8488,
+              "rust_ns": 86.3872
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 10,
+              "baseline_ns": 105.6996,
+              "rust_ns": 86.2478
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 11,
+              "baseline_ns": 106.7468,
+              "rust_ns": 86.7564
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 12,
+              "baseline_ns": 106.3728,
+              "rust_ns": 86.5972
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 13,
+              "baseline_ns": 105.6292,
+              "rust_ns": 86.1622
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 14,
+              "baseline_ns": 105.2988,
+              "rust_ns": 86.5156
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 15,
+              "baseline_ns": 105.2462,
+              "rust_ns": 86.1992
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 16,
+              "baseline_ns": 105.094,
+              "rust_ns": 86.677
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 17,
+              "baseline_ns": 105.8718,
+              "rust_ns": 86.1524
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 18,
+              "baseline_ns": 105.9962,
+              "rust_ns": 86.6052
+            },
+            {
+              "method": "has",
+              "pattern": "mixed",
+              "repeat": 19,
+              "baseline_ns": 106.3084,
+              "rust_ns": 86.663
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

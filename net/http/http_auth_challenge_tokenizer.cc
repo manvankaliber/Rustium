@@ -1,57 +1,41 @@
-// Copyright 2014 The Chromium Authors
+﻿// Copyright 2014 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/http/http_auth_challenge_tokenizer.h"
 
-#include <string_view>
+#include <array>
 
-#include "base/strings/string_tokenizer.h"
-#include "base/strings/string_util.h"
-
+#include "net/http/auth_challenge_ffi.h"
 namespace net {
-
 HttpAuthChallengeTokenizer::HttpAuthChallengeTokenizer(
     std::string_view challenge)
     : challenge_(challenge) {
   Init(challenge);
 }
-
 HttpAuthChallengeTokenizer::~HttpAuthChallengeTokenizer() = default;
-
+// The shared name/value iterator remains a C++ metadata/iteration seam.
 HttpUtil::NameValuePairsIterator HttpAuthChallengeTokenizer::param_pairs()
     const {
   return HttpUtil::NameValuePairsIterator(params_, /*delimiter=*/',');
 }
-
 std::string_view HttpAuthChallengeTokenizer::base64_param() const {
-  // Strip off any padding.
-  // (See https://bugzilla.mozilla.org/show_bug.cgi?id=230351.)
-  //
-  // Our base64 decoder requires that the length be a multiple of 4.
-  auto encoded_length = params_.length();
-  while (encoded_length > 0 && encoded_length % 4 != 0 &&
-         params_[encoded_length - 1] == '=') {
-    --encoded_length;
-  }
-  return params_.substr(0, encoded_length);
+  return params_.substr(
+      0, rustium_auth_encoded_len(params_.data(), params_.size()));
 }
-
 void HttpAuthChallengeTokenizer::Init(std::string_view challenge) {
-  // The first space-separated token is the auth-scheme.
-  // NOTE: we are more permissive than RFC 2617 which says auth-scheme
-  // is separated by 1*SP.
-  base::StringViewTokenizer tok(challenge, HTTP_LWS);
-  if (!tok.GetNext()) {
-    // Default param and scheme iterators provide empty strings
-    return;
+  std::array<char, 64> scratch{};
+  const auto result = rustium_auth_tokenize(challenge.data(), challenge.size(),
+                                            scratch.data(), scratch.size());
+  if (result.scheme_len <= scratch.size()) {
+    lower_case_scheme_.assign(scratch.data(), result.scheme_len);
+  } else {
+    lower_case_scheme_.assign(
+        challenge.substr(result.scheme_begin, result.scheme_len));
+    rustium_auth_lower_in_place(lower_case_scheme_.data(),
+                                lower_case_scheme_.size());
   }
-
-  // Save the scheme's position.
-  lower_case_scheme_ = base::ToLowerASCII(tok.token_piece());
-
-  params_ =
-      HttpUtil::TrimLWS(std::string_view(tok.token_end(), challenge.end()));
+  if (result.has_params) {
+    params_ = challenge.substr(result.params_begin, result.params_len);
+  }
 }
-
 }  // namespace net

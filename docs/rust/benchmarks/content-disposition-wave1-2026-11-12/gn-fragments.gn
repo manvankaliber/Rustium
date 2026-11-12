@@ -1,0 +1,91 @@
+# Add to net/BUILD.gn (parent-owned). Existing rust_static_library/test/fuzzer
+# imports are already present. Paths below are relative to //net.
+# A header-only dependency lets generated CXX glue see the service declaration
+# without a dependency back from the Rust target to the net component.
+source_set("content_disposition_services_header") {
+  sources = [ "http/content_disposition_services.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+}
+
+rust_static_library("content_disposition_parser") {
+  crate_root = "http/content_disposition_ffi.rs"
+  sources = [
+    "http/content_disposition_ffi.rs",
+    "http/content_disposition_parser.rs",
+  ]
+  cxx_bindings = [ "http/content_disposition_ffi.rs" ]
+  visibility = [ ":*" ]
+
+  # Unsafe exists only in generated CXX glue; the policy forbids unsafe_code.
+  allow_unsafe = true
+  deps = [ ":content_disposition_services_header" ]
+}
+
+source_set("content_disposition_test_reference") {
+  testonly = true
+  sources = [
+    "http/content_disposition_http_util_reference.cc",
+    "http/content_disposition_http_util_reference.h",
+    "http/content_disposition_modp_data_reference.h",
+    "http/content_disposition_modp_reference.cc",
+    "http/content_disposition_modp_reference.h",
+    "http/content_disposition_reference.cc",
+    "http/content_disposition_reference.h",
+    "http/content_disposition_services_reference.cc",
+    "http/content_disposition_services_reference.h",
+    "http/content_disposition_tokenizer_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//base:i18n",
+    "//third_party/icu",
+  ]
+}
+
+test("content_disposition_unittests") {
+  sources = [
+    "http/content_disposition_unittest.cc",
+    "http/http_content_disposition_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("content_disposition_perftests") {
+  sources = [ "http/content_disposition_perftest.cc" ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+}
+
+fuzzer_test("content_disposition_fuzzer") {
+  sources = [ "http/content_disposition_fuzzer.cc" ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+}
+# In the existing component("net") source list, retain existing
+# http/http_content_disposition.cc and .h, and ADD:
+#   "http/content_disposition_services.cc",
+#   "http/content_disposition_services.h",
+# In that component's deps ADD:
+#   ":content_disposition_parser",
+# No shared http_util.cc changes are necessary.
+# Optionally add http/content_disposition_unittest.cc to the existing
+# net_unittests sources, and :content_disposition_test_reference to its deps.

@@ -1,40 +1,28 @@
 // Copyright 2013 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/http/http_status_code.h"
 
-#include <ostream>
-#include <string_view>
-
-#include "base/notreached.h"
-
+#include "base/compiler_specific.h"
+#include "net/http/http_status_code_ffi.h"
 namespace net {
-
 std::string_view GetHttpReasonPhrase(HttpStatusCode code,
                                      std::string_view default_value) {
-  switch (code) {
-#define HTTP_STATUS_ENUM_VALUE(label, code, reason) \
-  case HTTP_##label:                                \
-    return reason;
-#include "net/http/http_status_code_list.h"
-#undef HTTP_STATUS_ENUM_VALUE
-    default:
-      return default_value;
+  const uint8_t* reason =
+      rustium_http_status_reason_record(static_cast<int>(code));
+  if (!reason) {
+    return default_value;
   }
+  // SAFETY: A non-null Rust record has one length byte followed by exactly that
+  // many immutable static phrase bytes. The generator checks the length bound.
+  return UNSAFE_BUFFERS(
+      std::string_view(reinterpret_cast<const char*>(reason + 1), reason[0]));
 }
-
 const std::optional<HttpStatusCode> TryToGetHttpStatusCode(int response_code) {
-  switch (response_code) {
-#define HTTP_STATUS_ENUM_VALUE(label, code, reason) \
-  case code:                                        \
-    return HTTP_##label;
-#include "net/http/http_status_code_list.h"
-#undef HTTP_STATUS_ENUM_VALUE
-
-    default:
-      return std::nullopt;
+  const int32_t parsed = rustium_http_status_parse(response_code);
+  if (parsed < 0) {
+    return std::nullopt;
   }
+  return static_cast<HttpStatusCode>(parsed);
 }
-
 }  // namespace net

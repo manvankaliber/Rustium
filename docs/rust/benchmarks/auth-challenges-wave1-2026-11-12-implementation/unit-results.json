@@ -1,0 +1,224 @@
+{
+  "tests": 18,
+  "failures": 0,
+  "disabled": 0,
+  "errors": 0,
+  "timestamp": "2026-11-12T21:02:42Z",
+  "time": "0s",
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "HttpAuthChallengeTokenizerTest",
+      "tests": 10,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T21:02:42Z",
+      "time": "0s",
+      "testsuite": [
+        {
+          "name": "Basic",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 13,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "NoQuotes",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 27,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "MismatchedQuotes",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 41,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "MismatchedQuotesNoValue",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 55,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "MismatchedQuotesSpaces",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 70,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "MismatchedQuotesMultiple",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 85,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "NoValue",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 108,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "Multiple",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 119,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "NoProperty",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 143,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        },
+        {
+          "name": "Base64",
+          "file": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer_unittest.cc",
+          "line": 153,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthChallengeTokenizerTest"
+        }
+      ]
+    },
+    {
+      "name": "HttpAuthHandlerNegotiateParseTest",
+      "tests": 7,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T21:02:42Z",
+      "time": "0s",
+      "testsuite": [
+        {
+          "name": "ParseFirstRoundChallenge",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 17,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "ParseFirstNegotiateChallenge_UnexpectedToken",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 27,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "ParseFirstNegotiateChallenge_BadScheme",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 37,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "ParseLaterRoundChallenge",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 44,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "ParseAnotherNegotiateChallenge_MissingToken",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 58,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "ParseAnotherNegotiateChallenge_InvalidToken",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 69,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        },
+        {
+          "name": "AllSchemesAreCanonical",
+          "file": "D:\\Rustium\\net\\http\\http_auth_multi_round_parse_unittest.cc",
+          "line": 80,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "HttpAuthHandlerNegotiateParseTest"
+        }
+      ]
+    },
+    {
+      "name": "AuthChallengeRustTest",
+      "tests": 1,
+      "failures": 0,
+      "disabled": 0,
+      "errors": 0,
+      "timestamp": "2026-11-12T21:02:42Z",
+      "time": "0s",
+      "testsuite": [
+        {
+          "name": "BoundaryAndAliasCases",
+          "file": "D:\\Rustium\\net\\http\\auth_challenge_rust_unittest.cc",
+          "line": 7,
+          "status": "RUN",
+          "result": "COMPLETED",
+          "timestamp": "2026-11-12T21:02:42Z",
+          "time": "0s",
+          "classname": "AuthChallengeRustTest"
+        }
+      ]
+    }
+  ]
+}

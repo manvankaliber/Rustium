@@ -1,0 +1,16 @@
+{
+  "net/dns/dns_names_util.cc": "cc13fdeaa87730a3ab3c879715a7667ee02165c0b1c7aea208a9d96d6fa5fd94",
+  "net/dns/dns_names_util.h": "9076dbe9df343b0844bf0973629444d3523970fd1a3c4615775dcb5d4fae2571",
+  "net/dns/dns_names_util_unittest.cc": "a5ae5e32827ad59a4ebc61127a2c69347d6aff35df3f01122daf443d6cec3fd5",
+  "net/base/url_util.cc": "b6aea5ef898d9e8974eb15e61da138da07537c76e571e627e1dd36028ad5ac8f",
+  "net/base/ip_address.cc": "b3b8c985d8e8d0339205715c2ebb4adc519cfc7b7a23a923082fe5306e57ec79",
+  "net/base/ip_address.h": "7f9aaa37992dc7efb49d1769bb00c111904458a928e45c3c0e8bd433b3eea704",
+  "base/strings/string_util.h": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+  "base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+  "base/strings/string_util_impl_helpers.h": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+  "base/containers/span_reader.h": "04c5e58a3b4f64bb8699f5d5925ba011f5bbf0c6c805988cccb260dff9d92c11",
+  "net/dns/public/dns_protocol.h": "3c7375550889dcc4cd6fcd1c39ee80983110a545cffa7507f923ae34f390bb14",
+  "url/url_canon_host.cc": "2dffbf21848cd4852993eac97e7904a072167d181261b353577c263d9f727d72",
+  "url/url_canon_ip.cc": "e525ac9aa378b11667e7e4eddc109caa4c4890b05cae902c4e9f62c8f6125630",
+  "url/url_canon_icu.cc": "05287018500d07e4a63f2cc2563951c17ef4ef0b12e363ce8a1218ac43fcf987"
+}

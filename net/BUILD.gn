@@ -171,6 +171,409 @@ source_set("chrome_root_store_data") {
   }
 }
 
+source_set("gzip_header_state") {
+  sources = [ "filter/gzip_header_state.h" ]
+}
+
+source_set("gzip_header_test_reference") {
+  testonly = true
+  sources = [
+    "filter/gzip_header_test_support.cc",
+    "filter/gzip_header_test_support.h",
+  ]
+  deps = [
+    "//base",
+    "//third_party/zlib",
+  ]
+}
+
+fuzzer_test("gzip_header_fuzzer") {
+  sources = [ "filter/gzip_header_fuzzer.cc" ]
+  deps = [
+    ":gzip_header_parser",
+    ":gzip_header_test_reference",
+    ":net",
+    "//base",
+  ]
+  seed_corpus = "filter/gzip_header_fuzzer_corpus"
+}
+
+test("gzip_header_perftests") {
+  # Compile the production wrapper here so both readers use direct, out-of-line
+  # C++ API calls in the same process, with no asymmetric DLL import cost.
+  sources = [
+    "filter/gzip_header.cc",
+    "filter/gzip_header.h",
+    "filter/gzip_header_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":gzip_header_parser",
+    ":gzip_header_state",
+    ":gzip_header_test_reference",
+    "//base",
+    "//net/base:net_export_header",
+  ]
+}
+
+test("gzip_header_unittests") {
+  sources = [
+    "filter/gzip_header_unittest.cc",
+    "filter/gzip_source_stream_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":gzip_header_parser",
+    ":gzip_header_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//third_party/zlib",
+    "//url:buildflags",
+  ]
+}
+
+rust_static_library("gzip_header_parser") {
+  crate_root = "filter/gzip_header_ffi.rs"
+  sources = [
+    "filter/gzip_header_ffi.rs",
+    "filter/gzip_header_parser.rs",
+  ]
+  cxx_bindings = [ "filter/gzip_header_ffi.rs" ]
+  visibility = [ ":*" ]
+
+  # The FFI layout declaration and generated cxx glue need unsafe.
+  # The parser module itself forbids unsafe code.
+  allow_unsafe = true
+  deps = [
+    ":gzip_header_state",
+    "//third_party/rust/memchr/v2:lib",
+  ]
+}
+
+rust_static_library("parse_number_core") {
+  crate_root = "base/parse_number_parser.rs"
+  sources = [ "base/parse_number_parser.rs" ]
+  visibility = [ ":*" ]
+}
+
+rust_static_library("parse_number_parser") {
+  # Historical CXX adapter retained for reproducible candidate comparisons.
+  testonly = true
+  crate_root = "base/parse_number_ffi.rs"
+  sources = [ "base/parse_number_ffi.rs" ]
+  cxx_bindings = [ "base/parse_number_ffi.rs" ]
+  visibility = [ ":*" ]
+
+  # Only the generated CXX bridge needs unsafe; the shared core forbids it.
+  allow_unsafe = true
+  deps = [ ":parse_number_core" ]
+  aliased_deps = {
+    parse_number_core = ":parse_number_core"
+  }
+}
+
+source_set("parse_number_test_reference") {
+  testonly = true
+  sources = [
+    "base/parse_number_test_support.cc",
+    "base/parse_number_test_support.h",
+  ]
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+    "//net/base:parse_number_header",
+  ]
+}
+
+test("parse_number_candidate_perftests") {
+  sources = [
+    "base/parse_number_candidate.cc",
+    "base/parse_number_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":parse_number_parser",
+    ":parse_number_test_reference",
+    "//base",
+    "//net/base:net_export_header",
+    "//net/base:parse_number_header",
+  ]
+}
+
+test("parse_number_candidate_unittests") {
+  sources = [
+    "base/parse_number_candidate.cc",
+    "base/parse_number_parser_unittest.cc",
+    "base/parse_number_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":net",
+    ":parse_number_parser",
+    ":parse_number_test_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+fuzzer_test("parse_number_candidate_fuzzer") {
+  sources = [
+    "base/parse_number_candidate.cc",
+    "base/parse_number_fuzzer.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":parse_number_parser",
+    ":parse_number_test_reference",
+    "//base",
+  ]
+  seed_corpus = "base/parse_number_fuzzer_corpus"
+}
+
+rust_static_library("hsts_parser") {
+  crate_root = "http/hsts_ffi.rs"
+  sources = [
+    "http/hsts_ffi.rs",
+    "http/hsts_parser.rs",
+  ]
+  cxx_bindings = [ "http/hsts_ffi.rs" ]
+  visibility = [ ":*" ]
+
+  # Only generated CXX glue needs unsafe; the pure parser forbids it.
+  allow_unsafe = true
+  deps = [ ":parse_number_core" ]
+  aliased_deps = {
+    parse_number_core = ":parse_number_core"
+  }
+}
+
+source_set("hsts_test_reference") {
+  testonly = true
+  sources = [
+    "http/hsts_http_util_reference.cc",
+    "http/hsts_http_util_reference.h",
+    "http/hsts_test_support.cc",
+    "http/hsts_test_support.h",
+  ]
+  deps = [
+    ":net",
+    ":parse_number_test_reference",
+    "//base",
+    "//url",
+  ]
+}
+
+test("hsts_perftests") {
+  sources = [
+    "http/hsts_perftest.cc",
+    "http/http_security_headers.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":hsts_parser",
+    ":hsts_test_reference",
+    ":net",
+    "//base",
+    "//net/base:net_export_header",
+  ]
+}
+
+test("hsts_unittests") {
+  sources = [
+    "http/hsts_unittest.cc",
+    "http/http_security_headers_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":hsts_parser",
+    ":hsts_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//third_party/zlib",
+    "//url:buildflags",
+  ]
+}
+
+fuzzer_test("hsts_parser_fuzzer") {
+  sources = [ "http/hsts_fuzzer.cc" ]
+  deps = [
+    ":hsts_parser",
+    ":hsts_test_reference",
+    ":net",
+    "//base",
+  ]
+  seed_corpus = "http/hsts_fuzzer_corpus"
+}
+
+rust_static_library("mime_sniffer_parser") {
+  crate_root = "base/mime_sniffer_ffi.rs"
+  sources = [
+    "base/mime_sniffer_ffi.rs",
+    "base/mime_sniffer_parser.rs",
+  ]
+  visibility = [ ":*" ]
+
+  # A documented standard-C pointer adapter borrows input for one call only.
+  # The parsing module itself forbids unsafe code.
+  allow_unsafe = true
+}
+
+source_set("mime_sniffer_reference") {
+  testonly = true
+  sources = [
+    "base/mime_sniffer_reference.cc",
+    "base/mime_sniffer_reference.h",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+test("mime_sniffer_rust_unittests") {
+  sources = [
+    "base/mime_sniffer_rust_unittest.cc",
+    "base/mime_sniffer_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":mime_sniffer_parser",
+    ":mime_sniffer_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("mime_sniffer_rust_perftests") {
+  sources = [
+    "base/mime_sniffer.cc",
+    "base/mime_sniffer_ffi.h",
+    "base/mime_sniffer_rust_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":mime_sniffer_parser",
+    ":mime_sniffer_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+fuzzer_test("mime_sniffer_differential_fuzzer") {
+  sources = [ "base/mime_sniffer_differential_fuzzer.cc" ]
+  deps = [
+    ":mime_sniffer_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+rust_static_library("http_range_parser") {
+  crate_root = "http/http_range_ffi.rs"
+  sources = [
+    "http/http_range_ffi.rs",
+    "http/http_range_parser.rs",
+  ]
+
+  # Documented foreign pointer and owned-buffer adapters need unsafe.
+  # The parsing module itself forbids unsafe code.
+  allow_unsafe = true
+  visibility = [ ":*" ]
+  deps = [
+    ":parse_number_core",
+    "//third_party/rust/memchr/v2:lib",
+  ]
+  aliased_deps = {
+    parse_number_core = ":parse_number_core"
+  }
+}
+
+source_set("http_range_test_reference") {
+  testonly = true
+  sources = [
+    "http/http_byte_range.h",
+    "http/http_range_test_support.cc",
+    "http/http_range_test_support.h",
+    "http/http_util.h",
+    "http/http_version.h",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":parse_number_test_reference",
+    "//base",
+    "//net/base:net_export_header",
+    "//net/base:parse_number_header",
+    "//url",
+  ]
+}
+
+test("http_range_perftests") {
+  sources = [
+    "http/http_byte_range.cc",
+    "http/http_range_benchmark_adapter.cc",
+    "http/http_range_ffi.h",
+    "http/http_range_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":http_range_parser",
+    ":http_range_test_reference",
+    "//base",
+    "//url",
+  ]
+}
+
+test("http_range_unittests") {
+  sources = [
+    "http/http_range_original_unittest.cc",
+    "http/http_range_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_range_parser",
+    ":http_range_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+fuzzer_test("http_range_fuzzer") {
+  sources = [ "http/http_range_fuzzer.cc" ]
+  deps = [
+    ":http_range_test_reference",
+    ":net",
+    "//base",
+  ]
+  seed_corpus = "http/http_range_fuzzer_corpus"
+}
+
 rust_static_library("http_chunked_decoder_rust") {
   crate_root = "http/http_chunked_decoder.rs"
   sources = [ "http/http_chunked_decoder.rs" ]
@@ -256,8 +659,11 @@ component("net") {
     "base/logging_network_change_observer.h",
     "base/mime_sniffer.cc",
     "base/mime_sniffer.h",
+    "base/mime_sniffer_ffi.h",
+    "base/mime_type_rust_adapter.h",
     "base/mime_util.cc",
     "base/mime_util.h",
+    "base/net_diagnostics_debug_formatting_ffi.h",
     "base/net_error_details.h",
     "base/net_error_list.h",
     "base/net_errors.cc",
@@ -290,6 +696,7 @@ component("net") {
     "base/pickle_traits.h",
     "base/pickle_url_types.h",
     "base/platform_mime_util.h",
+    "base/port_policy_ffi.h",
     "base/port_util.cc",
     "base/port_util.h",
     "base/prioritized_dispatcher.cc",
@@ -614,6 +1021,7 @@ component("net") {
     "filter/source_stream_type.h",
     "http/alternative_service.cc",
     "http/alternative_service.h",
+    "http/auth_challenge_ffi.h",
     "http/bidirectional_stream.cc",
     "http/bidirectional_stream.h",
     "http/bidirectional_stream_impl.cc",
@@ -626,6 +1034,8 @@ component("net") {
     "http/cache_body_compressor.h",
     "http/cache_body_decompressor.cc",
     "http/cache_body_decompressor.h",
+    "http/content_disposition_services.cc",
+    "http/content_disposition_services.h",
     "http/http_auth.cc",
     "http/http_auth.h",
     "http/http_auth_cache.cc",
@@ -692,6 +1102,7 @@ component("net") {
     "http/http_proxy_client_socket.h",
     "http/http_proxy_connect_job.cc",
     "http/http_proxy_connect_job.h",
+    "http/http_range_ffi.h",
     "http/http_raw_request_headers.cc",
     "http/http_raw_request_headers.h",
     "http/http_request_headers.cc",
@@ -712,6 +1123,7 @@ component("net") {
     "http/http_server_properties_manager.h",
     "http/http_status_code.cc",
     "http/http_status_code.h",
+    "http/http_status_code_ffi.h",
     "http/http_status_code_list.h",
     "http/http_stream.cc",
     "http/http_stream.h",
@@ -1211,6 +1623,7 @@ component("net") {
     "url_request/redirect_util.h",
     "url_request/referrer_policy.cc",
     "url_request/referrer_policy.h",
+    "url_request/referrer_policy_ffi.h",
     "url_request/static_http_user_agent_settings.cc",
     "url_request/static_http_user_agent_settings.h",
     "url_request/storage_access_status_cache.h",
@@ -1261,9 +1674,20 @@ component("net") {
   }
 
   deps = [
+    ":auth_challenge_rust",
+    ":content_disposition_parser",
     ":cronet_buildflags",
+    ":gzip_header_parser",
+    ":hsts_parser",
     ":http_chunked_decoder_rust",
+    ":http_range_parser",
+    ":http_status_code_rust",
+    ":mime_sniffer_parser",
+    ":mime_type_parser",
     ":net_deps",
+    ":net_diagnostics_debug_formatting_rust",
+    ":port_policy_rust",
+    ":referrer_policy_parser",
     "//components/network_time/time_tracker",
     "//components/unexportable_keys",
     "//net/http:transport_security_state_generated_files",
@@ -1274,6 +1698,7 @@ component("net") {
   public_deps = [
     ":chrome_root_store_types",
     ":disk_cache_buildflags",
+    ":gzip_header_state",
     ":net_features",
     ":net_public_deps",
     "//base",
@@ -2924,6 +3349,7 @@ target(_test_target_type, "net_unittests") {
     "http/http_security_headers_unittest.cc",
     "http/http_server_properties_manager_unittest.cc",
     "http/http_server_properties_unittest.cc",
+    "http/http_status_code_rust_unittest.cc",
     "http/http_status_code_unittest.cc",
     "http/http_stream_factory_job_controller_unittest.cc",
     "http/http_stream_factory_unittest.cc",
@@ -3214,6 +3640,7 @@ target(_test_target_type, "net_unittests") {
 
   deps = [
     ":cronet_buildflags",
+    ":http_status_code_reference",
     ":isolation_info_proto",
     ":net",
     ":preload_decoder",
@@ -4288,4 +4715,842 @@ if (is_linux) {
       "//net",
     ]
   }
+}
+
+# Rust net migration wave 1: parent-integrated targets. Append these targets to
+# net/BUILD.gn. Parent applies and validates canonical GN. Keep historical
+# parse_number_parser/CXX candidate targets unchanged.
+rust_static_library("parse_number_native_parser") {
+  crate_root = "base/parse_number_native_ffi.rs"
+  sources = [ "base/parse_number_native_ffi.rs" ]
+  allow_unsafe = true  # Documented raw pointer ABI only; core forbids unsafe.
+  visibility = [
+    ":*",
+    "//net/base:registry_controlled_domains",
+  ]
+  deps = [ ":parse_number_core" ]
+  aliased_deps = {
+    parse_number_core = ":parse_number_core"
+  }
+}
+
+source_set("parse_number_native_reference") {
+  testonly = true
+  sources = [
+    "base/parse_number_native_reference.cc",
+    "base/parse_number_native_reference.h",
+  ]
+  deps = [
+    "//base",
+    "//net/base:parse_number_header",
+  ]
+}
+
+test("parse_number_native_unittests") {
+  sources = [
+    "base/parse_number_native_unittest.cc",
+    "base/parse_number_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":parse_number_native_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("parse_number_native_perftests") {
+  sources = [
+    "base/parse_number.cc",
+    "base/parse_number_native_ffi.h",
+    "base/parse_number_native_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":parse_number_native_parser",
+    ":parse_number_native_reference",
+    "//base",
+    "//net/base:parse_number_header",
+  ]
+}
+
+fuzzer_test("parse_number_native_fuzzer") {
+  sources = [ "base/parse_number_native_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":parse_number_native_reference",
+    "//base",
+  ]
+  seed_corpus = "base/parse_number_fuzzer_corpus"
+}
+
+source_set("http_range_promote_reference") {
+  testonly = true
+  sources = [
+    "http/http_byte_range.h",
+    "http/http_range_promote_reference.cc",
+    "http/http_range_promote_reference.h",
+    "http/http_util.h",
+    "http/http_version.h",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":parse_number_native_reference",
+    "//base",
+    "//net/base:parse_number_header",
+    "//url",
+  ]
+}
+
+test("http_range_promote_unittests") {
+  sources = [
+    "http/http_range_original_unittest.cc",
+    "http/http_range_promote_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_range_parser",
+    ":http_range_promote_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("http_range_promote_perftests") {
+  sources = [
+    "http/http_byte_range.cc",
+    "http/http_range_benchmark_adapter.cc",
+    "http/http_range_ffi.h",
+    "http/http_range_promote_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":http_range_parser",
+    ":http_range_promote_reference",
+    "//base",
+    "//url",
+  ]
+}
+
+fuzzer_test("http_range_promote_fuzzer") {
+  sources = [ "http/http_range_promote_fuzzer.cc" ]
+  deps = [
+    ":http_range_promote_reference",
+    ":net",
+    "//base",
+  ]
+  seed_corpus = "http/http_range_fuzzer_corpus"
+}
+
+action("http_status_code_generated_check") {
+  script = "http/http_status_code_generate.py"
+  inputs = [
+    "http/http_status_code_list.h",
+    "http/http_status_code_generated.rs",
+  ]
+  outputs = [ "$target_gen_dir/http_status_code_checked.stamp" ]
+  args = [
+    "--check",
+    "--stamp",
+    rebase_path(outputs[0], root_build_dir),
+  ]
+}
+
+rust_static_library("http_status_code_rust") {
+  crate_root = "http/http_status_code_ffi.rs"
+  sources = [
+    "http/http_status_code_core.rs",
+    "http/http_status_code_ffi.rs",
+    "http/http_status_code_generated.rs",
+  ]
+  allow_unsafe = true
+  deps = [ ":http_status_code_generated_check" ]
+}
+
+source_set("http_status_code_headers") {
+  sources = [
+    "http/http_status_code.h",
+    "http/http_status_code_list.h",
+  ]
+  public_deps = [ "//net/base:net_export_header" ]
+}
+
+source_set("http_status_code_reference") {
+  testonly = true
+  sources = [
+    "http/http_status_code_differential.h",
+    "http/http_status_code_reference.cc",
+    "http/http_status_code_reference.h",
+    "http/http_status_code_reference_list.h",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  public_deps = [ ":http_status_code_headers" ]
+  deps = [ "//base" ]
+}
+
+test("http_status_code_rust_unittests") {
+  sources = [
+    "http/http_status_code_rust_unittest.cc",
+    "http/http_status_code_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_status_code_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("http_status_code_perftests") {
+  sources = [
+    "http/http_status_code.cc",
+    "http/http_status_code_ffi.h",
+    "http/http_status_code_perftest.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":http_status_code_headers",
+    ":http_status_code_reference",
+    ":http_status_code_rust",
+    "//base",
+  ]
+}
+
+fuzzer_test("http_status_code_fuzzer") {
+  sources = [
+    "http/http_status_code.cc",
+    "http/http_status_code_ffi.h",
+    "http/http_status_code_fuzzer.cc",
+  ]
+  defines = [ "NET_IMPLEMENTATION" ]
+  deps = [
+    ":http_status_code_headers",
+    ":http_status_code_reference",
+    ":http_status_code_rust",
+    "//base",
+  ]
+}
+
+# Parent applies in net/BUILD.gn; shared GN files were not edited by this agent.
+rust_static_library("mime_type_parser") {
+  crate_root = "base/mime_type_ffi.rs"
+  sources = [
+    "base/mime_type_ffi.rs",
+    "base/mime_type_parser.rs",
+  ]
+  cxx_bindings = [ "base/mime_type_ffi.rs" ]
+
+  # Generated CXX glue only; authored parsing core forbids unsafe code.
+  public_deps = [ ":mime_type_state" ]
+  allow_unsafe = true
+  visibility = [ ":*" ]
+}
+
+# Add :mime_type_parser to net's implementation deps (net_deps), and add
+# base/mime_type_rust_adapter.h to its sources. net/base/BUILD.gn needs no edit.
+
+component("mime_type_test_reference") {
+  testonly = true
+  defines = [ "IS_MIME_TYPE_TEST_REFERENCE_IMPL" ]
+  sources = [
+    "base/mime_type_rust_reference.cc",
+    "base/mime_type_rust_reference.h",
+    "base/mime_type_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+test("mime_type_unittests") {
+  sources = [
+    "base/mime_type_rust_optimization_unittest.cc",
+    "base/mime_type_rust_original_unittest.cc",
+    "base/mime_type_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":mime_type_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("mime_type_perftests") {
+  sources = [ "base/mime_type_rust_perftest.cc" ]
+  deps = [
+    ":mime_type_test_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+fuzzer_test("mime_type_parser_fuzzer") {
+  sources = [ "base/mime_type_rust_fuzzer.cc" ]
+  deps = [
+    ":mime_type_test_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+# Canonical validation: mime_type_unittests, net_unittests (MimeUtilTest.*,
+# HttpUtilTest.ParseContentType, HttpUtilTest.ParseContentResetCharset and
+# HttpResponseHeadersTest.* content-type consumers), mime_type_parser_fuzzer.
+# Canonical parent-only measurement: mime_type_perftests.
+
+# Add to net/BUILD.gn (parent-owned). Existing rust_static_library/test/fuzzer
+# imports are already present. Paths below are relative to //net.
+# A header-only dependency lets generated CXX glue see the service declaration
+# without a dependency back from the Rust target to the net component.
+source_set("content_disposition_services_header") {
+  sources = [ "http/content_disposition_services.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+}
+
+rust_static_library("content_disposition_parser") {
+  crate_root = "http/content_disposition_ffi.rs"
+  sources = [
+    "http/content_disposition_ffi.rs",
+    "http/content_disposition_parser.rs",
+  ]
+  cxx_bindings = [ "http/content_disposition_ffi.rs" ]
+  visibility = [ ":*" ]
+
+  # Unsafe exists only in generated CXX glue; the policy forbids unsafe_code.
+  allow_unsafe = true
+  deps = [ ":content_disposition_services_header" ]
+}
+
+component("content_disposition_test_reference") {
+  testonly = true
+  defines = [ "IS_CONTENT_DISPOSITION_TEST_REFERENCE_IMPL" ]
+  sources = [
+    "http/content_disposition_http_util_reference.cc",
+    "http/content_disposition_http_util_reference.h",
+    "http/content_disposition_modp_data_reference.h",
+    "http/content_disposition_modp_reference.cc",
+    "http/content_disposition_modp_reference.h",
+    "http/content_disposition_reference.cc",
+    "http/content_disposition_reference.h",
+    "http/content_disposition_services_reference.cc",
+    "http/content_disposition_services_reference.h",
+    "http/content_disposition_tokenizer_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//base:i18n",
+    "//third_party/icu",
+  ]
+}
+
+test("content_disposition_unittests") {
+  sources = [
+    "http/content_disposition_unittest.cc",
+    "http/http_content_disposition_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("content_disposition_perftests") {
+  sources = [ "http/content_disposition_perftest.cc" ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+}
+
+fuzzer_test("content_disposition_fuzzer") {
+  sources = [ "http/content_disposition_fuzzer.cc" ]
+  deps = [
+    ":content_disposition_test_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+}
+
+# In the existing component("net") source list, retain existing
+# http/http_content_disposition.cc and .h, and ADD:
+#   "http/content_disposition_services.cc",
+#   "http/content_disposition_services.h",
+# In that component's deps ADD:
+#   ":content_disposition_parser",
+# No shared http_util.cc changes are necessary.
+# Optionally add http/content_disposition_unittest.cc to the existing
+# net_unittests sources, and :content_disposition_test_reference to its deps.
+
+rust_static_library("referrer_policy_parser") {
+  crate_root = "url_request/referrer_policy_ffi.rs"
+  sources = [
+    "url_request/referrer_policy_ffi.rs",
+    "url_request/referrer_policy_parser.rs",
+  ]
+  allow_unsafe = true
+  visibility = [ ":*" ]
+}
+
+source_set("dns_names_services_header") {
+  sources = [ "dns/dns_names_ffi.h" ]
+  public_deps = [
+    "//base",
+    "//build/rust:cxx_cppdeps",
+  ]
+}
+
+# Apply these fragments to net/BUILD.gn (parent-owned).
+rust_static_library("dns_names_rust") {
+  crate_root = "dns/dns_names_ffi.rs"
+  sources = [
+    "dns/dns_names_core.rs",
+    "dns/dns_names_ffi.rs",
+  ]
+  cxx_bindings = [ "dns/dns_names_ffi.rs" ]
+
+  # dns_names_util.cc is compiled by //net/dns:dns, not //net:net.
+  visibility = [
+    ":*",
+    "//net/dns",
+  ]
+  allow_unsafe = true  # Generated CXX only; core forbids unsafe.
+  deps = [ ":dns_names_services_header" ]
+}
+
+component("dns_names_reference") {
+  testonly = true
+  defines = [ "IS_DNS_NAMES_REFERENCE_IMPL" ]
+  sources = [
+    "dns/dns_names_reference.cc",
+    "dns/dns_names_reference.h",
+    "dns/dns_names_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("dns_names_rust_unittests") {
+  sources = [
+    "dns/dns_names_rust_unittest.cc",
+    "dns/dns_names_util_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("dns_names_perftests") {
+  sources = [ "dns/dns_names_perftest.cc" ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+  data = [ "//third_party/icu/common/icudtl.dat" ]
+}
+
+fuzzer_test("dns_names_rust_fuzzer") {
+  sources = [ "dns/dns_names_fuzzer.cc" ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+  data = [ "//third_party/icu/common/icudtl.dat" ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+# Required changes within net/dns/BUILD.gn source_set("dns"):
+# Add "dns_names_ffi.h" to sources.
+# Replace deps = [ "//net:net_deps" ] with:
+# deps = [
+#   "//net:net_deps",
+#   "//net:dns_names_rust",
+# ]
+# Do not put only a //net:net dependency on dns_names_rust: the DNS source set
+# needs the generated header directly and must match its target visibility.
+# Optionally also add dns_names_rust_unittest.cc to net_unittests and its
+# dns_names_reference dependency to that target.
+
+# Frozen original parser in a separate component, matching the public API's
+# component-call boundary for canonical paired measurements.
+component("referrer_policy_reference") {
+  testonly = true
+  defines = [ "IS_REFERRER_POLICY_REFERENCE_IMPL" ]
+  sources = [
+    "url_request/referrer_policy_reference.cc",
+    "url_request/referrer_policy_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+test("referrer_policy_rust_unittests") {
+  sources = [
+    "test/run_all_unittests.cc",
+    "url_request/referrer_policy_differential.h",
+    "url_request/referrer_policy_rust_unittest.cc",
+  ]
+  deps = [
+    ":net",
+    ":referrer_policy_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("referrer_policy_perftests") {
+  sources = [ "url_request/referrer_policy_perftest.cc" ]
+  deps = [
+    ":net",
+    ":referrer_policy_reference",
+    "//base",
+  ]
+}
+
+fuzzer_test("referrer_policy_fuzzer") {
+  sources = [
+    "url_request/referrer_policy_differential.h",
+    "url_request/referrer_policy_fuzzer.cc",
+  ]
+  deps = [
+    ":net",
+    ":referrer_policy_reference",
+    "//base",
+  ]
+  libfuzzer_options = [ "max_len=8192" ]
+}
+
+# Add in net/BUILD.gn; existing Rust and fuzzer templates assumed imported.
+rust_static_library("auth_challenge_rust") {
+  crate_root = "http/auth_challenge_ffi.rs"
+  sources = [
+    "http/auth_challenge_core.rs",
+    "http/auth_challenge_ffi.rs",
+  ]
+  allow_unsafe = true  # Narrow pointer adapter; core forbids unsafe.
+  visibility = [ ":*" ]
+}
+
+# Add :auth_challenge_rust to net's implementation dependencies and
+# http/auth_challenge_ffi.h to its source list.
+component("auth_challenge_reference") {
+  defines = [ "IS_AUTH_CHALLENGE_REFERENCE_IMPL" ]
+  testonly = true
+  sources = [
+    "http/auth_challenge_reference.cc",
+    "http/auth_challenge_reference.h",
+    "http/auth_challenge_reference_modp.cc",
+    "http/auth_challenge_reference_modp.h",
+    "http/auth_challenge_reference_modp_data.h",
+    "http/auth_challenge_reference_tokenizer.h",
+    "http/auth_challenge_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+# Add http/auth_challenge_rust_unittest.cc to net_unittests and add
+# :auth_challenge_reference to its deps; retain both original suites.
+test("auth_challenge_perftests") {
+  sources = [ "http/auth_challenge_perftest.cc" ]
+  deps = [
+    ":auth_challenge_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+fuzzer_test("auth_challenge_fuzzer") {
+  sources = [ "http/auth_challenge_fuzzer.cc" ]
+  deps = [
+    ":auth_challenge_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+test("auth_challenge_rust_unittests") {
+  sources = [
+    "http/auth_challenge_rust_unittest.cc",
+    "http/http_auth_challenge_tokenizer_unittest.cc",
+    "http/http_auth_multi_round_parse_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":auth_challenge_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+# Apply to net/BUILD.gn; parent owns the shared GN file.
+action("net_diagnostics_debug_formatting_generated_check") {
+  script = "base/net_diagnostics_generate.py"
+  inputs = [
+    "base/load_flags_list.h",
+    "base/net_diagnostics_load_flags_generated.rs",
+  ]
+  outputs = [ "$target_gen_dir/net_diagnostics_debug_formatting_checked.stamp" ]
+  args = [
+    "--check",
+    "--stamp",
+    rebase_path(outputs[0], root_build_dir),
+  ]
+}
+
+rust_static_library("net_diagnostics_debug_formatting_rust") {
+  crate_root = "base/net_diagnostics_debug_formatting_ffi.rs"
+  sources = [
+    "base/net_diagnostics_debug_formatting_core.rs",
+    "base/net_diagnostics_debug_formatting_ffi.rs",
+    "base/net_diagnostics_load_flags_generated.rs",
+  ]
+  allow_unsafe =
+      true  # Only the documented pointer/ownership FFI boundary uses unsafe.
+  deps = [ ":net_diagnostics_debug_formatting_generated_check" ]
+}
+
+component("net_diagnostics_debug_formatting_reference") {
+  defines = [ "IS_NET_DIAGNOSTICS_REFERENCE_IMPL" ]
+  testonly = true
+  sources = [
+    "base/net_diagnostics_load_flags_reference.cc",
+    "base/net_diagnostics_load_flags_reference.h",
+    "base/net_diagnostics_load_flags_reference_list.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+# Add to existing net target: deps += [ ":net_diagnostics_debug_formatting_rust"
+# ] Add to net_unittests sources:
+#   "base/net_diagnostics_debug_formatting_unittest.cc"
+# Add to net_unittests deps:
+#   ":net_diagnostics_debug_formatting_rust", ":net_diagnostics_debug_formatting_reference"
+# Add the perftest source under a test-only target with the same two deps; do not
+# run it until a parent-coordinated quiet timing window.
+# Fuzzer source is net/base/net_diagnostics_debug_formatting_fuzzer.cc and should
+# depend on :net_diagnostics_debug_formatting_rust. Keep invalid CHECK inputs in
+# death tests rather than the successful-input fuzz target.
+
+test("net_diagnostics_debug_formatting_unittests") {
+  sources = [
+    "base/net_diagnostics_debug_formatting_unittest.cc",
+    "base/privacy_mode.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":net_diagnostics_debug_formatting_reference",
+    ":net_diagnostics_debug_formatting_rust",
+    ":net_diagnostics_privacy_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("net_diagnostics_debug_formatting_perftests") {
+  sources = [
+    "base/net_diagnostics_debug_formatting_perftest.cc",
+    "base/privacy_mode.cc",
+  ]
+  deps = [
+    ":net",
+    ":net_diagnostics_debug_formatting_reference",
+    ":net_diagnostics_debug_formatting_rust",
+    ":net_diagnostics_privacy_reference",
+    "//base",
+  ]
+}
+
+fuzzer_test("net_diagnostics_debug_formatting_fuzzer") {
+  sources = [ "base/net_diagnostics_debug_formatting_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":net_diagnostics_debug_formatting_reference",
+    "//base",
+  ]
+}
+
+# Parent-owned net/BUILD.gn fragments. Add rust_static_library import if absent.
+rust_static_library("port_policy_rust") {
+  crate_root = "base/port_policy_ffi.rs"
+  sources = [
+    "base/port_policy_core.rs",
+    "base/port_policy_ffi.rs",
+  ]
+  cxx_bindings = [ "base/port_policy_ffi.rs" ]
+  allow_unsafe = true  # Generated CXX only. The policy core forbids unsafe.
+  visibility = [ ":*" ]
+  deps = [ ":port_policy_services_header" ]
+}
+
+# Add :port_policy_rust to the target compiling base/port_util.cc, and
+# base/port_policy_ffi.h to that target's sources. The bridge callbacks live in
+# port_util.cc. Public C++ callers depend on the existing net target.
+component("port_policy_reference") {
+  defines = [ "IS_PORT_POLICY_REFERENCE_IMPL" ]
+  testonly = true
+  sources = [
+    "base/port_policy_reference.cc",
+    "base/port_policy_reference.h",
+    "base/port_policy_reference_number.cc",
+    "base/port_policy_reference_number.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+test("port_policy_rust_unittests") {
+  sources = [
+    "base/port_policy_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":port_policy_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("port_policy_perftests") {
+  sources = [ "base/port_policy_perftest.cc" ]
+  deps = [
+    ":net",
+    ":port_policy_reference",
+    "//base",
+  ]
+}
+
+# Run feature-initializing differential suite separately from original tests:
+# each original implementation caches its feature parameter sets process-wide.
+
+fuzzer_test("port_policy_rust_fuzzer") {
+  sources = [ "base/port_policy_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":port_policy_reference",
+    "//base",
+  ]
+  libfuzzer_options = [ "max_len=48" ]
+}
+
+test("port_policy_original_unittests") {
+  sources = [
+    "base/port_util_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+source_set("port_policy_services_header") {
+  sources = [ "base/port_policy_ffi.h" ]
+  public_deps = [
+    "//base",
+    "//build/rust:cxx_cppdeps",
+  ]
+}
+
+# PrivacyModeToDebugString is an internal, non-exported net function. Compile
+# both wrappers locally in focused tests/benchmarks; preserve its visibility.
+source_set("net_diagnostics_privacy_reference") {
+  testonly = true
+  sources = [
+    "base/net_diagnostics_privacy_mode_reference.cc",
+    "base/net_diagnostics_privacy_mode_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+source_set("mime_type_state") {
+  sources = [ "base/mime_type_rust_state.h" ]
+  public_deps = [
+    "//base",
+    "//build/rust:cxx_cppdeps",
+  ]
 }

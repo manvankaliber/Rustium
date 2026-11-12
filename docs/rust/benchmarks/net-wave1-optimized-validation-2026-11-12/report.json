@@ -1,0 +1,90 @@
+{
+  "configured_tests": [
+    {
+      "target": "auth_challenge_rust_unittests",
+      "tests": 19,
+      "failures": 0
+    },
+    {
+      "target": "content_disposition_unittests",
+      "tests": 15,
+      "failures": 0
+    },
+    {
+      "target": "dns_names_rust_unittests",
+      "tests": 55,
+      "failures": 0
+    },
+    {
+      "target": "gzip_header_unittests",
+      "tests": 123,
+      "failures": 0
+    },
+    {
+      "target": "hsts_unittests",
+      "tests": 14,
+      "failures": 0
+    },
+    {
+      "target": "http_range_promote_unittests",
+      "tests": 24,
+      "failures": 0
+    },
+    {
+      "target": "http_status_code_rust_unittests",
+      "tests": 2,
+      "failures": 0
+    },
+    {
+      "target": "mime_sniffer_rust_unittests",
+      "tests": 288,
+      "failures": 0
+    },
+    {
+      "target": "mime_type_unittests",
+      "tests": 13,
+      "failures": 0
+    },
+    {
+      "target": "net_diagnostics_debug_formatting_unittests",
+      "tests": 7,
+      "failures": 0
+    },
+    {
+      "target": "parse_number_candidate_unittests",
+      "tests": 13,
+      "failures": 0
+    },
+    {
+      "target": "parse_number_native_unittests",
+      "tests": 15,
+      "failures": 0
+    },
+    {
+      "target": "port_policy_original_unittests",
+      "tests": 4,
+      "failures": 0
+    },
+    {
+      "target": "port_policy_rust_unittests",
+      "tests": 2,
+      "failures": 0
+    },
+    {
+      "target": "referrer_policy_rust_unittests",
+      "tests": 6,
+      "failures": 0
+    }
+  ],
+  "total_test_cases": 600,
+  "existing_skip": "HttpContentDispositionTest.ContainsNul/1; launcher summary records skips as SUCCESS; see native log.",
+  "browser_checks": 9,
+  "platform": "Windows x64 configured out/Default only",
+  "source_snapshot": "docs/rust/benchmarks/net-wave1-optimized-sources-2026-11-12.zip",
+  "limitations": [
+    "Focused configured tests, not the entire net_unittests suite",
+    "No branch coverage collected",
+    "No ASan/TSan run claimed",
+    "Isolated operations; no end-to-end browser speed claim"
+  ]
+}

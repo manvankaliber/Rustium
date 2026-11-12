@@ -1,0 +1,28 @@
+# Apply to net/BUILD.gn; parent owns the shared GN file.
+action("net_diagnostics_debug_formatting_generated_check") {
+  script = "base/net_diagnostics_generate.py"
+  inputs = [ "base/load_flags_list.h", "base/net_diagnostics_load_flags_generated.rs" ]
+  outputs = [ "$target_gen_dir/net_diagnostics_debug_formatting_checked.stamp" ]
+  args = [ "--check", "--stamp", rebase_path(outputs[0], root_build_dir) ]
+}
+rust_static_library("net_diagnostics_debug_formatting_rust") {
+  crate_root = "base/net_diagnostics_debug_formatting_ffi.rs"
+  sources = [ "base/net_diagnostics_debug_formatting_ffi.rs", "base/net_diagnostics_debug_formatting_core.rs", "base/net_diagnostics_load_flags_generated.rs" ]
+  allow_unsafe = true # Only the documented pointer/ownership FFI boundary uses unsafe.
+  deps = [ ":net_diagnostics_debug_formatting_generated_check" ]
+}
+source_set("net_diagnostics_debug_formatting_reference") {
+  testonly = true
+  sources = [ "base/net_diagnostics_load_flags_reference.cc", "base/net_diagnostics_load_flags_reference.h", "base/net_diagnostics_load_flags_reference_list.h", "base/net_diagnostics_privacy_mode_reference.cc", "base/net_diagnostics_privacy_mode_reference.h" ]
+  deps = [ "//base" ]
+}
+# Add to existing net target: deps += [ ":net_diagnostics_debug_formatting_rust" ]
+# Add to net_unittests sources:
+#   "base/net_diagnostics_debug_formatting_unittest.cc"
+# Add to net_unittests deps:
+#   ":net_diagnostics_debug_formatting_rust", ":net_diagnostics_debug_formatting_reference"
+# Add the perftest source under a test-only target with the same two deps; do not
+# run it until a parent-coordinated quiet timing window.
+# Fuzzer source is net/base/net_diagnostics_debug_formatting_fuzzer.cc and should
+# depend on :net_diagnostics_debug_formatting_rust. Keep invalid CHECK inputs in
+# death tests rather than the successful-input fuzz target.

@@ -1,0 +1,74 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans:MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput:MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits:MimeUtilTest.TestParseMimeType:MimeUtilTest.TestParseMimeTypeWithoutParameter:HttpUtilTest.ParseContentType:HttpUtilTest.ParseContentResetCharset:MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs:MimeTypeRustTest.DifferentialGrammarAndBoundaryCases:MimeTypeRustTest.EveryByteAndEmbeddedNull
+[==========] Running 10 tests from 4 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MimeTypeRustOptimizationTest
+[ RUN      ] MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans
+[       OK ] MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans (1 ms)
+[ RUN      ] MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput
+[       OK ] MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput (0 ms)
+[ RUN      ] MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits
+[       OK ] MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits (0 ms)
+[----------] 3 tests from MimeTypeRustOptimizationTest (2 ms total)
+
+[----------] 2 tests from MimeUtilTest
+[ RUN      ] MimeUtilTest.TestParseMimeType
+[       OK ] MimeUtilTest.TestParseMimeType (0 ms)
+[ RUN      ] MimeUtilTest.TestParseMimeTypeWithoutParameter
+[       OK ] MimeUtilTest.TestParseMimeTypeWithoutParameter (0 ms)
+[----------] 2 tests from MimeUtilTest (0 ms total)
+
+[----------] 2 tests from HttpUtilTest
+[ RUN      ] HttpUtilTest.ParseContentType
+[       OK ] HttpUtilTest.ParseContentType (0 ms)
+[ RUN      ] HttpUtilTest.ParseContentResetCharset
+[       OK ] HttpUtilTest.ParseContentResetCharset (0 ms)
+[----------] 2 tests from HttpUtilTest (0 ms total)
+
+[----------] 3 tests from MimeTypeRustTest
+[ RUN      ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs
+[       OK ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs (0 ms)
+[ RUN      ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases
+[       OK ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases (0 ms)
+[ RUN      ] MimeTypeRustTest.EveryByteAndEmbeddedNull
+[       OK ] MimeTypeRustTest.EveryByteAndEmbeddedNull (255 ms)
+[----------] 3 tests from MimeTypeRustTest (256 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 4 test suites ran. (259 ms total)
+[  PASSED  ] 10 tests.
+[1/13] MimeTypeRustOptimizationTest.TransformedScratchGrowthAndEmptySpans (1 ms)
+[2/13] MimeTypeRustOptimizationTest.InputAliasesEveryMutableOutput (0 ms)
+[3/13] MimeTypeRustOptimizationTest.HeapBackedInputSurvivesOutputCommits (0 ms)
+[4/13] MimeUtilTest.TestParseMimeType (0 ms)
+[5/13] MimeUtilTest.TestParseMimeTypeWithoutParameter (0 ms)
+[6/13] HttpUtilTest.ParseContentType (0 ms)
+[7/13] HttpUtilTest.ParseContentResetCharset (0 ms)
+[8/13] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs (0 ms)
+[9/13] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases (0 ms)
+[10/13] MimeTypeRustTest.EveryByteAndEmbeddedNull (255 ms)
+Note: Google Test filter = MimeTypeRustTest.InputOutputAliasingSnapshots:MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality:MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues
+[==========] Running 3 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 3 tests from MimeTypeRustTest
+[ RUN      ] MimeTypeRustTest.InputOutputAliasingSnapshots
+[       OK ] MimeTypeRustTest.InputOutputAliasingSnapshots (0 ms)
+[ RUN      ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality
+[       OK ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality (0 ms)
+[ RUN      ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues
+[       OK ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues (9 ms)
+[----------] 3 tests from MimeTypeRustTest (10 ms total)
+
+[----------] Global test environment tear-down
+[==========] 3 tests from 1 test suite ran. (10 ms total)
+[  PASSED  ] 3 tests.
+[11/13] MimeTypeRustTest.InputOutputAliasingSnapshots (0 ms)
+[12/13] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality (0 ms)
+[13/13] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues (9 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

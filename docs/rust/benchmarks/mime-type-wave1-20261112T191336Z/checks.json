@@ -1,0 +1,49 @@
+{
+  "clippy": {
+    "command": [
+      "python",
+      "D:\\Rustium\\.scratch\\net-wave1\\content-type\\build_native.py",
+      "lint"
+    ],
+    "exit_code": 0
+  },
+  "rustfmt": {
+    "command": [
+      "D:/RustiumBuild/src/third_party/rust-toolchain/bin/rustfmt.exe",
+      "--edition",
+      "2024",
+      "--check",
+      "D:\\Rustium\\net\\base\\mime_type_parser.rs",
+      "D:\\Rustium\\net\\base\\mime_type_ffi.rs"
+    ],
+    "exit_code": 0
+  },
+  "clang-format": {
+    "command": [
+      "D:\\Rustium\\.scratch\\clang-format\\clang_format\\data\\bin\\clang-format.exe",
+      "--dry-run",
+      "--Werror",
+      "D:\\Rustium\\net\\base\\mime_type_rust_fuzzer.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_original_unittest.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_perftest.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_reference.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_unittest.cc",
+      "D:\\Rustium\\net\\base\\mime_type_rust_adapter.h",
+      "D:\\Rustium\\net\\base\\mime_type_rust_reference.h",
+      "D:\\Rustium\\net\\base\\mime_type_rust_test_support.h"
+    ],
+    "exit_code": 0
+  },
+  "scope": {
+    "only_assigned_functions_and_adapter_include_changed": true,
+    "mime_util_header_unchanged": true
+  },
+  "original_tests_unchanged": true,
+  "native_adapter_method_bodies_match_production_and_parent_wrapper": true,
+  "benchmark_descriptor": {
+    "cases": 20,
+    "groups": 4,
+    "max_cases_per_group": 5,
+    "timing_executed": false
+  }
+}

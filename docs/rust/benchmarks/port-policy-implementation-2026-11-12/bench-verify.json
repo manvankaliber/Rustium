@@ -1,0 +1,9 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\bench.exe",
+    "--verify-only"
+  ],
+  "exit_code": 0,
+  "binary_sha256": "7915cccf338b863bb971cab16a6b16d66eb3e6cc8d2b6aa75e61c087ad75ae6c",
+  "timing_run": false
+}

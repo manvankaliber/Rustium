@@ -1,0 +1,3003 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "wave1-final",
+  "label": "Integrated wave 1",
+  "validation_stage": "final",
+  "metadata": {
+    "module": "content-disposition",
+    "source": "content-disposition",
+    "label": "Content-Disposition Rust policy",
+    "baseline": "Frozen original C++ HttpContentDisposition including frozen tokenizer, HTTP helpers, base64, URL unescape and charset helper bodies",
+    "chart_baseline": "Original C++ public parser",
+    "measurement": "Warm same-process public C++ string constructor, complete parsing and charset services, result consumption and destruction; preloaded inputs; no I/O, response-header assembly, whole-browser work, startup or ICU initialization Canonical production and frozen-reference APIs both cross separate component DLL boundaries in this component build.",
+    "chart_scope": "Isolated Content-Disposition parser benchmark including C++ ownership and charset interoperability",
+    "groups": [
+      {
+        "id": "content-disposition-basic",
+        "title": "Basic disposition parsing",
+        "operation": "parse",
+        "cases": [
+          {
+            "key": "empty",
+            "label": "Empty header"
+          },
+          {
+            "key": "inline",
+            "label": "Inline type"
+          },
+          {
+            "key": "ascii",
+            "label": "ASCII filename"
+          },
+          {
+            "key": "quoted",
+            "label": "Quoted separators and escape"
+          },
+          {
+            "key": "priority",
+            "label": "Extended filename priority"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "content-disposition-decoders",
+        "title": "Filename decoders",
+        "operation": "parse",
+        "cases": [
+          {
+            "key": "q-word",
+            "label": "RFC2047 Q"
+          },
+          {
+            "key": "b-word",
+            "label": "RFC2047 B"
+          },
+          {
+            "key": "adjacent",
+            "label": "Adjacent encoded words"
+          },
+          {
+            "key": "percent",
+            "label": "Percent escaped UTF-8"
+          },
+          {
+            "key": "normalize",
+            "label": "RFC5987 normalization"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      },
+      {
+        "id": "content-disposition-compatibility",
+        "title": "Compatibility and larger headers",
+        "operation": "parse",
+        "cases": [
+          {
+            "key": "legacy-charset",
+            "label": "Latin-1 referrer"
+          },
+          {
+            "key": "os-fallback",
+            "label": "OS charset fallback"
+          },
+          {
+            "key": "malformed",
+            "label": "Malformed encoded word fallback"
+          },
+          {
+            "key": "long-quoted",
+            "label": "4096 byte quoted filename"
+          },
+          {
+            "key": "many-parameters",
+            "label": "64 unknown parameters"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true
+      }
+    ],
+    "production_status": "integrated",
+    "include_in_average": true,
+    "bridge": {
+      "present": true,
+      "included_in_timing": true,
+      "separately_measured": false,
+      "kind": "CXX",
+      "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+    }
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 32.684332099997846,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\content_disposition_perftests.exe"
+    ],
+    "executable_sha256": "aa81ce2fe25c120c423f9313379cc32679c4961e59d1117cb4377cc11dc53504",
+    "module": "content-disposition",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "integrated; acceptance validation recorded separately",
+    "started_utc": "2026-11-12T20:37:29.678360+00:00",
+    "completed_utc": "2026-11-12T20:38:02.362696+00:00",
+    "local_dll_sha256": {
+      "net_content_disposition_test_reference.dll": "e211a83b21bb75af823eaa5d4b3feb1ed526ad7febada528de355a20974b5288",
+      "net.dll": "b47118bc5d15f2186daffd569dec940f2e3d27baf348ba1b993a3b05ac060fb9",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "vcruntime140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "dbghelp.dll": "2d2ec94891162a61d86789133623b47d64d74c15d6be99473b25ad7a6468cf39",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "vcruntime140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "net_third_party_quiche.dll": "55d57cdebffbb9bd05c73e848a11dc98c7e6369f1c9f6977cf91132a74116883",
+      "components_unexportable_keys.dll": "26f9efe75b8b97532c777ec7b2772b9729bda2ced69dd7aa901eb0d1f36cd05e",
+      "sql.dll": "485f5beae9408cb0b5b6c8a6e52b0c5458912d0deea7127d0fb120c0acc36bba",
+      "components_performance_manager_scenario_api.dll": "af0c63ff96e51bea637af05b736a6228d569ad6f1f54b61b4be85c665c52a408",
+      "components_sqlite_vfs.dll": "c10c622d9266e19150780148185801dd3a0914af48b788ba0b028c66ea35d197",
+      "third_party_protobuf_protobuf_full_and_lite_library.dll": "afe2106912c58ed9469721d1469a1b3c0e5f69ad96f9983e474c478d6f7a919e",
+      "crcrypto.dll": "35a83714f10e80a76f35968f7783fe2828e6f3e2c5c0413c12623eb79a6ce3fd",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "net_third_party_uri_template.dll": "2192781c9cc1958d8d1a64b89730a0d3c2f3fa8d1477e3fe67f4109ed837978d",
+      "components_sqlite_vfs_pending_file_set.dll": "2923cc24a989d7ada791225498e8a901e69220bbd15c5b55d0ef54203cf11013",
+      "third_party_sqlite_chromium_sqlite3.dll": "931861a83054dbd2e8f3309d3404b50744198c9b9b47d591326424b39b251bd1"
+    },
+    "system_dll_imports": [
+      "advapi32.dll",
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-delayload-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-kernel32-legacy-l1-1-0.dll",
+      "api-ms-win-core-libraryloader-l1-1-0.dll",
+      "api-ms-win-core-localization-l1-1-0.dll",
+      "api-ms-win-core-localregistry-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-misc-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-realtime-l1-1-1.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-threadpool-l1-1-0.dll",
+      "api-ms-win-core-util-l1-1-0.dll",
+      "api-ms-win-core-winrt-l1-1-0.dll",
+      "api-ms-win-core-winrt-string-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "api-ms-win-crt-private-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-eventing-provider-l1-1-0.dll",
+      "api-ms-win-power-base-l1-1-0.dll",
+      "api-ms-win-security-base-l1-1-0.dll",
+      "api-ms-win-shcore-scaling-l1-1-1.dll",
+      "bcrypt.dll",
+      "bcryptprimitives.dll",
+      "cfgmgr32.dll",
+      "crypt32.dll",
+      "dhcpcsvc.dll",
+      "gdi32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ncrypt.dll",
+      "ntdll.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "pdh.dll",
+      "propsys.dll",
+      "rpcrt4.dll",
+      "secur32.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "shlwapi.dll",
+      "tbs.dll",
+      "urlmon.dll",
+      "user32.dll",
+      "userenv.dll",
+      "version.dll",
+      "winhttp.dll",
+      "winmm.dll",
+      "wintrust.dll",
+      "ws2_32.dll"
+    ],
+    "dependency_inspector": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\dumpbin.exe",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "content_disposition_perftests": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "content_disposition_test_reference": {
+        "defines": "-DIS_CONTENT_DISPOSITION_TEST_REFERENCE_IMPL -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "content_disposition_parser": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "net": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc$:inline /Gw",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "content_disposition_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "0873973b31c02375ef160e943acb77619f71ae4829fcb7f87387324edfab5bcd",
+    "source_hashes_file_sha256": "775fafa505bd2ce8a69cfbff0e16f8b450069b1895269eab21b114bfffa49367"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+    "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7",
+    "net/http/content_disposition_ffi.rs": "f30bf1fc731269b70bfcdde8904e9934893cccb737e2a8654f2dfe3a8f845ecf",
+    "net/http/content_disposition_fuzzer.cc": "80cc2e1a8a39645036c6ef013fcb0d2dcdde77f63749d8ddb4e1fe877312fcf5",
+    "net/http/content_disposition_http_util_reference.cc": "04cae48f042b80dd6e1e78875e0cd263b6310dd9ad50b8790428bb39f2dd2ee2",
+    "net/http/content_disposition_http_util_reference.h": "bb4444dce6163b256528e92f768f65133f7fdbeac0ffbc25e7d9490dba710880",
+    "net/http/content_disposition_modp_data_reference.h": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+    "net/http/content_disposition_modp_reference.cc": "0835862ae19e17389b73c3e5670b9b6b61ef5ddbeaa2edad37d10f6915359f08",
+    "net/http/content_disposition_modp_reference.h": "09f7af68bdeaae786055618ffd30e8c52e71645a04fcbdb56643cf1b18aa73bc",
+    "net/http/content_disposition_parser.rs": "157c5b9660b2055dbf8a5fe9acdef7e3ee58fbca665226c932399fbb119e9618",
+    "net/http/content_disposition_perftest.cc": "7f5bed478443c0118ea1d71dfcb8205020e00fbacb29a5da7af4f942222908de",
+    "net/http/content_disposition_reference.cc": "0e939d28c83ca40b711b05a3e340928b961c5c767ceb7eb4c12b6f4fb2cd781f",
+    "net/http/content_disposition_reference.h": "16a789bdf9cb95c9cca2f4909a200428562d0e4ff99a8492765dadea56f5e7df",
+    "net/http/content_disposition_services.cc": "19b78f7a60fcf27ac01012336289aaca0b8b2fdd5a98bd1366f85f863a50fdaf",
+    "net/http/content_disposition_services.h": "e5cda4ea3a29da6195793fdacbbd55a68520a559cad318f0294caf34d9e06bd4",
+    "net/http/content_disposition_services_reference.cc": "a841bb84cc14a3ff205f5aebb22f13d35b980836483b44bbad65042ca024de2c",
+    "net/http/content_disposition_services_reference.h": "9313b7cb17acfa3c457b1fe435da9ecb8e855b51b5dc85d120e01dbd9424984d",
+    "net/http/content_disposition_tokenizer_reference.h": "abe976fd0de59e15daf78f02649531c380b36b16d31fc096cc5a4e1f70443664",
+    "net/http/content_disposition_unittest.cc": "641e84fdf2b2e7101311e1089920a29c0c9be7bcea8b497dbc08cf1c5ce992c9",
+    "net/http/http_content_disposition.cc": "bc74ca52de257df354311cc1a0279a296bdd5a5bb4d3d42389b606ec7ff7b63c",
+    "net/http/http_content_disposition.h": "c4aeff3ab4dbdbb19bf7675d1e9a09e66c0883fd11451a93d6cac34a8ea8f02f",
+    "net/http/http_content_disposition_fuzzer.cc": "b6564b4af4d6c358db9d70ad1c48c3585e4cc1d4dbe558dfcba30b8a43bd15a2",
+    "net/http/http_content_disposition_unittest.cc": "47b261e283f595eca3eb881537e02c5cc57c9af450df3c8142595a598d3ec091"
+  },
+  "raw_report_sha256": "0873973b31c02375ef160e943acb77619f71ae4829fcb7f87387324edfab5bcd",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "empty",
+      "label": "Empty header",
+      "run": "wave1-final",
+      "baseline_median_ns": 89.25175,
+      "rust_median_ns": 37.48425,
+      "change_percent": -58.00166383292205,
+      "bootstrap_95_ci_percent": [
+        -58.087206634508846,
+        -57.83990183664094
+      ],
+      "absolute_time_change_ns": -51.7675,
+      "bootstrap_90_ci_time_change_ns": [
+        -51.88249999999999,
+        -51.63025
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "inline",
+      "label": "Inline type",
+      "run": "wave1-final",
+      "baseline_median_ns": 162.2745,
+      "rust_median_ns": 96.737,
+      "change_percent": -40.38681370147496,
+      "bootstrap_95_ci_percent": [
+        -40.64716134306029,
+        -40.120301636157976
+      ],
+      "absolute_time_change_ns": -65.5375,
+      "bootstrap_90_ci_time_change_ns": [
+        -65.99699999999999,
+        -65.02325
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "ascii",
+      "label": "ASCII filename",
+      "run": "wave1-final",
+      "baseline_median_ns": 907.034,
+      "rust_median_ns": 452.6415,
+      "change_percent": -50.096523393830886,
+      "bootstrap_95_ci_percent": [
+        -51.03151404035251,
+        -49.77448450031915
+      ],
+      "absolute_time_change_ns": -454.3925,
+      "bootstrap_90_ci_time_change_ns": [
+        -470.55899999999997,
+        -449.54999999999995
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "quoted",
+      "label": "Quoted separators and escape",
+      "run": "wave1-final",
+      "baseline_median_ns": 857.332,
+      "rust_median_ns": 493.36850000000004,
+      "change_percent": -42.453040362426684,
+      "bootstrap_95_ci_percent": [
+        -42.723828877576,
+        -42.23923312746937
+      ],
+      "absolute_time_change_ns": -363.96349999999995,
+      "bootstrap_90_ci_time_change_ns": [
+        -367.02500000000003,
+        -362.71850000000006
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "priority",
+      "label": "Extended filename priority",
+      "run": "wave1-final",
+      "baseline_median_ns": 2480.7375,
+      "rust_median_ns": 1584.33,
+      "change_percent": -36.13471800220701,
+      "bootstrap_95_ci_percent": [
+        -38.37777339245777,
+        -34.36808964446466
+      ],
+      "absolute_time_change_ns": -896.4075000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        -966.19,
+        -866.2825000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "q-word",
+      "label": "RFC2047 Q",
+      "run": "wave1-final",
+      "baseline_median_ns": 2065.225,
+      "rust_median_ns": 1228.9250000000002,
+      "change_percent": -40.494377125979,
+      "bootstrap_95_ci_percent": [
+        -41.1183870990972,
+        -40.2168182977638
+      ],
+      "absolute_time_change_ns": -836.2999999999997,
+      "bootstrap_90_ci_time_change_ns": [
+        -853.7849999999999,
+        -831.4424999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "b-word",
+      "label": "RFC2047 B",
+      "run": "wave1-final",
+      "baseline_median_ns": 1760.425,
+      "rust_median_ns": 1152.3425000000002,
+      "change_percent": -34.541800985557444,
+      "bootstrap_95_ci_percent": [
+        -35.53074819437627,
+        -33.508385759120664
+      ],
+      "absolute_time_change_ns": -608.0824999999998,
+      "bootstrap_90_ci_time_change_ns": [
+        -627.3649999999998,
+        -592.6799999999998
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "adjacent",
+      "label": "Adjacent encoded words",
+      "run": "wave1-final",
+      "baseline_median_ns": 2755.925,
+      "rust_median_ns": 2233.34,
+      "change_percent": -18.962235909903214,
+      "bootstrap_95_ci_percent": [
+        -21.156475661638574,
+        -17.56577646619458
+      ],
+      "absolute_time_change_ns": -522.585,
+      "bootstrap_90_ci_time_change_ns": [
+        -577.0100000000002,
+        -491.7350000000001
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "percent",
+      "label": "Percent escaped UTF-8",
+      "run": "wave1-final",
+      "baseline_median_ns": 1282.262,
+      "rust_median_ns": 517.687,
+      "change_percent": -59.62704969811161,
+      "bootstrap_95_ci_percent": [
+        -60.34192936569846,
+        -59.20205321851615
+      ],
+      "absolute_time_change_ns": -764.5749999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        -783.6560000000001,
+        -753.8209999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "normalize",
+      "label": "RFC5987 normalization",
+      "run": "wave1-final",
+      "baseline_median_ns": 1897.5475000000001,
+      "rust_median_ns": 1392.6525000000001,
+      "change_percent": -26.607766077002026,
+      "bootstrap_95_ci_percent": [
+        -26.826587812996628,
+        -26.240057883451463
+      ],
+      "absolute_time_change_ns": -504.895,
+      "bootstrap_90_ci_time_change_ns": [
+        -507.8125,
+        -498.2700000000002
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "legacy-charset",
+      "label": "Latin-1 referrer",
+      "run": "wave1-final",
+      "baseline_median_ns": 1393.4575,
+      "rust_median_ns": 1345.41,
+      "change_percent": -3.448077892580137,
+      "bootstrap_95_ci_percent": [
+        -3.9980047655958417,
+        -3.2362197934855397
+      ],
+      "absolute_time_change_ns": -48.0474999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        -54.294999999999845,
+        -45.75499999999988
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "os-fallback",
+      "label": "OS charset fallback",
+      "run": "wave1-final",
+      "baseline_median_ns": 1804.5749999999998,
+      "rust_median_ns": 1783.69,
+      "change_percent": -1.1573362148982302,
+      "bootstrap_95_ci_percent": [
+        -1.3564909073281561,
+        -0.9152429554027064
+      ],
+      "absolute_time_change_ns": -20.884999999999764,
+      "bootstrap_90_ci_time_change_ns": [
+        -24.075000000000045,
+        -17.029999999999973
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "malformed",
+      "label": "Malformed encoded word fallback",
+      "run": "wave1-final",
+      "baseline_median_ns": 1689.859,
+      "rust_median_ns": 653.396,
+      "change_percent": -61.334288837116006,
+      "bootstrap_95_ci_percent": [
+        -61.51597193581209,
+        -61.18050714431371
+      ],
+      "absolute_time_change_ns": -1036.463,
+      "bootstrap_90_ci_time_change_ns": [
+        -1041.968,
+        -1032.6369999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "long-quoted",
+      "label": "4096 byte quoted filename",
+      "run": "wave1-final",
+      "baseline_median_ns": 78671.04999999999,
+      "rust_median_ns": 22996.760000000002,
+      "change_percent": -70.76845929983138,
+      "bootstrap_95_ci_percent": [
+        -71.07824806336181,
+        -70.48693302781798
+      ],
+      "absolute_time_change_ns": -55674.289999999986,
+      "bootstrap_90_ci_time_change_ns": [
+        -56405.66999999999,
+        -55176.14
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "many-parameters",
+      "label": "64 unknown parameters",
+      "run": "wave1-final",
+      "baseline_median_ns": 16870.07,
+      "rust_median_ns": 2968.29,
+      "change_percent": -82.40499298461714,
+      "bootstrap_95_ci_percent": [
+        -82.6098842252631,
+        -82.31476602431049
+      ],
+      "absolute_time_change_ns": -13901.779999999999,
+      "bootstrap_90_ci_time_change_ns": [
+        -13978.25,
+        -13855.5
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "empty",
+      "repeat": 0,
+      "baseline_ns": 89.1265,
+      "rust_ns": 37.4375,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 1,
+      "baseline_ns": 89.401,
+      "rust_ns": 37.4065,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 2,
+      "baseline_ns": 89.7305,
+      "rust_ns": 37.5185,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 3,
+      "baseline_ns": 89.13,
+      "rust_ns": 37.449,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 4,
+      "baseline_ns": 89.516,
+      "rust_ns": 37.743,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 5,
+      "baseline_ns": 89.4625,
+      "rust_ns": 37.599,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 6,
+      "baseline_ns": 89.151,
+      "rust_ns": 38.2355,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 7,
+      "baseline_ns": 89.6905,
+      "rust_ns": 37.5595,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 8,
+      "baseline_ns": 89.301,
+      "rust_ns": 37.45,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 9,
+      "baseline_ns": 89.2375,
+      "rust_ns": 37.6405,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 10,
+      "baseline_ns": 89.442,
+      "rust_ns": 37.1195,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 11,
+      "baseline_ns": 89.2915,
+      "rust_ns": 37.4095,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 12,
+      "baseline_ns": 89.228,
+      "rust_ns": 37.606,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 13,
+      "baseline_ns": 91.9315,
+      "rust_ns": 37.721,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 14,
+      "baseline_ns": 89.0165,
+      "rust_ns": 37.3895,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "empty",
+      "repeat": 15,
+      "baseline_ns": 89.0135,
+      "rust_ns": 37.4435,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 16,
+      "baseline_ns": 89.1415,
+      "rust_ns": 37.3105,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 17,
+      "baseline_ns": 89.263,
+      "rust_ns": 37.8565,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 18,
+      "baseline_ns": 89.0845,
+      "rust_ns": 37.71,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "empty",
+      "repeat": 19,
+      "baseline_ns": 89.2405,
+      "rust_ns": 37.438,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 0,
+      "baseline_ns": 162.0925,
+      "rust_ns": 94.847,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 1,
+      "baseline_ns": 164.743,
+      "rust_ns": 95.5335,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 2,
+      "baseline_ns": 162.482,
+      "rust_ns": 97.7645,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 3,
+      "baseline_ns": 162.9125,
+      "rust_ns": 96.859,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 4,
+      "baseline_ns": 162.241,
+      "rust_ns": 96.9885,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 5,
+      "baseline_ns": 162.3145,
+      "rust_ns": 97.262,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 6,
+      "baseline_ns": 162.898,
+      "rust_ns": 97.143,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 7,
+      "baseline_ns": 163.0975,
+      "rust_ns": 96.715,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 8,
+      "baseline_ns": 163.274,
+      "rust_ns": 97.1095,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 9,
+      "baseline_ns": 160.7165,
+      "rust_ns": 96.343,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 10,
+      "baseline_ns": 161.9415,
+      "rust_ns": 96.759,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 11,
+      "baseline_ns": 162.308,
+      "rust_ns": 96.5495,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 12,
+      "baseline_ns": 173.6315,
+      "rust_ns": 96.617,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 13,
+      "baseline_ns": 162.712,
+      "rust_ns": 92.672,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 14,
+      "baseline_ns": 161.8015,
+      "rust_ns": 97.665,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 15,
+      "baseline_ns": 161.2355,
+      "rust_ns": 96.8125,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 16,
+      "baseline_ns": 160.508,
+      "rust_ns": 96.1435,
+      "iterations": 200000,
+      "rust_first": true
+    },
+    {
+      "case": "inline",
+      "repeat": 17,
+      "baseline_ns": 159.8615,
+      "rust_ns": 96.2695,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 18,
+      "baseline_ns": 160.7715,
+      "rust_ns": 97.231,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "inline",
+      "repeat": 19,
+      "baseline_ns": 161.303,
+      "rust_ns": 96.2725,
+      "iterations": 200000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 0,
+      "baseline_ns": 905.124,
+      "rust_ns": 447.894,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 1,
+      "baseline_ns": 893.648,
+      "rust_ns": 446.543,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 2,
+      "baseline_ns": 895.441,
+      "rust_ns": 449.713,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 3,
+      "baseline_ns": 894.885,
+      "rust_ns": 452.839,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 4,
+      "baseline_ns": 964.076,
+      "rust_ns": 449.529,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 5,
+      "baseline_ns": 897.442,
+      "rust_ns": 449.146,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 6,
+      "baseline_ns": 900.751,
+      "rust_ns": 452.444,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 7,
+      "baseline_ns": 895.35,
+      "rust_ns": 453.653,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 8,
+      "baseline_ns": 900.899,
+      "rust_ns": 450.7,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 9,
+      "baseline_ns": 925.048,
+      "rust_ns": 451.099,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 10,
+      "baseline_ns": 926.283,
+      "rust_ns": 455.437,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 11,
+      "baseline_ns": 914.493,
+      "rust_ns": 452.087,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 12,
+      "baseline_ns": 908.944,
+      "rust_ns": 453.125,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 13,
+      "baseline_ns": 903.87,
+      "rust_ns": 449.319,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 14,
+      "baseline_ns": 904.165,
+      "rust_ns": 453.541,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 15,
+      "baseline_ns": 929.333,
+      "rust_ns": 455.69,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 16,
+      "baseline_ns": 918.082,
+      "rust_ns": 494.096,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 17,
+      "baseline_ns": 5614.815,
+      "rust_ns": 461.801,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "ascii",
+      "repeat": 18,
+      "baseline_ns": 1296.655,
+      "rust_ns": 551.181,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "ascii",
+      "repeat": 19,
+      "baseline_ns": 977.989,
+      "rust_ns": 466.299,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 0,
+      "baseline_ns": 871.591,
+      "rust_ns": 493.255,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 1,
+      "baseline_ns": 848.469,
+      "rust_ns": 493.611,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 2,
+      "baseline_ns": 860.671,
+      "rust_ns": 679.68,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 3,
+      "baseline_ns": 857.76,
+      "rust_ns": 489.416,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 4,
+      "baseline_ns": 856.74,
+      "rust_ns": 489.113,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 5,
+      "baseline_ns": 858.675,
+      "rust_ns": 489.739,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 6,
+      "baseline_ns": 846.207,
+      "rust_ns": 491.502,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 7,
+      "baseline_ns": 856.046,
+      "rust_ns": 493.482,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 8,
+      "baseline_ns": 853.057,
+      "rust_ns": 557.703,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 9,
+      "baseline_ns": 853.962,
+      "rust_ns": 526.187,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 10,
+      "baseline_ns": 874.014,
+      "rust_ns": 496.407,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 11,
+      "baseline_ns": 891.083,
+      "rust_ns": 494.06,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 12,
+      "baseline_ns": 862.143,
+      "rust_ns": 491.914,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 13,
+      "baseline_ns": 856.904,
+      "rust_ns": 493.124,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 14,
+      "baseline_ns": 855.154,
+      "rust_ns": 490.43,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 15,
+      "baseline_ns": 858.286,
+      "rust_ns": 492.933,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 16,
+      "baseline_ns": 856.613,
+      "rust_ns": 492.151,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "quoted",
+      "repeat": 17,
+      "baseline_ns": 856.596,
+      "rust_ns": 509.335,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 18,
+      "baseline_ns": 889.522,
+      "rust_ns": 496.633,
+      "iterations": 100000,
+      "rust_first": false
+    },
+    {
+      "case": "quoted",
+      "repeat": 19,
+      "baseline_ns": 864.89,
+      "rust_ns": 493.545,
+      "iterations": 100000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 0,
+      "baseline_ns": 2541.935,
+      "rust_ns": 1790.445,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 1,
+      "baseline_ns": 2630.22,
+      "rust_ns": 1666.92,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 2,
+      "baseline_ns": 2613.8,
+      "rust_ns": 1620.3,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 3,
+      "baseline_ns": 2476.855,
+      "rust_ns": 1583.46,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 4,
+      "baseline_ns": 2643.375,
+      "rust_ns": 1579.805,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 5,
+      "baseline_ns": 3163.75,
+      "rust_ns": 2033.075,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 6,
+      "baseline_ns": 2538.54,
+      "rust_ns": 1572.905,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 7,
+      "baseline_ns": 2472.685,
+      "rust_ns": 1576.975,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 8,
+      "baseline_ns": 2472.415,
+      "rust_ns": 1576.7,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 9,
+      "baseline_ns": 2478.235,
+      "rust_ns": 1629.62,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 10,
+      "baseline_ns": 2801.08,
+      "rust_ns": 2304.29,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 11,
+      "baseline_ns": 2634.695,
+      "rust_ns": 1585.2,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 12,
+      "baseline_ns": 2458.025,
+      "rust_ns": 1567.65,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 13,
+      "baseline_ns": 2457.15,
+      "rust_ns": 1566.39,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 14,
+      "baseline_ns": 2460.7,
+      "rust_ns": 1688.8,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 15,
+      "baseline_ns": 2559.105,
+      "rust_ns": 1680.99,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "priority",
+      "repeat": 16,
+      "baseline_ns": 2483.24,
+      "rust_ns": 1599.905,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 17,
+      "baseline_ns": 2467.775,
+      "rust_ns": 1567.13,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 18,
+      "baseline_ns": 2461.72,
+      "rust_ns": 1576.56,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "priority",
+      "repeat": 19,
+      "baseline_ns": 2470.63,
+      "rust_ns": 1563.27,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 0,
+      "baseline_ns": 2068.19,
+      "rust_ns": 1224.89,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 1,
+      "baseline_ns": 2097.72,
+      "rust_ns": 1241.35,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 2,
+      "baseline_ns": 2100.915,
+      "rust_ns": 1237.39,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 3,
+      "baseline_ns": 2065.43,
+      "rust_ns": 1246.265,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 4,
+      "baseline_ns": 2103.655,
+      "rust_ns": 1231.315,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 5,
+      "baseline_ns": 2058.12,
+      "rust_ns": 1228.7,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 6,
+      "baseline_ns": 2065.02,
+      "rust_ns": 1220.77,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 7,
+      "baseline_ns": 2062.065,
+      "rust_ns": 1229.15,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 8,
+      "baseline_ns": 2085.61,
+      "rust_ns": 1229.57,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 9,
+      "baseline_ns": 2048.52,
+      "rust_ns": 1219.265,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 10,
+      "baseline_ns": 2109.655,
+      "rust_ns": 1410.74,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 11,
+      "baseline_ns": 2118.355,
+      "rust_ns": 1279.73,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 12,
+      "baseline_ns": 2060.835,
+      "rust_ns": 1225.58,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 13,
+      "baseline_ns": 2058.13,
+      "rust_ns": 1232.41,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 14,
+      "baseline_ns": 2066.885,
+      "rust_ns": 1228.065,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 15,
+      "baseline_ns": 2058.22,
+      "rust_ns": 1220.165,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 16,
+      "baseline_ns": 2062.78,
+      "rust_ns": 1223.905,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 17,
+      "baseline_ns": 2051.56,
+      "rust_ns": 1241.565,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "q-word",
+      "repeat": 18,
+      "baseline_ns": 2062.095,
+      "rust_ns": 1227.985,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "q-word",
+      "repeat": 19,
+      "baseline_ns": 2112.12,
+      "rust_ns": 1223.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 0,
+      "baseline_ns": 1763.7,
+      "rust_ns": 1140.295,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 1,
+      "baseline_ns": 1746.84,
+      "rust_ns": 1175.755,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 2,
+      "baseline_ns": 1720.505,
+      "rust_ns": 1145.725,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 3,
+      "baseline_ns": 1726.265,
+      "rust_ns": 1135.42,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 4,
+      "baseline_ns": 1734.285,
+      "rust_ns": 1132.33,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 5,
+      "baseline_ns": 1770.24,
+      "rust_ns": 1183.425,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 6,
+      "baseline_ns": 1741.975,
+      "rust_ns": 1196.185,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "b-word",
+      "repeat": 7,
+      "baseline_ns": 1752.205,
+      "rust_ns": 1130.78,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 8,
+      "baseline_ns": 1758.26,
+      "rust_ns": 1206.865,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 9,
+      "baseline_ns": 1734.715,
+      "rust_ns": 1145.585,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "b-word",
+      "repeat": 10,
+      "baseline_ns": 1782.625,
+      "rust_ns": 1214.02,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 11,
+      "baseline_ns": 1762.59,
+      "rust_ns": 1142.695,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 12,
+      "baseline_ns": 1822.05,
+      "rust_ns": 1175.15,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "b-word",
+      "repeat": 13,
+      "baseline_ns": 1817.935,
+      "rust_ns": 1165.92,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "b-word",
+      "repeat": 14,
+      "baseline_ns": 1834.18,
+      "rust_ns": 1149.245,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 15,
+      "baseline_ns": 1755.735,
+      "rust_ns": 1158.9,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 16,
+      "baseline_ns": 1751.455,
+      "rust_ns": 1154.035,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 17,
+      "baseline_ns": 1792.33,
+      "rust_ns": 1158.725,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 18,
+      "baseline_ns": 1852.025,
+      "rust_ns": 1150.65,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "b-word",
+      "repeat": 19,
+      "baseline_ns": 1896.97,
+      "rust_ns": 1134.67,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 0,
+      "baseline_ns": 2672.69,
+      "rust_ns": 2113.1,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 1,
+      "baseline_ns": 2630.95,
+      "rust_ns": 2179.95,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 2,
+      "baseline_ns": 2697.85,
+      "rust_ns": 2263.52,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 3,
+      "baseline_ns": 2671.43,
+      "rust_ns": 2157.55,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 4,
+      "baseline_ns": 2646.82,
+      "rust_ns": 2124.03,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 5,
+      "baseline_ns": 2754.68,
+      "rust_ns": 2190.08,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 6,
+      "baseline_ns": 2800.44,
+      "rust_ns": 2413.5,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 7,
+      "baseline_ns": 2832.27,
+      "rust_ns": 2239.4,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 8,
+      "baseline_ns": 2944.99,
+      "rust_ns": 2298.62,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 9,
+      "baseline_ns": 3108.4,
+      "rust_ns": 2289.22,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 10,
+      "baseline_ns": 2757.17,
+      "rust_ns": 2141.8,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 11,
+      "baseline_ns": 2917.25,
+      "rust_ns": 2228.82,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 12,
+      "baseline_ns": 2704.47,
+      "rust_ns": 2426.3,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 13,
+      "baseline_ns": 2740.84,
+      "rust_ns": 2238.9,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 14,
+      "baseline_ns": 2762.56,
+      "rust_ns": 2200.03,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 15,
+      "baseline_ns": 2779.04,
+      "rust_ns": 2167.75,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "adjacent",
+      "repeat": 16,
+      "baseline_ns": 2775.1,
+      "rust_ns": 2115.27,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 17,
+      "baseline_ns": 2751.84,
+      "rust_ns": 2237.86,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 18,
+      "baseline_ns": 2731.22,
+      "rust_ns": 2275.06,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "adjacent",
+      "repeat": 19,
+      "baseline_ns": 3590.47,
+      "rust_ns": 2525.77,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 0,
+      "baseline_ns": 1321.922,
+      "rust_ns": 515.278,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 1,
+      "baseline_ns": 1306.264,
+      "rust_ns": 515.454,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 2,
+      "baseline_ns": 1278.548,
+      "rust_ns": 517.22,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 3,
+      "baseline_ns": 1262.162,
+      "rust_ns": 514.668,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 4,
+      "baseline_ns": 1285.35,
+      "rust_ns": 528.128,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 5,
+      "baseline_ns": 1403.602,
+      "rust_ns": 515.366,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 6,
+      "baseline_ns": 1376.754,
+      "rust_ns": 518.138,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 7,
+      "baseline_ns": 1277.378,
+      "rust_ns": 522.846,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 8,
+      "baseline_ns": 1300.892,
+      "rust_ns": 518.622,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 9,
+      "baseline_ns": 1258.036,
+      "rust_ns": 515.506,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 10,
+      "baseline_ns": 1284.216,
+      "rust_ns": 518.242,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 11,
+      "baseline_ns": 1280.308,
+      "rust_ns": 517.236,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 12,
+      "baseline_ns": 1262.82,
+      "rust_ns": 519.932,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 13,
+      "baseline_ns": 1324.52,
+      "rust_ns": 534.7,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 14,
+      "baseline_ns": 1314.268,
+      "rust_ns": 535.8,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 15,
+      "baseline_ns": 1298.978,
+      "rust_ns": 514.666,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 16,
+      "baseline_ns": 1263.578,
+      "rust_ns": 517.114,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 17,
+      "baseline_ns": 1269.032,
+      "rust_ns": 514.908,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "percent",
+      "repeat": 18,
+      "baseline_ns": 1263.764,
+      "rust_ns": 518.5,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "percent",
+      "repeat": 19,
+      "baseline_ns": 1270.128,
+      "rust_ns": 521.702,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 0,
+      "baseline_ns": 1898.75,
+      "rust_ns": 1398.705,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 1,
+      "baseline_ns": 1919.995,
+      "rust_ns": 1409.15,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 2,
+      "baseline_ns": 1898.025,
+      "rust_ns": 1404.165,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 3,
+      "baseline_ns": 1897.91,
+      "rust_ns": 1391.14,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 4,
+      "baseline_ns": 1935.755,
+      "rust_ns": 1391.91,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 5,
+      "baseline_ns": 1898.885,
+      "rust_ns": 1427.235,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 6,
+      "baseline_ns": 1912.275,
+      "rust_ns": 1394.525,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 7,
+      "baseline_ns": 1900.295,
+      "rust_ns": 1384.675,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 8,
+      "baseline_ns": 1915.545,
+      "rust_ns": 1394.26,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 9,
+      "baseline_ns": 1896.7,
+      "rust_ns": 1400.8,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 10,
+      "baseline_ns": 1897.185,
+      "rust_ns": 1386.225,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 11,
+      "baseline_ns": 1888.515,
+      "rust_ns": 1393.395,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 12,
+      "baseline_ns": 1909.725,
+      "rust_ns": 1403.37,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 13,
+      "baseline_ns": 1889.435,
+      "rust_ns": 1383.055,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 14,
+      "baseline_ns": 1893.105,
+      "rust_ns": 1390.245,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 15,
+      "baseline_ns": 1883.265,
+      "rust_ns": 1383.03,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 16,
+      "baseline_ns": 1882.195,
+      "rust_ns": 1384.715,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 17,
+      "baseline_ns": 1884.505,
+      "rust_ns": 1381.905,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "normalize",
+      "repeat": 18,
+      "baseline_ns": 1890.22,
+      "rust_ns": 1424.275,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "normalize",
+      "repeat": 19,
+      "baseline_ns": 1878.195,
+      "rust_ns": 1389.24,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 0,
+      "baseline_ns": 1393.32,
+      "rust_ns": 1339.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 1,
+      "baseline_ns": 1399.905,
+      "rust_ns": 1347.895,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 2,
+      "baseline_ns": 1404.775,
+      "rust_ns": 1353.105,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 3,
+      "baseline_ns": 1394.63,
+      "rust_ns": 1349.405,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 4,
+      "baseline_ns": 1403.795,
+      "rust_ns": 1345.025,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 5,
+      "baseline_ns": 1394.14,
+      "rust_ns": 1346.82,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 6,
+      "baseline_ns": 1413.085,
+      "rust_ns": 1346.445,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 7,
+      "baseline_ns": 1393.295,
+      "rust_ns": 1341.82,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 8,
+      "baseline_ns": 1397.245,
+      "rust_ns": 1356.195,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 9,
+      "baseline_ns": 1390.175,
+      "rust_ns": 1345.795,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 10,
+      "baseline_ns": 1397.32,
+      "rust_ns": 1352.02,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 11,
+      "baseline_ns": 1388.165,
+      "rust_ns": 1350.18,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 12,
+      "baseline_ns": 1385.13,
+      "rust_ns": 1339.95,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 13,
+      "baseline_ns": 1393.595,
+      "rust_ns": 1335.085,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 14,
+      "baseline_ns": 1375.45,
+      "rust_ns": 1329.225,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 15,
+      "baseline_ns": 1377.51,
+      "rust_ns": 1328.495,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 16,
+      "baseline_ns": 1378.41,
+      "rust_ns": 1317.575,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 17,
+      "baseline_ns": 1376.095,
+      "rust_ns": 1336.205,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 18,
+      "baseline_ns": 1393.165,
+      "rust_ns": 1348.26,
+      "iterations": 20000,
+      "rust_first": false
+    },
+    {
+      "case": "legacy-charset",
+      "repeat": 19,
+      "baseline_ns": 1409.925,
+      "rust_ns": 1335.235,
+      "iterations": 20000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 0,
+      "baseline_ns": 1800.63,
+      "rust_ns": 1784.91,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 1,
+      "baseline_ns": 1814.62,
+      "rust_ns": 1788.63,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 2,
+      "baseline_ns": 1790.97,
+      "rust_ns": 1780.25,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 3,
+      "baseline_ns": 1792.18,
+      "rust_ns": 1780.54,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 4,
+      "baseline_ns": 1808.31,
+      "rust_ns": 1781.78,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 5,
+      "baseline_ns": 1803.54,
+      "rust_ns": 1780.01,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 6,
+      "baseline_ns": 1804.61,
+      "rust_ns": 1782.47,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 7,
+      "baseline_ns": 1801.3,
+      "rust_ns": 1782.44,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 8,
+      "baseline_ns": 1790.34,
+      "rust_ns": 1790.19,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 9,
+      "baseline_ns": 1788.91,
+      "rust_ns": 1772.75,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 10,
+      "baseline_ns": 1803.12,
+      "rust_ns": 1787.44,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 11,
+      "baseline_ns": 1805.44,
+      "rust_ns": 1776.51,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 12,
+      "baseline_ns": 1806.53,
+      "rust_ns": 1780.44,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 13,
+      "baseline_ns": 1822.84,
+      "rust_ns": 1804.92,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 14,
+      "baseline_ns": 1807.28,
+      "rust_ns": 1788.94,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 15,
+      "baseline_ns": 1813.64,
+      "rust_ns": 1791.52,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 16,
+      "baseline_ns": 1812.2,
+      "rust_ns": 1786.77,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 17,
+      "baseline_ns": 1816.01,
+      "rust_ns": 1785.94,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 18,
+      "baseline_ns": 1802.48,
+      "rust_ns": 1786.3,
+      "iterations": 10000,
+      "rust_first": true
+    },
+    {
+      "case": "os-fallback",
+      "repeat": 19,
+      "baseline_ns": 1804.54,
+      "rust_ns": 1779.57,
+      "iterations": 10000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 0,
+      "baseline_ns": 1696.814,
+      "rust_ns": 655.0,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 1,
+      "baseline_ns": 1683.656,
+      "rust_ns": 653.428,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 2,
+      "baseline_ns": 1686.936,
+      "rust_ns": 654.86,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 3,
+      "baseline_ns": 1682.638,
+      "rust_ns": 655.39,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 4,
+      "baseline_ns": 1803.596,
+      "rust_ns": 654.514,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 5,
+      "baseline_ns": 1687.954,
+      "rust_ns": 653.12,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 6,
+      "baseline_ns": 1693.152,
+      "rust_ns": 655.596,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 7,
+      "baseline_ns": 1693.606,
+      "rust_ns": 653.364,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 8,
+      "baseline_ns": 1701.622,
+      "rust_ns": 651.306,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 9,
+      "baseline_ns": 1684.134,
+      "rust_ns": 656.79,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 10,
+      "baseline_ns": 1688.058,
+      "rust_ns": 646.232,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 11,
+      "baseline_ns": 1682.362,
+      "rust_ns": 650.012,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 12,
+      "baseline_ns": 1676.696,
+      "rust_ns": 656.29,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 13,
+      "baseline_ns": 1771.372,
+      "rust_ns": 652.202,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 14,
+      "baseline_ns": 1687.674,
+      "rust_ns": 652.16,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 15,
+      "baseline_ns": 1691.66,
+      "rust_ns": 656.822,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 16,
+      "baseline_ns": 1695.328,
+      "rust_ns": 658.16,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "malformed",
+      "repeat": 17,
+      "baseline_ns": 1686.48,
+      "rust_ns": 653.096,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 18,
+      "baseline_ns": 1740.102,
+      "rust_ns": 649.744,
+      "iterations": 50000,
+      "rust_first": true
+    },
+    {
+      "case": "malformed",
+      "repeat": 19,
+      "baseline_ns": 1723.81,
+      "rust_ns": 629.968,
+      "iterations": 50000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 0,
+      "baseline_ns": 82725.14,
+      "rust_ns": 23376.02,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 1,
+      "baseline_ns": 81406.86,
+      "rust_ns": 22879.96,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 2,
+      "baseline_ns": 78512.76,
+      "rust_ns": 22925.18,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 3,
+      "baseline_ns": 77321.74,
+      "rust_ns": 22891.78,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 4,
+      "baseline_ns": 79318.34,
+      "rust_ns": 22962.62,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 5,
+      "baseline_ns": 79430.18,
+      "rust_ns": 23326.64,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 6,
+      "baseline_ns": 80091.8,
+      "rust_ns": 22992.14,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 7,
+      "baseline_ns": 87893.82,
+      "rust_ns": 23047.64,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 8,
+      "baseline_ns": 79748.42,
+      "rust_ns": 23610.7,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 9,
+      "baseline_ns": 79630.86,
+      "rust_ns": 22969.96,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 10,
+      "baseline_ns": 77699.74,
+      "rust_ns": 23001.38,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 11,
+      "baseline_ns": 78150.86,
+      "rust_ns": 25908.46,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 12,
+      "baseline_ns": 77878.4,
+      "rust_ns": 25359.44,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 13,
+      "baseline_ns": 78329.66,
+      "rust_ns": 23156.12,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 14,
+      "baseline_ns": 78829.34,
+      "rust_ns": 23029.2,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 15,
+      "baseline_ns": 76999.58,
+      "rust_ns": 22507.42,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 16,
+      "baseline_ns": 78890.96,
+      "rust_ns": 23153.52,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 17,
+      "baseline_ns": 78170.16,
+      "rust_ns": 22912.68,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 18,
+      "baseline_ns": 78263.36,
+      "rust_ns": 22886.48,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "long-quoted",
+      "repeat": 19,
+      "baseline_ns": 77961.36,
+      "rust_ns": 22711.0,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 0,
+      "baseline_ns": 17600.64,
+      "rust_ns": 2951.24,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 1,
+      "baseline_ns": 16801.26,
+      "rust_ns": 2893.02,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 2,
+      "baseline_ns": 16660.92,
+      "rust_ns": 2877.78,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 3,
+      "baseline_ns": 16849.1,
+      "rust_ns": 2897.1,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 4,
+      "baseline_ns": 16764.34,
+      "rust_ns": 2889.42,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 5,
+      "baseline_ns": 16578.64,
+      "rust_ns": 2878.96,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 6,
+      "baseline_ns": 16782.52,
+      "rust_ns": 2987.78,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 7,
+      "baseline_ns": 16868.18,
+      "rust_ns": 2971.54,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 8,
+      "baseline_ns": 16871.96,
+      "rust_ns": 2935.56,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 9,
+      "baseline_ns": 16900.06,
+      "rust_ns": 2938.94,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 10,
+      "baseline_ns": 16814.14,
+      "rust_ns": 4152.5,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 11,
+      "baseline_ns": 16776.54,
+      "rust_ns": 3043.54,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 12,
+      "baseline_ns": 16982.2,
+      "rust_ns": 2986.82,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 13,
+      "baseline_ns": 17061.08,
+      "rust_ns": 2970.54,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 14,
+      "baseline_ns": 16998.26,
+      "rust_ns": 3115.88,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 15,
+      "baseline_ns": 16915.38,
+      "rust_ns": 3033.44,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 16,
+      "baseline_ns": 16843.56,
+      "rust_ns": 2975.36,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 17,
+      "baseline_ns": 16941.46,
+      "rust_ns": 2966.04,
+      "iterations": 5000,
+      "rust_first": false
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 18,
+      "baseline_ns": 17060.62,
+      "rust_ns": 2975.7,
+      "iterations": 5000,
+      "rust_first": true
+    },
+    {
+      "case": "many-parameters",
+      "repeat": 19,
+      "baseline_ns": 16988.6,
+      "rust_ns": 2936.1,
+      "iterations": 5000,
+      "rust_first": false
+    }
+  ],
+  "recorded_at": "2026-11-12T20:37:29.678360+00:00"
+}

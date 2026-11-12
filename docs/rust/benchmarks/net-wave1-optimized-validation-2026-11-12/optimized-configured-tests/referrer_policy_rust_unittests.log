@@ -1,0 +1,35 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+Note: Google Test filter = ReferrerPolicyRust.PersistedValuesAndAsciiCase:ReferrerPolicyRust.AsciiWhitespaceAndCommas:ReferrerPolicyRust.LastRecognizedValueWins:ReferrerPolicyRust.EveryByteMutationAndTruncation:ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators:ReferrerPolicyRust.LongListsAndInvalidSuffixes
+[==========] Running 6 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 6 tests from ReferrerPolicyRust
+[ RUN      ] ReferrerPolicyRust.PersistedValuesAndAsciiCase
+[       OK ] ReferrerPolicyRust.PersistedValuesAndAsciiCase (0 ms)
+[ RUN      ] ReferrerPolicyRust.AsciiWhitespaceAndCommas
+[       OK ] ReferrerPolicyRust.AsciiWhitespaceAndCommas (0 ms)
+[ RUN      ] ReferrerPolicyRust.LastRecognizedValueWins
+[       OK ] ReferrerPolicyRust.LastRecognizedValueWins (0 ms)
+[ RUN      ] ReferrerPolicyRust.EveryByteMutationAndTruncation
+[       OK ] ReferrerPolicyRust.EveryByteMutationAndTruncation (24 ms)
+[ RUN      ] ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators
+[       OK ] ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators (0 ms)
+[ RUN      ] ReferrerPolicyRust.LongListsAndInvalidSuffixes
+[       OK ] ReferrerPolicyRust.LongListsAndInvalidSuffixes (0 ms)
+[----------] 6 tests from ReferrerPolicyRust (25 ms total)
+
+[----------] Global test environment tear-down
+[==========] 6 tests from 1 test suite ran. (25 ms total)
+[  PASSED  ] 6 tests.
+[1/6] ReferrerPolicyRust.PersistedValuesAndAsciiCase (0 ms)
+[2/6] ReferrerPolicyRust.AsciiWhitespaceAndCommas (0 ms)
+[3/6] ReferrerPolicyRust.LastRecognizedValueWins (0 ms)
+[4/6] ReferrerPolicyRust.EveryByteMutationAndTruncation (24 ms)
+[5/6] ReferrerPolicyRust.NulAndNonAsciiAreNotWhitespaceOrTerminators (0 ms)
+[6/6] ReferrerPolicyRust.LongListsAndInvalidSuffixes (0 ms)
+SUCCESS: all tests passed.
+Tests took 0 seconds.

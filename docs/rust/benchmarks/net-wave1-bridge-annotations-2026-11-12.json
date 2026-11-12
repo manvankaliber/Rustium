@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "scope": "Metadata annotations only; preserve every original timing archive and its source snapshot unchanged",
+  "annotations": [
+    {
+      "metric": "http-range-list",
+      "run": "wave1-final",
+      "kind": "CXX / owned list result",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-list-edge",
+      "run": "wave1-final",
+      "kind": "CXX / owned list result",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-fetch",
+      "run": "wave1-final",
+      "kind": "plain C ABI / caller scalar outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-fetch-edge",
+      "run": "wave1-final",
+      "kind": "plain C ABI / caller scalar outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-content",
+      "run": "wave1-final",
+      "kind": "plain C ABI / caller scalar outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-content-edge",
+      "run": "wave1-final",
+      "kind": "plain C ABI / caller scalar outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-range-alias",
+      "run": "wave1-final",
+      "kind": "plain C ABI / caller scalar outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "http-status-code-api",
+      "run": "wave1-final",
+      "kind": "plain C ABI / POD return and static byte view",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "dns-names-dotted",
+      "run": "wave1-final",
+      "kind": "CXX",
+      "reason": "The initial blanket DLL-boundary note was too broad: the baseline comparator was inline. Its original base comparator and a qualified scope are being restored in a new separately measured run."
+    },
+    {
+      "metric": "dns-names-network",
+      "run": "wave1-final",
+      "kind": "CXX",
+      "reason": "The initial blanket DLL-boundary note was too broad: the baseline comparator was inline. Its original base comparator and a qualified scope are being restored in a new separately measured run."
+    },
+    {
+      "metric": "dns-names-length",
+      "run": "wave1-final",
+      "kind": "CXX",
+      "reason": "The initial blanket DLL-boundary note was too broad: the baseline comparator was inline. Its original base comparator and a qualified scope are being restored in a new separately measured run."
+    },
+    {
+      "metric": "dns-names-record",
+      "run": "wave1-final",
+      "kind": "CXX",
+      "reason": "The initial blanket DLL-boundary note was too broad: the baseline comparator was inline. Its original base comparator and a qualified scope are being restored in a new separately measured run."
+    },
+    {
+      "metric": "dns-names-canonical-compare",
+      "run": "wave1-final",
+      "kind": "CXX",
+      "reason": "The initial blanket DLL-boundary note was too broad: the baseline comparator was inline. Its original base comparator and a qualified scope are being restored in a new separately measured run."
+    },
+    {
+      "metric": "auth-challenges-api",
+      "run": "wave1-final",
+      "kind": "plain C ABI / byte ranges and POD outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "auth-challenges-parameters",
+      "run": "wave1-final",
+      "kind": "plain C ABI / byte ranges and POD outputs",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "load-flag-formatting",
+      "run": "wave1-final",
+      "kind": "plain C ABI / owned buffer and static string",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    },
+    {
+      "metric": "privacy-mode-lookup",
+      "run": "wave1-final",
+      "kind": "plain C ABI / owned buffer and static string",
+      "reason": "Refine the bridge type from the exact timed public adapter; timing samples and numerical results are unchanged."
+    }
+  ],
+  "source_evidence": {
+    "net/http/http_range_ffi.h": "e7e57740c38546c77ca3203b1fdd197fbf9149bcf3399c62d91945a8a9bb4157",
+    "net/base/net_diagnostics_debug_formatting_ffi.h": "a47ac600aae61086f4774aaa3a01d1bd78cf8b9f34caf546971d7e7ebf07729b",
+    "net/http/http_status_code_ffi.h": "212e5d9ed334472c67326acc3c08cfa39158036b224b671d8185f3cbf6f54b1c",
+    "net/http/auth_challenge_ffi.h": "820c735c8b3580dcb3e2b2a95f262a0050741975ff2e502846a83a6b43885318"
+  }
+}

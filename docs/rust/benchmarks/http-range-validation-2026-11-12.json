@@ -1,0 +1,118 @@
+{
+  "date": "2026-11-12",
+  "status": "Two complete public APIs integrated; Content-Range candidate deferred after performance gate",
+  "integrated_apis": [
+    "HttpUtil::ParseRangeHeader",
+    "HttpUtil::ParseFetchSingleRange"
+  ],
+  "deferred_api": "HttpUtil::ParseContentRangeHeaderFor206",
+  "performance_cases": {
+    "integrated": 20,
+    "candidate_only_excluded_from_aggregate": 15,
+    "runs_preserved": [
+      "initial",
+      "fixed-abi",
+      "zero-overlay",
+      "owned-scoped",
+      "gn-flat",
+      "acceptance",
+      "final-check",
+      "final"
+    ]
+  },
+  "candidate_native_validation": {
+    "unit_tests": 24,
+    "original_tests": 11,
+    "added_tests": 13,
+    "libfuzzer_executions": 1000000,
+    "seed": 20261112,
+    "max_input_bytes": 512,
+    "cpu": 8,
+    "exit_code": 0,
+    "elapsed_seconds": 10.939317299998947,
+    "coverage": {
+      "authored_executable_lines": 249,
+      "covered_lines": 249,
+      "llvm_regions": 331,
+      "covered_regions": 331,
+      "functions": 38,
+      "covered_functions": 38,
+      "branch_coverage": "Not collected"
+    },
+    "scope": "All Rust list/Fetch/Content candidate code; before production Content deferral. Fuzzer and native API tests compile the retained out-of-line benchmark adapter. Canonical Chromium tests separately verify final public APIs."
+  },
+  "shared_numeric_core": {
+    "sha256": "4f8fbb6c7e8307d6503477422bafd0a6942a657bbaf9a267c933a656dcbbe59b",
+    "complete_candidate_tests": 13,
+    "core_executable_lines": 103,
+    "covered_lines": 103,
+    "core_regions": 126,
+    "covered_regions": 126,
+    "core_functions": 16,
+    "covered_functions": 16,
+    "branch_coverage": "Not collected",
+    "public_numeric_cpp_status": "Original C++ preserved after earlier candidate failed gate"
+  },
+  "toolchain": {
+    "native_rust": "Chromium Rust 1.101.0-nightly, actual version/flags in archived fuzz build record",
+    "native_cpp": "Chromium Clang24, same production optimization flags for direct out-of-line baseline and candidate APIs",
+    "clippy": "rustc 1.99.0 (b940084d7 2026-09-28)",
+    "coverage_tools": "LLVM24 matching the Chromium Rust compiler"
+  },
+  "safety_and_scope": {
+    "safe_core": "forbid(unsafe_code); grammar and numeric decisions remain in Rust",
+    "unsafe_adapter": "Documented foreign pointer borrows, raw aligned scalar writes/reads, owned Vec raw-parts transfer/release",
+    "ffi": "Flat pointer/length C ABI; explicit result records with layout assertions; no private std/Rust/CXX layout dependency",
+    "fuzz_instrumentation": "Coverage-guided C++ harness/reference; Rust not ASan-instrumented",
+    "environment": "Windows x64; raw native build/CPU records archived",
+    "excludes": [
+      "Network/disk IO",
+      "Whole-browser performance claim",
+      "Branch coverage claim",
+      "Non-Windows ABI execution"
+    ]
+  },
+  "source_archive": "http-range-final-source-2026-11-12.zip",
+  "validation_archive": "http-range-validation-2026-11-12.zip",
+  "candidate_predeferral_public_source_sha256": "febbd69306d09e3fcbe4af7e1c793e39e026c9c450ebef0957aff46ca27ffeed",
+  "archive_sha256": {
+    "http-range-final-source-2026-11-12.zip": "fcaa4c8a231bf7f5e0ef2b623c0bbcfb2d63f2bba050d4c6c795eccbb4802e3d",
+    "http-range-validation-2026-11-12.zip": "a4eae6a2489f33ab9a9ce6dbc24ade1b81273ed2c0f61cdc87651d0c9c9bb0bd"
+  },
+  "performance_gate": {
+    "report": "http-range-final-2026-11-12.json",
+    "integrated_cases": 20,
+    "all_95_percent_time_change_intervals_below_zero": true,
+    "repetitions_per_case": 20,
+    "statistics": {
+      "estimator": "ratio of paired-run medians",
+      "interval": "95% paired percentile bootstrap; 5000 resamples",
+      "seed": 20261112,
+      "discarded_samples": 0
+    },
+    "candidate_content_cases_retained": 15,
+    "note": "The empty list case exercises the C++ adapter guard, not a Rust parser call."
+  },
+  "production_restoration": {
+    "http_util_cc_sha256": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936",
+    "content_body": "Byte-for-byte original function text after newline normalization; kBytesUnit restored",
+    "latest_measurement_matches_production_sha256": true,
+    "integrated_wrapper_identity": {
+      "method_signatures": [
+        "bool HttpUtil::ParseRangeHeader(",
+        "std::optional<HttpByteRange> HttpUtil::ParseFetchSingleRange("
+      ],
+      "comparison": "C++ tokens, comments and whitespace ignored"
+    }
+  },
+  "scope_note": "No claim that all HttpUtil or Content-Range is rewritten. Two complete Range-list and Fetch header parsing APIs are integrated; Content-Range remains C++.",
+  "canonical_integration": {
+    "status": "passed",
+    "validation": "parallel-rewrites-integration-2026-11-12.json",
+    "sha256": "0f9b4a2d9a4c4b80407460095532330c078444c62dc22b6ece2eca1b88db8f16",
+    "configured_build_exit_code": 0,
+    "gn_checks": "//net:* and //net/base:registry_controlled_domains passed",
+    "combined_tests": 522,
+    "functional_browser_checks": 9
+  }
+}

@@ -1,0 +1,84 @@
+# Apply these fragments to net/BUILD.gn (parent-owned).
+rust_static_library("dns_names_rust") {
+  crate_root = "dns/dns_names_ffi.rs"
+  sources = [
+    "dns/dns_names_core.rs",
+    "dns/dns_names_ffi.rs",
+  ]
+  cxx_bindings = [ "dns/dns_names_ffi.rs" ]
+  # dns_names_util.cc is compiled by //net/dns:dns, not //net:net.
+  visibility = [
+    ":*",
+    "//net/dns:dns",
+  ]
+  allow_unsafe = true  # Generated CXX only; core forbids unsafe.
+  deps = [ "//base" ]  # Callback header uses SpanReader/raw_ref.
+}
+
+source_set("dns_names_reference") {
+  testonly = true
+  sources = [
+    "dns/dns_names_reference.cc",
+    "dns/dns_names_reference.h",
+    "dns/dns_names_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("dns_names_rust_unittests") {
+  sources = [
+    "dns/dns_names_util_unittest.cc",
+    "dns/dns_names_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    "//base",
+    ":test_support",
+    "//base/test:test_support",
+    "//base:build_time",
+    "//url:buildflags",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
+}
+
+test("dns_names_perftests") {
+  sources = [ "dns/dns_names_perftest.cc" ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+  data = [ "//third_party/icu/common/icudtl.dat" ]
+}
+
+fuzzer_test("dns_names_rust_fuzzer") {
+  sources = [ "dns/dns_names_fuzzer.cc" ]
+  deps = [
+    ":dns_names_reference",
+    ":net",
+    "//base",
+    "//base:i18n",
+  ]
+  data = [ "//third_party/icu/common/icudtl.dat" ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+# Required changes within net/dns/BUILD.gn source_set("dns"):
+# Add "dns_names_ffi.h" to sources.
+# Replace deps = [ "//net:net_deps" ] with:
+# deps = [
+#   "//net:net_deps",
+#   "//net:dns_names_rust",
+# ]
+# Do not put only a //net:net dependency on dns_names_rust: the DNS source set
+# needs the generated header directly and must match its target visibility.
+# Optionally also add dns_names_rust_unittest.cc to net_unittests and its
+# dns_names_reference dependency to that target.

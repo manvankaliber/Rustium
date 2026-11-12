@@ -1,0 +1,45 @@
+{
+  "status": "incomplete, unintegrated candidate",
+  "owned_production_files_changed": [
+    "net/base/port_policy_core.rs"
+  ],
+  "production_adapter_changed": false,
+  "source_snapshot": "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\snapshot",
+  "source_manifest": "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\source-manifest.json",
+  "results": {
+    "unit_tests": "3 passed via rustc --edition 2021 --test; 2026-11-12",
+    "clippy": "cargo clippy --all-targets -- -D warnings passed",
+    "rustfmt": "run with rustfmt --edition 2021; local config emitted unstable-option warnings",
+    "differential_fuzz": "not run",
+    "coverage": "not collected",
+    "native_chromium_tests": "not run",
+    "benchmark": "not run"
+  },
+  "remaining_work": [
+    "Implement and review narrow FFI and production C++ adapter, with diagnostic and callback ordering preserved.",
+    "Create isolated frozen C++ reference that uses the copied original ParseInt32 helper and freezes its base conversion dependencies; merely linking the saved original file is insufficient.",
+    "Add differential tests, one million bounded stateful fuzz cases, runtime coverage, perftest and importer descriptor.",
+    "Parent must supply GN integration, configured build and tests, and coordinated timing."
+  ],
+  "seams": [
+    "FeatureList and feature parameter discovery",
+    "DLOG invalid tokens",
+    "UMA sparse histograms",
+    "IPAddress localhost and IPv4-mapped classification",
+    "C++ CHECK/DCHECK/NOTREACHED diagnostics",
+    "thread/ownership sequencing and public API adapter"
+  ],
+  "known_caveats": [
+    "Rust core is an unintegrated candidate and has not been checked against the C++ implementation; do not use performance or completion claims.",
+    "On first localhost use with a pending reload the loader runs twice, matching the original static initialization followed by reset.",
+    "The caller must check scoped_allowable before setting it to preserve debug assertion ordering."
+  ],
+  "native_binary": {
+    "path": "D:\\Rustium\\.scratch\\net-wave1\\port-policy\\port_policy_core_tests.exe",
+    "sha256": "9eaf8789a19cf05fce58cbab33ed233f9810581873f1719bc7ceed4ca843dc40",
+    "flags": "rustc --edition 2021 --test; default optimization; rustc version not recorded"
+  },
+  "gn_fragments": "not prepared",
+  "descriptor": "not prepared",
+  "optimization_debt": "Not measured; no performance claim."
+}

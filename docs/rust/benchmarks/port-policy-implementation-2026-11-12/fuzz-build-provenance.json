@@ -1,0 +1,34 @@
+{
+  "mode": "fuzz",
+  "source_hashes": {
+    "net/base/port_policy_core.rs": "b77f51cfc160ff174788d97fd9029654b8bb4ef092ce6c1ec0c93e4cba1a0c05",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "0ce37ef55fe45ecdcfaadee1be6151123c34f4365f60fe691535fe96c75b05d3",
+    "net/base/port_policy_fuzzer.cc": "ed52f30e508d2f1587be1051e13b3cf3c2a4d19e53aa5edc591f30dbf81f078b",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "6ac23a67afe9c3cb940d6f43f70d3d534820513d198f594f79fcc76b35f482a2",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "a10a0cfb4b4390e449ec58964646d8f610271fe51f078777b3f95762b654ca97"
+  },
+  "executable_sha256": "7166b3dd2aa970ba65509674feeccb5526ca8532b776c1009cd2b99ce16ac122",
+  "rust_library_sha256": "ce44034cba31ddae4b4c167a5636eab51a9598f03582e10565e5a4daf3f878d9",
+  "compile_response_files": {
+    "bridge.rsp": "8a3b1f313c2972acaddb1ae009252b98e37dc95c36ae61956531fe736dbdb26c",
+    "driver.rsp": "f3cf53beddc508751476de6f0c723a9a82016b1781d5026c177677e9356b4ff7",
+    "ip_address.rsp": "aefe2574381a717152ff99c31aa3da4a7f0aefd046fb74075156647e2fe49d37",
+    "ip_address_util.rsp": "bb6c064c013304d34a16dc9c60a7c220b6d9dc4131829c53657941cb5b34f00f",
+    "ip_endpoint.rsp": "6d53f2b25095435e04905a1f81248720c556baac005cca5e4c39341fde82ed2c",
+    "native_features.rsp": "ba75aead631668d0f5d3eff8807a73dc4ba200ad41279834b0ca18f3aea26a4e",
+    "native_number.rsp": "146f41b0dad65374437f1cf0f97ef6d5240ac9b9a8fcc045414a981bfaeb6bc8",
+    "original_unit.rsp": "ac9991ef742f244b8b1d54e81095917a14fd1102efd0928481a663f711a75cec",
+    "production.rsp": "96a6981444a55e7d3d17f72109fd6c10deeaa1da2fd875382a23dcd227af9640",
+    "reference.rsp": "a3d6e6ce9a96c46c45e1ddad204965728d8ab866d6c4e1af1512d78356452cce",
+    "reference_number.rsp": "e93661f87ef3a3e87e3bcd9816f5ebaf9e57d3ce698ef6a8d0270ff1fe1a9627",
+    "unit.rsp": "19b6a1010f9e285e8d4b2fb3f2de52089e08f9de63501e4a3e52002a1bb43e75",
+    "unit_main.rsp": "c7b416c7141c994fc432758791be74058d525a1409265466e7a738e8943ade62"
+  },
+  "link_command_file": "fuzz-link-command.json",
+  "configured_build": false
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\fuzz.exe",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\corpus",
+    "-runs=1000000",
+    "-max_len=512",
+    "-seed=20261112",
+    "-print_final_stats=1",
+    "-artifact_prefix=D:\\Rustium\\.scratch\\net-wave1\\content-type\\crash-"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 67.74735522270203,
+  "affinity_mask": 64,
+  "sha256": "0767fb3f4294ec2fe744b1c4a231ed3882e7d97ba52abf38e652b3156afffc0b",
+  "benchmark": false
+}

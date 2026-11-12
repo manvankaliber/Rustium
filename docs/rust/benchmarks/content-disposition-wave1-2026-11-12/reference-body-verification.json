@@ -1,0 +1,110 @@
+[
+  {
+    "helper": "std::string_view HttpUtil::TrimLWS(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "void HttpUtil::TrimLWS(std::string_view",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::IsTokenChar(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::IsToken(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool UnquoteImpl(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "std::string HttpUtil::Unquote(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::StrictUnquote(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "HttpUtil::ValuesIterator::ValuesIterator(std::string_view",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::ValuesIterator::GetNext(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "HttpUtil::NameValuePairsIterator::NameValuePairsIterator(std::string_view",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::NameValuePairsIterator::GetNext(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool HttpUtil::NameValuePairsIterator::ParseNameValuePair(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool DecodeQEncoding(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool DecodeBQEncoding(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool DecodeWord(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool DecodeFilenameValue(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool ParseExtValueComponents(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool DecodeExtValue(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "std::string_view HttpContentDisposition::ConsumeDispositionType(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "void HttpContentDisposition::Parse(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "ModpDecodePolicy GetModpPolicy(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool Base64Decode(std::string_view",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool UnescapeUnsignedByteAtIndex(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "std::string UnescapeBinaryURLComponent(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool ConvertToUtf8(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool ConvertToUtf8AndNormalize(",
+    "equal_tokens": true
+  },
+  {
+    "helper": "bool ConvertToUTF16(",
+    "equal_tokens": true
+  }
+]

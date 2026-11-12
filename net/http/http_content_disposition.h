@@ -91,11 +91,9 @@ class NET_EXPORT HttpContentDisposition {
   int parse_result_flags() const { return parse_result_flags_; }
 
  private:
-  void Parse(std::string_view header, const std::string& referrer_charset);
-
-  // Parses the content disposition type, if present, and sets `type_`. Returns
-  // `header` with the content disposition type removed.
-  std::string_view ConsumeDispositionType(std::string_view header);
+  void Parse(std::string_view header,
+             const std::string& referrer_charset,
+             bool first_value = false);
 
   Type type_ = INLINE;
   std::string filename_;

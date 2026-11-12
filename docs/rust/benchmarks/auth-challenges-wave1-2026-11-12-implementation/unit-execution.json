@@ -1,0 +1,10 @@
+{
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\unit.exe",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\auth-challenges\\unit-results.json"
+  ],
+  "exit_code": 0,
+  "affinity_mask": 2,
+  "sha256": "74763a571ef8df64f2878587fe87ea27a586ad6dabd4c7bd4f7e8b12796e8db0",
+  "benchmark": false
+}

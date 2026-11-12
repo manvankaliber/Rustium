@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html><head><title>Range</title></head><body><p>rustium-range-document-ok</p></body></html>
+
+[5380:40604:1112/224835.937:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[5380:40604:1112/224836.113:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[5380:40604:1112/224836.113:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.

@@ -1,0 +1,449 @@
+{
+  "date": "2026-11-12",
+  "module": "net::GZipHeader",
+  "scope": "Entire incremental gzip-header parser behind the existing C++ API; payload decompression and source stream remain native.",
+  "source_sha256": {
+    "net/filter/gzip_header.cc": "21414ba5ee72482f34f8758f4ee5fa6c2c389ee4983b0dd133a27d75adf487a3",
+    "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+    "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+    "net/filter/gzip_header_fuzzer.cc": "4535ed6299e55bbf570e2e65af4608d1e25e0704e1703dbb0d20f5003990cebc",
+    "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+    "net/filter/gzip_header_perftest.cc": "67c4209cd53f42a4be75815febcd2dc2ad227a4f578f314dadca1ab8abae62f0",
+    "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+    "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+    "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77",
+    "net/filter/gzip_header_unittest.cc": "8c4307b60a253915c0c615eb00e5dde754dfb6ec0325ad06c0301734349f88be",
+    "net/BUILD.gn": "2f6f8489609d02f8eb57b96312a3b7afbb33293199503b96bec83f69cc02c46b",
+    "third_party/rust/chromium_crates_io/Cargo.toml": "0e0eb13ee32d94408f872cc7f3e99f81f22188e8d9104015f181d999faabf1a0",
+    "third_party/rust/chromium_crates_io/Cargo.lock": "9f2c9d80cf7ea67f7c988f5429cf60c4494a649b3fcf21e122b7f5f4e24b917a",
+    "third_party/rust/memchr/v2/BUILD.gn": "d28f0a9b40c8ad855b782907bc79911c19ade76ac7588febc821db8b91fd07f1"
+  },
+  "build": {
+    "command": [
+      "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+      "-C",
+      "out/Default",
+      "-j4",
+      "chrome",
+      "ui_base_unittests",
+      "gzip_header_unittests",
+      "gzip_header_perftests"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 122.71175120000407,
+    "source_sha256": {
+      "net/BUILD.gn": "2f6f8489609d02f8eb57b96312a3b7afbb33293199503b96bec83f69cc02c46b",
+      "third_party/rust/chromium_crates_io/Cargo.toml": "0e0eb13ee32d94408f872cc7f3e99f81f22188e8d9104015f181d999faabf1a0",
+      "third_party/rust/chromium_crates_io/Cargo.lock": "9f2c9d80cf7ea67f7c988f5429cf60c4494a649b3fcf21e122b7f5f4e24b917a",
+      "third_party/rust/memchr/v2/BUILD.gn": "d28f0a9b40c8ad855b782907bc79911c19ade76ac7588febc821db8b91fd07f1",
+      "net/filter/gzip_header.cc": "21414ba5ee72482f34f8758f4ee5fa6c2c389ee4983b0dd133a27d75adf487a3",
+      "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+      "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+      "net/filter/gzip_header_fuzzer.cc": "4535ed6299e55bbf570e2e65af4608d1e25e0704e1703dbb0d20f5003990cebc",
+      "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+      "net/filter/gzip_header_perftest.cc": "67c4209cd53f42a4be75815febcd2dc2ad227a4f578f314dadca1ab8abae62f0",
+      "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+      "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+      "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77",
+      "net/filter/gzip_header_unittest.cc": "8c4307b60a253915c0c615eb00e5dde754dfb6ec0325ad06c0301734349f88be",
+      "net/filter/gzip_header_fuzzer_corpus/all-options.header": "c23abdebef6001761ee4d18b757f9fd717fac58f77b9e5739db1ba8fb4a14082",
+      "net/filter/gzip_header_fuzzer_corpus/empty-extra.header": "5a731d39ad7de3088b5a963c4306a95c998d1ed9e3d4f4790c986fec93bd4ce3",
+      "net/filter/gzip_header_fuzzer_corpus/fixed.header": "217feb1e7490015dd0a2b231b9cea45804df3d2a9b37287ac861bb45b8c0de55",
+      "net/filter/gzip_header_fuzzer_corpus/invalid.header": "01e090797f72173743c96e2b2e76a9e0740bf3f8a1ff802aedbb11ce65f8652a",
+      "net/filter/gzip_header_fuzzer_corpus/name.header": "0593a61d7b4c98515e0a2aeb13eff25a225512221f0e24098cad82dd04303e0d"
+    }
+  },
+  "dependencies": {
+    "command": [
+      "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+      "check",
+      "out/Default",
+      "//net:*"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 33.36007000000245,
+    "source_sha256": {
+      "net/BUILD.gn": "2f6f8489609d02f8eb57b96312a3b7afbb33293199503b96bec83f69cc02c46b",
+      "third_party/rust/chromium_crates_io/Cargo.toml": "0e0eb13ee32d94408f872cc7f3e99f81f22188e8d9104015f181d999faabf1a0",
+      "third_party/rust/chromium_crates_io/Cargo.lock": "9f2c9d80cf7ea67f7c988f5429cf60c4494a649b3fcf21e122b7f5f4e24b917a",
+      "third_party/rust/memchr/v2/BUILD.gn": "d28f0a9b40c8ad855b782907bc79911c19ade76ac7588febc821db8b91fd07f1",
+      "net/filter/gzip_header.cc": "21414ba5ee72482f34f8758f4ee5fa6c2c389ee4983b0dd133a27d75adf487a3",
+      "net/filter/gzip_header.h": "d06429a8868b89fa7c3490fe55cbb9689c5d7d224e714d1c7b586fef13c12de0",
+      "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+      "net/filter/gzip_header_fuzzer.cc": "4535ed6299e55bbf570e2e65af4608d1e25e0704e1703dbb0d20f5003990cebc",
+      "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+      "net/filter/gzip_header_perftest.cc": "67c4209cd53f42a4be75815febcd2dc2ad227a4f578f314dadca1ab8abae62f0",
+      "net/filter/gzip_header_state.h": "8a3eaeae1c455466737e574a6a9fa43c2cffe270dfd26dcbe36cfa8d4c0aa685",
+      "net/filter/gzip_header_test_support.cc": "b98e819cb07cebd9a7d41fced1869aaaeca5dbd68cf04b65dc5bf87e5b77bf35",
+      "net/filter/gzip_header_test_support.h": "b78f5e09d909924292a085acee28fd05ed2d58170512f4f14e1f7d2ebb35ef77",
+      "net/filter/gzip_header_unittest.cc": "8c4307b60a253915c0c615eb00e5dde754dfb6ec0325ad06c0301734349f88be",
+      "net/filter/gzip_header_fuzzer_corpus/all-options.header": "c23abdebef6001761ee4d18b757f9fd717fac58f77b9e5739db1ba8fb4a14082",
+      "net/filter/gzip_header_fuzzer_corpus/empty-extra.header": "5a731d39ad7de3088b5a963c4306a95c998d1ed9e3d4f4790c986fec93bd4ce3",
+      "net/filter/gzip_header_fuzzer_corpus/fixed.header": "217feb1e7490015dd0a2b231b9cea45804df3d2a9b37287ac861bb45b8c0de55",
+      "net/filter/gzip_header_fuzzer_corpus/invalid.header": "01e090797f72173743c96e2b2e76a9e0740bf3f8a1ff802aedbb11ce65f8652a",
+      "net/filter/gzip_header_fuzzer_corpus/name.header": "0593a61d7b4c98515e0a2aeb13eff25a225512221f0e24098cad82dd04303e0d"
+    }
+  },
+  "tests": {
+    "gzip_header_unittests": {
+      "exit_code": 0,
+      "tests": 121,
+      "statuses": {
+        "SUCCESS": 121
+      },
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\gzip_header_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\gzip-header\\gzip_header_unittests-summary.json"
+      ],
+      "elapsed_seconds": 0.7597624000045471
+    },
+    "ui_base_unittests": {
+      "exit_code": 0,
+      "tests": 60,
+      "statuses": {
+        "SUCCESS": 60
+      },
+      "command": [
+        "D:\\RustiumBuild\\src\\out\\Default\\ui_base_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--gtest_color=no",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\gzip-header\\ui_base_unittests-summary.json",
+        "--gtest_filter=*DataPack*:*ResourceBundle*"
+      ],
+      "elapsed_seconds": 5.109700000000885
+    }
+  },
+  "functional_browser_smoke": {
+    "cases": [
+      {
+        "case": "plain",
+        "passed": true,
+        "exit_code": 0,
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+          "--headless=new",
+          "--disable-gpu",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-background-mode",
+          "--disable-component-update",
+          "--user-data-dir=D:\\Rustium\\.scratch\\gzip-header\\profile-plain",
+          "--dump-dom",
+          "http://127.0.0.1:56004/plain"
+        ]
+      },
+      {
+        "case": "gzip",
+        "passed": true,
+        "exit_code": 0,
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+          "--headless=new",
+          "--disable-gpu",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-background-mode",
+          "--disable-component-update",
+          "--user-data-dir=D:\\Rustium\\.scratch\\gzip-header\\profile-gzip",
+          "--dump-dom",
+          "http://127.0.0.1:56004/gzip"
+        ]
+      },
+      {
+        "case": "optional",
+        "passed": true,
+        "exit_code": 0,
+        "command": [
+          "D:\\RustiumBuild\\src\\out\\Default\\chrome.exe",
+          "--headless=new",
+          "--disable-gpu",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-background-networking",
+          "--disable-background-mode",
+          "--disable-component-update",
+          "--user-data-dir=D:\\Rustium\\.scratch\\gzip-header\\profile-optional",
+          "--dump-dom",
+          "http://127.0.0.1:56004/optional"
+        ]
+      }
+    ],
+    "scope": "Functional local HTTP gzip decoding, including optional fields and a fragmented prefix; not startup timing.",
+    "net_dll_sha256": "422ace9ce6fe013f10ae59fcb1e57c9b8be573e3431084a50350d76b11cc4632"
+  },
+  "fuzz": {
+    "executed_inputs": 1000000,
+    "mismatches_or_crashes": 0,
+    "peak_rss_mb": 32,
+    "elapsed_seconds": 124,
+    "instrumentation": "libFuzzer native harness/reference coverage; Rust differential comparison; no Rust ASan claim",
+    "log": "gzip-header-fuzz-release.log"
+  },
+  "rust_coverage": {
+    "compiler": "Chromium Rust 1.101 / LLVM 24; matching Chromium coverage_tools",
+    "totals": {
+      "lines": {
+        "count": 105,
+        "covered": 105,
+        "percent": 100
+      },
+      "functions": {
+        "count": 7,
+        "covered": 7,
+        "percent": 100
+      },
+      "instantiations": {
+        "count": 7,
+        "covered": 7,
+        "percent": 100
+      },
+      "regions": {
+        "count": 129,
+        "covered": 129,
+        "notcovered": 0,
+        "percent": 100
+      },
+      "branches": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      },
+      "mcdc": {
+        "count": 0,
+        "covered": 0,
+        "notcovered": 0,
+        "percent": 0
+      }
+    },
+    "authored_files": [
+      {
+        "filename": "D:\\Rustium\\.scratch\\gzip-header\\..\\..\\net\\filter\\gzip_header_ffi.rs",
+        "summary": {
+          "lines": {
+            "count": 9,
+            "covered": 9,
+            "percent": 100
+          },
+          "functions": {
+            "count": 3,
+            "covered": 3,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 3,
+            "covered": 3,
+            "percent": 100
+          },
+          "regions": {
+            "count": 11,
+            "covered": 11,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      },
+      {
+        "filename": "D:\\Rustium\\.scratch\\gzip-header\\..\\..\\net\\filter\\gzip_header_parser.rs",
+        "summary": {
+          "lines": {
+            "count": 96,
+            "covered": 96,
+            "percent": 100
+          },
+          "functions": {
+            "count": 4,
+            "covered": 4,
+            "percent": 100
+          },
+          "instantiations": {
+            "count": 4,
+            "covered": 4,
+            "percent": 100
+          },
+          "regions": {
+            "count": 118,
+            "covered": 118,
+            "notcovered": 0,
+            "percent": 100
+          },
+          "branches": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          },
+          "mcdc": {
+            "count": 0,
+            "covered": 0,
+            "notcovered": 0,
+            "percent": 0
+          }
+        }
+      }
+    ],
+    "instrumented_tests": 17,
+    "branch_coverage_collected": false,
+    "excludes": "Generated and vendored executable coverage"
+  },
+  "clippy": {
+    "command": [
+      "C:/Users/jackv/.cargo/bin/cargo.exe",
+      "clippy",
+      "--release",
+      "--offline",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "environment": "VS environment.x64; Chromium clang-cl; CXXFLAGS=/std:c++20 /ID:/Rustium; stable Clippy"
+  },
+  "static_checks": {
+    "datapack": {
+      "ui/base/resource/data_pack.cc": {
+        "sha256": "1612ce0f358457abfe049d6c210a9df89df8dfda921dd08de429afde801423c7",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack.h": {
+        "sha256": "e1b0b0b9486ebfb0f2d415a4eb1e22f5526abe070c4563f0957d5df6d91227cb",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_parser.rs": {
+        "sha256": "1fdbd1d18c60f9cefb8ca8bdff7b28b99b1c6c367839b5cc181ebe25c35f1bcb",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_parser_ffi.rs": {
+        "sha256": "bad719ba04ac661f7db815f4ff71e0ebeb3cbaaee38d10d087899fba7f888975",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_parser_unittest.cc": {
+        "sha256": "96daeb49f6fcaf69ca51ec308f3c3f0f9bdd46f27c744ad194a0f0b043a8dda4",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_parser_test_support.h": {
+        "sha256": "d91f119aca5212d1664e8285fc5d5d23902c7e8761fdb9eab01edb773042b349",
+        "matches_previous_validation_snapshot": false
+      },
+      "ui/base/resource/data_pack_parser_fuzzer.cc": {
+        "sha256": "be7957c694835736e43b61104c51bdcaa0fe135c9f8530c3e015e26cc956dbcf",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_parser_perftest.cc": {
+        "sha256": "e4247da906cbb7999187161c308de36e70e9eb4c6ff41eb754fa1e477d887007",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/resource/data_pack_unittest.cc": {
+        "sha256": "3a54b130955ff2f150783de16d12a40643537fce4cf57d1839d1a2f6c1262afb",
+        "matches_previous_validation_snapshot": true
+      },
+      "ui/base/BUILD.gn": {
+        "sha256": "1f4e917f2dc1d1e2debc89454847d6f93bc6378f918d95f9f86bb6a0507879ca",
+        "matches_previous_validation_snapshot": false
+      }
+    },
+    "final_benchmark_sources_unchanged": true,
+    "python_syntax": "passed",
+    "cpp_format": "passed",
+    "gn_format": "passed",
+    "rustfmt": "passed",
+    "diff_whitespace": "passed",
+    "frozen_cpp_reference_matches_original": "Implementation tokens match after class rename and clang-format normalization (including its automatic braces).",
+    "frozen_cpp_original_sha256": "be4b0b05105c652cc5d029f9d5b3a633c1ff5f54acbb5ce80f67929ea59eb1a7",
+    "benchmark_importer_metadata": "Passed: alternate CPU affinity mask retained; absent execution metadata recorded as unknown; surrounding page code preserved. Checked with temporary page/report copies.",
+    "datapack_audit_scope": "Production Rust core, bridge and C++ API hashes match the previous validation. Prior integration changes in the test-support header and BUILD.gn are recorded separately; no DataPack runtime changes made for this audit."
+  },
+  "properties": {
+    "core_forbids_unsafe": true,
+    "heap_allocations_in_parser": false,
+    "retained_input_references": false,
+    "state_size_bytes": 8,
+    "state_alignment_bytes": 4,
+    "same_cpp_object_size_and_alignment": true,
+    "bridge_calls_per_read": 1,
+    "unsafe_boundary": "One documented cxx::ExternType trivial-state declaration; compile-time layout assertions in both languages."
+  },
+  "benchmark": {
+    "archive": "gzip-header-final-2026-11-12.json",
+    "all_15_time_change_intervals_below_zero": true,
+    "samples": 300,
+    "geometric_speedup_percent": 83.51980767343545
+  },
+  "limitations": [
+    "Executed on Windows x64 only",
+    "No branch coverage collected",
+    "No end-to-end browser performance or startup timing measured",
+    "No final binary-size or process-memory comparison measured",
+    "Power/thermal state and unrelated system load uncontrolled"
+  ],
+  "archived_logs": {
+    "gzip-header-fuzz-release.log": {
+      "sha256": "a32663e1eef481b218f84d3dd432843202bfd63e3e10f09899c97632cc02863c",
+      "bytes": 11651
+    },
+    "gzip-header-check.log": {
+      "sha256": "758efd67ba4374faadfea3be2227cf65809c7c37f9e1e304dda137f152db50ed",
+      "bytes": 27
+    },
+    "gzip-header-coverage-final-tests.log": {
+      "sha256": "d77ef492680d778b97adcbe493e4048f4c073c9c1540118d02bc6a4cc55e2827",
+      "bytes": 2465
+    },
+    "gzip-header-clippy-final.log": {
+      "sha256": "8148f389ab90aa1036ff443f4fc30f105c6491de0ba8e616a911b17e9ad8c792",
+      "bytes": 141
+    }
+  },
+  "measurement_tools_sha256": {
+    "tools/run_gzip_header_benchmarks.py": "7b51d6f79686d50a4aa2cb1d95805db86752c57543c7d48ebe7da43e24b7c504",
+    "tools/update_gzip_header_charts.py": "7e0c06d7b33fd8d0cb727ec9378837d15473c95419c3e785c19be5b82ee8bd1d",
+    "tools/update_data_pack_charts.py": "7bfeff6530f76f850704da973be61ef43676162498237fab3f07393cb16b74b1"
+  },
+  "built_artifact_sha256": {
+    "chrome.exe": "cede367f0bf4217c3e1a8f1a06402c55672232887c8b747bd54a855c8777212d",
+    "net.dll": "422ace9ce6fe013f10ae59fcb1e57c9b8be573e3431084a50350d76b11cc4632",
+    "gzip_header_unittests.exe": "afe43cb92e0006aceb339949adea9cd4bcb6f46ec3daccd9b227386d5a350963",
+    "ui_base_unittests.exe": "1e90009aa67b62704924b18092525f4a992d14f1845f07a7946892cebdff6d27",
+    "gzip_header_perftests.exe": "75f725db19320ad93431dbd5be4e24b0fa345488ab0b1b8341ff91cf86d6c4c9"
+  },
+  "build_source_and_binary_consistency": "All task-owned configured sources match the build snapshot and editing checkout. net.dll matches the functional-browser test; benchmark executable matches its recorded measurement hash.",
+  "gallery_validation": "chart-export-validation-2026-11-12.json",
+  "canonical_integration": {
+    "status": "passed",
+    "validation": "parallel-rewrites-integration-2026-11-12.json",
+    "sha256": "0f9b4a2d9a4c4b80407460095532330c078444c62dc22b6ece2eca1b88db8f16",
+    "configured_build_exit_code": 0,
+    "gn_checks": "//net:* and //net/base:registry_controlled_domains passed",
+    "combined_tests": 522,
+    "functional_browser_checks": 9
+  },
+  "follow_up_output_storage_audit": {
+    "description": "Initialized local completion offset passed through Rust, copied into caller storage only on completion; handles uninitialized and overlapping output storage.",
+    "tests": 123,
+    "new_regression_tests": 2,
+    "fuzz_runs": 1000000,
+    "fuzz_execution": "gzip-header-follow-up-fuzz-execution.json",
+    "fuzz_log": "gzip-header-follow-up-fuzz.log",
+    "source_manifest": "gzip-header-final-2026-11-12.json",
+    "initial_record_retained": true,
+    "current_validation": "parallel-rewrites-integration-2026-11-12.json"
+  }
+}

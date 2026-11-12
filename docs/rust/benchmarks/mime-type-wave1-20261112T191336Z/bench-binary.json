@@ -1,0 +1,40 @@
+{
+  "sha256": "02f9fc192d801433210e04b852c9e656628bbce882f31410348c20622b9e5372",
+  "link_command": [
+    "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+    "/OUT:D:\\Rustium\\.scratch\\net-wave1\\content-type\\bench.exe",
+    "/SUBSYSTEM:CONSOLE",
+    "/INCREMENTAL:NO",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\reader.obj",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\reference.obj",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\bridge.obj",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\bench.obj",
+    "D:\\Rustium\\.scratch\\net-wave1\\content-type\\chromium-target\\release\\mime_type_validation.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\base.dll.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\libc++.dll.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_allocator_shim.dll.lib",
+    "D:\\RustiumBuild\\src\\out\\Default\\base_allocator_partition_allocator_src_partition_alloc_raw_ptr.dll.lib",
+    "advapi32.lib",
+    "userenv.lib",
+    "ws2_32.lib",
+    "bcrypt.lib",
+    "ntdll.lib",
+    "dbghelp.lib",
+    "synchronization.lib",
+    "shlwapi.lib",
+    "shell32.lib",
+    "/LIBPATH:C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/lib/x64",
+    "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64",
+    "/LIBPATH:C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/ucrt/x64"
+  ],
+  "compile_response_files": {
+    "bench.rsp": "2f2e312e5a0fb36e5b75f84a6ade3cb3622d3e467cbc26326928aedd71bc4f05",
+    "bridge.rsp": "5641fc430315df9f8c8b3c15c803aeac859e764e85553f4ac486c9ff14c24f9d",
+    "reader.rsp": "60c36a043d36a1e182b1e9fcc2707266871b5337cf7342e10e75fcfb5ba94166",
+    "reference.rsp": "cb6af4cd67eff54407df826fa7266d1158b94ab22b3acfb966094f23e0361c42"
+  },
+  "configured_template": "D:\\RustiumBuild\\src\\out\\Default\\toolchain.ninja",
+  "configured_variables": "D:\\RustiumBuild\\src\\out\\Default\\obj\\net\\gzip_header_perftests.ninja"
+}

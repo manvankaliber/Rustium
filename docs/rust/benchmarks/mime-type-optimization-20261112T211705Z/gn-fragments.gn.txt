@@ -1,0 +1,27 @@
+# Parent applies these changes to net/BUILD.gn. No GN/configured-tree edits were
+# performed by the optimization agent. Keep the frozen reference DLL unchanged.
+
+# New header-only adapter target, independent of :net and generated CXX headers:
+source_set("mime_type_state") {
+  sources = [ "base/mime_type_rust_state.h" ]
+  public_deps = [ "//base" ]
+}
+
+# Within existing rust_static_library("mime_type_parser") add:
+#   public_deps = [ ":mime_type_state" ]
+# Update its allow_unsafe comment: generated CXX glue and documented synchronous
+# read-only state getter declarations; the authored grammar core forbids unsafe.
+# Rust dependencies/sources/crate name otherwise stay the same.
+
+# Within existing test("mime_type_unittests") add source:
+#   "base/mime_type_rust_optimization_unittest.cc",
+
+# Replace shared HttpUtil::ParseContentType using http-util-wrapper.cc.txt.
+# It is an ABI-coordinated change with mime_type_ffi.rs; do not build/publish
+# the new Rust interface against the old HttpUtil wrapper.
+
+# Required configured checks (parent):
+#   mime_type_unittests, mime_type_parser_fuzzer, applicable net_unittests MIME/
+#   Content-Type tests, and complete net production linking.
+# Parent remeasures the UNCHANGED mime_type_perftests public net.dll versus
+# frozen reference DLL workload (all 20 existing cases) in a quiet window.

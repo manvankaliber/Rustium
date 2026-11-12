@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html><head><title>Range CORS</title></head><body><p id="result">rustium-range-cors-ok</p>
+            <script>Promise.all([
+              fetch('http://127.0.0.1:53710/cors-valid',{headers:{Range:'bytes=0-3'}}).then(r=>r.text()),
+              fetch('http://127.0.0.1:53710/cors-case',{headers:{Range:'Bytes=0-3'}}).then(r=>r.text())
+            ]).then(v=>document.getElementById('result').textContent=
+              v.join(',')==='RUST,RUST'?'rustium-range-cors-ok':'wrong-body')
+              .catch(e=>document.getElementById('result').textContent=String(e));</script>
+            </body></html>
+
+[36416:29824:1112/190958.535:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[36416:29824:1112/190958.686:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[36416:29824:1112/190958.686:ERROR:gpu\ipc\service\gpu_channel_manager.cc:885] ContextResult::kFatalFailure: Failed to create shared context for virtualization.

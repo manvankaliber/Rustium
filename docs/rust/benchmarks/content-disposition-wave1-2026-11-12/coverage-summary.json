@@ -1,0 +1,72 @@
+{
+  "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\..\\..\\..\\net\\http\\content_disposition_ffi.rs": {
+    "lines": {
+      "count": 13,
+      "covered": 13,
+      "percent": 100
+    },
+    "functions": {
+      "count": 3,
+      "covered": 3,
+      "percent": 100
+    },
+    "instantiations": {
+      "count": 3,
+      "covered": 3,
+      "percent": 100
+    },
+    "regions": {
+      "count": 15,
+      "covered": 15,
+      "notcovered": 0,
+      "percent": 100
+    },
+    "branches": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    }
+  },
+  "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\..\\..\\..\\net\\http\\content_disposition_parser.rs": {
+    "lines": {
+      "count": 297,
+      "covered": 295,
+      "percent": 99.32659932659934
+    },
+    "functions": {
+      "count": 25,
+      "covered": 25,
+      "percent": 100
+    },
+    "instantiations": {
+      "count": 25,
+      "covered": 25,
+      "percent": 100
+    },
+    "regions": {
+      "count": 407,
+      "covered": 404,
+      "notcovered": 3,
+      "percent": 99.26289926289927
+    },
+    "branches": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    },
+    "mcdc": {
+      "count": 0,
+      "covered": 0,
+      "notcovered": 0,
+      "percent": 0
+    }
+  }
+}

@@ -4,192 +4,192 @@
 
 #include "net/dns/dns_names_util.h"
 
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <optional>
-#include <string>
-#include <string_view>
-#include <vector>
-
 #include "base/check.h"
-#include "base/containers/span.h"
-#include "base/containers/span_reader.h"
+#include "base/compiler_specific.h"
+#include "base/containers/span_rust.h"
 #include "base/strings/string_view_util.h"
 #include "net/base/ip_address.h"
 #include "net/base/url_util.h"
-#include "net/dns/public/dns_protocol.h"
+#include "net/dns/dns_names_ffi.rs.h"
 #include "url/third_party/mozilla/url_parse.h"
 #include "url/url_canon.h"
 #include "url/url_canon_stdstring.h"
 
+namespace net::dns_names_internal {
+namespace {
+std::string_view View(rust::Slice<const uint8_t> input) {
+  if (input.empty()) {
+    return {};
+  }
+  // SAFETY: A nonempty CXX slice borrows this initialized range for the call.
+  // Empty slices are handled above because their data pointer may be dangling.
+  return base::as_string_view(
+      UNSAFE_BUFFERS(base::span(input.data(), input.size())));
+}
+}  // namespace
+
+bool host_compliant(rust::Slice<const uint8_t> input) {
+  return IsCanonicalizedHostCompliant(View(input));
+}
+bool host_localhost(rust::Slice<const uint8_t> input) {
+  return HostStringIsLocalhost(View(input));
+}
+bool host_ip_literal(rust::Slice<const uint8_t> input) {
+  IPAddress address;
+  return address.AssignFromIPLiteral(View(input));
+}
+bool host_url_address(rust::Slice<const uint8_t> input) {
+  IPAddress address;
+  return ParseURLHostnameToAddress(View(input), &address);
+}
+rust::Slice<const uint8_t> reader_remaining(const NameReader& context) {
+  return base::SpanToRustSlice(context.reader->remaining_span());
+}
+LabelChunk reader_take(NameReader& context, size_t count) {
+  auto input = context.reader->remaining_span().first(count);
+  auto inner = *context.reader;
+  CHECK(inner.Skip(count));
+  *context.reader = inner;
+  LabelChunk result{};
+  base::span(result.bytes).first(count).copy_from(input);
+  return result;
+}
+bool host_canonicalize(rust::Slice<const uint8_t> input,
+                       CanonicalName& context) {
+  // URL/ICU writes directly into the eventual C++ result. Rust owns the
+  // decision to keep this result or request original-byte fallback.
+  url::StdStringCanonOutput output(&*context.output);
+  url::CanonHostInfo host_info;
+  url::CanonicalizeHostVerbose(View(input), url::Component(0, input.size()),
+                               &output, &host_info);
+  const bool broken = host_info.family == url::CanonHostInfo::Family::BROKEN;
+  if (!broken) {
+    output.Complete();
+  }
+  return broken;
+}
+void canonical_use_original(rust::Slice<const uint8_t> input,
+                            CanonicalName& context) {
+  context.output->assign(View(input));
+}
+}  // namespace net::dns_names_internal
+
 namespace net::dns_names_util {
-
-bool IsValidDnsName(std::string_view dotted_form_name) {
-  return DottedNameToNetwork(dotted_form_name,
-                             /*require_valid_internet_hostname=*/false)
-      .has_value();
+namespace {
+rust::Slice<const uint8_t> Bytes(std::string_view input) {
+  // Byte reinterpretation only; CXX handles the null-empty slice convention.
+  // Avoid a separate std::string_view -> span adapter on this call path.
+  return {reinterpret_cast<const uint8_t*>(input.data()), input.size()};
 }
-
-bool IsValidDnsRecordName(std::string_view dotted_form_name) {
-  IPAddress ip_address;
-  return IsValidDnsName(dotted_form_name) &&
-         !HostStringIsLocalhost(dotted_form_name) &&
-         !ip_address.AssignFromIPLiteral(dotted_form_name) &&
-         !ParseURLHostnameToAddress(dotted_form_name, &ip_address);
+struct NameResult {
+  size_t consumed;
+  size_t len;
+  bool valid;
+};
+NameResult DecodeResult(uint64_t value) {
+  const uint32_t length_plus_one = static_cast<uint32_t>(value);
+  return {static_cast<size_t>(value >> 32),
+          length_plus_one ? length_plus_one - 1u : 0u, length_plus_one != 0};
 }
+}  // namespace
 
-// Based on DJB's public domain code.
+bool IsValidDnsName(std::string_view input) {
+  return dns_names_internal::valid_name(Bytes(input));
+}
+bool IsValidDnsRecordName(std::string_view input) {
+  return dns_names_internal::valid_record(Bytes(input));
+}
 std::optional<std::vector<uint8_t>> DottedNameToNetwork(
-    std::string_view dotted_form_name,
+    std::string_view input,
     bool require_valid_internet_hostname) {
-  // Use full IsCanonicalizedHostCompliant() validation if not
-  // `is_unrestricted`. All subsequent validity checks should not apply unless
-  // `is_unrestricted` because IsCanonicalizedHostCompliant() is expected to be
-  // more strict than any validation here.
-  if (require_valid_internet_hostname &&
-      !IsCanonicalizedHostCompliant(dotted_form_name))
-    return std::nullopt;
-
-  std::vector<uint8_t> name;
-  name.reserve(dns_protocol::kMaxNameLength);
-
-  auto iter = dotted_form_name.begin();
-  while (iter != dotted_form_name.end()) {
-    auto pos = std::find(iter, dotted_form_name.end(), '.');
-    size_t labellen = std::distance(iter, pos);
-    // Don't allow empty labels per http://crbug.com/456391.
-    if (!labellen) {
-      DCHECK(!require_valid_internet_hostname);
-      return std::nullopt;
-    }
-    // `2` includes the length byte and the terminating '\0' byte.
-    if (name.size() + labellen + 2 > dns_protocol::kMaxNameLength ||
-        labellen > dns_protocol::kMaxLabelLength) {
-      DCHECK(!require_valid_internet_hostname);
-      return std::nullopt;
-    }
-    // This cast is safe because kMaxLabelLength < 255.
-    name.push_back(static_cast<uint8_t>(labellen));
-    name.insert(name.end(), iter, pos);
-    if (pos == dotted_form_name.end()) {
-      break;
-    }
-    iter = pos + 1;
-  }
-
-  if (name.empty()) {  // Empty names e.g. "", "." are not valid.
-    DCHECK(!require_valid_internet_hostname);
+  dns_names_internal::NameBuffer output{};
+  const auto result = DecodeResult(dns_names_internal::dotted_name(
+      Bytes(input), require_valid_internet_hostname, output));
+  if (!result.valid) {
     return std::nullopt;
   }
-  name.push_back(0);  // This is the root label (of length 0).
-
-  return name;
+  auto bytes = base::span(output.bytes).first(result.len);
+  return std::vector<uint8_t>(bytes.begin(), bytes.end());
 }
-
-std::optional<std::string> NetworkToDottedName(base::span<const uint8_t> span,
+std::optional<std::string> NetworkToDottedName(base::span<const uint8_t> input,
                                                bool require_complete) {
-  auto reader = base::SpanReader(span);
-  return NetworkToDottedName(reader, require_complete);
+  dns_names_internal::NameBuffer output{};
+  const auto result = DecodeResult(dns_names_internal::network_name(
+      base::SpanToRustSlice(input), require_complete, output));
+  if (!result.valid) {
+    return std::nullopt;
+  }
+  return std::string(
+      base::as_string_view(base::span(output.bytes).first(result.len)));
 }
-
 std::optional<std::string> NetworkToDottedName(
     base::SpanReader<const uint8_t>& reader,
     bool require_complete) {
-  std::string ret;
-  size_t octets_read = 0u;
-  while (reader.remaining() > 0u) {
-    // DNS name compression not allowed because it does not make sense without
-    // the context of a full DNS message.
-    if ((reader.remaining_span()[0u] & dns_protocol::kLabelMask) ==
-        dns_protocol::kLabelPointer) {
-      return std::nullopt;
-    }
-
-    base::span<const uint8_t> label;
-    if (!ReadU8LengthPrefixed(reader, &label)) {
-      return std::nullopt;
-    }
-
-    // Final zero-length label not included in size enforcement.
-    if (!label.empty()) {
-      octets_read += label.size() + 1u;
-    }
-
-    if (label.size() > dns_protocol::kMaxLabelLength) {
-      return std::nullopt;
-    }
-    if (octets_read > dns_protocol::kMaxNameLength) {
-      return std::nullopt;
-    }
-
-    if (label.empty()) {
-      return ret;
-    }
-
-    if (!ret.empty()) {
-      ret.append(".");
-    }
-
-    ret.append(base::as_string_view(label));
+  dns_names_internal::NameBuffer output{};
+  NameResult result;
+  const auto input = reader.remaining_span();
+  const auto start = reinterpret_cast<uintptr_t>(input.data());
+  const auto cursor = reinterpret_cast<uintptr_t>(&reader);
+  // Only an ownership overlap check lives here, never DNS parsing. Subtraction
+  // avoids endpoint overflow. Rust never sees the private SpanReader layout.
+  const bool aliases_cursor =
+      !input.empty() && (start <= cursor ? cursor - start < input.size()
+                                         : start - cursor < sizeof(reader));
+  if (aliases_cursor) {
+    // Every input borrow ends before the cursor callback mutates its storage;
+    // payload bytes are copied after that commit, matching the original.
+    dns_names_internal::NameReader context{raw_ref(reader)};
+    result = DecodeResult(dns_names_internal::network_name_reader(
+        context, require_complete, output));
+  } else {
+    result = DecodeResult(dns_names_internal::network_name(
+        base::SpanToRustSlice(input), require_complete, output));
+    CHECK(reader.Skip(result.consumed));
   }
-
-  if (require_complete) {
+  if (!result.valid) {
     return std::nullopt;
   }
-
-  // If terminating zero-length label was not included in the input, no need to
-  // recheck against max name length because terminating zero-length label does
-  // not count against the limit.
-
-  return ret;
+  return std::string(
+      base::as_string_view(base::span(output.bytes).first(result.len)));
 }
-
+namespace {
+bool ReadLengthPrefixed(base::SpanReader<const uint8_t>& reader,
+                        base::span<const uint8_t>* out,
+                        bool wide) {
+  const auto input = reader.remaining_span();
+  const auto result =
+      dns_names_internal::read_length(base::SpanToRustSlice(input), wide);
+  if (!result) {
+    return false;
+  }
+  const size_t offset = result & 3u;
+  const size_t len = result >> 2;
+  // Match the old output-before-reader commit order. Neither the output nor
+  // reader is exposed to Rust, so uninitialized output spans are supported.
+  auto inner_reader = reader;
+  CHECK(inner_reader.Skip(offset + len));
+  *out = input.subspan(offset, len);
+  reader = inner_reader;
+  return true;
+}
+}  // namespace
 bool ReadU8LengthPrefixed(base::SpanReader<const uint8_t>& reader,
                           base::span<const uint8_t>* out) {
-  base::SpanReader<const uint8_t> inner_reader = reader;
-  uint8_t len;
-  if (!inner_reader.ReadU8BigEndian(len)) {
-    return false;
-  }
-  std::optional<base::span<const uint8_t>> bytes = inner_reader.Read(len);
-  if (!bytes) {
-    return false;
-  }
-  *out = *bytes;
-  reader = inner_reader;
-  return true;
+  return ReadLengthPrefixed(reader, out, false);
 }
-
 bool ReadU16LengthPrefixed(base::SpanReader<const uint8_t>& reader,
                            base::span<const uint8_t>* out) {
-  base::SpanReader<const uint8_t> inner_reader = reader;
-  uint16_t len;
-  if (!inner_reader.ReadU16BigEndian(len)) {
-    return false;
-  }
-  std::optional<base::span<const uint8_t>> bytes = inner_reader.Read(len);
-  if (!bytes) {
-    return false;
-  }
-  *out = *bytes;
-  reader = inner_reader;
-  return true;
+  return ReadLengthPrefixed(reader, out, true);
 }
-
-std::string UrlCanonicalizeNameIfAble(std::string_view name) {
-  std::string canonicalized;
-  url::StdStringCanonOutput output(&canonicalized);
-  url::CanonHostInfo host_info;
-  url::CanonicalizeHostVerbose(name, url::Component(0, name.size()), &output,
-                               &host_info);
-
-  if (host_info.family == url::CanonHostInfo::Family::BROKEN) {
-    return std::string(name);
-  }
-
-  output.Complete();
-  return canonicalized;
+std::string UrlCanonicalizeNameIfAble(std::string_view input) {
+  std::string result;
+  dns_names_internal::CanonicalName context{raw_ref(result)};
+  dns_names_internal::canonical_name(Bytes(input), context);
+  return result;
 }
-
+bool DomainNameLess(std::string_view lhs, std::string_view rhs) {
+  return dns_names_internal::net_dns_names_less(
+      reinterpret_cast<const uint8_t*>(lhs.data()), lhs.size(),
+      reinterpret_cast<const uint8_t*>(rhs.data()), rhs.size());
+}
 }  // namespace net::dns_names_util

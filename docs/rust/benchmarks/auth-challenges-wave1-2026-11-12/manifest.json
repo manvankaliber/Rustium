@@ -1,0 +1,20 @@
+{
+  "decoder_diff.py": "1c4b21b505b0ea21a5844d65a07a0e8efadbb1c06a92be3d48ed9fb2cc93057d",
+  "decoder_diff.rs": "e1ceb98163d66f141e20415cb50fa451477276b56af83480a140e9da53b14794",
+  "sources/auth_challenge_core.rs": "4ecfd48b26f90b19b255a274c0420a173a3572926433d0e3c070081d20198a0d",
+  "original/base/base64.cc": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+  "original/base/base64.h": "ea68ee0b9f4a85304fe94e4671a2ed6dfe3d66c204b544b9cb43430aed2254a7",
+  "original/third_party/modp_b64/auth_reference_decode.cc": "7d4f0ed32df335e74f8df968a74af5f36d638a0e66978be684da0011a0315d3e",
+  "original/third_party/modp_b64/modp_b64.cc": "b38a2d490c95e6c34071b85e3f47b9ed8e634a90992f84982f97567e88fa96d2",
+  "original/third_party/modp_b64/modp_b64.h": "1bbd248ad2206d589fe1b820d968a86dac0355dc912557abbfd03d1d0105c0ee",
+  "original/third_party/modp_b64/modp_b64_data.h": "954d20dc3ab182e9db71684e4d6a08b5683d7bd9cd5a59012fa084c2aad36898",
+  "original/net/http/http_auth_challenge_tokenizer.cc": "4267e21a3cf3003755a1acf766335f789894b8939d3e60a8ba6d1abe0c714463",
+  "original/net/http/http_auth_challenge_tokenizer.h": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+  "original/net/http/http_auth_multi_round_parse.cc": "8bc49624c190c9a5cf57d7a5fe50e5d545dead05737f0ee6cd6c659d86b1e935",
+  "original/net/http/http_auth_multi_round_parse.h": "f0f0bcc7d892851ff98192b0a1a68179a773ce2363dd08bfda334fcff92c3f91",
+  "original/net/http/http_util.cc": "c3af16acf035d863a7d9f380c240ff28ce60f7b8993d1ffe3567df95463a2936",
+  "original/net/http/http_util.h": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871",
+  "original/base/strings/string_tokenizer.h": "7903a2d6c826af38d216ea1ff77baf24be17051bbf4baa647984c25d4db854a7",
+  "original/base/strings/string_util.cc": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+  "original/base/strings/string_util.h": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a"
+}

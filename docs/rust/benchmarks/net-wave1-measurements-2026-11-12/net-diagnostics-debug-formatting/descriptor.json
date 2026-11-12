@@ -1,0 +1,77 @@
+{
+  "module": "net-diagnostics-debug-formatting",
+  "source": "net-diagnostics-debug-formatting",
+  "label": "Net diagnostic formatting",
+  "baseline": "Frozen original C++ formatter and privacy lookup",
+  "chart_baseline": "Original C++ public functions",
+  "measurement": "Warm same-process public C++ API; includes Rust FFI, C++ string allocation/conversion/destruction; 20 randomized-order pairs per case; no I/O, startup, or whole-browser work LoadFlagsToString and its reference cross matched component DLL boundaries. The original non-exported PrivacyModeToDebugString and frozen reference are compiled locally on both sides; its Rust FFI is included.",
+  "chart_scope": "Isolated diagnostic formatting operations; not end-to-end Chromium performance",
+  "groups": [
+    {
+      "id": "load-flag-formatting",
+      "title": "Load flag formatting",
+      "operation": "format",
+      "cases": [
+        {
+          "key": "normal",
+          "label": "Normal flags"
+        },
+        {
+          "key": "single",
+          "label": "Single flag"
+        },
+        {
+          "key": "combined-small",
+          "label": "Three combined flags"
+        },
+        {
+          "key": "combined-wide",
+          "label": "Mixed widely separated flags"
+        },
+        {
+          "key": "top-flag",
+          "label": "Highest defined flag"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "chart_scope": "Public C++ load-flag formatter + Rust allocation/copy/free; matched component DLL boundaries"
+    },
+    {
+      "id": "privacy-mode-lookup",
+      "title": "Privacy mode lookup",
+      "operation": "lookup",
+      "cases": [
+        {
+          "key": "disabled",
+          "label": "Disabled"
+        },
+        {
+          "key": "enabled",
+          "label": "Enabled"
+        },
+        {
+          "key": "no-client-certs",
+          "label": "Without client certificates"
+        },
+        {
+          "key": "partitioned",
+          "label": "Partitioned state allowed"
+        }
+      ],
+      "production_status": "integrated",
+      "include_in_average": true,
+      "chart_scope": "Non-exported C++ privacy wrapper compiled locally on both sides + production Rust static-string FFI"
+    }
+  ],
+  "production_status": "integrated",
+  "include_in_average": true,
+  "bridge": {
+    "present": true,
+    "included_in_timing": true,
+    "separately_measured": false,
+    "kind": "scalar C ABI",
+    "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+  },
+  "category": "Diagnostics"
+}

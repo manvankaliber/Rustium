@@ -1,0 +1,15 @@
+{
+  "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+  "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7",
+  "net/url_request/referrer_policy.cc": "bd27045305edcc710ec2d32519a1e09089e7053b90ea00d698b25d3d1e91b61d",
+  "net/url_request/referrer_policy.h": "74be6fecccec02a4ee22d4532ab405886013985f33cb7c7b4d49222031425df1",
+  "net/url_request/referrer_policy_differential.h": "7ca73bd7d9a435138a1a8cef4da722739290819fab59f8efccdb8e8caa8a1cad",
+  "net/url_request/referrer_policy_ffi.h": "a3eedfd089c98a035d95d7371ff3de80ecd4b9ccd77dfddffd03b49d4f5ad94f",
+  "net/url_request/referrer_policy_ffi.rs": "5d7ab45fea448103764deb0e85c6397ba8bdb6902640ba93d2f6d717f9787529",
+  "net/url_request/referrer_policy_fuzzer.cc": "f5ede30b0d283f3194515485d95e4ec1f25d24163ff785700f196aeb1a5d1a51",
+  "net/url_request/referrer_policy_parser.rs": "cbf8ed09ab16af96cf05a47b042b550087bbc709bb6f046a57f71e7a9704919c",
+  "net/url_request/referrer_policy_perftest.cc": "99672aef9d3deb4b8851ec4172d1ba4b12e8a40fa1819e72dda83b7b011f2767",
+  "net/url_request/referrer_policy_reference.cc": "de85c8cb7c10e31df0135de6af325752fafd707801f896d522ca9fefc36de225",
+  "net/url_request/referrer_policy_reference.h": "9c0e46319decadef7f0dbf04f8f49bb2b631ad38dd0c69df2949b0da18ad6369",
+  "net/url_request/referrer_policy_rust_unittest.cc": "3e9a6eb95f75a4a867c2ccb40c72e125defa0f0496c583da7710bff782ce705f"
+}

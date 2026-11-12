@@ -1,0 +1,1718 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-12",
+  "run": "wave1-final",
+  "label": "Integrated wave 1",
+  "validation_stage": "final",
+  "metadata": {
+    "module": "net-diagnostics-debug-formatting",
+    "source": "net-diagnostics-debug-formatting",
+    "label": "Net diagnostic formatting",
+    "baseline": "Frozen original C++ formatter and privacy lookup",
+    "chart_baseline": "Original C++ public functions",
+    "measurement": "Warm same-process public C++ API; includes Rust FFI, C++ string allocation/conversion/destruction; 20 randomized-order pairs per case; no I/O, startup, or whole-browser work LoadFlagsToString and its reference cross matched component DLL boundaries. The original non-exported PrivacyModeToDebugString and frozen reference are compiled locally on both sides; its Rust FFI is included.",
+    "chart_scope": "Isolated diagnostic formatting operations; not end-to-end Chromium performance",
+    "groups": [
+      {
+        "id": "load-flag-formatting",
+        "title": "Load flag formatting",
+        "operation": "format",
+        "cases": [
+          {
+            "key": "normal",
+            "label": "Normal flags"
+          },
+          {
+            "key": "single",
+            "label": "Single flag"
+          },
+          {
+            "key": "combined-small",
+            "label": "Three combined flags"
+          },
+          {
+            "key": "combined-wide",
+            "label": "Mixed widely separated flags"
+          },
+          {
+            "key": "top-flag",
+            "label": "Highest defined flag"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true,
+        "chart_scope": "Public C++ load-flag formatter + Rust allocation/copy/free; matched component DLL boundaries"
+      },
+      {
+        "id": "privacy-mode-lookup",
+        "title": "Privacy mode lookup",
+        "operation": "lookup",
+        "cases": [
+          {
+            "key": "disabled",
+            "label": "Disabled"
+          },
+          {
+            "key": "enabled",
+            "label": "Enabled"
+          },
+          {
+            "key": "no-client-certs",
+            "label": "Without client certificates"
+          },
+          {
+            "key": "partitioned",
+            "label": "Partitioned state allowed"
+          }
+        ],
+        "production_status": "integrated",
+        "include_in_average": true,
+        "chart_scope": "Non-exported C++ privacy wrapper compiled locally on both sides + production Rust static-string FFI"
+      }
+    ],
+    "production_status": "integrated",
+    "include_in_average": true,
+    "bridge": {
+      "present": true,
+      "included_in_timing": true,
+      "separately_measured": false,
+      "kind": "scalar C ABI",
+      "evidence": "Configured public API adapters and source hashes in this archived execution; no isolated bridge-cost measurement."
+    },
+    "category": "Diagnostics"
+  },
+  "execution": {
+    "exit_code": 0,
+    "elapsed_seconds": 59.262998499994865,
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\net_diagnostics_debug_formatting_perftests.exe"
+    ],
+    "executable_sha256": "e4f56e2732ec3b24ea78a1f8964fb1191e79c7652bc3717e8f2e330c43e66bca",
+    "module": "net-diagnostics-debug-formatting",
+    "cpu": 4,
+    "affinity_mask": 16,
+    "production_status": "integrated; acceptance validation recorded separately",
+    "started_utc": "2026-11-12T20:39:05.769752+00:00",
+    "completed_utc": "2026-11-12T20:40:05.032753+00:00",
+    "local_dll_sha256": {
+      "net.dll": "b47118bc5d15f2186daffd569dec940f2e3d27baf348ba1b993a3b05ac060fb9",
+      "net_net_diagnostics_debug_formatting_reference.dll": "e21f5abc560b9acc91fde17d3b389bef68e0d418623df06f76176ac5cc53b893",
+      "base.dll": "d241e0dd6ed27f01024a8f3b47856255ef3a2ecb62cac12113beb90882915d60",
+      "libc++.dll": "4d88aa2bc29f3f083903fd72842c2c8f6188d531c0aaa5338c5421a95bd1d4fc",
+      "vcruntime140.dll": "d1f4225df2cd877dbf130d5668a021dce3f94118455ff5ec952061c30afc9ce7",
+      "third_party_abseil-cpp_absl.dll": "0b3d5790cf7ec7a99fd1f7088d4768670a17e3373feedd91e94d9a2e50c42d4e",
+      "third_party_boringssl.dll": "82c6c3d701f80dc5b92f7170542d9a19f899329ce6be4949b16ac462e2c54568",
+      "third_party_perfetto_libperfetto.dll": "690d200ec3986a1efcb040def84753d036e87f52fbaa09a2ba1c0bc3353dfb32",
+      "third_party_zlib.dll": "67e180a2a1fe89278c6e4a13b7c0d492383fc68caa5382f92cabc917ff101f32",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_base.dll": "492fb9366f18c32906a37406be35cd512dd9e247678e5c90636773b56e4f07b5",
+      "base_allocator_partition_allocator_src_partition_alloc_allocator_core.dll": "1f210d13afcb3142ef2773ca81b39558ee5c3c0c358ee79597cae0f664cf98d9",
+      "vcruntime140_1.dll": "a7146c08f89fe5b04541ab507cdb59ff7b44534d4ba3c668a426c6450a03434e",
+      "dbghelp.dll": "2d2ec94891162a61d86789133623b47d64d74c15d6be99473b25ad7a6468cf39",
+      "net_third_party_quiche.dll": "55d57cdebffbb9bd05c73e848a11dc98c7e6369f1c9f6977cf91132a74116883",
+      "components_unexportable_keys.dll": "26f9efe75b8b97532c777ec7b2772b9729bda2ced69dd7aa901eb0d1f36cd05e",
+      "sql.dll": "485f5beae9408cb0b5b6c8a6e52b0c5458912d0deea7127d0fb120c0acc36bba",
+      "components_performance_manager_scenario_api.dll": "af0c63ff96e51bea637af05b736a6228d569ad6f1f54b61b4be85c665c52a408",
+      "components_sqlite_vfs.dll": "c10c622d9266e19150780148185801dd3a0914af48b788ba0b028c66ea35d197",
+      "third_party_protobuf_protobuf_full_and_lite_library.dll": "afe2106912c58ed9469721d1469a1b3c0e5f69ad96f9983e474c478d6f7a919e",
+      "crcrypto.dll": "35a83714f10e80a76f35968f7783fe2828e6f3e2c5c0413c12623eb79a6ce3fd",
+      "url_lib.dll": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+      "base_i18n.dll": "a7c34e4321a00271874e418a808025ddb3087a2872b39edba4cbfa807309fbd4",
+      "icuuc.dll": "e44064788d76eb7ef3288088aaf3fc68041d29e67ad8a2df833d48f5cfbb9b87",
+      "net_third_party_uri_template.dll": "2192781c9cc1958d8d1a64b89730a0d3c2f3fa8d1477e3fe67f4109ed837978d",
+      "components_sqlite_vfs_pending_file_set.dll": "2923cc24a989d7ada791225498e8a901e69220bbd15c5b55d0ef54203cf11013",
+      "language_tag.dll": "b5cd7d5e6ed0cb8d672626068d42e2fcf14589ac1ff0d545d0f742339297aaae",
+      "third_party_icu_icui18n.dll": "2d12c80045d0dd18b8f682146a7812fef498558c7c5bc19ac266a28bf87f31f4",
+      "base_i18n_internal.dll": "742575057b0ca84ce5aa429b530fc182fbf553c4671eade1cacf67a204df7692",
+      "third_party_sqlite_chromium_sqlite3.dll": "931861a83054dbd2e8f3309d3404b50744198c9b9b47d591326424b39b251bd1"
+    },
+    "system_dll_imports": [
+      "advapi32.dll",
+      "api-ms-win-core-com-l1-1-0.dll",
+      "api-ms-win-core-debug-l1-1-0.dll",
+      "api-ms-win-core-delayload-l1-1-0.dll",
+      "api-ms-win-core-errorhandling-l1-1-0.dll",
+      "api-ms-win-core-file-l1-1-0.dll",
+      "api-ms-win-core-handle-l1-1-0.dll",
+      "api-ms-win-core-heap-l1-1-0.dll",
+      "api-ms-win-core-interlocked-l1-1-0.dll",
+      "api-ms-win-core-io-l1-1-0.dll",
+      "api-ms-win-core-kernel32-legacy-l1-1-0.dll",
+      "api-ms-win-core-libraryloader-l1-1-0.dll",
+      "api-ms-win-core-localization-l1-1-0.dll",
+      "api-ms-win-core-localregistry-l1-1-0.dll",
+      "api-ms-win-core-memory-l1-1-0.dll",
+      "api-ms-win-core-misc-l1-1-0.dll",
+      "api-ms-win-core-processenvironment-l1-1-0.dll",
+      "api-ms-win-core-processthreads-l1-1-0.dll",
+      "api-ms-win-core-profile-l1-1-0.dll",
+      "api-ms-win-core-realtime-l1-1-1.dll",
+      "api-ms-win-core-rtlsupport-l1-1-0.dll",
+      "api-ms-win-core-string-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-1-0.dll",
+      "api-ms-win-core-synch-l1-2-0.dll",
+      "api-ms-win-core-sysinfo-l1-1-0.dll",
+      "api-ms-win-core-sysinfo-l1-2-0.dll",
+      "api-ms-win-core-threadpool-l1-1-0.dll",
+      "api-ms-win-core-util-l1-1-0.dll",
+      "api-ms-win-core-winrt-l1-1-0.dll",
+      "api-ms-win-core-winrt-string-l1-1-0.dll",
+      "api-ms-win-crt-convert-l1-1-0.dll",
+      "api-ms-win-crt-environment-l1-1-0.dll",
+      "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "api-ms-win-crt-heap-l1-1-0.dll",
+      "api-ms-win-crt-locale-l1-1-0.dll",
+      "api-ms-win-crt-math-l1-1-0.dll",
+      "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "api-ms-win-crt-private-l1-1-0.dll",
+      "api-ms-win-crt-runtime-l1-1-0.dll",
+      "api-ms-win-crt-stdio-l1-1-0.dll",
+      "api-ms-win-crt-string-l1-1-0.dll",
+      "api-ms-win-crt-time-l1-1-0.dll",
+      "api-ms-win-crt-utility-l1-1-0.dll",
+      "api-ms-win-eventing-provider-l1-1-0.dll",
+      "api-ms-win-power-base-l1-1-0.dll",
+      "api-ms-win-security-base-l1-1-0.dll",
+      "api-ms-win-shcore-scaling-l1-1-1.dll",
+      "bcrypt.dll",
+      "bcryptprimitives.dll",
+      "cfgmgr32.dll",
+      "crypt32.dll",
+      "dhcpcsvc.dll",
+      "gdi32.dll",
+      "iphlpapi.dll",
+      "kernel32.dll",
+      "ncrypt.dll",
+      "ntdll.dll",
+      "ole32.dll",
+      "oleaut32.dll",
+      "pdh.dll",
+      "propsys.dll",
+      "rpcrt4.dll",
+      "secur32.dll",
+      "setupapi.dll",
+      "shell32.dll",
+      "shlwapi.dll",
+      "tbs.dll",
+      "urlmon.dll",
+      "user32.dll",
+      "userenv.dll",
+      "version.dll",
+      "winhttp.dll",
+      "winmm.dll",
+      "wintrust.dll",
+      "ws2_32.dll"
+    ],
+    "dependency_inspector": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\dumpbin.exe",
+    "environment": {
+      "platform": "Windows-11-10.0.26300-SP0",
+      "processor": "AMD64 Family 23 Model 8 Stepping 2, AuthenticAMD",
+      "logical_cpus": 16
+    },
+    "uncontrolled": [
+      "power/thermal state",
+      "other system processes"
+    ],
+    "stderr": "",
+    "configured_flags": {
+      "net_diagnostics_debug_formatting_perftests": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "net_diagnostics_debug_formatting_reference": {
+        "defines": "-DIS_NET_DIAGNOSTICS_REFERENCE_IMPL -D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern /O2 /clang$:-O2 /Oy- /Zc$:inline /Gw -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      },
+      "net_diagnostics_debug_formatting_rust": {
+        "rustflags": "--edition=2024 -Dwarnings -Cdefault-linker-libraries -Zdep-info-omit-d-target -Zmacro-backtrace -Zremap-cwd-prefix=. -Zexternal-clangrt --target=x86_64-pc-windows-msvc -Cembed-bitcode=no -Clto=no -Cpanic=abort -Zpanic_abort_tests --cfg \"cr_rustc_revision=\\\"1101096a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-24-17044-gc3223914\\\"\" -Copt-level=3 -Zallow-features= -Cdebug-assertions -Ccontrol-flow-guard --sysroot=local_rustc_sysroot"
+      },
+      "net": {
+        "defines": "-D_HAS_NODISCARD -D_CRT_NONSTDC_NO_WARNINGS -D_WINSOCK_DEPRECATED_NO_WARNINGS \"-DCR_CLANG_REVISION=\\\"llvmorg-24-init-17044-gc3223914-1\\\"\" -DCOMPONENT_BUILD -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_EXTENSIVE -D_LIBCPP_INSTRUMENTED_WITH_ASAN=0 -DCR_LIBCXX_REVISION=def01bd012f56d2fd8f5e2dc75dc28a846ab9cdb -D__STD_C -D_CRT_RAND_S -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE -D_ATL_NO_OPENGL -D_WINDOWS -DCERT_CHAIN_PARA_HAS_EXTRA_FIELDS -DPSAPI_VERSION=2 -DWIN32 -D_SECURE_ATL -DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP -DDCHECK_ALWAYS_ON=1 -DUSE_AURA=1 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_UNICODE -DUNICODE -DNTDDI_VERSION=NTDDI_WIN11_BR -D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00 -DWINCRYPT_USE_SYMBOL_PREFIX -DNDEBUG -DNVALGRIND -DDYNAMIC_ANNOTATIONS_ENABLED=0 -DABSL_CONSUME_DLL -DABSL_FLAGS_STRIP_NAMES=0 -DBORINGSSL_SHARED_LIBRARY -DPROTOBUF_MESSAGE_GLOBALS_TEMPORARY_OPTOUT -DGOOGLE_PROTOBUF_NO_RTTI -DPROTOBUF_INTERNAL_BOUNDS_CHECK_MODE_ABORT -DPROTOBUF_USE_DLLS -DNET_IMPLEMENTATION -DENABLE_BUILT_IN_DNS -DU_USING_ICU_NAMESPACE=0 -DU_ENABLE_DYLOAD=0 -DUSE_CHROMIUM_ICU=1 -DU_ENABLE_TRACING=1 -DU_ENABLE_RESOURCE_TRACING=0 -DICU_UTIL_DATA_IMPL=ICU_UTIL_DATA_FILE -DUSE_LIBCXX_MODULES",
+        "cflags": "/W4 -Wimplicit-fallthrough -Wextra-semi -Wunreachable-code-aggressive -Wgnu -Wno-gnu-anonymous-struct -Wno-gnu-conditional-omitted-operand -Wno-gnu-include-next -Wno-gnu-label-as-value -Wno-gnu-redeclared-enum -Wno-gnu-statement-expression -Wno-gnu-zero-variadic-macro-arguments -Wno-zero-length-array -Wthread-safety -Wno-unused-template -Wno-missing-field-initializers -Wno-unused-parameter -Wno-psabi -Wno-stringop-overread -Wloop-analysis -Wno-unneeded-internal-declaration -Wno-cast-function-type -Wno-thread-safety-reference-return -Wno-nontrivial-memcall -Wno-uninitialized-const-pointer -Wno-unused-but-set-global -Wno-nonportable-include-path -Wexit-time-destructors -Wshadow /WX -fno-delete-null-pointer-checks /clang$:-fno-strict-overflow -fno-ident /clang$:-fno-math-errno -fcolor-diagnostics /clang$:-fdiagnostics-show-inlining-chain -fmerge-all-constants -fcrash-diagnostics-dir=../clang-crashreports -fno-lifetime-dse -mllvm -instcombine-lower-dbg-declare=0 -mllvm -split-threshold-for-reg-with-hint=0 /clang$:-ffp-contract=off -fcomplete-member-pointers /Gy /FS /bigobj /utf-8 /Zc$:twoPhase -ffile-reproducible /D__WRL_ENABLE_FUNCTION_STATICS__ -fmsc-version=1934 /Zc$:dllexportInlines- -m64 -msse3 /Brepro -Wno-builtin-macro-redefined -D__DATE__= -D__TIME__= -D__TIMESTAMP__= -ffile-compilation-dir=. -no-canonical-prefixes -Xclang -fmodule-file-home-is-cwd -Xclang -fmodules-cache-path=/not_exist_dummy_dir --warning-suppression-mappings=../../build/config/warning_suppression.txt -ftrivial-auto-var-init=pattern -fsanitize=array-bounds -fsanitize-trap=array-bounds -fsanitize-ignore-for-ubsan-feature=array-bounds -Wno-unsafe-buffer-usage-in-static-sized-array -fsanitize=return -fsanitize-trap=return -fsanitize-ignore-for-ubsan-feature=return -fsanitize=unreachable -fsanitize-trap=unreachable -fsanitize-ignore-for-ubsan-feature=unreachable /guard$:cf /MD -Wheader-hygiene -Wstring-conversion -Wtautological-overlap-compare -Xclang -add-plugin -Xclang find-bad-constructs -Xclang -plugin-arg-find-bad-constructs -Xclang check-stack-allocated -Xclang -plugin-arg-find-bad-constructs -Xclang relax-ctor-checks-for-aggregates -Xclang -add-plugin -Xclang raw-ptr-plugin -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-to-stack-allocated -Xclang -plugin-arg-raw-ptr-plugin -Xclang disable-check-raw-ptr-to-stack-allocated-error -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../third_party/dawn/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang raw-ptr-exclude-path=../../build/config/clang/chrome/test/fuzzing/webidl_fuzzing/ -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-span-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ref-fields -Xclang -plugin-arg-raw-ptr-plugin -Xclang config-path=../../build/config/raw_ptr_plugin_config.yaml -Xclang -plugin-arg-raw-ptr-plugin -Xclang no-special-treatment-for-oilpanized-paths -Xclang -plugin-arg-raw-ptr-plugin -Xclang check-raw-ptr-in-blink -DUNSAFE_BUFFERS_BUILD -Wunsafe-buffer-usage -Wno-error=unsafe-buffer-usage -Wno-unsafe-buffer-usage-main-argv -Xclang -add-plugin -Xclang unsafe-buffers -Xclang -plugin-arg-unsafe-buffers -Xclang ../../build/config/unsafe_buffers_paths.txt /O2 /Oy- /Zc$:inline /Gw",
+        "cflags_cc": "-Wno-invalid-offsetof -Wenum-compare-conditional -Wno-nullability-completeness -Wunique-object-duplication /std$:c++23preview -Wno-trigraphs /GR- -I../../third_party/libc++/src/include -fmodules /clang$:-fno-implicit-module-maps -fno-implicit-modules -Xclang -fmodules-local-submodule-visibility -Wno-modules-ambiguous-internal-linkage -Wno-modules-import-nested-redundant -Xclang -fmodules-disable-diagnostic-validation -Wno-module-import-in-extern-c"
+      }
+    },
+    "build_clean_check": {
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "D:\\RustiumBuild\\src\\out\\Default",
+        "-n",
+        "net_diagnostics_debug_formatting_perftests"
+      ],
+      "output": "ninja: Entering directory `D:\\RustiumBuild\\src\\out\\Default'\nninja: no work to do."
+    },
+    "rust_version": "rustc 1.101.0-nightly (41b321963 2026-10-29) (96a18bf5ffa2b24f9cf3d1c731a9eb121c1acad9-4-llvmorg-24-init-17044-gc3223914 chromium)",
+    "clang_version": "clang version 24.0.0git (https://chromium.googlesource.com/a/external/github.com/llvm/llvm-project c3223914b50811fb3be915840f06456acb83d096)\nTarget: x86_64-pc-windows-msvc\nThread model: posix\nInstalledDir: D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\nBuild config: +alloc:rpmalloc",
+    "raw_report_sha256": "6945b14b3a3098ee5261c89453cd35dd0e08f7f7a985c89808a0b1c5b8205ee7",
+    "source_hashes_file_sha256": "1bad190fb5287b381350109330e416582de35091af20ea7b7f3bee0508ac804f"
+  },
+  "source_sha256": {
+    "net/base/BUILD.gn": "7f07a2bc6717d895fea7b2cd3d7d4fa3d53defe835390ebf13933a5d18cd3cf7",
+    "net/base/load_flags.h": "21f20af6d574da000fc434de808bf61758c0c3a48e15de684029aae5bde951b1",
+    "net/base/load_flags_list.h": "5477547c6fc671ed55487d1e2fc84f7ddb99cef9c747b2b259d5627217660208",
+    "net/base/load_flags_to_string.cc": "6bcfe17d547faf86466c28e07cad1f1999e5e529335dd7791575aa51b9fb72b8",
+    "net/base/load_flags_to_string.h": "1c885c588e8408aa6618cb2fb46111f5ca7909571c942ec45d46a3fe8464403e",
+    "net/base/load_flags_to_string_unittest.cc": "9580ab1f41b0106099cb847b6a86c928cf4ccc283ed12944e19a9c2ae2ff512b",
+    "net/base/net_diagnostics_debug_formatting_core.rs": "07f895811d8ac33d4eb1456744ae53a91619bf8a74d7f43f66af4a75d4b8079b",
+    "net/base/net_diagnostics_debug_formatting_ffi.h": "a47ac600aae61086f4774aaa3a01d1bd78cf8b9f34caf546971d7e7ebf07729b",
+    "net/base/net_diagnostics_debug_formatting_ffi.rs": "789f123332db6e4c83c36d1886019928b4b1c14467e46505c95fafa80cae442d",
+    "net/base/net_diagnostics_debug_formatting_fuzzer.cc": "44a0d18695cce301d7e8977163d93864df8474258b7b816691d81b00e42ac248",
+    "net/base/net_diagnostics_debug_formatting_perftest.cc": "81d8a866b2ae5f77162d7513db93039f571b27b1e83d4bb665f463158a74b90a",
+    "net/base/net_diagnostics_debug_formatting_unittest.cc": "eda55fcad594811886db515dc4873b685cf78b7586a8e93077b3197667c57577",
+    "net/base/net_diagnostics_generate.py": "2eb351a7cf6500b5e557300679dd58f83af1660ebcd0914dc9b174476872bcff",
+    "net/base/net_diagnostics_load_flags_generated.rs": "4fc259a76f08fb1e609940eed26b6f7271e6e8e25b9cb09028c6efd67ef499db",
+    "net/base/net_diagnostics_load_flags_reference.cc": "ed7637f4d9506b117c069998b6a88e8f468917f5b5e32eb6e673ce36418bacc7",
+    "net/base/net_diagnostics_load_flags_reference.h": "1c859e8bb572e7c09967a3805d9dc1733272be852df5d169c0b0e530a39340dc",
+    "net/base/net_diagnostics_load_flags_reference_list.h": "5477547c6fc671ed55487d1e2fc84f7ddb99cef9c747b2b259d5627217660208",
+    "net/base/net_diagnostics_privacy_mode_reference.cc": "0197aa1abbce075b79937c2290f6b1369963b7e97fd1434295ee3d9776190335",
+    "net/base/net_diagnostics_privacy_mode_reference.h": "0f20fb32b996894555fd9bcd0b11c1232918ac69f50d7ce152ae17e31239f110",
+    "net/base/privacy_mode.cc": "7a6425c94516a9d78620ff728f4b0d90d8ba2b8a92739304027be1b986b63b35",
+    "net/base/privacy_mode.h": "e225686c47cd06e8c4955c59faed7527a0e79dbb36cb1c5170c297c945e0a283",
+    "net/BUILD.gn": "32a351f9d3647ffe2a4767672f15f01c99d984a8fbe676c45aca6ac068c9d8a7"
+  },
+  "raw_report_sha256": "6945b14b3a3098ee5261c89453cd35dd0e08f7f7a985c89808a0b1c5b8205ee7",
+  "statistics": {
+    "estimator": "ratio of paired-run medians",
+    "interval": "95% paired percentile bootstrap; 5000 resamples",
+    "seed": 20261112,
+    "discarded_samples": 0
+  },
+  "cases": [
+    {
+      "key": "normal",
+      "label": "Normal flags",
+      "run": "wave1-final",
+      "baseline_median_ns": 70.20105000000001,
+      "rust_median_ns": 232.0804,
+      "change_percent": 230.59391561807118,
+      "bootstrap_95_ci_percent": [
+        227.90749897314254,
+        232.13306611172632
+      ],
+      "absolute_time_change_ns": 161.87935,
+      "bootstrap_90_ci_time_change_ns": [
+        160.39049999999997,
+        162.8635
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "single",
+      "label": "Single flag",
+      "run": "wave1-final",
+      "baseline_median_ns": 191.0124,
+      "rust_median_ns": 368.4598,
+      "change_percent": 92.89836680759991,
+      "bootstrap_95_ci_percent": [
+        91.33330092713099,
+        94.12235955748145
+      ],
+      "absolute_time_change_ns": 177.44739999999996,
+      "bootstrap_90_ci_time_change_ns": [
+        174.98295000000002,
+        179.1719
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "combined-small",
+      "label": "Three combined flags",
+      "run": "wave1-final",
+      "baseline_median_ns": 337.19945,
+      "rust_median_ns": 365.6324,
+      "change_percent": 8.43208670714024,
+      "bootstrap_95_ci_percent": [
+        7.9392904581165435,
+        9.280282247127737
+      ],
+      "absolute_time_change_ns": 28.432950000000005,
+      "bootstrap_90_ci_time_change_ns": [
+        27.046699999999987,
+        30.5942
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "combined-wide",
+      "label": "Mixed widely separated flags",
+      "run": "wave1-final",
+      "baseline_median_ns": 333.25165,
+      "rust_median_ns": 375.5702,
+      "change_percent": 12.698676810752474,
+      "bootstrap_95_ci_percent": [
+        12.411746351723396,
+        13.104256007816307
+      ],
+      "absolute_time_change_ns": 42.318550000000016,
+      "bootstrap_90_ci_time_change_ns": [
+        41.58679999999998,
+        43.35790000000003
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "top-flag",
+      "label": "Highest defined flag",
+      "run": "wave1-final",
+      "baseline_median_ns": 294.64635,
+      "rust_median_ns": 365.5303,
+      "change_percent": 24.057297841972257,
+      "bootstrap_95_ci_percent": [
+        23.805633265621438,
+        24.30608411790558
+      ],
+      "absolute_time_change_ns": 70.88395000000003,
+      "bootstrap_90_ci_time_change_ns": [
+        70.3048,
+        71.45214999999996
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "disabled",
+      "label": "Disabled",
+      "run": "wave1-final",
+      "baseline_median_ns": 2.13025,
+      "rust_median_ns": 2.73365,
+      "change_percent": 28.325313930289852,
+      "bootstrap_95_ci_percent": [
+        27.68858846171902,
+        28.655259019317892
+      ],
+      "absolute_time_change_ns": 0.6033999999999997,
+      "bootstrap_90_ci_time_change_ns": [
+        0.5929000000000002,
+        0.6095999999999999
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "enabled",
+      "label": "Enabled",
+      "run": "wave1-final",
+      "baseline_median_ns": 2.11945,
+      "rust_median_ns": 2.72385,
+      "change_percent": 28.51683219703225,
+      "bootstrap_95_ci_percent": [
+        27.714855199906218,
+        28.795663445675235
+      ],
+      "absolute_time_change_ns": 0.6044,
+      "bootstrap_90_ci_time_change_ns": [
+        0.5925500000000001,
+        0.6072000000000002
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "no-client-certs",
+      "label": "Without client certificates",
+      "run": "wave1-final",
+      "baseline_median_ns": 2.1196,
+      "rust_median_ns": 2.7239500000000003,
+      "change_percent": 28.512455180222695,
+      "bootstrap_95_ci_percent": [
+        28.14710374809073,
+        28.67730362537766
+      ],
+      "absolute_time_change_ns": 0.6043500000000002,
+      "bootstrap_90_ci_time_change_ns": [
+        0.6001499999999997,
+        0.6068000000000002
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    },
+    {
+      "key": "partitioned",
+      "label": "Partitioned state allowed",
+      "run": "wave1-final",
+      "baseline_median_ns": 2.1321,
+      "rust_median_ns": 2.7405,
+      "change_percent": 28.535246939636984,
+      "bootstrap_95_ci_percent": [
+        28.356251024854174,
+        28.657892884791302
+      ],
+      "absolute_time_change_ns": 0.6084,
+      "bootstrap_90_ci_time_change_ns": [
+        0.60595,
+        0.6104499999999997
+      ],
+      "paired_repetitions": 20,
+      "workload": {}
+    }
+  ],
+  "samples": [
+    {
+      "case": "normal",
+      "repeat": 0,
+      "baseline_ns": 70.5478,
+      "rust_ns": 234.9056,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 1,
+      "baseline_ns": 70.0768,
+      "rust_ns": 235.3152,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 2,
+      "baseline_ns": 69.6409,
+      "rust_ns": 229.9499,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 3,
+      "baseline_ns": 70.1132,
+      "rust_ns": 230.3369,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 4,
+      "baseline_ns": 70.3603,
+      "rust_ns": 230.4185,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 5,
+      "baseline_ns": 70.0015,
+      "rust_ns": 228.8529,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 6,
+      "baseline_ns": 70.078,
+      "rust_ns": 232.5711,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 7,
+      "baseline_ns": 69.3431,
+      "rust_ns": 229.0939,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 8,
+      "baseline_ns": 69.1067,
+      "rust_ns": 231.8301,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 9,
+      "baseline_ns": 71.8032,
+      "rust_ns": 228.9144,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 10,
+      "baseline_ns": 70.3805,
+      "rust_ns": 233.415,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 11,
+      "baseline_ns": 70.2538,
+      "rust_ns": 232.3307,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 12,
+      "baseline_ns": 70.6067,
+      "rust_ns": 231.2545,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 13,
+      "baseline_ns": 69.7873,
+      "rust_ns": 232.5921,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 14,
+      "baseline_ns": 70.5215,
+      "rust_ns": 230.9655,
+      "rust_first": true
+    },
+    {
+      "case": "normal",
+      "repeat": 15,
+      "baseline_ns": 69.87,
+      "rust_ns": 230.4679,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 16,
+      "baseline_ns": 70.1483,
+      "rust_ns": 234.7216,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 17,
+      "baseline_ns": 70.4957,
+      "rust_ns": 233.3964,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 18,
+      "baseline_ns": 70.6751,
+      "rust_ns": 234.6481,
+      "rust_first": false
+    },
+    {
+      "case": "normal",
+      "repeat": 19,
+      "baseline_ns": 72.2241,
+      "rust_ns": 233.3361,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 0,
+      "baseline_ns": 190.4517,
+      "rust_ns": 373.219,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 1,
+      "baseline_ns": 191.3214,
+      "rust_ns": 363.3467,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 2,
+      "baseline_ns": 190.5099,
+      "rust_ns": 375.0468,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 3,
+      "baseline_ns": 191.0786,
+      "rust_ns": 400.0146,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 4,
+      "baseline_ns": 189.2289,
+      "rust_ns": 368.0961,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 5,
+      "baseline_ns": 194.5925,
+      "rust_ns": 370.3743,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 6,
+      "baseline_ns": 190.9462,
+      "rust_ns": 363.0104,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 7,
+      "baseline_ns": 189.5134,
+      "rust_ns": 365.6336,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 8,
+      "baseline_ns": 189.8366,
+      "rust_ns": 363.4004,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 9,
+      "baseline_ns": 191.2024,
+      "rust_ns": 368.2166,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 10,
+      "baseline_ns": 191.4719,
+      "rust_ns": 379.2271,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 11,
+      "baseline_ns": 189.8209,
+      "rust_ns": 368.703,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 12,
+      "baseline_ns": 190.8558,
+      "rust_ns": 369.4354,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 13,
+      "baseline_ns": 191.7109,
+      "rust_ns": 369.5009,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 14,
+      "baseline_ns": 189.3945,
+      "rust_ns": 360.4361,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 15,
+      "baseline_ns": 191.3248,
+      "rust_ns": 363.094,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 16,
+      "baseline_ns": 191.7267,
+      "rust_ns": 377.9836,
+      "rust_first": true
+    },
+    {
+      "case": "single",
+      "repeat": 17,
+      "baseline_ns": 192.3124,
+      "rust_ns": 370.7324,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 18,
+      "baseline_ns": 192.2,
+      "rust_ns": 366.4895,
+      "rust_first": false
+    },
+    {
+      "case": "single",
+      "repeat": 19,
+      "baseline_ns": 189.7677,
+      "rust_ns": 365.1922,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 0,
+      "baseline_ns": 330.8551,
+      "rust_ns": 359.0303,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 1,
+      "baseline_ns": 336.9436,
+      "rust_ns": 376.7548,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 2,
+      "baseline_ns": 338.0867,
+      "rust_ns": 407.5352,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 3,
+      "baseline_ns": 343.6727,
+      "rust_ns": 369.4621,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 4,
+      "baseline_ns": 337.4553,
+      "rust_ns": 369.5494,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 5,
+      "baseline_ns": 336.6873,
+      "rust_ns": 366.2797,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 6,
+      "baseline_ns": 335.4259,
+      "rust_ns": 364.4439,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 7,
+      "baseline_ns": 329.7711,
+      "rust_ns": 359.2347,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 8,
+      "baseline_ns": 336.3452,
+      "rust_ns": 365.6333,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 9,
+      "baseline_ns": 336.035,
+      "rust_ns": 372.5321,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 10,
+      "baseline_ns": 347.8312,
+      "rust_ns": 372.1352,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 11,
+      "baseline_ns": 339.1682,
+      "rust_ns": 368.3868,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 12,
+      "baseline_ns": 357.7393,
+      "rust_ns": 365.6315,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 13,
+      "baseline_ns": 339.3067,
+      "rust_ns": 366.1609,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 14,
+      "baseline_ns": 338.1299,
+      "rust_ns": 364.9517,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 15,
+      "baseline_ns": 335.6413,
+      "rust_ns": 364.4431,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 16,
+      "baseline_ns": 336.3347,
+      "rust_ns": 362.3296,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 17,
+      "baseline_ns": 335.4047,
+      "rust_ns": 364.5728,
+      "rust_first": true
+    },
+    {
+      "case": "combined-small",
+      "repeat": 18,
+      "baseline_ns": 337.7373,
+      "rust_ns": 364.784,
+      "rust_first": false
+    },
+    {
+      "case": "combined-small",
+      "repeat": 19,
+      "baseline_ns": 351.9764,
+      "rust_ns": 364.6623,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 0,
+      "baseline_ns": 331.2351,
+      "rust_ns": 378.4048,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 1,
+      "baseline_ns": 332.3339,
+      "rust_ns": 372.5462,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 2,
+      "baseline_ns": 332.7591,
+      "rust_ns": 375.6337,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 3,
+      "baseline_ns": 333.8108,
+      "rust_ns": 374.6631,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 4,
+      "baseline_ns": 332.1124,
+      "rust_ns": 374.5244,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 5,
+      "baseline_ns": 337.5035,
+      "rust_ns": 376.8471,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 6,
+      "baseline_ns": 331.7492,
+      "rust_ns": 376.6186,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 7,
+      "baseline_ns": 332.5247,
+      "rust_ns": 375.0491,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 8,
+      "baseline_ns": 333.1984,
+      "rust_ns": 375.5067,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 9,
+      "baseline_ns": 333.3049,
+      "rust_ns": 376.1532,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 10,
+      "baseline_ns": 340.4209,
+      "rust_ns": 376.0246,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 11,
+      "baseline_ns": 333.9522,
+      "rust_ns": 375.4015,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 12,
+      "baseline_ns": 333.8911,
+      "rust_ns": 376.3659,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 13,
+      "baseline_ns": 331.27,
+      "rust_ns": 378.2656,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 14,
+      "baseline_ns": 332.3425,
+      "rust_ns": 374.0801,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 15,
+      "baseline_ns": 332.2562,
+      "rust_ns": 373.6511,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 16,
+      "baseline_ns": 335.2282,
+      "rust_ns": 381.2946,
+      "rust_first": true
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 17,
+      "baseline_ns": 336.6224,
+      "rust_ns": 375.8399,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 18,
+      "baseline_ns": 333.9546,
+      "rust_ns": 374.4621,
+      "rust_first": false
+    },
+    {
+      "case": "combined-wide",
+      "repeat": 19,
+      "baseline_ns": 333.4245,
+      "rust_ns": 374.9735,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 0,
+      "baseline_ns": 294.3033,
+      "rust_ns": 362.9549,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 1,
+      "baseline_ns": 297.4152,
+      "rust_ns": 361.0334,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 2,
+      "baseline_ns": 294.183,
+      "rust_ns": 372.0138,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 3,
+      "baseline_ns": 287.7494,
+      "rust_ns": 361.2366,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 4,
+      "baseline_ns": 294.7452,
+      "rust_ns": 364.9835,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 5,
+      "baseline_ns": 295.5239,
+      "rust_ns": 369.1016,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 6,
+      "baseline_ns": 294.9317,
+      "rust_ns": 374.6687,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 7,
+      "baseline_ns": 294.3189,
+      "rust_ns": 364.8539,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 8,
+      "baseline_ns": 294.2067,
+      "rust_ns": 366.5362,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 9,
+      "baseline_ns": 294.7083,
+      "rust_ns": 365.7884,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 10,
+      "baseline_ns": 292.338,
+      "rust_ns": 364.2832,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 11,
+      "baseline_ns": 295.2213,
+      "rust_ns": 365.5006,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 12,
+      "baseline_ns": 294.4593,
+      "rust_ns": 366.1077,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 13,
+      "baseline_ns": 294.6418,
+      "rust_ns": 362.6432,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 14,
+      "baseline_ns": 294.6509,
+      "rust_ns": 365.1889,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 15,
+      "baseline_ns": 295.6717,
+      "rust_ns": 366.1789,
+      "rust_first": false
+    },
+    {
+      "case": "top-flag",
+      "repeat": 16,
+      "baseline_ns": 293.1357,
+      "rust_ns": 365.56,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 17,
+      "baseline_ns": 297.3429,
+      "rust_ns": 365.0796,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 18,
+      "baseline_ns": 295.2954,
+      "rust_ns": 366.6447,
+      "rust_first": true
+    },
+    {
+      "case": "top-flag",
+      "repeat": 19,
+      "baseline_ns": 294.5481,
+      "rust_ns": 365.8839,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 0,
+      "baseline_ns": 2.2282,
+      "rust_ns": 2.7172,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 1,
+      "baseline_ns": 2.2192,
+      "rust_ns": 2.7277,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 2,
+      "baseline_ns": 2.1174,
+      "rust_ns": 2.357,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 3,
+      "baseline_ns": 2.1185,
+      "rust_ns": 2.7234,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 4,
+      "baseline_ns": 2.1216,
+      "rust_ns": 2.7266,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 5,
+      "baseline_ns": 2.1197,
+      "rust_ns": 2.7231,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 6,
+      "baseline_ns": 2.1187,
+      "rust_ns": 2.6716,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 7,
+      "baseline_ns": 2.1302,
+      "rust_ns": 2.372,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 8,
+      "baseline_ns": 2.1301,
+      "rust_ns": 2.7605,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 9,
+      "baseline_ns": 2.1306,
+      "rust_ns": 2.763,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 10,
+      "baseline_ns": 2.1303,
+      "rust_ns": 2.7396,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 11,
+      "baseline_ns": 2.1298,
+      "rust_ns": 2.5669,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 12,
+      "baseline_ns": 2.1309,
+      "rust_ns": 2.7471,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 13,
+      "baseline_ns": 2.1303,
+      "rust_ns": 2.7397,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 14,
+      "baseline_ns": 2.1326,
+      "rust_ns": 2.6862,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 15,
+      "baseline_ns": 2.1316,
+      "rust_ns": 2.7618,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 16,
+      "baseline_ns": 2.1301,
+      "rust_ns": 2.7414,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 17,
+      "baseline_ns": 2.1303,
+      "rust_ns": 2.7397,
+      "rust_first": false
+    },
+    {
+      "case": "disabled",
+      "repeat": 18,
+      "baseline_ns": 2.1329,
+      "rust_ns": 2.7645,
+      "rust_first": true
+    },
+    {
+      "case": "disabled",
+      "repeat": 19,
+      "baseline_ns": 2.13,
+      "rust_ns": 2.7396,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 0,
+      "baseline_ns": 2.1332,
+      "rust_ns": 2.7397,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 1,
+      "baseline_ns": 2.1509,
+      "rust_ns": 2.4018,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 2,
+      "baseline_ns": 2.1313,
+      "rust_ns": 2.7397,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 3,
+      "baseline_ns": 2.13,
+      "rust_ns": 2.7415,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 4,
+      "baseline_ns": 3.2655,
+      "rust_ns": 2.8414,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 5,
+      "baseline_ns": 2.1157,
+      "rust_ns": 2.7434,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 6,
+      "baseline_ns": 2.1166,
+      "rust_ns": 2.7251,
+      "rust_first": false
+    },
+    {
+      "case": "enabled",
+      "repeat": 7,
+      "baseline_ns": 2.147,
+      "rust_ns": 2.5525,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 8,
+      "baseline_ns": 2.1181,
+      "rust_ns": 2.3581,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 9,
+      "baseline_ns": 2.118,
+      "rust_ns": 2.724,
+      "rust_first": false
+    },
+    {
+      "case": "enabled",
+      "repeat": 10,
+      "baseline_ns": 2.1662,
+      "rust_ns": 2.7227,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 11,
+      "baseline_ns": 2.1392,
+      "rust_ns": 2.7246,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 12,
+      "baseline_ns": 2.119,
+      "rust_ns": 2.7148,
+      "rust_first": false
+    },
+    {
+      "case": "enabled",
+      "repeat": 13,
+      "baseline_ns": 2.1215,
+      "rust_ns": 2.7237,
+      "rust_first": false
+    },
+    {
+      "case": "enabled",
+      "repeat": 14,
+      "baseline_ns": 2.1135,
+      "rust_ns": 2.7561,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 15,
+      "baseline_ns": 2.1135,
+      "rust_ns": 2.7237,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 16,
+      "baseline_ns": 2.1172,
+      "rust_ns": 2.7198,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 17,
+      "baseline_ns": 2.1199,
+      "rust_ns": 2.6014,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 18,
+      "baseline_ns": 2.1174,
+      "rust_ns": 2.7226,
+      "rust_first": true
+    },
+    {
+      "case": "enabled",
+      "repeat": 19,
+      "baseline_ns": 2.1169,
+      "rust_ns": 2.7243,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 0,
+      "baseline_ns": 2.1199,
+      "rust_ns": 2.4518,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 1,
+      "baseline_ns": 2.1177,
+      "rust_ns": 2.7229,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 2,
+      "baseline_ns": 2.1207,
+      "rust_ns": 2.7238,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 3,
+      "baseline_ns": 2.1439,
+      "rust_ns": 2.7295,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 4,
+      "baseline_ns": 2.1187,
+      "rust_ns": 2.7248,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 5,
+      "baseline_ns": 2.117,
+      "rust_ns": 2.7228,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 6,
+      "baseline_ns": 2.1423,
+      "rust_ns": 2.7277,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 7,
+      "baseline_ns": 2.1169,
+      "rust_ns": 2.7234,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 8,
+      "baseline_ns": 2.1092,
+      "rust_ns": 2.7241,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 9,
+      "baseline_ns": 2.1224,
+      "rust_ns": 2.7256,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 10,
+      "baseline_ns": 2.1244,
+      "rust_ns": 2.3598,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 11,
+      "baseline_ns": 2.1127,
+      "rust_ns": 2.727,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 12,
+      "baseline_ns": 2.1193,
+      "rust_ns": 2.7223,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 13,
+      "baseline_ns": 2.1137,
+      "rust_ns": 2.4357,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 14,
+      "baseline_ns": 2.1184,
+      "rust_ns": 2.7204,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 15,
+      "baseline_ns": 2.117,
+      "rust_ns": 2.7449,
+      "rust_first": false
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 16,
+      "baseline_ns": 2.1415,
+      "rust_ns": 2.7367,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 17,
+      "baseline_ns": 2.1331,
+      "rust_ns": 2.7232,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 18,
+      "baseline_ns": 2.1293,
+      "rust_ns": 2.7353,
+      "rust_first": true
+    },
+    {
+      "case": "no-client-certs",
+      "repeat": 19,
+      "baseline_ns": 2.1567,
+      "rust_ns": 2.7505,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 0,
+      "baseline_ns": 2.1323,
+      "rust_ns": 2.7401,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 1,
+      "baseline_ns": 2.134,
+      "rust_ns": 2.3791,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 2,
+      "baseline_ns": 2.1304,
+      "rust_ns": 2.784,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 3,
+      "baseline_ns": 2.1869,
+      "rust_ns": 2.3789,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 4,
+      "baseline_ns": 2.1311,
+      "rust_ns": 2.7415,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 5,
+      "baseline_ns": 2.1349,
+      "rust_ns": 2.7397,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 6,
+      "baseline_ns": 2.1315,
+      "rust_ns": 2.7747,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 7,
+      "baseline_ns": 2.1307,
+      "rust_ns": 2.7394,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 8,
+      "baseline_ns": 2.1312,
+      "rust_ns": 2.7424,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 9,
+      "baseline_ns": 2.1615,
+      "rust_ns": 2.7396,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 10,
+      "baseline_ns": 2.1302,
+      "rust_ns": 2.7396,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 11,
+      "baseline_ns": 2.1547,
+      "rust_ns": 2.7414,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 12,
+      "baseline_ns": 2.1332,
+      "rust_ns": 2.7682,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 13,
+      "baseline_ns": 2.1303,
+      "rust_ns": 2.7419,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 14,
+      "baseline_ns": 2.133,
+      "rust_ns": 2.7397,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 15,
+      "baseline_ns": 2.1311,
+      "rust_ns": 2.7409,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 16,
+      "baseline_ns": 2.1518,
+      "rust_ns": 2.7424,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 17,
+      "baseline_ns": 2.1296,
+      "rust_ns": 2.7567,
+      "rust_first": true
+    },
+    {
+      "case": "partitioned",
+      "repeat": 18,
+      "baseline_ns": 2.1319,
+      "rust_ns": 2.7394,
+      "rust_first": false
+    },
+    {
+      "case": "partitioned",
+      "repeat": 19,
+      "baseline_ns": 2.1725,
+      "rust_ns": 2.3715,
+      "rust_first": false
+    }
+  ],
+  "recorded_at": "2026-11-12T20:39:05.769752+00:00"
+}

@@ -1,0 +1,24 @@
+INFO: Running with entropic power schedule (0xFF, 100).
+INFO: Seed: 20261112
+INFO: Loaded 1 modules   (355 inline 8-bit counters): 355 [00007FF75DA7B7F0, 00007FF75DA7B953), 
+INFO: Loaded 1 PC tables (355 PCs): 355 [00007FF75DA67DB0,00007FF75DA693E0), 
+INFO:      534 files found in D:\Rustium\.scratch\mime-sniffer\corpus
+INFO: seed corpus: files: 534 min: 1B max: 1025B total: 26706B rss: 33MB
+#535	INITED cov: 234 ft: 586 corp: 182/3113B exec/s: 0 rss: 34MB
+#201391	REDUCE cov: 234 ft: 586 corp: 182/3112B lim: 2254 exec/s: 201391 rss: 35MB L: 29/257 MS: 1 EraseBytes-
+#262144	pulse  cov: 234 ft: 586 corp: 182/3112B lim: 2848 exec/s: 131072 rss: 35MB
+#351073	REDUCE cov: 234 ft: 586 corp: 182/3106B lim: 3739 exec/s: 117024 rss: 35MB L: 41/257 MS: 2 EraseBytes-CrossOver-
+#524288	pulse  cov: 234 ft: 586 corp: 182/3106B lim: 5458 exec/s: 131072 rss: 35MB
+#567094	REDUCE cov: 234 ft: 586 corp: 182/3105B lim: 5890 exec/s: 113418 rss: 35MB L: 17/257 MS: 1 EraseBytes-
+#597125	REDUCE cov: 234 ft: 586 corp: 182/3104B lim: 6178 exec/s: 119425 rss: 35MB L: 40/257 MS: 1 EraseBytes-
+#838912	REDUCE cov: 234 ft: 586 corp: 182/3103B lim: 8584 exec/s: 119844 rss: 35MB L: 28/257 MS: 1 EraseBytes-
+#841092	REDUCE cov: 234 ft: 586 corp: 182/3099B lim: 8597 exec/s: 120156 rss: 35MB L: 45/257 MS: 5 CopyPart-InsertByte-CopyPart-ShuffleBytes-EraseBytes-
+#853634	REDUCE cov: 234 ft: 586 corp: 182/3098B lim: 8714 exec/s: 121947 rss: 35MB L: 27/257 MS: 2 ChangeByte-EraseBytes-
+#934466	REDUCE cov: 234 ft: 586 corp: 182/3097B lim: 9507 exec/s: 116808 rss: 35MB L: 44/257 MS: 1 EraseBytes-
+#1000000	DONE   cov: 234 ft: 586 corp: 182/3097B lim: 10157 exec/s: 125000 rss: 35MB
+Done 1000000 runs in 8 second(s), 8 second(s) without new corpus
+stat::number_of_executed_units: 1000000
+stat::average_exec_per_sec:     125000
+stat::new_units_added:          8
+stat::slowest_unit_time_sec:    0
+stat::peak_rss_mb:              35

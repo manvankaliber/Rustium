@@ -1,0 +1,197 @@
+[
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\parse_number_native_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_native_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_native_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.9047014999960084,
+    "binary_sha256": "02794d5f43d7f9595ba09de1c55189415f32d35297d4fdae649ee291fbbbe33c",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\http_range_promote_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\http_range_promote_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\http_range_promote_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.2879977999982657,
+    "binary_sha256": "7448424fc71c3cc3ea645b6bbc5223b9f8c492d7ad431f575af86e244b714763",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\http_status_code_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\http_status_code_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\http_status_code_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.14038719999371096,
+    "binary_sha256": "e0933cdbb1e877129cb2e8cfbf549b98d72ebc5a0ab115c049a498b8c764ed5c",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\mime_type_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\mime_type_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\mime_type_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.45373510000354145,
+    "binary_sha256": "f4a63bc7f523e3bd004dcb4ad66030aa696c91a1c6ce9e034c31dac9d314b308",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\content_disposition_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\content_disposition_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\content_disposition_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.264850400009891,
+    "binary_sha256": "0228e3a69a971f3ebe9090569d2b1725fe3257e9f0905ce1af8b0a8da18e160b",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\dns_names_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\dns_names_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\dns_names_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.5915397000062512,
+    "binary_sha256": "c1b84a8eeee4d441a83dd486c84114162e1debfbe732d4906c9e4c0e0c33ecb3",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\referrer_policy_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\referrer_policy_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\referrer_policy_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.2104782999958843,
+    "binary_sha256": "58e5a51ec7455b7afbf2a1fcafa7bcc408c7253cc5b4ddd4f3bb98d7c009af8c",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\auth_challenge_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\auth_challenge_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\auth_challenge_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.16810029999760445,
+    "binary_sha256": "304a5b69b81a7954d9d8badb31d58caad6d57ba71f39d19bfaf85c8b5b7e70e5",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\net_diagnostics_debug_formatting_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\net_diagnostics_debug_formatting_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\net_diagnostics_debug_formatting_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.5438183000078425,
+    "binary_sha256": "5bd9088a9a5dd2de0e9d1a514847290fb20736fbf6fed28f63abc46ef3ee177e",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\port_policy_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.6636789000040153,
+    "binary_sha256": "2a06d6a8fbc6d834cabae60ba05bd866cf2ee3ef4a53eeba3c45b61d66698ce4",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\port_policy_original_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_original_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\port_policy_original_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.11857880000025034,
+    "binary_sha256": "a8b3ed4c17f97f39f81a7a2c3f8d736cd5d43d71012077b5b5f7f384eedafeb6",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\hsts_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\hsts_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\hsts_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.19885570000042208,
+    "binary_sha256": "c7884af3fc525301e9c7f5bcbee9855227d556cfb1d1b2a17ef73780a482b374",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\parse_number_candidate_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_candidate_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\parse_number_candidate_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.294111499999417,
+    "binary_sha256": "d5ab697c437f26fd185cd1970a4634f1540179dfd10ee9befa3dcc3bee96a67d",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\mime_sniffer_rust_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\mime_sniffer_rust_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\mime_sniffer_rust_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.3794121000100859,
+    "binary_sha256": "ee4a41a407e43c1a7bbc5acc55ecc478373fe21c1476ad99c8980dbd27056790",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  },
+  {
+    "command": [
+      "D:\\RustiumBuild\\src\\out\\Default\\gzip_header_unittests.exe",
+      "--test-launcher-jobs=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\gzip_header_unittests-summary.json",
+      "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\optimized-configured-tests\\gzip_header_unittests-gtest.json"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.582612500002142,
+    "binary_sha256": "c01eb92584a68638f436368eb08df71813ba261ac8bac52aa7ce80d918549e69",
+    "net_dll_sha256": "9e3bdd6161e445996c5f8b6e2339aa3c2f11faf7c44f720dc208449a3572e1e2"
+  }
+]

@@ -1,0 +1,17 @@
+Note: Google Test filter = NetUtilTest.*
+[==========] Running 4 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 4 tests from NetUtilTest
+[ RUN      ] NetUtilTest.SetExplicitlyAllowedPortsTest
+[       OK ] NetUtilTest.SetExplicitlyAllowedPortsTest (0 ms)
+[ RUN      ] NetUtilTest.RestrictedAbusePortsTest
+[       OK ] NetUtilTest.RestrictedAbusePortsTest (0 ms)
+[ RUN      ] NetUtilTest.RestrictedAbusePortsLocalhostTest
+[       OK ] NetUtilTest.RestrictedAbusePortsLocalhostTest (0 ms)
+[ RUN      ] NetUtilTest.RestrictedAbusePortsLocalhostTestNoParamSet
+[       OK ] NetUtilTest.RestrictedAbusePortsLocalhostTestNoParamSet (0 ms)
+[----------] 4 tests from NetUtilTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 4 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 4 tests.

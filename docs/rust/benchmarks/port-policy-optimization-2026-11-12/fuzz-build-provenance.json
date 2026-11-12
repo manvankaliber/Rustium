@@ -1,0 +1,36 @@
+{
+  "mode": "fuzz",
+  "source_hashes": {
+    "net/base/port_policy_core.rs": "489a6e5c4430d27e4beb989ddb5359f6c9de073dc6646fc7e4200c1601f40a96",
+    "net/base/port_policy_ffi.h": "b14c387e4f7612b70b99134728e5a22a401ebd1203e56f682bcedaf81486c6f7",
+    "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+    "net/base/port_policy_fuzzer.cc": "e06f7fc673897c529ccddde98291df205a5e0d945d20dae6ab7026060b7b9074",
+    "net/base/port_policy_perftest.cc": "250eaad440acc88e2812406076a890b4294e6edb9f279a8567e4b0b5b80fbd28",
+    "net/base/port_policy_reference.cc": "968a6b673e097225c841006b57a0e2bd97204c2778d9f68ece368004cdd08b95",
+    "net/base/port_policy_reference.h": "3a8dca8adcf5c0cda16be4cf4a62667402a22c7b0eb9d72290d2b14898735f16",
+    "net/base/port_policy_reference_number.cc": "be3e9c14a92f45953d1d860b66faef32c3867dd47842001ffb90e43d0475c5da",
+    "net/base/port_policy_reference_number.h": "559eec97b33bd4354640ca53d3fcd4bdb9862d4c50bec08c2e06a27129780ef6",
+    "net/base/port_policy_rust_unittest.cc": "36094b18b33fa98bc1aa6fd89decc9aa707d32cf03dd9742dbb62f080efef593",
+    "net/base/port_util.cc": "17465b870e41de8b3356d3c0291fd9c247e52f3a2bdd0cca205a23f6af14fdb7",
+    "net/base/port_util.h": "7da9aaf196bf798e5304c4243fd7d00a3bf72526707b583cdf7e1651baf85a2e"
+  },
+  "executable_sha256": "a06a1f96730100080d0509cd7cae792bc5ffd9a1e5abb437b956510691f44a11",
+  "rust_library_sha256": "5e01a8169ea251af1b21e7f02a420e61d394784783bdd34dac94847ac2477fd8",
+  "compile_response_files": {
+    "bridge.rsp": "47f7cf8c4e424e01c672be3edaba58d074f3c1272a0b9061df6100bf90962199",
+    "driver.rsp": "d59d62185332a489d2fe717cb6c65757fdbae3856b83193a552cee8ea4110d80",
+    "ip_address.rsp": "885282d3b787c8ff71cbc4c613a1c0b2ffb723b82575621248cbbcea9818998d",
+    "ip_address_util.rsp": "cad67489f3baeac76057d1c56fc121a2733cf4fc02e5e26262e339754eceabef",
+    "ip_endpoint.rsp": "77919ed6b0235b74dde7ea5e2a8ed0de205adf66641701183314360ce84c3ece",
+    "native_features.rsp": "af48bd0a4277fe061742f1348bcf130cd5c0646f9aacad0b5192fe19d5880cba",
+    "native_number.rsp": "746c86a5a0132028385f951149888811e6e58f4b3cd160f65dfbaa05eb6ebe64",
+    "original_unit.rsp": "79628c9f56c7e7ed9411c1b8d532ce4e92375e83a9f284c09a20063a96b009df",
+    "production.rsp": "4e06848948b3041739bc31d7922b9dd8385197126e39f4787ae309e22425c94f",
+    "reference.rsp": "832ad96a81ec23bd1cf6ca6c51c26c2ba2687cb9448ab827754384bc35352459",
+    "reference_number.rsp": "dda865edfa5cc2fbcdb637be0de52aee4a700cee4231c6b1fbd782dd5b09b846",
+    "unit.rsp": "a6e3b875bd0d448b004dc2db797ae10d9dc232d365646e65ce98e371aba8a266",
+    "unit_main.rsp": "a6218513b41f4dbf076b030d254f152618cde1f4ae940c8ea4a4ee30438b81d5"
+  },
+  "link_command_file": "fuzz-link-command.json",
+  "configured_build": false
+}

@@ -1,0 +1,59 @@
+1000000 decoder differential cases passed
+warning: struct `Challenge` is never constructed
+ --> D:\Rustium\net\http\auth_challenge_core.rs:8:12
+  |
+8 | pub struct Challenge {
+  |            ^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `lws` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:12:4
+   |
+12 | fn lws(c: u8) -> bool {
+   |    ^^^
+
+warning: function `tokenize` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:15:8
+   |
+15 | pub fn tokenize(input: &[u8]) -> Challenge {
+   |        ^^^^^^^^
+
+warning: function `lowercase_into` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:30:8
+   |
+30 | pub fn lowercase_into(input: &[u8], out: &mut [u8]) {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `lowercase_in_place` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:35:8
+   |
+35 | pub fn lowercase_in_place(input: &mut [u8]) {
+   |        ^^^^^^^^^^^^^^^^^^
+
+warning: function `encoded_len` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:39:8
+   |
+39 | pub fn encoded_len(params: &[u8]) -> usize {
+   |        ^^^^^^^^^^^
+
+warning: function `scheme_matches` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:46:8
+   |
+46 | pub fn scheme_matches(scheme: &[u8], expected: &[u8]) -> bool {
+   |        ^^^^^^^^^^^^^^
+
+warning: function `first_round` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:49:8
+   |
+49 | pub fn first_round(scheme: &[u8], expected: &[u8], params: &[u8]) -> i32 {
+   |        ^^^^^^^^^^^
+
+warning: function `later_decision` is never used
+  --> D:\Rustium\net\http\auth_challenge_core.rs:57:8
+   |
+57 | pub fn later_decision(scheme: &[u8], expected: &[u8], params: &[u8]) -> (i32, usize) {
+   |        ^^^^^^^^^^^^^^
+
+warning: 9 warnings emitted
+

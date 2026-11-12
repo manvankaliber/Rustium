@@ -1,0 +1,9 @@
+{
+  "exit_code": 0,
+  "command": [
+    "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\unit.exe",
+    "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\unit-results.json"
+  ],
+  "cwd": "D:/RustiumBuild/src/out/Default",
+  "LLVM_PROFILE_FILE": "D:\\Rustium\\.scratch\\net-wave1\\content-disposition\\unit.profraw"
+}

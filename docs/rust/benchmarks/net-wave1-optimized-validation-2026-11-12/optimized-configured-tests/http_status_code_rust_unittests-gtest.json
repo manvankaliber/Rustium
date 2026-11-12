@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="2" failures="0" disabled="0" errors="0" time="0.011" timestamp="2026-11-12T21:47:39">
+  <testsuite name="HttpStatusCode" tests="1" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-12T21:47:39">
+    <testcase name="GetHttpReasonPhrase" status="run" time="0.000" timestamp="2026-11-12T21:47:39" classname="HttpStatusCode">
+    </testcase>
+  </testsuite>
+  <testsuite name="HttpStatusCodeRust" tests="1" failures="0" disabled="0" errors="0" time="0.011" timestamp="2026-11-12T21:47:39">
+    <testcase name="FrozenDifferential" status="run" time="0.011" timestamp="2026-11-12T21:47:39" classname="HttpStatusCodeRust">
+    </testcase>
+  </testsuite>
+</testsuites>

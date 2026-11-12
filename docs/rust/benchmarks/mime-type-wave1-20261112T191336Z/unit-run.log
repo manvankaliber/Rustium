@@ -1,0 +1,34 @@
+[==========] Running 10 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 6 tests from MimeTypeRustTest
+[ RUN      ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs
+[       OK ] MimeTypeRustTest.FailureAndEqualTypeDoNotInspectUnusedOutputs (0 ms)
+[ RUN      ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases
+[       OK ] MimeTypeRustTest.DifferentialGrammarAndBoundaryCases (1 ms)
+[ RUN      ] MimeTypeRustTest.EveryByteAndEmbeddedNull
+[       OK ] MimeTypeRustTest.EveryByteAndEmbeddedNull (788 ms)
+[ RUN      ] MimeTypeRustTest.InputOutputAliasingSnapshots
+[       OK ] MimeTypeRustTest.InputOutputAliasingSnapshots (0 ms)
+[ RUN      ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality
+[       OK ] MimeTypeRustTest.ContentTypeAliasedInputAndBoundaryEquality (0 ms)
+[ RUN      ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues
+[       OK ] MimeTypeRustTest.NullEmptyViewsAndLongQuotedValues (38 ms)
+[----------] 6 tests from MimeTypeRustTest (828 ms total)
+
+[----------] 2 tests from MimeUtilTest
+[ RUN      ] MimeUtilTest.TestParseMimeType
+[       OK ] MimeUtilTest.TestParseMimeType (0 ms)
+[ RUN      ] MimeUtilTest.TestParseMimeTypeWithoutParameter
+[       OK ] MimeUtilTest.TestParseMimeTypeWithoutParameter (0 ms)
+[----------] 2 tests from MimeUtilTest (0 ms total)
+
+[----------] 2 tests from HttpUtilTest
+[ RUN      ] HttpUtilTest.ParseContentType
+[       OK ] HttpUtilTest.ParseContentType (0 ms)
+[ RUN      ] HttpUtilTest.ParseContentResetCharset
+[       OK ] HttpUtilTest.ParseContentResetCharset (0 ms)
+[----------] 2 tests from HttpUtilTest (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 3 test suites ran. (828 ms total)
+[  PASSED  ] 10 tests.

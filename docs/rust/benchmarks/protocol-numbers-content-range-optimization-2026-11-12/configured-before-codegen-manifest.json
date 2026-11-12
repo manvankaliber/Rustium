@@ -1,0 +1,7 @@
+{
+  "scope": "Read-only configured before-optimization .rlib disassembly; static code evidence, no performance measurement. Matching-flags standalone before/after assembly/IR and command logs are in sources.zip.",
+  "files": {
+    "before-http_range_parser.asm": "631d0b69f844a82c63831de8b6b968792429e8835d4d3d3cdc4916f396ae3ce1",
+    "before-parse_number_native_parser.asm": "6c933cbc8644681a13a9a58b496700f228e8efcd56ed89a3954eafebea20f53b"
+  }
+}

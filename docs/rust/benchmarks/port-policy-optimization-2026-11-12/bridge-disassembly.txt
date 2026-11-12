@@ -1,0 +1,11 @@
+﻿> ?port_scheme@port_policy_internal@net@@YAEH@Z (unsigned char __cdecl net::port_policy_internal::port_scheme(int)):
+    0000000000000000: FE 05 00 00 00 00  inc         byte ptr [__sancov_gen_.10]
+>   0000000000000006: E9 00 00 00 00     jmp         net$port_policy_internal$cxxbridge1$205$port_scheme
+  
+> ?port_endpoint@port_policy_internal@net@@YAEH_N0@Z (unsigned char __cdecl net::port_policy_internal::port_endpoint(int,bool,bool)):
+    0000000000000000: FE 05 00 00 00 00  inc         byte ptr [__sancov_gen_.12]
+>   0000000000000006: E9 00 00 00 00     jmp         net$port_policy_internal$cxxbridge1$205$port_endpoint
+  
+  ?port_count@port_policy_internal@net@@YA_KXZ (unsigned __int64 __cdecl net::port_policy_internal::port_count(void)):
+    0000000000000000: FE 05 00 00 00 00  inc         byte ptr [__sancov_gen_.14]
+    0000000000000006: E9 00 00 00 00     jmp         net$port_policy_internal$cxxbridge1$205$port_count

@@ -1,0 +1,49 @@
+# Parent applies in net/BUILD.gn; shared GN files were not edited by this agent.
+rust_static_library("mime_type_parser") {
+  crate_root = "base/mime_type_ffi.rs"
+  sources = [ "base/mime_type_ffi.rs", "base/mime_type_parser.rs" ]
+  cxx_bindings = [ "base/mime_type_ffi.rs" ]
+  # Generated CXX glue only; authored parsing core forbids unsafe code.
+  allow_unsafe = true
+  visibility = [ ":*" ]
+}
+
+# Add :mime_type_parser to net's implementation deps (net_deps), and add
+# base/mime_type_rust_adapter.h to its sources. net/base/BUILD.gn needs no edit.
+
+source_set("mime_type_test_reference") {
+  testonly = true
+  sources = [
+    "base/mime_type_rust_reference.cc",
+    "base/mime_type_rust_reference.h",
+    "base/mime_type_rust_test_support.h",
+  ]
+  deps = [ ":net", "//base" ]
+}
+
+test("mime_type_unittests") {
+  sources = [
+    "base/mime_type_rust_unittest.cc",
+    "base/mime_type_rust_original_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net", ":mime_type_test_reference", ":test_support",
+    "//base", "//base:build_time", "//base/test:test_support", "//testing/gtest",
+  ]
+}
+
+test("mime_type_perftests") {
+  sources = [ "base/mime_type_rust_perftest.cc" ]
+  deps = [ ":net", ":mime_type_test_reference", "//base" ]
+}
+
+fuzzer_test("mime_type_parser_fuzzer") {
+  sources = [ "base/mime_type_rust_fuzzer.cc" ]
+  deps = [ ":net", ":mime_type_test_reference", "//base" ]
+}
+
+# Canonical validation: mime_type_unittests, net_unittests (MimeUtilTest.*,
+# HttpUtilTest.ParseContentType, HttpUtilTest.ParseContentResetCharset and
+# HttpResponseHeadersTest.* content-type consumers), mime_type_parser_fuzzer.
+# Canonical parent-only measurement: mime_type_perftests.
