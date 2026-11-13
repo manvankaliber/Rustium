@@ -3,7 +3,9 @@
 
 Metadata describes the module, measurement boundaries and groups of cases.
 Each JSONL sample has case, repeat, baseline_ns and rust_ns, with optional
-workload fields. Execution metadata and source hashes are separate evidence.
+workload fields. Native drivers may call repeat "pair" and baseline_ns
+"cpp_ns"; the archive preserves those original samples and raw-report hash.
+Execution metadata and source hashes are separate evidence.
 """
 
 import argparse
@@ -23,7 +25,31 @@ def read_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def write_archive(destination, archive_text):
+    if destination.exists() and destination.read_text(encoding="utf-8") != archive_text:
+        raise ValueError("This evidence archive already exists with different contents; "
+                         "use a unique --run slug to preserve history: " + str(destination))
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(archive_text, encoding="utf-8")
+
+
 def summarize(samples, cases, run, seed):
+    # Normalize only private calculation copies. The payload's samples and its
+    # hash-bound raw report must retain the exact native field names/values.
+    normalized = []
+    for sample in samples:
+        pair = dict(sample)
+        for canonical, alias in (("repeat", "pair"), ("baseline_ns", "cpp_ns")):
+            if alias in pair:
+                if canonical in pair and pair[canonical] != pair[alias]:
+                    raise ValueError(f"Conflicting paired-sample fields: {canonical} / {alias}")
+                pair[canonical] = pair[alias]
+        if any(key not in pair for key in ("case", "repeat", "baseline_ns", "rust_ns")):
+            raise ValueError("Paired samples require case, repeat/pair, baseline_ns/cpp_ns and rust_ns")
+        if type(pair["repeat"]) is not int or pair["repeat"] < 0:
+            raise ValueError("Paired repetition IDs must be nonnegative integers")
+        normalized.append(pair)
+    samples = normalized
     rng = random.Random(seed)
     rows = []
     known = {case["key"] for case in cases}
@@ -36,7 +62,7 @@ def summarize(samples, cases, run, seed):
         if len(pairs) < 20 or len({sample["repeat"] for sample in pairs}) != len(pairs):
             raise ValueError(f"Need at least 20 unique paired repetitions: {case['key']}")
         for pair in pairs:
-            if any(not isinstance(pair[key], (float, int)) or
+            if any(type(pair[key]) not in (float, int) or
                    not math.isfinite(pair[key]) or pair[key] <= 0
                    for key in ("baseline_ns", "rust_ns")):
                 raise ValueError("Timings must be positive finite nanoseconds")
@@ -82,6 +108,8 @@ def main():
     parser.add_argument("--label", required=True)
     parser.add_argument("--final", action="store_true",
                         help="Make this uniquely named, validated configured run the accepted default")
+    parser.add_argument("--archive-only", action="store_true",
+                        help="Validate and archive every case without changing the published gallery")
     parser.add_argument("--date", default=date.today().isoformat())
     args = parser.parse_args()
     metadata = read_json(args.metadata)
@@ -118,6 +146,9 @@ def main():
         if not execution.get('raw_report_sha256') or not execution.get('source_hashes_file_sha256'):
             raise ValueError('Final execution must bind raw measurements and source manifest')
     rows = summarize(samples, cases, args.run, seed=20261112)
+    repetitions = sorted({row["paired_repetitions"] for row in rows})
+    if len(repetitions) != 1:
+        raise ValueError("Use consistent repetition counts within this report")
     archive = Path("docs/rust/benchmarks") / f"{metadata['module']}-{args.run}-{args.date}.json"
     payload = {"schema_version": 1, "date": args.date, "run": args.run, "label": args.label,
                "validation_stage": "final" if accepted_final else "intermediate",
@@ -130,6 +161,13 @@ def main():
                "cases": rows, "samples": samples}
     if execution and execution.get("started_utc"):
         payload["recorded_at"] = execution["started_utc"]
+    destination = ROOT / archive
+    archive_text = json.dumps(payload, indent=2) + "\n"
+    if args.archive_only:
+        write_archive(destination, archive_text)
+        print(f"Archived {len(rows)} cases / {len(samples)} paired samples in {archive}; "
+              "published gallery unchanged")
+        return
     page = ROOT / "rust-performance.html"
     contents = page.read_text(encoding="utf-8")
     match = re.search(r'(<script id="benchmark-data" type="application/json">)(.*?)(</script>)',
@@ -137,9 +175,6 @@ def main():
     if match is None:
         raise ValueError("Benchmark data block not found")
     data = json.loads(match[2])
-    repetitions = sorted({row["paired_repetitions"] for row in rows})
-    if len(repetitions) != 1:
-        raise ValueError("Use consistent repetition counts within this report")
     data.setdefault("settings", {})[metadata["source"]] = {
         "repetitions": repetitions[0],
         "affinity_mask": execution.get("affinity_mask") if execution else None}
@@ -175,13 +210,7 @@ def main():
             ("scope", "baseline", "production_status", "include_in_average", "bridge")}
         if accepted_final:
             metric["final_run"] = args.run
-    destination = ROOT / archive
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    archive_text = json.dumps(payload, indent=2) + "\n"
-    if destination.exists() and destination.read_text(encoding="utf-8") != archive_text:
-        raise ValueError("This evidence archive already exists with different contents; "
-                         "use a unique --run slug to preserve history: " + str(archive))
-    destination.write_text(archive_text, encoding="utf-8")
+    write_archive(destination, archive_text)
     encoded = json.dumps(data, indent=2).replace("<", "\\u003c")
     page.write_text(contents[:match.start(2)] + encoded + contents[match.end(2):], encoding="utf-8")
     print(f"Archived {len(rows)} cases / {len(samples)} paired samples in {archive}")

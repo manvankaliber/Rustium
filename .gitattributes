@@ -60,3 +60,16 @@ third_party/** -tricium
 
 # Preserve original legal-document bytes, including original whitespace.
 /LICENSE -text -eol -whitespace
+
+# Preserve byte-sensitive networking fixtures across Windows checkouts.
+/net/base/registry_controlled_domains/effective_tld_names.dat text eol=lf
+/net/base/registry_controlled_domains/effective_tld_names.gperf text eol=lf
+/net/data/cert_net_fetcher_impl_unittest/cacheable_1hr.crt text eol=lf
+/net/data/cert_net_fetcher_impl_unittest/cert.crt text eol=lf
+/net/data/cert_net_fetcher_impl_unittest/certs.p7c text eol=lf
+/net/data/cert_net_fetcher_impl_unittest/root.crl text eol=lf
+/net/data/filter_unittests/test.dict -text
+/net/data/pac_file_fetcher_unittest/cacheable_1hr.pac text eol=lf
+/net/data/pac_file_fetcher_unittest/downloadable.pac text eol=lf
+/net/data/pac_file_fetcher_unittest/pac.nsproxy text eol=lf
+/net/data/pac_file_fetcher_unittest/utf8_bom text eol=lf

@@ -3,7 +3,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import argparse
+import mmap
 import pathlib
+import tempfile
 import textwrap
 import unittest
 
@@ -18,6 +21,7 @@ from generate_system_modulemap import (
     parse_modulemap,
     split_modulemap,
     modify_modulemap,
+    main,
 )
 
 _TESTDATA = (pathlib.Path(__file__).parent / 'testdata').resolve()
@@ -78,6 +82,56 @@ _WANT_SPLIT_MODULEMAP = {
    header "bar.h"
 }""",
 }
+
+
+class ModulemapOutputTest(unittest.TestCase):
+    def setUp(self):
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        self.root = pathlib.Path(self.tempdir.name)
+        self.source = self.root / 'source.modulemap'
+        self.source.write_text('module example {\n  header "example.h"\n}\n')
+        self.output = self.root / 'output.modulemap'
+        self.args = argparse.Namespace(
+            exclude_module=[],
+            append_module=[],
+            sysroot=None,
+            os=None,
+            partial_modulemap=[],
+            module=[],
+            modulemap=[self.source],
+            output=self.output,
+            module_name=None,
+        )
+
+    def test_unchanged_output_can_remain_mapped(self):
+        main(self.args, [])
+        before = self.output.read_bytes()
+        with self.output.open('rb') as reader:
+            with mmap.mmap(reader.fileno(), 0, access=mmap.ACCESS_READ) as mapped:
+                stat = self.output.stat()
+                main(self.args, [])
+                self.assertEqual(mapped[:], before)
+                self.assertEqual(self.output.read_bytes(), before)
+                self.assertEqual(self.output.stat().st_mtime_ns, stat.st_mtime_ns)
+
+    def test_changed_output_is_replaced(self):
+        main(self.args, [])
+        before = self.output.read_bytes()
+        self.args.append_module = ['example:  export *']
+        main(self.args, [])
+        self.assertNotEqual(self.output.read_bytes(), before)
+        self.assertIn('  export *', self.output.read_text())
+        self.assertEqual(list(self.root.glob('.tempfile.*')), [])
+
+    def test_failed_generation_preserves_previous_output(self):
+        main(self.args, [])
+        before = self.output.read_bytes()
+        self.args.exclude_module = ['missing_module']
+        with self.assertRaisesRegex(ValueError, 'Unable to find modules'):
+            main(self.args, [])
+        self.assertEqual(self.output.read_bytes(), before)
+        self.assertEqual(list(self.root.glob('.tempfile.*')), [])
 
 
 class GenerateSysrootModulemapTest(unittest.TestCase):

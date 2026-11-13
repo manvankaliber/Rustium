@@ -27,3 +27,28 @@ TEST(PythonUtils, Python3RunTime) {
   base::TrimWhitespaceASCII(output, base::TRIM_TRAILING, &output);
   EXPECT_EQ(input, output);
 }
+
+TEST(PythonUtils, PreservesArguments) {
+  base::CommandLine command(base::CommandLine::NO_PROGRAM);
+  ASSERT_TRUE(GetPython3Command(&command));
+  command.AppendArg("-c");
+  command.AppendArg("import sys; print(sys.argv[1], end='')");
+  const std::string argument = "spaces \"quotes\" & | ; $ ( ) \\ tail";
+  command.AppendArg(argument);
+  std::string output;
+  ASSERT_TRUE(base::GetAppOutput(command, &output));
+  EXPECT_EQ(argument, output);
+}
+
+TEST(PythonUtils, PreservesNonzeroExitStatus) {
+  base::CommandLine command(base::CommandLine::NO_PROGRAM);
+  ASSERT_TRUE(GetPython3Command(&command));
+  command.AppendArg("-c");
+  command.AppendArg("import sys; print('before exit'); sys.exit(17)");
+  std::string output;
+  int exit_code = 0;
+  ASSERT_TRUE(base::GetAppOutputWithExitCode(command, &output, &exit_code));
+  EXPECT_EQ(17, exit_code);
+  base::TrimWhitespaceASCII(output, base::TRIM_TRAILING, &output);
+  EXPECT_EQ("before exit", output);
+}

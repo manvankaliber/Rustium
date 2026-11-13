@@ -16,7 +16,9 @@ bool GetPython3Command(base::CommandLine* python_cmd) {
 
 // Use vpython3 to pick up src.git's vpython3 VirtualEnv spec.
 #if BUILDFLAG(IS_WIN)
-  python_cmd->SetProgram(base::FilePath(FILE_PATH_LITERAL("vpython3.bat")));
+  // GetAppOutput uses CreateProcess directly, which requires an executable.
+  // depot_tools/.cipd_bin contains the real vpython launcher.
+  python_cmd->SetProgram(base::FilePath(FILE_PATH_LITERAL("vpython3.exe")));
 #else
   python_cmd->SetProgram(base::FilePath(FILE_PATH_LITERAL("vpython3")));
 #endif
