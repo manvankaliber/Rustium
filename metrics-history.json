@@ -895,24 +895,24 @@
     },
     {
       "date": "2026-11-13",
-      "updated": "2026-11-13T06:42:44.805294+00:00",
-      "commit": "5772646a7ebd165039780a7a3edf2cc9597591d2",
+      "updated": "2026-11-13T07:10:53.240958+00:00",
+      "commit": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
       "counting_rules_version": 1,
       "categories": {
         "maintained": {
-          "actual_loc": 7627702,
-          "source_bytes": 410560525,
+          "actual_loc": 7627780,
+          "source_bytes": 410565166,
           "files": 62034,
-          "lines_of_code": 9228146,
-          "lines_without_comment_only_lines": 7627702,
-          "comment_lines": 1763105,
+          "lines_of_code": 9228240,
+          "lines_without_comment_only_lines": 7627780,
+          "comment_lines": 1763121,
           "google_mentions": 10854,
           "obsolete_functions": 3440,
           "languages": {
             "C++": 4931306,
             "C/C++": 1651120,
             "TypeScript": 299054,
-            "Python": 285143,
+            "Python": 285221,
             "Objective-C++": 128875,
             "HTML": 74266,
             "CSS": 69076,
@@ -935,17 +935,17 @@
           }
         },
         "tests": {
-          "actual_loc": 6325830,
-          "source_bytes": 330385988,
-          "files": 20446,
-          "lines_of_code": 7103145,
-          "lines_without_comment_only_lines": 6325830,
-          "comment_lines": 950640,
+          "actual_loc": 6326329,
+          "source_bytes": 330410498,
+          "files": 20447,
+          "lines_of_code": 7103648,
+          "lines_without_comment_only_lines": 6326329,
+          "comment_lines": 950644,
           "google_mentions": 25002,
           "obsolete_functions": 1117,
           "languages": {
-            "C++": 5837855,
-            "Python": 211302,
+            "C++": 5837878,
+            "Python": 211778,
             "C/C++": 137772,
             "Objective-C++": 70800,
             "Swift": 18439,
@@ -1024,8 +1024,8 @@
       "delta": {
         "categories": {
           "maintained": {
-            "actual_loc": 0,
-            "comment_lines": 0,
+            "actual_loc": 78,
+            "comment_lines": 16,
             "files": 0,
             "google_mentions": 0,
             "languages": {
@@ -1043,7 +1043,7 @@
               "Objective-C": 0,
               "Objective-C++": 0,
               "Protocol Buffers": 0,
-              "Python": 0,
+              "Python": 78,
               "Ruby": 0,
               "Rust": 0,
               "SQL": 0,
@@ -1053,20 +1053,20 @@
               "TypeScript": 0,
               "Web IDL": 0
             },
-            "lines_of_code": 0,
-            "lines_without_comment_only_lines": 0,
+            "lines_of_code": 94,
+            "lines_without_comment_only_lines": 78,
             "obsolete_functions": 0,
-            "source_bytes": 0
+            "source_bytes": 4641
           },
           "tests": {
-            "actual_loc": 0,
-            "comment_lines": 0,
-            "files": 0,
+            "actual_loc": 499,
+            "comment_lines": 4,
+            "files": 1,
             "google_mentions": 0,
             "languages": {
               "Batch": 0,
               "C": 0,
-              "C++": 0,
+              "C++": 23,
               "C/C++": 0,
               "CSS": 0,
               "HTML": 0,
@@ -1078,17 +1078,17 @@
               "Objective-C++": 0,
               "Perl": 0,
               "Protocol Buffers": 0,
-              "Python": 0,
+              "Python": 476,
               "Rust": 0,
               "Shell": 0,
               "Swift": 0,
               "TypeScript": 0,
               "Web IDL": 0
             },
-            "lines_of_code": 0,
-            "lines_without_comment_only_lines": 0,
+            "lines_of_code": 503,
+            "lines_without_comment_only_lines": 499,
             "obsolete_functions": 0,
-            "source_bytes": 0
+            "source_bytes": 24510
           },
           "vendored": {
             "actual_loc": 0,
