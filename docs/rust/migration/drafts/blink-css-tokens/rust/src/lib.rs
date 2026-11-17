@@ -1338,7 +1338,7 @@ mod tests {
         let escaped_url = [117, 114, 108, 40, 92, 0xd800, 41];
         let mut t = Tokenizer::new(Input::Utf16(&escaped_url), 0);
         let token = t.next_token(&FixedNumbers);
-        assert_eq!(token.value.as_deref(), Some(&[0xd800][..]));
+        assert_eq!(token.value.as_deref(), Some(&[0xfffd][..]));
         assert_eq!(token.span, 0..7);
 
         let unterminated = [34, 0xd800];
