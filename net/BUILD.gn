@@ -2644,6 +2644,34 @@ static_library("gtest_util") {
   ]
 }
 
+source_set("http_auth_test_support") {
+  testonly = true
+  sources = [
+    "http/mock_allow_http_auth_preferences.cc",
+    "http/mock_allow_http_auth_preferences.h",
+  ]
+
+  if (is_win) {
+    sources += [
+      "http/mock_sspi_library_win.cc",
+      "http/mock_sspi_library_win.h",
+    ]
+  }
+
+  if (use_external_gssapi) {
+    sources += [
+      "http/mock_gssapi_library_posix.cc",
+      "http/mock_gssapi_library_posix.h",
+    ]
+  }
+
+  public_deps = [
+    ":net",
+    "//base",
+  ]
+  deps = [ "//testing/gtest" ]
+}
+
 static_library("test_support") {
   testonly = true
   sources = [
@@ -3461,8 +3489,6 @@ target(_test_target_type, "net_unittests") {
     "http/http_transaction_test_util_unittest.cc",
     "http/http_util_unittest.cc",
     "http/http_vary_data_unittest.cc",
-    "http/mock_allow_http_auth_preferences.cc",
-    "http/mock_allow_http_auth_preferences.h",
     "http/no_vary_search_cache_storage_file_operations_unittest.cc",
     "http/no_vary_search_cache_storage_unittest.cc",
     "http/no_vary_search_cache_unittest.cc",
@@ -3692,8 +3718,6 @@ target(_test_target_type, "net_unittests") {
       "base/network_cost_change_notifier_win_unittest.cc",
       "base/network_interfaces_win_unittest.cc",
       "http/http_auth_sspi_win_unittest.cc",
-      "http/mock_sspi_library_win.cc",
-      "http/mock_sspi_library_win.h",
       "proxy_resolution/win/dhcp_pac_file_adapter_fetcher_win_unittest.cc",
       "proxy_resolution/win/dhcp_pac_file_fetcher_win_unittest.cc",
       "proxy_resolution/win/proxy_config_service_win_unittest.cc",
@@ -3739,6 +3763,7 @@ target(_test_target_type, "net_unittests") {
   deps = [
     ":cronet_buildflags",
     ":disk_simple_index_rust_reference",
+    ":http_auth_test_support",
     ":http_status_code_reference",
     ":isolation_info_proto",
     ":net",
@@ -3915,11 +3940,7 @@ target(_test_target_type, "net_unittests") {
   }
 
   if (use_external_gssapi) {
-    sources += [
-      "http/http_auth_gssapi_posix_unittest.cc",
-      "http/mock_gssapi_library_posix.cc",
-      "http/mock_gssapi_library_posix.h",
-    ]
+    sources += [ "http/http_auth_gssapi_posix_unittest.cc" ]
     data_deps += [
       ":test_badgssapi",
       ":test_gssapi",
@@ -8674,6 +8695,7 @@ test("connection_jobs_family_rust_unittests") {
     ":connection_jobs_tcp_factory_rust_original",
     ":connection_original_log_reference",
     ":http_auth_cache_rust_reference",
+    ":http_auth_test_support",
     ":http_request_headers_rust_reference",
     ":net",
     ":tcp_client_socket_rust_reference",

@@ -133,9 +133,11 @@ or script that mutates the checkout or runs native work must hold the same
 exclusive byte-range lock on the first byte of `rb/.rustium-native.lock`. Finish
 preparation before recording inputs. If provisioning used a hooks-disabled
 sync, run the `lastchange`, `minibranch`, `gpu_lists_version`, `lastchange_skia`,
-and `lastchange_dawn` actions from the pinned `DEPS` under that lock. They
-generate checkout-local metadata from the final source and dependency
-revisions. Verify `build/util/LASTCHANGE.committime` against the checked-out
+and `lastchange_dawn` actions from the pinned `DEPS` under that lock. For
+qualification against the exact Git heads, pass `--filter=` to each action
+except `minibranch`, which searches for upstream branch metadata separately.
+Verify the generated revision identifiers against the source and dependency
+heads, and verify `build/util/LASTCHANGE.committime` against the checked-out
 commit and retain the generated file hashes. Regenerate source-derived
 metadata whenever the candidate revision changes. Run fresh GN generation on
 the laptop to qualify provisioning before recording inputs.
