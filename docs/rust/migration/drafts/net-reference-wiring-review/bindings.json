@@ -1,0 +1,40 @@
+{
+  "reviewed_head": "ee1739128e28d664266b57a8b604cb266fe7a322",
+  "compiler_parent": "09db0827216ecdebc00974fd0b480cf773177cd8",
+  "auth_parent": "c36d1aafb00e413feff07907844c0555a21cd021",
+  "prior_auth_review": "1fd755aa78d20d08e724283f77a6a025d2853338",
+  "normal_source_manifest_sha256": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e",
+  "normal_source_count": 1270,
+  "normal_configured_args_sha256": "b865c8a8cf26b97a622a12e9c13e6855679827f8b45407121a8fd4d0c47340e2",
+  "normal_generated_graph_sha256": "0a731e3ba91b5b480aa69cef7cdf3e12edd28b3c75e11e785121207b697c1a0b",
+  "catalogue_directory": "D:/Rustium/.scratch/shared-strings-connection/20261117T150542774256Z/current-graph-catalogue",
+  "catalogue_sha256": {
+    "result.json": "48579477156c84514966dfa8ce6953d43dbde5ead8e75f350bc83b24fe4a2b52",
+    "gn-deps.log": "f3d0f37043b5038fb744197ed88c88ea5e74c2d1bd5d078727e38d53dd324e97",
+    "gn-sources.log": "50e59d41be35c1db6f1eb2fae77107313434115211e7d4ce7138aa3923655333",
+    "gn-outputs.log": "7a8f1616b5210f46f3e33610c62c1bb9a8c723b275d16f3c021cc49fade4bee7",
+    "ninja-query.log": "7043203f3937fc6fa25fbba040ace7c71f8114c7fa59b77a62e41e0b476f518c",
+    "ninja-commands.log": "4b3a1ac2442c0336e6c5e470e6b86d507a46ff76bc45151455c5ffd6c4866bd6"
+  },
+  "checked_files_sha256": {
+    "net-compile-parent-fixes/manifest.json": "06e4bf701f39a9d08f916d2b90c4090efd7e4a98546101fe3e91333f2ab29311",
+    "net-compile-parent-fixes/harness-contracts.json": "109a2f7d55e55ce6289aaab1c275e3017c7fe0e68935109c853484237f64840d",
+    "net-compile-parent-fixes/compare_harness_records.py": "40a5dcf58f9a74b73ff612609fc8543d78528c47d2b054b21d2cbb7030c1ec9f",
+    "net-compile-parent-fixes/strict-validator-tests.log": "e76cc1ddd46b98a99c7a792c2b15a61de9e4ed6728f43dc2da13491fdbe08b61",
+    "net-reference-probe-wiring-v2/manifest.json": "ef64f0717525cee99eeb3bb2568793b99d50ab42c52eb96cf59bdef86fef7513"
+  },
+  "checks": {
+    "compiler_after_images": 29,
+    "wiring_after_images": 19,
+    "parent_instrumented_rust_blobs_equal": 7,
+    "frozen_proxy_bodies_equal_configured": 4,
+    "source_cases_in_order": [
+      10,
+      15
+    ],
+    "wiring_test_diff_from_auth_parent": "one local RUSTIUM_REFERENCE_PROBE define",
+    "graph": "normal Windows component graph only; no probe evaluation or build result"
+  },
+  "disposition": "hold qualification",
+  "review_validation": "bounded static and hashes only; no compiler, build, test, benchmark or GN invocation"
+}
