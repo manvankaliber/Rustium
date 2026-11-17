@@ -630,3 +630,43 @@ fn every_original_rect_scaling_assertion_row() {
         }
     }
 }
+
+#[test]
+fn scale_platform_unit_return_and_nonunit_input_domain() {
+    let functions: [fn(Rect, f32, f32) -> Rect; 3] =
+        [scale_enclosing_rect, scale_enclosed_rect, scale_rounded_rect];
+    // Windows RECT constructor can retain a positive extent with far edge
+    // outside i32. Native unit scaling returns the object before any edges.
+    let platform = Rect { x: 2_000_000_000, y: 0, width: 1_000_000_000, height: 1 };
+    let negative = Rect { x: 0, y: 0, width: -1, height: 1 };
+    for scale in functions {
+        assert_eq!(scale(platform, 1.0, 1.0), platform);
+        assert_eq!(scale(negative, 1.0, 1.0), negative);
+        assert!(std::panic::catch_unwind(|| scale(platform, 2.0, 2.0)).is_err());
+        assert!(std::panic::catch_unwind(|| scale(negative, 2.0, 2.0)).is_err());
+        let boundary = Rect { x: i32::MAX - 1, y: i32::MAX - 1, width: 1, height: 1 };
+        assert_eq!(
+            scale(boundary, 2.0, 2.0),
+            Rect { x: i32::MAX, y: i32::MAX, width: 0, height: 0 }
+        );
+    }
+}
+#[cfg(debug_assertions)]
+#[test]
+fn nearest_rect_debug_edges_and_strict_tolerance() {
+    let invalid = [
+        RectF { x: 0.02, y: 0.0, width: 0.98, height: 1.0 },
+        RectF { x: 0.0, y: 0.02, width: 1.0, height: 0.98 },
+        RectF { x: 0.0, y: 0.0, width: 1.02, height: 1.0 },
+        RectF { x: 0.0, y: 0.0, width: 1.0, height: 1.02 },
+        RectF { x: 0.0, y: 0.0, width: 0.01, height: 1.0 },
+    ];
+    for value in invalid {
+        assert!(std::panic::catch_unwind(|| nearest_rect(value)).is_err());
+        let _ = rounded_rect(value);
+    }
+    assert_eq!(
+        nearest_rect(RectF { x: 0.005, y: 0.005, width: 1.0, height: 1.0 }),
+        Rect { x: 0, y: 0, width: 1, height: 1 }
+    );
+}

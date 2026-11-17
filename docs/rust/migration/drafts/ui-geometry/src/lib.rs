@@ -1,7 +1,8 @@
 //! Candidate for the scalar/point/size/rectangle float-to-integer conversion
 //! family. This file deliberately has no Chromium or ABI dependency.
 //!
-//! Floating arithmetic stays `f32` and keeps the original expression order.
+//! Floating arithmetic stays `f32`; cross-axis evaluation, exceptions, traps
+//! and floating-environment flags have not been qualified against native code.
 //! Only the final rounded `f32` is widened to `f64` for exact i32 bounds tests;
 //! this avoids Rust's saturating float cast's NaN behavior being mistaken for
 //! Chromium's behavior and avoids the `i32::MAX as f32 == 2^31` trap.
@@ -81,7 +82,7 @@ impl Rect {
     /// Scale helpers rely on the invariants maintained by the native Rect
     /// setters. Public fields make invalid values constructible in this draft,
     /// so validate at the boundary before using native-equivalent arithmetic.
-    fn is_valid_native(self) -> bool {
+    fn is_supported_scale_input(self) -> bool {
         self.width >= 0
             && self.height >= 0
             && (self.x as i64 + self.width as i64) <= i32::MAX as i64
@@ -314,10 +315,15 @@ pub fn is_nearest_rect_within_distance(r: RectF, distance: f32) -> bool {
 }
 
 pub fn scale_enclosing_rect(r: Rect, sx: f32, sy: f32) -> Rect {
-    assert!(r.is_valid_native(), "scale input must satisfy native Rect invariants");
     if sx == 1.0 && sy == 1.0 {
         return r;
     }
+    // Platform constructors can bypass the ordinary far-edge clamp. The
+    // bridge must qualify those inputs before non-unit arithmetic.
+    assert!(
+        r.is_supported_scale_input(),
+        "non-unit scale input outside supported rectangle domain"
+    );
     let l = convert(r.x as f32 * sx, Mode::Floor);
     let t = convert(r.y as f32 * sy, Mode::Floor);
     let right = if r.width == 0 { l } else { convert((r.x + r.width) as f32 * sx, Mode::Ceil) };
@@ -325,10 +331,15 @@ pub fn scale_enclosing_rect(r: Rect, sx: f32, sy: f32) -> Rect {
     rect_by_bounds(l, t, right, bottom)
 }
 pub fn scale_enclosed_rect(r: Rect, sx: f32, sy: f32) -> Rect {
-    assert!(r.is_valid_native(), "scale input must satisfy native Rect invariants");
     if sx == 1.0 && sy == 1.0 {
         return r;
     }
+    // Platform constructors can bypass the ordinary far-edge clamp. The
+    // bridge must qualify those inputs before non-unit arithmetic.
+    assert!(
+        r.is_supported_scale_input(),
+        "non-unit scale input outside supported rectangle domain"
+    );
     let l = convert(r.x as f32 * sx, Mode::Ceil);
     let t = convert(r.y as f32 * sy, Mode::Ceil);
     let right = if r.width == 0 { l } else { convert((r.x + r.width) as f32 * sx, Mode::Floor) };
@@ -336,10 +347,15 @@ pub fn scale_enclosed_rect(r: Rect, sx: f32, sy: f32) -> Rect {
     rect_by_bounds(l, t, right, bottom)
 }
 pub fn scale_rounded_rect(r: Rect, sx: f32, sy: f32) -> Rect {
-    assert!(r.is_valid_native(), "scale input must satisfy native Rect invariants");
     if sx == 1.0 && sy == 1.0 {
         return r;
     }
+    // Platform constructors can bypass the ordinary far-edge clamp. The
+    // bridge must qualify those inputs before non-unit arithmetic.
+    assert!(
+        r.is_supported_scale_input(),
+        "non-unit scale input outside supported rectangle domain"
+    );
     let l = convert(r.x as f32 * sx, Mode::Round);
     let t = convert(r.y as f32 * sy, Mode::Round);
     let right = if r.width == 0 { l } else { convert((r.x + r.width) as f32 * sx, Mode::Round) };
