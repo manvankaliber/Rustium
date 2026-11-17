@@ -99,6 +99,11 @@ def overlap(a, b):
     return a == b or a.startswith(b + "/") or b.startswith(a + "/")
 
 
+def worker_limit(q):
+    # Historical queue receipts used a model-specific budget key.
+    return q["limits"].get("coding_workers", q["limits"].get("luna_workers"))
+
+
 class Coordinator:
     def __init__(self, root):
         self.root = canonical(root)
@@ -157,15 +162,19 @@ class Coordinator:
     def claim(self, token, task_id, session):
         with self.transaction(token) as q:
             t = self.task(q, task_id)
+            focus = q.get("active_focus")
+            if (focus and t["subsystem"] != focus["subsystem"]
+                    and task_id not in focus.get("allowed_dependency_tasks", [])):
+                raise ValueError("Task outside active subsystem focus; preserve it as held work")
             if t["state"] not in {"ready", "needs-repair"} or t["assignment"].get("active"):
                 raise ValueError("Task is not available")
             if t["blockers"] or any(self.task(q, d)["state"] != "integrated" for d in t["dependencies"]):
                 raise ValueError("Task dependencies/blockers are unresolved")
             active = [x for x in q["tasks"] if x["assignment"].get("active")]
-            if len(active) >= q["limits"]["luna_workers"] + q["limits"]["auxiliary_children"]:
+            if len(active) >= worker_limit(q) + q["limits"]["auxiliary_children"]:
                 raise ValueError("Project agent capacity is full; release completed auxiliary work")
             if t["role"] == "coding_worker":
-                if sum(x["role"] == "coding_worker" for x in active) >= q["limits"]["luna_workers"]:
+                if sum(x["role"] == "coding_worker" for x in active) >= worker_limit(q):
                     raise ValueError("Global eight-worker pool is full")
                 if t["state"] != "needs-repair" and sum(x["state"] in PENDING for x in q["tasks"]) >= q["limits"]["pending_validation"]:
                     raise ValueError("Validation backlog full: repair or integrate first")
@@ -326,9 +335,9 @@ class Coordinator:
         for task_id in ids:
             visit(task_id, set())
         active = [t for t in q["tasks"] if t["assignment"].get("active") and t["role"] == "coding_worker"]
-        if len(active) > q["limits"]["luna_workers"]:
-            raise ValueError("Global Luna budget exceeded")
-        return {"valid": True, "root": str(self.root), "tasks": len(ids), "active_luna": len(active),
+        if len(active) > worker_limit(q):
+            raise ValueError("Global coding worker budget exceeded")
+        return {"valid": True, "root": str(self.root), "tasks": len(ids), "active_workers": len(active),
                 "ready": [t["id"] for t in q["tasks"] if t["state"] == "ready" and not t["blockers"] and all(self.task(q, d)["state"] == "integrated" for d in t["dependencies"])]}
 
     def job(self, token, manifest, command):

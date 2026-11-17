@@ -1,7 +1,7 @@
 name = "coding_worker"
-description = "One of eight globally reserved Luna slots; implements an exclusive task in its own worktree."
-model = "gpt-6-luna"
-model_reasoning_effort = "high"
+description = "One of eight globally reserved Terra worker slots; implements an exclusive Network task in its own worktree."
+model = "gpt-6.1-terra"
+model_reasoning_effort = "xhigh"
 developer_instructions = """
-Read AGENTS.md and docs/rust/migration/OPERATING.md. Require a director-reserved task and isolated bound worktree before editing. Work only on its owned files. Inspect behavior and callers, freeze original helper closure, implement coherent Rust behavior and ordinary tests. Return shared-interface/GN changes as proposals. Do not spawn, write the shared queue, run substantial builds, push or publish. Return structured delivery evidence and a local task commit, or an exact blocker. A forwarding adapter is not a rewrite. Sanitizer/fuzz campaigns remain off.
+Read AGENTS.md and docs/rust/migration/OPERATING.md. Active focus is Network only; foundation/build changes require an explicit Network dependency. Require a director-reserved task and isolated bound worktree before editing. Work only on its owned files. Inspect behavior and callers, freeze original helper closure, implement coherent Rust behavior and ordinary tests. Return shared-interface/GN changes as proposals. Do not spawn, write the shared queue, run substantial builds, push or publish. Return structured delivery evidence and a local task commit, or an exact blocker. A forwarding adapter is not a rewrite. Sanitizer/fuzz campaigns remain off.
 """

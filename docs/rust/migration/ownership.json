@@ -521,5 +521,16 @@
       "cutover": "Incomplete; C++/provider ownership and performance debt remain"
     }
   ],
-  "platform_policy": "Inventory supported product platforms per task. Host Windows only establishes observed execution environment. Existing platform deletions are user work, not proof requirements retired."
+  "platform_policy": "Inventory supported product platforms per task. Host Windows only establishes observed execution environment. Existing platform deletions are user work, not proof requirements retired.",
+  "active_focus": {
+    "subsystem": "network-services",
+    "name": "Network",
+    "allowed_dependency_tasks": [
+      "FOUNDATION-STRINGS-BRIDGE"
+    ],
+    "scope": "Finish Network connected families, production ownership and acceptance before unrelated subsystem implementation",
+    "dependency_reason": "Already applied Foundation Strings bridge changes are dependencies of the current Network consumer cohort; validate/repair them as Network work, not a separate foundation expansion",
+    "user_directive_utc": "2026-11-17T11:16:15.030706+00:00",
+    "other_work": "Preserve clean checkpoints, integrated artifacts and historical evidence; no new non-Network dispatch"
+  }
 }

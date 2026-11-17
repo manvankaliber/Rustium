@@ -32,6 +32,7 @@ class CoordinationTest(unittest.TestCase):
         seed = rc.read(Path(__file__).resolve().parents[1] / "docs/rust/migration/queue.json")
         sample = next(t for t in seed["tasks"] if t["role"] == "coding_worker")
         seed["tasks"] = []
+        seed.pop("active_focus", None)
         seed["limits"]["minimum_free_disk_bytes"] = 0
         for i in range(10):
             t = copy.deepcopy(sample)
@@ -56,9 +57,26 @@ class CoordinationTest(unittest.TestCase):
             self.claim(n)
         with self.assertRaisesRegex(ValueError, "pool is full"):
             self.claim(8)
-        self.assertEqual(self.c.check()["active_luna"], 8)
+        self.assertEqual(self.c.check()["active_workers"], 8)
         with self.assertRaises(ValueError):
             self.c.claim("different-director", "T8", "bad")
+
+    def test_claim_uses_current_worker_model_and_effort(self):
+        assignment = self.claim()["assignment"]
+        self.assertEqual(assignment["model"], "gpt-6.1-terra")
+        self.assertEqual(assignment["effort"], "xhigh")
+
+    def test_subsystem_focus_and_explicit_dependency_exception(self):
+        with self.c.transaction(self.token) as q:
+            q["active_focus"] = {"subsystem": "network-services", "allowed_dependency_tasks": []}
+            q["tasks"][0]["subsystem"] = "foundation"
+            q["tasks"][1]["subsystem"] = "network-services"
+        with self.assertRaisesRegex(ValueError, "outside active subsystem"):
+            self.claim(0)
+        self.claim(1)
+        with self.c.transaction(self.token) as q:
+            q["active_focus"]["allowed_dependency_tasks"].append("T0")
+        self.claim(0)
 
     def test_single_director_and_explicit_recovery(self):
         with self.assertRaisesRegex(ValueError, "lease exists"):
@@ -110,7 +128,7 @@ class CoordinationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "exact committed HEAD"):
             self.c.transition(self.token, "T0", "submitted", "wrong SHA", ev, self.head)
         self.c.transition(self.token, "T0", "submitted", "worker ended", ev, sha)
-        self.assertEqual(self.c.check()["active_luna"], 0)
+        self.assertEqual(self.c.check()["active_workers"], 0)
         self.c.transition(self.token, "T0", "validating", "review")
         with self.assertRaisesRegex(ValueError, "Acceptance evidence lacks"):
             self.c.transition(self.token, "T0", "merge-ready", "missing checks", ev)

@@ -1,12 +1,20 @@
 # Decisions
 
+## 2026-11-17: Network focus and Terra workers (current)
+
+The user changed future coding workers to Terra and requested one active subsystem, finishing Network before unrelated work. Coding-worker defaults are now `gpt-6.1-terra`/xhigh in project config, role config and the queue. The global ceiling remains eight coding workers plus the existing auxiliary allowance; it is model-neutral. Historical assignments retain their actual model/effort. Coordinator claims enforce the active Network focus, with the already-applied Strings bridge explicitly allowed because it is a dependency of the current Network cohort.
+
+Blink Text is held clean at `0d89e8f35fdc4ef5370f89e96213867c66008b55`; its worker has ended and was cancelled against further runs. The Version bridge source-freeze is held clean at `295b0e3938da20e86ddc91470362794e03c2fc6b`; no production derivative was authored. Retain both branches and their workspaces; no unrelated new dispatch. Prior integrated draft artifacts remain evidence, not production cutovers.
+
+An independent Sol/high build expert is investigating actual retained native build logs, evaluated dependencies and local CPU/RAM/disk constraints. No hired service, API billing, remote execution, changed compiler checks or parallelism above the two-job ceiling is authorized. Recommendations need source-bound review and gated validation before changing configured inputs. The existing goal and usage cutoff remain unchanged.
+
 ## 2026-11-17: repository-wide continuation
 
 The user expanded active scheduling to all Chromium-derived subsystems. Existing networking work is retained, not restarted: its source-bound acceptance ledgers and fixed benchmark batches remain authoritative. The repository queue coordinates assignments across those ledgers and new families. Sanitizer/fuzz campaigns and security-focused side campaigns remain off. No automatic pushes/publication/messages.
 
 ## Roles and global budget
 
-Preserve Sol/xhigh director, Terra/xhigh accountable managers and independent reviewers, Luna/high workers, Sol/high temporary specialists. CLI 0.169.0 and T3 catalog expose all requested choices. Root configuration requests ten children; the observed native runtime allows ten children plus the parent. Eight reserved or active Luna tasks across every participating session is the global ceiling, with two auxiliary slots used on demand. All dispatch goes through the director, so nested delegation support is unnecessary. Runtime settings can override project defaults; the setup conversation itself remained Astra/high.
+Preserve Sol/xhigh director, Terra/xhigh managers, independent reviewers and coding workers, and Sol/high temporary specialists. The original Luna/high worker default is superseded by the current user directive. Root configuration requests ten children; the observed native runtime allows ten children plus the parent. Eight reserved or active coding workers across every participating session is the global ceiling, with two auxiliary slots used on demand. All dispatch goes through the director, so nested delegation support is unnecessary. Runtime settings can override project defaults; inspect actual model identity rather than assuming config changes existing sessions.
 
 ## State and recovery
 

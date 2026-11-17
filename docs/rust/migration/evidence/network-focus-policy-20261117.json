@@ -1,0 +1,59 @@
+{
+  "observed_utc": "2026-11-17T11:16:15.030706+00:00",
+  "user_directive": "Terra workers; one active subsystem, Network; independent native-build speed investigation",
+  "worker_defaults": {
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh"
+  },
+  "historical_assignments_unchanged": true,
+  "held_work": [
+    {
+      "task_id": "BLINK-TEXT-BOUNDARIES",
+      "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8e793e24-85c588c23fadd439",
+      "branch": "rust/blink-text-boundaries-20261117",
+      "head": "0d89e8f35fdc4ef5370f89e96213867c66008b55",
+      "clean": true,
+      "validation": "Unrun latest source checkpoint, not accepted",
+      "reason": "Explicit user Network-only focus; preserve work without further implementation"
+    },
+    {
+      "task_id": "FOUNDATION-VERSION-BRIDGE",
+      "worktree": "D:\\RustiumReview",
+      "branch": "rust/foundation-version-bridge-20261117",
+      "head": "295b0e3938da20e86ddc91470362794e03c2fc6b",
+      "clean": true,
+      "validation": "Unrun latest source checkpoint, not accepted",
+      "reason": "Explicit user Network-only focus; preserve work without further implementation"
+    }
+  ],
+  "active_focus": {
+    "subsystem": "network-services",
+    "name": "Network",
+    "allowed_dependency_tasks": [
+      "FOUNDATION-STRINGS-BRIDGE"
+    ],
+    "scope": "Finish Network connected families, production ownership and acceptance before unrelated subsystem implementation",
+    "dependency_reason": "Already applied Foundation Strings bridge changes are dependencies of the current Network consumer cohort; validate/repair them as Network work, not a separate foundation expansion",
+    "user_directive_utc": "2026-11-17T11:16:15.030706+00:00",
+    "other_work": "Preserve clean checkpoints, integrated artifacts and historical evidence; no new non-Network dispatch"
+  },
+  "coordination_validation": {
+    "command": [
+      "python",
+      "-B",
+      "tools/rustium_coord_unittest.py"
+    ],
+    "passed_tests": 15,
+    "failed_tests": 0,
+    "exit_code": 0,
+    "elapsed_seconds": 9.791,
+    "evidence_scope": "Observed focused unit-test output, including model selection and focus/dependency rejection; no compiler/native/browser validation",
+    "source_sha256": {
+      "tools/rustium_coord.py": "dba5705a0a7aa1919def63c9cba7793e2db14f3bca2da60e0d40b8c3ed34b43b",
+      "tools/rustium_coord_unittest.py": "d3ebad90f3a1beda135042aafd9d1304350bfa7a1defe3a20723bce443979536",
+      ".codex/config.toml": "7c18bcede79c857b388382a144e4e483fced9b8d006d3c5689e4ac46a950041f",
+      ".codex/agents/coding-worker.toml": "b2f38c30983ed12127e510ce2e45a2bdbaaf48a3fec90afb5ffc8f9c28d23ad3",
+      "AGENTS.md": "cc47faeb23ada7107390b61155226e03db4bb9b0880da82aba4ae57e2a398b44"
+    }
+  }
+}

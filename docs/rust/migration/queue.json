@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "revision": 349,
-  "updated_utc": "2026-11-17T11:02:33.036609+00:00",
-  "mode": "prepared; campaign not started",
+  "revision": 364,
+  "updated_utc": "2026-11-17T11:21:19.227623+00:00",
+  "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
       "model": "gpt-6.1-sol",
@@ -13,8 +13,8 @@
       "effort": "xhigh"
     },
     "coding_worker": {
-      "model": "gpt-6-luna",
-      "effort": "high"
+      "model": "gpt-6.1-terra",
+      "effort": "xhigh"
     },
     "specialist": {
       "model": "gpt-6.1-sol",
@@ -26,7 +26,6 @@
     }
   },
   "limits": {
-    "luna_workers": 8,
     "editing_workspaces": 8,
     "auxiliary_children": 2,
     "requested_children_per_session": 10,
@@ -34,7 +33,8 @@
     "substantial_jobs": 1,
     "compiler_jobs": 2,
     "pending_validation": 8,
-    "minimum_free_disk_bytes": 8589934592
+    "minimum_free_disk_bytes": 8589934592,
+    "coding_workers": 8
   },
   "network_acceptance_authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake",
   "tasks": [
@@ -2195,10 +2195,12 @@
         "proposals": "docs/rust/migration/drafts/blink-text-boundaries/integration-proposal"
       },
       "dependencies": [],
-      "blockers": [],
+      "blockers": [
+        "Held by explicit user Network-only focus"
+      ],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "blink-text-reused-workspace-20261117",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8e793e24-85c588c23fadd439",
         "branch": "rust/blink-text-boundaries-20261117",
@@ -2222,11 +2224,11 @@
         "required_cases": "Character/word/sentence/line contracts, UTF-16 offsets, locale behavior, invalid surrogates, thread-local iterator ownership. Port actual local behavior; an ICU forwarder is not a completed rewrite.",
         "status": "unmeasured"
       },
-      "state": "implementing",
-      "next_action": "Prior Strings worker terminal with no childwork; cleanaccepted62f branch retained. Existing host checkout reused, no9th worktree or duplicated configuredtree; exact2 sourcepins match newbase andprimary",
+      "state": "blocked",
+      "next_action": "Retain branch/worktree/evidence; resume only when user changes active subsystem focus",
       "evidence": [],
       "stages": {
-        "implementation": "not started",
+        "implementation": "Held clean source checkpoint 0d89e8f35fdc4ef5370f89e96213867c66008b55; no acceptance claimed",
         "configured_validation": "not run",
         "production_integration": "not integrated",
         "rust_ownership": "not established",
@@ -2257,6 +2259,16 @@
           "utc": "2026-11-17T09:04:51.287606+00:00",
           "action": "implementing",
           "note": "Prior Strings worker terminal with no childwork; cleanaccepted62f branch retained. Existing host checkout reused, no9th worktree or duplicated configuredtree; exact2 sourcepins match newbase andprimary"
+        },
+        {
+          "utc": "2026-11-17T11:16:15.397880+00:00",
+          "action": "blocked",
+          "note": "Held by explicit user Network-only focus; clean checkpoint 0d89e8f35fdc4ef5370f89e96213867c66008b55 retained; no further dispatch"
+        },
+        {
+          "utc": "2026-11-17T11:16:15.416720+00:00",
+          "action": "amended",
+          "note": "blockers, next_action, stages"
         }
       ],
       "context_directories": [
@@ -2767,6 +2779,213 @@
       "context_directories": [
         "base/strings"
       ]
+    },
+    {
+      "id": "FOUNDATION-VERSION-BRIDGE",
+      "subsystem": "foundation",
+      "priority": 13,
+      "objective": "Move Version policy behind a typed director-owned Rust bridge while retaining native object/vector ABI",
+      "behavioral_contract": "Preserve public symbols and sole native vector storage, byte/codeunit input, u32 bounds, leading-zero rules, padded comparison, wildcard partial-prefix invalid-contract release behavior, DCHECK order and native provider/caller lifetimes",
+      "original_cpp_reference": {
+        "paths": [
+          "base/version.cc",
+          "base/version.h",
+          "base/version_unittest.cc",
+          "base/BUILD.gn"
+        ],
+        "revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
+        "reference_workspace": "D:\\Rustium",
+        "observed_input_sha256": {
+          "base/version.cc": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+          "base/version.h": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+          "base/version_unittest.cc": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+          "base/BUILD.gn": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9"
+        },
+        "freeze_status": "Accepted14-source+18-helper archive retained; independent original build/helper closure must be completed before guarded integration"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/foundation-version-bridge"
+      ],
+      "shared_interfaces": {
+        "policy": "Director only; exact source/GN before/after proposal, no running input edits",
+        "source_brief": "docs/rust/migration/evidence/version-bridge-specialist-20261117.md"
+      },
+      "dependencies": [
+        "FOUNDATION-VERSION"
+      ],
+      "blockers": [
+        "Held by explicit user Network-only focus"
+      ],
+      "role": "director",
+      "assignment": {
+        "active": false,
+        "session": "director-version-bridge-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/foundation-version-bridge-20261117",
+        "model": "gpt-6.1-sol",
+        "effort": "xhigh"
+      },
+      "base_revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Stateless Rust derivative plus all original Version expected fixtures and invalid-contract release cases",
+        "Configured original VersionTest plus bridge/layout/storage/byte boundaries and independent frozen C++ baseline",
+        "Affected consumers, generated CXX ABI and allocator/panic configuration review; platform/performance and native resource debt explicit"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//base:version_rust",
+          "//base:base",
+          "//base:base_unittests"
+        ],
+        "qualification": "Unexecuted proposal, no target/native pass claimed"
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Complete fixed benchmark gate preserved; archive every run and regression, publication held",
+        "required_cases": "Valid/invalid parsing, many/trailing-zero components, comparison, wildcard and serialization; actual public bridge allocation/copy overhead included"
+      },
+      "state": "blocked",
+      "next_action": "Retain branch/worktree/evidence; resume only when user changes active subsystem focus",
+      "evidence": [],
+      "stages": {
+        "implementation": "Held clean source checkpoint 295b0e3938da20e86ddc91470362794e03c2fc6b; no acceptance claimed",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T11:09:22.210003+00:00",
+          "action": "enqueued",
+          "note": "Move Version policy behind a typed director-owned Rust bridge while retaining native object/vector ABI"
+        },
+        {
+          "utc": "2026-11-17T11:09:22.386293+00:00",
+          "action": "assigned",
+          "note": "director-version-bridge-20261117"
+        },
+        {
+          "utc": "2026-11-17T11:09:24.314485+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T11:09:24.492156+00:00",
+          "action": "implementing",
+          "note": "Director reuses clean integration workspace; original Strings branch retained, proposals only outside active configured inputs"
+        },
+        {
+          "utc": "2026-11-17T11:16:15.742433+00:00",
+          "action": "blocked",
+          "note": "Held by explicit user Network-only focus; clean checkpoint 295b0e3938da20e86ddc91470362794e03c2fc6b retained; no further dispatch"
+        },
+        {
+          "utc": "2026-11-17T11:16:15.756584+00:00",
+          "action": "amended",
+          "note": "blockers, next_action, stages"
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-NATIVE-BUILD-THROUGHPUT",
+      "subsystem": "network-services",
+      "priority": 1,
+      "objective": "Investigate and improve local native build throughput for the Network migration without weakening validation",
+      "behavioral_contract": "Use actual retained build/configuration/process evidence; distinguish measured causes from hypotheses. Preserve source correctness, compiler diagnostics, required tests, local-only execution and the two compiler/linker ceiling.",
+      "original_cpp_reference": {
+        "paths": [
+          "base/BUILD.gn",
+          "net/BUILD.gn",
+          "build/config/compiler/BUILD.gn"
+        ],
+        "revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
+        "reference_workspace": "D:\\Rustium",
+        "freeze_status": "Read-only expert analysis of actual configured build logs and evaluated graph; no compiled benchmark or output identity claim"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-native-build-throughput"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "specialist",
+      "assignment": {
+        "active": true,
+        "session": "independent-net-build-expert-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-native-build-throughput-20261117",
+        "model": "gpt-6.1-sol",
+        "effort": "high"
+      },
+      "base_revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Trace recommendations to retained actual build edges/configuration and local resources",
+        "Review semantics/resource limits and validate concrete scoped improvement through the single gate"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "implementing",
+      "next_action": "Read-only independent expert; director records report in existing integration workspace; no new configured writes",
+      "evidence": [],
+      "stages": {
+        "implementation": "Read-only investigation requested",
+        "configured_validation": "No build changes authorized by this task yet",
+        "production_integration": "not integrated",
+        "rust_ownership": "not applicable to build investigation",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T11:17:10.165539+00:00",
+          "action": "enqueued",
+          "note": "Investigate and improve local native build throughput for the Network migration without weakening validation"
+        },
+        {
+          "utc": "2026-11-17T11:17:10.326951+00:00",
+          "action": "assigned",
+          "note": "independent-net-build-expert-20261117"
+        },
+        {
+          "utc": "2026-11-17T11:17:11.905723+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T11:17:12.069807+00:00",
+          "action": "implementing",
+          "note": "Read-only independent expert; director records report in existing integration workspace; no new configured writes"
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
     }
-  ]
+  ],
+  "active_focus": {
+    "subsystem": "network-services",
+    "name": "Network",
+    "allowed_dependency_tasks": [
+      "FOUNDATION-STRINGS-BRIDGE"
+    ],
+    "scope": "Finish Network connected families, production ownership and acceptance before unrelated subsystem implementation",
+    "dependency_reason": "Already applied Foundation Strings bridge changes are dependencies of the current Network consumer cohort; validate/repair them as Network work, not a separate foundation expansion",
+    "user_directive_utc": "2026-11-17T11:16:15.030706+00:00",
+    "other_work": "Preserve clean checkpoints, integrated artifacts and historical evidence; no new non-Network dispatch"
+  }
 }
