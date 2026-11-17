@@ -506,13 +506,107 @@ mod tests {
         let a = "a".to_string();
         let b = "b".to_string();
         c.put(&mut p, &a, 1).unwrap();
-        assert!(c.increment(&mut p, &a).unwrap());
         c.put(&mut p, &b, 2).unwrap();
         assert!(c.has_handle(&a) && c.has_handle(&b));
         p.events.clear();
         assert!(c.increment(&mut p, &a).unwrap());
-        assert_eq!(&p.events[..5], &["close:1", "close:2", "stop", "timer:5", "open:a"]);
-        assert!(!p.events.iter().any(|e| e.starts_with("flush:")));
+        assert_eq!(
+            p.events,
+            vec![
+                "close:1",
+                "close:2",
+                "stop",
+                "timer:5",
+                "open:a",
+                "read:3:0",
+                "timer:5",
+                "write:3:0"
+            ]
+        );
+        assert_eq!(decode(&p.files[&a]), Ok(Record { valid: true, dirty: 1, usage: 1 }));
+    }
+    #[test]
+    fn saved_new_handle_stays_true_when_capacity_evicts_during_write() {
+        let mut c = UsageCache::<String, usize>::new(false);
+        let mut p = Fake::default();
+        let a = "a".to_string();
+        let b = "b".to_string();
+        p.files.insert(a.clone(), encode(Record { valid: true, dirty: 0, usage: 7 }).to_vec());
+        c.put(&mut p, &b, 2).unwrap();
+        p.events.clear();
+        assert!(!c.has_handle(&a));
+        assert!(c.increment(&mut p, &a).unwrap());
+        assert_eq!(
+            p.events,
+            vec![
+                "timer:5",
+                "open:a",
+                "read:2:0",
+                "close:2",
+                "close:1",
+                "stop",
+                "timer:5",
+                "open:a",
+                "write:3:0",
+                "flush:3"
+            ]
+        );
+        assert_eq!(decode(&p.files[&a]), Ok(Record { valid: true, dirty: 1, usage: 7 }));
+    }
+    #[test]
+    fn failed_and_short_writes_keep_original_error_when_cleanup_delete_fails() {
+        for short in [false, true] {
+            let mut c = UsageCache::<String, usize>::new(false);
+            let mut p = Fake::default();
+            let k = "k".to_string();
+            c.put(&mut p, &k, i64::MAX).unwrap();
+            p.files.get_mut(&k).unwrap().extend_from_slice(&[0xaa, 0xbb]);
+            let mut expected_bytes = p.files[&k].clone();
+            p.fail_write = !short;
+            p.short_write = short;
+            p.fail_delete = true;
+            p.events.clear();
+            let expected_error =
+                if short { CacheError::ShortWrite } else { CacheError::Provider("write") };
+            assert_eq!(c.put(&mut p, &k, i64::MIN), Err(expected_error));
+            assert_eq!(p.events, vec!["timer:5", "write:1:0", "close:1", "stop", "delete:k"]);
+            if short {
+                expected_bytes[..RECORD_SIZE - 1].copy_from_slice(
+                    &encode(Record { valid: true, dirty: 0, usage: i64::MIN })[..RECORD_SIZE - 1],
+                );
+            }
+            assert_eq!(p.files[&k], expected_bytes);
+            assert!(p.handle_keys.is_empty());
+            assert!(!c.has_handle(&k));
+        }
+    }
+    #[test]
+    fn read_failures_have_typed_outcomes_exact_traces_and_unchanged_outputs() {
+        for mode in 0..3 {
+            let mut c = UsageCache::<String, usize>::new(false);
+            let mut p = Fake::default();
+            let k = "k".to_string();
+            c.put(&mut p, &k, 12).unwrap();
+            p.fail_read = mode == 0;
+            p.short_read = mode == 1;
+            if mode == 2 {
+                p.files.get_mut(&k).unwrap()[0] = 19;
+            }
+            let expected = match mode {
+                0 => CacheError::Provider("read"),
+                1 => CacheError::ShortRead,
+                _ => CacheError::Codec(CodecError::BadPickleLength),
+            };
+            p.events.clear();
+            assert_eq!(c.get(&mut p, &k), Err(expected));
+            assert_eq!(p.events, vec!["timer:5", "read:1:0"]);
+            p.events.clear();
+            let mut usage = 99;
+            assert!(!c.get_usage_into(&mut p, &k, &mut usage));
+            assert_eq!(usage, 99);
+            assert_eq!(p.events, vec!["timer:5", "read:1:0"]);
+            assert!(c.has_handle(&k));
+        }
     }
     #[test]
     fn write_at_capacity_evicts_and_restarts_timer() {

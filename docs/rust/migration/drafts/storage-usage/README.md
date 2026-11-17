@@ -33,7 +33,7 @@ eviction at capacity, the saved-handle/dirty flush conditions, timer restart,
 expiry, deletion, and destruction ordering. The facade sequence token is an
 internal candidate seam; native `SEQUENCE_CHECKER` remains authoritative.
 Signed usage overflow wraps provisionally pending the configured C++ oracle.
-Sources remain unexecuted because the validation gate is occupied.
+An earlier exact candidate passed18 host tests; the new review-driven trace/reference additions are pending a fresh director-gated run. Native bridge/provider validation remains separate.
 
 `reference/SHA256SUMS` now also pins the directly relevant Pickle alignment
 reader (`base/containers/span_reader.h`), alignment helper (`base/bits.h`),
@@ -48,3 +48,5 @@ Director review remains required for shared Rust/C++ ABI, path/key ownership,
 and native error translation. Existing C++ callers in quota backend,
 sandbox quota observer, and sandbox backend remain production owners until
 the bridge is reviewed, wired, and validated.
+
+The second independent review is resolved by old-dirty-zero read/write eviction flush traces, failed/short policy reads and writes with failed cleanup deletion, and exact output/byte assertions. Platform DeleteFile/PathExists and native-endian conversion helpers are now frozen in reference/helper-completion.json; their direct build/system providers are identified, not claimed as a standalone compiled platform oracle.
