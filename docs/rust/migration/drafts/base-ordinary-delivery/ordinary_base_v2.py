@@ -1,11 +1,14 @@
 """Separate parent-only frozen ordinary delivery. Pending qualification."""
 import argparse
+import base64
+import ctypes
 import datetime
 import fnmatch
 import hashlib
 import importlib.util
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -73,11 +76,24 @@ def membership(summary):
     require(all(isinstance(v,list) and len(v)==1 and v[0].get('status') for v in iterations[0].values()),'Repeated/missing attempt')
     return expected, sorted(selected & set(disabled))
 
-def native_outcome(summary, parsed):
+def native_outcome(summary, parsed, output):
     expected,disabled=membership(summary)
     require(parsed['passed']+parsed['skipped']==len(expected) and not parsed['unexpected_statuses'],'Unreconciled native statuses')
     skips=set(parsed['native_skip_names']);require(skips<=expected,'Unexpected native skip')
-    diagnostic=DIAGNOSTIC not in skips and summary['per_iteration_data'][0][DIAGNOSTIC][0]['status']=='SUCCESS'
+    output=re.sub(r'\x1b\[[0-9;]*m','',output)
+    runs={name:0 for name in expected};terminal={name:[] for name in expected}
+    for name in re.findall(r'(?m)^\[\s*RUN\s*\]\s+(\S+)\s*$',output):
+        require(name in expected,'Unselected native run');runs[name]+=1
+    for status,name in re.findall(r'(?m)^\[\s*(OK|SKIPPED|FAILED)\s*\]\s+(\S+)\s+\(\d+ ms\)\s*$',output):
+        require(name in expected,'Unselected native terminal');terminal[name].append(status)
+    require(all(runs[name]==1 and len(terminal[name])==1 for name in expected),'Missing/truncated/duplicate native run or terminal')
+    native_skips=set()
+    for name,events in terminal.items():
+        status=summary['per_iteration_data'][0][name][0]['status'];event=events[0]
+        require((event=='OK' and status=='SUCCESS') or (event=='SKIPPED' and status in ['SUCCESS','SKIPPED']),'Contradictory native/launcher outcome')
+        if event=='SKIPPED':native_skips.add(name)
+    require(native_skips==skips,'Native skip parser disagreement')
+    diagnostic=terminal[DIAGNOSTIC]==['OK']
     return {'expected_enabled':len(expected),'disabled':disabled,'diagnostic_contract_passed':diagnostic}
 
 def source_check(info):
@@ -92,11 +108,88 @@ def runtime_modules(snapshot=None):
     context=snapshot/'context' if snapshot else None
     native=module('frozen_native',context/'native_delivery.py' if context else ROOT/'.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py')
     registry=module('frozen_registry',context/'dll_registry.py' if context else ROOT/'tools/run_rust_rewrite_benchmarks.py')
+    # Same recursive adjacent-import algorithm, with bounded probe processes.
+    registry.local_dll_dependencies=bounded_dll_dependencies
     inspector=context/'inspector/dumpbin.exe' if context else Path(native.reused().INSPECTOR)
     return native,registry,inspector
 
-def runtime(native,registry,inspector):
-    return native.collect_runtime({'cases':[{'target':'base_unittests'}]},inspector,registry)
+def runtime(native,registry,inspector,targets=('base_unittests',)):
+    return native.collect_runtime({'cases':[{'target':target} for target in targets]},inspector,registry)
+
+def configuration_identity(native):
+    result=native.config_files()
+    for path in (OUT/'gen/base').rglob('*'):
+        if path.is_file():result[str(path.resolve())]=sha(path)
+    for pattern in ['*.rsp','*.rsp.rust','*.rustflags.json']:
+        for path in (OUT/'obj/base').rglob(pattern):result[str(path.resolve())]=sha(path)
+    return result
+
+def expected_build_commands():
+    gn=str(BUILD/'buildtools/win/gn.exe')
+    return [[gn,'gen','out/Default'],[gn,'check','out/Default','//base:base_unittests'],
+        [gn,'check','out/Default','//net:*'],
+        [str(BUILD/'third_party/ninja/ninja.exe'),'-C',str(OUT),'-j1','base_unittests','net_unittests']]
+
+def attestation_binding(receipt, authority, current_configuration, current_runtime):
+    require(receipt['source_manifest_sha256']==authority and receipt['passed'] and receipt['source_inputs_stable'],'Attestation source mismatch')
+    require(receipt['cwd']==str(BUILD) and receipt['commands']==expected_build_commands() and all(code==0 for code in receipt['exit_codes']),'Exact configured commands required')
+    require(len(receipt['exit_codes'])==len(expected_build_commands()),'Incomplete attested command results')
+    require(receipt['configuration']==current_configuration and receipt['runtime']==current_runtime,'Receipt output/graph membership differs')
+
+def host_identity():
+    require(os.name=='nt','Native delivery is Windows-only')
+    dll=ctypes.create_unicode_buffer(32768)
+    function=ctypes.WinDLL('kernel32',use_last_error=True).GetModuleFileNameW
+    function.argtypes=[ctypes.c_void_p,ctypes.c_wchar_p,ctypes.c_uint32];function.restype=ctypes.c_uint32
+    length=function(ctypes.c_void_p(sys.dllhandle),dll,len(dll))
+    require(0<length<len(dll),'Cannot identify actual loaded Python DLL')
+    paths=[Path(sys.executable).resolve(),Path(dll.value).resolve()]
+    return {'files':{str(p):sha(p) for p in paths},'version':sys.version,
+        'limits':'Installed stdlib and system/nonadjacent DLL providers are not a frozen standalone runtime; dynamically loaded plugins remain outside the closure'}
+
+def terminate(process):
+    if process.poll() is not None:return {'required':False,'reaped':True}
+    require(os.name=='nt','Whole-tree cleanup requires the supported Windows host')
+    result=subprocess.run(['taskkill','/F','/T','/PID',str(process.pid)],capture_output=True,timeout=15)
+    require(result.returncode==0 or process.poll() is not None,'Cleanup failed; reconcile live descendants before another job')
+    process.wait(timeout=15)
+    return {'required':True,'tree_termination_succeeded':True,'reaped':True}
+
+class CommandFailure(RuntimeError):
+    def __init__(self, command, error, cleanup):
+        self.details={'command':[str(x) for x in command], 'failure':type(error).__name__+': '+str(error),
+            'timed_out':isinstance(error,subprocess.TimeoutExpired),'cleanup':cleanup}
+        partial=getattr(error,'output',None)
+        if isinstance(partial,bytes):self.details['partial_output_base64']=base64.b64encode(partial).decode('ascii')
+        super().__init__(json.dumps(self.details))
+
+def command_failure(process,command,error):
+    try:cleanup=terminate(process)
+    except BaseException as cleanup_error:cleanup={'failed':type(cleanup_error).__name__+': '+str(cleanup_error),'live_descendants_require_reconciliation':True}
+    return CommandFailure(command,error,cleanup)
+
+def capture(command,timeout=60):
+    require(os.name=='nt','Native probes are Windows-only')
+    process=subprocess.Popen([str(x) for x in command],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    try:
+        output=process.communicate(timeout=timeout)[0]
+        if process.returncode!=0:raise subprocess.CalledProcessError(process.returncode,command,output=output)
+        return output.decode(errors='replace')
+    except BaseException as error:
+        raise command_failure(process,command,error) from error
+
+def bounded_dll_dependencies(executable,inspector):
+    pending=[executable];visited=set();hashes={};external=set()
+    while pending:
+        binary=pending.pop()
+        if binary in visited:continue
+        visited.add(binary)
+        output=capture([inspector,'/nologo','/dependents',binary],timeout=60)
+        for name in re.findall(r'^\s+([^\s/\\:]+\.dll)\s*$',output,re.M|re.I):
+            dependency=(executable.parent/name).resolve()
+            if dependency.is_file():hashes[dependency.name]=sha(dependency);pending.append(dependency)
+            else:external.add(name.lower())
+    return hashes,sorted(external)
 
 def verify(snapshot, digest):
     manifest=snapshot/'input-manifest.json';require(sha(manifest)==digest,'Snapshot manifest drift')
@@ -111,27 +204,23 @@ def verify(snapshot, digest):
     return data
 
 def run_command(command,cwd,env,log,timeout=600):
+    require(os.name=='nt','Native process-tree protocol is Windows-only')
     with log.open('wb') as stream:
         process=subprocess.Popen([str(x) for x in command],cwd=cwd,env=env,stdout=stream,stderr=subprocess.STDOUT)
         try:
             return process.wait(timeout=timeout)
-        except subprocess.TimeoutExpired:
-            if os.name=='nt':
-                killed=subprocess.run(['taskkill','/F','/T','/PID',str(process.pid)],stdout=stream,stderr=subprocess.STDOUT)
-                require(killed.returncode==0,'Could not terminate launched process tree; reconcile live descendants')
-            else:
-                process.kill()
-            process.wait(timeout=30)
-            raise TimeoutError('Command timed out; launched process tree terminated')
+        except BaseException as error:
+            raise command_failure(process,command,error) from error
 
 def execute(args):
     snapshot=args.snapshot.resolve();output=args.execution.resolve()
-    result={'passed':False,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()};data=None
+    result={'passed':False,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()};data=None;host=None
     require(output.is_relative_to(OWNED.resolve()) and not output.is_relative_to(snapshot) and not output.exists(),'Unique external execution path required')
     require(not any(linked(p) for p in [output,*output.parents]),'Linked execution ancestor')
     output.mkdir(parents=True);write(output/'result.json',result)
     try:
         data=verify(snapshot,args.manifest_sha256)
+        host=host_identity();require(host==data['host_identity'],'Copied controller uses different Python host')
         require(Path(__file__).resolve()==snapshot/'controller.py','Execute copied controller')
         temporary=output/'t';temporary.mkdir();require(len(str(temporary))<=96,'Temporary path too long')
         env=os.environ.copy();require(not any(k.startswith('GTEST_') or k in ['TEST_TOTAL_SHARDS','TEST_SHARD_INDEX'] for k in env),'Inherited test selector')
@@ -149,11 +238,14 @@ def execute(args):
         require(len(xml_names)==len(set(xml_names)) and set(xml_names)==expected,'XML membership mismatch')
         require(not any(node.find('failure') is not None or node.find('error') is not None for node in xml),'XML failure/error contradicts success')
         parsed=parser.unit_results(output);result['native_results']=parsed
-        result.update(native_outcome(load(output/'summary.json'),parsed))
+        result.update(native_outcome(load(output/'summary.json'),parsed,(output/'output.log').read_text(errors='replace')))
         result['passed']=result['exit_code']==0 and result['diagnostic_contract_passed']
     except BaseException as error:
         result['exception']=type(error).__name__+': '+str(error)
+        if isinstance(error,CommandFailure):result['command_failure']=error.details
     finally:
+        try:require(host is not None and host_identity()==host,'Python host drift');result['host_identity_after']=True
+        except BaseException as error:result.update(passed=False,host_identity_after=str(error))
         try:verify(snapshot,args.manifest_sha256);result['snapshot_identity_after']=True
         except BaseException as error:result.update(passed=False,snapshot_identity_after=str(error))
         result['artifacts']={name:(output/name).exists() for name in ['summary.json','gtest.xml','output.log']}
@@ -164,7 +256,7 @@ def prepare(args):
     output=args.output.resolve();require(output.is_relative_to(OWNED.resolve()) and not output.exists(),'Unique owned output')
     require(not any(linked(p) for p in [output,*output.parents]),'Linked output ancestor')
     output.mkdir(parents=True);result={'passed':False,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'stage':'preparing'}
-    write(output/'result.json',result);info=None;observed=None;helpers={};configuration={};snapshot=output/'snapshot';digest=None;collector=None
+    write(output/'result.json',result);info=None;observed=None;helpers={};configuration={};snapshot=output/'snapshot';digest=None;collector=None;host=None;attestation=None
     try:
         require(args.intake.resolve()==(ROOT/'.rustium-runtime/shared-strings-connection-latest.json').resolve(),'Use current applied intake')
         info=load(args.intake);require(info['source_manifest_sha256']==args.expected_source_sha256,'Explicit director authority mismatch');pins=source_check(info)
@@ -180,23 +272,33 @@ def prepare(args):
         original=ROOT/'base/strings/string_split_unittest.cc';frozen=ROOT/'docs/rust/migration/drafts/foundation-strings/reference/base/strings/string_split_unittest.cc'
         require(original.read_bytes()==frozen.read_bytes()==(BUILD/'base/strings/string_split_unittest.cc').read_bytes(),'Original test assertions changed')
         native,registry,inspector=runtime_modules();collector=(native,registry,inspector);observed=runtime(*collector)
-        configuration=native.config_files()
-        for path in (OUT/'gen/base').rglob('*'):
-            if path.is_file():configuration[str(path.resolve())]=sha(path)
-        for pattern in ['*.rsp','*.rsp.rust','*.rustflags.json']:
-            for path in (OUT/'obj/base').rglob(pattern):configuration[str(path.resolve())]=sha(path)
+        configuration=configuration_identity(native);host=host_identity()
+        attestation=load(args.attestation);attest_job=load(args.attestation_job_result)
+        require(attest_job['status']=='passed' and attest_job['exit_code']==0 and attest_job['task_id']=='FOUNDATION-STRINGS-BRIDGE' and attest_job['kind']=='build','Completed attestation gate required')
+        require(attest_job['source_identity']['source_manifest_sha256']==info['source_manifest_sha256']==attestation['source_manifest_sha256'],'Attestation authority mismatch')
+        attestation_binding(attestation,info['source_manifest_sha256'],configuration,runtime(*collector,targets=('base_unittests','net_unittests')))
+        require(sha(Path(__file__).with_name('attest_build.py'))==attest_job['toolchain']['script_sha256'],'Attestation driver drift')
+        require(all(sha(path)==h for path,h in attestation['scripts'].items()),'Attested helper/environment source drift')
+        require(all(sha(path)==h for path,h in attestation['tool_sha256'].items()),'Attested compiler/linker drift')
+        require(sha(OUT/'args.gn')==attestation['args_sha256'],'Attested build args mismatch')
         dry=[BUILD/'third_party/ninja/ninja.exe','-C',OUT,'-n','base_unittests','net_unittests']
         require(run_command(dry,BUILD,os.environ.copy(),output/'freshness.log')==0 and 'no work to do' in (output/'freshness.log').read_text().lower(),'Consumers not fresh')
         require(observed==runtime(*collector),'Runtime drift during freshness')
+        qualified=ROOT/'.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/n17a/s/input-manifest.json'
+        require(sha(qualified)=='b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f','Qualified parser snapshot manifest changed')
+        parser_rows=[row for row in load(qualified)['files'] if row['copy']=='context/unit_parser.py']
+        require(len(parser_rows)==1 and parser_rows[0]['sha256']=='d4e53f9f409206f83404c2cc2dbb2fede667bb1d1a30d1b948e101d7deaeb677','Qualified parser authority mismatch')
         snapshot.mkdir();context=snapshot/'context';context.mkdir()
         helper_files=[(Path(__file__).resolve(),'controller.py'),(Path(native.__file__),'context/native_delivery.py'),(Path(registry.__file__),'context/dll_registry.py'),
             (ROOT/'.scratch/net-wave4/regular-net-suite-prep/regular_suite.py','context/reused_regular_suite.py'),
             (ROOT/'.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/n17a/s/context/unit_parser.py','context/unit_parser.py'),
-            (inspector,'context/inspector/dumpbin.exe'),(build_driver,'context/build_driver.py')]
+            (inspector,'context/inspector/dumpbin.exe'),(build_driver,'context/build_driver.py'),
+            (Path(__file__).with_name('attest_build.py'),'context/attest_build.py')]
         adjacent,external=registry.local_dll_dependencies(inspector,inspector)
         helper_files += [(inspector.parent/name,'context/inspector/'+name) for name in adjacent]
         for source,rel in helper_files:
             copy(source,snapshot/rel);helpers[str(source)]={'copy':rel,'sha256':sha(source)}
+        require(sha(snapshot/'context/unit_parser.py')==parser_rows[0]['sha256'],'Parser differs from qualified snapshot')
         for directory,members in observed['directories'].items():
             destination=snapshot/'build'/Path(directory).relative_to(BUILD);destination.mkdir(parents=True,exist_ok=True)
             for member in members:
@@ -210,11 +312,14 @@ def prepare(args):
         proof={k:v for k,v in job.items() if k not in ['launcher_pid','child_pid']}
         proof['original_result_sha256']=sha(args.build_job_result)
         (snapshot/'provenance').mkdir();write(snapshot/'provenance/build-gate-proof.json',proof)
-        for source in [run/'build-result.json',run/'args.gn',run/'application.json',Path(info['source_manifest']),output/'freshness.log']:
+        attest_proof={k:v for k,v in attest_job.items() if k not in ['launcher_pid','child_pid']}
+        attest_proof['original_result_sha256']=sha(args.attestation_job_result)
+        write(snapshot/'provenance/attestation-gate-proof.json',attest_proof)
+        for source in [run/'build-result.json',run/'args.gn',run/'application.json',Path(info['source_manifest']),output/'freshness.log',args.attestation,qualified]:
             copy(source,snapshot/'provenance'/source.name)
         for filename,h in configuration.items():
             source=Path(filename);copy(source,snapshot/'configuration'/source.relative_to(OUT));require(sha(source)==h,'Configuration copy drift')
-        metadata={'info':info,'runtime':observed,'helpers':helpers,'configuration':configuration,'patterns':PATTERNS,'required_bridge_cases':sorted(BRIDGE),'inventory':inventory(snapshot),
+        metadata={'info':info,'runtime':observed,'helpers':helpers,'configuration':configuration,'host_identity':host,'patterns':PATTERNS,'required_bridge_cases':sorted(BRIDGE),'inventory':inventory(snapshot),
             'dcheck_evidence':{'path':'configuration/obj/base/base_unittests.ninja','rule':'Configured Ninja defines retained in full evaluated graph; diagnostic must actually execute without native skip regardless of is_debug'},
             'host_limits':{'python_executable':str(Path(sys.executable).resolve()),'python_sha256':sha(sys.executable),'python_version':sys.version,'provider_scope':'Installed Python/stdlib and nonadjacent/system DLLs remain identified host providers; dynamic plugins not captured','inspector_external_import_names':external}}
         write(snapshot/'input-manifest.json',metadata);digest=sha(snapshot/'input-manifest.json');verify(snapshot,digest)
@@ -223,10 +328,14 @@ def prepare(args):
         result['controller_exit']=code;result['execution']=load(output/'execution/result.json');result['passed']=code==0 and result['execution']['passed']
     except BaseException as error:
         result['exception']=type(error).__name__+': '+str(error)
+        if isinstance(error,CommandFailure):result['command_failure']=error.details
     finally:
+        result['execution_artifacts']={name:(output/'execution'/name).exists() for name in ['result.json','summary.json','gtest.xml','output.log']}
+        result['controller_log_available']=(output/'controller.log').exists()
         checks={}
         for name,check in [('source',lambda:source_check(info)),('runtime',lambda:require(observed==runtime(*collector),'Original runtime drift')),
-                ('configuration',lambda:require(configuration and all(sha(p)==h for p,h in configuration.items()),'Original configuration drift')),
+                ('configuration',lambda:require(configuration and configuration_identity(collector[0])==configuration,'Original configuration content/membership drift')),
+                ('host',lambda:require(host is not None and host_identity()==host,'Python interpreter/DLL drift')),
                 ('helpers',lambda:require(helpers and all(sha(p)==row['sha256'] for p,row in helpers.items()),'Original helper drift')),
                 ('snapshot',lambda:verify(snapshot,digest))]:
             try:check();checks[name]=True
@@ -237,5 +346,5 @@ def prepare(args):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--run-sealed',action='store_true');parser.add_argument('--intake',type=Path);parser.add_argument('--output',type=Path)
-    parser.add_argument('--expected-source-sha256');parser.add_argument('--build-job-result',type=Path);parser.add_argument('--snapshot',type=Path);parser.add_argument('--manifest-sha256');parser.add_argument('--execution',type=Path)
+    parser.add_argument('--expected-source-sha256');parser.add_argument('--build-job-result',type=Path);parser.add_argument('--attestation',type=Path);parser.add_argument('--attestation-job-result',type=Path);parser.add_argument('--snapshot',type=Path);parser.add_argument('--manifest-sha256');parser.add_argument('--execution',type=Path)
     args=parser.parse_args();sys.exit(execute(args) if args.run_sealed else prepare(args))
