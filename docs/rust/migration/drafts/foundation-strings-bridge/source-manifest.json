@@ -1,0 +1,73 @@
+{
+  "task_base": "5b011c026104ce562706781dcaddee1747e02445",
+  "accepted_candidate_commit": "62f30a362c8f217d58baa99463a66632ad99da13",
+  "accepted_artifact_integration_commit": "0d311312dd2ea6ca3733ac59e1c9ceac021df3fc",
+  "records": [
+    {
+      "path": "base/BUILD.gn",
+      "source_workspace": "D:/Rustium",
+      "sha256": "b9a58423b54935a730b5fc85bbfa2f6d7929a78258c18bb4c7ffa849ddf89a14",
+      "git_blob": "8b1f7ed810cd0d79bd5d764a5606cf31a5c5b536",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "source_workspace": "D:/Rustium",
+      "sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "git_blob": "082cd509472284185851d8293f06548145502abd",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/strings/string_split.h",
+      "source_workspace": "D:/Rustium",
+      "sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "git_blob": "be85f2ab1ef6b0bd3abad8013cdf8f4d8a4c08e0",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/strings/string_split_internal.h",
+      "source_workspace": "D:/Rustium",
+      "sha256": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+      "git_blob": "081fc024fb7ae4fb0380fe00e743f576b53fea2a",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/strings/string_split_win.h",
+      "source_workspace": "D:/Rustium",
+      "sha256": "3948ad4dba15161de85f732b9864cea7b21bf5647c11adec95673a9a0d2c4024",
+      "git_blob": "2e4747cec1213a47182af35910024b6efe491700",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/base64_rust_shim.rs",
+      "source_workspace": "D:/Rustium",
+      "sha256": "c829f4bd470c5828885be4f11e341c7003a30c70392e4dd918aded104d097c10",
+      "git_blob": "fff9c7d0154e60ffbfa68c79d676138a0478e64a",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/base64.cc",
+      "source_workspace": "D:/Rustium",
+      "sha256": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+      "git_blob": "20818c378aae2c21bed9d97a5c62a319d4173678",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    },
+    {
+      "path": "build/rust/rust_static_library.gni",
+      "source_workspace": "D:/Rustium",
+      "sha256": "c9030ff2ef3dfa396016103d2a6e6d70ca6392f047f3f89471105793c6c16d55",
+      "git_blob": "6905d466fec69953183a0b9bf520a7e5b4f0e8e2",
+      "git_blob_is_not_raw_hash": true,
+      "configured_same_bytes": true
+    }
+  ],
+  "production_or_configured_changes": false,
+  "notes": "Byte copies independent, no hardlinks; preexisting dirty baseBUILD preserved; all original accepted policy/test/helper bytes retained"
+}
