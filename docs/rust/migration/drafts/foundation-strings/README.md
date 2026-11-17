@@ -4,13 +4,13 @@ This directory is a candidate artifact only. `src/lib.rs` implements safe Rust p
 
 ## Frozen original closure
 
-`reference/base/strings/` contains byte-for-byte copies of the original splitter, its public and Windows headers, internal template algorithm, original full unit-test file, the trimming helper, and the whitespace constants. `source-manifest.json` binds each copied file to its primary-checkout SHA-256 and records checkout attributes. The original files are text/LF under `.gitattributes`; copies retain exact read bytes. The queue's three original pinned hashes are checked in the manifest. No C++ caller implementation or test has been changed.
+`reference/` contains byte-for-byte copies of the splitter policy files, trim/whitespace helpers, complete original unit-test file, `MakeStringViewWithNulChars`, and the `span` helpers used by constexpr fixtures. `source-manifest.json` binds each copied file to SHA-256 and checkout attributes; all queue-pinned hashes match. This captures the policy and identified test-helper closure, not a standalone Chromium build: standard-library behavior, gtest/gmock, and the Chromium toolchain remain external providers. No C++ caller implementation or test has been changed.
 
 ## Compatibility and limits
 
 The port preserves the original separate empty-input rules for any-unit and substring splitting, delimiter matching, trim tables, result filtering, split-once direction, and key/value partial-result behavior. Bytes are never decoded. UTF-16 is processed as code units, so lone surrogates remain ordinary data. Key/value functions intentionally match the original byte-only surface; the original has no UTF-16 key/value or substring split-once API. Rust cannot encode C++ ABI/export or Windows `wchar_t` bindings here; the director owns those choices and platform/provider retirement.
 
-`tests/original-case-map.md` enumerates every original gtest case, expands both typed fixtures, and maps its asserted behavior to candidate tests. The complete original assertions remain archived; compiler-backed candidate tests have not been run.
+`tests/original-case-map.md` maps each original gtest and typed expansion to named Rust tests that assert exact values and, for key/value parsing, status on both owned and borrowed APIs. The complete original assertions remain archived; compiler-backed candidate tests have not been run.
 
 ## Caller and lifetime audit
 
