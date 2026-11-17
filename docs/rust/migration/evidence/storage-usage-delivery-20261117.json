@@ -1,28 +1,29 @@
 {
   "task_id": "STORAGE-USAGE",
-  "candidate_commit": "0d8a3ae858cb36b21e5b5980d719d247cb69e097",
+  "candidate_commit": "e10556d86940a8db6907f0053e9578c56869cb6f",
   "source_identity": {
     "base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
     "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
     "clean": true,
-    "reference_sha256sums_sha256": "2b49d3e903550bf9650161588649d3156e7b2eddb23b08782ab5f1e606bacbaf",
-    "rust_core_sha256": "421430b72c36d0032e3e77c24f9517772eb8944f20ec8055ad103d6e39a1119b",
-    "archived_reference_count_verified": 13
+    "reference_sha256sums_sha256": "1f222a0dc302b8cebbdcd10619b3c21c7d649e480a8289ae72b77fe67e02432a",
+    "rust_core_sha256": "8b4149f50c17b2f26ebfc8ba2c0baec48fb3730508f02bf5fea34805b6688e31",
+    "archived_reference_count_verified": 18
   },
   "tests": {
     "status": "passed",
     "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
     "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
     "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
-    "listed_tests": 18,
-    "passed_tests": 18,
+    "listed_tests": 21,
+    "passed_tests": 21,
     "failed_tests": 0,
     "ignored_tests": 0,
     "all_original_and_frozen_inputs_unchanged": true,
-    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/storage-usage-result.json",
-    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/storage-usage-compiler.log",
-    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/storage-usage-tests.log",
-    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained"
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
   },
   "review": {
     "status": "pending",
@@ -35,7 +36,7 @@
     "No real bridge, native error/sequence or timer callback lifetime validation"
   ],
   "remaining_ownership": "C++ callers and native resources remain production authoritative; Rust candidate owns logical policy only",
-  "next_action": "New independent Terra review of exact compiler-tested candidate; fix findings before director-owned production integration",
+  "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration",
   "arithmetic_oracle": {
     "status": "passed",
     "cases": 49,

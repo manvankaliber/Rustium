@@ -1,0 +1,28 @@
+error[E0308]: mismatched types
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T082218684967Z\v8-wasm-leb\rust\leb.rs:99:38
+     |
+  99 |         let used = ((i + 1) * 7).min(width.bits()) as u32;
+     |                                  --- ^^^^^^^^^^^^ expected `usize`, found `u32`
+     |                                  |
+     |                                  arguments to this method are incorrect
+     |
+help: the return type of this call is `u32` due to the type of the argument passed
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T082218684967Z\v8-wasm-leb\rust\leb.rs:99:20
+     |
+  99 |         let used = ((i + 1) * 7).min(width.bits()) as u32;
+     |                    ^^^^^^^^^^^^^^^^^^------------^
+     |                                      |
+     |                                      this argument influences the return type of `min`
+note: method defined here
+    --> C:\Users\jackv\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\cmp.rs:1085:8
+     |
+1085 |     fn min(self, other: Self) -> Self
+     |        ^^^
+help: you can convert a `u32` to a `usize` and panic if the converted value doesn't fit
+     |
+  99 |         let used = ((i + 1) * 7).min(width.bits().try_into().unwrap()) as u32;
+     |                                                  ++++++++++++++++++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0308`.

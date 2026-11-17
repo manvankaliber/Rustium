@@ -1,0 +1,55 @@
+error[E0308]: mismatched types
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\blink-css-tokens\rust\src\lib.rs:496:13
+    |
+472 |     fn consume_escape(&mut self) -> u32 {
+    |                                     --- expected `u32` because of return type
+...
+496 |             c
+    |             ^ expected `u32`, found `u16`
+    |
+help: you can convert a `u16` to a `u32`
+    |
+496 |             c.into()
+    |              +++++++
+
+error[E0689]: can't call method `to_bits` on ambiguous numeric type `{float}`
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\blink-css-tokens\rust\src\lib.rs:1018:38
+     |
+1018 |                 binary64_bits: value.to_bits(),
+     |                                      ^^^^^^^
+     |
+help: you must specify a type for this binding, like `f32`
+     |
+1007 |             let value: f32 = match s {
+     |                      +++++
+
+error[E0609]: no field `range` on type `&BasicExpected`
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\blink-css-tokens\rust\src\lib.rs:1327:52
+     |
+1327 |                 assert_eq!(actual.unicode_range, e.range, "{label} range {index}")
+     |                                                    ^^^^^ unknown field
+     |
+     = note: available fields are: `kind`, `delimiter`, `value`, `number_bits`, `integer`, `sign`
+
+error[E0609]: no field `hash_id` on type `&BasicExpected`
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\blink-css-tokens\rust\src\lib.rs:1331:49
+     |
+1331 |                 assert_eq!(actual.hash_is_id, e.hash_id, "{label} hash kind {index}");
+     |                                                 ^^^^^^^ unknown field
+     |
+     = note: available fields are: `kind`, `delimiter`, `value`, `number_bits`, `integer`, `sign`
+
+warning: variable does not need to be mutable
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\blink-css-tokens\rust\src\lib.rs:1619:13
+     |
+1619 |         let mut byte_provider =
+     |             ----^^^^^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+error: aborting due to 4 previous errors; 1 warning emitted
+
+Some errors have detailed explanations: E0308, E0609, E0689.
+For more information about an error, try `rustc --explain E0308`.

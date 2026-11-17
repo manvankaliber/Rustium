@@ -1,0 +1,29 @@
+{
+  "task_id": "V8-WASM-LEB",
+  "candidate_commit": "1495d453050904c34889929f1f20bed6f51d347a",
+  "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-f9eea265-22e0cc1e5573c9b1",
+  "source_manifest": {
+    "assertion-cases.csv": "1ae8af28aa3de95588659e4b5d2d25875862b0c631476a4f448f51999df59de2",
+    "test-mapping.csv": "7d00a8eee6eb1d414057ada2ecef4d52bf3f8d305adc6f35cc7bfaa3ff06bc85",
+    "integration-proposal/README.md": "3548da7e848ef9c26a9d79d55fe007c0cf08f28697841c8330130c15dad10c59",
+    "reference/source-manifest.json": "c939a32ecaed16815b13931967afc49e1843e53db492f698d8e30c4b3a82b07e",
+    "rust/leb.rs": "2e5a86f2a71b36b26042a0d88f45309243ec7619b055c9eabef725f6672f0c3a",
+    "rust/tests.rs": "f7725ab8a44bb6235c8a685395f5746585166ccac8d16b32ab35334e99dd3490",
+    "reference/test/unittests/wasm/decoder-unittest.cc": "c6d98691c70b0dd0e83aebb6d0c1da4a2a043935996c407a8df7a881c6f14e96",
+    "reference/test/unittests/wasm/leb-helper-unittest.cc": "82f7097e41ea7f2abc780b628269ac165d4eec004b19aaccaf2c9d24eb82334e",
+    "reference/src/wasm/decoder.h": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827",
+    "reference/src/wasm/leb-helper.h": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3"
+  },
+  "compiler_command": [
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "--edition=2021",
+    "--test",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T082218684967Z\\v8-wasm-leb\\rust\\leb.rs",
+    "-o",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T082218684967Z\\v8-wasm-leb.exe"
+  ],
+  "compile_exit": 1,
+  "scope": "Host Windows std-only candidate tests from independently copied sources; no production, configured ABI, platform or performance acceptance",
+  "passed": false,
+  "original_and_frozen_inputs_unchanged": true
+}

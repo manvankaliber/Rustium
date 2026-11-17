@@ -1,0 +1,63 @@
+{
+  "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+  "version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+  "external_toolchain_inputs": {
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe": "fc40f1c8b65095a22a48c111aadc279c26a049b7e4161e8b99ffe3eb23873e86",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc_driver-9cc664dca72b379e.dll": "6e0929ce2af23442bd04d9a03e9311e8f6806dafd54af8f6a85c3cee535bfa73",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\liballoc-a363f509dabb8931.rlib": "f67abc76c7b8e81e64c43a049d99581e9df4130040a434db32d16d2aa41f3942",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libcfg_if-61530a3e12046ff9.rlib": "75e8e9d55828dd0983e4a8bc333b3e886ff30ad8b0bf5d4ec926eda98627bc33",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libcompiler_builtins-a775fe6e194ff2d3.rlib": "b5b5aa1c4c55a144f25707b00feedf7128355938e02310456fc54c1eeabc1979",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libcore-4783344a2f21d44d.rlib": "a188bd90eaf7a38a1db1398f1276bb005cd7f96788259d695592b16dc5fcd311",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libgetopts-898878340f7829a0.rlib": "86a403a0b57c04d03f09c04ec5202c2b3c91792f2ef1b7cf0702fcb64fc38e48",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libhashbrown-127e4acb9a2b8e23.rlib": "ee13f6fc6ef51d350bb2adc2c003b581e3d9fd13ed22ebf18b69e8887dae816e",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libpanic_abort-a5dfefaf5531647d.rlib": "74c9b1232c49dbd4ef6f344d90ff3d6f4a68a10a6459c23fc7cec7fa58a1a577",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libpanic_unwind-9a6982b5613ae144.rlib": "76f373e1a4cba8b94642e927aeb1b786b90fc664263e499df302fe2e26fbb031",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libproc_macro-420b1f4ed5a959c9.rlib": "dbb9e15372b197614addae3a09939a0b76ef5e2fa5fe61f063ff5ac986d27b9c",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libprofiler_builtins-081e5f134b6ad2c2.rlib": "e3c658fd0b18f0fddcacf7cd4b7962f33dc5917b6fe3f88a97f792fd39770c9e",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_demangle-b90cf45bba421ef1.rlib": "aee5251d3cd413811fa6f8a793781376dd5b58da28e4398163f5557ebe929108",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_literal_escaper-4ab2b250cd0fbd51.rlib": "a9b9d5ea18b0edf762f4fa8f5d09ed0c4ba2cfb17d81c820cbc5725e0f246ca3",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_std_workspace_alloc-76c33a2f4e55dbc7.rlib": "82b1072dea8a697b1f9d3e8639f9fe1682ed9149aa179ea32473edd68ea6b467",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_std_workspace_core-d884e447843196b3.rlib": "f4ebbcff98bb9a2c6f810484fc991732d803a012b7a9fbaf344c4a57b43257f0",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\librustc_std_workspace_std-dabb1b9b396304ee.rlib": "1e6ef6ebe50f69237dd72981176e915e2968517c30323393cff973b19663182b",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libstd-512d688ad63bc3c4.rlib": "6b1d0581a7d28133c12c58ed61388a968fbcf1c2029bc237df5074fda258b084",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libstd_detect-2e160def0ea9d132.rlib": "fcd74c76a621127e5f2d9d34bab5130d95f198e141145943c019127c0804f470",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libsysroot-1cb5b46afa3fa0b5.rlib": "839711606f27e003fbe88fa6167b3a664aa59c3f9ff007eeffdded56acb9f85a",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libtest-d303f45be7ac867f.rlib": "c581a46b78fdee7b30d15a04289e5d90f59df9c1146919cdde6e3bc42b3b47a7",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libunwind-aa4157fe466f159e.rlib": "19887b58781d56c23bb27f5403384c20f2a41cb09f41fa75c9dd17848da7a0ce",
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\libwindows_link-52ff9cba00c16b00.rlib": "5bf7856ebbcec9123f1001dc42d873e101a686b82636354f212ccfc95ff18be7"
+  },
+  "external_toolchain_inputs_unchanged": true,
+  "external_environment_limitation": "System DLLs and default MSVC linker environment remain installed host providers; this is not a portable standalone toolchain snapshot",
+  "results": [
+    {
+      "task_id": "V8-WASM-LEB",
+      "candidate_commit": "1495d453050904c34889929f1f20bed6f51d347a",
+      "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-f9eea265-22e0cc1e5573c9b1",
+      "source_manifest": {
+        "assertion-cases.csv": "1ae8af28aa3de95588659e4b5d2d25875862b0c631476a4f448f51999df59de2",
+        "test-mapping.csv": "7d00a8eee6eb1d414057ada2ecef4d52bf3f8d305adc6f35cc7bfaa3ff06bc85",
+        "integration-proposal/README.md": "3548da7e848ef9c26a9d79d55fe007c0cf08f28697841c8330130c15dad10c59",
+        "reference/source-manifest.json": "c939a32ecaed16815b13931967afc49e1843e53db492f698d8e30c4b3a82b07e",
+        "rust/leb.rs": "2e5a86f2a71b36b26042a0d88f45309243ec7619b055c9eabef725f6672f0c3a",
+        "rust/tests.rs": "f7725ab8a44bb6235c8a685395f5746585166ccac8d16b32ab35334e99dd3490",
+        "reference/test/unittests/wasm/decoder-unittest.cc": "c6d98691c70b0dd0e83aebb6d0c1da4a2a043935996c407a8df7a881c6f14e96",
+        "reference/test/unittests/wasm/leb-helper-unittest.cc": "82f7097e41ea7f2abc780b628269ac165d4eec004b19aaccaf2c9d24eb82334e",
+        "reference/src/wasm/decoder.h": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827",
+        "reference/src/wasm/leb-helper.h": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3"
+      },
+      "compiler_command": [
+        "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+        "--edition=2021",
+        "--test",
+        "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T082218684967Z\\v8-wasm-leb\\rust\\leb.rs",
+        "-o",
+        "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T082218684967Z\\v8-wasm-leb.exe"
+      ],
+      "compile_exit": 1,
+      "scope": "Host Windows std-only candidate tests from independently copied sources; no production, configured ABI, platform or performance acceptance",
+      "passed": false,
+      "original_and_frozen_inputs_unchanged": true
+    }
+  ],
+  "passed": false
+}

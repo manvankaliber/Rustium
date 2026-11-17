@@ -1,0 +1,10 @@
+tests::accepts_existing_overlong_forms: test
+tests::every_max_length_final_byte_matches_native_validity_classes: test
+tests::final_byte_masks_sign_extension_and_width_boundaries: test
+tests::generated_bit_boundaries_repeated_prefixes_and_all_accepted_lengths: test
+tests::malformed_offsets_and_native_error_classes: test
+tests::original_helper_size_tables: test
+tests::original_helper_write_decode_value_cases: test
+tests::size_helpers_and_encoders_match: test
+
+8 tests, 0 benchmarks

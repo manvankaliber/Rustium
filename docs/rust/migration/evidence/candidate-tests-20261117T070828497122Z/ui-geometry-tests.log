@@ -1,0 +1,26 @@
+
+running 7 tests
+test conversion_edge_matrix ... FAILED
+test every_original_enclosing_ignoring_error_assertion_row ... ok
+test every_original_enclosing_rect_assertion_row ... ok
+test every_original_rect_conversion_assertion_row ... ok
+test every_original_rect_scaling_assertion_row ... ok
+test point_rounded_original_assertion_rows ... ok
+test size_conversion_original_assertion_rows ... ok
+
+failures:
+
+---- conversion_edge_matrix stdout ----
+
+thread 'conversion_edge_matrix' (18428) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T070828497122Z\ui-geometry\tests.rs:131:5:
+assertion `left == right` failed
+  left: Rect { x: 2, y: 2, width: 6, height: 6 }
+ right: Rect { x: 2, y: 3, width: 5, height: 5 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    conversion_edge_matrix
+
+test result: FAILED. 6 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

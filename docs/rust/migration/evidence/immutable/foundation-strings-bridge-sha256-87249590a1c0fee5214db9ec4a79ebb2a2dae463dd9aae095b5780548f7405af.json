@@ -1,0 +1,31 @@
+{
+  "task_id": "FOUNDATION-STRINGS-BRIDGE",
+  "candidate_commit": "80301077862d92e0ea36f79a8ec4cae78a008f12",
+  "source_identity": {
+    "base": "5b011c026104ce562706781dcaddee1747e02445",
+    "workspace": "D:\\RustiumReview",
+    "source_manifest_sha256": "044664b10cef3ffb33012fbb9553438d00dc76f70ed0ac0180eaf7964a6adebb",
+    "application_sha256": "7c0188cabf4f5466e41f7c58656b427dcffa4feec8a03bbfd1367f840a1bae0e",
+    "bindings": 55,
+    "all_after_and_both_primary_configured_before_hashes_matched": true
+  },
+  "tests": {
+    "status": "pending",
+    "executed": "GN proposal formatting, Rust glue formatting, git diff whitespace check and55 binding/hash guards only",
+    "prepared": "Typed byte/UTF16/null/default-empty/borrowed-offset C++ bridge tests plus complete original native string split tests; unchanged23 connection tests/16 verifiers and separate optimizedQUIC phase",
+    "not_run": "New Rust CXX/glue compilation, GNgen/check, consumer rebuild or native execution"
+  },
+  "review": {
+    "status": "pending",
+    "requested": "Terra independent ABI/lifetime/ownership and exact-phaseA55-binding source review"
+  },
+  "platform_limits": [
+    "PhaseA routes8out-of-line byte once/keyvalue APIs only; publicheader inline/constexpr/UTF16/wide paths remain C++ until separate consumer milestone",
+    "GeneratedCXX providerunsafe allowance needs review; authored Rust is safe",
+    "Native allocator/logging/provider/platform/ABI behavior unvalidated",
+    "No performance, publication, completed Rustownership or cutover"
+  ],
+  "remaining_cpp_ownership": "Native public containers/APIs, constexpr/header-inline family and platform/provider ownership remain; independent CPPSSL oracle helper proposed before phaseB",
+  "next_action": "Independent source/ABI review, fix findings, guarded local/configured intake and build+native validation of actual production paths",
+  "integration_scope": "Proposal only; no source/configured changes applied"
+}

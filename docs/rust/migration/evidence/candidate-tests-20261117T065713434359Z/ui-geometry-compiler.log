@@ -1,0 +1,25 @@
+error[E0308]: mismatched types
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\ui-geometry\tests.rs:471:34
+    |
+471 |         ("ScaleToEnclosingRect", scale_enclosing_rect, 1usize),
+    |                                  ^^^^^^^^^^^^^^^^^^^^ expected fn item, found a different fn item
+    |
+    = note: expected fn item `fn(Rect, _, _) -> Rect {geom::scale_enclosed_rect}`
+               found fn item `fn(Rect, _, _) -> Rect {geom::scale_enclosing_rect}`
+    = note: different fn items have unique types, even if their signatures are the same
+    = help: consider casting both fn items to fn pointers using `as fn(geom::Rect, f32, f32) -> geom::Rect`
+
+error[E0308]: mismatched types
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T065713434359Z\ui-geometry\tests.rs:472:32
+    |
+472 |         ("ScaleToRoundedRect", scale_rounded_rect, 2usize),
+    |                                ^^^^^^^^^^^^^^^^^^ expected fn item, found a different fn item
+    |
+    = note: expected fn item `fn(Rect, _, _) -> Rect {geom::scale_enclosed_rect}`
+               found fn item `fn(Rect, _, _) -> Rect {geom::scale_rounded_rect}`
+    = note: different fn items have unique types, even if their signatures are the same
+    = help: consider casting both fn items to fn pointers using `as fn(geom::Rect, f32, f32) -> geom::Rect`
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0308`.

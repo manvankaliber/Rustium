@@ -1,0 +1,10 @@
+warning: function `rounded_rect` is never used
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\ui-geometry\src\lib.rs:219:8
+    |
+219 | pub fn rounded_rect(r: RectF) -> Rect {
+    |        ^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+

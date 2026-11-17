@@ -1,0 +1,33 @@
+
+running 8 tests
+test tests::accepts_existing_overlong_forms ... ok
+test tests::every_max_length_final_byte_matches_native_validity_classes ... ok
+test tests::final_byte_masks_sign_extension_and_width_boundaries ... FAILED
+test tests::generated_bit_boundaries_repeated_prefixes_and_all_accepted_lengths ... ok
+test tests::malformed_offsets_and_native_error_classes ... ok
+test tests::original_helper_size_tables ... FAILED
+test tests::original_helper_write_decode_value_cases ... ok
+test tests::size_helpers_and_encoders_match ... ok
+
+failures:
+
+---- tests::final_byte_masks_sign_extension_and_width_boundaries stdout ----
+
+thread 'tests::final_byte_masks_sign_extension_and_width_boundaries' (19944) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T083545981292Z\v8-wasm-leb\rust\tests.rs:142:83:
+called `Result::unwrap()` on an `Err` value: DecodeError { offset: 4, kind: ExtraBits }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::original_helper_size_tables stdout ----
+
+thread 'tests::original_helper_size_tables' (8992) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T083545981292Z\v8-wasm-leb\rust\tests.rs:11:13:
+assertion `left == right` failed
+  left: 1
+ right: 0
+
+
+failures:
+    tests::final_byte_masks_sign_extension_and_width_boundaries
+    tests::original_helper_size_tables
+
+test result: FAILED. 6 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

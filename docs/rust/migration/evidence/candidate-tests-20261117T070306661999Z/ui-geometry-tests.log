@@ -1,0 +1,42 @@
+
+running 7 tests
+test conversion_edge_matrix ... FAILED
+test every_original_enclosing_ignoring_error_assertion_row ... FAILED
+test every_original_enclosing_rect_assertion_row ... FAILED
+test every_original_rect_conversion_assertion_row ... ok
+test every_original_rect_scaling_assertion_row ... ok
+test point_rounded_original_assertion_rows ... ok
+test size_conversion_original_assertion_rows ... ok
+
+failures:
+
+---- conversion_edge_matrix stdout ----
+
+thread 'conversion_edge_matrix' (25592) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\ui-geometry\tests.rs:95:5:
+assertion `left == right` failed
+  left: Point { x: 2147483520, y: -2147483648 }
+ right: Point { x: 2147483647, y: -2147483648 }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- every_original_enclosing_ignoring_error_assertion_row stdout ----
+
+thread 'every_original_enclosing_ignoring_error_assertion_row' (4732) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\ui-geometry\tests.rs:396:9:
+assertion `left == right` failed
+  left: Rect { x: 3, y: 2, width: 1, height: 0 }
+ right: Rect { x: 3, y: 2, width: 0, height: 0 }
+
+---- every_original_enclosing_rect_assertion_row stdout ----
+
+thread 'every_original_enclosing_rect_assertion_row' (13236) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\ui-geometry\tests.rs:318:9:
+assertion `left == right` failed
+  left: Rect { x: 3, y: 2, width: 1, height: 0 }
+ right: Rect { x: 3, y: 2, width: 0, height: 0 }
+
+
+failures:
+    conversion_edge_matrix
+    every_original_enclosing_ignoring_error_assertion_row
+    every_original_enclosing_rect_assertion_row
+
+test result: FAILED. 4 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

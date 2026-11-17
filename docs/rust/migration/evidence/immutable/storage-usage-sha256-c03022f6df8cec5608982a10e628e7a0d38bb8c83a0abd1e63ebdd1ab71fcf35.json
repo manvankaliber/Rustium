@@ -1,0 +1,46 @@
+{
+  "task_id": "STORAGE-USAGE",
+  "candidate_commit": "e10556d86940a8db6907f0053e9578c56869cb6f",
+  "source_identity": {
+    "base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
+    "clean": true,
+    "reference_sha256sums_sha256": "1f222a0dc302b8cebbdcd10619b3c21c7d649e480a8289ae72b77fe67e02432a",
+    "rust_core_sha256": "8b4149f50c17b2f26ebfc8ba2c0baec48fb3730508f02bf5fea34805b6688e31",
+    "archived_reference_count_verified": 18
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 21,
+    "passed_tests": 21,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
+  },
+  "review": {
+    "status": "pending",
+    "requested": "New Terra/xhigh review after six prior findings repaired and compiler/tests pass",
+    "prior_report": "docs/rust/migration/evidence/storage-usage-review-20261117.md"
+  },
+  "platform_limits": [
+    "No compiler/runtime or native/configured validation for this candidate",
+    "Signed usage overflow wrapping provisional; C++ oracle/compiler contract required before out-of-domain acceptance",
+    "No real bridge, native error/sequence or timer callback lifetime validation"
+  ],
+  "remaining_ownership": "C++ callers and native resources remain production authoritative; Rust candidate owns logical policy only",
+  "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration",
+  "arithmetic_oracle": {
+    "status": "passed",
+    "cases": 49,
+    "scope": "Original scalar signed addition with current configuredWindows overflow/optimization flags only; wholefunction/platform debt remains",
+    "evidence": "docs/rust/migration/evidence/storage-arithmetic-20261117T063613494489Z/result.json"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "task_id": "MEDIA-RANGES",
+  "candidate_commit": "17f4320b8d8128230876f1fae50d4cd598a94dca",
+  "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-baf7b949-2236f1210ced3e17",
+  "source_manifest": {
+    ".gitattributes": "49fa269fe6e2eba88e2cd0f5e925797de7d6e4c98a15534dd785b13e1a7f4d50",
+    "ranges.rs": "ae4179cbbc86e06a5c7ad0d6cd6afa3460e46d6362a89822af1b52cca3e45268",
+    "README.md": "59350471d426979b7183a4ceb83ccc4302cf771bdf44f569feac2fea4c977f1b",
+    "reference/assertion-map.csv": "5289e81223ad33b2b7ebeb271190a31474eb8f5d6c0cf7ac2c87680afbd3fb8d",
+    "reference/source-manifest.json": "e0ba5ab89b3cf9fadead9c75ae35dbf62e8fbba6c344e5a1e78912e372d3baf5",
+    "reference/source/base/check.h": "1e5c47e439a3fcfd7f40b8c7ed117b6974602e3c61bed3ea078db4e047df0860",
+    "reference/source/base/check_op.h": "024d6edba6d60995f7ad6b0f27c4ff4a9883782d06939ef29ebb9de40ea31fe9",
+    "reference/source/media/base/ranges.cc": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+    "reference/source/media/base/ranges.h": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+    "reference/source/media/base/ranges_unittest.cc": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+    "reference/source/base/time/time.h": "9611314b1d0952e28fd8dace035128ae158591b5aa68c5ce20227505dbe3f93b"
+  },
+  "compiler_command": [
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "--edition=2021",
+    "--test",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T073505298865Z\\media-ranges\\ranges.rs",
+    "-o",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T073505298865Z\\media-ranges.exe"
+  ],
+  "compile_exit": 0,
+  "scope": "Host Windows std-only candidate tests from independently copied sources; no production, configured ABI, platform or performance acceptance",
+  "list_exit": 0,
+  "test_exit": 0,
+  "listed_tests": [
+    "original_ranges_unittest::coalesce_ranges_all_original_double_cases",
+    "original_ranges_unittest::domain_edges",
+    "original_ranges_unittest::extend_range_all_original_double_cases",
+    "original_ranges_unittest::intersection_with_all_original_assertions_both_directions",
+    "original_ranges_unittest::simple_tests",
+    "public_api_tests::accessors_clone_and_time_delta_endpoints",
+    "public_api_tests::rust_debug_configuration_rejects_reversed_and_unordered_inputs",
+    "public_api_tests::signed_zero_intersection_ties_preserve_first_operand_bits"
+  ],
+  "binary_sha256": "125e4f0cdf17ccb91d035fa1805623b27427613f3daa2927fca817b6216e661b",
+  "counts": [
+    "ok",
+    "8",
+    "0",
+    "0"
+  ],
+  "passed": true,
+  "original_and_frozen_inputs_unchanged": true
+}

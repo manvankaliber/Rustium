@@ -1,0 +1,40 @@
+
+running 21 tests
+test tests::capacity_hit_closes_all_before_timer_lookup ... ok
+test tests::codec_and_original_cases ... ok
+test tests::construction_detached_then_first_use_binds ... ok
+test tests::delete_closes_stops_then_deletes_and_destruction_is_idempotent ... ok
+test tests::empty_key_read_rejected_before_private_or_file_activity_but_write_allowed ... ok
+test tests::error_and_corruption_leave_outputs_unchanged ... ok
+test tests::failed_and_short_writes_keep_original_error_when_cleanup_delete_fails ... ok
+test tests::failed_open_keeps_timer_and_failed_write_deletes ... ok
+test tests::flush_uses_saved_handle_and_dirty_state_and_ignores_error ... ok
+test tests::negative_usage_and_malformed_record_boundaries ... ok
+test tests::original_disk_assertions_for_private_and_persistent_modes ... ok
+test tests::partial_write_overwrites_prefix_and_retains_old_tail ... ok
+test tests::private_instances_are_isolated_without_file_operations ... ok
+test tests::provider_failures_delete_and_reopen_are_traced ... ok
+test tests::read_failures_have_typed_outcomes_exact_traces_and_unchanged_outputs ... ok
+test tests::saved_new_handle_stays_false_when_capacity_evicts_during_read ... ok
+test tests::saved_new_handle_stays_true_when_capacity_evicts_during_write ... FAILED
+test tests::timer_restart_expiry_and_sequence_outcomes ... ok
+test tests::trailing_bytes_and_short_read_and_timer_close ... ok
+test tests::write_at_capacity_evicts_and_restarts_timer ... ok
+test tests::write_open_failure_closes_other_handles_stops_timer_deletes_and_keeps_error ... ok
+
+failures:
+
+---- tests::saved_new_handle_stays_true_when_capacity_evicts_during_write stdout ----
+
+thread 'tests::saved_new_handle_stays_true_when_capacity_evicts_during_write' (9008) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T073505298865Z\storage-usage\src\lib.rs:539:9:
+assertion `left == right` failed
+  left: ["timer:5", "open:a", "read:2:0", "close:2", "close:1", "stop", "timer:5", "open:a", "write:3:0", "timer:5", "flush:3"]
+ right: ["timer:5", "open:a", "read:2:0", "close:2", "close:1", "stop", "timer:5", "open:a", "write:3:0", "flush:3"]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::saved_new_handle_stays_true_when_capacity_evicts_during_write
+
+test result: FAILED. 20 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

@@ -1,0 +1,61 @@
+{
+  "task_id": "UI-GEOMETRY",
+  "candidate_commit": "e4687848f9f05328364a419e87184afc6eef0b0f",
+  "source_identity": {
+    "base": "c46d3f4975af8785d3fc1d733cf25360914ef884",
+    "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-fbc23be0-9fbad6cf34955218",
+    "clean": true,
+    "file_sha256": {
+      "README.md": "b952d6c6e31a53f1fd8d12b0af30440a4355c69edd6b4fc6016aec68f783c366",
+      "source-manifest.tsv": "bd82827c6dd9c7c7a1ca5fb30c5acdd2c64c1005ffb1dd9c2779a9a546a05bdc",
+      "tests.rs": "a66d533a1740fda27d3699b4af823aaa916b658469cfb46ab4663df6144e93ac",
+      "src/lib.rs": "0ff73297cfe948805acba5e888d33582050e82cd5eebd4ee8c0397898c32d003",
+      "source-before/ui/gfx/geometry/point_conversions.cc": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+      "source-before/ui/gfx/geometry/point_conversions.h": "e9bf19dfea60858980d38e8483fd06943c734a00f16a7f06728302efeb1863e3",
+      "source-before/ui/gfx/geometry/point_f.h": "13ba16069d315cd368f83a82099e6d1f4602851970d334583df59cb63e9df367",
+      "source-before/ui/gfx/geometry/point_f_unittest.cc": "c268c991f4d875ecfcdac89d5d0f04f89ae909c06fb8a967de4aa1d475776761",
+      "source-before/ui/gfx/geometry/rect.cc": "0b1b4f5be9df43d91140640e0cb27fd98cb529e172ff158b930da939e97a6af7",
+      "source-before/ui/gfx/geometry/rect.h": "76fac1435f7dcb774fbdb2370460464ed2394681e0a41daf0863c237e234dcdc",
+      "source-before/ui/gfx/geometry/rect_conversions.cc": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b",
+      "source-before/ui/gfx/geometry/rect_conversions.h": "9323c4b72bab368ab32cd30c90b5a6eeb6bb2d8f4501d50073dc5af4d8348107",
+      "source-before/ui/gfx/geometry/rect_conversions_unittest.cc": "9bfc9b95c04eebf3d0da517738260f8a8798062ba3b4a8981994c171fb737ff1",
+      "source-before/ui/gfx/geometry/rect_f.h": "0dc90d0e07e76f7a24aff9d8a788a8a7f82bf73e734ed4a687a20cb16aed2254",
+      "source-before/ui/gfx/geometry/rect_unittest.cc": "b7cd2aec8c90c7cb2df2c1df36c271d5bfab2a8e79da23978f4f15b384178ddf",
+      "source-before/ui/gfx/geometry/size_conversions.cc": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+      "source-before/ui/gfx/geometry/size_conversions.h": "06bd89d3dc46c85757fa2ac42dbb773093d08c917b99838d22dace78d4a9c807",
+      "source-before/ui/gfx/geometry/size_f.h": "13a2886c572e241d71f2f3d485c9f288665bd798f275a8f5ad92982a6ec8dab8",
+      "source-before/ui/gfx/geometry/size_f_unittest.cc": "90390cc54f11839d3c710991fab47d050998ab44f7d640866e29f3b43506366f",
+      "source-before/base/numerics/clamped_math.h": "1b3208a6f26d2b78508b94b940a17eb33c252a549bb0927cbcff2eeba41c3fad",
+      "source-before/base/numerics/clamped_math_impl.h": "f6aea00b13a7b8dae6301e293704725c13ef9520df895ce69563901b8fadeb79",
+      "source-before/base/numerics/integral_constant_like.h": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "source-before/base/numerics/safe_conversions.h": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "source-before/base/numerics/safe_conversions_arm_impl.h": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "source-before/base/numerics/safe_conversions_impl.h": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511"
+    }
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 7,
+    "passed_tests": 7,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T071422095094Z/ui-geometry-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T071422095094Z/ui-geometry-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T071422095094Z/ui-geometry-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained"
+  },
+  "review": {
+    "status": "pending",
+    "requested": "Independent Terra exactcandidate/core/helper/completefixture and ownership review after compiler-backed tests"
+  },
+  "platform_limits": [
+    "No compiler/runtime/native/configured/platform acceptance yet",
+    "C++ callers/ABI/GN/exports and native platform/providers remain production authoritative",
+    "CSS numerical fixtures do not establish decimal-provider parity; UI FENV/nonfinite/debugdomain review remains pending"
+  ],
+  "next_action": "New independent Terra review of exact compiler-tested candidate; fix findings before director-owned production integration"
+}

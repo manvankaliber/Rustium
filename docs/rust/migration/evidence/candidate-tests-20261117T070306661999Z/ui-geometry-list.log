@@ -1,0 +1,9 @@
+conversion_edge_matrix: test
+every_original_enclosing_ignoring_error_assertion_row: test
+every_original_enclosing_rect_assertion_row: test
+every_original_rect_conversion_assertion_row: test
+every_original_rect_scaling_assertion_row: test
+point_rounded_original_assertion_rows: test
+size_conversion_original_assertion_rows: test
+
+7 tests, 0 benchmarks

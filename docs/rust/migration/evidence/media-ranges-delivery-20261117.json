@@ -1,14 +1,15 @@
 {
   "task_id": "MEDIA-RANGES",
-  "candidate_commit": "b836b77c499bf115fbf57adcd8dcc23a8fc5cb9d",
+  "candidate_commit": "17f4320b8d8128230876f1fae50d4cd598a94dca",
   "source_identity": {
     "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791",
     "workspace": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-baf7b949-2236f1210ced3e17",
     "clean": true,
     "candidate_files_sha256": {
-      "ranges.rs": "2556c88062a7ccab777459de527ffacc096cd5bad5c5dd2e684009e3a3216ae9",
-      "README.md": "99edc4886a84904c059bea97253d1f1c7267813faba75dd9ae47cbc11726af3c",
-      "reference/assertion-map.csv": "4b25876b6dd859686e15e38fe0dd0bd2be884a3d79b63e77f26852419bae3ecf",
+      ".gitattributes": "49fa269fe6e2eba88e2cd0f5e925797de7d6e4c98a15534dd785b13e1a7f4d50",
+      "ranges.rs": "ae4179cbbc86e06a5c7ad0d6cd6afa3460e46d6362a89822af1b52cca3e45268",
+      "README.md": "59350471d426979b7183a4ceb83ccc4302cf771bdf44f569feac2fea4c977f1b",
+      "reference/assertion-map.csv": "5289e81223ad33b2b7ebeb271190a31474eb8f5d6c0cf7ac2c87680afbd3fb8d",
       "reference/source-manifest.json": "e0ba5ab89b3cf9fadead9c75ae35dbf62e8fbba6c344e5a1e78912e372d3baf5",
       "reference/source/base/check.h": "1e5c47e439a3fcfd7f40b8c7ed117b6974602e3c61bed3ea078db4e047df0860",
       "reference/source/base/check_op.h": "024d6edba6d60995f7ad6b0f27c4ff4a9883782d06939ef29ebb9de40ea31fe9",
@@ -23,15 +24,16 @@
     "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
     "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
     "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
-    "listed_tests": 5,
-    "passed_tests": 5,
+    "listed_tests": 8,
+    "passed_tests": 8,
     "failed_tests": 0,
     "ignored_tests": 0,
     "all_original_and_frozen_inputs_unchanged": true,
-    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/media-ranges-result.json",
-    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/media-ranges-compiler.log",
-    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T064205592938Z/media-ranges-tests.log",
-    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained"
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T073505298865Z/media-ranges-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T073505298865Z/media-ranges-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T073505298865Z/media-ranges-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": false
   },
   "review": {
     "status": "pending",
@@ -42,5 +44,5 @@
     "Native TimeDelta/callers/ABI/exports/GN/bridge remain authoritative",
     "No compiler/runtime/native/platform/performance validation"
   ],
-  "next_action": "New independent Terra review of exact compiler-tested candidate; fix findings before director-owned production integration"
+  "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration"
 }

@@ -1,0 +1,60 @@
+warning: variable does not need to be mutable
+    --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:1615:13
+     |
+1615 |         let mut byte_provider =
+     |             ----^^^^^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: trait `NumberProvider` is more private than the item `Token::<'_>::serialize`
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:87:5
+    |
+ 87 |     pub fn serialize(&self, numbers: &impl NumberProvider) -> Option<Vec<u16>> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method `Token::<'_>::serialize` is reachable at visibility `pub`
+    |
+note: but trait `NumberProvider` is only usable at visibility `pub(crate)`
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:309:1
+    |
+309 | pub(crate) trait NumberProvider {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: `#[warn(private_bounds)]` on by default
+
+warning: trait `NumberProvider` is more private than the item `Tokenizer::<'a>::next_token`
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:582:5
+    |
+582 |     pub fn next_token(&mut self, numbers: &impl NumberProvider) -> Token<'a> {
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method `Tokenizer::<'a>::next_token` is reachable at visibility `pub`
+    |
+note: but trait `NumberProvider` is only usable at visibility `pub(crate)`
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:309:1
+    |
+309 | pub(crate) trait NumberProvider {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: variants `Overflow` and `Underflow` are never constructed
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:319:5
+    |
+316 | pub(crate) enum DecimalStatus {
+    |                 ------------- variants in this enum
+...
+319 |     Overflow,
+    |     ^^^^^^^^
+320 |     Underflow,
+    |     ^^^^^^^^^
+    |
+    = note: `DecimalStatus` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `raw` is never used
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T070306661999Z\blink-css-tokens\rust\src\lib.rs:385:8
+    |
+341 | impl<'a> Tokenizer<'a> {
+    | ---------------------- method in this implementation
+...
+385 |     fn raw(&self, n: usize) -> u16 {
+    |        ^^^
+
+warning: 5 warnings emitted
+

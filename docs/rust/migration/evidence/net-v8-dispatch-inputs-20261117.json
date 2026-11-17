@@ -1,0 +1,31 @@
+{
+  "base": "5b011c026104ce562706781dcaddee1747e02445",
+  "inputs": [
+    {
+      "task": "NET-HTTP2-BASELINE",
+      "path": "D:\\Rustium\\docs\\rust\\net-migration-execution.json",
+      "sha256": "e47744c9fcbb5fe0ac78038735d4433f2ec0b25d899f07b0a8674f7c0c03e18b"
+    },
+    {
+      "task": "NET-HTTP2-BASELINE",
+      "path": "D:\\Rustium\\net\\spdy\\spdy_session.cc",
+      "sha256": "ebbcf915ff4dcf72dbf8dd947610d98de50215a7205a088a5640aed746c681e9"
+    },
+    {
+      "task": "NET-HTTP2-BASELINE",
+      "path": "D:\\Rustium\\net\\http\\http_proxy_connect_job.cc",
+      "sha256": "ce5d959bc29f527b6701c000b58de162955f26d67b9b3f596e7bd29b499c0da2"
+    },
+    {
+      "task": "V8-WASM-LEB",
+      "path": "D:\\RustiumBuild\\src\\v8\\src\\wasm\\leb-helper.h",
+      "sha256": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3"
+    },
+    {
+      "task": "V8-WASM-LEB",
+      "path": "D:\\RustiumBuild\\src\\v8\\src\\wasm\\decoder.h",
+      "sha256": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827"
+    }
+  ],
+  "implementation_authorized": false
+}
