@@ -10,7 +10,7 @@ const MAGIC: &[u8; 4] = b"FSU5";
 pub struct Record { pub valid: bool, pub dirty: u32, pub usage: i64 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum CodecError { Truncated, BadPickleLength, BadMagic, InvalidBool }
+pub enum CodecError { Truncated, BadPickleLength, BadMagic }
 
 /// Exact Pickle bytes: u32 payload length (20), FSU5, Pickle int bool,
 /// u32 dirty count, i64 usage. All fields use Chromium Pickle's native
@@ -21,9 +21,9 @@ pub fn decode(bytes: &[u8]) -> Result<Record, CodecError> {
         return Err(CodecError::BadPickleLength);
     }
     if &bytes[4..8] != MAGIC { return Err(CodecError::BadMagic); }
-    let b = i32::from_le_bytes(bytes[8..12].try_into().unwrap());
-    if b != 0 && b != 1 { return Err(CodecError::InvalidBool); }
-    Ok(Record { valid: b == 1,
+    // PickleIterator::ReadBool consumes the first byte, then aligns to four;
+    // it treats any nonzero first byte as true and ignores the other 3 bytes.
+    Ok(Record { valid: bytes[8] != 0,
         dirty: u32::from_le_bytes(bytes[12..16].try_into().unwrap()),
         usage: i64::from_le_bytes(bytes[16..24].try_into().unwrap()) })
 }
@@ -31,7 +31,7 @@ pub fn decode(bytes: &[u8]) -> Result<Record, CodecError> {
 pub fn encode(record: Record) -> [u8; RECORD_SIZE] {
     let mut b = [0; RECORD_SIZE];
     b[0..4].copy_from_slice(&20u32.to_le_bytes()); b[4..8].copy_from_slice(MAGIC);
-    b[8..12].copy_from_slice(&(i32::from(record.valid)).to_le_bytes());
+    b[8] = u8::from(record.valid);
     b[12..16].copy_from_slice(&record.dirty.to_le_bytes());
     b[16..24].copy_from_slice(&record.usage.to_le_bytes()); b
 }
@@ -42,6 +42,7 @@ pub fn encode(record: Record) -> [u8; RECORD_SIZE] {
 pub trait FileProvider {
     type Key: Ord + Clone;
     type Error;
+    fn has_handle(&self, key: &Self::Key) -> bool;
     fn read_exact(&mut self, key: &Self::Key, out: &mut [u8]) -> Result<(), Self::Error>;
     fn write_exact(&mut self, key: &Self::Key, bytes: &[u8]) -> Result<(), Self::Error>;
     fn flush(&mut self, key: &Self::Key) -> Result<(), Self::Error>;
@@ -58,14 +59,6 @@ pub struct UsageCache<K: Ord + Clone> {
 }
 impl<K: Ord + Clone> UsageCache<K> {
     pub fn new(incognito: bool) -> Self { Self { incognito, private: BTreeMap::new() } }
-    fn read<P: FileProvider<Key=K>>(&self, p: &mut P, k: &K) -> Result<Record, P::Error> {
-        let mut b = [0; RECORD_SIZE];
-        if self.incognito { b.copy_from_slice(self.private.get(k).ok_or_else(|| unreachable!())?); }
-        else { p.read_exact(k, &mut b)?; }
-        // Corrupt/truncated bytes are a cache miss at the API boundary; preserve
-        // provider errors separately through Result in concrete bridge adapter.
-        decode(&b).map_err(|_| unreachable!("map codec miss before adapter"))
-    }
     fn write<P: FileProvider<Key=K>>(&mut self, p: &mut P, k: &K, r: Record) -> Result<(), P::Error> {
         let bytes = encode(r);
         if self.incognito { self.private.insert(k.clone(), bytes); return Ok(()); }
@@ -79,12 +72,13 @@ impl<K: Ord + Clone> UsageCache<K> {
     }
     pub fn increment<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{
         let Some(mut r)=self.get(p,k)? else{return Ok(false)};
-        let Some(d)=r.dirty.checked_add(1) else{return Ok(false)}; r.dirty=d;
-        self.write(p,k,r)?; if d==1 && !self.incognito { let _ = p.flush(k); } Ok(true)
+        let new_handle = if self.incognito { false } else { !p.has_handle(k) };
+        let old_dirty=r.dirty; r.dirty=r.dirty.wrapping_add(1);
+        self.write(p,k,r)?; if old_dirty==0 && new_handle { let _ = p.flush(k); } Ok(true)
     }
     pub fn decrement<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)}; if r.dirty==0{return Ok(false)} r.dirty-=1; self.write(p,k,r)?; Ok(true)}
     pub fn invalidate<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)};r.valid=false;self.write(p,k,r)?;Ok(true)}
-    pub fn update_delta<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K,d:i64)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)};let Some(u)=r.usage.checked_add(d) else{return Ok(false)};r.usage=u;self.write(p,k,r)?;Ok(true)}
+    pub fn update_delta<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K,d:i64)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)};r.usage=r.usage.wrapping_add(d);self.write(p,k,r)?;Ok(true)}
     pub fn exists<P: FileProvider<Key=K>>(&self,p:&mut P,k:&K)->Result<bool,P::Error>{if self.incognito{Ok(self.private.contains_key(k))}else{p.exists(k)}}
     pub fn delete<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{if self.incognito{Ok(self.private.remove(k).is_some())}else{p.delete(k)}}
 }
@@ -94,6 +88,7 @@ impl<K: Ord + Clone> UsageCache<K> {
  use std::collections::BTreeMap;
  #[derive(Default)] struct Mem(BTreeMap<String,Vec<u8>>);
  impl FileProvider for Mem { type Key=String; type Error=();
+  fn has_handle(&self,_:&String)->bool{false}
   fn read_exact(&mut self,k:&String,out:&mut[u8])->Result<(),()>{let b=self.0.get(k).ok_or(())?; if b.len()!=out.len(){return Err(())} out.copy_from_slice(b);Ok(())}
   fn write_exact(&mut self,k:&String,b:&[u8])->Result<(),()>{self.0.insert(k.clone(),b.to_vec());Ok(())}
   fn flush(&mut self,_:&String)->Result<(),()>{Ok(())}
@@ -101,7 +96,7 @@ impl<K: Ord + Clone> UsageCache<K> {
   fn delete(&mut self,k:&String)->Result<bool,()>{Ok(self.0.remove(k).is_some())}
  }
  #[test] fn exact_bytes_and_signed_values(){let r=Record{valid:true,dirty:u32::MAX,usage:i64::MIN};let b=encode(r);assert_eq!(b.len(),24);assert_eq!(&b[..8], &[20,0,0,0,b'F',b'S',b'U',b'5']);assert_eq!(decode(&b),Ok(r));}
- #[test] fn corrupt_truncated_and_bad_headers(){let b=encode(Record{valid:false,dirty:3,usage:-8});for n in 0..24{assert_eq!(decode(&b[..n]),Err(CodecError::Truncated));}let mut x=b;x[0]=19;assert_eq!(decode(&x),Err(CodecError::BadPickleLength));x=b;x[4]=0;assert_eq!(decode(&x),Err(CodecError::BadMagic));x=b;x[8]=2;assert_eq!(decode(&x),Err(CodecError::InvalidBool));}
+ #[test] fn corrupt_truncated_and_bad_headers(){let b=encode(Record{valid:false,dirty:3,usage:-8});for n in 0..24{assert_eq!(decode(&b[..n]),Err(CodecError::Truncated));}let mut x=b;x[0]=19;assert_eq!(decode(&x),Err(CodecError::BadPickleLength));x=b;x[4]=0;assert_eq!(decode(&x),Err(CodecError::BadMagic));x=b;x[8]=2;x[9]=0xff;x[10]=0xff;x[11]=0xff;assert!(decode(&x).unwrap().valid);}
  #[test] fn source_test_cases_and_policy_transitions(){let mut c=UsageCache::new(false);let mut p=Mem::default();let k="cache".to_string();
   assert!(c.put(&mut p,&k,0).is_ok());assert_eq!(c.get(&mut p,&k).unwrap(),Some(Record{valid:true,dirty:0,usage:0}));
   c.put(&mut p,&k,240122).unwrap();assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,240122);
