@@ -3,6 +3,9 @@
 //! Native ABI, loaded ICU data and physical iterator pools remain director debt.
 use std::{cell::RefCell, rc::Rc};
 
+mod break_all_data;
+mod fast_pair_data;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BreakSpace {
     AfterRun,
@@ -39,6 +42,61 @@ pub enum LineProperty {
     BreakAfter,
     Other,
 }
+/// ICU 78 ULineBreak values, copied in declaration order from the frozen
+/// configured ICU uchar.h. Values outside 0..49 are rejected by the provider.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u8)]
+pub enum IcuLineBreak {
+    XX = 0,
+    AI = 1,
+    AL = 2,
+    B2 = 3,
+    BA = 4,
+    BB = 5,
+    BK = 6,
+    CB = 7,
+    CL = 8,
+    CM = 9,
+    CR = 10,
+    EX = 11,
+    GL = 12,
+    HY = 13,
+    ID = 14,
+    IN = 15,
+    IS = 16,
+    LF = 17,
+    NS = 18,
+    NU = 19,
+    OP = 20,
+    PO = 21,
+    PR = 22,
+    QU = 23,
+    SA = 24,
+    SG = 25,
+    SP = 26,
+    SY = 27,
+    ZW = 28,
+    NL = 29,
+    WJ = 30,
+    H2 = 31,
+    H3 = 32,
+    JL = 33,
+    JT = 34,
+    JV = 35,
+    CP = 36,
+    CJ = 37,
+    HL = 38,
+    RI = 39,
+    EB = 40,
+    EM = 41,
+    ZWJ = 42,
+    AK = 43,
+    AP = 44,
+    AS = 45,
+    VF = 46,
+    VI = 47,
+    HH = 48,
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Following {
     Boundary(i32),
@@ -69,8 +127,8 @@ pub trait BoundaryProvider {
     fn character_following(&mut self, query: i32) -> Result<Following, BoundaryError>;
     fn release_character(&mut self);
     fn category(&mut self, codepoint: u32) -> Category;
-    fn line_property(&mut self, codepoint: u32) -> LineProperty;
-    fn fast_pair(&mut self, left: u16, right: u16, right_quote_enabled: bool) -> Option<bool>;
+    /// Exact u_getIntPropertyValue(..., UCHAR_LINE_BREAK), ICU-78 numeric ID.
+    fn line_property(&mut self, codepoint: u32) -> Result<u8, BoundaryError>;
 }
 
 #[derive(Clone, Copy)]
@@ -120,12 +178,13 @@ impl Ctx {
             }
         }
         if a <= 0xff && b <= 0xff {
-            if let Some(yes) = p.fast_pair(a, b, quote) {
-                if !yes || (disable_shy && a == 0xad) {
-                    return Fast::No;
-                }
-                return Fast::Yes;
+            let pair = FAST_PAIR_BITS[(a - 0x21) as usize][((b - 0x21) / 8) as usize]
+                & (1 << ((b - 0x21) % 8))
+                != 0;
+            if !pair || (disable_shy && a == 0xad) {
+                return Fast::No;
             }
+            return Fast::Yes;
         }
         if quote {
             if b == 0x2019 && a <= 0xff && a != 0x85 {
@@ -158,27 +217,19 @@ fn cp(s: &[u16], i: usize) -> u32 {
 fn keep<P: BoundaryProvider>(p: &mut P, prev: u16, last: u16, next: u16) -> bool {
     let c = if p.category(last as u32) == Category::Mark { prev } else { last };
     matches!(p.category(c as u32), Category::Letter | Category::Number)
-        && p.line_property(c as u32) != LineProperty::Complex
+        && p.line_property(c as u32) != Ok(IcuLineBreak::SA as u8)
         && matches!(p.category(next as u32), Category::Letter | Category::Number)
-        && p.line_property(next as u32) != LineProperty::Complex
+        && p.line_property(next as u32) != Ok(IcuLineBreak::SA as u8)
 }
-fn after_all(last: LineProperty, cur: LineProperty, ch: u16, strict: Strictness) -> bool {
-    if cur == LineProperty::Combining {
+fn after_all(last: u8, cur: u8, ch: u16, strict: Strictness) -> bool {
+    if last >= 49 || cur >= 49 {
         return false;
     }
-    if matches!(cur, LineProperty::Ideographic | LineProperty::Complex) {
-        return true;
-    }
-    if cur == LineProperty::BreakAfter && ch != 0x7c && strict != Strictness::Loose {
+    if break_all_data::BREAK_ALL_TABLE[last as usize][(cur / 8) as usize] & (0x80 >> (cur % 8)) == 0
+    {
         return false;
     }
-    matches!(
-        last,
-        LineProperty::Ideographic
-            | LineProperty::Complex
-            | LineProperty::Alphabetic
-            | LineProperty::Numeric
-    )
+    cur != IcuLineBreak::BA as u8 || ch == 0x7c || strict == Strictness::Loose
 }
 
 /// Owns settings and borrowed stable input; Rc/RefCell enforces !Send/!Sync.
@@ -301,9 +352,16 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
         let mut cached = 0usize;
         let mut last_prop = if self.kind == BreakType::BreakAll {
             let mut p = self.provider.borrow_mut();
-            p.line_property(if c.last == 0 { 0 } else { cp(self.text, pos.saturating_sub(1)) })
+            match p.line_property(if c.last == 0 {
+                0
+            } else {
+                cp(self.text, pos.saturating_sub(1))
+            }) {
+                Ok(v) => v,
+                Err(_) => return Err(BoundaryError::Provider),
+            }
         } else {
-            LineProperty::Other
+            IcuLineBreak::XX as u8
         };
         while i < limit && c.fetch(self.text, i) {
             match self.space {
@@ -331,23 +389,20 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
             }
             if self.kind == BreakType::BreakAll && !lead(c.current) {
                 let mut p = self.provider.borrow_mut();
-                let prop = p.line_property(cp(self.text, i));
+                let prop = match p.line_property(cp(self.text, i)) {
+                    Ok(v) => v,
+                    Err(_) => return Err(BoundaryError::Provider),
+                };
                 if self.strict == Strictness::Loose
                     && matches!(c.current, 0x2010 | 0x2013)
-                    && matches!(
-                        last_prop,
-                        LineProperty::Numeric
-                            | LineProperty::Alphabetic
-                            | LineProperty::Complex
-                            | LineProperty::Ideographic
-                    )
+                    && matches!(last_prop, 19 | 2 | 24 | 14)
                 {
                     return Ok(i);
                 }
                 if after_all(last_prop, prop, c.current, self.strict) {
                     return Ok(if i > pos && trail(c.current) { i - 1 } else { i });
                 }
-                if prop != LineProperty::Combining {
+                if prop != IcuLineBreak::CM as u8 {
                     last_prop = prop
                 }
             }
