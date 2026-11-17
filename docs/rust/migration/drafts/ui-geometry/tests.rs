@@ -133,7 +133,7 @@ fn conversion_edge_matrix() {
             RectF { x: 1.9999, y: 2.0002, width: 5.9998, height: 6.0001 },
             0.001
         ),
-        Rect { x: 2, y: 3, width: 5, height: 5 }
+        Rect { x: 2, y: 2, width: 6, height: 6 }
     );
     assert_eq!(
         nearest_rect(RectF { x: -1.00001, y: -0.999999, width: 3.0000001, height: 2.999999 }),
