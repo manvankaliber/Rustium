@@ -90,26 +90,26 @@ bool SplitStringIntoKeyValueViewPairsUsingSubstr(
     std::string_view input, char delimiter, std::string_view pairs_delimiter,
     StringViewPairs* output) {
   output->clear();
-  auto result = wire::key_value(Bytes(input), static_cast<uint8_t>(delimiter),
-                                Bytes(pairs_delimiter));
-  output->reserve(result.pairs.size());
-  for (const auto& pair : result.pairs) {
-    output->emplace_back(View(input, pair.key), View(input, pair.value));
-    // Decisions/segment boundaries are Rust-owned. Native logging effects keep
-    // the original messages and occur after appending each partial result.
+  const auto segments = wire::split_bytes(Bytes(input), Bytes(pairs_delimiter),
+                                          true, true, true);
+  output->reserve(segments.size());
+  bool success = true;
+  for (const auto& segment_range : segments) {
+    const std::string_view segment = View(input, segment_range);
+    // Preserve original callback order: parsing a later segment must observe
+    // mutations made by the diagnostic callback for an earlier segment.
+    auto pair = wire::key_value_segment(Bytes(segment), static_cast<uint8_t>(delimiter));
+    output->emplace_back(View(segment, pair.key), View(segment, pair.value));
     if (pair.diagnostic != 0) {
-      wire::Range segment;
-      segment.offset = pair.segment_offset;
-      segment.length = pair.segment_length;
-      segment.default_empty = false;
+      success = false;
       if (pair.diagnostic == 1) {
-        DVLOG(1) << "cannot find delimiter in: " << View(input, segment);
+        DVLOG(1) << "cannot find delimiter in: " << segment;
       } else {
         CHECK_EQ(pair.diagnostic, 2u);
-        DVLOG(1) << "cannot parse value from input: " << View(input, segment);
+        DVLOG(1) << "cannot parse value from input: " << segment;
       }
     }
   }
-  return result.success;
+  return success;
 }
 }  // namespace base

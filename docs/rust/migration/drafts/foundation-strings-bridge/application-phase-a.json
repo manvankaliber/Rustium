@@ -10,19 +10,19 @@
       "path": "base/strings/string_split.cc",
       "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split.cc",
       "before_sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
-      "after_sha256": "8139469c1dcb56b7d11d7f29ffe2728ebe251a848f6d62df7ca1d0167fece53c"
+      "after_sha256": "5262309c26f9c5df853bf2e1f393609db35feb2f5c669b59e0a305d179849398"
     },
     {
       "path": "base/strings/string_split_rust.rs",
       "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split_rust.rs",
       "before_sha256": null,
-      "after_sha256": "c19dc1a1084509d2dcc22c6041a50e476c870690d5363771994c9e45ca2773fc"
+      "after_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932"
     },
     {
       "path": "base/strings/string_split_rust_bridge_unittest.cc",
       "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split_rust_bridge_unittest.cc",
       "before_sha256": null,
-      "after_sha256": "13afe81cdf4a9de182c45a483f333bb413c85dc35c0d94445344819dd6fa0ac3"
+      "after_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457"
     },
     {
       "path": "base/strings/string_split_rust_policy.rs",

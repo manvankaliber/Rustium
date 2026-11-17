@@ -18,13 +18,7 @@ mod ffi {
     struct PairRange {
         key: Range,
         value: Range,
-        segment_offset: usize,
-        segment_length: usize,
         diagnostic: u8,
-    }
-    struct KeyValueOutput {
-        success: bool,
-        pairs: Vec<PairRange>,
     }
     extern "Rust" {
         fn split_bytes(
@@ -42,7 +36,7 @@ mod ffi {
             substring: bool,
         ) -> Vec<Range>;
         fn split_once(input: &[u8], delimiters: &[u8], reverse: bool) -> OnceOutput;
-        fn key_value(input: &[u8], delimiter: u8, pairs_delimiter: &[u8]) -> KeyValueOutput;
+        fn key_value_segment(input: &[u8], delimiter: u8) -> PairRange;
     }
 }
 
@@ -109,46 +103,18 @@ fn split_once(input: &[u8], delimiters: &[u8], reverse: bool) -> ffi::OnceOutput
         None => ffi::OnceOutput { found: false, first: empty(), second: empty() },
     }
 }
-fn key_value(input: &[u8], delimiter: u8, pairs_delimiter: &[u8]) -> ffi::KeyValueOutput {
-    let (success, pairs) = policy::key_value_views(input, delimiter, pairs_delimiter);
-    // Diagnostic segment provenance is retained for the native DVLOG adapter.
-    // Both calls use the same reviewed Rust splitter; no native policy scan.
-    let segments = policy::split_bytes_substr(
-        input,
-        pairs_delimiter,
-        policy::Whitespace::Trim,
-        policy::Results::NonEmpty,
-    );
-    assert_eq!(pairs.len(), segments.len());
-    let pairs = pairs
-        .into_iter()
-        .zip(segments)
-        .map(|(pair, segment)| {
-            let key_default = pair.key.origin == policy::ViewOrigin::DefaultEmpty;
-            let value_default = pair.value.origin == policy::ViewOrigin::DefaultEmpty;
-            let segment_range = range8(input, segment);
-            ffi::PairRange {
-                key: ffi::Range {
-                    offset: pair.key.offset,
-                    length: pair.key.bytes.len(),
-                    default_empty: key_default,
-                },
-                value: ffi::Range {
-                    offset: pair.value.offset,
-                    length: pair.value.bytes.len(),
-                    default_empty: value_default,
-                },
-                segment_offset: segment_range.offset,
-                segment_length: segment_range.length,
-                diagnostic: if key_default {
-                    1
-                } else if value_default {
-                    2
-                } else {
-                    0
-                },
-            }
-        })
-        .collect();
-    ffi::KeyValueOutput { success, pairs }
+// The caller freezes the initial trimmed segment boundaries with split_bytes.
+// Parse exactly this segment, without re-trimming or re-splitting it: a native
+// logging callback may have changed its bytes since the boundaries were taken.
+// This is the segment policy from the frozen AppendStringViewKeyValue and the
+// accepted Rust key_value_views loop. No borrow survives the synchronous call.
+fn key_value_segment(input: &[u8], delimiter: u8) -> ffi::PairRange {
+    let Some(key_end) = input.iter().position(|c| *c == delimiter) else {
+        return ffi::PairRange { key: empty(), value: empty(), diagnostic: 1 };
+    };
+    let key = range8(input, &input[..key_end]);
+    let Some(value_offset) = input[key_end..].iter().position(|c| *c != delimiter) else {
+        return ffi::PairRange { key, value: empty(), diagnostic: 2 };
+    };
+    ffi::PairRange { key, value: range8(input, &input[key_end + value_offset..]), diagnostic: 0 }
 }
