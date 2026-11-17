@@ -96,7 +96,7 @@ pub fn decode(input: &[u8], width: Width, _mode: ValidationMode) -> Result<Decod
         if last && !valid_final(byte, width) {
             return Err(DecodeError { offset: i, kind: DecodeErrorKind::ExtraBits });
         }
-        let used = ((i + 1) * 7).min(width.bits()) as u32;
+        let used = ((i + 1) * 7).min(width.bits() as usize) as u32;
         if width.signed() && byte & 0x40 != 0 && used < 128 {
             raw |= (!0u128) << used;
         }
