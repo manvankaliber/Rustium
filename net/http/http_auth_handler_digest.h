@@ -96,6 +96,7 @@ class NET_EXPORT_PRIVATE HttpAuthHandlerDigest : public HttpAuthHandler {
   ~HttpAuthHandlerDigest() override;
 
  private:
+  friend class ConnectionAuthOriginalDigestFactory;
   // HttpAuthHandler
   bool Init(HttpAuthChallengeTokenizer* challenge,
             const SSLInfo& ssl_info,

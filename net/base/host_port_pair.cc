@@ -15,12 +15,42 @@
 #include "base/strings/stringprintf.h"
 #include "base/trace_event/memory_usage_estimator.h"
 #include "base/values.h"
+#include "net/base/host_port_rust_ffi.h"
+#include "net/base/host_port_rust_ffi.rs.h"
 #include "net/base/ip_endpoint.h"
 #include "net/base/url_util.h"
 #include "url/gurl.h"
 #include "url/scheme_host_port.h"
+#include "url/url_canon_ip.h"
 
 namespace net {
+
+namespace {
+rust::Slice<const uint8_t> Bytes(std::string_view input) {
+  // SAFETY: The input view remains live and unchanged throughout each call.
+  return input.empty() ? rust::Slice<const uint8_t>()
+                       : UNSAFE_BUFFERS(rust::Slice<const uint8_t>(
+                             reinterpret_cast<const uint8_t*>(input.data()),
+                             input.size()));
+}
+std::string AsString(const rust::Vec<uint8_t>& bytes) {
+  // SAFETY: CXX vector storage is initialized and remains live during copy.
+  return bytes.empty()
+             ? std::string()
+             : UNSAFE_BUFFERS(std::string(
+                   reinterpret_cast<const char*>(bytes.data()), bytes.size()));
+}
+std::string Format(std::string_view host, uint16_t port, bool with_port) {
+  auto result = host_port_rust::format(Bytes(host), port, with_port);
+  if (result.has_null) {
+    LOG(DFATAL) << "Host has a null char: " << AsString(result.diagnostic);
+  }
+  if (result.bad_brackets) {
+    DCHECK_NE(host.front(), '[');
+  }
+  return AsString(result.value);
+}
+}  // namespace
 
 namespace {
 
@@ -55,7 +85,7 @@ HostPortPair HostPortPair::FromSchemeHostPort(
   // HostPortPair assumes hostnames do not have surrounding brackets (as is
   // commonly used for IPv6 literals), so strip them if present.
   std::string_view host = scheme_host_port.host();
-  if (host.size() >= 2 && host.front() == '[' && host.back() == ']') {
+  if (host_port_rust::strip(Bytes(host))) {
     host = host.substr(1, host.size() - 2);
   }
 
@@ -69,26 +99,20 @@ HostPortPair HostPortPair::FromIPEndPoint(const IPEndPoint& ipe) {
 
 // static
 HostPortPair HostPortPair::FromString(std::string_view str) {
-  // Input with more than one ':' is ambiguous unless it contains an IPv6
-  // literal (signified by starting with a '['). ParseHostAndPort() allows such
-  // input and always uses the last ':' as the host/port delimiter, but because
-  // HostPortPair often deals with IPv6 literals without brackets, disallow such
-  // input here to prevent a common error.
-  if (base::SplitStringPiece(str, ":", base::KEEP_WHITESPACE,
-                             base::SPLIT_WANT_ALL)
-              .size() > 2 &&
-      str.front() != '[') {
+  if (!host_port_rust::pair_allowed(Bytes(str))) {
     return HostPortPair();
   }
 
   std::string host;
   int port;
-  if (!ParseHostAndPort(str, &host, &port))
+  if (!host_port_rust::ParseHostAndPort(str, &host, &port)) {
     return HostPortPair();
+  }
 
   // Require a valid port.
-  if (port == -1)
+  if (!host_port_rust::valid_port(port)) {
     return HostPortPair();
+  }
   DCHECK(base::IsValueInRangeForNumericType<uint16_t>(port));
 
   return HostPortPair(host, port);
@@ -97,44 +121,35 @@ HostPortPair HostPortPair::FromString(std::string_view str) {
 // static
 std::optional<HostPortPair> HostPortPair::FromValue(const base::Value& value) {
   const base::DictValue* dict = value.GetIfDict();
-  if (!dict)
-    return std::nullopt;
-
-  const std::string* host = dict->FindString(kValueHostKey);
-  std::optional<int> port = dict->FindInt(kValuePortKey);
-
-  if (host == nullptr || !port.has_value() ||
-      !base::IsValueInRangeForNumericType<uint16_t>(port.value())) {
+  const std::string* host = dict ? dict->FindString(kValueHostKey) : nullptr;
+  std::optional<int> port = dict ? dict->FindInt(kValuePortKey) : std::nullopt;
+  if (!host_port_rust::value_valid(dict != nullptr, host != nullptr,
+                                   port.has_value(), port.value_or(0))) {
     return std::nullopt;
   }
 
   return HostPortPair(*host, base::checked_cast<uint16_t>(port.value()));
 }
 
-std::string HostPortPair::ToString() const {
-  std::string ret(HostForURL());
-  ret += ':';
-  ret += base::NumberToString(port_);
-  return ret;
+bool HostPortPair::IsEmpty() const {
+  return host_port_rust::empty(Bytes(host_), port_);
 }
-
+bool operator==(const HostPortPair& a, const HostPortPair& b) {
+  return host_port_rust::compare(a.port(), Bytes(a.host()), b.port(),
+                                 Bytes(b.host())) == 0;
+}
+std::strong_ordering operator<=>(const HostPortPair& a, const HostPortPair& b) {
+  const int order = host_port_rust::compare(a.port(), Bytes(a.host()), b.port(),
+                                            Bytes(b.host()));
+  return order < 0   ? std::strong_ordering::less
+         : order > 0 ? std::strong_ordering::greater
+                     : std::strong_ordering::equal;
+}
+std::string HostPortPair::ToString() const {
+  return Format(host_, port_, true);
+}
 std::string HostPortPair::HostForURL() const {
-  // TODO(rtenneti): Add support for |host| to have '\0'.
-  if (host_.find('\0') != std::string::npos) {
-    std::string host_for_log(host_);
-    size_t nullpos;
-    while ((nullpos = host_for_log.find('\0')) != std::string::npos) {
-      host_for_log.replace(nullpos, 1, "%00");
-    }
-    LOG(DFATAL) << "Host has a null char: " << host_for_log;
-  }
-  // Check to see if the host is an IPv6 address.  If so, added brackets.
-  if (host_.find(':') != std::string::npos) {
-    DCHECK_NE(host_[0], '[');
-    return base::StringPrintf("[%s]", host_.c_str());
-  }
-
-  return host_;
+  return Format(host_, port_, false);
 }
 
 base::Value HostPortPair::ToValue() const {

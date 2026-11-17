@@ -1,115 +1,59 @@
 // Copyright 2009 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
-#include <algorithm>
-
-#include "base/check.h"
-#include "base/format_macros.h"
-#include "base/strings/stringprintf.h"
 #include "net/http/http_byte_range.h"
 
-namespace {
-
-const int64_t kPositionNotSpecified = -1;
-
-}  // namespace
-
+#include "base/check.h"
+#include "net/http/http_byte_range_rust_ffi.h"
 namespace net {
-
 HttpByteRange::HttpByteRange()
-    : first_byte_position_(kPositionNotSpecified),
-      last_byte_position_(kPositionNotSpecified),
-      suffix_length_(kPositionNotSpecified) {}
-
-// static
-HttpByteRange HttpByteRange::Bounded(int64_t first_byte_position,
-                                     int64_t last_byte_position) {
-  HttpByteRange range;
-  range.set_first_byte_position(first_byte_position);
-  range.set_last_byte_position(last_byte_position);
-  return range;
+    : HttpByteRange(http_byte_range_rust_construct(0, 0, 0)) {}
+HttpByteRange::HttpByteRange(HttpByteRangeRustState state)
+    : first_byte_position_(state.first),
+      last_byte_position_(state.last),
+      suffix_length_(state.suffix),
+      has_computed_bounds_(state.computed) {}
+HttpByteRange HttpByteRange::Bounded(int64_t first, int64_t last) {
+  return HttpByteRange(http_byte_range_rust_construct(1, first, last));
 }
-
-// static
-HttpByteRange HttpByteRange::RightUnbounded(int64_t first_byte_position) {
-  HttpByteRange range;
-  range.set_first_byte_position(first_byte_position);
-  return range;
+HttpByteRange HttpByteRange::RightUnbounded(int64_t first) {
+  return HttpByteRange(http_byte_range_rust_construct(2, first, 0));
 }
-
-// static
-HttpByteRange HttpByteRange::Suffix(int64_t suffix_length) {
-  HttpByteRange range;
-  range.set_suffix_length(suffix_length);
-  return range;
+HttpByteRange HttpByteRange::Suffix(int64_t suffix) {
+  return HttpByteRange(http_byte_range_rust_construct(3, suffix, 0));
 }
-
 bool HttpByteRange::IsSuffixByteRange() const {
-  return suffix_length_ != kPositionNotSpecified;
+  return http_byte_range_rust_is_suffix(suffix_length_);
 }
-
 bool HttpByteRange::HasFirstBytePosition() const {
-  return first_byte_position_ != kPositionNotSpecified;
+  return http_byte_range_rust_has_first(first_byte_position_);
 }
-
 bool HttpByteRange::HasLastBytePosition() const {
-  return last_byte_position_ != kPositionNotSpecified;
+  return http_byte_range_rust_has_last(last_byte_position_);
 }
-
 bool HttpByteRange::IsValid() const {
-  if (suffix_length_ > 0)
-    return true;
-  return (first_byte_position_ >= 0 &&
-          (last_byte_position_ == kPositionNotSpecified ||
-           last_byte_position_ >= first_byte_position_));
+  return http_byte_range_rust_is_valid(first_byte_position_,
+                                       last_byte_position_, suffix_length_);
 }
-
 std::string HttpByteRange::GetHeaderValue() const {
   DCHECK(IsValid());
-
-  if (IsSuffixByteRange())
-    return base::StringPrintf("bytes=-%" PRId64, suffix_length());
-
-  DCHECK(HasFirstBytePosition());
-
-  if (!HasLastBytePosition())
-    return base::StringPrintf("bytes=%" PRId64 "-", first_byte_position());
-
-  return base::StringPrintf("bytes=%" PRId64 "-%" PRId64,
-                            first_byte_position(), last_byte_position());
+  if (!IsSuffixByteRange()) {
+    DCHECK(HasFirstBytePosition());
+  }
+  const auto header = http_byte_range_rust_header(
+      first_byte_position_, last_byte_position_, suffix_length_);
+  // SAFETY: the Rust value contains 48 initialized bytes and len <= 47.
+  return UNSAFE_BUFFERS(std::string(header.bytes, header.len));
 }
-
 bool HttpByteRange::ComputeBounds(int64_t size) {
-  if (size < 0)
-    return false;
-  if (has_computed_bounds_)
-    return false;
-  has_computed_bounds_ = true;
-
-  // Empty values.
-  if (!HasFirstBytePosition() &&
-      !HasLastBytePosition() &&
-      !IsSuffixByteRange()) {
-    first_byte_position_ = 0;
-    last_byte_position_ = size - 1;
-    return true;
-  }
-  if (!IsValid())
-    return false;
-  if (IsSuffixByteRange()) {
-    first_byte_position_ = size - std::min(size, suffix_length_);
-    last_byte_position_ = size - 1;
-    return true;
-  }
-  if (first_byte_position_ < size) {
-    if (HasLastBytePosition())
-      last_byte_position_ = std::min(size - 1, last_byte_position_);
-    else
-      last_byte_position_ = size - 1;
-    return true;
-  }
-  return false;
+  const auto result =
+      http_byte_range_rust_compute({first_byte_position_, last_byte_position_,
+                                    suffix_length_, has_computed_bounds_},
+                                   size);
+  first_byte_position_ = result.state.first;
+  last_byte_position_ = result.state.last;
+  suffix_length_ = result.state.suffix;
+  has_computed_bounds_ = result.state.computed;
+  return result.success;
 }
-
 }  // namespace net

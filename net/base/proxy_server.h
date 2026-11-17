@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <compare>
 #include <optional>
 #include <ostream>
 #include <string>
@@ -75,36 +76,34 @@ class NET_EXPORT ProxyServer {
   // Must not call for invalid ProxyServers.
   uint16_t GetPort() const;
 
-  bool is_valid() const { return scheme_ != SCHEME_INVALID; }
+  bool is_valid() const;
 
   // Gets the proxy's scheme (i.e. SOCKS4, SOCKS5, HTTP)
   Scheme scheme() const { return scheme_; }
 
   // Returns true if this ProxyServer is an HTTP proxy.
-  bool is_http() const { return scheme_ == SCHEME_HTTP; }
+  bool is_http() const;
 
   // Returns true if this ProxyServer is an HTTPS proxy. Note this
   // does not include proxies matched by |is_quic()|.
   //
   // Generally one should test the more general concept of
   // |is_secure_http_like()| to account for |is_quic()|.
-  bool is_https() const { return scheme_ == SCHEME_HTTPS; }
+  bool is_https() const;
 
   // Returns true if this ProxyServer is a SOCKS proxy.
-  bool is_socks() const {
-    return scheme_ == SCHEME_SOCKS4 || scheme_ == SCHEME_SOCKS5;
-  }
+  bool is_socks() const;
 
   // Returns true if this ProxyServer is a QUIC proxy.
-  bool is_quic() const { return scheme_ == SCHEME_QUIC; }
+  bool is_quic() const;
 
   // Returns true if the ProxyServer's scheme is HTTP compatible (uses HTTP
   // headers, has a CONNECT method for establishing tunnels).
-  bool is_http_like() const { return is_http() || is_https() || is_quic(); }
+  bool is_http_like() const;
 
   // Returns true if the proxy server has HTTP semantics, AND
   // the channel between the client and proxy server is secure.
-  bool is_secure_http_like() const { return is_https() || is_quic(); }
+  bool is_secure_http_like() const;
 
   const HostPortPair& host_port_pair() const;
 
@@ -112,10 +111,12 @@ class NET_EXPORT ProxyServer {
   // scheme. Returns -1 if unknown.
   static int GetDefaultPortForScheme(Scheme scheme);
 
-  friend bool operator==(const ProxyServer&, const ProxyServer&) = default;
-  friend auto operator<=>(const ProxyServer&, const ProxyServer&) = default;
+  friend NET_EXPORT bool operator==(const ProxyServer&, const ProxyServer&);
+  friend NET_EXPORT std::strong_ordering operator<=>(const ProxyServer&,
+                                                     const ProxyServer&);
 
  private:
+  friend struct ConnectionJobsProxyServerRustOriginalAccess;
   Scheme scheme_ = SCHEME_INVALID;
   HostPortPair host_port_pair_;
 };

@@ -4,17 +4,18 @@
 
 #include "net/http/http_vary_data.h"
 
-#include <array>
+#include <algorithm>
+#include <optional>
 #include <string_view>
-#include <variant>
 
+#include "base/compiler_specific.h"
+#include "base/containers/span.h"
+#include "base/memory/raw_ptr.h"
+#include "base/memory/stack_allocated.h"
 #include "base/pickle.h"
-#include "base/strings/string_util.h"
-#include "crypto/hash.h"
-#include "crypto/obsolete/md5.h"
 #include "net/http/http_request_headers.h"
 #include "net/http/http_response_headers.h"
-#include "net/http/http_util.h"
+#include "net/http/http_vary_data_rust_ffi.h"
 
 namespace net {
 
@@ -23,44 +24,124 @@ crypto::obsolete::Md5 MakeMd5HasherForHttpVaryData() {
 }
 
 namespace {
+using Hash = std::variant<Md5Hash, Sha256Hash>;
+using Hasher = std::variant<crypto::obsolete::Md5, crypto::hash::Hasher>;
 
-using HasherVariant = std::variant<crypto::obsolete::Md5, crypto::hash::Hasher>;
-
-// Append to the given hash context for the given request header.
-template <typename Hasher>
-void AddField(const HttpRequestHeaders& request_headers,
-              std::string_view request_header,
-              Hasher& context) {
-  std::string request_value =
-      request_headers.GetHeader(request_header).value_or(std::string());
-
-  // Append a character that cannot appear in the request header line so that we
-  // protect against case where the concatenation of two request headers could
-  // look the same for a variety of values for the individual request headers.
-  // For example, "foo: 12\nbar: 3" looks like "foo: 1\nbar: 23" otherwise.
-  request_value.append(1, '\n');
-  context.Update(request_value);
+HttpVaryDataRustState Snapshot(const Hash& hash, bool valid) {
+  HttpVaryDataRustState state{};
+  state.valid = valid;
+  state.kind = std::holds_alternative<Sha256Hash>(hash) ? 1 : 0;
+  std::visit([&](const auto& bytes) { std::ranges::copy(bytes, state.digest); },
+             hash);
+  return state;
 }
 
-// A helper to abstract away the hashing logic for different context types.
-bool UpdateVaryContext(const HttpRequestHeaders& request_headers,
-                       const HttpResponseHeaders& response_headers,
-                       HasherVariant& context_variant) {
-  bool processed_header = false;
-  size_t iter = 0;
-  constexpr std::string_view name = "vary";
-  std::optional<std::string_view> request_header;
-  while ((request_header = response_headers.EnumerateHeader(&iter, name))) {
-    // The caller of this function is responsible for handling the "*" case.
-    DCHECK_NE("*", *request_header);
-    std::visit(
-        [&](auto& context) {
-          AddField(request_headers, *request_header, context);
-        },
-        context_variant);
-    processed_header = true;
+void Commit(const HttpVaryDataRustState& state, Hash& hash, bool& valid) {
+  if (state.kind == 1) {
+    Sha256Hash bytes;
+    base::span(bytes).copy_from(base::span(state.digest));
+    hash = bytes;
+  } else {
+    Md5Hash bytes;
+    base::span(bytes).copy_from(base::span(state.digest).first<16>());
+    hash = bytes;
   }
-  return processed_header;
+  valid = state.valid != 0;
+}
+
+// Only explicit library/container primitives live here. Rust chooses the
+// algorithm, fields, feed order, separators, format, probe and read/write
+// order.
+struct Services {
+  STACK_ALLOCATED();
+
+ public:
+  raw_ptr<const HttpRequestHeaders> request = nullptr;
+  raw_ptr<const HttpResponseHeaders> response = nullptr;
+  raw_ptr<base::PickleIterator> iter = nullptr;
+  raw_ptr<base::Pickle> pickle = nullptr;
+  std::optional<base::PickleIterator> probe;
+  std::array<uint8_t, 32> digest{};
+  std::optional<Hasher> context;
+};
+
+HttpVaryDataRustReply View(std::optional<std::string_view> view,
+                           size_t value = 0) {
+  if (!view) {
+    return {nullptr, 0, value};
+  }
+  // Present empty views need a non-null marker distinct from absence.
+  static constexpr uint8_t kEmpty = 0;
+  return {
+      view->empty() ? &kEmpty : reinterpret_cast<const uint8_t*>(view->data()),
+      view->size(), value};
+}
+
+HttpVaryDataRustReply Service(void* opaque,
+                              uint32_t op,
+                              const uint8_t* input,
+                              size_t length,
+                              size_t arg) {
+  auto& services = *static_cast<Services*>(opaque);
+  // SAFETY: Rust passes an initialized readable range for this synchronous
+  // callback. Empty spans are normalized without constructing a null range.
+  auto bytes = length ? UNSAFE_BUFFERS(base::span(input, length))
+                      : base::span<const uint8_t>();
+  switch (op) {
+    case 0:
+      return {nullptr, 0, services.response->HasHeaderValue("vary", "*")};
+    case 1: {
+      size_t cursor = arg;
+      auto field = services.response->EnumerateHeader(&cursor, "vary");
+      return View(field, cursor);
+    }
+    case 2:
+      return View(services.request->GetHeaderView(base::as_string_view(bytes)));
+    case 3:
+      if (arg == 1) {
+        services.context.emplace(std::in_place_type<crypto::hash::Hasher>,
+                                 crypto::hash::HashKind::kSha256);
+      } else {
+        services.context.emplace(MakeMd5HasherForHttpVaryData());
+      }
+      return {};
+    case 4:
+      services.probe.emplace(*services.iter);
+      return {};
+    case 5:
+      return {nullptr, 0, services.probe->ReadBytes(arg).has_value()};
+    case 6: {
+      int value = 0;
+      bool ok = services.iter->ReadInt(&value);
+      return {nullptr, ok ? 1u : 0u, static_cast<size_t>(value)};
+    }
+    case 7: {
+      auto value = services.iter->ReadBytes(arg);
+      return value ? HttpVaryDataRustReply{value->data(), value->size(), 0}
+                   : HttpVaryDataRustReply{};
+    }
+    case 8:
+      services.pickle->WriteInt(static_cast<int32_t>(arg));
+      return {};
+    case 9:
+      services.pickle->WriteBytes(bytes);
+      return {};
+    case 10:
+      std::visit([&](auto& context) { context.Update(bytes); },
+                 *services.context);
+      return {};
+    case 11:
+      if (arg == 1) {
+        std::get<crypto::hash::Hasher>(*services.context)
+            .Finish(services.digest);
+        return {services.digest.data(), 32, 0};
+      } else {
+        std::get<crypto::obsolete::Md5>(*services.context)
+            .Finish(base::span(services.digest).first<16>());
+        return {services.digest.data(), 16, 0};
+      }
+  }
+  CHECK(false);
 }
 }  // namespace
 
@@ -69,130 +150,40 @@ HttpVaryData::HttpVaryData() = default;
 bool HttpVaryData::Init(const HttpRequestHeaders& request_headers,
                         const HttpResponseHeaders& response_headers,
                         HashType hash_type) {
-  is_valid_ = false;
-
-  // If the Vary header contains '*' then we can just notice it based on
-  // |cached_response_headers| in MatchesRequest(), and don't have to worry
-  // about the specific headers.  We still want an HttpVaryData around, to let
-  // us handle this case. See section 4.1 of RFC 7234.
-  //
-
-  if (response_headers.HasHeaderValue("vary", "*")) {
-    // What's in request_digest_ will never be looked at, but make it
-    // deterministic so we don't serialize out uninitialized memory content.
-    hash_ = Sha256Hash{};
-    return is_valid_ = true;
-  }
-
-  HasherVariant context_variant =
-      (hash_type == HashType::kSHA256)
-          ? HasherVariant(std::in_place_type<crypto::hash::Hasher>,
-                          crypto::hash::HashKind::kSha256)
-          : HasherVariant(MakeMd5HasherForHttpVaryData());
-
-  if (!UpdateVaryContext(request_headers, response_headers, context_variant)) {
-    return false;
-  }
-
-  std::visit(
-      [this](auto& context) {
-        using T = std::decay_t<decltype(context)>;
-        if constexpr (std::is_same_v<T, crypto::hash::Hasher>) {
-          Sha256Hash sha_hash;
-          context.Finish(sha_hash);
-          hash_ = sha_hash;
-        } else {
-          Md5Hash md5_hash;
-          context.Finish(md5_hash);
-          hash_ = md5_hash;
-        }
-      },
-      context_variant);
-
-  return is_valid_ = true;
+  Services services;
+  services.request = &request_headers;
+  services.response = &response_headers;
+  auto state =
+      rustium_http_vary_data(Snapshot(hash_, is_valid_), &services, Service, 0,
+                             static_cast<int32_t>(hash_type));
+  Commit(state, hash_, is_valid_);
+  return is_valid_;
 }
 
 bool HttpVaryData::InitFromPickle(base::PickleIterator* iter) {
-  is_valid_ = false;
-
-  // Create a copy of the iterator to probe for the old format. This avoids
-  // advancing `iter` before we know which format we are parsing.
-  base::PickleIterator probe_iter(*iter);
-  std::optional<base::span<const uint8_t>> bytes_for_probe =
-      probe_iter.ReadBytes(crypto::obsolete::Md5::kSize);
-
-  // Support for old cache entries that stored a raw 16-byte MD5 digest.
-  // We detect 16-byte MD5 hash by checking if the pickle's total size is
-  // exactly 16 bytes.
-  if (bytes_for_probe && !probe_iter.ReadBytes(1).has_value()) {
-    // It's an old-style entry. Read the data from the original iterator to
-    // consume it.
-    std::optional<base::span<const uint8_t>> bytes =
-        iter->ReadBytes(crypto::obsolete::Md5::kSize);
-    Md5Hash md5_hash;
-    base::span(md5_hash).copy_from(*bytes);
-    hash_ = md5_hash;
-    return is_valid_ = true;
-  }
-
-  // It's a new-style entry, so we parse it from the original `iter`.
-  // New format: HashType enum followed by the digest.
-  int read_hash_type;
-  if (!iter->ReadInt(&read_hash_type)) {
-    return false;
-  }
-
-  if (read_hash_type == static_cast<int>(HashType::kSHA256)) {
-    std::optional<base::span<const uint8_t>> bytes =
-        iter->ReadBytes(crypto::hash::kSha256Size);
-    if (!bytes) {
-      return false;
-    }
-    Sha256Hash sha_hash;
-    base::span(sha_hash).copy_from(*bytes);
-    hash_ = sha_hash;
-  } else if (read_hash_type == static_cast<int>(HashType::kMD5)) {
-    std::optional<base::span<const uint8_t>> bytes =
-        iter->ReadBytes(crypto::obsolete::Md5::kSize);
-    if (!bytes) {
-      return false;
-    }
-    Md5Hash md5_hash;
-    base::span(md5_hash).copy_from(*bytes);
-    hash_ = md5_hash;
-  } else {
-    return false;  // Invalid hash type.
-  }
-
-  return is_valid_ = true;
+  Services services;
+  services.iter = iter;
+  auto state = rustium_http_vary_data(Snapshot(hash_, is_valid_), &services,
+                                      Service, 2, 0);
+  Commit(state, hash_, is_valid_);
+  return is_valid_;
 }
 
 void HttpVaryData::Persist(base::Pickle* pickle) const {
   DCHECK(is_valid());
-  std::visit(
-      [&](const auto& hash) {
-        pickle->WriteInt(static_cast<int>(hash_type()));
-        pickle->WriteBytes(hash);
-      },
-      hash_);
+  Services services;
+  services.pickle = pickle;
+  rustium_http_vary_data(Snapshot(hash_, is_valid_), &services, Service, 3, 0);
 }
 
 bool HttpVaryData::MatchesRequest(
     const HttpRequestHeaders& request_headers,
     const HttpResponseHeaders& cached_response_headers) const {
-  // Vary: * never matches.
-  if (cached_response_headers.HasHeaderValue("vary", "*")) {
-    return false;
-  }
-
-  HttpVaryData new_vary_data;
-  if (!new_vary_data.Init(request_headers, cached_response_headers,
-                          hash_type())) {
-    // This case can happen if |this| was loaded from a cache that was populated
-    // by a build before crbug.com/469675 was fixed.
-    return false;
-  }
-  return new_vary_data.hash_ == hash_;
+  Services services;
+  services.request = &request_headers;
+  services.response = &cached_response_headers;
+  return rustium_http_vary_data(Snapshot(hash_, is_valid_), &services, Service,
+                                1, 0)
+             .valid != 0;
 }
-
 }  // namespace net

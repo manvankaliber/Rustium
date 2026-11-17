@@ -1,146 +1,84 @@
-// Copyright 2012 The Chromium Authors
+// Copyright 2026 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/base/net_errors.h"
 
+#include <array>
+#include <cstdint>
+#include <cstring>
 #include <string>
 
 #include "base/check_op.h"
-#include "base/files/file.h"
-#include "base/logging.h"
 #include "base/notreached.h"
-#include "base/strings/strcat.h"
+#include "net/base/net_error_rust_ffi.h"
 #include "net/third_party/quiche/src/quiche/quic/core/quic_error_codes.h"
-
 namespace net {
-
-// Validate all error values in net_error_list.h are negative.
 #define NET_ERROR(label, value) \
   static_assert(value < 0, "ERR_" #label " should be negative");
 #include "net/base/net_error_list.h"
 #undef NET_ERROR
-
-std::string ErrorToString(int error) {
-  return "net::" + ErrorToShortString(error);
-}
-
-std::string ExtendedErrorToString(int error, int extended_error_code) {
-  if (error == ERR_QUIC_PROTOCOL_ERROR && extended_error_code != 0) {
-    return base::StrCat({"net::ERR_QUIC_PROTOCOL_ERROR.",
-                         QuicErrorCodeToString(static_cast<quic::QuicErrorCode>(
-                             extended_error_code))});
-  }
-  return ErrorToString(error);
-}
-
-std::string ErrorToShortString(int error) {
-  if (error == OK)
-    return "OK";
-
-  const char* error_string;
-  switch (error) {
-#define NET_ERROR(label, value) \
-  case ERR_ ## label: \
-    error_string = # label; \
-    break;
-#include "net/base/net_error_list.h"
-#undef NET_ERROR
-  default:
-    // TODO(crbug.com/40909121): Figure out why this is firing, fix and upgrade
-    // this to be fatal.
+#include "net/base/net_error_rust_enum_checks.h"
+namespace {
+std::string Format(int error, bool full, const char* quic_name = nullptr) {
+  if (!quic_name && !net_error_rust_defined(error)) {
+    // Preserve Chromium's build-dependent dump severity and offending value.
     DUMP_WILL_BE_NOTREACHED() << error;
-    error_string = "<unknown>";
   }
-  return base::StrCat({"ERR_", error_string});
+  const auto* suffix = reinterpret_cast<const uint8_t*>(quic_name);
+  const size_t suffix_length = quic_name ? std::strlen(quic_name) : 0;
+  // Rust initializes only the emitted bytes of this native scratch storage.
+  // A long future QUICHE name uses the same policy with native owned storage.
+  std::array<uint8_t, 256> buffer;
+  const size_t length = net_error_rust_format(
+      error, full, suffix, suffix_length, buffer.data(), buffer.size());
+  if (length <= buffer.size()) {
+    return std::string(reinterpret_cast<const char*>(buffer.data()), length);
+  }
+  std::string result(length, '\0');
+  net_error_rust_format(error, full, suffix, suffix_length,
+                        reinterpret_cast<uint8_t*>(result.data()),
+                        result.size());
+  return result;
 }
-
+}  // namespace
+std::string ErrorToString(int error) {
+  return Format(error, true);
+}
+std::string ErrorToShortString(int error) {
+  return Format(error, false);
+}
+std::string ExtendedErrorToString(int error, int extended_error_code) {
+  const char* name = nullptr;
+  if (net_error_rust_extended(error, extended_error_code)) {
+    name = quic::QuicErrorCodeToString(
+        static_cast<quic::QuicErrorCode>(extended_error_code));
+  }
+  return Format(error, true, name);
+}
 bool IsCertificateError(int error) {
-  // Certificate errors are negative integers from net::ERR_CERT_BEGIN
-  // (inclusive) to net::ERR_CERT_END (exclusive) in *decreasing* order.
-  // ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN is currently an exception to this
-  // rule.
-  return (error <= ERR_CERT_BEGIN && error > ERR_CERT_END) ||
-         (error == ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN);
+  return net_error_rust_certificate(error);
 }
-
 bool IsClientCertificateError(int error) {
-  switch (error) {
-    case ERR_BAD_SSL_CLIENT_AUTH_CERT:
-    case ERR_SSL_CLIENT_AUTH_PRIVATE_KEY_ACCESS_DENIED:
-    case ERR_SSL_CLIENT_AUTH_CERT_NO_PRIVATE_KEY:
-    case ERR_SSL_CLIENT_AUTH_SIGNATURE_FAILED:
-    case ERR_SSL_CLIENT_AUTH_NO_COMMON_ALGORITHMS:
-      return true;
-    default:
-      return false;
-  }
+  return net_error_rust_client_certificate(error);
 }
-
 bool IsHostnameResolutionError(int error) {
-  DCHECK_NE(ERR_NAME_RESOLUTION_FAILED, error);
-  return error == ERR_NAME_NOT_RESOLVED;
+  const int8_t result = net_error_rust_hostname(error);
+  if (result < 0) {
+    DCHECK_NE(ERR_NAME_RESOLUTION_FAILED, error);
+  }
+  return result > 0;
 }
-
 bool IsRequestBlockedError(int error) {
-  switch (error) {
-    case ERR_BLOCKED_BY_CLIENT:
-    case ERR_BLOCKED_BY_ADMINISTRATOR:
-    case ERR_BLOCKED_BY_CSP:
-    case ERR_BLOCKED_IN_INCOGNITO_BY_ADMINISTRATOR:
-      return true;
-    default:
-      return false;
-  }
+  return net_error_rust_blocked(error);
 }
-
 bool IsOkOrDefinedError(int error) {
-  switch (error) {
-    case OK:
-#define NET_ERROR(label, value) case value:
-#include "net/base/net_error_list.h"
-#undef NET_ERROR
-      return true;
-  }
-  return false;
+  return net_error_rust_defined(error);
 }
-
 Error FileErrorToNetError(base::File::Error file_error) {
-  switch (file_error) {
-    case base::File::FILE_OK:
-      return OK;
-    case base::File::FILE_ERROR_EXISTS:
-      return ERR_FILE_EXISTS;
-    case base::File::FILE_ERROR_NOT_FOUND:
-      return ERR_FILE_NOT_FOUND;
-    case base::File::FILE_ERROR_ACCESS_DENIED:
-      return ERR_ACCESS_DENIED;
-    case base::File::FILE_ERROR_NO_MEMORY:
-      return ERR_OUT_OF_MEMORY;
-    case base::File::FILE_ERROR_NO_SPACE:
-      return ERR_FILE_NO_SPACE;
-    case base::File::FILE_ERROR_INVALID_OPERATION:
-      return ERR_INVALID_ARGUMENT;
-    case base::File::FILE_ERROR_ABORT:
-      return ERR_ABORTED;
-    case base::File::FILE_ERROR_INVALID_URL:
-      return ERR_INVALID_URL;
-    case base::File::FILE_ERROR_TOO_MANY_OPENED:
-      return ERR_INSUFFICIENT_RESOURCES;
-    case base::File::FILE_ERROR_SECURITY:
-      return ERR_ACCESS_DENIED;
-    case base::File::FILE_ERROR_MAX:
-      NOTREACHED();
-    case base::File::FILE_ERROR_NOT_A_DIRECTORY:
-    case base::File::FILE_ERROR_NOT_A_FILE:
-    case base::File::FILE_ERROR_NOT_EMPTY:
-    case base::File::FILE_ERROR_IO:
-    case base::File::FILE_ERROR_IN_USE:
-    // No good mappings for these, so just fallthrough to generic fail.
-    case base::File::FILE_ERROR_FAILED:
-      return ERR_FAILED;
+  const int32_t result = net_error_rust_file(file_error);
+  if (result == net_error_rust::kUnknown) {
+    NOTREACHED();
   }
-  NOTREACHED();
+  return static_cast<Error>(result);
 }
-
 }  // namespace net

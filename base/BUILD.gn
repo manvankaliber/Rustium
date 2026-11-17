@@ -37,6 +37,7 @@ import("//build/config/ui.gni")
 import("//build/nocompile.gni")
 import("//build/rust/rust_macro.gni")
 import("//build/rust/rust_static_library.gni")
+import("//build/rust/rustium_reference_probe.gni")
 import("//build/util/process_version.gni")
 import("//build_overrides/build.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
@@ -1098,6 +1099,7 @@ component("base") {
   deps = [
     ":base64_rust_shim",
     ":check_version_internal",
+    ":string_split_rust",
     "//base/allocator:buildflags",
     "//base/third_party/cityhash",
     "//base/third_party/cityhash_v103",
@@ -2045,6 +2047,19 @@ component("base") {
     configs -= [ "//build/config/compiler:default_optimization" ]
     configs += [ "//build/config/compiler:optimize_max" ]
   }
+
+  if (rustium_reference_probe) {
+    sources -= [
+      "base64.cc",
+      "strings/string_split.cc",
+    ]
+    sources += [
+      "base64_reference_probe.cc",
+      "strings/rustium_reference_probe.cc",
+      "strings/rustium_reference_probe.h",
+      "strings/string_split_reference_probe.cc",
+    ]
+  }
 }
 
 if (enable_rust_api_from_cpp) {
@@ -2124,6 +2139,50 @@ rust_static_library("base64_rust_shim") {
   sources = [ "base64_rust_shim.rs" ]
   cxx_bindings = [ "base64_rust_shim.rs" ]
   deps = [ "//third_party/rust/base64/v0_23:lib" ]
+
+  if (rustium_reference_probe) {
+    crate_root = "base64_rust_shim_reference_probe.rs"
+    sources -= [ "base64_rust_shim.rs" ]
+    sources += [ "base64_rust_shim_reference_probe.rs" ]
+    cxx_bindings = [ "base64_rust_shim_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+    ]
+  }
+}
+
+rust_static_library("string_split_rust") {
+  visibility = [
+    ":base",
+    ":base_unittests",
+  ]
+  crate_root = "strings/string_split_rust.rs"
+  sources = [
+    "strings/string_split_rust.rs",
+    "strings/string_split_rust_policy.rs",
+  ]
+  cxx_bindings = [ "strings/string_split_rust.rs" ]
+  allow_unsafe =
+      true  # Generated CXX FFI only; authored policy/glue is safe Rust.
+  deps = [ "//third_party/rust/cxx/v1:lib" ]
+
+  if (rustium_reference_probe) {
+    crate_root = "strings/string_split_rust_reference_probe.rs"
+    sources -= [ "strings/string_split_rust.rs" ]
+    sources += [ "strings/string_split_rust_reference_probe.rs" ]
+    cxx_bindings = [ "strings/string_split_rust_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+    ]
+  }
 }
 
 rust_static_library("scoped_refptr") {
@@ -3221,6 +3280,7 @@ test("base_unittests") {
     "strings/strcat_unittest.cc",
     "strings/string_number_conversions_unittest.cc",
     "strings/string_slice_unittest.cc",
+    "strings/string_split_rust_bridge_unittest.cc",
     "strings/string_split_unittest.cc",
     "strings/string_tokenizer_unittest.cc",
     "strings/string_util_unittest.cc",
@@ -3442,6 +3502,7 @@ test("base_unittests") {
     ":path_service_unittest",
     ":rust_feature_unittests",
     ":sanitizer_buildflags",
+    ":string_split_rust",
     "//base/allocator:buildflags",
     "//base/i18n:test_support",
     "//base/i18n:unittests",
@@ -3846,6 +3907,12 @@ test("base_unittests") {
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+
+  if (rustium_reference_probe) {
+    sources -= [ "strings/string_split_rust_bridge_unittest.cc" ]
+    sources +=
+        [ "strings/string_split_rust_bridge_reference_probe_unittest.cc" ]
+  }
 }
 
 source_set("hardening_tests") {

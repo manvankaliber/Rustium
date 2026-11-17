@@ -92,3 +92,45 @@ fn every_byte_in_decoded_numeric_fields() {
         }
     }
 }
+
+#[test]
+fn decoded_consumption_still_short_circuits() {
+    use std::cell::Cell;
+    for (input, strict, report, expected) in [
+        ("00tail", true, true, 2),
+        ("000xrest", false, true, 4),
+        ("42949672960xTAIL", false, false, 10),
+        ("42949672960xTAIL", false, true, 12),
+    ] {
+        let consumed = Cell::new(0);
+        let bytes = input.bytes().inspect(|_| consumed.set(consumed.get() + 1));
+        assert!(parse_u32_iter(bytes, strict, report).is_err());
+        assert_eq!(consumed.get(), expected);
+    }
+    for (input, format, report, expected) in [
+        ("-0tail", 3, true, 2),
+        ("000xrest", 1, true, 4),
+        ("-92233720368547758090xTAIL", 1, false, 20),
+        ("-92233720368547758090xTAIL", 1, true, 22),
+    ] {
+        let consumed = Cell::new(0);
+        let bytes = input.bytes().inspect(|_| consumed.set(consumed.get() + 1));
+        assert!(parse_i64_iter(bytes, format, report).is_err());
+        assert_eq!(consumed.get(), expected);
+    }
+}
+
+#[test]
+fn zero_block_boundaries_and_safe_prefix_lengths() {
+    for len in [0, 1, 8, 9, 10, 16, 17, 18, 19, 20, 31, 32, 33, 64, 4096] {
+        let zeros = vec![b'0'; len];
+        compare(&zeros);
+        for suffix in [b"123".as_slice(), b"x", b"9223372036854775808"] {
+            let mut value = zeros.clone();
+            value.extend_from_slice(suffix);
+            compare(&value);
+            value.insert(0, b'-');
+            compare(&value);
+        }
+    }
+}

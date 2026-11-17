@@ -33,6 +33,8 @@
 
 namespace net {
 
+struct HttpProxyConnectJobFamilyRustBridge;
+
 class HttpAuthController;
 class HttpResponseInfo;
 class NetworkQualityEstimator;
@@ -239,6 +241,7 @@ class NET_EXPORT_PRIVATE HttpProxyConnectJob : public ConnectJob,
                                  base::TimeDelta latency);
 
  private:
+  friend struct HttpProxyConnectJobFamilyRustBridge;
   enum State {
     STATE_BEGIN_CONNECT,
     STATE_TRANSPORT_CONNECT,

@@ -9,6 +9,7 @@
 #include <random>
 #include <ratio>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "base/compiler_specific.h"
@@ -25,7 +26,8 @@ struct Case {
   unsigned aliases = 0;
   size_t iterations = 200000;
 };
-uint64_t Value(const net::HttpByteRange& range) {
+template <typename ByteRange>
+uint64_t Value(const ByteRange& range) {
   return static_cast<uint64_t>(range.first_byte_position()) +
          static_cast<uint64_t>(range.last_byte_position()) +
          static_cast<uint64_t>(range.suffix_length());
@@ -33,17 +35,23 @@ uint64_t Value(const net::HttpByteRange& range) {
 template <bool Rust>
 uint64_t Run(const Case& test, size_t iterations) {
   namespace old = net::http_range_promote_internal::test;
+  using ByteRange =
+      std::conditional_t<Rust, net::HttpByteRange, old::ByteRange>;
   uint64_t sum = 0;
   for (size_t repeat = 0; repeat < iterations; ++repeat) {
     switch (test.kind) {
       case Kind::Ranges: {
-        std::vector<net::HttpByteRange> ranges;
+        std::vector<ByteRange> ranges;
         if (test.option) {
-          ranges.push_back(net::HttpByteRange::Bounded(12, 34));
+          ranges.push_back(ByteRange::Bounded(12, 34));
         }
-        const bool ok =
-            Rust ? net::HttpUtil::ParseRangeHeader(test.input, &ranges)
-                 : old::ParseRangeHeader(test.input, &ranges);
+        const bool ok = [&] {
+          if constexpr (Rust) {
+            return net::HttpUtil::ParseRangeHeader(test.input, &ranges);
+          } else {
+            return old::ParseRangeHeader(test.input, &ranges);
+          }
+        }();
         sum += ok + ranges.size();
         for (const auto& r : ranges) {
           sum += Value(r);
@@ -51,9 +59,14 @@ uint64_t Run(const Case& test, size_t iterations) {
         break;
       }
       case Kind::Fetch: {
-        const auto range =
-            Rust ? net::HttpUtil::ParseFetchSingleRange(test.input, test.option)
-                 : old::ParseFetchSingleRange(test.input, test.option);
+        const auto range = [&] {
+          if constexpr (Rust) {
+            return net::HttpUtil::ParseFetchSingleRange(test.input,
+                                                        test.option);
+          } else {
+            return old::ParseFetchSingleRange(test.input, test.option);
+          }
+        }();
         sum += range.has_value();
         if (range) {
           sum += Value(*range);
@@ -110,7 +123,14 @@ double Measure(const Case& test) {
 }
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
+  const bool verify_only =
+      argc == 2 && UNSAFE_BUFFERS(std::strcmp(argv[1], "--verify-only")) == 0;
+  if (argc != 1 && !verify_only) {
+    UNSAFE_BUFFERS(std::fputs(
+        "Usage: http_range_promote_perftests [--verify-only]\n", stderr));
+    return 2;
+  }
   std::string many = "bytes=";
   for (unsigned i = 0; i < 32; ++i) {
     if (i) {
@@ -170,6 +190,14 @@ int main() {
       UNSAFE_BUFFERS(
           std::fputs("Benchmark implementations disagree.\n", stderr));
       return 1;
+    }
+    if (verify_only) {
+      UNSAFE_BUFFERS(
+          std::printf("{\"case\":\"%s\",\"baseline_checksum\":%llu,\"rust_"
+                      "checksum\":%llu,\"iterations\":%zu}\n",
+                      test.name, static_cast<unsigned long long>(b),
+                      static_cast<unsigned long long>(n), test.iterations / 5));
+      continue;
     }
     sink = b + n;
     for (unsigned repeat = 0; repeat < 20; ++repeat) {

@@ -9,37 +9,41 @@
 #include <utility>
 
 #include "base/logging.h"
-#include "base/notreached.h"
-#include "base/strings/escape.h"
-#include "base/strings/strcat.h"
-#include "base/strings/string_split.h"
-#include "base/strings/string_util.h"
-#include "base/strings/stringprintf.h"
+#include "base/memory/raw_ptr.h"
 #include "base/values.h"
 #include "net/base/url_util.h"
 #include "net/http/http_log_util.h"
-#include "net/http/http_util.h"
+#include "net/http/http_request_headers_rust_ffi.h"
 #include "net/log/net_log_capture_mode.h"
 #include "net/log/net_log_values.h"
-#include "third_party/abseil-cpp/absl/container/inlined_vector.h"
 #include "url/gurl.h"
 
 namespace net {
 
 namespace {
 
-constexpr char kEncodingGzip[] = "gzip";
-constexpr char kEncodingDeflate[] = "deflate";
-constexpr char kEncodingBrotli[] = "br";
-constexpr char kEncodingZstd[] = "zstd";
-
-bool SupportsStreamType(const std::optional<base::flat_set<SourceStreamType>>&
-                            accepted_stream_types,
-                        SourceStreamType type) {
-  if (!accepted_stream_types)
-    return true;
-  return accepted_stream_types->contains(type);
+// C++ owns strings, vector capacity, iterator invalidation, and external
+// services. This service only exposes indexed immutable fields during a Rust
+// read call.
+RequestHeadersRustReader Reader(
+    const HttpRequestHeaders::HeaderVector& headers) {
+  return {
+      &headers, headers.size(), [](const void* context, size_t i, bool value) {
+        const auto& pair =
+            (*static_cast<const HttpRequestHeaders::HeaderVector*>(context))[i];
+        const auto& field = value ? pair.value : pair.key;
+        return RequestHeadersRustSpan{field.data(), field.size()};
+      }};
 }
+
+struct HttpRequestHeadersRustValidation {
+  static bool IsValidHeaderName(std::string_view input) {
+    return rustium_request_headers_validate(input.data(), input.size(), 0);
+  }
+  static bool IsValidHeaderValue(std::string_view input) {
+    return rustium_request_headers_validate(input.data(), input.size(), 1);
+  }
+};
 
 }  // namespace
 
@@ -60,16 +64,12 @@ HttpRequestHeaders::Iterator::Iterator(const HttpRequestHeaders& headers)
 HttpRequestHeaders::Iterator::~Iterator() = default;
 
 bool HttpRequestHeaders::Iterator::GetNext() {
-  if (!started_) {
-    started_ = true;
-    return curr_ != end_;
+  const auto step = rustium_request_headers_step(started_, curr_ == end_);
+  started_ = true;
+  if (step == 2) {
+    ++curr_;
   }
-
-  if (curr_ == end_)
-    return false;
-
-  ++curr_;
-  return curr_ != end_;
+  return step != 0 && curr_ != end_;
 }
 
 HttpRequestHeaders::HttpRequestHeaders() = default;
@@ -111,6 +111,7 @@ void HttpRequestHeaders::SetHeader(std::string_view key,
 }
 
 void HttpRequestHeaders::SetHeader(std::string_view key, std::string&& value) {
+  using HttpUtil = HttpRequestHeadersRustValidation;
   // Invalid header names or values could mean clients can attach
   // browser-internal headers.
   CHECK(HttpUtil::IsValidHeaderName(key)) << key;
@@ -127,90 +128,84 @@ void HttpRequestHeaders::SetHeaderWithoutCheckForTesting(
 
 void HttpRequestHeaders::SetHeaderIfMissing(std::string_view key,
                                             std::string_view value) {
-  // Invalid header names or values could mean clients can attach
-  // browser-internal headers.
+  using HttpUtil = HttpRequestHeadersRustValidation;
   CHECK(HttpUtil::IsValidHeaderName(key));
   CHECK(HttpUtil::IsValidHeaderValue(value));
-  auto it = FindHeader(key);
-  if (it == headers_.end()) {
+  const auto plan =
+      rustium_request_headers_plan(Reader(headers_), key.data(), key.size(), 1);
+  if (plan.action == 1) {
     headers_.emplace_back(key, value);
   }
 }
 
 void HttpRequestHeaders::RemoveHeader(std::string_view key) {
-  auto it = FindHeader(key);
-  if (it != headers_.end())
-    headers_.erase(it);
+  const auto plan =
+      rustium_request_headers_plan(Reader(headers_), key.data(), key.size(), 2);
+  if (plan.action == 3) {
+    headers_.erase(headers_.begin() + plan.index);
+  }
 }
 
 void HttpRequestHeaders::AddHeaderFromString(std::string_view header_line) {
-  DCHECK_EQ(std::string::npos, header_line.find("\r\n"))
+  // Check and logging remain native so severity, crash behavior and text match.
+  const size_t crlf_index =
+      rustium_request_headers_crlf(header_line.data(), header_line.size());
+  DCHECK_EQ(std::string::npos, crlf_index)
       << "\"" << header_line << "\" contains CRLF.";
-
-  const std::string::size_type key_end_index = header_line.find(":");
-  if (key_end_index == std::string::npos) {
-    LOG(DFATAL) << "\"" << header_line << "\" is missing colon delimiter.";
-    return;
-  }
-
-  if (key_end_index == 0) {
-    LOG(DFATAL) << "\"" << header_line << "\" is missing header key.";
-    return;
-  }
-
-  const std::string_view header_key = header_line.substr(0, key_end_index);
-  if (!HttpUtil::IsValidHeaderName(header_key)) {
-    LOG(DFATAL) << "\"" << header_line << "\" has invalid header key.";
-    return;
-  }
-
-  const std::string::size_type value_index = key_end_index + 1;
-
-  if (value_index < header_line.size()) {
-    std::string_view header_value = header_line.substr(value_index);
-    header_value = HttpUtil::TrimLWS(header_value);
-    if (!HttpUtil::IsValidHeaderValue(header_value)) {
+  const auto parsed =
+      rustium_request_headers_parse(header_line.data(), header_line.size());
+  switch (parsed.error) {
+    case 1:
+      LOG(DFATAL) << "\"" << header_line << "\" is missing colon delimiter.";
+      return;
+    case 2:
+      LOG(DFATAL) << "\"" << header_line << "\" is missing header key.";
+      return;
+    case 3:
+      LOG(DFATAL) << "\"" << header_line << "\" has invalid header key.";
+      return;
+    case 4:
       LOG(DFATAL) << "\"" << header_line << "\" has invalid header value.";
       return;
-    }
-    SetHeader(header_key, header_value);
-  } else if (value_index == header_line.size()) {
-    SetHeader(header_key, "");
-  } else {
-    NOTREACHED();
   }
+  SetHeader(header_line.substr(0, parsed.key_len),
+            header_line.substr(parsed.value_begin, parsed.value_len));
 }
 
 void HttpRequestHeaders::AddHeadersFromString(std::string_view headers) {
-  for (std::string_view header : base::SplitStringPieceUsingSubstr(
-           headers, "\r\n", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY)) {
-    AddHeaderFromString(header);
-  }
+  struct Context {
+    raw_ptr<HttpRequestHeaders> self;
+    std::string_view input;
+  } context{this, headers};
+  rustium_request_headers_block(
+      headers.data(), headers.size(), &context,
+      [](void* opaque, size_t begin, size_t len) {
+        auto& context = *static_cast<Context*>(opaque);
+        context.self->AddHeaderFromString(context.input.substr(begin, len));
+      });
 }
 
 void HttpRequestHeaders::MergeFrom(const HttpRequestHeaders& other) {
-  for (const auto& header : other.headers_) {
-    SetHeader(header.key, header.value);
-  }
+  struct Context {
+    raw_ptr<HttpRequestHeaders> self;
+    raw_ptr<const HttpRequestHeaders> other;
+  } context{this, &other};
+  rustium_request_headers_each(
+      other.headers_.size(), &context, [](void* opaque, size_t i) {
+        auto& context = *static_cast<Context*>(opaque);
+        const auto& header = context.other->headers_[i];
+        context.self->SetHeader(header.key, header.value);
+      });
 }
 
 std::string HttpRequestHeaders::ToString() const {
-  static constexpr std::string_view kColon = ": ";
-  static constexpr std::string_view kCrNl = "\r\n";
-
-  // As of January 2024, 99% of of HttpRequestHeaders objects had 27 headers or
-  // less. Allow space for 128 string pieces without heap allocation as it is a
-  // nice round number.
-  absl::InlinedVector<std::string_view, 128> pieces;
-  const size_t expected_size = headers_.size() * 4 + 1;
-
-  pieces.reserve(expected_size);
-  for (const auto& header : headers_) {
-    pieces.insert(pieces.end(), {header.key, kColon, header.value, kCrNl});
-  }
-  pieces.push_back(kCrNl);
-  CHECK_EQ(pieces.size(), expected_size);
-  return base::StrCat(pieces);
+  const size_t len =
+      rustium_request_headers_serialize(Reader(headers_), nullptr, 0);
+  std::string output(len, '\0');
+  const size_t written = rustium_request_headers_serialize(
+      Reader(headers_), output.data(), output.size());
+  CHECK_EQ(written, len);
+  return output;
 }
 
 base::DictValue HttpRequestHeaders::NetLogParams(
@@ -219,12 +214,28 @@ base::DictValue HttpRequestHeaders::NetLogParams(
   base::DictValue dict;
   dict.Set("line", NetLogStringValue(request_line));
   base::ListValue headers;
-  for (const auto& header : headers_) {
-    std::string log_value =
-        ElideHeaderValueForNetLog(capture_mode, header.key, header.value);
-    headers.Append(
-        NetLogStringValue(base::StrCat({header.key, ": ", log_value})));
-  }
+  struct Context {
+    raw_ptr<const HeaderVector> source;
+    raw_ptr<base::ListValue> output;
+    NetLogCaptureMode mode;
+  } context{&headers_, &headers, capture_mode};
+  rustium_request_headers_each(
+      headers_.size(), &context, [](void* opaque, size_t i) {
+        auto& context = *static_cast<Context*>(opaque);
+        const auto& header = (*context.source)[i];
+        std::string log_value =
+            ElideHeaderValueForNetLog(context.mode, header.key, header.value);
+        // Formatting is owned by Rust as well; the elision and Value conversion
+        // are existing external NetLog services.
+        const size_t len = rustium_request_headers_format(
+            header.key.data(), header.key.size(), log_value.data(),
+            log_value.size(), nullptr);
+        std::string line(len, '\0');
+        rustium_request_headers_format(header.key.data(), header.key.size(),
+                                       log_value.data(), log_value.size(),
+                                       line.data());
+        context.output->Append(NetLogStringValue(line));
+      });
   dict.Set("headers", std::move(headers));
   return dict;
 }
@@ -235,78 +246,56 @@ void HttpRequestHeaders::SetAcceptEncodingIfMissing(
         accepted_stream_types,
     bool enable_brotli,
     bool enable_zstd) {
-  if (HasHeader(kAcceptEncoding))
-    return;
-
-  // If a range is specifically requested, set the "Accepted Encoding" header to
-  // "identity".
-  if (HasHeader(kRange)) {
-    SetHeader(kAcceptEncoding, "identity");
+  // Membership and URL classification are external library services. All
+  // ordering, range/existing precedence, and enablement policy is Rust-owned.
+  const uint32_t mode = rustium_request_headers_encoding_mode(Reader(headers_));
+  if (mode == 0) {
     return;
   }
-
-  // Supply Accept-Encoding headers first so that it is more likely that they
-  // will be in the first transmitted packet. This can sometimes make it easier
-  // to filter and analyze the streams to assure that a proxy has not damaged
-  // these headers. Some proxies deliberately corrupt Accept-Encoding headers.
-  std::vector<std::string_view> advertised_encoding_names;
-  advertised_encoding_names.reserve(4u);
-  if (SupportsStreamType(accepted_stream_types, SourceStreamType::kGzip)) {
-    advertised_encoding_names.emplace_back(kEncodingGzip);
+  uint32_t supported = 0;
+  bool advanced = false;
+  if (mode == 2) {
+    const auto supports = [&](SourceStreamType type) {
+      return !accepted_stream_types || accepted_stream_types->contains(type);
+    };
+    supported |= supports(SourceStreamType::kGzip) ? 1 : 0;
+    supported |= supports(SourceStreamType::kDeflate) ? 2 : 0;
+    supported |= supports(SourceStreamType::kBrotli) ? 4 : 0;
+    supported |= supports(SourceStreamType::kZstd) ? 8 : 0;
+    advanced = url.SchemeIsCryptographic() || IsLocalhost(url);
   }
-  if (SupportsStreamType(accepted_stream_types, SourceStreamType::kDeflate)) {
-    advertised_encoding_names.emplace_back(kEncodingDeflate);
-  }
-
-  const bool can_use_advanced_encodings =
-      (url.SchemeIsCryptographic() || IsLocalhost(url));
-
-  // Advertise "br" encoding only if transferred data is opaque to proxy.
-  if (enable_brotli &&
-      SupportsStreamType(accepted_stream_types, SourceStreamType::kBrotli) &&
-      can_use_advanced_encodings) {
-    advertised_encoding_names.emplace_back(kEncodingBrotli);
-  }
-  // Advertise "zstd" encoding only if transferred data is opaque to proxy.
-  if (enable_zstd &&
-      SupportsStreamType(accepted_stream_types, SourceStreamType::kZstd) &&
-      can_use_advanced_encodings) {
-    advertised_encoding_names.emplace_back(kEncodingZstd);
-  }
-  if (!advertised_encoding_names.empty()) {
-    // Tell the server what compression formats are supported.
-    SetHeader(kAcceptEncoding,
-              base::JoinString(advertised_encoding_names, ", "));
+  char output[32] = {};
+  const size_t len = rustium_request_headers_encoding(
+      mode, supported, advanced, enable_brotli, enable_zstd, output);
+  if (len != 0) {
+    SetHeader(kAcceptEncoding, std::string_view(output, len));
   }
 }
 
 HttpRequestHeaders::HeaderVector::iterator HttpRequestHeaders::FindHeader(
     std::string_view key) {
-  for (auto it = headers_.begin(); it != headers_.end(); ++it) {
-    if (base::EqualsCaseInsensitiveASCII(key, it->key))
-      return it;
-  }
-
-  return headers_.end();
+  return headers_.begin() +
+         rustium_request_headers_find(Reader(headers_), key.data(), key.size());
 }
 
 HttpRequestHeaders::HeaderVector::const_iterator HttpRequestHeaders::FindHeader(
     std::string_view key) const {
-  for (auto it = headers_.begin(); it != headers_.end(); ++it) {
-    if (base::EqualsCaseInsensitiveASCII(key, it->key))
-      return it;
-  }
-
-  return headers_.end();
+  return headers_.begin() +
+         rustium_request_headers_find(Reader(headers_), key.data(), key.size());
 }
 
 void HttpRequestHeaders::SetHeaderInternal(std::string_view key,
                                            std::string&& value) {
-  auto it = FindHeader(key);
-  if (it != headers_.end())
-    it->value = std::move(value);
-  else
+  const auto plan =
+      rustium_request_headers_plan(Reader(headers_), key.data(), key.size(), 0);
+  // Planning's read borrows have ended before any string
+  // assignment/reallocation. Keep the original move and emplace primitives,
+  // including self-move behavior.
+  if (plan.action == 2) {
+    headers_[plan.index].value = std::move(value);
+  } else {
     headers_.emplace_back(key, std::move(value));
+  }
 }
 
 }  // namespace net

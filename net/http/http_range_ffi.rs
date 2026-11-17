@@ -12,6 +12,7 @@ struct BorrowedBytes {
     pub len: usize,
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 pub struct ParsedRange {
     pub first: i64,
@@ -26,6 +27,16 @@ pub struct RangesBuffer {
     pub capacity: usize,
 }
 
+// Additive ABI: old list callers keep their original allocation/ownership
+// contract. The public C++ adapter can instead use inline storage for <=4
+// ranges. A larger result transfers one Vec containing the complete prefix.
+#[repr(C)]
+pub struct SmallRanges {
+    pub inline_values: [ParsedRange; 4],
+    pub len: usize,
+    pub heap: RangesBuffer,
+}
+
 const _: () = {
     assert!(std::mem::size_of::<BorrowedBytes>() == 2 * std::mem::size_of::<usize>());
     assert!(std::mem::offset_of!(BorrowedBytes, len) == std::mem::size_of::<usize>());
@@ -36,6 +47,9 @@ const _: () = {
     assert!(std::mem::size_of::<RangesBuffer>() == 3 * std::mem::size_of::<usize>());
     assert!(std::mem::offset_of!(RangesBuffer, len) == std::mem::size_of::<usize>());
     assert!(std::mem::offset_of!(RangesBuffer, capacity) == 2 * std::mem::size_of::<usize>());
+    assert!(std::mem::offset_of!(SmallRanges, len) == 96);
+    assert!(std::mem::offset_of!(SmallRanges, heap) == 96 + std::mem::size_of::<usize>());
+    assert!(std::mem::size_of::<SmallRanges>() == 96 + 4 * std::mem::size_of::<usize>());
 };
 
 fn wire(range: http_range_parser::Range) -> ParsedRange {
@@ -55,6 +69,73 @@ unsafe fn bytes<'a>(view: BorrowedBytes) -> &'a [u8] {
         // SAFETY: This is the documented, synchronous std::string_view range.
         unsafe { std::slice::from_raw_parts(view.data, view.len) }
     }
+}
+
+/// Parse a list using inline storage for at most four entries. Return the same
+/// syntax/entries bits as rustium_http_range_list, including a valid prefix
+/// before a later error. No entries means output is never accessed.
+///
+/// # Safety
+/// Input obeys bytes()'s contract. With entries, output is writable aligned
+/// SmallRanges storage, possibly uninitialized and possibly overlapping input.
+/// Only when len > 4, release heap exactly once with the existing list_drop;
+/// in that case heap owns all len entries. Otherwise only inline_values[..len]
+/// contains results, and no destructor is needed. Do not retain entry borrows
+/// past the lifetime of output or the heap release.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rustium_http_range_list_small(
+    data: *const u8,
+    len: usize,
+    output: *mut SmallRanges,
+) -> u8 {
+    let view = BorrowedBytes { data, len };
+    let start = {
+        // SAFETY: No output writes occur during unit validation.
+        http_range_parser::ranges_start(unsafe { bytes(view) })
+    };
+    let Some(start) = start else { return 0 };
+    // SAFETY: Preserve the documented range/output contract. The validation
+    // borrow has ended, and the worker also ends its borrow before writing.
+    unsafe { list_small_body(view, start, output) }
+}
+
+// Keep allocation, tokenization and large stack storage beyond the unit
+// rejection path. This is static code-shape control, not an overhead claim.
+#[inline(never)]
+unsafe fn list_small_body(view: BorrowedBytes, start: usize, output: *mut SmallRanges) -> u8 {
+    let mut inline_values = [ParsedRange { first: -1, last: -1, suffix: -1 }; 4];
+    let mut count = 0;
+    let mut heap = Vec::new();
+    let success = {
+        // SAFETY: All collection storage is private Rust memory. Neither
+        // foreign input nor foreign output is mutated during this borrow.
+        let input = unsafe { bytes(view) };
+        http_range_parser::parse_ranges_body(input, start, |range| {
+            let range = wire(range);
+            if count < 4 {
+                inline_values[count] = range;
+            } else {
+                if count == 4 {
+                    // The fifth entry already proves four slots insufficient;
+                    // avoid allocating four and immediately growing to eight.
+                    heap = Vec::with_capacity(8);
+                    heap.extend_from_slice(&inline_values);
+                }
+                heap.push(range);
+            }
+            count += 1;
+        })
+    };
+    if count == 0 {
+        return u8::from(success);
+    }
+    let buffer =
+        RangesBuffer { data: heap.as_mut_ptr(), len: heap.len(), capacity: heap.capacity() };
+    // SAFETY: The input borrow is over. Write fully initialized metadata and
+    // inline storage, transferring a heap allocation only for count > 4.
+    unsafe { output.write(SmallRanges { inline_values, len: count, heap: buffer }) };
+    std::mem::forget(heap);
+    2 | u8::from(success)
 }
 
 /// Parse a list, returning bit 0 for valid syntax and bit 1 for owned entries.

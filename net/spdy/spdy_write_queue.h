@@ -83,6 +83,7 @@ class NET_EXPORT_PRIVATE SpdyWriteQueue {
   int num_queued_capped_frames() const { return num_queued_capped_frames_; }
 
  private:
+  friend struct Http2WriteQueueRustAdapter;
   // A struct holding a frame producer and its associated stream.
   struct PendingWrite {
     spdy::SpdyFrameType frame_type;
@@ -114,6 +115,10 @@ class NET_EXPORT_PRIVATE SpdyWriteQueue {
 
   // The actual write queue, binned by priority.
   std::array<base::circular_deque<PendingWrite>, NUM_PRIORITIES> queue_;
+
+  // Output-producer destruction may delete this queue during Dequeue. This
+  // guards only native owner lifetime; it does not own scheduling policy.
+  base::WeakPtrFactory<SpdyWriteQueue> weak_factory_{this};
 };
 
 }  // namespace net

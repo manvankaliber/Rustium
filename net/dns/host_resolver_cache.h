@@ -30,6 +30,7 @@
 namespace net {
 
 class HostResolverInternalResult;
+struct HostResolverCacheRustContext;
 
 // Cache used by HostResolverManager to save previously resolved information.
 class NET_EXPORT HostResolverCache final {
@@ -50,7 +51,7 @@ class NET_EXPORT HostResolverCache final {
     const bool stale_by_generation;
 
     bool IsStale() const {
-      return stale_by_generation || expired_by.has_value();
+      return HostResolverCache::RustStaleFlags(stale_by_generation, expired_by.has_value());
     }
   };
 
@@ -149,10 +150,13 @@ class NET_EXPORT HostResolverCache final {
   // and cannot be used in RestoreFromValue().
   base::Value SerializeForLogging() const;
 
-  bool AtMaxSizeForTesting() const { return entries_.size() >= max_entries_; }
+  bool AtMaxSizeForTesting() const;
   size_t size_for_testing() const { return entries_.size(); }
 
  private:
+  friend struct HostResolverCacheRustContext;
+  static bool RustStaleFlags(bool generation, bool expired);
+
   struct Key {
     ~Key();
 
@@ -175,26 +179,11 @@ class NET_EXPORT HostResolverCache final {
 
     ~KeyComparator() = default;
 
-    bool operator()(const Key& lhs, const Key& rhs) const {
-      return std::tie(lhs.domain_name, lhs.network_anonymization_key,
-                      lhs.target_network) <
-             std::tie(rhs.domain_name, rhs.network_anonymization_key,
-                      rhs.target_network);
-    }
+    bool operator()(const Key& lhs, const Key& rhs) const;
 
-    bool operator()(const Key& lhs, const KeyRef& rhs) const {
-      return std::tie(lhs.domain_name, lhs.network_anonymization_key,
-                      lhs.target_network) <
-             std::tie(rhs.domain_name, *rhs.network_anonymization_key,
-                      rhs.target_network);
-    }
+    bool operator()(const Key& lhs, const KeyRef& rhs) const;
 
-    bool operator()(const KeyRef& lhs, const Key& rhs) const {
-      return std::tie(lhs.domain_name, *lhs.network_anonymization_key,
-                      lhs.target_network) <
-             std::tie(rhs.domain_name, rhs.network_anonymization_key,
-                      rhs.target_network);
-    }
+    bool operator()(const KeyRef& lhs, const Key& rhs) const;
   };
 
   struct Entry {

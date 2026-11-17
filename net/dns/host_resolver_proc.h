@@ -14,6 +14,12 @@
 
 namespace net {
 
+namespace dns_resolution_original {
+class HostResolverManager;
+class HostResolverSystemTask;
+}  // namespace dns_resolution_original
+
+
 class AddressList;
 
 // Interface for a getaddrinfo()-like procedure. This is used by tests
@@ -71,6 +77,8 @@ class NET_EXPORT HostResolverProc
 
  private:
   friend class HostResolverManager;
+  friend class dns_resolution_original::HostResolverManager;
+  friend class dns_resolution_original::HostResolverSystemTask;
   friend class HostResolverSystemTask;
   friend class MockHostResolverBase;
   friend class ScopedDefaultHostResolverProc;

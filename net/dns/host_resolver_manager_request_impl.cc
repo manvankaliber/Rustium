@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_ref.h"
 #include "net/dns/host_resolver_manager_request_impl.h"
 
 #include <deque>
@@ -35,7 +36,121 @@
 #include "net/socket/client_socket_factory.h"
 #include "net/url_request/url_request_context.h"
 
+#include "net/dns/dns_request_family_ffi.h"
+#include "net/dns/dns_request_partition_provider.h"
 namespace net {
+
+class HostResolverManager::RequestImpl::RustFrame {
+ public:
+  explicit RustFrame(RequestImpl& request) : r(request) {
+    static_assert(STATE_IPV6_REACHABILITY==0 && STATE_GET_PARAMETERS==1 &&
+                  STATE_GET_PARAMETERS_COMPLETE==2 && STATE_RESOLVE_LOCALLY==3 &&
+                  STATE_START_JOB==4 && STATE_FINISH_REQUEST==5 && STATE_NONE==6);
+  }
+  CompletionOnceCallback incoming_callback;
+  raw_ptr<const JobKey> incoming_key = nullptr;
+  DnsResolverWords Run(dns_request_family::RequestEvent event, DnsResolverWords in = {}) {
+    return rustium_dns_request_family_run(1, static_cast<uint32_t>(event), in, this, &Call);
+  }
+ private:
+  using O = dns_request_family::RequestOp;
+  static DnsResolverWords Call(void* context, uint32_t op, DnsResolverWords in) {
+    return static_cast<RustFrame*>(context)->Native(static_cast<O>(op), in);
+  }
+  DnsResolverWords Native(O op, DnsResolverWords in) {
+    using dns_request_family::W;
+    switch (op) {
+      case O::kRead:
+        switch (in.x) {
+          case 0: return W(r->job_.has_value());
+          case 1: return W(!!r->resolve_context_);
+          case 2: return W(r->parameters_.source == HostResolverSource::LOCAL_ONLY);
+          case 3: return W(r->parameters_.is_speculative);
+          case 4: return W(static_cast<int>(r->next_state_));
+          case 5: return W(!r->callback_.is_null());
+          case 7: return W(r->tasks_.empty());
+          case 8: return W(r->parameters_.include_canonical_name);
+          default: NOTREACHED();
+        }
+      case O::kWrite:
+        switch (in.x) {
+          case 1: r->next_state_ = static_cast<ResolveState>(in.y); break;
+          case 2: r->complete_ = in.y; break;
+          case 3: r->only_ipv6_reachable_ = in.y; break;
+          case 4: r->priority_ = static_cast<RequestPriority>(in.y); break;
+          case 5: r->callback_ = std::move(incoming_callback); break;
+          case 6: r->error_info_ = ResolveErrorInfo(in.y, !!in.a); break;
+          default: NOTREACHED();
+        }
+        return {};
+      case O::kCheck:
+        switch (in.x) {
+          case 0:
+            DCHECK(incoming_callback); CHECK(!r->job_); DCHECK(!r->complete_);
+            DCHECK(!r->callback_); DCHECK(r->resolver_); break;
+          case 3: DCHECK(!r->complete_); break;
+          case 4:
+            DCHECK(r->results_); DCHECK(r->legacy_address_results_.empty());
+            DCHECK(r->endpoint_results_.empty()); DCHECK(r->fixed_up_dns_alias_results_.empty()); break;
+          case 5: DCHECK_LE(r->fixed_up_dns_alias_results_.size(), 1u); break;
+          case 6: CHECK(!r->job_); break;
+          case 7: DCHECK_EQ(OK, in.y); break;
+          case 8: NOTREACHED() << "next_state_: " << r->next_state_;
+          case 10: CHECK(r->job_); CHECK(*incoming_key == r->job_.value()->key()); break;
+          case 11: DCHECK(!r->complete_); DCHECK(r->callback_); break;
+          case 12: DCHECK(!r->results_); break;
+          case 13: DCHECK(r->callback_); break;
+          default: NOTREACHED();
+        }
+        return {};
+      case O::kLogStart: r->LogStartRequest(); return {};
+      case O::kLogFinish: r->LogFinishRequest(in.x, in.y); return {};
+      case O::kLogCancel: r->LogCancelRequest(); return {};
+      case O::kStartIPv6:
+        switch (in.x) {
+          case 1: return W(r->resolver_->StartIPv6ReachabilityCheck(r->target_network_, r->source_net_log_, r->GetClientSocketFactory(), base::DoNothingAs<void(int)>()));
+          case 0: return W(r->resolver_->StartIPv6ReachabilityCheck(r->target_network_, r->source_net_log_, r->GetClientSocketFactory(), base::BindOnce(&RequestImpl::OnIOComplete, r->weak_ptr_factory_.GetWeakPtr())));
+          default: NOTREACHED();
+        }
+      case O::kInitializeKey:
+        r->resolver_->InitializeJobKeyAndIPAddress(r->network_anonymization_key_, r->parameters_, r->source_net_log_, r->job_key_, r->ip_address_); return {};
+      case O::kNat64Facts: return W(static_cast<int>(r->parameters_.source), !!(r->job_key_.flags & HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6), r->ip_address_.IsIPv4(), r->ip_address_.IsLoopback());
+      case O::kLastIPv6: return W(r->resolver_->last_ipv6_probe_result_);
+      case O::kStartGlobal:
+        return W(r->resolver_->StartGloballyReachableCheck(r->ip_address_, r->target_network_, r->source_net_log_, r->GetClientSocketFactory(), base::BindOnce(&RequestImpl::OnIOComplete, r->weak_ptr_factory_.GetWeakPtr())));
+      case O::kResolveLocal:
+        local.emplace(r->resolver_->ResolveLocally(r->only_ipv6_reachable_, r->job_key_, r->ip_address_, r->parameters_.cache_usage, r->parameters_.secure_dns_policy, r->parameters_.source, r->source_net_log_, r->host_cache(), &r.get().tasks_, &stale)); return {};
+      case O::kLocalError: return W(local->error());
+      case O::kHasStale: return W(stale.has_value());
+      case O::kCopyLocalResults:
+        DCHECK(!r->complete_); DCHECK(!r->results_); DCHECK(!r->resolution_details_); DCHECK(!r->parameters_.is_speculative);
+        r->results_ = local->CopyWithDefaultPort(r->request_host_.GetPort());
+        r->resolution_details_.emplace();
+        // Native enum assignment; Rust selects cache/local using the POD flag.
+        r->resolution_details_->source = static_cast<ResolutionSource>(in.x);
+        return {};
+      case O::kMoveStale: r->set_stale_info(std::move(*stale)); return {};
+      case O::kStartJob:
+        r->resolver_->CreateAndStartJob(std::move(r->job_key_), std::move(r->tasks_), &r.get()); return {};
+      case O::kSquash: return W(HostResolver::SquashErrorCode(in.x));
+      case O::kRunCallback: std::move(r->callback_).Run(in.x); return {};
+      case O::kCancelJob: r->job_.value()->CancelRequest(&r.get()); return {};
+      case O::kChangeJobPriority: r->job_.value()->ChangeRequestPriority(&r.get(), static_cast<RequestPriority>(in.x)); return {};
+      case O::kResetCallback: r->callback_.Reset(); return {};
+      case O::kResetJob: r->job_.reset(); return {};
+      case O::kResetResolver: r->resolver_.reset(); return {};
+      case O::kCopyEndpoints: r->endpoint_results_ = r->results_->GetEndpoints(); return {};
+      case O::kCopyAliases: r->fixed_up_dns_alias_results_ = r->results_->aliases(); return {};
+      case O::kFixAliases: r->fixed_up_dns_alias_results_ = dns_alias_utility::FixUpDnsAliases(r->fixed_up_dns_alias_results_); return {};
+      case O::kCopyLegacy: r->legacy_address_results_ = HostResolver::EndpointResultToAddressList(r->endpoint_results_, r->fixed_up_dns_alias_results_); return {};
+      case O::kReleaseLocal: local.reset(); stale.reset(); return {};
+    }
+    NOTREACHED();
+  }
+  raw_ref<RequestImpl> r;
+  std::optional<HostCache::Entry> local;
+  std::optional<HostCache::EntryStaleness> stale;
+};
 
 HostResolverManager::RequestImpl::RequestImpl(
     NetLogWithSource source_net_log,
@@ -49,11 +164,7 @@ HostResolverManager::RequestImpl::RequestImpl(
     : source_net_log_(std::move(source_net_log)),
       request_host_(std::move(request_host)),
       network_anonymization_key_(
-          NetworkAnonymizationKey::IsPartitioningEnabled() &&
-                  base::FeatureList::IsEnabled(
-                      features::kSplitHostCacheByNetworkAnonymizationKey)
-              ? std::move(network_anonymization_key)
-              : NetworkAnonymizationKey()),
+          DnsRequestRetainPartitionKey(std::move(network_anonymization_key))),
       target_network_(target_network),
       parameters_(optional_parameters ? std::move(optional_parameters).value()
                                       : ResolveHostParameters()),
@@ -68,39 +179,14 @@ HostResolverManager::RequestImpl::RequestImpl(
 
 HostResolverManager::RequestImpl::~RequestImpl() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (!job_.has_value()) {
-    return;
-  }
-
-  job_.value()->CancelRequest(this);
-  LogCancelRequest();
+  RustFrame frame(*this);
+  frame.Run(dns_request_family::RequestEvent::kDestroy);
 }
 
 int HostResolverManager::RequestImpl::Start(CompletionOnceCallback callback) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  DCHECK(callback);
-  // Start() may only be called once per request.
-  CHECK(!job_.has_value());
-  DCHECK(!complete_);
-  DCHECK(!callback_);
-  // Parent HostResolver must still be alive to call Start().
-  DCHECK(resolver_);
-
-  if (!resolve_context_) {
-    complete_ = true;
-    resolver_.reset();
-    set_error_info(ERR_CONTEXT_SHUT_DOWN, false);
-    return ERR_NAME_NOT_RESOLVED;
-  }
-
-  LogStartRequest();
-
-  next_state_ = STATE_IPV6_REACHABILITY;
-  callback_ = std::move(callback);
-
-  int rv = OK;
-  rv = DoLoop(rv);
-  return rv;
+  RustFrame frame(*this); frame.incoming_callback = std::move(callback);
+  return frame.Run(dns_request_family::RequestEvent::kStart).x;
 }
 
 const AddressList& HostResolverManager::RequestImpl::GetAddressResults() const {
@@ -159,11 +245,8 @@ HostResolverManager::RequestImpl::GetStaleInfo() const {
 void HostResolverManager::RequestImpl::ChangeRequestPriority(
     RequestPriority priority) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (!job_.has_value()) {
-    priority_ = priority;
-    return;
-  }
-  job_.value()->ChangeRequestPriority(this, priority);
+  RustFrame frame(*this);
+  frame.Run(dns_request_family::RequestEvent::kChangePriority, dns_request_family::W(priority));
 }
 
 std::optional<ResolutionDetails>
@@ -216,191 +299,61 @@ const HostResolverManager::JobKey& HostResolverManager::RequestImpl::GetJobKey()
 }
 
 void HostResolverManager::RequestImpl::OnJobCancelled(const JobKey& job_key) {
-  CHECK(job_.has_value());
-  CHECK(job_key == job_.value()->key());
-  job_.reset();
-  DCHECK(!complete_);
-  DCHECK(callback_);
-  callback_.Reset();
-
-  // No results should be set.
-  DCHECK(!results_);
-
-  LogCancelRequest();
+  RustFrame frame(*this); frame.incoming_key = &job_key;
+  frame.Run(dns_request_family::RequestEvent::kCancelled);
 }
 
 void HostResolverManager::RequestImpl::OnJobCompleted(
     const JobKey& job_key,
     int error,
     bool is_secure_network_error) {
-  set_error_info(error, is_secure_network_error);
-
-  CHECK(job_.has_value());
-  CHECK(job_key == job_.value()->key());
-  job_.reset();
-
-  DCHECK(!complete_);
-  complete_ = true;
-
-  LogFinishRequest(error, true /* async_completion */);
-
-  DCHECK(callback_);
-  std::move(callback_).Run(HostResolver::SquashErrorCode(error));
+  RustFrame frame(*this); frame.incoming_key = &job_key;
+  frame.Run(dns_request_family::RequestEvent::kCompleted, dns_request_family::W(error, 0, 0, is_secure_network_error));
 }
 
 int HostResolverManager::RequestImpl::DoLoop(int rv) {
-  do {
-    ResolveState state = next_state_;
-    next_state_ = STATE_NONE;
-    switch (state) {
-      case STATE_IPV6_REACHABILITY:
-        rv = DoIPv6Reachability();
-        break;
-      case STATE_GET_PARAMETERS:
-        DCHECK_EQ(OK, rv);
-        rv = DoGetParameters();
-        break;
-      case STATE_GET_PARAMETERS_COMPLETE:
-        rv = DoGetParametersComplete(rv);
-        break;
-      case STATE_RESOLVE_LOCALLY:
-        rv = DoResolveLocally();
-        break;
-      case STATE_START_JOB:
-        rv = DoStartJob();
-        break;
-      case STATE_FINISH_REQUEST:
-        rv = DoFinishRequest(rv);
-        break;
-      default:
-        NOTREACHED() << "next_state_: " << next_state_;
-    }
-  } while (next_state_ != STATE_NONE && rv != ERR_IO_PENDING);
-
-  return rv;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kLoop, dns_request_family::W(rv)).x;
 }
 
 void HostResolverManager::RequestImpl::OnIOComplete(int rv) {
-  rv = DoLoop(rv);
-  if (rv != ERR_IO_PENDING && !callback_.is_null()) {
-    std::move(callback_).Run(rv);
-  }
+  RustFrame frame(*this);
+  frame.Run(dns_request_family::RequestEvent::kIOComplete, dns_request_family::W(rv));
 }
 
 int HostResolverManager::RequestImpl::DoIPv6Reachability() {
-  next_state_ = STATE_GET_PARAMETERS;
-  // If a single reachability probe has not been completed, and the latest
-  // probe will return asynchronously, return ERR_NAME_NOT_RESOLVED when the
-  // request source is LOCAL_ONLY. This is due to LOCAL_ONLY requiring a
-  // synchronous response, so it cannot wait on an async probe result and
-  // cannot make assumptions about reachability.
-  if (parameters_.source == HostResolverSource::LOCAL_ONLY) {
-    int rv = resolver_->StartIPv6ReachabilityCheck(
-        target_network_, source_net_log_, GetClientSocketFactory(),
-        base::DoNothingAs<void(int)>());
-    if (rv == ERR_IO_PENDING) {
-      next_state_ = STATE_FINISH_REQUEST;
-      return ERR_NAME_NOT_RESOLVED;
-    }
-    return OK;
-  }
-  return resolver_->StartIPv6ReachabilityCheck(
-      target_network_, source_net_log_, GetClientSocketFactory(),
-      base::BindOnce(&RequestImpl::OnIOComplete,
-                     weak_ptr_factory_.GetWeakPtr()));
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kIPv6).x;
 }
 
 int HostResolverManager::RequestImpl::DoGetParameters() {
-  resolver_->InitializeJobKeyAndIPAddress(network_anonymization_key_,
-                                          parameters_, source_net_log_,
-                                          job_key_, ip_address_);
-
-  // A reachability probe to determine if the network is only reachable on
-  // IPv6 will be scheduled if the parameters are met for using NAT64 in place
-  // of an IPv4 address.
-  if (HostResolver::MayUseNAT64ForIPv4Literal(
-          job_key_.flags, parameters_.source, ip_address_) &&
-      resolver_->last_ipv6_probe_result_) {
-    next_state_ = STATE_GET_PARAMETERS_COMPLETE;
-    return resolver_->StartGloballyReachableCheck(
-        ip_address_, target_network_, source_net_log_, GetClientSocketFactory(),
-        base::BindOnce(&RequestImpl::OnIOComplete,
-                       weak_ptr_factory_.GetWeakPtr()));
-  }
-  next_state_ = STATE_RESOLVE_LOCALLY;
-  return OK;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kParameters).x;
 }
 
 int HostResolverManager::RequestImpl::DoGetParametersComplete(int rv) {
-  next_state_ = STATE_RESOLVE_LOCALLY;
-  only_ipv6_reachable_ = (rv == ERR_FAILED);
-  return OK;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kParametersComplete, dns_request_family::W(rv)).x;
 }
 
 int HostResolverManager::RequestImpl::DoResolveLocally() {
-  std::optional<HostCache::EntryStaleness> stale_info;
-  HostCache::Entry results = resolver_->ResolveLocally(
-      only_ipv6_reachable_, job_key_, ip_address_, parameters_.cache_usage,
-      parameters_.secure_dns_policy, parameters_.source, source_net_log_,
-      host_cache(), &tasks_, &stale_info);
-  if (results.error() != ERR_DNS_CACHE_MISS ||
-      parameters_.source == HostResolverSource::LOCAL_ONLY || tasks_.empty()) {
-    if (results.error() == OK && !parameters_.is_speculative) {
-      // TODO(crbug.com/485672648): Consider refactoring to move resolution
-      // source calculation logic into HostResolverManager::ResolveLocally().
-      ResolutionDetails resolution_details;
-      resolution_details.source = stale_info.has_value()
-                                      ? ResolutionSource::kCache
-                                      : ResolutionSource::kLocal;
-      SetResults(results.CopyWithDefaultPort(request_host_.GetPort()),
-                 resolution_details);
-    }
-    if (stale_info && !parameters_.is_speculative) {
-      set_stale_info(std::move(stale_info).value());
-    }
-    next_state_ = STATE_FINISH_REQUEST;
-    return results.error();
-  }
-  next_state_ = STATE_START_JOB;
-  return OK;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kResolveLocal).x;
 }
 
 int HostResolverManager::RequestImpl::DoStartJob() {
-  resolver_->CreateAndStartJob(std::move(job_key_), std::move(tasks_), this);
-  DCHECK(!complete_);
-  resolver_.reset();
-  return ERR_IO_PENDING;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kStartJob).x;
 }
 
 int HostResolverManager::RequestImpl::DoFinishRequest(int rv) {
-  CHECK(!job_.has_value());
-  complete_ = true;
-  set_error_info(rv, /*is_secure_network_error=*/false);
-  rv = HostResolver::SquashErrorCode(rv);
-  LogFinishRequest(rv, /*async_completion=*/false);
-  return rv;
+  RustFrame frame(*this);
+  return frame.Run(dns_request_family::RequestEvent::kFinish, dns_request_family::W(rv)).x;
 }
 
 void HostResolverManager::RequestImpl::FixUpEndpointAndAliasResults() {
-  DCHECK(results_.has_value());
-  DCHECK(legacy_address_results_.empty());
-  DCHECK(endpoint_results_.empty());
-  DCHECK(fixed_up_dns_alias_results_.empty());
-
-  endpoint_results_ = results_->GetEndpoints();
-  fixed_up_dns_alias_results_ = results_->aliases();
-
-  // Skip fixups for `include_canonical_name` requests. Just use the
-  // canonical name exactly as it was received from the system resolver.
-  if (parameters().include_canonical_name) {
-    DCHECK_LE(fixed_up_dns_alias_results_.size(), 1u);
-  } else {
-    fixed_up_dns_alias_results_ =
-        dns_alias_utility::FixUpDnsAliases(fixed_up_dns_alias_results_);
-  }
-
-  legacy_address_results_ = HostResolver::EndpointResultToAddressList(
-      endpoint_results_, fixed_up_dns_alias_results_);
+  RustFrame frame(*this);
+  frame.Run(dns_request_family::RequestEvent::kFixResults);
 }
 
 void HostResolverManager::RequestImpl::LogStartRequest() {

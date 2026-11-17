@@ -39,6 +39,7 @@
 class GURL;
 
 namespace net {
+struct CookieMonsterRustNative;
 
 class CanonicalCookie;
 class CookieChangeDispatcher;
@@ -278,6 +279,7 @@ class NET_EXPORT CookieMonster : public CookieStore {
   bool DoRecordPeriodicStatsForTesting() { return DoRecordPeriodicStats(); }
 
  private:
+  friend struct CookieMonsterRustNative;
   // For garbage collection constants.
   FRIEND_TEST_ALL_PREFIXES(CookieMonsterTest, TestHostGarbageCollection);
   FRIEND_TEST_ALL_PREFIXES(CookieMonsterTest,

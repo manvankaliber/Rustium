@@ -19,6 +19,20 @@ pub enum ParseError {
 // separate without changing the common magnitude/error rules.
 trait NumberBytes: Iterator<Item = u8> + Sized {
     #[inline]
+    fn next_nonzero(&mut self) -> Option<u8> {
+        self.find(|&byte| byte != b'0')
+    }
+
+    #[inline]
+    fn accumulate<const LIMIT: u64>(
+        self,
+        value: u64,
+        report_error: bool,
+    ) -> Result<u64, ParseError> {
+        accumulate_checked::<LIMIT>(value, self, report_error)
+    }
+
+    #[inline]
     fn remaining_digits(mut self) -> bool {
         self.all(|byte| byte.is_ascii_digit())
     }
@@ -50,6 +64,38 @@ impl Iterator for SliceBytes<'_> {
 
 impl NumberBytes for SliceBytes<'_> {
     #[inline]
+    fn next_nonzero(&mut self) -> Option<u8> {
+        // Skip only complete zero blocks; the scalar remainder still observes
+        // the first nonzero byte, including malformed bytes.
+        while self.0.as_slice().starts_with(&[b'0'; 16]) {
+            self.0 = self.0.as_slice()[16..].iter();
+        }
+        self.find(|&byte| byte != b'0')
+    }
+
+    #[inline]
+    fn accumulate<const LIMIT: u64>(
+        mut self,
+        mut value: u64,
+        report_error: bool,
+    ) -> Result<u64, ParseError> {
+        // The caller supplies one decimal digit. Any total of at most
+        // floor(log10(LIMIT)) digits fits, irrespective of their values. Keep
+        // validation but omit redundant magnitude checks in this prefix.
+        // Decoded iterators retain their original consumption/error path.
+        let count = self.0.len().min(LIMIT.ilog10() as usize - 1);
+        for &byte in &self.0.as_slice()[..count] {
+            let digit = byte.wrapping_sub(b'0') as u64;
+            if digit > 9 {
+                return Err(ParseError::Invalid);
+            }
+            value = value.wrapping_mul(10).wrapping_add(digit);
+        }
+        self.0 = self.0.as_slice()[count..].iter();
+        accumulate_checked::<LIMIT>(value, self, report_error)
+    }
+
+    #[inline]
     fn remaining_digits(self) -> bool {
         // A short-circuiting per-byte scan prevents vector reduction. Reduce
         // invalid-byte flags within bounded blocks instead, then short-circuit
@@ -68,7 +114,7 @@ impl NumberBytes for SliceBytes<'_> {
 }
 
 #[inline]
-fn accumulate<const LIMIT: u64>(
+fn accumulate_checked<const LIMIT: u64>(
     mut value: u64,
     mut bytes: impl NumberBytes,
     report_error: bool,
@@ -107,7 +153,18 @@ fn parse_unsigned<const LIMIT: u64>(
     if strict && digit == 0 {
         return if bytes.next().is_some() { Err(ParseError::Invalid) } else { Ok(0) };
     }
-    accumulate::<LIMIT>(digit as u64, bytes, report_error)
+    let digit = if digit == 0 {
+        match bytes.next_nonzero() {
+            Some(byte) => byte.wrapping_sub(b'0'),
+            None => return Ok(0),
+        }
+    } else {
+        digit
+    };
+    if digit > 9 {
+        return Err(ParseError::Invalid);
+    }
+    bytes.accumulate::<LIMIT>(digit as u64, report_error)
 }
 
 /// Parse decoded decimal bytes, e.g. from an HSTS quoted-string iterator.
@@ -149,12 +206,9 @@ fn parse<const POSITIVE_LIMIT: u64, const NEGATIVE_LIMIT: u64>(
     // Leading zeros carry no magnitude. Avoid checked multiplication for long
     // non-strict fields, while strict zero/-zero rules remain above.
     let first_digit = if first_digit == b'0' {
-        loop {
-            match bytes.next() {
-                Some(b'0') => {}
-                Some(byte) => break byte,
-                None => return Ok((0, negative)),
-            }
+        match bytes.next_nonzero() {
+            Some(byte) => byte,
+            None => return Ok((0, negative)),
         }
     } else {
         first_digit
@@ -164,11 +218,11 @@ fn parse<const POSITIVE_LIMIT: u64, const NEGATIVE_LIMIT: u64>(
         return Err(ParseError::Invalid);
     }
     if negative {
-        accumulate::<NEGATIVE_LIMIT>(digit, bytes, report_error).map(|value| (value, true)).map_err(
+        bytes.accumulate::<NEGATIVE_LIMIT>(digit, report_error).map(|value| (value, true)).map_err(
             |error| if error == ParseError::Overflow { ParseError::Underflow } else { error },
         )
     } else {
-        accumulate::<POSITIVE_LIMIT>(digit, bytes, report_error).map(|value| (value, false))
+        bytes.accumulate::<POSITIVE_LIMIT>(digit, report_error).map(|value| (value, false))
     }
 }
 

@@ -1,294 +1,258 @@
 // Copyright 2020 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/cookies/cookie_inclusion_status.h"
 
-#include <algorithm>
-#include <initializer_list>
-#include <string_view>
-#include <tuple>
-#include <utility>
+#include <array>
 
-#include "base/notreached.h"
-#include "base/strings/strcat.h"
-#include "url/gurl.h"
+#include "net/cookies/cookie_inclusion_status_rust_ffi.h"
 
 namespace net {
-
-using ExclusionReason = CookieInclusionStatus::ExclusionReason;
-using WarningReason = CookieInclusionStatus::WarningReason;
-
+namespace {
+using Status = CookieInclusionStatus;
+using namespace cookie_inclusion_status_rust;
+CookieInclusionStatusRustState Snapshot(const Status& s) {
+  return {s.exclusion_reasons().ToEnumBitmask(),
+          s.warning_reasons().ToEnumBitmask(),
+          static_cast<int32_t>(s.exemption_reason()), 0};
+}
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_UNKNOWN_ERROR) == 0);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_HTTP_ONLY) ==
+              1);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_SECURE_ONLY) ==
+              2);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_DOMAIN_MISMATCH) == 3);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_NOT_ON_PATH) ==
+              4);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_SAMESITE_STRICT) == 5);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_SAMESITE_LAX) ==
+              6);
+static_assert(
+    static_cast<int>(
+        Status::ExclusionReason::EXCLUDE_SAMESITE_UNSPECIFIED_TREATED_AS_LAX) ==
+    7);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_SAMESITE_NONE_INSECURE) ==
+    8);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_USER_PREFERENCES) == 9);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_FAILURE_TO_STORE) == 10);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_NONCOOKIEABLE_SCHEME) == 11);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_OVERWRITE_SECURE) == 12);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_OVERWRITE_HTTP_ONLY) == 13);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_INVALID_DOMAIN) == 14);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_INVALID_PREFIX) == 15);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_INVALID_PARTITIONED) == 16);
+static_assert(
+    static_cast<int>(
+        Status::ExclusionReason::EXCLUDE_NAME_VALUE_PAIR_EXCEEDS_MAX_SIZE) ==
+    17);
+static_assert(
+    static_cast<int>(
+        Status::ExclusionReason::EXCLUDE_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE) ==
+    18);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_DOMAIN_NON_ASCII) == 19);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_PORT_MISMATCH) == 20);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_SCHEME_MISMATCH) == 21);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_SHADOWING_DOMAIN) == 22);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_DISALLOWED_CHARACTER) == 23);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_THIRD_PARTY_PHASEOUT) == 24);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_NO_COOKIE_CONTENT) == 25);
+static_assert(
+    static_cast<int>(Status::ExclusionReason::EXCLUDE_ANONYMOUS_CONTEXT) == 26);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_INVALID_PATH) ==
+              27);
+static_assert(static_cast<int>(
+                  Status::ExclusionReason::EXCLUDE_AMBIGUOUS_SERIALIZATION) ==
+              28);
+static_assert(static_cast<int>(Status::ExclusionReason::EXCLUDE_INVALID_HOST) ==
+              29);
+static_assert(
+    static_cast<int>(
+        Status::WarningReason::WARN_SAMESITE_UNSPECIFIED_CROSS_SITE_CONTEXT) ==
+    0);
+static_assert(
+    static_cast<int>(Status::WarningReason::WARN_SAMESITE_NONE_INSECURE) == 1);
+static_assert(
+    static_cast<int>(
+        Status::WarningReason::WARN_SAMESITE_UNSPECIFIED_LAX_ALLOW_UNSAFE) ==
+    2);
+static_assert(
+    static_cast<int>(
+        Status::WarningReason::WARN_SECURE_ACCESS_GRANTED_NON_CRYPTOGRAPHIC) ==
+    3);
+static_assert(static_cast<int>(
+                  Status::WarningReason::
+                      WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION) ==
+              4);
+static_assert(
+    static_cast<int>(
+        Status::WarningReason::
+            WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION_NO_INITIATOR) ==
+    5);
+static_assert(
+    static_cast<int>(
+        Status::WarningReason::WARN_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE) == 6);
+static_assert(static_cast<int>(Status::WarningReason::WARN_DOMAIN_NON_ASCII) ==
+              7);
+static_assert(static_cast<int>(Status::WarningReason::WARN_PORT_MISMATCH) == 8);
+static_assert(static_cast<int>(Status::WarningReason::WARN_SCHEME_MISMATCH) ==
+              9);
+static_assert(
+    static_cast<int>(Status::WarningReason::
+                         WARN_TENTATIVELY_ALLOWING_SECURE_SOURCE_SCHEME) == 10);
+static_assert(static_cast<int>(Status::WarningReason::WARN_SHADOWING_DOMAIN) ==
+              11);
+static_assert(
+    static_cast<int>(Status::WarningReason::WARN_THIRD_PARTY_PHASEOUT) == 12);
+static_assert(static_cast<int>(Status::WarningReason::WARN_INVALID_HOST) == 13);
+static_assert(static_cast<int>(Status::ExemptionReason::kNone) == 0);
+static_assert(static_cast<int>(Status::ExemptionReason::kUserSetting) == 1);
+static_assert(static_cast<int>(Status::ExemptionReason::kEnterprisePolicy) ==
+              2);
+static_assert(static_cast<int>(Status::ExemptionReason::kStorageAccess) == 3);
+static_assert(static_cast<int>(Status::ExemptionReason::kScheme) == 4);
+static_assert(static_cast<int>(
+                  Status::ExemptionReason::kSameSiteNoneCookiesInSandbox) == 5);
+static_assert(Status::ExclusionReasonBitset::kValueCount == 30);
+static_assert(Status::WarningReasonBitset::kValueCount == 14);
+}  // namespace
 CookieInclusionStatus::CookieInclusionStatus() = default;
-
 CookieInclusionStatus::CookieInclusionStatus(
     const CookieInclusionStatus& other) = default;
-
 CookieInclusionStatus& CookieInclusionStatus::operator=(
     const CookieInclusionStatus& other) = default;
-
 bool CookieInclusionStatus::operator==(
-    const CookieInclusionStatus& other) const = default;
-
+    const CookieInclusionStatus& other) const {
+  return cookie_inclusion_status_rust_same(Snapshot(*this), Snapshot(other));
+}
+void CookieInclusionStatus::ApplyRustTransition(uint32_t operation,
+                                                int32_t reason,
+                                                uint64_t mask) {
+  const auto result = cookie_inclusion_status_rust_apply(
+      Snapshot(*this), operation, reason, mask);
+  // Rust validates the enum; C++ retains the original fatal CHECK boundary.
+  CHECK_EQ(result.invalid, 0u)
+      << "Invalid CookieInclusionStatus reason " << reason;
+  exclusion_reasons_ =
+      ExclusionReasonBitset::FromEnumBitmask(result.exclusions);
+  warning_reasons_ = WarningReasonBitset::FromEnumBitmask(result.warnings);
+  exemption_reason_ = static_cast<ExemptionReason>(result.exemption);
+}
 bool CookieInclusionStatus::IsInclude() const {
-  return exclusion_reasons_.empty();
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kInclude, 0, 0);
 }
-
 bool CookieInclusionStatus::HasExclusionReason(ExclusionReason reason) const {
-  return exclusion_reasons_.Has(reason);
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kHasExclusion,
+                                            static_cast<int32_t>(reason), 0);
 }
-
 bool CookieInclusionStatus::HasOnlyExclusionReason(
     ExclusionReason reason) const {
-  return exclusion_reasons_.Has(reason) && exclusion_reasons_.size() == 1;
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kOnlyExclusion,
+                                            static_cast<int32_t>(reason), 0);
 }
-
+bool CookieInclusionStatus::ShouldRecordDowngradeMetrics() const {
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kRecordDowngrade,
+                                            0, 0);
+}
+bool CookieInclusionStatus::ShouldWarn() const {
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kWarn, 0, 0);
+}
+bool CookieInclusionStatus::HasWarningReason(WarningReason reason) const {
+  return cookie_inclusion_status_rust_query(Snapshot(*this), kHasWarning,
+                                            static_cast<int32_t>(reason), 0);
+}
+bool CookieInclusionStatus::ExcludedByUserPreferencesOrTPCD() const {
+  return cookie_inclusion_status_rust_query(Snapshot(*this),
+                                            kUserPreferencesOrTPCD, 0, 0);
+}
 void CookieInclusionStatus::AddExclusionReason(ExclusionReason reason) {
-  exclusion_reasons_.Put(reason);
-  // If the cookie would be excluded for reasons other than the new SameSite
-  // rules, don't bother warning about it.
-  MaybeClearSameSiteWarning();
-  // If the cookie would be excluded for reasons unrelated to 3pcd, don't bother
-  // warning about 3pcd.
-  MaybeClearThirdPartyPhaseoutReason();
-  // If the cookie would have been excluded, clear the exemption reason.
-  exemption_reason_ = ExemptionReason::kNone;
+  ApplyRustTransition(kAddExclusion, static_cast<int32_t>(reason), 0);
 }
-
 void CookieInclusionStatus::RemoveExclusionReason(ExclusionReason reason) {
-  exclusion_reasons_.Remove(reason);
+  ApplyRustTransition(kRemoveExclusion, static_cast<int32_t>(reason), 0);
 }
-
 void CookieInclusionStatus::RemoveExclusionReasons(
     ExclusionReasonBitset reasons) {
-  exclusion_reasons_ = ExclusionReasonsWithout(reasons);
+  ApplyRustTransition(kRemoveExclusions, 0, reasons.ToEnumBitmask());
 }
-
 void CookieInclusionStatus::MaybeSetExemptionReason(ExemptionReason reason) {
-  if (IsInclude() && exemption_reason_ == ExemptionReason::kNone) {
-    exemption_reason_ = reason;
-  }
+  ApplyRustTransition(kSetExemption, static_cast<int32_t>(reason), 0);
 }
-
+void CookieInclusionStatus::MaybeClearSameSiteWarning() {
+  ApplyRustTransition(kClearSameSite, 0, 0);
+}
+void CookieInclusionStatus::MaybeClearThirdPartyPhaseoutReason() {
+  ApplyRustTransition(kClearThirdParty, 0, 0);
+}
+void CookieInclusionStatus::AddWarningReason(WarningReason reason) {
+  ApplyRustTransition(kAddWarning, static_cast<int32_t>(reason), 0);
+}
+void CookieInclusionStatus::RemoveWarningReason(WarningReason reason) {
+  ApplyRustTransition(kRemoveWarning, static_cast<int32_t>(reason), 0);
+}
+void CookieInclusionStatus::ResetForTesting() {
+  ApplyRustTransition(kReset, 0, 0);
+}
 CookieInclusionStatus::ExclusionReasonBitset
 CookieInclusionStatus::ExclusionReasonsWithout(
     ExclusionReasonBitset reasons) const {
-  CookieInclusionStatus::ExclusionReasonBitset result(exclusion_reasons_);
-  result.RemoveAll(reasons);
-  return result;
+  const auto result = cookie_inclusion_status_rust_apply(
+      Snapshot(*this), kWithoutExclusions, 0, reasons.ToEnumBitmask());
+  return ExclusionReasonBitset::FromEnumBitmask(result.exclusions);
 }
-
-void CookieInclusionStatus::MaybeClearSameSiteWarning() {
-  if (!ExclusionReasonsWithout(
-           {
-               ExclusionReason::EXCLUDE_SAMESITE_UNSPECIFIED_TREATED_AS_LAX,
-               ExclusionReason::EXCLUDE_SAMESITE_NONE_INSECURE,
-           })
-           .empty()) {
-    RemoveWarningReason(
-        WarningReason::WARN_SAMESITE_UNSPECIFIED_CROSS_SITE_CONTEXT);
-    RemoveWarningReason(WarningReason::WARN_SAMESITE_NONE_INSECURE);
-    RemoveWarningReason(
-        WarningReason::WARN_SAMESITE_UNSPECIFIED_LAX_ALLOW_UNSAFE);
-  }
-
-  if (!ShouldRecordDowngradeMetrics()) {
-    RemoveWarningReason(
-        WarningReason::WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION);
-  }
-}
-
-void CookieInclusionStatus::MaybeClearThirdPartyPhaseoutReason() {
-  if (!IsInclude()) {
-    RemoveWarningReason(WarningReason::WARN_THIRD_PARTY_PHASEOUT);
-  }
-  if (!ExclusionReasonsWithout({ExclusionReason::EXCLUDE_THIRD_PARTY_PHASEOUT})
-           .empty()) {
-    RemoveExclusionReasons({ExclusionReason::EXCLUDE_THIRD_PARTY_PHASEOUT});
-  }
-}
-
-bool CookieInclusionStatus::ShouldRecordDowngradeMetrics() const {
-  return ExclusionReasonsWithout(
-             {
-                 ExclusionReason::EXCLUDE_SAMESITE_STRICT,
-                 ExclusionReason::EXCLUDE_SAMESITE_LAX,
-                 ExclusionReason::EXCLUDE_SAMESITE_UNSPECIFIED_TREATED_AS_LAX,
-             })
-      .empty();
-}
-
-bool CookieInclusionStatus::ShouldWarn() const {
-  return !warning_reasons_.empty();
-}
-
-bool CookieInclusionStatus::HasWarningReason(WarningReason reason) const {
-  return warning_reasons_.Has(reason);
-}
-
-void CookieInclusionStatus::AddWarningReason(WarningReason reason) {
-  warning_reasons_.Put(reason);
-}
-
-void CookieInclusionStatus::RemoveWarningReason(WarningReason reason) {
-  warning_reasons_.Remove(reason);
-}
-
 std::string CookieInclusionStatus::GetDebugString() const {
-  std::string out;
-
-  if (IsInclude())
-    base::StrAppend(&out, {"INCLUDE, "});
-
-  constexpr std::pair<ExclusionReason, const char*> exclusion_reasons[] = {
-      {ExclusionReason::EXCLUDE_UNKNOWN_ERROR, "EXCLUDE_UNKNOWN_ERROR"},
-      {ExclusionReason::EXCLUDE_HTTP_ONLY, "EXCLUDE_HTTP_ONLY"},
-      {ExclusionReason::EXCLUDE_SECURE_ONLY, "EXCLUDE_SECURE_ONLY"},
-      {ExclusionReason::EXCLUDE_DOMAIN_MISMATCH, "EXCLUDE_DOMAIN_MISMATCH"},
-      {ExclusionReason::EXCLUDE_NOT_ON_PATH, "EXCLUDE_NOT_ON_PATH"},
-      {ExclusionReason::EXCLUDE_SAMESITE_STRICT, "EXCLUDE_SAMESITE_STRICT"},
-      {ExclusionReason::EXCLUDE_SAMESITE_LAX, "EXCLUDE_SAMESITE_LAX"},
-      {ExclusionReason::EXCLUDE_SAMESITE_UNSPECIFIED_TREATED_AS_LAX,
-       "EXCLUDE_SAMESITE_UNSPECIFIED_TREATED_AS_LAX"},
-      {ExclusionReason::EXCLUDE_SAMESITE_NONE_INSECURE,
-       "EXCLUDE_SAMESITE_NONE_INSECURE"},
-      {ExclusionReason::EXCLUDE_USER_PREFERENCES, "EXCLUDE_USER_PREFERENCES"},
-      {ExclusionReason::EXCLUDE_FAILURE_TO_STORE, "EXCLUDE_FAILURE_TO_STORE"},
-      {ExclusionReason::EXCLUDE_NONCOOKIEABLE_SCHEME,
-       "EXCLUDE_NONCOOKIEABLE_SCHEME"},
-      {ExclusionReason::EXCLUDE_OVERWRITE_SECURE, "EXCLUDE_OVERWRITE_SECURE"},
-      {ExclusionReason::EXCLUDE_OVERWRITE_HTTP_ONLY,
-       "EXCLUDE_OVERWRITE_HTTP_ONLY"},
-      {ExclusionReason::EXCLUDE_INVALID_DOMAIN, "EXCLUDE_INVALID_DOMAIN"},
-      {ExclusionReason::EXCLUDE_INVALID_PREFIX, "EXCLUDE_INVALID_PREFIX"},
-      {ExclusionReason::EXCLUDE_INVALID_PARTITIONED,
-       "EXCLUDE_INVALID_PARTITIONED"},
-      {ExclusionReason::EXCLUDE_NAME_VALUE_PAIR_EXCEEDS_MAX_SIZE,
-       "EXCLUDE_NAME_VALUE_PAIR_EXCEEDS_MAX_SIZE"},
-      {ExclusionReason::EXCLUDE_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE,
-       "EXCLUDE_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE"},
-      {ExclusionReason::EXCLUDE_DOMAIN_NON_ASCII, "EXCLUDE_DOMAIN_NON_ASCII"},
-      {ExclusionReason::EXCLUDE_PORT_MISMATCH, "EXCLUDE_PORT_MISMATCH"},
-      {ExclusionReason::EXCLUDE_SCHEME_MISMATCH, "EXCLUDE_SCHEME_MISMATCH"},
-      {ExclusionReason::EXCLUDE_SHADOWING_DOMAIN, "EXCLUDE_SHADOWING_DOMAIN"},
-      {ExclusionReason::EXCLUDE_DISALLOWED_CHARACTER,
-       "EXCLUDE_DISALLOWED_CHARACTER"},
-      {ExclusionReason::EXCLUDE_THIRD_PARTY_PHASEOUT,
-       "EXCLUDE_THIRD_PARTY_PHASEOUT"},
-      {ExclusionReason::EXCLUDE_NO_COOKIE_CONTENT, "EXCLUDE_NO_COOKIE_CONTENT"},
-      {ExclusionReason::EXCLUDE_ANONYMOUS_CONTEXT, "EXCLUDE_ANONYMOUS_CONTEXT"},
-      {ExclusionReason::EXCLUDE_INVALID_PATH, "EXCLUDE_INVALID_PATH"},
-      {ExclusionReason::EXCLUDE_AMBIGUOUS_SERIALIZATION,
-       "EXCLUDE_AMBIGUOUS_SERIALIZATION"},
-      {ExclusionReason::EXCLUDE_INVALID_HOST, "EXCLUDE_INVALID_HOST"},
-  };
-  static_assert(
-      std::size(exclusion_reasons) == ExclusionReasonBitset::kValueCount,
-      "Please ensure all ExclusionReason variants are enumerated in "
-      "GetDebugString");
-  static_assert(std::ranges::is_sorted(exclusion_reasons),
-                "Please keep the ExclusionReason variants sorted in numerical "
-                "order in GetDebugString");
-
-  for (const auto& reason : exclusion_reasons) {
-    if (HasExclusionReason(reason.first))
-      base::StrAppend(&out, {reason.second, ", "});
-  }
-
-  // Add warning
-  if (!ShouldWarn()) {
-    base::StrAppend(&out, {"DO_NOT_WARN, "});
-  }
-
-  constexpr std::pair<WarningReason, const char*> warning_reasons[] = {
-      {WarningReason::WARN_SAMESITE_UNSPECIFIED_CROSS_SITE_CONTEXT,
-       "WARN_SAMESITE_UNSPECIFIED_CROSS_SITE_CONTEXT"},
-      {WarningReason::WARN_SAMESITE_NONE_INSECURE,
-       "WARN_SAMESITE_NONE_INSECURE"},
-      {WarningReason::WARN_SAMESITE_UNSPECIFIED_LAX_ALLOW_UNSAFE,
-       "WARN_SAMESITE_UNSPECIFIED_LAX_ALLOW_UNSAFE"},
-      {WarningReason::WARN_SECURE_ACCESS_GRANTED_NON_CRYPTOGRAPHIC,
-       "WARN_SECURE_ACCESS_GRANTED_NON_CRYPTOGRAPHIC"},
-      {WarningReason::WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION,
-       "WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION"},
-      {WarningReason::
-           WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION_NO_INITIATOR,
-       "WARN_CROSS_SITE_REDIRECT_DOWNGRADE_CHANGES_INCLUSION_NO_INITIATOR"},
-      {WarningReason::WARN_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE,
-       "WARN_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE"},
-      {WarningReason::WARN_DOMAIN_NON_ASCII, "WARN_DOMAIN_NON_ASCII"},
-      {WarningReason::WARN_PORT_MISMATCH, "WARN_PORT_MISMATCH"},
-      {WarningReason::WARN_SCHEME_MISMATCH, "WARN_SCHEME_MISMATCH"},
-      {WarningReason::WARN_TENTATIVELY_ALLOWING_SECURE_SOURCE_SCHEME,
-       "WARN_TENTATIVELY_ALLOWING_SECURE_SOURCE_SCHEME"},
-      {WarningReason::WARN_SHADOWING_DOMAIN, "WARN_SHADOWING_DOMAIN"},
-      {WarningReason::WARN_THIRD_PARTY_PHASEOUT, "WARN_THIRD_PARTY_PHASEOUT"},
-      {WarningReason::WARN_INVALID_HOST, "WARN_INVALID_HOST"},
-  };
-  static_assert(std::size(warning_reasons) == WarningReasonBitset::kValueCount,
-                "Please ensure all WarningReason variants are enumerated in "
-                "GetDebugString");
-  static_assert(std::ranges::is_sorted(warning_reasons),
-                "Please keep the WarningReason variants sorted in numerical "
-                "order in GetDebugString");
-
-  for (const auto& reason : warning_reasons) {
-    if (HasWarningReason(reason.first))
-      base::StrAppend(&out, {reason.second, ", "});
-  }
-
-  // Add exemption reason
-  std::string_view reason;
-  switch (exemption_reason()) {
-    case ExemptionReason::kNone:
-      reason = "NO_EXEMPTION";
-      break;
-    case ExemptionReason::kUserSetting:
-      reason = "ExemptionUserSetting";
-      break;
-    case ExemptionReason::kEnterprisePolicy:
-      reason = "ExemptionEnterprisePolicy";
-      break;
-    case ExemptionReason::kStorageAccess:
-      reason = "ExemptionStorageAccess";
-      break;
-    case ExemptionReason::kScheme:
-      reason = "ExemptionScheme";
-      break;
-    case ExemptionReason::kSameSiteNoneCookiesInSandbox:
-      reason = "ExemptionSameSiteNoneCookiesInSandbox";
-      break;
-  }
-  base::StrAppend(&out, {reason});
-
-  return out;
+  // Upper bound of all 44 names/separators plus exemption is below 4096.
+  std::array<uint8_t, 4096> output{};
+  const size_t length = cookie_inclusion_status_rust_debug(
+      Snapshot(*this), output.data(), output.size());
+  CHECK_LE(length, output.size());
+  return std::string(reinterpret_cast<const char*>(output.data()), length);
 }
-
 bool CookieInclusionStatus::HasExactlyExclusionReasonsForTesting(
     ExclusionReasonBitset reasons) const {
-  CookieInclusionStatus expected = MakeFromReasonsForTesting(reasons);
-  return expected.exclusion_reasons_ == exclusion_reasons_;
+  const auto expected = MakeFromReasonsForTesting(reasons);
+  return cookie_inclusion_status_rust_query(
+      Snapshot(*this), kExactExclusions, 0,
+      expected.exclusion_reasons().ToEnumBitmask());
 }
-
 bool CookieInclusionStatus::HasExactlyWarningReasonsForTesting(
     WarningReasonBitset reasons) const {
-  CookieInclusionStatus expected = MakeFromReasonsForTesting({}, reasons);
-  return expected.warning_reasons_ == warning_reasons_;
+  const auto expected = MakeFromReasonsForTesting({}, reasons);
+  return cookie_inclusion_status_rust_query(
+      Snapshot(*this), kExactWarnings, 0,
+      expected.warning_reasons().ToEnumBitmask());
 }
-
 CookieInclusionStatus CookieInclusionStatus::MakeFromReasonsForTesting(
     ExclusionReasonBitset exclusions,
     WarningReasonBitset warnings,
     ExemptionReason exemption) {
+  const auto result = cookie_inclusion_status_rust_components(
+      exclusions.ToEnumBitmask(), warnings.ToEnumBitmask(),
+      static_cast<int32_t>(exemption));
   CookieInclusionStatus status;
-  for (ExclusionReason reason : exclusions) {
-    status.AddExclusionReason(reason);
-  }
-  for (WarningReason warning : warnings) {
-    status.AddWarningReason(warning);
-  }
-  status.MaybeSetExemptionReason(exemption);
-
+  status.exclusion_reasons_ =
+      ExclusionReasonBitset::FromEnumBitmask(result.exclusions);
+  status.warning_reasons_ =
+      WarningReasonBitset::FromEnumBitmask(result.warnings);
+  status.exemption_reason_ = static_cast<ExemptionReason>(result.exemption);
   for (auto reason : exclusions) {
     CHECK(status.HasExclusionReason(reason))
         << "Exemption " << static_cast<int>(reason) << " could not be applied";
@@ -304,31 +268,22 @@ CookieInclusionStatus CookieInclusionStatus::MakeFromReasonsForTesting(
 
   return status;
 }
-
 std::optional<CookieInclusionStatus> CookieInclusionStatus::MakeFromComponents(
     ExclusionReasonBitset exclusions,
     WarningReasonBitset warnings,
     ExemptionReason exemption) {
-  CookieInclusionStatus status;
-  for (ExclusionReason reason : exclusions) {
-    status.AddExclusionReason(reason);
-  }
-  for (WarningReason warning : warnings) {
-    status.AddWarningReason(warning);
-  }
-  status.MaybeSetExemptionReason(exemption);
-
-  if (status.exclusion_reasons() != exclusions ||
-      status.warning_reasons() != warnings ||
-      status.exemption_reason() != exemption) {
+  const auto result = cookie_inclusion_status_rust_components(
+      exclusions.ToEnumBitmask(), warnings.ToEnumBitmask(),
+      static_cast<int32_t>(exemption));
+  if (result.invalid) {
     return std::nullopt;
   }
+  CookieInclusionStatus status;
+  status.exclusion_reasons_ =
+      ExclusionReasonBitset::FromEnumBitmask(result.exclusions);
+  status.warning_reasons_ =
+      WarningReasonBitset::FromEnumBitmask(result.warnings);
+  status.exemption_reason_ = static_cast<ExemptionReason>(result.exemption);
   return status;
 }
-
-bool CookieInclusionStatus::ExcludedByUserPreferencesOrTPCD() const {
-  return HasOnlyExclusionReason(ExclusionReason::EXCLUDE_USER_PREFERENCES) ||
-         HasOnlyExclusionReason(ExclusionReason::EXCLUDE_THIRD_PARTY_PHASEOUT);
-}
-
 }  // namespace net

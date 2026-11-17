@@ -38,6 +38,11 @@ class NET_EXPORT_PRIVATE HttpAuthChallengeTokenizer {
   std::string_view base64_param() const;
 
  private:
+  friend class ConnectionAuthOriginalFactoryPolicy;
+  // Reference-only storage construction; policy initializes before observation.
+  struct OriginalPolicyTag {};
+  HttpAuthChallengeTokenizer(OriginalPolicyTag, std::string_view challenge)
+      : challenge_(challenge) {}
   void Init(std::string_view challenge);
 
   std::string_view challenge_;

@@ -4,57 +4,60 @@
 
 #include "net/log/net_log_values.h"
 
-#include "base/base64.h"
-#include "base/strings/escape.h"
-#include "base/strings/string_number_conversions.h"
-#include "base/strings/string_util.h"
+#include <utility>
+
+#include "base/compiler_specific.h"
+#include "base/notreached.h"
 #include "base/values.h"
+#include "net/log/net_log_values_rust_ffi.h"
 
 namespace net {
-
 namespace {
 
-// IEEE 64-bit doubles have a 52-bit mantissa, and can therefore represent
-// 53-bits worth of precision (see also documentation for JavaScript's
-// Number.MAX_SAFE_INTEGER for more discussion on this).
-//
-// If the number can be represented with an int or double use that. Otherwise
-// fallback to encoding it as a string.
-template <typename T>
-base::Value NetLogNumberValueHelper(T num) {
-  // Fits in a (32-bit) int: [-2^31, 2^31 - 1]
-  if ((!std::is_signed<T>::value || (num >= static_cast<T>(-2147483648))) &&
-      (num <= static_cast<T>(2147483647))) {
-    return base::Value(static_cast<int>(num));
+// Representation selection and all formatting run in Rust. This synchronous
+// service only constructs the requested base::Value, retaining its ownership
+// and UTF-8 diagnostic contracts. Text is copied before Rust storage expires.
+extern "C" void NetLogValuesRustStoreValue(void* context,
+                                           uint8_t kind,
+                                           int32_t integer,
+                                           double number,
+                                           const uint8_t* text,
+                                           size_t length) {
+  auto& result = *static_cast<base::Value*>(context);
+  switch (kind) {
+    case 0:
+      result = base::Value(integer);
+      return;
+    case 1:
+      result = base::Value(number);
+      return;
+    case 2:
+      result = base::Value(integer != 0);
+      return;
+    case 3:
+      // SAFETY: Rust keeps initialized text alive until this callback returns.
+      // The output Value is distinct from the public input storage.
+      result = base::Value(
+          length == 0 ? std::string_view()
+                      : UNSAFE_BUFFERS(std::string_view(
+                            reinterpret_cast<const char*>(text), length)));
+      return;
   }
+  NOTREACHED();
+}
 
-  // Fits in a double: (-2^53, 2^53)
-  if ((!std::is_signed<T>::value ||
-       (num >= static_cast<T>(-9007199254740991))) &&
-      (num <= static_cast<T>(9007199254740991))) {
-    return base::Value(static_cast<double>(num));
-  }
-
-  // Otherwise format as a string.
-  return base::Value(base::NumberToString(num));
+base::Value FromBytes(std::string_view bytes, uint8_t mode) {
+  base::Value result;
+  net_log_values_rust_bytes(reinterpret_cast<const uint8_t*>(bytes.data()),
+                            bytes.size(), mode, &result,
+                            NetLogValuesRustStoreValue);
+  return result;
 }
 
 }  // namespace
 
 base::Value NetLogStringValue(std::string_view raw) {
-  // The common case is that |raw| is ASCII. Represent this directly.
-  if (base::IsStringASCII(raw))
-    return base::Value(raw);
-
-  // For everything else (including valid UTF-8) percent-escape |raw|, and add a
-  // prefix that "tags" the value as being a percent-escaped representation.
-  //
-  // Note that the sequence E2 80 8B is U+200B (zero-width space) in UTF-8. It
-  // is added so the escaped string is not itself also ASCII (otherwise there
-  // would be ambiguity for consumers as to when the value needs to be
-  // unescaped).
-  return base::Value("%ESCAPED:\xE2\x80\x8B " +
-                     base::EscapeNonASCIIAndPercent(raw));
+  return FromBytes(raw, 0);
 }
 
 base::Value NetLogBinaryValue(base::span<const uint8_t> bytes) {
@@ -62,26 +65,31 @@ base::Value NetLogBinaryValue(base::span<const uint8_t> bytes) {
 }
 
 base::Value NetLogBinaryValue(const void* bytes, size_t length) {
-  std::string b64 = base::Base64Encode(
-      std::string_view(reinterpret_cast<const char*>(bytes), length));
-  return base::Value(std::move(b64));
+  base::Value result;
+  net_log_values_rust_bytes(static_cast<const uint8_t*>(bytes), length, 1,
+                            &result, NetLogValuesRustStoreValue);
+  return result;
 }
 
 base::Value NetLogNumberValue(int64_t num) {
-  return NetLogNumberValueHelper(num);
+  base::Value result;
+  net_log_values_rust_signed(num, &result, NetLogValuesRustStoreValue);
+  return result;
 }
 
 base::Value NetLogNumberValue(uint64_t num) {
-  return NetLogNumberValueHelper(num);
+  base::Value result;
+  net_log_values_rust_unsigned(num, &result, NetLogValuesRustStoreValue);
+  return result;
 }
 
 base::Value NetLogNumberValue(uint32_t num) {
-  return NetLogNumberValueHelper(num);
+  return NetLogNumberValue(static_cast<uint64_t>(num));
 }
 
 base::DictValue NetLogParamsWithInt(std::string_view name, int value) {
   base::DictValue params;
-  params.Set(name, value);
+  params.Set(name, NetLogNumberValue(static_cast<int64_t>(value)));
   return params;
 }
 
@@ -92,15 +100,17 @@ base::DictValue NetLogParamsWithInt64(std::string_view name, int64_t value) {
 }
 
 base::DictValue NetLogParamsWithBool(std::string_view name, bool value) {
+  base::Value converted;
+  net_log_values_rust_bool(value, &converted, NetLogValuesRustStoreValue);
   base::DictValue params;
-  params.Set(name, value);
+  params.Set(name, std::move(converted));
   return params;
 }
 
 base::DictValue NetLogParamsWithString(std::string_view name,
                                        std::string_view value) {
   base::DictValue params;
-  params.Set(name, value);
+  params.Set(name, FromBytes(value, 2));
   return params;
 }
 

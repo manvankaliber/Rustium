@@ -1,637 +1,515 @@
-// Copyright 2012 The Chromium Authors
+// Copyright 2026 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/http/http_response_info.h"
 
-#include <optional>
 #include <utility>
 #include <vector>
 
-#include "base/containers/flat_set.h"
+#include "base/check.h"
 #include "base/logging.h"
+#include "base/memory/raw_ptr_exclusion.h"
+#include "base/memory/stack_allocated.h"
 #include "base/numerics/safe_conversions.h"
 #include "base/pickle.h"
-#include "base/time/time.h"
-#include "net/base/net_errors.h"
-#include "net/cert/sct_status_flags.h"
 #include "net/cert/signed_certificate_timestamp.h"
 #include "net/cert/x509_certificate.h"
 #include "net/http/http_response_headers.h"
+#include "net/http/http_response_info_rust_ffi.h"
 #include "net/ssl/ssl_cert_request_info.h"
 #include "net/ssl/ssl_connection_status_flags.h"
-#include "net/third_party/quiche/src/quiche/quic/core/quic_versions.h"
 #include "third_party/boringssl/src/include/openssl/ssl.h"
-
-using base::Time;
-
 namespace net {
-
+static_assert(static_cast<int>(HttpConnectionInfo::kMaxValue) == 42);
+static_assert(
+    static_cast<int>(
+        AlternateProtocolUsage::ALTERNATE_PROTOCOL_USAGE_UNSPECIFIED_REASON) ==
+    7);
+static_assert(SSL_CONNECTION_VERSION_SHIFT == 20 &&
+              SSL_CONNECTION_VERSION_MASK == 7);
+static_assert(SSL_CONNECTION_VERSION_TLS1_3 == 6 &&
+              SSL_CONNECTION_VERSION_SSL3 == 2);
 namespace {
+using namespace response_info_rust;
+struct Services {
+  STACK_ALLOCATED();
 
-bool KeyExchangeGroupIsValid(int ssl_connection_status) {
-  // TLS 1.3 and later always treat the field correctly.
-  if (SSLConnectionStatusToVersion(ssl_connection_status) >=
-      SSL_CONNECTION_VERSION_TLS1_3) {
-    return true;
-  }
-
-  // Prior to TLS 1.3, only ECDHE ciphers have groups.
-  const SSL_CIPHER* cipher = SSL_get_cipher_by_value(
-      SSLConnectionStatusToCipherSuite(ssl_connection_status));
-  return cipher && SSL_CIPHER_get_kx_nid(cipher) == NID_kx_ecdhe;
-}
-
-}  // namespace
-
-// These values can be bit-wise combined to form the flags field of the
-// serialized HttpResponseInfo.
-enum {
-  // The version of the response info used when persisting response info.
-  RESPONSE_INFO_VERSION = 3,
-
-  // The minimum version supported for deserializing response info.
-  RESPONSE_INFO_MINIMUM_VERSION = 3,
-
-  // We reserve up to 8 bits for the version number.
-  RESPONSE_INFO_VERSION_MASK = 0xFF,
-
-  // This bit is set if the response info has a cert at the end.
-  // Version 1 serialized only the end-entity certificate, while subsequent
-  // versions include the available certificate chain.
-  RESPONSE_INFO_HAS_CERT = 1 << 8,
-
-  // This bit was historically set if the response info had a security-bits
-  // field (security strength, in bits, of the SSL connection) at the end.
-  RESPONSE_INFO_HAS_SECURITY_BITS = 1 << 9,
-
-  // This bit is set if the response info has a cert status at the end.
-  RESPONSE_INFO_HAS_CERT_STATUS = 1 << 10,
-
-  // This bit is set if the response info has vary header data.
-  RESPONSE_INFO_HAS_VARY_DATA = 1 << 11,
-
-  // This bit is set if the request was cancelled before completion.
-  RESPONSE_INFO_TRUNCATED = 1 << 12,
-
-  // This bit is set if the response was received via SPDY.
-  RESPONSE_INFO_WAS_SPDY = 1 << 13,
-
-  // This bit is set if the request has ALPN negotiated.
-  RESPONSE_INFO_WAS_ALPN = 1 << 14,
-
-  // This bit is set if the request was fetched via an explicit proxy.
-  // This bit is deprecated.
-  RESPONSE_INFO_WAS_PROXY = 1 << 15,
-
-  // This bit is set if the response info has an SSL connection status field.
-  // This contains the ciphersuite used to fetch the resource as well as the
-  // protocol version, compression method and whether SSLv3 fallback was used.
-  RESPONSE_INFO_HAS_SSL_CONNECTION_STATUS = 1 << 16,
-
-  // This bit is set if the response info has protocol version.
-  RESPONSE_INFO_HAS_ALPN_NEGOTIATED_PROTOCOL = 1 << 17,
-
-  // This bit is set if the response info has connection info.
-  RESPONSE_INFO_HAS_CONNECTION_INFO = 1 << 18,
-
-  // This bit is set if the request has http authentication.
-  RESPONSE_INFO_USE_SERVER_HTTP_AUTHENTICATION = 1 << 19,
-
-  // This bit is set if ssl_info has SCTs.
-  RESPONSE_INFO_HAS_SIGNED_CERTIFICATE_TIMESTAMPS = 1 << 20,
-
-  RESPONSE_INFO_UNUSED_SINCE_PREFETCH = 1 << 21,
-
-  // This bit is set if the response has a key exchange group.
-  RESPONSE_INFO_HAS_KEY_EXCHANGE_GROUP = 1 << 22,
-
-  // This bit is set if ssl_info recorded that PKP was bypassed due to a local
-  // trust anchor.
-  RESPONSE_INFO_PKP_BYPASSED = 1 << 23,
-
-  // This bit is set if stale_revalidate_time is stored.
-  RESPONSE_INFO_HAS_STALENESS = 1 << 24,
-
-  // This bit is set if the response has a peer signature algorithm.
-  RESPONSE_INFO_HAS_PEER_SIGNATURE_ALGORITHM = 1 << 25,
-
-  // This bit is set if the response is a prefetch whose reuse should be
-  // restricted in some way.
-  RESPONSE_INFO_RESTRICTED_PREFETCH = 1 << 26,
-
-  // This bit is set if the response has a nonempty `dns_aliases` entry.
-  RESPONSE_INFO_HAS_DNS_ALIASES = 1 << 27,
-
-  // This bit is now unused. It may be set on existing entries. Previously it
-  // was set for an entry in the single-keyed cache that had been marked
-  // unusable due to the cache transparency checksum not matching.
-  RESPONSE_INFO_UNUSED_WAS_SINGLE_KEYED_CACHE_ENTRY_UNUSABLE = 1 << 28,
-
-  // This bit is set if the response has `encrypted_client_hello` set.
-  RESPONSE_INFO_ENCRYPTED_CLIENT_HELLO = 1 << 29,
-
-  // This bit is deprecated; previously set if the response had `browser_run_id`
-  // set.
-  RESPONSE_INFO_BROWSER_RUN_ID = 1 << 30,
-
-  // This bit is set if the response has extra bit set.
-  RESPONSE_INFO_HAS_EXTRA_FLAGS = 1 << 31,
+ public:
+  // Synchronous stack-only services; pointers never escape the Rust call.
+  RAW_PTR_EXCLUSION HttpResponseInfo* output = nullptr;
+  RAW_PTR_EXCLUSION const HttpResponseInfo* input = nullptr;
+  RAW_PTR_EXCLUSION base::PickleIterator* iter = nullptr;
+  RAW_PTR_EXCLUSION base::Pickle* pickle = nullptr;
+  RAW_PTR_EXCLUSION bool* truncated = nullptr;
+  std::string host;
+  std::vector<std::string> aliases;
 };
-
-// These values can be bit-wise combined to form the extra flags field of the
-// serialized HttpResponseInfo.
-enum {
-  // This bit was set if the request used a shared dictionary for decoding its
-  // body but is no longer persisted.
-  RESPONSE_EXTRA_INFO_DID_USE_SHARED_DICTIONARY = 1,
-
-  // This bit is set if the response has valid `proxy_chain`.
-  RESPONSE_EXTRA_INFO_HAS_PROXY_CHAIN = 1 << 1,
-
-  // This bit is set if the response has original_response_time.
-  RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME = 1 << 2,
-
-  // This bit is set if the response has an encoded body size stored.
-  RESPONSE_EXTRA_INFO_HAS_ENCODED_BODY_SIZE = 1 << 3,
-
-  // This bit is set if the zstd uncompressed body size is stored, indicating
-  // the response body on disk is zstd-compressed.
-  RESPONSE_EXTRA_INFO_HAS_ZSTD_UNCOMPRESSED_BODY_SIZE = 1 << 4,
-};
-
-HttpResponseInfo::HttpResponseInfo() = default;
-
-HttpResponseInfo::HttpResponseInfo(const HttpResponseInfo& rhs) = default;
-
-HttpResponseInfo::~HttpResponseInfo() = default;
-
-HttpResponseInfo& HttpResponseInfo::operator=(const HttpResponseInfo& rhs) =
-    default;
-
-bool HttpResponseInfo::InitFromPickle(base::PickleIterator iter,
-                                      bool* response_truncated) {
-  // Read flags and verify version
-  int flags;
-  int extra_flags = 0;
-  if (!iter.ReadInt(&flags))
-    return false;
-  if (flags & RESPONSE_INFO_HAS_EXTRA_FLAGS) {
-    if (!iter.ReadInt(&extra_flags)) {
-      return false;
-    }
-  }
-  int version = flags & RESPONSE_INFO_VERSION_MASK;
-  if (version < RESPONSE_INFO_MINIMUM_VERSION ||
-      version > RESPONSE_INFO_VERSION) {
-    DLOG(ERROR) << "unexpected response info version: " << version;
-    return false;
-  }
-
-  // Read request-time
-  int64_t time_val;
-  if (!iter.ReadInt64(&time_val))
-    return false;
-  request_time = Time::FromInternalValue(time_val);
-  was_cached = true;  // Set status to show cache resurrection.
-
-  // Read response-time
-  if (!iter.ReadInt64(&time_val))
-    return false;
-  response_time = Time::FromInternalValue(time_val);
-
-  // Read original-response-time
-  if ((extra_flags & RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME) != 0) {
-    if (!iter.ReadInt64(&time_val)) {
-      return false;
-    }
-    original_response_time = Time::FromInternalValue(time_val);
-  }
-
-  // Read response-headers
-  headers = base::MakeRefCounted<HttpResponseHeaders>(&iter);
-  if (headers->response_code() == -1)
-    return false;
-
-  // Read ssl-info
-  if (flags & RESPONSE_INFO_HAS_CERT) {
-    ssl_info.cert = X509Certificate::CreateFromPickle(&iter);
-    if (!ssl_info.cert.get())
-      return false;
-  }
-  if (flags & RESPONSE_INFO_HAS_CERT_STATUS) {
-    CertStatus cert_status;
-    if (!iter.ReadUInt32(&cert_status))
-      return false;
-    ssl_info.cert_status = cert_status;
-  }
-  if (flags & RESPONSE_INFO_HAS_SECURITY_BITS) {
-    // The security_bits field has been removed from ssl_info. For backwards
-    // compatibility, we should still read the value out of iter.
-    int security_bits;
-    if (!iter.ReadInt(&security_bits))
-      return false;
-  }
-
-  if (flags & RESPONSE_INFO_HAS_SSL_CONNECTION_STATUS) {
-    int connection_status;
-    if (!iter.ReadInt(&connection_status))
-      return false;
-
-    // SSLv3 is gone, so drop cached entries that were loaded over SSLv3.
-    if (SSLConnectionStatusToVersion(connection_status) ==
-        SSL_CONNECTION_VERSION_SSL3) {
-      return false;
-    }
-    ssl_info.connection_status = connection_status;
-  }
-
-  // Signed Certificate Timestamps are no longer persisted to the cache, so
-  // ignore them when reading them out.
-  if (flags & RESPONSE_INFO_HAS_SIGNED_CERTIFICATE_TIMESTAMPS) {
-    int num_scts;
-    if (!iter.ReadInt(&num_scts))
-      return false;
-    for (int i = 0; i < num_scts; ++i) {
-      scoped_refptr<ct::SignedCertificateTimestamp> sct(
-          ct::SignedCertificateTimestamp::CreateFromPickle(&iter));
-      uint16_t status;
-      if (!sct.get() || !iter.ReadUInt16(&status))
-        return false;
-    }
-  }
-
-  // Read vary-data
-  if (flags & RESPONSE_INFO_HAS_VARY_DATA) {
-    if (!vary_data.InitFromPickle(&iter))
-      return false;
-  }
-
-  // Read socket_address.
-  std::string socket_address_host;
-  if (!iter.ReadString(&socket_address_host))
-    return false;
-  // If the host was written, we always expect the port to follow.
-  uint16_t socket_address_port;
-  if (!iter.ReadUInt16(&socket_address_port))
-    return false;
-
-  IPAddress ip_address;
-  if (ip_address.AssignFromIPLiteral(socket_address_host)) {
-    remote_endpoint = IPEndPoint(ip_address, socket_address_port);
-  } else if (ParseURLHostnameToAddress(socket_address_host, &ip_address)) {
-    remote_endpoint = IPEndPoint(ip_address, socket_address_port);
-  }
-
-  // Read protocol-version.
-  if (flags & RESPONSE_INFO_HAS_ALPN_NEGOTIATED_PROTOCOL) {
-    if (!iter.ReadString(&alpn_negotiated_protocol))
-      return false;
-  }
-
-  // Read connection info.
-  if (flags & RESPONSE_INFO_HAS_CONNECTION_INFO) {
-    int value;
-    if (!iter.ReadInt(&value))
-      return false;
-
-    if (value > static_cast<int>(HttpConnectionInfo::kUNKNOWN) &&
-        value <= static_cast<int>(HttpConnectionInfo::kMaxValue)) {
-      connection_info = static_cast<HttpConnectionInfo>(value);
-    }
-  }
-
-  // Read key_exchange_group
-  if (flags & RESPONSE_INFO_HAS_KEY_EXCHANGE_GROUP) {
-    int key_exchange_group;
-    if (!iter.ReadInt(&key_exchange_group))
-      return false;
-
-    // Historically, the key_exchange_group field was key_exchange_info which
-    // conflated a number of different values based on the cipher suite, so some
-    // values must be discarded. See https://crbug.com/639421.
-    if (KeyExchangeGroupIsValid(ssl_info.connection_status))
-      ssl_info.key_exchange_group = key_exchange_group;
-  }
-
-  // Read staleness time.
-  if (flags & RESPONSE_INFO_HAS_STALENESS) {
-    if (!iter.ReadInt64(&time_val))
-      return false;
-    stale_revalidate_timeout = base::Time() + base::Microseconds(time_val);
-  }
-
-  was_fetched_via_spdy = (flags & RESPONSE_INFO_WAS_SPDY) != 0;
-
-  was_alpn_negotiated = (flags & RESPONSE_INFO_WAS_ALPN) != 0;
-
-  *response_truncated = (flags & RESPONSE_INFO_TRUNCATED) != 0;
-
-  did_use_server_http_auth =
-      (flags & RESPONSE_INFO_USE_SERVER_HTTP_AUTHENTICATION) != 0;
-
-  unused_since_prefetch = (flags & RESPONSE_INFO_UNUSED_SINCE_PREFETCH) != 0;
-
-  restricted_prefetch = (flags & RESPONSE_INFO_RESTRICTED_PREFETCH) != 0;
-
-  // RESPONSE_INFO_UNUSED_WAS_SINGLE_KEYED_CACHE_ENTRY_UNUSABLE is unused.
-
-  ssl_info.pkp_bypassed = (flags & RESPONSE_INFO_PKP_BYPASSED) != 0;
-
-  // Read peer_signature_algorithm.
-  if (flags & RESPONSE_INFO_HAS_PEER_SIGNATURE_ALGORITHM) {
-    int peer_signature_algorithm;
-    if (!iter.ReadInt(&peer_signature_algorithm) ||
-        !base::IsValueInRangeForNumericType<uint16_t>(
-            peer_signature_algorithm)) {
-      return false;
-    }
-    ssl_info.peer_signature_algorithm =
-        base::checked_cast<uint16_t>(peer_signature_algorithm);
-  }
-
-  // Read DNS aliases.
-  if (flags & RESPONSE_INFO_HAS_DNS_ALIASES) {
-    int num_aliases;
-    if (!iter.ReadInt(&num_aliases) || num_aliases < 0) {
-      return false;
-    }
-
-    std::vector<std::string> aliases;
-    aliases.reserve(static_cast<size_t>(num_aliases));
-    for (int i = 0; i < num_aliases; i++) {
-      std::string alias;
-      if (!iter.ReadString(&alias)) {
-        return false;
+ResponseInfoRustReply Invoke(void* opaque,
+                             uint32_t op,
+                             uint32_t field,
+                             int64_t value) {
+  auto& s = *static_cast<Services*>(opaque);
+  auto* out = s.output;
+  const auto* in = s.input;
+  switch (op) {
+    case kGet:
+      switch (field) {
+        case 0:
+          return {static_cast<int64_t>(in->was_cached), true};
+        case 1:
+          return {static_cast<int64_t>(in->was_fetched_via_spdy), true};
+        case 2:
+          return {static_cast<int64_t>(in->was_alpn_negotiated), true};
+        case 3:
+          return {static_cast<int64_t>(in->did_use_server_http_auth), true};
+        case 4:
+          return {static_cast<int64_t>(in->unused_since_prefetch), true};
+        case 5:
+          return {static_cast<int64_t>(in->restricted_prefetch), true};
+        case 6:
+          return {static_cast<int64_t>(in->did_use_shared_dictionary), true};
+        case 7:
+          return {static_cast<int64_t>(in->ssl_info.pkp_bypassed), true};
+        case 8:
+          return {static_cast<int64_t>(in->ssl_info.encrypted_client_hello),
+                  true};
+        case 9:
+          return {static_cast<int64_t>(in->connection_info), true};
+        case 10:
+          return {static_cast<int64_t>(in->ssl_info.cert_status), true};
+        case 11:
+          return {static_cast<int64_t>(in->ssl_info.connection_status), true};
+        case 12:
+          return {static_cast<int64_t>(in->ssl_info.key_exchange_group), true};
+        case 13:
+          return {static_cast<int64_t>(in->ssl_info.peer_signature_algorithm),
+                  true};
+        case 14:
+          return {static_cast<int64_t>(in->request_time.ToInternalValue()),
+                  true};
+        case 15:
+          return {static_cast<int64_t>(in->response_time.ToInternalValue()),
+                  true};
+        case 16:
+          return {static_cast<int64_t>(
+                      in->original_response_time.ToInternalValue()),
+                  true};
+        case 17:
+          return {
+              static_cast<int64_t>((in->stale_revalidate_timeout - base::Time())
+                                       .InMicroseconds()),
+              true};
+        case 18:
+          return {static_cast<int64_t>(in->encoded_body_size->InBytes()), true};
+        case 19:
+          return {static_cast<int64_t>(in->zstd_uncompressed_body_size.value()),
+                  true};
+        case 20:
+          return {static_cast<int64_t>(in->ssl_info.is_valid()), true};
+        case 21:
+          return {static_cast<int64_t>(in->vary_data.is_valid()), true};
+        case 22:
+          return {static_cast<int64_t>(in->proxy_chain.IsValid()), true};
+        case 23:
+          return {static_cast<int64_t>(in->proxy_chain.is_direct()), true};
+        case 24:
+          return {static_cast<int64_t>(in->dns_aliases.size()), true};
+        case 25:
+          return {static_cast<int64_t>(in->encoded_body_size.has_value()),
+                  true};
+        case 26:
+          return {
+              static_cast<int64_t>(in->zstd_uncompressed_body_size.has_value()),
+              true};
+        case 27:
+          return {static_cast<int64_t>(in->network_accessed), true};
+        case 28:
+          return {static_cast<int64_t>(in->cache_entry_status), true};
+        case 29:
+          return {static_cast<int64_t>(in->async_revalidation_requested), true};
+        case 30:
+          return {static_cast<int64_t>(in->alternate_protocol_usage), true};
+        case 31:
+          return {static_cast<int64_t>(in->did_send_available_dictionary),
+                  true};
+        default:
+          NOTREACHED();
       }
-      aliases.push_back(std::move(alias));
+    case kSet:
+      switch (field) {
+        case 0:
+          out->was_cached = value != 0;
+          break;
+        case 1:
+          out->was_fetched_via_spdy = value != 0;
+          break;
+        case 2:
+          out->was_alpn_negotiated = value != 0;
+          break;
+        case 3:
+          out->did_use_server_http_auth = value != 0;
+          break;
+        case 4:
+          out->unused_since_prefetch = value != 0;
+          break;
+        case 5:
+          out->restricted_prefetch = value != 0;
+          break;
+        case 6:
+          out->did_use_shared_dictionary = value != 0;
+          break;
+        case 7:
+          out->ssl_info.pkp_bypassed = value != 0;
+          break;
+        case 8:
+          out->ssl_info.encrypted_client_hello = value != 0;
+          break;
+        case 9:
+          out->connection_info = static_cast<HttpConnectionInfo>(value);
+          break;
+        case 10:
+          out->ssl_info.cert_status = static_cast<CertStatus>(value);
+          break;
+        case 11:
+          out->ssl_info.connection_status = static_cast<int>(value);
+          break;
+        case 12:
+          out->ssl_info.key_exchange_group = static_cast<uint16_t>(value);
+          break;
+        case 13:
+          out->ssl_info.peer_signature_algorithm = static_cast<uint16_t>(value);
+          break;
+        case 14:
+          out->request_time = base::Time::FromInternalValue(value);
+          break;
+        case 15:
+          out->response_time = base::Time::FromInternalValue(value);
+          break;
+        case 16:
+          out->original_response_time = base::Time::FromInternalValue(value);
+          break;
+        case 17:
+          out->stale_revalidate_timeout =
+              base::Time() + base::Microseconds(value);
+          break;
+        case 18:
+          out->encoded_body_size = base::ByteSize(base::as_unsigned(value));
+          break;
+        case 19:
+          out->zstd_uncompressed_body_size = value;
+          break;
+        case 27:
+          out->network_accessed = value != 0;
+          break;
+        case 28:
+          out->cache_entry_status =
+              static_cast<HttpResponseInfo::CacheEntryStatus>(value);
+          break;
+        case 29:
+          out->async_revalidation_requested = value != 0;
+          break;
+        case 30:
+          out->alternate_protocol_usage =
+              static_cast<AlternateProtocolUsage>(value);
+          break;
+        case 31:
+          out->did_send_available_dictionary = value != 0;
+          break;
+        default:
+          NOTREACHED();
+      }
+      return {0, true};
+    case kReadInt: {
+      int v = 0;
+      bool ok = s.iter->ReadInt(&v);
+      return {v, ok};
     }
-    dns_aliases = base::flat_set<std::string>(std::move(aliases));
-  }
-
-  ssl_info.encrypted_client_hello =
-      (flags & RESPONSE_INFO_ENCRYPTED_CLIENT_HELLO) != 0;
-
-  if (flags & RESPONSE_INFO_BROWSER_RUN_ID) {
-    // The browser_run_id field has been removed from HttpResponseInfo. For
-    // backwards compatibility, we should still read the value out of iter.
-    int64_t id;
-    if (!iter.ReadInt64(&id))
-      return false;
-  }
-
-  // Do NOT restore the did_use_shared_dictionary flag since
-  // dictionary-compressed responses are decoded before being stored in cache.
-  // It is no longer persisted but old cache entries may have it set.
-  did_use_shared_dictionary = false;
-
-  if (extra_flags & RESPONSE_EXTRA_INFO_HAS_PROXY_CHAIN) {
-    std::optional<ProxyChain> unpickled_proxy_chain =
-        ProxyChain::InitFromPickle(iter);
-    if (!unpickled_proxy_chain) {
-      return false;
+    case kReadInt64: {
+      int64_t v = 0;
+      bool ok = s.iter->ReadInt64(&v);
+      return {v, ok};
     }
-    proxy_chain = std::move(*unpickled_proxy_chain);
-  }
-
-  if (extra_flags & RESPONSE_EXTRA_INFO_HAS_ENCODED_BODY_SIZE) {
-    int64_t size;
-    if (!iter.ReadInt64(&size)) {
-      return false;
+    case kReadUInt32: {
+      uint32_t v = 0;
+      bool ok = s.iter->ReadUInt32(&v);
+      return {v, ok};
     }
-    // Ignore obsolete negative values.
-    if (size >= 0) {
-      encoded_body_size = base::ByteSize(base::as_unsigned(size));
+    case kReadUInt16: {
+      uint16_t v = 0;
+      bool ok = s.iter->ReadUInt16(&v);
+      return {v, ok};
     }
-  }
-
-  if (extra_flags & RESPONSE_EXTRA_INFO_HAS_ZSTD_UNCOMPRESSED_BODY_SIZE) {
-    int64_t size;
-    if (!iter.ReadInt64(&size) || size < 0) {
-      return false;  // Refuse malformed entries; do not silently degrade.
+    case kWriteInt:
+      s.pickle->WriteInt(static_cast<int>(value));
+      return {0, true};
+    case kWriteInt64:
+      s.pickle->WriteInt64(static_cast<int64_t>(value));
+      return {0, true};
+    case kWriteUInt32:
+      s.pickle->WriteUInt32(static_cast<uint32_t>(value));
+      return {0, true};
+    case kWriteUInt16:
+      s.pickle->WriteUInt16(static_cast<uint16_t>(value));
+      return {0, true};
+    case kReadHeaders:
+      out->headers = base::MakeRefCounted<HttpResponseHeaders>(s.iter);
+      return {out->headers->response_code(), true};
+    case kReadCert:
+      out->ssl_info.cert = X509Certificate::CreateFromPickle(s.iter);
+      return {0, out->ssl_info.cert != nullptr};
+    case kReadSct: {
+      scoped_refptr<ct::SignedCertificateTimestamp> sct =
+          ct::SignedCertificateTimestamp::CreateFromPickle(s.iter);
+      return {0, sct != nullptr};
     }
-    zstd_uncompressed_body_size = size;
+    case kReadVary:
+      return {0, out->vary_data.InitFromPickle(s.iter)};
+    case kReadHost:
+      return {0, s.iter->ReadString(&s.host)};
+    case kSetEndpoint: {
+      IPAddress address;
+      // IP parsing is a primitive service. Rust decides when to attempt it and
+      // whether the port read has succeeded before any public mutation.
+      bool ok = address.AssignFromIPLiteral(s.host);
+      if (!ok) {
+        ok = ParseURLHostnameToAddress(s.host, &address);
+      }
+      if (ok) {
+        out->remote_endpoint =
+            IPEndPoint(address, static_cast<uint16_t>(value));
+      }
+      return {0, true};
+    }
+    case kReadAlpn:
+      return {0, s.iter->ReadString(&out->alpn_negotiated_protocol)};
+    case kReadAlias: {
+      std::string alias;
+      if (!s.iter->ReadString(&alias)) {
+        return {0, false};
+      }
+      s.aliases.push_back(std::move(alias));
+      return {0, true};
+    }
+    case kCommitAliases:
+      out->dns_aliases = base::flat_set<std::string>(std::move(s.aliases));
+      return {0, true};
+    case kReadProxy: {
+      // The dependency primitive advances the same iterator by reference.
+      auto chain = ProxyChain::InitFromPickle(*s.iter);
+      if (!chain) {
+        return {0, false};
+      }
+      out->proxy_chain = std::move(*chain);
+      return {0, true};
+    }
+    case kWriteHeaders:
+      in->headers->Persist(s.pickle, static_cast<int>(value));
+      return {0, true};
+    case kWriteCert:
+      in->ssl_info.cert->Persist(s.pickle);
+      return {0, true};
+    case kWriteVary:
+      in->vary_data.Persist(s.pickle);
+      return {0, true};
+    case kWriteHost:
+      s.pickle->WriteString(in->remote_endpoint.ToStringWithoutPort());
+      s.pickle->WriteUInt16(in->remote_endpoint.port());
+      return {0, true};
+    case kWriteAlpn:
+      s.pickle->WriteString(in->alpn_negotiated_protocol);
+      return {0, true};
+    case kWriteAlias:
+      s.pickle->WriteString(
+          *(in->dns_aliases.begin() + static_cast<ptrdiff_t>(value)));
+      return {0, true};
+    case kWriteProxy:
+      in->proxy_chain.Persist(s.pickle);
+      return {0, true};
+    case kCipherEcdhe: {
+      const SSL_CIPHER* cipher =
+          SSL_get_cipher_by_value(static_cast<uint16_t>(value));
+      return {cipher && SSL_CIPHER_get_kx_nid(cipher) == NID_kx_ecdhe, true};
+    }
+    case kSetTruncated:
+      *s.truncated = value != 0;
+      return {0, true};
+    case kCopyField:
+      switch (field) {
+        case 0:
+          out->was_cached = in->was_cached;
+          break;
+        case 1:
+          out->cache_entry_status = in->cache_entry_status;
+          break;
+        case 2:
+          out->network_accessed = in->network_accessed;
+          break;
+        case 3:
+          out->was_fetched_via_spdy = in->was_fetched_via_spdy;
+          break;
+        case 4:
+          out->was_alpn_negotiated = in->was_alpn_negotiated;
+          break;
+        case 5:
+          out->proxy_chain = in->proxy_chain;
+          break;
+        case 6:
+          out->did_use_server_http_auth = in->did_use_server_http_auth;
+          break;
+        case 7:
+          out->unused_since_prefetch = in->unused_since_prefetch;
+          break;
+        case 8:
+          out->restricted_prefetch = in->restricted_prefetch;
+          break;
+        case 9:
+          out->async_revalidation_requested = in->async_revalidation_requested;
+          break;
+        case 10:
+          out->stale_revalidate_timeout = in->stale_revalidate_timeout;
+          break;
+        case 11:
+          out->remote_endpoint = in->remote_endpoint;
+          break;
+        case 12:
+          out->alpn_negotiated_protocol = in->alpn_negotiated_protocol;
+          break;
+        case 13:
+          out->alternate_protocol_usage = in->alternate_protocol_usage;
+          break;
+        case 14:
+          out->connection_info = in->connection_info;
+          break;
+        case 15:
+          out->request_time = in->request_time;
+          break;
+        case 16:
+          out->response_time = in->response_time;
+          break;
+        case 17:
+          out->original_response_time = in->original_response_time;
+          break;
+        case 18:
+          out->resolve_error_info = in->resolve_error_info;
+          break;
+        case 19:
+          out->auth_challenge = in->auth_challenge;
+          break;
+        case 20:
+          out->cert_request_info = in->cert_request_info;
+          break;
+        case 21:
+          out->ssl_info = in->ssl_info;
+          break;
+        case 22:
+          out->headers = in->headers;
+          break;
+        case 23:
+          out->vary_data = in->vary_data;
+          break;
+        case 24:
+          out->dns_aliases = in->dns_aliases;
+          break;
+        case 25:
+          out->did_send_available_dictionary =
+              in->did_send_available_dictionary;
+          break;
+        case 26:
+          out->did_use_shared_dictionary = in->did_use_shared_dictionary;
+          break;
+        case 27:
+          out->encoded_body_size = in->encoded_body_size;
+          break;
+        case 28:
+          out->zstd_uncompressed_body_size = in->zstd_uncompressed_body_size;
+          break;
+        default:
+          NOTREACHED();
+      }
+      return {0, true};
+    case kUnexpectedVersion:
+      DLOG(ERROR) << "unexpected response info version: " << value;
+      return {0, true};
+    default:
+      NOTREACHED();
   }
-
-  return true;
 }
-
+ResponseInfoRustBridge Bridge(Services& s) {
+  return {&s, Invoke};
+}
+}  // namespace
+HttpResponseInfo::HttpResponseInfo() {
+  Services s{.output = this, .input = this};
+  rustium_response_info(Bridge(s), 0, false, false);
+}
+HttpResponseInfo::HttpResponseInfo(const HttpResponseInfo& rhs) {
+  Services s{.output = this, .input = &rhs};
+  rustium_response_info(Bridge(s), 1, false, false);
+}
+HttpResponseInfo& HttpResponseInfo::operator=(const HttpResponseInfo& rhs) {
+  Services s{.output = this, .input = &rhs};
+  rustium_response_info(Bridge(s), 1, this == &rhs, false);
+  return *this;
+}
+HttpResponseInfo::~HttpResponseInfo() = default;
+bool HttpResponseInfo::InitFromPickle(base::PickleIterator iter,
+                                      RAW_PTR_EXCLUSION bool* truncated) {
+  Services s{
+      .output = this, .input = this, .iter = &iter, .truncated = truncated};
+  return rustium_response_info(Bridge(s), 2, false, false);
+}
 std::unique_ptr<base::Pickle> HttpResponseInfo::MakePickle(
-    bool skip_transient_headers,
-    bool response_truncated) const {
-  std::optional<int64_t> signed_body_size;
+    bool skip,
+    bool truncated) const {
+  std::optional<int64_t> size;
   if (encoded_body_size.has_value()) {
-    signed_body_size = encoded_body_size->InBytes();
+    size = encoded_body_size->InBytes();
   }
-  return MakePickleImpl(skip_transient_headers, response_truncated,
-                        signed_body_size);
+  return MakePickleImpl(skip, truncated, size);
 }
-
 std::unique_ptr<base::Pickle>
-HttpResponseInfo::MakePickleWithSignedBodySizeForTesting(
-    bool skip_transient_headers,
-    bool response_truncated,
-    int64_t signed_body_size) const {
-  return MakePickleImpl(skip_transient_headers, response_truncated,
-                        signed_body_size);
+HttpResponseInfo::MakePickleWithSignedBodySizeForTesting(bool skip,
+                                                         bool truncated,
+                                                         int64_t size) const {
+  return MakePickleImpl(skip, truncated, size);
 }
-
 std::unique_ptr<base::Pickle> HttpResponseInfo::MakePickleImpl(
-    bool skip_transient_headers,
-    bool response_truncated,
-    std::optional<int64_t> signed_body_size) const {
+    bool skip,
+    bool truncated,
+    std::optional<int64_t> size) const {
+  // signed size is a primitive override, selected by the Rust persistence
+  // policy.
+  struct WriteServices {
+    STACK_ALLOCATED();
+
+   public:
+    Services base;
+    std::optional<int64_t> size;
+  };
   auto pickle = std::make_unique<base::Pickle>();
-  // Pre-reserve memory for the Pickle contents to reduce allocations and
-  // copies. This doesn't affect the size of the data that is written to disk.
-  // The Pickle object only lives long enough to be written to disk, so it
-  // doesn't matter if we briefly overallocate memory. 10,900 bytes is enough to
-  // cover 99% percentile of HttpResponseInfo pickle sizes based on Dev/Canary
-  // data from 2025-01-20 (the mean is 4,773).
   pickle->Reserve(10900);
-  int flags = RESPONSE_INFO_VERSION;
-  int extra_flags = 0;
-  if (ssl_info.is_valid()) {
-    flags |= RESPONSE_INFO_HAS_CERT;
-    flags |= RESPONSE_INFO_HAS_CERT_STATUS;
-    if (ssl_info.key_exchange_group != 0)
-      flags |= RESPONSE_INFO_HAS_KEY_EXCHANGE_GROUP;
-    if (ssl_info.connection_status != 0)
-      flags |= RESPONSE_INFO_HAS_SSL_CONNECTION_STATUS;
-    if (ssl_info.peer_signature_algorithm != 0)
-      flags |= RESPONSE_INFO_HAS_PEER_SIGNATURE_ALGORITHM;
-  }
-  if (vary_data.is_valid())
-    flags |= RESPONSE_INFO_HAS_VARY_DATA;
-  if (response_truncated)
-    flags |= RESPONSE_INFO_TRUNCATED;
-  if (was_fetched_via_spdy)
-    flags |= RESPONSE_INFO_WAS_SPDY;
-  if (was_alpn_negotiated) {
-    flags |= RESPONSE_INFO_WAS_ALPN;
-    flags |= RESPONSE_INFO_HAS_ALPN_NEGOTIATED_PROTOCOL;
-  }
-  if (connection_info != HttpConnectionInfo::kUNKNOWN) {
-    flags |= RESPONSE_INFO_HAS_CONNECTION_INFO;
-  }
-  if (did_use_server_http_auth)
-    flags |= RESPONSE_INFO_USE_SERVER_HTTP_AUTHENTICATION;
-  if (unused_since_prefetch)
-    flags |= RESPONSE_INFO_UNUSED_SINCE_PREFETCH;
-  if (restricted_prefetch)
-    flags |= RESPONSE_INFO_RESTRICTED_PREFETCH;
-  // RESPONSE_INFO_UNUSED_WAS_SINGLE_KEYED_CACHE_ENTRY_UNUSABLE is not used.
-  if (ssl_info.pkp_bypassed)
-    flags |= RESPONSE_INFO_PKP_BYPASSED;
-  if (!stale_revalidate_timeout.is_null()) {
-    flags |= RESPONSE_INFO_HAS_STALENESS;
-  }
-  if (!dns_aliases.empty()) {
-    flags |= RESPONSE_INFO_HAS_DNS_ALIASES;
-  }
-  if (ssl_info.encrypted_client_hello) {
-    flags |= RESPONSE_INFO_ENCRYPTED_CLIENT_HELLO;
-  }
-
-  if (proxy_chain.IsValid()) {
-    extra_flags |= RESPONSE_EXTRA_INFO_HAS_PROXY_CHAIN;
-  }
-
-  if (signed_body_size.has_value()) {
-    extra_flags |= RESPONSE_EXTRA_INFO_HAS_ENCODED_BODY_SIZE;
-  }
-
-  if (zstd_uncompressed_body_size.has_value()) {
-    extra_flags |= RESPONSE_EXTRA_INFO_HAS_ZSTD_UNCOMPRESSED_BODY_SIZE;
-  }
-
-  extra_flags |= RESPONSE_EXTRA_INFO_HAS_ORIGINAL_RESPONSE_TIME;
-  flags |= RESPONSE_INFO_HAS_EXTRA_FLAGS;
-
-  pickle->WriteInt(flags);
-  pickle->WriteInt(extra_flags);
-  pickle->WriteInt64(request_time.ToInternalValue());
-  pickle->WriteInt64(response_time.ToInternalValue());
-  pickle->WriteInt64(original_response_time.ToInternalValue());
-
-  HttpResponseHeaders::PersistOptions persist_options =
-      HttpResponseHeaders::PERSIST_RAW;
-
-  if (skip_transient_headers) {
-    persist_options = HttpResponseHeaders::PERSIST_SANS_COOKIES |
-                      HttpResponseHeaders::PERSIST_SANS_CHALLENGES |
-                      HttpResponseHeaders::PERSIST_SANS_HOP_BY_HOP |
-                      HttpResponseHeaders::PERSIST_SANS_NON_CACHEABLE |
-                      HttpResponseHeaders::PERSIST_SANS_RANGES |
-                      HttpResponseHeaders::PERSIST_SANS_SECURITY_STATE;
-  }
-
-  headers->Persist(pickle.get(), persist_options);
-
-  if (ssl_info.is_valid()) {
-    ssl_info.cert->Persist(pickle.get());
-    pickle->WriteUInt32(ssl_info.cert_status);
-    if (ssl_info.connection_status != 0)
-      pickle->WriteInt(ssl_info.connection_status);
-  }
-
-  if (vary_data.is_valid())
-    vary_data.Persist(pickle.get());
-
-  pickle->WriteString(remote_endpoint.ToStringWithoutPort());
-  pickle->WriteUInt16(remote_endpoint.port());
-
-  if (was_alpn_negotiated)
-    pickle->WriteString(alpn_negotiated_protocol);
-
-  if (connection_info != HttpConnectionInfo::kUNKNOWN) {
-    pickle->WriteInt(static_cast<int>(connection_info));
-  }
-
-  if (ssl_info.is_valid() && ssl_info.key_exchange_group != 0)
-    pickle->WriteInt(ssl_info.key_exchange_group);
-
-  if (flags & RESPONSE_INFO_HAS_STALENESS) {
-    pickle->WriteInt64(
-        (stale_revalidate_timeout - base::Time()).InMicroseconds());
-  }
-
-  if (ssl_info.is_valid() && ssl_info.peer_signature_algorithm != 0)
-    pickle->WriteInt(ssl_info.peer_signature_algorithm);
-
-  if (!dns_aliases.empty()) {
-    pickle->WriteInt(dns_aliases.size());
-    for (const auto& alias : dns_aliases) {
-      pickle->WriteString(alias);
-    }
-  }
-
-  if (proxy_chain.IsValid()) {
-    proxy_chain.Persist(pickle.get());
-  }
-
-  if (signed_body_size.has_value()) {
-    pickle->WriteInt64(signed_body_size.value());
-  }
-
-  if (zstd_uncompressed_body_size.has_value()) {
-    pickle->WriteInt64(zstd_uncompressed_body_size.value());
-  }
-
+  WriteServices s{{.input = this, .pickle = pickle.get()}, size};
+  ResponseInfoRustBridge bridge{&s,
+                                [](void* p, uint32_t op, uint32_t field,
+                                   int64_t value) -> ResponseInfoRustReply {
+                                  auto& w = *static_cast<WriteServices*>(p);
+                                  if (op == kGet && field == kBodyPresent) {
+                                    return {w.size.has_value(), true};
+                                  }
+                                  if (op == kGet && field == kBody) {
+                                    return {w.size.value(), true};
+                                  }
+                                  return Invoke(&w.base, op, field, value);
+                                }};
+  rustium_response_info(bridge, 3, skip, truncated);
   return pickle;
 }
-
 bool HttpResponseInfo::DidUseQuic() const {
-  switch (connection_info) {
-    case HttpConnectionInfo::kUNKNOWN:
-    case HttpConnectionInfo::kHTTP1_1:
-    case HttpConnectionInfo::kDEPRECATED_SPDY2:
-    case HttpConnectionInfo::kDEPRECATED_SPDY3:
-    case HttpConnectionInfo::kHTTP2:
-    case HttpConnectionInfo::kDEPRECATED_HTTP2_14:
-    case HttpConnectionInfo::kDEPRECATED_HTTP2_15:
-    case HttpConnectionInfo::kHTTP0_9:
-    case HttpConnectionInfo::kHTTP1_0:
-      return false;
-    case HttpConnectionInfo::kQUIC_UNKNOWN_VERSION:
-    case HttpConnectionInfo::kQUIC_32:
-    case HttpConnectionInfo::kQUIC_33:
-    case HttpConnectionInfo::kQUIC_34:
-    case HttpConnectionInfo::kQUIC_35:
-    case HttpConnectionInfo::kQUIC_36:
-    case HttpConnectionInfo::kQUIC_37:
-    case HttpConnectionInfo::kQUIC_38:
-    case HttpConnectionInfo::kQUIC_39:
-    case HttpConnectionInfo::kQUIC_40:
-    case HttpConnectionInfo::kQUIC_41:
-    case HttpConnectionInfo::kQUIC_42:
-    case HttpConnectionInfo::kQUIC_43:
-    case HttpConnectionInfo::kQUIC_44:
-    case HttpConnectionInfo::kQUIC_45:
-    case HttpConnectionInfo::kQUIC_46:
-    case HttpConnectionInfo::kQUIC_47:
-    case HttpConnectionInfo::kQUIC_Q048:
-    case HttpConnectionInfo::kQUIC_T048:
-    case HttpConnectionInfo::kQUIC_Q049:
-    case HttpConnectionInfo::kQUIC_T049:
-    case HttpConnectionInfo::kQUIC_Q050:
-    case HttpConnectionInfo::kQUIC_T050:
-    case HttpConnectionInfo::kQUIC_Q099:
-    case HttpConnectionInfo::kQUIC_T099:
-    case HttpConnectionInfo::kQUIC_999:
-    case HttpConnectionInfo::kQUIC_DRAFT_25:
-    case HttpConnectionInfo::kQUIC_DRAFT_27:
-    case HttpConnectionInfo::kQUIC_DRAFT_28:
-    case HttpConnectionInfo::kQUIC_DRAFT_29:
-    case HttpConnectionInfo::kQUIC_T051:
-    case HttpConnectionInfo::kQUIC_RFC_V1:
-    case HttpConnectionInfo::kDEPRECATED_QUIC_2_DRAFT_1:
-    case HttpConnectionInfo::kQUIC_2_DRAFT_8:
-      return true;
-  }
+  Services s{.input = this};
+  return rustium_response_info(Bridge(s), 4, false, false);
 }
-
 bool HttpResponseInfo::WasFetchedViaProxy() const {
-  return proxy_chain.IsValid() && !proxy_chain.is_direct();
+  Services s{.input = this};
+  return rustium_response_info(Bridge(s), 5, false, false);
 }
-
 }  // namespace net

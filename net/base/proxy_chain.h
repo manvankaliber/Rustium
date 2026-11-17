@@ -25,6 +25,8 @@ class PickleIterator;
 
 namespace net {
 
+struct ConnectionJobsUpperRustOriginalStorage;
+
 // ProxyChain represents a chain of ProxyServers. A chain with multiple proxy
 // servers means that a single connection will go through all of the proxies in
 // order, using a tunnel through the first proxy to connect to the second, etc.
@@ -159,21 +161,21 @@ class NET_EXPORT ProxyChain {
   // instead of establishing a tunnel with CONNECT. This is no longer supported
   // for QUIC proxy chains and is not currently supported for multi-proxy
   // chains.
-  bool is_get_to_proxy_allowed() const {
-    return is_single_proxy() && (First().is_http() || First().is_https());
-  }
+  bool is_get_to_proxy_allowed() const;
 
   // Returns true if a proxy server list is available.
   bool IsValid() const { return proxy_server_list_.has_value(); }
 
   std::optional<int> opaque_data() const { return opaque_data_; }
 
-  friend bool operator==(const ProxyChain&, const ProxyChain&) = default;
-  friend auto operator<=>(const ProxyChain&, const ProxyChain&) = default;
+  friend NET_EXPORT bool operator==(const ProxyChain&, const ProxyChain&);
+  friend NET_EXPORT std::strong_ordering operator<=>(const ProxyChain&,
+                                                     const ProxyChain&);
 
   std::string ToDebugString() const;
 
  private:
+  friend struct ConnectionJobsUpperRustOriginalStorage;
   ProxyChain(std::vector<ProxyServer> proxy_server_list,
              std::optional<int> opaque_data);
 

@@ -23,6 +23,7 @@
 #include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
+#include "net/base/host_port_rust_ffi.h"
 #include "net/base/ip_address.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "net/base/schemeful_site.h"
@@ -74,8 +75,9 @@ GURL AppendQueryParameter(const GURL& url,
                           std::string_view value) {
   std::string query(url.GetQuery());
 
-  if (!query.empty())
+  if (!query.empty()) {
     query += "&";
+  }
 
   base::StrAppend(&query, {base::EscapeQueryParamValue(name, true), "=",
                            base::EscapeQueryParamValue(value, true)});
@@ -92,8 +94,9 @@ GURL AppendOrReplaceQueryParameter(const GURL& url,
   bool should_keep_param = value.has_value();
 
   std::string param_value;
-  if (should_keep_param)
+  if (should_keep_param) {
     param_value = base::EscapeQueryParamValue(value.value(), true);
+  }
 
   const std::string_view input = url.query();
   url::Component cursor(0, input.size());
@@ -105,22 +108,25 @@ GURL AppendOrReplaceQueryParameter(const GURL& url,
     // Check |replaced| as only the first pair should be replaced.
     if (!replaced && key == param_name) {
       replaced = true;
-      if (!should_keep_param)
+      if (!should_keep_param) {
         continue;
+      }
 
       key_value_pair = base::StrCat({param_name, "=", param_value});
     } else {
       key_value_pair = std::string(
           input.substr(key_range.begin, value_range.end() - key_range.begin));
     }
-    if (!output.empty())
+    if (!output.empty()) {
       output += "&";
+    }
 
     output += key_value_pair;
   }
   if (!replaced && should_keep_param) {
-    if (!output.empty())
+    if (!output.empty()) {
       output += "&";
+    }
 
     base::StrAppend(&output, {param_name, "=", param_value});
   }
@@ -147,15 +153,17 @@ QueryIterator::~QueryIterator() = default;
 
 std::string_view QueryIterator::GetKey() const {
   DCHECK(!at_end_);
-  if (key_.is_nonempty())
+  if (key_.is_nonempty()) {
     return std::string_view(url_->spec()).substr(key_.begin, key_.len);
+  }
   return std::string_view();
 }
 
 std::string_view QueryIterator::GetValue() const {
   DCHECK(!at_end_);
-  if (value_.is_nonempty())
+  if (value_.is_nonempty()) {
     return std::string_view(url_->spec()).substr(value_.begin, value_.len);
+  }
   return std::string_view();
 }
 
@@ -198,61 +206,7 @@ bool GetValueForKeyInQuery(const GURL& url,
 }
 
 bool ParseHostAndPort(std::string_view input, std::string* host, int* port) {
-  if (input.empty())
-    return false;
-
-  url::Component auth_component(0, input.size());
-  url::Component username_component;
-  url::Component password_component;
-  url::Component hostname_component;
-  url::Component port_component;
-
-  url::ParseAuthority(input, auth_component, url::ParserMode::kSpecialURL,
-                      &username_component, &password_component,
-                      &hostname_component, &port_component);
-
-  // There shouldn't be a username/password.
-  if (username_component.is_valid() || password_component.is_valid())
-    return false;
-
-  if (hostname_component.is_empty())
-    return false;  // Failed parsing.
-
-  int parsed_port_number = -1;
-  if (port_component.is_nonempty()) {
-    parsed_port_number = url::ParsePort(input, port_component);
-
-    // If parsing failed, port_number will be either PORT_INVALID or
-    // PORT_UNSPECIFIED, both of which are negative.
-    if (parsed_port_number < 0)
-      return false;  // Failed parsing the port number.
-  }
-
-  if (port_component.len == 0)
-    return false;  // Reject inputs like "foo:"
-
-  unsigned char tmp_ipv6_addr[16];
-
-  // If the hostname starts with a bracket, it is either an IPv6 literal or
-  // invalid. If it is an IPv6 literal then strip the brackets.
-  if (hostname_component.len > 0 && input[hostname_component.begin] == '[') {
-    if (input[hostname_component.end() - 1] == ']' &&
-        url::IPv6AddressToNumber(hostname_component.AsViewOn(input),
-                                 tmp_ipv6_addr)) {
-      // Strip the brackets.
-      hostname_component.begin++;
-      hostname_component.len -= 2;
-    } else {
-      return false;
-    }
-  }
-
-  // Pass results back to caller.
-  *host = std::string(
-      input.substr(hostname_component.begin, hostname_component.len));
-  *port = parsed_port_number;
-
-  return true;  // Success.
+  return host_port_rust::ParseHostAndPort(input, host, port);
 }
 
 std::string GetHostAndPort(const GURL& url) {
@@ -265,9 +219,10 @@ std::string GetHostAndPort(const GURL& url) {
 std::string GetHostAndOptionalPort(const GURL& url) {
   // For IPv6 literals, GURL::host() already includes the brackets
   // so it is safe to just append a colon.
-  if (url.has_port())
+  if (url.has_port()) {
     return base::StringPrintf("%s:%s", url.GetHost().c_str(),
                               url.GetPort().c_str());
+  }
   return url.GetHost();
 }
 
@@ -296,16 +251,18 @@ std::string GetHostOrSpecFromURL(const GURL& url) {
 
 std::string GetSuperdomain(std::string_view domain) {
   size_t dot_pos = domain.find('.');
-  if (dot_pos == std::string::npos)
+  if (dot_pos == std::string::npos) {
     return "";
+  }
   return std::string(domain.substr(dot_pos + 1));
 }
 
 bool IsSubdomainOf(std::string_view subdomain, std::string_view superdomain) {
   // Subdomain must be identical or have strictly more labels than the
   // superdomain.
-  if (subdomain.length() <= superdomain.length())
+  if (subdomain.length() <= superdomain.length()) {
     return subdomain == superdomain;
+  }
 
   // Superdomain must be suffix of subdomain, and the last character not
   // included in the matching substring must be a dot.
@@ -409,8 +366,9 @@ bool IsCanonicalizedHostCompliant(std::string_view host) {
   }
 
   // Check for too-long label when not ended with final '.'.
-  if (label_size > 63)
+  if (label_size > 63) {
     return false;
+  }
 
   return most_recent_component_started_alphanumeric;
 }
@@ -425,8 +383,9 @@ bool IsHostnameNonUnique(std::string_view hostname) {
 
   // If canonicalization fails, then the input is truly malformed. However,
   // to avoid mis-reporting bad inputs as "non-unique", treat them as unique.
-  if (canonical_name.empty())
+  if (canonical_name.empty()) {
     return false;
+  }
 
   // If |hostname| is an IP address, check to see if it's in an IANA-reserved
   // range reserved for non-publicly routable networks.
@@ -472,16 +431,18 @@ bool IsLocalhost(const GURL& url) {
 
 bool HostStringIsLocalhost(std::string_view host) {
   IPAddress ip_address;
-  if (ip_address.AssignFromIPLiteral(host))
+  if (ip_address.AssignFromIPLiteral(host)) {
     return ip_address.IsLoopback();
+  }
   return IsLocalHostname(host);
 }
 
 GURL SimplifyUrlForRequest(const GURL& url) {
   DCHECK(url.is_valid());
   // Fast path to avoid re-canonicalization via ReplaceComponents.
-  if (!url.has_username() && !url.has_password() && !url.has_ref())
+  if (!url.has_username() && !url.has_password() && !url.has_ref()) {
     return url;
+  }
   GURL::Replacements replacements;
   replacements.ClearUsername();
   replacements.ClearPassword();
@@ -511,8 +472,9 @@ GURL ChangeWebSocketSchemeToHttpScheme(const GURL& url) {
 
 bool IsStandardSchemeWithNetworkHost(std::string_view scheme) {
   // file scheme is special. Windows file share origins can have network hosts.
-  if (scheme == url::kFileScheme)
+  if (scheme == url::kFileScheme) {
     return true;
+  }
 
   url::SchemeType scheme_type;
   if (!url::GetStandardSchemeType(scheme, &scheme_type)) {
@@ -582,8 +544,9 @@ bool IsGoogleHostWithAlpnH3(std::string_view host) {
 
 bool IsLocalHostname(std::string_view host) {
   // Remove any trailing '.'.
-  if (!host.empty() && *host.rbegin() == '.')
+  if (!host.empty() && *host.rbegin() == '.') {
     host.remove_suffix(1);
+  }
 
   return base::EqualsCaseInsensitiveASCII(host, "localhost") ||
          IsNormalizedLocalhostTLD(host);

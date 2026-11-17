@@ -15,6 +15,7 @@
 #include "net/base/net_export.h"
 #include "net/base/rand_callback.h"
 #include "net/dns/dns_config.h"
+#include "net/dns/dns_client_rust_services.h"
 #include "net/dns/dns_hosts.h"
 #include "net/dns/public/dns_config_overrides.h"
 #include "net/dns/public/insecure_dns_mode.h"
@@ -68,12 +69,13 @@ class NET_EXPORT DnsClient {
 
   // Whether TaskType::DNS_PLATFORM should be used instead of whichever TaskType
   // would normally be selected.
-  static bool UseDnsPlatformDueToEchMode(std::optional<EchMode> ech_mode) {
-    return ech_mode.has_value() && *ech_mode == EchMode::kStrict &&
-           features::IsDnsPlatformSupported();
-  }
+  static bool UseDnsPlatformDueToEchMode(std::optional<EchMode> ech_mode);
 
   virtual ~DnsClient() = default;
+  // Staged vtable addition: all consumers must be rebuilt before integration.
+  // Null retains custom-client virtual behavior; a frame lasts one query only.
+  virtual std::unique_ptr<DnsClientRustServices> MakeRustPolicyServices(
+      ResolveContext* context) const;
 
   // Returns true if the DnsClient is able and allowed to make secure DNS
   // transactions and DoH probe runners. If false, secure transactions and DoH

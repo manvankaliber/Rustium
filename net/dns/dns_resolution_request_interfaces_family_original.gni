@@ -1,0 +1,19 @@
+# This revision supersedes the earlier unintegrated request-base type proposal;
+# the sealed source packet stays historical and is NOT modified.
+dns_resolution_request_interfaces_family_original_sources = [
+  "//net/dns/dns_resolution_request_interfaces_rust_original.cc",
+  "//net/dns/dns_resolution_request_interfaces_rust_original.h",
+]
+dns_resolution_request_interfaces_family_original_deps = [
+  "//net:host_port_rust_reference",
+  "//net:net",
+  "//base",
+]
+# In the SINGLE original DNS family component owned by the pair:
+#   defines += [ "IS_DNS_RESOLUTION_ORIGINAL_IMPL=1" ]
+#   sources += dns_resolution_request_interfaces_family_original_sources
+#   deps += dns_resolution_request_interfaces_family_original_deps
+# The same component also owns the primary's SINGLE frozen HostCache clone at
+# dns/dns_resolution_host_cache_rust_original.{h,cc}. Its Entry constructor and
+# host vector use the agreed immutable original internal-result/HPP provider.
+# Do NOT add the old request-interface-reference.gn standalone target as well.

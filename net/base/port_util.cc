@@ -65,10 +65,11 @@ void port_invalid_token(uint8_t kind, rust::Slice<const uint8_t> token) {
 }  // namespace port_policy_internal
 namespace {
 bool MayConnectToLocalhost(const IPAddress& address) {
-  const IPAddress unmapped = address.IsIPv4MappedIPv6()
-                                 ? ConvertIPv4MappedIPv6ToIPv4(address)
-                                 : address;
-  return unmapped.IsLoopback() || unmapped.IsZero();
+  if (address.IsIPv4MappedIPv6()) {
+    const IPAddress unmapped = ConvertIPv4MappedIPv6ToIPv4(address);
+    return unmapped.IsLoopback() || unmapped.IsZero();
+  }
+  return address.IsLoopback() || address.IsZero();
 }
 bool RecordDecision(uint8_t decision, const char* histogram, int port) {
   CHECK_LE(decision, 3u);

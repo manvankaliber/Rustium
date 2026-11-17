@@ -299,6 +299,7 @@ dependencies = [
  "syn 3.0.9",
  "temporal_capi",
  "temporal_rs",
+ "windows-sys",
  "xml",
  "zeroize",
  "zip",

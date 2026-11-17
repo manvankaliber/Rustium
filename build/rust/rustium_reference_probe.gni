@@ -1,0 +1,7 @@
+# Explicit qualification configuration only. Normal source roots remain intact.
+declare_args() {
+  rustium_reference_probe = false
+}
+assert(
+    !rustium_reference_probe || is_component_build,
+    "Reference probes require component-owned accessors in this qualification")

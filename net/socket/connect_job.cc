@@ -3,12 +3,18 @@
 // found in the LICENSE file.
 
 #include "net/socket/connect_job.h"
+#include "net/socket/connect_job_rust_ffi.h"
+#include "net/socket/connect_job_rust_native.h"
 
 #include <optional>
 #include <string>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/flat_set.h"
+#include "base/functional/bind.h"
+#include "base/functional/callback.h"
 #include "base/trace_event/trace_event.h"
 #include "net/base/connection_endpoint_metadata.h"
 #include "net/base/net_errors.h"
@@ -26,8 +32,69 @@
 #include "net/socket/stream_socket.h"
 #include "net/socket/transport_connect_job.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
+#include "net/ssl/ssl_cert_request_info.h"
 
 namespace net {
+
+static_assert(OK == 0);
+
+namespace connection_jobs_upper_rust {
+Invocation*& Invocation::Active() {
+  static thread_local Invocation* active = nullptr;
+  return active;
+}
+Invocation::Invocation(const void* value) : identity(value) {}
+Invocation::~Invocation() { DCHECK(!registered); }
+void Invocation::Register(ClearObservers clear) {
+  CHECK(!registered);
+  clear_observers = clear;
+  previous = Active();
+  Active() = this;
+  registered = true;
+}
+void Invocation::Unregister() {
+  CHECK(registered);
+  CHECK(Active() == this);
+  Active() = previous.get();
+  registered = false;
+}
+void Invocation::Invalidate(const void* value) {
+  for (auto* call = Active(); call; call = call->previous.get()) {
+    if (call->identity == value) {
+      if (call->clear_observers) {
+        call->clear_observers(call);
+      }
+      call->identity = nullptr;
+    }
+  }
+}
+}  // namespace connection_jobs_upper_rust
+
+ConnectJobRustBridge*& ConnectJobRustBridge::Active() {
+  static thread_local ConnectJobRustBridge* active = nullptr;
+  return active;
+}
+ConnectJobRustBridge::ConnectJobRustBridge(ConnectJob* job,
+                                         base::TimeDelta timer_duration)
+    : Invocation(job), previous(Active()), mutable_owner(job), owner(job),
+      duration(timer_duration) {
+  Active() = this;
+  Register([](Invocation* value) {
+    static_cast<ConnectJobRustBridge*>(value)->Invalidate();
+  });
+}
+ConnectJobRustBridge::ConnectJobRustBridge(const ConnectJob* job)
+    : Invocation(job), previous(Active()), mutable_owner(nullptr), owner(job) {
+  Active() = this;
+  Register([](Invocation* value) {
+    static_cast<ConnectJobRustBridge*>(value)->Invalidate();
+  });
+}
+ConnectJobRustBridge::~ConnectJobRustBridge() {
+  Unregister();
+  DCHECK_EQ(Active(), this);
+  Active() = previous.get();
+}
 
 CommonConnectJobParams::CommonConnectJobParams(
     ClientSocketFactory* client_socket_factory,
@@ -77,6 +144,7 @@ CommonConnectJobParams::~CommonConnectJobParams() = default;
 CommonConnectJobParams& CommonConnectJobParams::operator=(
     const CommonConnectJobParams& other) = default;
 
+
 ConnectJob::ConnectJob(RequestPriority priority,
                        const SocketTag& socket_tag,
                        base::TimeDelta timeout_duration,
@@ -90,163 +158,141 @@ ConnectJob::ConnectJob(RequestPriority priority,
       socket_tag_(socket_tag),
       common_connect_job_params_(common_connect_job_params),
       delegate_(delegate),
-      top_level_job_(net_log == nullptr),
-      net_log_(net_log
-                   ? *net_log
-                   : NetLogWithSource::Make(common_connect_job_params->net_log,
-                                            net_log_source_type)),
+      top_level_job_(connect_job_rust::connect_job_rust_top_level(net_log != nullptr)),
+      net_log_(ConnectJobRustBridge::SelectNetLog(
+          top_level_job_, net_log, common_connect_job_params, net_log_source_type)),
       net_log_connect_event_type_(net_log_connect_event_type) {
   DCHECK(delegate);
-  if (top_level_job_) {
-    net_log_.BeginEvent(NetLogEventType::CONNECT_JOB);
-  }
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kInit);
 }
 
 ConnectJob::~ConnectJob() {
-  // Log end of Connect event if ConnectJob was still in-progress when
-  // destroyed.
-  if (delegate_) {
-    StopTimerAndLogConnectCompletion(ERR_ABORTED);
-  }
-  if (top_level_job_) {
-    net_log().EndEvent(NetLogEventType::CONNECT_JOB);
-  }
+  ConnectJobRustBridge::BeforeDestruction(this);
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kDestroy);
 }
 
 std::unique_ptr<StreamSocket> ConnectJob::PassSocket() {
-  return std::move(socket_);
+  std::unique_ptr<StreamSocket> result;
+  ConnectJobRustBridge c(this);
+  c.socket_output = &result;
+  c.Run(ConnectJobRustBridge::Op::kPassSocket);
+  return result;
 }
 
 void ConnectJob::ChangePriority(RequestPriority priority) {
-  priority_ = priority;
-  ChangePriorityInternal(priority);
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kChangePriority, priority);
 }
 
 int ConnectJob::Connect() {
-  if (!timeout_duration_.is_zero()) {
-    timer_.Start(FROM_HERE, timeout_duration_, this, &ConnectJob::OnTimeout);
-  }
-
-  LogConnectStart();
-
-  int rv = ConnectInternal();
-
-  if (rv != ERR_IO_PENDING) {
-    StopTimerAndLogConnectCompletion(rv);
-    delegate_ = nullptr;
-  }
-
-  return rv;
+  ConnectJobRustBridge c(this, timeout_duration_);
+  return static_cast<int>(c.Run(ConnectJobRustBridge::Op::kConnect));
 }
 
 ConnectionAttempts ConnectJob::GetConnectionAttempts() const {
-  // Return empty list by default - used by proxy classes.
-  return ConnectionAttempts();
+  ConnectionAttempts result;
+  ConnectJobRustBridge c(this);
+  c.attempts = &result;
+  c.Run(ConnectJobRustBridge::Op::kDefaultAttempts);
+  return result;
 }
 
 std::optional<ResolutionDetails> ConnectJob::GetResolutionDetails() const {
-  return std::nullopt;
+  std::optional<ResolutionDetails> result;
+  ConnectJobRustBridge c(this);
+  c.resolution = &result;
+  c.Run(ConnectJobRustBridge::Op::kDefaultResolution);
+  return result;
 }
 
 bool ConnectJob::IsSSLError() const {
-  return false;
+  ConnectJobRustBridge c(this);
+  return c.Run(ConnectJobRustBridge::Op::kDefaultSslError) != 0;
 }
 
 scoped_refptr<SSLCertRequestInfo> ConnectJob::GetCertRequestInfo() {
-  return nullptr;
+  scoped_refptr<SSLCertRequestInfo> result;
+  ConnectJobRustBridge c(static_cast<const ConnectJob*>(this));
+  c.certificate = &result;
+  c.Run(ConnectJobRustBridge::Op::kDefaultCertificate);
+  return result;
 }
 
 void ConnectJob::set_done_closure(OnConnectJobCompleteCallback done_closure) {
-  // Note that we're passing in a base::Unretained(this) to access `net_error_`.
-  // This is OK because `this` is guaranteed to outlive the closure, since the
-  // closure is called on `this`'s destructor.
-  done_closure_ = base::ScopedClosureRunner(base::BindOnce(
-      [](ConnectJob* job, OnConnectJobCompleteCallback closure) {
-        // If we didn't set the `net_error_`, then the `ConnectJob` was aborted
-        // before it completed.
-        int error = job->net_error_.value_or(ERR_ABORTED);
-        std::move(closure).Run(error);
-      },
-      base::Unretained(this), std::move(done_closure)));
+  ConnectJobRustBridge c(this);
+  c.done = &done_closure;
+  c.Run(ConnectJobRustBridge::Op::kSetDoneClosure);
 }
 
 std::optional<HostResolverEndpointResult>
 ConnectJob::GetHostResolverEndpointResult() const {
-  return std::nullopt;
+  std::optional<HostResolverEndpointResult> result;
+  ConnectJobRustBridge c(this);
+  c.endpoint = &result;
+  c.Run(ConnectJobRustBridge::Op::kDefaultEndpoint);
+  return result;
 }
 
 bool ConnectJob::IsConnectedViaStaleDns() const {
-  return false;
+  ConnectJobRustBridge c(this);
+  return c.Run(ConnectJobRustBridge::Op::kDefaultStaleDns) != 0;
 }
 
 void ConnectJob::SetSocket(
     std::unique_ptr<StreamSocket> socket,
     std::optional<base::flat_set<std::string>> dns_aliases) {
-  if (socket) {
-    net_log().AddEventReferencingSource(NetLogEventType::CONNECT_JOB_SET_SOCKET,
-                                        socket->NetLog().source());
-    if (dns_aliases) {
-      socket->SetDnsAliases(std::move(dns_aliases.value()));
-    }
-  }
-  socket_ = std::move(socket);
+  ConnectJobRustBridge c(this);
+  c.socket_input = &socket;
+  c.aliases = &dns_aliases;
+  c.Run(ConnectJobRustBridge::Op::kSetSocket);
 }
 
 void ConnectJob::NotifyDelegateOfCompletion(int rv) {
-  TRACE_EVENT0(NetTracingCategory(), "ConnectJob::NotifyDelegateOfCompletion");
-  // The delegate will own |this|.
-  Delegate* delegate = delegate_;
-  delegate_ = nullptr;
-
-  StopTimerAndLogConnectCompletion(rv);
-  delegate->OnConnectJobComplete(rv, this);
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kNotifyCompletion, rv);
 }
 
 void ConnectJob::NotifyDelegateOfProxyAuth(
     const HttpResponseInfo& response,
     HttpAuthController* auth_controller,
     base::OnceClosure restart_with_auth_callback) {
-  delegate_->OnNeedsProxyAuth(response, auth_controller,
-                              std::move(restart_with_auth_callback), this);
+  ConnectJobRustBridge c(this);
+  c.response = &response;
+  c.auth_controller = auth_controller;
+  c.restart = &restart_with_auth_callback;
+  c.Run(ConnectJobRustBridge::Op::kNotifyProxyAuth);
 }
 
 void ConnectJob::ResetTimer(base::TimeDelta remaining_time) {
-  timer_.Stop();
-  if (!remaining_time.is_zero()) {
-    timer_.Start(FROM_HERE, remaining_time, this, &ConnectJob::OnTimeout);
-  }
+  ConnectJobRustBridge c(this, remaining_time);
+  c.Run(ConnectJobRustBridge::Op::kResetTimer);
 }
 
 bool ConnectJob::TimerIsRunning() const {
-  return timer_.IsRunning();
+  ConnectJobRustBridge c(this);
+  return c.Run(ConnectJobRustBridge::Op::kTimerIsRunning) != 0;
 }
 
 void ConnectJob::LogConnectStart() {
-  connect_timing_.connect_start = base::TimeTicks::Now();
-  net_log().BeginEvent(net_log_connect_event_type_);
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kLogStart);
 }
 
 void ConnectJob::StopTimerAndLogConnectCompletion(int net_error) {
-  // Stop the timer on completion, if it's still running. ConnectJobs are
-  // generally deleted immediately, anyways, but best to be safe.
-  timer_.Stop();
-
-  net_error_ = net_error;
-  connect_timing_.connect_end = base::TimeTicks::Now();
-  net_log().EndEventWithNetErrorCode(net_log_connect_event_type_, net_error);
+  ConnectJobRustBridge c(this);
+  c.Run(ConnectJobRustBridge::Op::kStopAndLogCompletion, net_error);
 }
 
 void ConnectJob::OnTimeout() {
-  // Make sure the socket is NULL before calling into |delegate|.
-  SetSocket(nullptr, std::nullopt /* dns_aliases */);
-
-  OnTimedOutInternal();
-
-  net_log_.AddEvent(NetLogEventType::CONNECT_JOB_TIMED_OUT);
-
-  NotifyDelegateOfCompletion(ERR_TIMED_OUT);
+  ConnectJobRustBridge c(this);
+  connect_job_rust::connect_job_rust_timeout(&c, ConnectJobRustBridge::Service);
 }
 
-void ConnectJob::OnTimedOutInternal() {}
+void ConnectJob::OnTimedOutInternal() {
+  ConnectJobRustBridge c(static_cast<const ConnectJob*>(this));
+  c.Run(ConnectJobRustBridge::Op::kDefaultTimeoutHook);
+}
 
 }  // namespace net

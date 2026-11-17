@@ -168,12 +168,12 @@ bool HttpUtil::ParseRangeHeader(std::string_view ranges_specifier,
   if (ranges_specifier.empty()) {
     return false;
   }
-  http_range_internal::RangesBuffer buffer;
-  const uint8_t state = http_range_internal::rustium_http_range_list(
+  http_range_internal::SmallRanges buffer;
+  const uint8_t state = http_range_internal::rustium_http_range_list_small(
       reinterpret_cast<const uint8_t*>(ranges_specifier.data()),
       ranges_specifier.size(), &buffer);
   if (state & http_range_internal::kListHasEntries) {
-    const http_range_internal::ScopedRangeList owned(buffer);
+    const http_range_internal::ScopedSmallRangeList owned(buffer);
     // Preserve valid prefixes even if a later entry is malformed.
     for (const auto& parsed : owned.values()) {
       HttpByteRange range;

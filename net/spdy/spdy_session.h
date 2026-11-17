@@ -524,9 +524,9 @@ class NET_EXPORT SpdySession
   }
 
   // Accessors for the session's availability state.
-  bool IsAvailable() const { return availability_state_ == STATE_AVAILABLE; }
-  bool IsGoingAway() const { return availability_state_ == STATE_GOING_AWAY; }
-  bool IsDraining() const { return availability_state_ == STATE_DRAINING; }
+  bool IsAvailable() const;
+  bool IsGoingAway() const;
+  bool IsDraining() const;
 
   // Closes this session. This will close all active streams and mark
   // the session as permanently closed. Callers must assume that the
@@ -587,20 +587,16 @@ class NET_EXPORT SpdySession
   std::optional<ResolutionDetails> GetResolutionDetails() const;
 
   // Returns true if session is currently active.
-  bool is_active() const {
-    return !active_streams_.empty() || !created_streams_.empty();
-  }
+  bool is_active() const;
 
-  bool WasEverUsedToCreateStreams() const {
-    return streams_initiated_count_ > 0;
-  }
+  bool WasEverUsedToCreateStreams() const;
 
   // True if the server supports WebSocket protocol.
   bool support_websocket() const { return support_websocket_; }
 
   // Returns true if no stream in the session can send data due to
   // session flow control.
-  bool IsSendStalled() const { return session_send_window_size_ == 0; }
+  bool IsSendStalled() const;
 
   const NetLogWithSource& net_log() const { return net_log_; }
 
