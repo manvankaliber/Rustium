@@ -214,12 +214,17 @@ fn cp(s: &[u16], i: usize) -> u32 {
         u
     }
 }
-fn keep<P: BoundaryProvider>(p: &mut P, prev: u16, last: u16, next: u16) -> bool {
+fn keep<P: BoundaryProvider>(
+    p: &mut P,
+    prev: u16,
+    last: u16,
+    next: u16,
+) -> Result<bool, BoundaryError> {
     let c = if p.category(last as u32) == Category::Mark { prev } else { last };
-    matches!(p.category(c as u32), Category::Letter | Category::Number)
-        && p.line_property(c as u32) != Ok(IcuLineBreak::SA as u8)
+    Ok(matches!(p.category(c as u32), Category::Letter | Category::Number)
+        && p.line_property(c as u32)? != IcuLineBreak::SA as u8
         && matches!(p.category(next as u32), Category::Letter | Category::Number)
-        && p.line_property(next as u32) != Ok(IcuLineBreak::SA as u8)
+        && p.line_property(next as u32)? != IcuLineBreak::SA as u8)
 }
 fn after_all(last: u8, cur: u8, ch: u16, strict: Strictness) -> bool {
     if last >= 49 || cur >= 49 {
@@ -389,7 +394,11 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
             }
             if self.kind == BreakType::BreakAll && !lead(c.current) {
                 let mut p = self.provider.borrow_mut();
-                let prop = match p.line_property(cp(self.text, i)) {
+                let prop = match p.line_property(if c.current == b'+' as u16 {
+                    b'+' as u32
+                } else {
+                    cp(self.text, i)
+                }) {
                     Ok(v) => v,
                     Err(_) => return Err(BoundaryError::Provider),
                 };
@@ -407,7 +416,7 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
                 }
             }
             if self.kind == BreakType::KeepAll
-                && keep(&mut *self.provider.borrow_mut(), c.previous, c.last, c.current)
+                && keep(&mut *self.provider.borrow_mut(), c.previous, c.last, c.current)?
             {
                 c.advance(&mut i);
                 continue;
