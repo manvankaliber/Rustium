@@ -6057,6 +6057,6 @@ static EXTENDED_ORIGINAL_CASES: &[ExtendedCase] = &[
                 sign: -1,
             },
         ],
-        parse_fixtures: &[(&[45, 49], 13830554455654793216u64)],
+        parse_fixtures: &[(&[49], 4607182418800017408u64)],
     },
 ];

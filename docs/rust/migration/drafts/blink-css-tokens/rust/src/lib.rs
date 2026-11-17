@@ -836,7 +836,8 @@ impl<'a> Tokenizer<'a> {
                 t.span = start..self.pos;
                 return t;
             }
-            if raw != c {
+            // A raw NUL, unlike a lone surrogate, ends Blink's source-view fast path.
+            if raw == 0 {
                 escaped = true;
             }
             if Self::newline(c) {
