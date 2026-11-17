@@ -44,6 +44,9 @@ graph identity, runs fresh GN generation and header checks, resolves current GN
 outputs (including nondefault toolchains), and builds all recorded roots in one
 Ninja batch with `-k0`. It records failures and never reports ordinary or cutover
 acceptance. Default parallelism is1;2 requires an observed8GiB available memory.
+Qualification uses a run-specific empty output tree and hashes the selected
+external tool installations before and after execution. The [runner runbook](../../docs/rust/migration/CI-RUNNER.md)
+defines the laptop host record and interruption recovery.
 The workflow is not yet published or executed. Data-only planning checks,
 PowerShell parsing and actionlint validate preparation, not actual builds.
 Full raw records persist under `C:/Users/micro/rb/evidence`; GitHub artifact

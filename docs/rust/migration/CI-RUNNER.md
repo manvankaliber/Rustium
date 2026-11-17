@@ -73,11 +73,14 @@ were reported present and the instance complete. No new compilation or full
 toolchain qualification occurred. The earlier pending-reboot observation is
 historical; the scoped installer reported no reboot requirement. No reboot ran.
 
-The single persistent checkout is being provisioned at `C:/Users/micro/rb/src`,
-with its `.gclient` in `rb` and the existing depot_tools under
-`C:/Users/micro/chromium-tools/depot_tools`. Keep `core.autocrlf=false` and long
-paths enabled from initial checkout. Do not create a second source checkout or
-copy the desktop's dirty tree. Logs/cache stay on the laptop.
+The single persistent checkout at `C:/Users/micro/rb/src` completed its resumed
+dependency sync on `4485cc56f5f0e151d8433886976cdf679355e872` with hooks disabled.
+Its `.gclient` is in `rb`, and depot_tools is under
+`C:/Users/micro/chromium-tools/depot_tools`. The repository now sets
+`core.autocrlf=false` and `core.longpaths=true`. Existing CRLF worktree files
+must be reconciled against candidate input bytes during qualification. See
+`evidence/linked-builder-dependency-sync-20261117.json`. Preserve the single
+checkout, and keep its logs and cache on the laptop.
 
 `tools/ci/Install-WindowsRunner.ps1` pins the official Windows x64 runner2.338.2
 and its release SHA-256. It checks existing installation identity and never
@@ -137,6 +140,26 @@ Only Git metadata and the two named CI output trees are excluded. Review the
 record and approve its digest for dispatch. Preparation changes invalidate
 that approval. The Actions job verifies the pinned record against the checkout
 before building and verifies the inputs again before releasing the lock.
+
+Before recording inputs, create `rb/build-host.json` with four keys,
+`visual_studio`, `windows_sdk`, `depot_tools`, and `git`. Each value names the
+actual absolute installation directory on the laptop. Point `git` to the Git
+for Windows installation containing `cmd/git.exe`. Use the same depot_tools
+Python for recording and dispatch. The input record hashes those installation
+trees and the running Python's base installation, records the chosen tool paths
+and relevant environment, and records the Windows version. The Windows OS and
+its system components remain platform dependencies. This record does not claim
+to seal the entire machine. Qualify the actual laptop selections before launch.
+
+Each qualification creates a new `out/NetworkCI/<run-id>` or
+`out/NetworkProbeCI/<run-id>` directory. Existing output and logs stay in place.
+A repeated run ID fails rather than inheriting objects or Ninja state. Cache
+reuse for later PR builds needs its own provenance and invalidation policy.
+
+If a run is interrupted, retain any partial records in `rb/evidence` and the
+available GitHub Actions logs. Check the run and attempt IDs before resuming.
+Treat a missing final result or evidence upload as incomplete. Confirm that
+the native process has stopped before taking the laptop reservation again.
 No paid hosted runners, API billing or purchased execution service is configured.
 
 Runner registration/connectivity and the observed executable/component checks

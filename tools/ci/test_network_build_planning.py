@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from build_network_consumers import checkout_inputs, compare_inputs, resolve_targets
+from build_network_consumers import checkout_inputs, choose_output, compare_inputs, resolve_targets
 
 
 class BuildPlanningTest(unittest.TestCase):
@@ -90,6 +90,18 @@ class CheckoutIdentityTest(unittest.TestCase):
         tool.write_bytes(b'two')
         with self.assertRaisesRegex(ValueError, 'tool-cache/tool.exe'):
             compare_inputs(before, checkout_inputs(self.root))
+
+    def test_existing_outputs_cannot_be_reused_or_deleted(self):
+        first = choose_output(self.root, 'gh-123-1', False)
+        old = self.root / first / 'object.obj'
+        old.write_bytes(b'previous run')
+        with self.assertRaises(FileExistsError):
+            choose_output(self.root, 'gh-123-1', False)
+        second = choose_output(self.root, 'gh-123-2', False)
+        self.assertEqual(old.read_bytes(), b'previous run')
+        self.assertEqual(list((self.root / second).iterdir()), [])
+        with self.assertRaisesRegex(ValueError, 'short unique run ID'):
+            choose_output(self.root, '../../existing', True)
 
 
 if __name__ == '__main__':

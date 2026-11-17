@@ -86,7 +86,8 @@ jobs:
             $receipt.phase = 'selected-consumer-build'
             $receipt | ConvertTo-Json | Set-Content -LiteralPath $progressFile -Encoding UTF8
             $buildEvidence = Join-Path $evidence 'selected-consumer-build'
-            $arguments = @('-I', '-B', $driver, '--source', $source, '--revision', $env:RUSTIUM_REVISION, '--evidence', $buildEvidence, '--approved-inputs-sha256', $env:RUSTIUM_APPROVED_INPUTS, '--jobs', $env:RUSTIUM_COMPILER_JOBS)
+            $runId = 'gh-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT
+            $arguments = @('-I', '-B', $driver, '--source', $source, '--revision', $env:RUSTIUM_REVISION, '--evidence', $buildEvidence, '--approved-inputs-sha256', $env:RUSTIUM_APPROVED_INPUTS, '--jobs', $env:RUSTIUM_COMPILER_JOBS, '--run-id', $runId)
             if ($env:RUSTIUM_REFERENCE_PROBE -eq 'true') { $arguments += '--reference-probe' }
             & (Join-Path $depot 'python3.bat') @arguments
             if ($LASTEXITCODE -ne 0) { throw 'Selected-consumer build failed. See the retained build record.' }

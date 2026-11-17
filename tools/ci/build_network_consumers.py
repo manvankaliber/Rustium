@@ -33,6 +33,7 @@ def write(path, value):
 
 
 OUTPUTS = {'out/NetworkCI', 'out/NetworkProbeCI'}
+HOST_ROOT_NAMES = {'visual_studio', 'windows_sdk', 'depot_tools', 'git'}
 
 
 def require_ordinary_path(path):
@@ -97,6 +98,89 @@ def compare_inputs(expected, actual):
             'Git repository membership or revisions changed')
     require(expected['gclient_sha256'] == actual['gclient_sha256'],
             '.gclient changed')
+
+
+def choose_output(root, run_id, reference_probe):
+    require(re.fullmatch(r'[a-z0-9-]{1,48}', run_id), 'Use a short unique run ID')
+    branch = 'NetworkProbeCI' if reference_probe else 'NetworkCI'
+    relative = PurePosixPath('out', branch, run_id)
+    for parent in (root / 'out', root / 'out' / branch):
+        parent.mkdir(exist_ok=True)
+        require(stat.S_ISDIR(require_ordinary_path(parent).st_mode),
+                'Unexpected output parent: ' + str(parent))
+    # An existing output may contain cached objects of unknown provenance.
+    (root / relative).mkdir(exist_ok=False)
+    return relative
+
+
+def host_input_tree(root):
+    files = {}
+    pending = [root]
+    while pending:
+        current = pending.pop()
+        for path in sorted(current.iterdir()):
+            info = require_ordinary_path(path)
+            if path.name == '.git':
+                continue
+            if stat.S_ISDIR(info.st_mode):
+                pending.append(path)
+            else:
+                require(stat.S_ISREG(info.st_mode), 'Unexpected host input: ' + str(path))
+                files[path.relative_to(root).as_posix()] = sha(path)
+    require(files, 'Empty host input path: ' + str(root))
+    return files
+
+
+def host_configuration(root):
+    path = root.parent / 'build-host.json'
+    require_ordinary_path(path)
+    raw = path.read_bytes()
+    config = json.loads(raw)
+    require(set(config) == HOST_ROOT_NAMES, 'Expected four explicit host tool roots')
+    roots = {name: Path(value) for name, value in config.items()}
+    for name, directory in roots.items():
+        require(directory.is_absolute() and directory == directory.resolve() and
+                directory != Path(directory.anchor) and
+                stat.S_ISDIR(require_ordinary_path(directory).st_mode),
+                'Invalid host installation path: ' + name)
+    require((roots['visual_studio'] / 'VC/Auxiliary/Build/vcvarsall.bat').is_file(),
+            'Missing Visual Studio C++ toolchain')
+    require((roots['windows_sdk'] / 'Include').is_dir(), 'Missing SDK headers')
+    require((roots['depot_tools'] / 'gclient.bat').is_file(), 'Missing depot_tools')
+    require((roots['git'] / 'cmd/git.exe').is_file(), 'Missing Git for Windows')
+    python_root = Path(sys.base_prefix).resolve()
+    require(Path(sys.executable).resolve().is_relative_to(python_root),
+            'Use the qualified depot_tools Python installation directly')
+    roots['python'] = python_root
+    windows = Path(os.environ['SystemRoot'])
+    os.environ.update({
+        'PATH': os.pathsep.join(str(directory) for directory in
+                                (roots['depot_tools'], roots['git'] / 'cmd',
+                                 python_root, windows / 'System32', windows)),
+        'GYP_MSVS_OVERRIDE_PATH': str(roots['visual_studio']),
+        'WINDOWSSDKDIR': str(roots['windows_sdk']),
+        'DEPOT_TOOLS_UPDATE': '0',
+        'DEPOT_TOOLS_WIN_TOOLCHAIN': '0',
+    })
+    for name in ('CL', '_CL_', 'LINK', '_LINK_', 'INCLUDE', 'LIB', 'LIBPATH',
+                 'PYTHONHOME', 'PYTHONPATH', 'VSINSTALLDIR', 'VCINSTALLDIR',
+                 'VCToolsInstallDir', 'WindowsSDKVersion'):
+        os.environ.pop(name, None)
+    return path, hashlib.sha256(raw).hexdigest(), roots
+
+
+def host_inputs(configuration):
+    path, expected_digest, roots = configuration
+    require(sha(path) == expected_digest, 'Host tool configuration changed')
+    tools = {name: {'path': str(directory), 'files': host_input_tree(directory)}
+             for name, directory in sorted(roots.items())}
+    environment_keys = ('PATH', 'SystemRoot', 'COMSPEC', 'TEMP', 'TMP',
+                        'GYP_MSVS_OVERRIDE_PATH', 'WINDOWSSDKDIR',
+                        'DEPOT_TOOLS_WIN_TOOLCHAIN', 'DEPOT_TOOLS_UPDATE')
+    return {'configuration_sha256': expected_digest, 'installations': tools,
+            'windows_version': list(sys.getwindowsversion().platform_version),
+            'interpreter': sys.executable,
+            'environment': {key: os.environ.get(key) for key in environment_keys}}
 
 
 @contextlib.contextmanager
@@ -197,6 +281,7 @@ def main():
     input_mode.add_argument('--approved-inputs-sha256')
     parser.add_argument('--jobs', choices=(1, 2), type=int, default=1)
     parser.add_argument('--reference-probe', action='store_true')
+    parser.add_argument('--run-id', help='Unique ID for an empty qualification output')
     args = parser.parse_args()
     require(os.name == 'nt' and os.environ.get('COMPUTERNAME', '').upper() ==
             'HQC-VAN_KALIBER', 'Compilation is assigned to the linked laptop')
@@ -207,9 +292,7 @@ def main():
     require(root == Path(os.environ['USERPROFILE']) / 'rb/src',
             'Use the dedicated builder checkout')
     require_ordinary_path(root.parent)
-    relative = PurePosixPath('out/NetworkProbeCI' if args.reference_probe
-                             else 'out/NetworkCI')
-    output = root / relative
+    require(args.record_inputs or args.run_id, 'A build requires a unique run ID')
     evidence = args.evidence.resolve()
     require(not evidence.is_relative_to(root), 'Keep logs outside source/output')
     require(not evidence.exists(), 'Retain previous runs; use new evidence path')
@@ -240,6 +323,7 @@ def main():
                                        text=True).strip()
 
     def execute():
+        host = host_configuration(root)
         require(git('rev-parse', 'HEAD') == args.revision, 'Checkout revision drift')
         require(git('config', '--local', '--get', 'core.autocrlf') == 'false',
                 'Qualify the dedicated checkout with core.autocrlf=false')
@@ -284,6 +368,7 @@ def main():
 
         inputs = checkout_inputs(root)
         inputs['toolchain'] = tools
+        inputs['host'] = host_inputs(host)
         require(inputs['git_revisions']['.'] == args.revision,
                 'Unexpected checkout revision in source snapshot')
         manifests = root.parent / 'qualified-inputs'
@@ -312,11 +397,14 @@ def main():
         expected = json.loads(approved.read_bytes())
         compare_inputs(expected, inputs)
         require(expected['toolchain'] == tools, 'Toolchain identity differs from approval')
+        require(expected['host'] == inputs['host'], 'Host toolchain or environment differs from approval')
         inputs['dependency_revisions'] = dependency_revisions('dependency-revisions')
         write(evidence / 'inputs-before.json', inputs)
         require(expected == inputs, 'Dependency identity differs from approval')
         result['approved_inputs_sha256'] = digest
-        output.mkdir(parents=True, exist_ok=True)
+        relative = choose_output(root, args.run_id, args.reference_probe)
+        output = root / relative
+        result['fresh_output'] = relative.as_posix()
         configuration = ('is_debug=false\nis_component_build=true\nsymbol_level=0\n'
                          'blink_symbol_level=0\nv8_symbol_level=0\ntarget_os="win"\n'
                          'target_cpu="x64"\nuse_remoteexec=false\nuse_siso=false\n'
@@ -360,8 +448,9 @@ def main():
         compare_inputs(inputs, after)
         after['dependency_revisions'] = dependency_revisions('dependency-revisions-after')
         after['toolchain'] = tools
+        after['host'] = host_inputs(host)
         write(evidence / 'inputs-after.json', after)
-        require(inputs == after, 'Dependency revisions changed during build')
+        require(inputs == after, 'Dependency or host input identity changed during build')
         result.update(build_passed=True, resolved_outputs=len(targets))
 
     def finish():
