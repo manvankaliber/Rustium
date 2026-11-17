@@ -1239,6 +1239,22 @@
         "goal_active": true
       },
       "scope": "Safe continuation checkpoint; no full Network current runtime, performance or cutover acceptance"
+    },
+    "linked_builder_readiness_20261117": {
+      "observed_utc": "2026-11-17T17:27:03.188454+00:00",
+      "environment": "39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb",
+      "host": "HQC-VAN_KALIBER",
+      "provider": "Codex gpt-6.1-terra/xhigh executed remotely",
+      "github": "gh2.104.0 authenticated as manvankaliber; repo admin; zero runners at read-only check",
+      "host_maintenance": "Completed and released; SDK/debug tools installed. Application-control blocks, ATL/MFC elevation and pending reboot remain distinct prerequisites.",
+      "runner": "Dedicated per-user setup authorized/running; no registration/online result yet",
+      "evidence": "docs/rust/migration/evidence/linked-builder-readiness-20261117.json",
+      "portable_inventory": "tools/ci/network-validation-inventory.json",
+      "inventory_checks": "Exact ordered36programs/232workloads/96logical roots preserved; all entrypoint hashes bind current authority. Data conversion only.",
+      "remaining": "Portable conductor, clean integration-PR source closure, fresh graph, source/build/ABI/runtime checks, provider/platform qualification and actual Network compilation/tests",
+      "source_assembly_findings": "Existing HostMapping GN sources lie outside the current1270input authority. The integration branch must retain their existing Network dependency and preserve unrelated local Android/build edits outside that PR.",
+      "compilation_policy": "All compilation on linked laptop; desktop editing and non-compiling targeted tests; no local-j2 trial",
+      "network_acceptance": "Unchanged; no new native/runtime/performance pass or cutover"
     }
   }
 }

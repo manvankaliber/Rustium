@@ -21,17 +21,29 @@ separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
 Repository: https://github.com/manvankaliber/Rustium . Initial inspection found no
 registered self-hosted runners. The laptop is now linked, reachable and has full
 access under environment39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb. It is Windows x64.
-T3 reports no projects and cannot start a Codex agent: the Codex CLI executable
-is missing or not configured. On the laptop use Settings -> Providers -> Codex ->
-Binary path to select an existing executable, or install Codex CLI if absent.
-No other provider/model has been substituted. Registration has not been attempted.
+T3 can now run Codex Terra/xhigh there. The existing maintenance project is
+`C:/Users/micro/.t3/projects/laptop-buildvoorbereiding`; its host-maintenance task
+has completed and released ownership. GitHub CLI 2.104.0 is installed and logged
+in as `manvankaliber`, with repository admin access. The read-only follow-up still
+found zero runners. Earlier missing-provider and missing-GitHub-CLI observations
+are historical; see `evidence/linked-builder-readiness-20261117.json`.
+
+Initial execution mode is a per-user interactive runner under
+`C:/Users/micro/actions-runner-rustium`, using `HQC-VAN_KALIBER\micro`. This avoids
+service-install elevation, but the runner process must remain running to receive
+jobs. Verify the runner executable launches before requesting a registration
+token. Windows application-control blocks reported for depot_tools and locally
+built executables remain separate build-readiness blockers. Preserve the host
+owner's exact evidence and existing policy; GitHub login does not resolve them.
 
 `tools/ci/Install-WindowsRunner.ps1` pins the official Windows x64 runner2.338.2
 and its release SHA-256. It checks existing installation identity and never
 overwrites an existing runner registration. PrepareOnly downloads/verifies without
 registering. Registration takes a short-lived token file; obtain it through the
-existing authenticated GitHub admin session after host access is established.
-Never commit the token or put it in chat. RunAsService needs an elevated builder
+authenticated GitHub admin session on the laptop after runner execution is
+verified. Keep generation, temporary token storage and consumption on that
+machine; remove the exact temporary file after setup. Never commit the token or
+put it in chat. RunAsService needs an elevated builder
 session. A standard dedicated CI identity and build directory should hold the
 checkout/cache; personal development files and credentials stay outside it.
 
@@ -67,3 +79,11 @@ No paid hosted runners, API billing or purchased execution service is configured
 
 Machine registration, inventory execution, portable Network profile, trusted PR
 trigger, actual build/test run and required-check configuration remain pending.
+
+The repository now contains `tools/ci/network-validation-inventory.json`, with
+the exact ordered 36-program / 232-workload membership and 96 logical GN roots.
+Its data conversion checks passed without invoking GN or a compiler. It is an
+inventory only: the portable conductor, full affected-consumer closure, pending
+auth/probe graph and source/build/ABI/runtime qualification remain to be completed.
+See `tools/ci/README.md` and the inventory's explicit prerequisites. Do not run
+the historical desktop conductor against a new laptop checkout unchanged.

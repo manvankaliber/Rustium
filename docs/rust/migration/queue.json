@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 467,
-  "updated_utc": "2026-11-17T16:55:33.589817+00:00",
+  "revision": 470,
+  "updated_utc": "2026-11-17T17:17:58.088722+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -3887,6 +3887,86 @@
           "utc": "2026-11-17T15:27:40.425788+00:00",
           "action": "validating",
           "note": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs."
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-CI-BUILDER-READINESS",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Prepare the selected linked Windows laptop for the Network PR compilation runner; initial task is read-only runner/auth readiness only",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "tools/ci/Install-WindowsRunner.ps1",
+          "docs/rust/migration/CI-RUNNER.md"
+        ],
+        "revision": "6f96d0cb7e603832c73f8185cd16d30f0f2c5cb2",
+        "freeze_status": "Host setup dependency; no C++ algorithm changes"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-ci-builder-readiness"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns CI/runner registration. Existing Sol host-maintenance task is active in the same project; this initial Terra task only reads and returns JSON. No editing worktree or host writes authorized yet."
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "subsystem_manager",
+      "assignment": {
+        "active": true,
+        "session": "terra-remote-runner-readiness-20261117",
+        "worktree": null,
+        "branch": null,
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "6f96d0cb7e603832c73f8185cd16d30f0f2c5cb2",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Verify official runner2.338.2 package SHA-256 before extraction and record installer hash",
+        "Verify runner executable launches under current application-control policy before token issuance",
+        "Use laptop-local short-lived registration token without exposing it; verify configured repository/name/labels and online/idle via GitHub",
+        "Preserve host maintenance evidence and unrelated state; no compiler, Network tests, security changes, push or workflow dispatch"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No build/test execution in preparation"
+      },
+      "performance": {
+        "status": "not measured"
+      },
+      "state": "assigned",
+      "next_action": "Host maintenance completed and explicitly released. Director authorizes dedicated per-user runner setup at C:/Users/micro/actions-runner-rustium using pinned tools/ci/Install-WindowsRunner.ps1. Verify runner execution before requesting a token; generate token locally through authenticated gh and never return/log it. Register/start rustium-build only if execution works. No service/elevation, compiler/test, checkout, policy/security changes or publication.",
+      "evidence": [
+        "docs/rust/migration/evidence/linked-builder-readiness-20261117.json"
+      ],
+      "stages": {
+        "implementation": "Read-only preflight completed on Terra/xhigh. Next director-authorized phase is dedicated host runner setup; no repository editing by remote manager.",
+        "configured_validation": "GitHub login/admin verified. Runner executable/registration/online status pending; Network build/test profile unqualified.",
+        "production_integration": "No Network source changes",
+        "rust_ownership": "Unchanged",
+        "subsystem_cutover": "Incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T17:07:34.402089+00:00",
+          "action": "enqueued",
+          "note": "Prepare the selected linked Windows laptop for the Network PR compilation runner; initial task is read-only runner/auth readiness only"
+        },
+        {
+          "utc": "2026-11-17T17:07:34.576134+00:00",
+          "action": "assigned",
+          "note": "terra-remote-runner-readiness-20261117"
+        },
+        {
+          "utc": "2026-11-17T17:17:58.088383+00:00",
+          "action": "amended",
+          "note": "acceptance_tests, evidence, next_action, stages"
         }
       ],
       "context_directories": [

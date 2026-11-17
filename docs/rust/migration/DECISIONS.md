@@ -62,3 +62,10 @@ invoke a compiler must obtain their build on the laptop. The T3 link is reachabl
 with full access, environment39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb. Remote Codex CLI
 is missing/unconfigured, so no Terra setup agent can start yet. Do not substitute
 another provider/model or restart local compilation to bypass this prerequisite.
+
+
+## Linked runner readiness — 2026-11-17T17:27:03.188454+00:00
+
+Codex Terra/xhigh now executes on HQC-VAN_KALIBER. GitHub CLI2.104.0 is authenticated as manvankaliber with repository admin access; the missing-provider/CLI observations remain historical. Host maintenance has completed and released ownership. Initial runner mode is per-user interactive at C:/Users/micro/actions-runner-rustium; no service elevation is needed. Verify runner execution before locally requesting a registration token, retain exact execution blockers, and preserve application-control policy. Runner setup is authorized, not yet an online or Network qualification pass.
+
+The portable data inventory retains all36ordered programs,232workloads and96necessary GN roots. It does not yet execute CI. A clean integration PR must carry the complete Network source/helper dependency closure, reconcile HostMapping sources outside the frozen1270inputs, preserve unrelated platform/build edits, and receive fresh build/ABI/runtime qualification. All compilation remains on the laptop; no automatic push, merge or workflow publication.

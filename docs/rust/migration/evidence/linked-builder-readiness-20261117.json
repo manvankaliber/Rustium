@@ -1,0 +1,49 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "observed_utc": "2026-11-17T17:16:30.369Z",
+  "compilation_environment": {
+    "id": "39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb",
+    "host": "HQC-VAN_KALIBER",
+    "account": "HQC-VAN_KALIBER\\micro",
+    "elevated": false,
+    "project_id": "d2a095b6-7f03-4125-93da-c919d7b874e1",
+    "project_path": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding"
+  },
+  "provider": {
+    "id": "codex",
+    "requested_model": "gpt-6.1-terra",
+    "executed_model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "status": "completed",
+    "prior_missing_cli_blocker": "Resolved; routing evidence20261117T165533 remains a historical observation"
+  },
+  "github": {
+    "cli_path": "C:/Program Files/GitHub CLI/gh.exe",
+    "version": "2.104.0",
+    "account": "manvankaliber",
+    "repository": "manvankaliber/Rustium",
+    "admin": true,
+    "runner_count": 0,
+    "registration_token_requested": false
+  },
+  "host_maintenance": {
+    "thread_link": "[Lenovo opschonen en Chromium-builds versnellen](t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:46e086f3ef521e5b93625f0b456de4f96643c5ca16f9c2d7314fc4845869ffb8)",
+    "status": "completed",
+    "released": true,
+    "release_delivery_failed": "runtime_mode_escalation_denied; director independently read completed final",
+    "final_report": "Onderhoud op **HQC-VAN_KALIBER afgerond**. De laptop is nog niet volledig buildgereed.\n\n- **Toegepast:** Edge-autostart uitgeschakeld, AC-prestatievoorkeur ingesteld en Windows SDK 10.0.28000.2270 inclusief debugging tools geïnstalleerd.\n- **Lenovo:** alleen de noodzakelijke functietoetsservice aangetroffen en behouden.\n- **Blokkades:** Device Guard blokkeert depot_tools en zelfgebouwde executables. ATL/MFC-aanvulling vereist administratorrechten; installatiepoging eindigde met **5007**.\n- **Compilercontrole:** C++20 compileren en linken geslaagd; uitvoering door Device Guard geweigerd.\n- **Herstart:** Windows meldt een openstaand herstartverzoek. Geen reboot uitgevoerd.\n\nRAM blijft de voornaamste verwachte beperking; begin toekomstige builds conservatief met **`-j 2`**. Geen Chromium-broncode opgehaald of volledige build gestart.\n\nAlle inventaris, wijzigingen, exacte paden, hashes en beleidsevents staan in het [rapport](C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/maintenance/RAPPORT.md). Verder: [herstelscript](C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/maintenance/Restore-Tuning.ps1), [admin-vervolgscript](C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/maintenance/Complete-Tuning.ps1) en [buildhandleiding](C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/maintenance/BUILD-HANDLEIDING.md).\n\nHostonderhoud is vrijgegeven. **De gevraagde vrijgavemelding is niet afgeleverd:** T3 weigerde verzending met `runtime_mode_escalation_denied`, omdat de doelomgeving ruimere rechten heeft. Deze blokkade staat ook in het rapport."
+  },
+  "remote_readiness": {
+    "thread_link": "[Check Windows builder runner readiness](t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:264a818b887177bf19c6392beecb5b719f33bbcd0e8635a9720897f8755ad429)",
+    "initial_final": "```text\nHost: HQC-VAN_KALIBER\nWorking directory: C:\\Users\\micro\\.t3\\projects\\laptop-buildvoorbereiding\nResearch model: gpt-6.1-terra, xhigh\nAccount: HQC-VAN_KALIBER\\micro; current session is not elevated.\n\nChecks: Windows identity and elevation; command discovery; standard runner and\nGitHub CLI paths; runner-related services; profile and project ACL metadata;\nmaintenance-project file names. No maintenance report was treated as final.\n\nFindings:\n- PowerShell 5.1 and Git 2.53.0.3 are available. GitHub CLI was absent from\n  PATH and the standard locations checked. Laptop GitHub authentication and\n  repository permissions are therefore unverified; no gh API call was made.\n- No runner directory was found at C:\\actions-runner, C:\\runner, or the\n  obvious profile locations checked. No matching runner service was found.\n  This does not exclude an installation elsewhere.\n- The profile ACL grants micro Full Control, so a dedicated directory under\n  the profile appears feasible from metadata. Service-account access to a\n  future directory remains to be checked.\n- A Windows runner service requires an administrator shell for installation.\n  Service-account access and the choice of service versus interactive runner\n  remain setup decisions.\n- The reported Device Guard blocks remain unresolved. Exact helper paths and\n  error codes were not verified from a completed owner report.\n\nRemaining prerequisites: establish authorized repository runner-registration\naccess and obtain a short-lived registration token at setup time; acquire and\nconfigure the runner with label rustium-build; decide its directory and\nexecution account; arrange an elevated session if installing it as a service;\nresolve the owner-reported execution blocks through the appropriate owner.\n\nNo files or settings were changed; no compiler, test, installation, runner\nregistration, service start, or security-policy change was performed.\n```\n\nGitHub documents the [Windows administrator requirement and runner setup](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners).",
+    "github_followup_final": "GitHub CLI is now available at `C:\\Program Files\\GitHub CLI\\gh.exe`, version **2.104.0**, and is authenticated as **manvankaliber**. Read-only API queries succeeded:\n\n- `manvankaliber/Rustium` reports admin, maintain, push, pull, and triage permissions.\n- The repository runner list contains **zero runners**, so there are no labels or statuses to report.\n- The credential’s reported OAuth scopes include `repo`. Together with repository admin access, that meets GitHub’s documented requirements to request a repository registration token. The request itself was **not made**, so issuance is not independently verified. [GitHub registration-token requirements](https://docs.github.com/en/rest/actions/self-hosted-runners#create-a-registration-token-for-a-repository)\n\nThe Windows account is `HQC-VAN_KALIBER\\micro`, and this session is not elevated. A per-user interactive runner would avoid **service-installation elevation** but must remain running to accept jobs. Installing it as a Windows service requires an administrator shell. [GitHub runner setup](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners)\n\nRemaining setup prerequisites are to choose the runner directory and execution mode, obtain a short-lived registration token when setup is authorized, configure the runner with `rustium-build`, and resolve the separately reported application-control execution blocks with their owner. GitHub authentication does not establish that blocked helper programs can execute.\n\nNo token was created; no GitHub or host changes, registration, installation, compiler runs, or tests were performed."
+  },
+  "runner_choice": {
+    "mode": "per-user interactive initially",
+    "path": "C:/Users/micro/actions-runner-rustium",
+    "reason": "Avoid service-install elevation; it must remain running to accept jobs",
+    "service_installed": false
+  },
+  "scope": "Read-only checks and intake only. No runner installed/registered, Network compilation/test or acceptance.",
+  "next_action": "Prepare verified official runner in dedicated profile directory, test runner execution, then register/start if execution is allowed. Obtain registration token on laptop and keep it local. Preserve application-control policy and existing maintenance evidence."
+}

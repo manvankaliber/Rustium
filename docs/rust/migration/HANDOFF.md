@@ -17,16 +17,24 @@ the archived local build. See AGENTS, OPERATING and CI-RUNNER.md.
 
 T3 environment39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb, Windowsx64, reachable with
 full access. Local environment08fa9e90-7ae3-495b-ab28-c65db54bb027 is DESKTOP-VAN-
-KALIBER. The laptop has0registered projects and Codex CLI is missing/unconfigured;
-orchestrator reports canRunChildTask=false and no models. Do not substitute a
-provider/model or bypass this with another agent route. User was told to check
-laptop T3 Settings -> Providers -> Codex -> Binary path. GitHub runner count0.
+KALIBER. Codex Terra/xhigh now runs remotely; executed model was verified.
+Maintenance projectd2a095b6-7f03-4125-93da-c919d7b874e1 is at
+C:/Users/micro/.t3/projects/laptop-buildvoorbereiding. Its Sol host-maintenance
+task completed/released ownership; final callback failed runtime-mode escalation,
+so director independently read the terminal final. Windows SDK10.0.28000.2270 and
+debug tools installed; ATL/MFC setup needs elevation (5007), pending reboot and
+application-control execution blocks remain. Do not alter that policy. GitHub
+CLI2.104.0 now authenticates as manvankaliber with repo admin; runner count0.
 
-After provider availability: reserve/bind a scoped setup assignment, target the
-remote environment explicitly, install/register the dedicated GitHub runner,
-inventory toolchains/resources and qualify the portable Network PR build/test
-profile. Current model/tool limits still apply. No registration or remote system
-change has happened. Evidence: linked-builder-routing-20261117.json.
+NET-CI-BUILDER-READINESS is an assigned Terra/xhigh manager task. Its initial
+read-only checks completed. Director has authorized a dedicated per-user runner
+at C:/Users/micro/actions-runner-rustium, no service/elevation or compiler runs.
+Verify official package and runner execution before requesting a laptop-local
+registration token; never expose it. Setup is running, not yet a runner pass.
+Evidence: linked-builder-readiness-20261117.json supersedes the historical missing
+provider observation in linked-builder-routing-20261117.json. A host setup task
+must not forge a local Git-worktree bind. Network PR profile/toolchain qualification
+and actual compilation remain pending.
 
 Bootstrap commitffa0d0dac57f80d62d2cfb44cbd214acd4100ca4 contains the pinned
 official Windows runner2.338.2 installer, manual-only inventory workflow and CI
@@ -34,9 +42,12 @@ runbook. Both installer and workflow inline PowerShell parse. No YAML linter,
 GitHub execution, publication, PR or native acceptance. Future Network workflow
 must retain exact PR source/tool/config identity, all required consumer builds,
 ordinary tests and logs; source code cannot depend on machine-local scratch.
-The portable profile is still to be authored: existing36-program inventory plus
-96logical current GN build roots (including3nondefault allocator-toolchain labels)
-were inspected only. Do not claim those profile files or build workflow exist.
+tools/ci/network-validation-inventory.json now retains the exact ordered36-program
+and232-workload inventory plus96logical GN roots (including3nondefault allocator
+labels). Conversion/membership/source-hash checks passed without compilation.
+The two cookie entrypoint changes are explicit; controller/clock rebinding remains
+pending. This data inventory is not the portable conductor or build workflow;
+fresh graph, complete closure and runtime qualification are still required.
 
 ## Local build reconciled, no active native job
 
@@ -80,11 +91,11 @@ historical scopes, not current four-family acceptance or subsystem cutover.
 
 Root branch rust/local-resume-setup, D:/Rustium editing; configured tree at
 D:/RustiumBuild/src/out/Default is preserved. Director receipt remains in ignored
-.rustium-runtime/director.json; preserve lease. No active workers/children/native
-job. Pending validation is at bound8: prioritize integration/repair, no extra
+.rustium-runtime/director.json; preserve lease. No active coding workers or native
+job. One remote runner-setup manager is assigned. Pending validation is at bound8: prioritize integration/repair, no extra
 coding delivery dispatch. Preserve thousands of unrelated dirty/deleted paths.
 
-Next: fix laptop provider availability, then remote runner registration and
+Next: finish dedicated laptop runner registration and
 portable PR validation. Independently prepare complete portable Network profile
 and source closure locally, without compiling or weakening acceptance. Use exact
 before guards for future auth intake; never broad sync/reset. Do not rerun stale

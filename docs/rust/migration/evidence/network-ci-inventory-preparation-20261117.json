@@ -1,0 +1,32 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "observed_utc": "2026-11-17T17:21:33.957921+00:00",
+  "profile": "tools/ci/network-validation-inventory.json",
+  "profile_sha256": "e63ca044b2c1b7233478f228dac309b1b2934035ca218b784d1a1bd36cbb8a8d",
+  "source_plan_sha256": "a7bddd6ecafbfb3aad846bf887ecaa90388c8c1ab06ceaacd77a4e020412decc",
+  "source_graph_result_sha256": "48579477156c84514966dfa8ce6953d43dbde5ead8e75f350bc83b24fe4a2b52",
+  "checks": {
+    "exact_ordered_program_identity_arguments_and_expected_counts": true,
+    "program_count": 36,
+    "workload_count": 232,
+    "logical_gn_roots": 96,
+    "all_program_labels_in_roots": true,
+    "all_entrypoints_match_current_authority": true,
+    "no_machine_absolute_or_scratch_inputs": true
+  },
+  "scope": "Read-only data conversion and validation. No GN generation, compiler, native test, timing, workflow or acceptance run.",
+  "entrypoint_changes": [
+    {
+      "path": "net/cookies/cookie_family_perftest.cc",
+      "original_plan_sha256": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770",
+      "current_sha256": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996",
+      "disposition": "Source changed since original plan; fresh controller/source/clock qualification required"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_perftest.cc",
+      "original_plan_sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
+      "current_sha256": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6",
+      "disposition": "Source changed since original plan; fresh controller/source/clock qualification required"
+    }
+  ]
+}
