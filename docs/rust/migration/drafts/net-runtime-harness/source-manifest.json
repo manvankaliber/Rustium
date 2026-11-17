@@ -1,0 +1,47 @@
+{
+  "task_id": "NET-RUNTIME-HARNESS",
+  "sources": [
+    {
+      "path": "net/test/run_all_unittests.cc",
+      "before_sha256": "87e4e905f4463857acf129d1f3533b219608f0a354f044645ebea5d9b77f91d7",
+      "source_snapshot": "source-before/net/test/run_all_unittests.cc",
+      "proposed_sha256": "c8c241f85e1baedba4d00978cfa5590d04b8fe485fcc78a90f1eb9a100f17298",
+      "proposal": "integration-proposal/net/test/run_all_unittests.cc"
+    },
+    {
+      "path": "base/logging/logging_settings.h",
+      "before_sha256": "1ab325e74fa5c8b39c812f5011041e06850bd8db8e77ec88ce0197c5cae724ec",
+      "source_snapshot": "source-before/base/logging/logging_settings.h"
+    },
+    {
+      "path": "base/logging.cc",
+      "before_sha256": "03d7e06c48c297b2beb27bbf66ccbdb728279851df221c6c2a31ed53585338dc",
+      "source_snapshot": "source-before/base/logging.cc"
+    },
+    {
+      "path": "base/test/launcher/unit_test_launcher.cc",
+      "before_sha256": "3d69367fe0ad564839ae7a2a2e594bc16fdcc176f1aaff0cd4e2a75abef6397d",
+      "source_snapshot": "source-before/base/test/launcher/unit_test_launcher.cc"
+    },
+    {
+      "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
+      "before_sha256": "b8af6cdb17a949fc2abf55f281f7976d829644a515cf089133efa87be6faf451",
+      "source_snapshot": "source-before/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
+      "proposed_sha256": "ad06d94a29415d2ba9d081a4d752412b4a77a99f8ae15f60c8068337d6ab15a1",
+      "proposal": "integration-proposal/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py"
+    }
+  ],
+  "scope": "Uninstalled ordinary validation infrastructure proposals; no native/runtime acceptance",
+  "native_validation_required": [
+    "Rebuild eight selected gtest executables sharing net/test/run_all_unittests.cc",
+    "Exercise parent launcher log path with captured stderr; fresh snapshot membership unchanged",
+    "Rerun two previously overlong FileOperations cases and complete ordinary family",
+    "New source manifest, copied tooling identity, qualification and complete before/after verification"
+  ],
+  "retained_limits": [
+    "Historical failed snapshot remains unchanged",
+    "No benchmark or publication",
+    "No sanitizer/fuzz campaigns",
+    "Other-platform build/test validation remains pending"
+  ]
+}

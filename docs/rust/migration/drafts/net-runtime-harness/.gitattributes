@@ -1,0 +1,3 @@
+source-before/** -text
+integration-proposal/** -text
+*.patch -text
