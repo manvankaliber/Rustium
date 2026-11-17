@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 332,
-  "updated_utc": "2026-11-17T09:22:17.328800+00:00",
+  "revision": 349,
+  "updated_utc": "2026-11-17T11:02:33.036609+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -974,7 +974,7 @@
       },
       "base_revision": "285af1cc64796bba57178dc94a659f192343671d",
       "delivery_commit": "66d2bbe9bc5589d5b88d618f54f02e4d095737c1",
-      "integration_commit": null,
+      "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
       "acceptance_tests": [
         "CSSTokenizerTest cases and frozen streams for escapes, EOF, surrogates/NUL, numeric exponents; original independent helper closure"
       ],
@@ -989,8 +989,8 @@
         "required_cases": "8/16-bit strings, escapes, identifiers, number/dimension boundaries, comments, URLs, bad strings, offsets, whitespace and serialization. Retain GC/interning boundary explicitly.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Exact-source host harness compilation/tests and independent review pending",
+      "state": "integrated",
+      "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-0da21958c96b17478292cfa520c9d3f78c57dc1c0618c2222c321c0f86fe1cdd.json",
@@ -1027,12 +1027,24 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-2e1a40557780370293d35a36f1b3f8c7e7417989f9ee09c42bb8c9324cd9f451.json",
           "sha256": "2e1a40557780370293d35a36f1b3f8c7e7417989f9ee09c42bb8c9324cd9f451"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-fe69d9cda783c12f1b9915bbc763cb75139bbe062e8879c4713dab67f2072ae3.json",
+          "sha256": "fe69d9cda783c12f1b9915bbc763cb75139bbe062e8879c4713dab67f2072ae3"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-05ab01c4fc347c33a910045ff269602830b4b73d10577b27da46ab175e5b7e10.json",
+          "sha256": "05ab01c4fc347c33a910045ff269602830b4b73d10577b27da46ab175e5b7e10"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-05ab01c4fc347c33a910045ff269602830b4b73d10577b27da46ab175e5b7e10.json",
+          "sha256": "05ab01c4fc347c33a910045ff269602830b4b73d10577b27da46ab175e5b7e10"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "implementation": "Reviewed standalone safe Rust candidate and original fixtures locally integrated",
+        "configured_validation": "Windows host rustc candidate tests passed; configured production/native validation pending",
+        "production_integration": "Candidate artifact only; production ABI/provider/caller integration pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -1271,6 +1283,26 @@
           "utc": "2026-11-17T09:10:58.665072+00:00",
           "action": "validating",
           "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T10:57:01.495718+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T11:00:44.419815+00:00",
+          "action": "merge-ready",
+          "note": "Independent source review plus verified concrete finding resolutions and exact-source passing host tests; candidate artifact scope only"
+        },
+        {
+          "utc": "2026-11-17T11:00:44.627842+00:00",
+          "action": "integrated",
+          "note": "Exact candidate subtree integrated locally; production/native/ABI/provider/platform/performance debt remains"
+        },
+        {
+          "utc": "2026-11-17T11:00:44.803134+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -1319,7 +1351,7 @@
       },
       "base_revision": "c46d3f4975af8785d3fc1d733cf25360914ef884",
       "delivery_commit": "c6eed292671ea39bbdb4f50ea21be38c9f96f37f",
-      "integration_commit": null,
+      "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
       "acceptance_tests": [
         "Existing conversion suites, supported NaN/infinity behavior, near-integral and negative boundaries, integer limits"
       ],
@@ -1334,8 +1366,8 @@
         "required_cases": "Floor/ceil/round/enclosing/enclosed conversions, float extrema, negative coordinates, empty rectangles, integer clamping and scaling; preserve public ABI through proposal.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Exact-source host harness compilation/tests and independent review pending",
+      "state": "integrated",
+      "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-ff6b6d590087bd955aee0e6f110ec97fcf12bbf2eae10838df53a1d52b54b106.json",
@@ -1372,12 +1404,24 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-9398f496bd37454da0b6e40fdee42e1848d9cdfd20af50431b7ac48f59b4195e.json",
           "sha256": "9398f496bd37454da0b6e40fdee42e1848d9cdfd20af50431b7ac48f59b4195e"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-e982318f5b30f9091b5aaabd38eb0e3361a99e12044cac80df7c0a6bba547f4f.json",
+          "sha256": "e982318f5b30f9091b5aaabd38eb0e3361a99e12044cac80df7c0a6bba547f4f"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-b23c06f7ad431071bf9e437dc29739529b765fbfe6d1f2d0782609b8cf1016a8.json",
+          "sha256": "b23c06f7ad431071bf9e437dc29739529b765fbfe6d1f2d0782609b8cf1016a8"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-b23c06f7ad431071bf9e437dc29739529b765fbfe6d1f2d0782609b8cf1016a8.json",
+          "sha256": "b23c06f7ad431071bf9e437dc29739529b765fbfe6d1f2d0782609b8cf1016a8"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "implementation": "Reviewed standalone safe Rust candidate and original fixtures locally integrated",
+        "configured_validation": "Windows host rustc candidate tests passed; configured production/native validation pending",
+        "production_integration": "Candidate artifact only; production ABI/provider/caller integration pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -1621,6 +1665,26 @@
           "utc": "2026-11-17T09:10:57.588704+00:00",
           "action": "validating",
           "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T10:57:01.238316+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T11:00:35.860668+00:00",
+          "action": "merge-ready",
+          "note": "Independent source review plus verified concrete finding resolutions and exact-source passing host tests; candidate artifact scope only"
+        },
+        {
+          "utc": "2026-11-17T11:00:36.070704+00:00",
+          "action": "integrated",
+          "note": "Exact candidate subtree integrated locally; production/native/ABI/provider/platform/performance debt remains"
+        },
+        {
+          "utc": "2026-11-17T11:00:36.242828+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -1891,7 +1955,7 @@
       },
       "base_revision": "5b011c026104ce562706781dcaddee1747e02445",
       "delivery_commit": "383d36c166d0e8d6681850bf9b9a68c608202a31",
-      "integration_commit": null,
+      "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
       "acceptance_tests": [
         "Locate pinned LEB/decoder cases; copy original helper closure with hashes; differential byte-count/sign boundaries; V8 owner review before integration"
       ],
@@ -1906,8 +1970,8 @@
         "required_cases": "Accepted overlong forms, signed bounds, truncation, maximum byte counts and error positions for all widths actually exposed; no invented acceptance tightening.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Director source/ordinary validation and independent review pending; allnative/ABI/provider debt retained",
+      "state": "integrated",
+      "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-e66fa1e3cbbb7d5ae0ef6389708a07e0ad1c62c34100813dd89428e5b6f89a46.json",
@@ -1928,12 +1992,24 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-1a7248a9cbde7e6d3b337e2bdaa787c2a5d8ec2e2a117c117fcef16cdbc9de00.json",
           "sha256": "1a7248a9cbde7e6d3b337e2bdaa787c2a5d8ec2e2a117c117fcef16cdbc9de00"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-3015874f244f8a2da6e388bcb2fc75b5e667b24db78266215346f118c431e478.json",
+          "sha256": "3015874f244f8a2da6e388bcb2fc75b5e667b24db78266215346f118c431e478"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-2d571cc87fa34b9b9d146d0a0d68942adef3722f9cc953c0b767729a89cdeee1.json",
+          "sha256": "2d571cc87fa34b9b9d146d0a0d68942adef3722f9cc953c0b767729a89cdeee1"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-2d571cc87fa34b9b9d146d0a0d68942adef3722f9cc953c0b767729a89cdeee1.json",
+          "sha256": "2d571cc87fa34b9b9d146d0a0d68942adef3722f9cc953c0b767729a89cdeee1"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "implementation": "Reviewed standalone safe Rust candidate and original fixtures locally integrated",
+        "configured_validation": "Windows host rustc candidate tests passed; configured production/native validation pending",
+        "production_integration": "Candidate artifact only; production ABI/provider/caller integration pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -2067,6 +2143,26 @@
           "utc": "2026-11-17T09:11:00.701541+00:00",
           "action": "validating",
           "note": "Director source/ordinary validation and independent review pending; allnative/ABI/provider debt retained"
+        },
+        {
+          "utc": "2026-11-17T10:57:01.748017+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T11:00:47.021149+00:00",
+          "action": "merge-ready",
+          "note": "Independent source review plus verified concrete finding resolutions and exact-source passing host tests; candidate artifact scope only"
+        },
+        {
+          "utc": "2026-11-17T11:00:47.224788+00:00",
+          "action": "integrated",
+          "note": "Exact candidate subtree integrated locally; production/native/ABI/provider/platform/performance debt remains"
+        },
+        {
+          "utc": "2026-11-17T11:00:47.401702+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": []
@@ -2583,11 +2679,15 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-ba15bf6d67752128ebb73c0c4da90a85fa3f8b4f73e19906852e7430ab243d40.json",
           "sha256": "ba15bf6d67752128ebb73c0c4da90a85fa3f8b4f73e19906852e7430ab243d40"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-82018a960fbdb36b54734c63b6cc6cde4c405a4495584968b41b8d515256d3a6.json",
+          "sha256": "82018a960fbdb36b54734c63b6cc6cde4c405a4495584968b41b8d515256d3a6"
         }
       ],
       "stages": {
         "implementation": "Typed Rust/CXX policy proposal plus diagnostic ordering source fixes prepared; complete accepted policy retained byte-exact",
-        "configured_validation": "GNgen/base/net checks passed; serial base/net consumer build active after3 smallintegration compiler/dependency repairs; no nativepass",
+        "configured_validation": "GNgen/base/net checks passed; serial base/net consumer build active after4 small integration compiler/dependency/test-expression repairs; no nativepass",
         "production_integration": "55 guarded inputs applied locally/configured; currentsource1260 bindings, pending acceptance",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
@@ -2655,6 +2755,11 @@
         },
         {
           "utc": "2026-11-17T09:22:17.328582+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T11:02:33.036366+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }

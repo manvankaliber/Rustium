@@ -101,19 +101,497 @@
     }
   },
   "tests": {
-    "status": "pending",
-    "prepared": "263 executable callcases/357 token descriptors across16originalrows;281 assertion records mapped;53 fixed numericfixtures are Rust-policy evidence only",
-    "requested": "Gated host rustc --test from independently copied exact sources; actual native target only after production bridge integration",
-    "executed": "Worker source/format checks and director cleanHEAD/scope/hashinventory only"
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 34,
+    "passed_tests": 34,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/blink-css-tokens-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/blink-css-tokens-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/blink-css-tokens-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
   },
   "review": {
-    "status": "pending",
-    "requested": "Independent Terra exactcandidate/core/helper/completefixture and ownership review after compiler-backed tests"
+    "status": "accepted",
+    "accepted_by": "Director for standalone candidate artifact using independent review and specific verified finding resolutions",
+    "independent_report": "docs/rust/migration/evidence/blink-css-tokens-review2-20261117.md",
+    "independent_reviewed_commit": "b600a4a5f15ed22e1016d97733276442fd603586",
+    "successor_independent_re_review_claimed": false,
+    "finding_resolution": "Director resolved the three residual source findings: real U+FFFF distinct from EOF; native string CodePointAtOrZero escaping versus identifier/URL surrogate preservation; decoded IEEE numeric equality with sole bit storage and explicit metadata. Two focused regressions added; all original expected cases retained. Thirty-four exact-source host tests pass. Fixture decimal provider is not native numeric parity; provider/FENV/caller/ABI/platform/performance debt remains."
   },
   "platform_limits": [
-    "No compiler/runtime/native/configured/platform acceptance yet",
-    "C++ callers/ABI/GN/exports and native platform/providers remain production authoritative",
-    "CSS numerical fixtures do not establish decimal-provider parity; UI FENV/nonfinite/debugdomain review remains pending"
+    "Exact-source Windows host rustc candidate tests passed; native configured, ABI, platform/provider and performance acceptance remain pending",
+    "Production C++ callers, resource providers, exports/build and object ownership remain authoritative",
+    "Sanitizer/fuzz/security campaigns OFF; no publication"
   ],
-  "next_action": "Director compiler-backed tests, repair and independent review; real shared integration remains director-owned"
+  "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
+  "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
+  "artifact_intake": {
+    "docs/rust/migration/drafts/blink-css-tokens/README.md": {
+      "raw_sha256": "944a9b608601a96f69811671b2f11f78e1906d02156b83454b0f9d5d1bb9195c",
+      "candidate_git_blob": "b87ec0945cb49effe91d8d7c396a4e9114644f52",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/all-original-assertions.csv": {
+      "raw_sha256": "a8d59c73db005ffdd1f02ac0371b3e66fe285644ab35fb566521b0ef9ecbb3fd",
+      "candidate_git_blob": "270f06aff3d96184a4af59e7004e2ad82e743f73",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/basic-four-rows.csv": {
+      "raw_sha256": "34fcad33141e291bb44e008f65bb33d940703fb534fe328cfc7fe8b9aafc8e9b",
+      "candidate_git_blob": "55bd0d89c4a384fe21ab1ce4a6452adb844218fc",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/helper-assertions.csv": {
+      "raw_sha256": "6064fcff62c21ef58143f29162a314cf0e42a2447f9c4adc35d49355fd8cf6f8",
+      "candidate_git_blob": "57c7127b6c17c5b10efec5634649500eea123a17",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/next-four-rows.csv": {
+      "raw_sha256": "c67a2df77bc6ef86f37657eef0b47ab193aaa2dc1736413c8f2ad5ea6ae61cd5",
+      "candidate_git_blob": "2c0f50120cb90671eda9abe501e59243bbc24512",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/numeric-provider-fixtures.csv": {
+      "raw_sha256": "aedb85a0ea89e6ca007a0dddb8b25b39ad1f41b61effab001638599bc0f36de5",
+      "candidate_git_blob": "2c7ab041f023a134fe98dc6ba78890ba275cdf74",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/numeric-unicode-rows.csv": {
+      "raw_sha256": "6091de69d4b8e8531d73d0249a662cddb9002d0ead1e8ad7950ff6f14912a9de",
+      "candidate_git_blob": "67b5aa57d6da90d7ba55761530f3fdeb7a95d1de",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/original-tests.csv": {
+      "raw_sha256": "40c3962b26af43cc41ba2d3cd130ca0fe1610f9c49daf4e31b00df1c70ffdf34",
+      "candidate_git_blob": "56791f5eb0105c62b6d041d58d78239be759afc1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/coverage/url-string-hash-comment-rows.csv": {
+      "raw_sha256": "c10d7d481117ab9fb5c9e7180394cde48caa0e70b9ed6bf4c543794b6094cf49",
+      "candidate_git_blob": "29567ebd7c13103b34f05975cbc9091f1114e79e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/integration-proposal/README.md": {
+      "raw_sha256": "ca9c28464bd6c5f7e98a4b582af42107b0274db3e03a3f20fe852f297aab9a4a",
+      "candidate_git_blob": "a3e7120b09071efe170fefeacbcd0dd5e399c3ff",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/provider-contract.md": {
+      "raw_sha256": "dde494b869a4c4c0aef8fadbda801b0d54bb9dda149535621d5d114bf0201fb3",
+      "candidate_git_blob": "aedd512709fc2662550c804e31fbe72ca8a51fd8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/numerics/integral_constant_like.h": {
+      "raw_sha256": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "candidate_git_blob": "e9d01b0b77723074c9ffab8638cd7b4d8d84e34c",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/numerics/safe_conversions.h": {
+      "raw_sha256": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "candidate_git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/numerics/safe_conversions_arm_impl.h": {
+      "raw_sha256": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "candidate_git_blob": "55d92355c73bf242c2c6c65e0816ec5f6690f1d9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/numerics/safe_conversions_impl.h": {
+      "raw_sha256": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511",
+      "candidate_git_blob": "0a49213eed7676b561d788b5ad688da7f68db85e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/BUILD.gn": {
+      "raw_sha256": "00c032c04c37cd13c8f2a7cbfd26068d7f31ebe1cee07678da8ebe277c80dd32",
+      "candidate_git_blob": "d95a1eb183db7a7d3d41639584d931c9664b48dc",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/README.chromium": {
+      "raw_sha256": "35939d1e743e5a7be8ea4055c3524d00e70246b3471d753528d7b4f1d1651741",
+      "candidate_git_blob": "011406e326dec90170852f492bf831582312e9d0",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/crowbar.txtpb": {
+      "raw_sha256": "5c5407cf40be89ff5f4eb5ac7f0a42261020aa2d7e07b72a3f4302a80c27718f",
+      "candidate_git_blob": "c7b9f42de2a1583165df88f7b26314103dd211c8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/bignum-dtoa.cc": {
+      "raw_sha256": "85a803ff5eaea5acc840182ab03dc1205b77519cb61d6615682314eb8aa90914",
+      "candidate_git_blob": "15123e6a63cfad9d497d9de8885145ccf3101714",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/bignum-dtoa.h": {
+      "raw_sha256": "d11517ebb69107c515c5b45d820e1a2ff665ac64182f62fdd25bac804acf1d1f",
+      "candidate_git_blob": "34b961992d672c1713bc19dde430939d28dffb53",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/bignum.cc": {
+      "raw_sha256": "cc33c3775d66d138aa49ea5a18e73ad6766ecca17009225811c33cea64bcd11b",
+      "candidate_git_blob": "5c74d70d3df28f0bef37939cda2f0dba0411223b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/bignum.h": {
+      "raw_sha256": "6b63faea13f36f6026b56855aa8d28329ba1a91c564b9abc94b21608ca42cbfb",
+      "candidate_git_blob": "14d1ca86fc7fdefbcd394585026165225de71a14",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/cached-powers.cc": {
+      "raw_sha256": "f0cabcc74f54ca33072671cc6c2819e39e8cd9b55db508946f2bd5acc1b48367",
+      "candidate_git_blob": "56bdfc9d6361119c668bbe2734c72de18a26f588",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/cached-powers.h": {
+      "raw_sha256": "1da91324ffd4200b3cb41d1f0707277175cdd28fcbffa13104e14df431f00744",
+      "candidate_git_blob": "f38c26d201fad654612c81bca05f71feafc16111",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/diy-fp.h": {
+      "raw_sha256": "f8f5d66be5684ac547f68b997d41fdc57e8dc2ca1ef2ef2e3b10c6a76c9c5b75",
+      "candidate_git_blob": "a2200c4ded0cddd173eab631223b58bfa0447a0e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/double-conversion.h": {
+      "raw_sha256": "2754e5e7ef1a158d00f529da03dcf943dd239ccc70e798a594f22e13e8dd0f94",
+      "candidate_git_blob": "6e8884d84ca56dbfd05964e463dd7999364b3b35",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/double-to-string.cc": {
+      "raw_sha256": "98b001f0cdfe091af43201bdcb45ed6f68d38e4a823fe29879a894ab7932efc7",
+      "candidate_git_blob": "9ea3d18d5f70070b549f4340ba38b514074c79ed",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/double-to-string.h": {
+      "raw_sha256": "cb0b7ec6c4d8896a9d24e737ae4c33e1a341e2e5c61022a9adc1c67f4be0073b",
+      "candidate_git_blob": "35449feeb7c588142962ebfb2dbf1f05b375f3bd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/fast-dtoa.cc": {
+      "raw_sha256": "c2042b7bdd218435bcb4881a86a033bbd5dddbb6bd386a3a099247ca67882440",
+      "candidate_git_blob": "d7a23984df2de338354fd7c7b3896f8e5fe63613",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/fast-dtoa.h": {
+      "raw_sha256": "523d778935995dea5d21e59f55629ba40eaf68dedfe99e82b71efd4ae75f4e40",
+      "candidate_git_blob": "5f1e8eee5e56e7c496c84dc0a5bf9dad0b97fc9f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/fixed-dtoa.cc": {
+      "raw_sha256": "6cbef46bd0f6a482f4c79e34d14e49b448094d85bcefc25177957d84b62b2144",
+      "candidate_git_blob": "e739b19804cdc219376fc9e85f825d2e6af41ab7",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/fixed-dtoa.h": {
+      "raw_sha256": "5c22077d3d333998b87c578aa1a015503d162895e20e5f2ee92721c834748ee1",
+      "candidate_git_blob": "3bdd08e21f59d5fece37eb14a6f510f464c3f2ba",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/ieee.h": {
+      "raw_sha256": "bc9a4adae492f692e19db9c279eac52d4933ddf872aff43056bceee42d65a8f5",
+      "candidate_git_blob": "9203f4d558e0cea52007cc5809a715042451e8f9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/string-to-double.cc": {
+      "raw_sha256": "9aafd7e77a23164ee94903cfd16bd1e84344a5d7a18b4ee430e35e76568b108d",
+      "candidate_git_blob": "972956ca6907d58a26d9cc5bfcb9b185f3e7d839",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/string-to-double.h": {
+      "raw_sha256": "1976310fdd04e3bc350c5f8f4b443ba0287abb4004b318f048ac41611278e4c9",
+      "candidate_git_blob": "fdf302d4c38cec67f3bc9830231e58052ed7300d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/strtod.cc": {
+      "raw_sha256": "923f15ce6bff38b9aaa1f3bced157c468978ac9443fbb781f0826daeae5cd4ee",
+      "candidate_git_blob": "5fb1b2f104e545342cefca64b168546bb3877451",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/strtod.h": {
+      "raw_sha256": "08c3a8f9852b6e3399b694ead7511e0ecadc96a6a61431fc1f9df003f2ff41d8",
+      "candidate_git_blob": "77221fb9d5388f4fc869cdc40b345165c2a86872",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/base/third_party/double_conversion/src/double-conversion/utils.h": {
+      "raw_sha256": "ab745c4b74fdd27d967d8026d082bff3ef59ca2ca581c163dcf266bebd413795",
+      "candidate_git_blob": "4f4dd71bf75080d5fff3dada66bc908ab6186793",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/configured-generated/third_party/blink/renderer/core/css/css_primitive_value_unit_trie.cc": {
+      "raw_sha256": "fd0ab3ce1245ce96fc63806ea09ae311014e70d2623f66894a12510dff3c16de",
+      "candidate_git_blob": "80a9e462ee9c631c7b299e2de4902dbf5a691bb9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/configured-generated/third_party/blink/renderer/core/css_value_keywords.cc": {
+      "raw_sha256": "7e2639294bf46eacb1928423d1da161370070a85336b6faad8a34be7fed0be69",
+      "candidate_git_blob": "90198728045d786a2d2130f2dce8fe5ecead2b76",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/configured-generated/third_party/blink/renderer/core/css_value_keywords.h": {
+      "raw_sha256": "049c3b44ccd89e547d24bec6f759d8a687c2c15bc9de881870cf41e1f963c1d2",
+      "candidate_git_blob": "ac231e8af4e76529e565c82111fdde2c6023d3ab",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/generated-inputs-b1d5.json": {
+      "raw_sha256": "cc5c4542df56cde5cccfb515bcdbd06140b261ebb41704412b03befe72f7fae0",
+      "candidate_git_blob": "e3a71101259393b0e94b31a3a10ebcafb6dba9e5",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/generated-table-manifest.json": {
+      "raw_sha256": "e9305827581af72c1b53b77901f74fc431933059d24f26e0474bd92386be8fbf",
+      "candidate_git_blob": "ecf91ad030969487b434c1ad55c98c754dc5b1e9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/manifest.json": {
+      "raw_sha256": "e120811e199336ce2f7a7bb03a1b98cf2690ffe77f69337d6ff3809bd8725a1e",
+      "candidate_git_blob": "0081f088e67380a0281601dd01916dea8deccdde",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/numeric-closure-b1d5.json": {
+      "raw_sha256": "902ad371187b4d9940c16ba4ae905ecdf7cd10fe5d625843c8b3a0e486fe47ea",
+      "candidate_git_blob": "d1a509392fa8df034a116e2c4e4fc2d70a6e21ca",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/numeric-validation-reference-b1d5.json": {
+      "raw_sha256": "4ea96f0f9016ba468ba618e33284fa6203559ffdfc60ad520eaf59f9b98aeaa4",
+      "candidate_git_blob": "b0e4e2f00ce8eac4f7f326992160d305472447c7",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/build/scripts/core/css/make_css_primitive_value_unit_trie.py": {
+      "raw_sha256": "263fddcee956096aa8b77bc2a2a49809ff9f490d829ffc859ffbef3cc6f62706",
+      "candidate_git_blob": "75ebdd8f10375d3feeb857bb9cf7599c1421996e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/build/scripts/core/css/make_css_value_keywords.py": {
+      "raw_sha256": "dd41549ffe19c61889a1bafe3ceac402bc9ff4d012eb2869163df2789ef3372b",
+      "candidate_git_blob": "e1657fd47a708e300664d370da071fb7b55bd4f6",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/build/scripts/core/css/templates/css_primitive_value_unit_trie.cc.tmpl": {
+      "raw_sha256": "7fc81df80d2871db27985757d6748374cac0f0a7ba30a5a71754f634089d5db9",
+      "candidate_git_blob": "d5e0d6d1939bd5b440d4cdc3efb25ecc4d802fb1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/build/scripts/core/css/templates/css_value_keywords.cc.tmpl": {
+      "raw_sha256": "87deec671ce3d12c05c07ff882df0ba5c01bbef7ec06434d6d34dea60675864c",
+      "candidate_git_blob": "80bfbc6b9ef1557eee98819eec083936a6e60f77",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/build/scripts/core/css/templates/css_value_keywords.h.tmpl": {
+      "raw_sha256": "02d45322f7b0d1b6413df3acc8a80878293f09f749047df302854380d3924df1",
+      "candidate_git_blob": "505e6ae84e676dce72119f4a95199fb6484d8a85",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_markup.cc": {
+      "raw_sha256": "f6a1e74d7379c39e96f5829169127a7f16964ed01b922ddd97aaa17c75707760",
+      "candidate_git_blob": "a6c99cfd72fccbd7425fb1e2d2e8cb85da7a4b58",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_markup.h": {
+      "raw_sha256": "9bc5d616ae644841738ae4675ba14f5fd74d549a7b4775a39f2f0f54e517d700",
+      "candidate_git_blob": "fc7d3b23d8335d5de34745216e0d0f27e23fc0f9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_primitive_value.cc": {
+      "raw_sha256": "c7815521f2cf316cd6399b3a4ab7821cc613504d90f046bbb96601bfbb722774",
+      "candidate_git_blob": "46ea8c699f115b9c9551a6634f0ba9656105dd6a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_primitive_value.h": {
+      "raw_sha256": "86c894ac99d917aaeab0df9a3e17fa0e4177a2f6d6233f0a8008743696d5d6c7",
+      "candidate_git_blob": "628d8314ed10c90e4025c0660704439d47c8edef",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_primitive_value_units.json5": {
+      "raw_sha256": "96b1cc070eacd9edbfd3ddbca4053c7624ccc746a1ae2a90cd1f90b753297609",
+      "candidate_git_blob": "bd6a81bdc51bf0a21ed06224cfa3faad5122ff40",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/css_value_keywords.json5": {
+      "raw_sha256": "54b0a5edaada31e06163636e2d0d8160529e8bbfe5d6cc15e65e124902a5697c",
+      "candidate_git_blob": "ae1350609f0858ccf1f957d2d0fe6c46ecc67fda",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_parser_idioms.cc": {
+      "raw_sha256": "7d5ecf1051da4ed0bbcb2f4a64bb1d707d66e40ec056d7cc9bffd5b1af7d91a5",
+      "candidate_git_blob": "286f817181845ab782529e5421682b9908ab9dea",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_parser_idioms.h": {
+      "raw_sha256": "cbebde09cf6d1e3571140c2f020a52817f5502c2d84a6b2c857519b3cf4e0177",
+      "candidate_git_blob": "461b1d2444a36238c135ded1bcfe06ce18f0dd51",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_parser_token.cc": {
+      "raw_sha256": "6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c",
+      "candidate_git_blob": "f948ef76f1efd0360e4d48436cdb07ca832af93b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_parser_token.h": {
+      "raw_sha256": "222306a1023d88786f7b7963e23e86d3aa08b933ad5cf15cb8976d46c98f6798",
+      "candidate_git_blob": "fa78c1786c2cb50a6f8ce221f2b48dbedf398092",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_parser_token_test.cc": {
+      "raw_sha256": "6028c25e0d20f9ee522f62679d0d5f60e3c790575b46db8a6569e5296d394cfa",
+      "candidate_git_blob": "35dd423a53d07a2e95226b40ccd0c476b4ba544e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_tokenizer.cc": {
+      "raw_sha256": "a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71",
+      "candidate_git_blob": "15969e27c26c75194514f553eea21172570770d7",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_tokenizer.h": {
+      "raw_sha256": "d80504af5f1b751574c1240a0cf1df4781db2c5e94e786d64929c4a1eeffdc5b",
+      "candidate_git_blob": "c4bb0560a677d49823565068c7fae91474735009",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.cc": {
+      "raw_sha256": "6f074726f93bb0b861888a49e2d880cd3f6b9ff57b71c775bfbe54fcc82a8073",
+      "candidate_git_blob": "12a40c261b56db1a8aececdc36c1889665122645",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.h": {
+      "raw_sha256": "576f89356ffcc82a5fccfa5d5673f216bb8151432de2771321189e00f35e6866",
+      "candidate_git_blob": "491d2d104646edeeb301937d8d55036d9ffe055f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc": {
+      "raw_sha256": "9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2",
+      "candidate_git_blob": "6e6bddd584e4b94c0237544b5e78c94d9ddd0114",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/core/html/parser/html_parser_idioms.h": {
+      "raw_sha256": "0f1c6675fa2d5dcd2e28453cfdc46079f3cc2c4cd3e8dd1955f6d586d7b34a22",
+      "candidate_git_blob": "a395e5d40bca4abf0b67bc7c1a067b63180517c9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/dtoa.cc": {
+      "raw_sha256": "8c1e576427c9398def6173dd6ce33f1d86851476e2a0001b6fb22bee9a8708ce",
+      "candidate_git_blob": "0c1f82aad88ce592eb37bc9fbce7f9e5c86fc689",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/dtoa.h": {
+      "raw_sha256": "6dacb0909a70ab454e3ef0056e2d022b9018597760423942f50b794cc2c5d4d4",
+      "candidate_git_blob": "78542c57feed575b011f3a5de10fb419d1d02269",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/dtoa_test.cc": {
+      "raw_sha256": "f9729d6a5079ee972c17e3e9902386fbf63ea0dc957594c75cecf1eea7efcba7",
+      "candidate_git_blob": "8ac44e13d1b5869085f9695fcd6bbe98cf20b481",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/math_extras.h": {
+      "raw_sha256": "eeb5d43ce4793ef0043326a65318d4e1a66e17d4af218387619ebd71d598238f",
+      "candidate_git_blob": "a0c67db038fa3ccda3fd71bc27981fbe74ab529b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/ascii_ctype.h": {
+      "raw_sha256": "fea2278f2f956831b070f282a9ab9daffc1137353b91f8b2425a0312ea4b21b1",
+      "candidate_git_blob": "6ac7a7bc5962302b8f186121d6c1a4594c1cabf7",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/character_visitor.h": {
+      "raw_sha256": "8d7273e9ad6745048889f772744c0f151722f833b42b5c36ca4c20c52f35f3ba",
+      "candidate_git_blob": "0ea66ec3af687c0117c688f6d654dadebb898bb7",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/format.cc": {
+      "raw_sha256": "587eb1e60fca279cbcdf3a16824a80aa4b70508c95713fc8278f3c6320814ac5",
+      "candidate_git_blob": "4df90fd3cef635232e160c221e0cafd5330a7771",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/format.h": {
+      "raw_sha256": "c1490681b9dd802e105fda722bc673b2ecee50e7cb28f4e41d69b95abef4d575",
+      "candidate_git_blob": "34741d99747bd74fe64bb28def22a1e31fd68f85",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/integer_to_string_conversion.h": {
+      "raw_sha256": "3250d00e828ad0390853665fd417fd5208e89caf23a5bf8a02ca28183fe3ffc6",
+      "candidate_git_blob": "dd479d4cfe8ff7260f9a6cbf3593b427c639935b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_builder.cc": {
+      "raw_sha256": "1ec658bef96cfa5c6edc1da91d09fc4b58e8f9d00e5e10f6191ac8898d6edab1",
+      "candidate_git_blob": "77bfcc281ca92fc72cf8a2309379aca5d981902e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_builder.h": {
+      "raw_sha256": "376fdd28ba42dbce01607a70e0a407df054fbc968e660a5abb084fbabf6810ac",
+      "candidate_git_blob": "d4d4f7bd784232816620bf6c005f8d926b5638fd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_builder_test.cc": {
+      "raw_sha256": "81937f1a5051319467fd250966f2955ba363cbc29319f123f0f965aa2ce95674",
+      "candidate_git_blob": "c24ca1f3e8490f78caeae79764271d85dbc5f8fb",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_to_number.cc": {
+      "raw_sha256": "36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693",
+      "candidate_git_blob": "6ea59c25042fb4ad8e303f921d6f108f1e06b0f1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_to_number.h": {
+      "raw_sha256": "593e44149ce20b18320d4473ae7125c227d97d1ee38548f9b021e5bd0e0bd14a",
+      "candidate_git_blob": "37d57d76687b51e38d41317a82cf3fc37786d1fd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_to_number_test.cc": {
+      "raw_sha256": "c3860ea9935c3eb6a7dd333b55f9edfe002bc434b035ff48f4705ec7431086ff",
+      "candidate_git_blob": "579af80b3b713a0313d231a03feaa4b53c7bfa12",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/string_view.h": {
+      "raw_sha256": "24e60a6d55171ecea2e8b187b5a6701fa13851ca8e5091caa76547380c949919",
+      "candidate_git_blob": "1a7d66a6bfe543a0a0169bf84d19bc8675108dbc",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/wtf_string.h": {
+      "raw_sha256": "a180e79f316df8098e102deb393d706f25c9ff81fcd314cd7da1a2839f1bfedc",
+      "candidate_git_blob": "bb928a5bd8b346f3c02c27b8e41494ab1aa44112",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/reference-cpp/third_party/blink/renderer/platform/wtf/text/wtf_uchar.h": {
+      "raw_sha256": "41d646fd590b5ff46f2b94172970a233adbf0e5fc803aecf60d004ee3f29c4bc",
+      "candidate_git_blob": "999339850d0ecc82f1bf5c78ef1fd7ac1c72cc76",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/basic_original_cases.rs": {
+      "raw_sha256": "d36a1b452d1411c7201c800c6e35bbec2f5b1f9169e872575f7a2bc2f9b6623a",
+      "candidate_git_blob": "9d17f8e0a0c9274867d1f3c9e42fe82df15830e8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/css_tables.rs": {
+      "raw_sha256": "e7eb5732f7dcd22cd575be00606a2fd638cd1bc906cc163b70da73eaae3e73a9",
+      "candidate_git_blob": "3de7374d37099e44d4b06b702ef304d60a076ea2",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/extended_original_cases.rs": {
+      "raw_sha256": "18f315cd0d5469e3b897e244ccac8922e0929d91c7683151e0a753006fa15a27",
+      "candidate_git_blob": "42aadb33a0f44aaf4a7a1880bbcc5ce88c7213ea",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/lib.rs": {
+      "raw_sha256": "50e6bef35052e2ac7ab18e520eabd32bf1e4d9b706098723c92064e28a83835f",
+      "candidate_git_blob": "713d7cc473b006d759c73427076607e2e3a10b6f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/numeric_unicode_cases.rs": {
+      "raw_sha256": "0d3e80c46f23062db04787511e9913fc28d1d8fabdf3297238c0e500f8f34db5",
+      "candidate_git_blob": "2a159757726220c50827bbd1396b017fad4e9b14",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/blink-css-tokens/rust/src/url_string_hash_comment_cases.rs": {
+      "raw_sha256": "61372ee72a04765b89c56d9c5c4f86ef776a505d4bcbe40e3d26fe4d0f6c6ef3",
+      "candidate_git_blob": "caf9150d8a434c37959be5e5e207f00e5aad84c0",
+      "raw_matches_candidate_git": true
+    }
+  },
+  "integration_scope": "Exact candidate subtree and independent frozen references only. No production integration, Rust ownership behind ABI, native configured pass, performance acceptance or subsystem cutover."
 }

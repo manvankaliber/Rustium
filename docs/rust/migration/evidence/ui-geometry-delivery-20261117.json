@@ -44,19 +44,212 @@
     }
   },
   "tests": {
-    "status": "pending",
-    "prepared": "21 frozeninputs; all named original point/size/rectangle conversion and scale assertion rows claimed; standalone tests.rs",
-    "requested": "Gated host rustc --test from independently copied exact sources; actual native target only after production bridge integration",
-    "executed": "Worker source/format checks and director cleanHEAD/scope/hashinventory only"
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 9,
+    "passed_tests": 9,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/ui-geometry-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/ui-geometry-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/ui-geometry-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
   },
   "review": {
-    "status": "pending",
-    "requested": "Independent Terra exactcandidate/core/helper/completefixture and ownership review after compiler-backed tests"
+    "status": "accepted",
+    "accepted_by": "Director for standalone candidate artifact using independent review and specific verified finding resolutions",
+    "independent_report": "docs/rust/migration/evidence/ui-geometry-review2-20261117.md",
+    "independent_reviewed_commit": "f3a6eec36c78ad1699fa11aad456f6f410400d41",
+    "successor_independent_re_review_claimed": false,
+    "finding_resolution": "Director resolved the three residual source findings: unit-scale return precedes domain checks for platform-created rectangles; non-unit supported domain is explicit, not a universal native invariant; direct nearest-edge/tolerance and invalid-scale regression tests added, FENV/ordering claim narrowed. Nine exact-source host tests pass. Native platform-created non-unit overflow, DCHECK mapping, FENV and ABI remain unqualified."
   },
   "platform_limits": [
-    "No compiler/runtime/native/configured/platform acceptance yet",
-    "C++ callers/ABI/GN/exports and native platform/providers remain production authoritative",
-    "CSS numerical fixtures do not establish decimal-provider parity; UI FENV/nonfinite/debugdomain review remains pending"
+    "Exact-source Windows host rustc candidate tests passed; native configured, ABI, platform/provider and performance acceptance remain pending",
+    "Production C++ callers, resource providers, exports/build and object ownership remain authoritative",
+    "Sanitizer/fuzz/security campaigns OFF; no publication"
   ],
-  "next_action": "Director compiler-backed tests, repair and independent review; real shared integration remains director-owned"
+  "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
+  "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
+  "artifact_intake": {
+    "docs/rust/migration/drafts/ui-geometry/README.md": {
+      "raw_sha256": "d9ac928221d4e6ee01058bceacb078983d6df58dd9002e7e4f25503430973e1b",
+      "candidate_git_blob": "ad25342d7a97dd48470b0c795fb9851200df53ae",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/basic_ops_impl.h": {
+      "raw_sha256": "09859a81183cdffd76379fb3c0bd42c18758c98bf139362586612e163eb6dd40",
+      "candidate_git_blob": "405320bdfa87a182f5dd690180deb4e0a8b63a24",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/checked_math.h": {
+      "raw_sha256": "3f4d1fd2d6d9cab2cbc94d9612e466dfa021c1a8abe1afc7dc550def84f5177d",
+      "candidate_git_blob": "48b5388dba0d377c498df27c5e6f31f7808e6a4b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/checked_math_impl.h": {
+      "raw_sha256": "49d2bb59788b43f5b161727a9fca7e4d9548b4a0794dba44045ae3f3d31c9d57",
+      "candidate_git_blob": "9f1487e1227aef204f5d6fc32df21c36aad65e76",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/clamped_math.h": {
+      "raw_sha256": "1b3208a6f26d2b78508b94b940a17eb33c252a549bb0927cbcff2eeba41c3fad",
+      "candidate_git_blob": "76222a9269cf56300563206d9509381f9c4e546f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/clamped_math_impl.h": {
+      "raw_sha256": "f6aea00b13a7b8dae6301e293704725c13ef9520df895ce69563901b8fadeb79",
+      "candidate_git_blob": "d3213da785fbfbb11621eb03778390cdfbc3821d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/integral_constant_like.h": {
+      "raw_sha256": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "candidate_git_blob": "e9d01b0b77723074c9ffab8638cd7b4d8d84e34c",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_conversions.h": {
+      "raw_sha256": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "candidate_git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_conversions_arm_impl.h": {
+      "raw_sha256": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "candidate_git_blob": "55d92355c73bf242c2c6c65e0816ec5f6690f1d9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_conversions_impl.h": {
+      "raw_sha256": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511",
+      "candidate_git_blob": "0a49213eed7676b561d788b5ad688da7f68db85e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_math.h": {
+      "raw_sha256": "dd0611ccd543f8a697212d94b357feb4626490ca49355372d1e36797c4abb735",
+      "candidate_git_blob": "abe5eb7f08d21e28ddba0224486c3d5f68ffaf1e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_math_arm_impl.h": {
+      "raw_sha256": "af9ff8b00fa3105f89f0bece42d9c529c32bda1d4a9f4ea192bc31de94314349",
+      "candidate_git_blob": "b56da6a3a454ff6b6dd4d046245cceffc05a2f7a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_math_clang_gcc_impl.h": {
+      "raw_sha256": "2c17dea7483a7f1e0941af093d0404ed0f98fb4ed3922992a2623b845eef1201",
+      "candidate_git_blob": "3203ae09a625f87feece798a204695a336019cf4",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/base/numerics/safe_math_shared_impl.h": {
+      "raw_sha256": "ae86304e978ec15452f6e84876f5d86123f7452475de0319a71205b0fe4c2ad2",
+      "candidate_git_blob": "a3702319f612a82b62b9c87e22b5855692e76e6d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/point.h": {
+      "raw_sha256": "2709bb9856e648cf0269fe81c7a898a8d1175d41cc82ea9fb44f8ccf16d6644b",
+      "candidate_git_blob": "d751a00e5019cf29b2bf32f2cd1d2a0330da7ec1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/point_conversions.cc": {
+      "raw_sha256": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+      "candidate_git_blob": "378f542a9a9a66ba9c1b886e77f89f62f78c9ff6",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/point_conversions.h": {
+      "raw_sha256": "e9bf19dfea60858980d38e8483fd06943c734a00f16a7f06728302efeb1863e3",
+      "candidate_git_blob": "6afdf16f952e1471b7adc7c311eac6acfc036f4a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/point_f.h": {
+      "raw_sha256": "13ba16069d315cd368f83a82099e6d1f4602851970d334583df59cb63e9df367",
+      "candidate_git_blob": "00b888b0dd6dc982576c6f6fe9a8b8e62d3a7e9c",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/point_f_unittest.cc": {
+      "raw_sha256": "c268c991f4d875ecfcdac89d5d0f04f89ae909c06fb8a967de4aa1d475776761",
+      "candidate_git_blob": "50af47e91f6476c82dd0a4c636fa0ed930b92cae",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect.cc": {
+      "raw_sha256": "0b1b4f5be9df43d91140640e0cb27fd98cb529e172ff158b930da939e97a6af7",
+      "candidate_git_blob": "2c8be6ea01db2d8c68d3d488896018dffc10cd0a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect.h": {
+      "raw_sha256": "76fac1435f7dcb774fbdb2370460464ed2394681e0a41daf0863c237e234dcdc",
+      "candidate_git_blob": "7e13ab3848e36e36b7e14f9d4e7ef9141b0e3782",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect_conversions.cc": {
+      "raw_sha256": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b",
+      "candidate_git_blob": "f20032db0c592ad663babe7e3f386e328c0d3806",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect_conversions.h": {
+      "raw_sha256": "9323c4b72bab368ab32cd30c90b5a6eeb6bb2d8f4501d50073dc5af4d8348107",
+      "candidate_git_blob": "8d669c76adf99110c7c8c9f2ac0313baaa292fe9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect_conversions_unittest.cc": {
+      "raw_sha256": "9bfc9b95c04eebf3d0da517738260f8a8798062ba3b4a8981994c171fb737ff1",
+      "candidate_git_blob": "43bd47e7cbfeff0c66a98dc22dccfa4601f18361",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect_f.h": {
+      "raw_sha256": "0dc90d0e07e76f7a24aff9d8a788a8a7f82bf73e734ed4a687a20cb16aed2254",
+      "candidate_git_blob": "6ffb1fff87d2b1c4dfafebcddaf01859c4b419c1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/rect_unittest.cc": {
+      "raw_sha256": "b7cd2aec8c90c7cb2df2c1df36c271d5bfab2a8e79da23978f4f15b384178ddf",
+      "candidate_git_blob": "046d7c335aaefa8127bd3dcff60b66743a0bfd9a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/size.h": {
+      "raw_sha256": "83c4f343fbec94f9620a774c93ccfb57a990ec914e3978ce808f5859c924770f",
+      "candidate_git_blob": "0e55536d5b2e6ebfa3354a940b57bea050db9aea",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/size_conversions.cc": {
+      "raw_sha256": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+      "candidate_git_blob": "ab80bc062310c8b1838d67f59c61304d608fafe3",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/size_conversions.h": {
+      "raw_sha256": "06bd89d3dc46c85757fa2ac42dbb773093d08c917b99838d22dace78d4a9c807",
+      "candidate_git_blob": "5b33f48741c5d2914bd4221bee24eab1e23dcf2e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/size_f.h": {
+      "raw_sha256": "13a2886c572e241d71f2f3d485c9f288665bd798f275a8f5ad92982a6ec8dab8",
+      "candidate_git_blob": "2fa1d0c62ddc3528aaae786d652021b72d0d365a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/size_f_unittest.cc": {
+      "raw_sha256": "90390cc54f11839d3c710991fab47d050998ab44f7d640866e29f3b43506366f",
+      "candidate_git_blob": "6a4a9e4877569df55b7174313b34ca9ac3d96956",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-before/ui/gfx/geometry/vector2d.h": {
+      "raw_sha256": "71297733c669ee4c0d4a5ffd9d0348ad2143c93b90c491fb31a653c38fa2a582",
+      "candidate_git_blob": "2ac0db1b9869d4b54f40cd2ed038ffb890f77d8f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/source-manifest.tsv": {
+      "raw_sha256": "7a7a21c19b3be6e341388d3eef59e8e419e258ff41a3fe8d8090ec074e77763f",
+      "candidate_git_blob": "91cd50f0c8bd5772599a596db3f4eb455337bb41",
+      "raw_matches_candidate_git": false
+    },
+    "docs/rust/migration/drafts/ui-geometry/src/lib.rs": {
+      "raw_sha256": "0b16179319a5cd649a42457fe53c3acc3363b0dc8788b63bc7cfcd61efe27c3c",
+      "candidate_git_blob": "f170f58ae3814e9b47fab8b21023df89c5fbaba8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/ui-geometry/tests.rs": {
+      "raw_sha256": "aa123254af7bf96a9c36f15ad0fdc2f8636cc9158000a4ca3018d68ec5b77303",
+      "candidate_git_blob": "6423aaf384181c48063d3f2791c5aee26ab0c4ec",
+      "raw_matches_candidate_git": true
+    }
+  },
+  "integration_scope": "Exact candidate subtree and independent frozen references only. No production integration, Rust ownership behind ABI, native configured pass, performance acceptance or subsystem cutover."
 }

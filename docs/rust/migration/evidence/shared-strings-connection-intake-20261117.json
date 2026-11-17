@@ -2,16 +2,16 @@
   "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
   "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
   "applied_bindings": 55,
-  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090327315709Z\\source-manifest.json",
-  "source_manifest_sha256": "2212160a18e7d4b6bbfaef014af9de377d236be9bb69b2a2b12e337801baf823",
+  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z\\source-manifest.json",
+  "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3",
   "source_count": 1260,
   "both_checkouts_matched": true,
   "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
-  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090327315709Z",
-  "status": "Configured Rust compile exposed12 unused complete-family policy items; narrow private-module dead_code allowance added, compilation rerun pending",
+  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z",
+  "status": "Prior serial build failed on two unsafe pointer-arithmetic test expressions; bounded source views prepared under gate, rerun pending",
   "preexisting_dirty_inputs_preserved_in_before_images": true,
   "v4_package_unchanged": true,
-  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090003329685Z",
+  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090327315709Z",
   "director_integration_overlays": [
     {
       "path": "net/BUILD.gn",
@@ -31,9 +31,15 @@
       "before_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932",
       "after_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
       "reason": "Private module contains complete accepted policy;12 not-yet-routed APIs trigger deny(dead_code). Local module-only allowance; no policy/test/lint acceptance weakened."
+    },
+    {
+      "path": "base/strings/string_split_rust_bridge_unittest.cc",
+      "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
+      "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+      "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
     }
   ],
-  "observed_utc": "2026-11-17T09:22:17.076269+00:00",
+  "observed_utc": "2026-11-17T11:02:32.757143+00:00",
   "archived_attempts": [
     {
       "path": "docs/rust/migration/evidence/shared-intake-20261117T085053173182Z",
@@ -49,9 +55,14 @@
       "path": "docs/rust/migration/evidence/shared-intake-20261117T090003329685Z",
       "passed": false,
       "source_manifest_sha256": "9c0af82dac7f11c13cc8de56913ed9e53dcb483d670176836a032949c72b88bd"
+    },
+    {
+      "path": "docs/rust/migration/evidence/shared-intake-20261117T090327315709Z",
+      "passed": false,
+      "source_manifest_sha256": "2212160a18e7d4b6bbfaef014af9de377d236be9bb69b2a2b12e337801baf823"
     }
   ],
-  "active_build_job": "bd66f10434ec41f99ab1b8cdd725d742",
+  "active_build_job": "2287916d727d4d1187895bd3c052e5c3",
   "active_build_command": [
     "python",
     "-B",

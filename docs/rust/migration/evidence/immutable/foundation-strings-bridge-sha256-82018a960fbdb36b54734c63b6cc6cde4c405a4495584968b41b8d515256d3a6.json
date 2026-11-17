@@ -1,0 +1,133 @@
+{
+  "task_id": "FOUNDATION-STRINGS-BRIDGE",
+  "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+  "source_identity": {
+    "base": "5b011c026104ce562706781dcaddee1747e02445",
+    "workspace": "D:\\RustiumReview",
+    "source_manifest_sha256": "044664b10cef3ffb33012fbb9553438d00dc76f70ed0ac0180eaf7964a6adebb",
+    "application_sha256": "9951c64b8f7cb10a721e02e31d0f52160dc8d5fcb9fe0d5b9496faeb290eb6ed",
+    "bindings": 55,
+    "all_after_and_both_primary_configured_before_hashes_matched": true,
+    "applied_integration_identity": {
+      "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+      "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+      "applied_bindings": 55,
+      "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z\\source-manifest.json",
+      "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3",
+      "source_count": 1260,
+      "both_checkouts_matched": true,
+      "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+      "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z",
+      "status": "Prior serial build failed on two unsafe pointer-arithmetic test expressions; bounded source views prepared under gate, rerun pending",
+      "preexisting_dirty_inputs_preserved_in_before_images": true,
+      "v4_package_unchanged": true,
+      "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090327315709Z",
+      "director_integration_overlays": [
+        {
+          "path": "net/BUILD.gn",
+          "before_sha256": "566304c8408940e4a75df700fe94e0b96623fa2bc84a680df6d4174edde647dd",
+          "after_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+          "reason": "Actual GN header check requires independent net_error_rust_reference dependency",
+          "effect": "Build dependency only; no source policy/test assertions changed"
+        },
+        {
+          "path": "base/strings/string_split.cc",
+          "before_sha256": "5262309c26f9c5df853bf2e1f393609db35feb2f5c669b59e0a305d179849398",
+          "after_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+          "reason": "Configured compiler requires check_op.h for CHECK_EQ/CHECK_LE; no authored policy change"
+        },
+        {
+          "path": "base/strings/string_split_rust.rs",
+          "before_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932",
+          "after_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+          "reason": "Private module contains complete accepted policy;12 not-yet-routed APIs trigger deny(dead_code). Local module-only allowance; no policy/test/lint acceptance weakened."
+        },
+        {
+          "path": "base/strings/string_split_rust_bridge_unittest.cc",
+          "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
+          "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+          "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
+        }
+      ],
+      "observed_utc": "2026-11-17T11:02:32.757143+00:00",
+      "archived_attempts": [
+        {
+          "path": "docs/rust/migration/evidence/shared-intake-20261117T085053173182Z",
+          "passed": false,
+          "source_manifest_sha256": "8879d9a8029a4bb837e3a8c0f1ba08519ed2da8d26aabb998a89fceee6fe6df1"
+        },
+        {
+          "path": "docs/rust/migration/evidence/shared-intake-20261117T085633775255Z",
+          "passed": false,
+          "source_manifest_sha256": "a94ef2ee1459a640c07707d9273c868dcb6d6e4c29e02a82c1e71faf9c047d37"
+        },
+        {
+          "path": "docs/rust/migration/evidence/shared-intake-20261117T090003329685Z",
+          "passed": false,
+          "source_manifest_sha256": "9c0af82dac7f11c13cc8de56913ed9e53dcb483d670176836a032949c72b88bd"
+        },
+        {
+          "path": "docs/rust/migration/evidence/shared-intake-20261117T090327315709Z",
+          "passed": false,
+          "source_manifest_sha256": "2212160a18e7d4b6bbfaef014af9de377d236be9bb69b2a2b12e337801baf823"
+        }
+      ],
+      "active_build_job": "2287916d727d4d1187895bd3c052e5c3",
+      "active_build_command": [
+        "python",
+        "-B",
+        "D:\\Rustium\\.rustium-runtime\\build_shared_strings_connection.py",
+        "-j1"
+      ],
+      "native_execution_acceptance": false,
+      "scope": "Guarded55file input application and source/consumer compile repair. Historical0b17program runtime pass remains scoped toits old frozen identity; no current1260-source runtime or performance pass."
+    }
+  },
+  "tests": {
+    "status": "pending",
+    "scope": "Actual configured production-path build in progress; new ABI/native tests unexecuted",
+    "prior_attempts": [
+      {
+        "path": "docs/rust/migration/evidence/shared-intake-20261117T085053173182Z",
+        "passed": false,
+        "source_manifest_sha256": "8879d9a8029a4bb837e3a8c0f1ba08519ed2da8d26aabb998a89fceee6fe6df1"
+      },
+      {
+        "path": "docs/rust/migration/evidence/shared-intake-20261117T085633775255Z",
+        "passed": false,
+        "source_manifest_sha256": "a94ef2ee1459a640c07707d9273c868dcb6d6e4c29e02a82c1e71faf9c047d37"
+      },
+      {
+        "path": "docs/rust/migration/evidence/shared-intake-20261117T090003329685Z",
+        "passed": false,
+        "source_manifest_sha256": "9c0af82dac7f11c13cc8de56913ed9e53dcb483d670176836a032949c72b88bd"
+      },
+      {
+        "path": "docs/rust/migration/evidence/shared-intake-20261117T090327315709Z",
+        "passed": false,
+        "source_manifest_sha256": "2212160a18e7d4b6bbfaef014af9de377d236be9bb69b2a2b12e337801baf823"
+      }
+    ],
+    "active_build_job": "2287916d727d4d1187895bd3c052e5c3",
+    "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3",
+    "observed_successes": "GNgen plus //base:base_unittests and //net:* checks passed before each consumer compile attempt",
+    "repairs": "Explicit net_error independent reference GNdependency, CHECK comparison header, private complete-policy dead_code scope, two bounded test-view offset expressions; every regression retained",
+    "request": "Finish serial consumer build; exact-source hostrepair tests; frozen original StringSplit/bridge tests, full net/relevant original suites,23 connection cases/16 lifecycles and separate optimizedQUIC phase; affected-consumer closure and platforms remain pending"
+  },
+  "review": {
+    "status": "native_abi_pending",
+    "independent_report": "docs/rust/migration/evidence/foundation-strings-bridge-review-20261117.md",
+    "independent_reviewed_commit": "80301077862d92e0ea36f79a8ec4cae78a008f12",
+    "successor_re_review_claimed": false,
+    "source_findings_resolution": "Directorccb6 freezes initially trimmed Rust segment boundaries and parses current segment immediately before append/log, retaining synchronous callback mutation semantics. Prepared diagnostics/order/append timing/callback mutation and reverse/separator-set once native cases. Two test pointer offsets repaired with bounded string_view substr without altering identity expectations or compiler checks. Actual configured commands contain DCHECK_ALWAYS_ON; diagnostic test must execute where enabled, never count a skipped callback contract as passed."
+  },
+  "platform_limits": [
+    "PhaseA routes8out-of-line byte once/keyvalue APIs only; publicheader inline/constexpr/UTF16/wide paths remain C++ until separate consumer milestone",
+    "GeneratedCXX providerunsafe allowance needs review; authored Rust is safe",
+    "Native allocator/logging/provider/platform/ABI behavior unvalidated",
+    "No performance, publication, completed Rustownership or cutover"
+  ],
+  "remaining_cpp_ownership": "Native public containers/APIs, constexpr/header-inline family and platform/provider ownership remain; independent CPPSSL oracle helper proposed before phaseB",
+  "next_action": "Let active serial build finish without changing inputs; inspect actual result and repair under gate. Then run queued hostrepair tests and reviewed frozen native ordinary validation, retaining full membership and all remaining provider/platform debt.",
+  "integration_scope": "55 source/GN bindings applied to both primary/configured after exactbeforeguards, independent backups and immutable runtime inputs. Source is not accepted as compiled/native/ABI/performance/cutover; production integration checkpoint pending, unrelateddirtyinputs preserved."
+}

@@ -1,0 +1,178 @@
+{
+  "task_id": "V8-WASM-LEB",
+  "candidate_commit": "383d36c166d0e8d6681850bf9b9a68c608202a31",
+  "source_identity": {
+    "base": "5b011c026104ce562706781dcaddee1747e02445",
+    "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-f9eea265-22e0cc1e5573c9b1",
+    "clean": true,
+    "candidate_files_sha256": {
+      "assertion-cases.csv": "1ae8af28aa3de95588659e4b5d2d25875862b0c631476a4f448f51999df59de2",
+      "test-mapping.csv": "3022d6687384f13a0e59b164ba0bb516a21d1ecb6bfb0437b0e217be07814ed6",
+      "integration-proposal/README.md": "765317e4ca627420caad6f245be59069b092d7e715cbbfe06840c15e33010a59",
+      "reference/source-manifest.json": "891f1b1b6a8345b695072cc3ee3a0be3ca1122ce6ad647f089fe30641b980b54",
+      "rust/leb.rs": "5e529d2e20340763220a17cf6fa8c5f37895715c62d6964d0365e58525946d8e",
+      "rust/tests.rs": "c278968ee3238cb7c40f258aca43f2f9637143064a3d7c2300b9c399527047f9",
+      "reference/include/v8config.h": "574d21bbe0e8f2c67071d41e7889630a350aff345abcb8783eea2c7093f98f40",
+      "reference/test/unittests/wasm/decoder-unittest.cc": "c6d98691c70b0dd0e83aebb6d0c1da4a2a043935996c407a8df7a881c6f14e96",
+      "reference/test/unittests/wasm/leb-helper-unittest.cc": "82f7097e41ea7f2abc780b628269ac165d4eec004b19aaccaf2c9d24eb82334e",
+      "reference/src/base/abort-mode.h": "65285a96759d826e31ad7f971227a9db00847d9d26ca94b7f5de9f53bbdf4f18",
+      "reference/src/base/base-export.h": "ca42cff80a883839ceff0e060bd98d5d0ee43a78abbce047ecbb8dfe62019b4a",
+      "reference/src/base/bits.h": "6f79252127fe873306f14b48ed5ef151fc39c257ddf59f0f4367c22c92431fc4",
+      "reference/src/base/build_config.h": "5b809f262ea64aa231e87f2fe218b0720f8b7927ad23b8472ef4da9b813cd6d5",
+      "reference/src/base/compiler-specific.h": "83bcb43aba1d6b47ab6a75090833d87b0b4bae857e06d034159600cfa5da350a",
+      "reference/src/base/immediate-crash.h": "48b403992c692e20c9212c69e72ad2e1ddfcd2a264278bee0c1a4e37bb5bd758",
+      "reference/src/base/logging.h": "61689c36ce1727d0bc9d020c27f1bb120e6ffc0368d438dace23b1c88709fd16",
+      "reference/src/base/macros.h": "e43f9d4c7df583bcd48e2708ed5ad548c7c10a07a9de86dbd79e89f96a730cc3",
+      "reference/src/base/memory.h": "ab2edf1184b19bd03277aeac76474529fa6eec2cfac5d4768808cd8a0eb8a631",
+      "reference/src/base/template-utils.h": "42b1754eb5f7257e471c8a05d62fb7aea3b0ac89a04e572652e575d11b0969a2",
+      "reference/src/base/win32-headers.h": "ad3e008f5f0752eb5d442e054e76f3dafa5feef7f9dbc6e476b57633f1730999",
+      "reference/src/wasm/decoder.h": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827",
+      "reference/src/wasm/leb-helper.h": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3"
+    },
+    "all_raw_candidate_bytes_match_git_blobs": true
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/v8-wasm-leb-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/v8-wasm-leb-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T105615869351Z/v8-wasm-leb-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
+  },
+  "review": {
+    "status": "accepted",
+    "accepted_by": "Director for standalone candidate artifact using independent review and specific verified finding resolutions",
+    "independent_report": "docs/rust/migration/evidence/v8-wasm-leb-review-20261117.md",
+    "independent_reviewed_commit": "d8c4bbfa7ebbe0922ff98ad854f8bf4e41a4884a",
+    "successor_independent_re_review_claimed": false,
+    "finding_resolution": "Reviewed arithmetic source byte-identical; helper closure expanded to16 pinned source records including ReadLittleEndianValue, CountTrailingZerosNonZero and v8config. Original independent size loops and shifted encode/decode assertions added with safe-slice padding/threshold/truncation cases; native sizeof_i64v claim removed. Ten exact-source host tests pass. Native raw-pointer cursor/tracing/unchecked-read contracts and configured differential/ABI/platform/performance acceptance remain pending."
+  },
+  "platform_limits": [
+    "Exact-source Windows host rustc candidate tests passed; native configured, ABI, platform/provider and performance acceptance remain pending",
+    "Production C++ callers, resource providers, exports/build and object ownership remain authoritative",
+    "Sanitizer/fuzz/security campaigns OFF; no publication"
+  ],
+  "next_action": "Director-owned bridge/provider/caller design with independent ABI/ownership review, then configured original production-path and affected-consumer validation; retain native and platform/performance debt",
+  "integration_commit": "eed0c4ce6038573af08ed24ba8551ec8b6f91916",
+  "artifact_intake": {
+    "docs/rust/migration/drafts/v8-wasm-leb/assertion-cases.csv": {
+      "raw_sha256": "1ae8af28aa3de95588659e4b5d2d25875862b0c631476a4f448f51999df59de2",
+      "candidate_git_blob": "9a39074b91086c56bd5f7f1096976b6fb823fd06",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/integration-proposal/README.md": {
+      "raw_sha256": "765317e4ca627420caad6f245be59069b092d7e715cbbfe06840c15e33010a59",
+      "candidate_git_blob": "192db02d9f6feb75881aa7b08f7cf2d75abdb9e8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/include/v8config.h": {
+      "raw_sha256": "574d21bbe0e8f2c67071d41e7889630a350aff345abcb8783eea2c7093f98f40",
+      "candidate_git_blob": "3063b20885ceddbd82a1edd8218bf14768364fc6",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/source-manifest.json": {
+      "raw_sha256": "891f1b1b6a8345b695072cc3ee3a0be3ca1122ce6ad647f089fe30641b980b54",
+      "candidate_git_blob": "90969e3a3d32ea380f63f3b18edfd8ed93fa6122",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/abort-mode.h": {
+      "raw_sha256": "65285a96759d826e31ad7f971227a9db00847d9d26ca94b7f5de9f53bbdf4f18",
+      "candidate_git_blob": "400c8f66fc5856d8ed763d8642a3ffa87e4ff323",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/base-export.h": {
+      "raw_sha256": "ca42cff80a883839ceff0e060bd98d5d0ee43a78abbce047ecbb8dfe62019b4a",
+      "candidate_git_blob": "50f6ed51189272753549c0001c8253fc1c726b5a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/bits.h": {
+      "raw_sha256": "6f79252127fe873306f14b48ed5ef151fc39c257ddf59f0f4367c22c92431fc4",
+      "candidate_git_blob": "7b7ee1cba2f5a91fbe99573257790369db5fda60",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/build_config.h": {
+      "raw_sha256": "5b809f262ea64aa231e87f2fe218b0720f8b7927ad23b8472ef4da9b813cd6d5",
+      "candidate_git_blob": "ee745539dfd268b754a53956f67401e5263993f1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/compiler-specific.h": {
+      "raw_sha256": "83bcb43aba1d6b47ab6a75090833d87b0b4bae857e06d034159600cfa5da350a",
+      "candidate_git_blob": "ac5913cc1d97c04c80b56da2d8c0e8b61adeed6a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/immediate-crash.h": {
+      "raw_sha256": "48b403992c692e20c9212c69e72ad2e1ddfcd2a264278bee0c1a4e37bb5bd758",
+      "candidate_git_blob": "9c25a7dce988afad9e312df7c3e9fe30fbabd450",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/logging.h": {
+      "raw_sha256": "61689c36ce1727d0bc9d020c27f1bb120e6ffc0368d438dace23b1c88709fd16",
+      "candidate_git_blob": "a2c860c80c856c8f6fe20d8cffb74c081186570b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/macros.h": {
+      "raw_sha256": "e43f9d4c7df583bcd48e2708ed5ad548c7c10a07a9de86dbd79e89f96a730cc3",
+      "candidate_git_blob": "5b5906d4ac2c67e65f266d1b598b266276dc4d0e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/memory.h": {
+      "raw_sha256": "ab2edf1184b19bd03277aeac76474529fa6eec2cfac5d4768808cd8a0eb8a631",
+      "candidate_git_blob": "642d945bf12ea4642664f45540ccbe95e39d8705",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/template-utils.h": {
+      "raw_sha256": "42b1754eb5f7257e471c8a05d62fb7aea3b0ac89a04e572652e575d11b0969a2",
+      "candidate_git_blob": "63bb0364ac09f1383b873419f9a1a1d6c9204709",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/base/win32-headers.h": {
+      "raw_sha256": "ad3e008f5f0752eb5d442e054e76f3dafa5feef7f9dbc6e476b57633f1730999",
+      "candidate_git_blob": "08eb44dc581472ce3ff8daf4114e3251c652d0e9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/wasm/decoder.h": {
+      "raw_sha256": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827",
+      "candidate_git_blob": "7d62ca1c779bd143a2d06f788e85d0bb040bbff8",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/src/wasm/leb-helper.h": {
+      "raw_sha256": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3",
+      "candidate_git_blob": "b579335c4c5f3352d54f942998d6cd30a9745f63",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/test/unittests/wasm/decoder-unittest.cc": {
+      "raw_sha256": "c6d98691c70b0dd0e83aebb6d0c1da4a2a043935996c407a8df7a881c6f14e96",
+      "candidate_git_blob": "f23e80d5d26d4f7d354e9ae439ab93b09369856d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/reference/test/unittests/wasm/leb-helper-unittest.cc": {
+      "raw_sha256": "82f7097e41ea7f2abc780b628269ac165d4eec004b19aaccaf2c9d24eb82334e",
+      "candidate_git_blob": "13532a21967c191f1a4e3ab4a2e04e48340f5f28",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/rust/leb.rs": {
+      "raw_sha256": "5e529d2e20340763220a17cf6fa8c5f37895715c62d6964d0365e58525946d8e",
+      "candidate_git_blob": "e22a5ab6f1246513142288e19830d8ffdacff3cd",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/rust/tests.rs": {
+      "raw_sha256": "c278968ee3238cb7c40f258aca43f2f9637143064a3d7c2300b9c399527047f9",
+      "candidate_git_blob": "0eebe4462f8b47d55a06082ece033cf4dfb4627c",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/v8-wasm-leb/test-mapping.csv": {
+      "raw_sha256": "3022d6687384f13a0e59b164ba0bb516a21d1ecb6bfb0437b0e217be07814ed6",
+      "candidate_git_blob": "18b4984e7a2686efdf8be2cca51d35cebf0ab88d",
+      "raw_matches_candidate_git": true
+    }
+  },
+  "integration_scope": "Exact candidate subtree and independent frozen references only. No production integration, Rust ownership behind ABI, native configured pass, performance acceptance or subsystem cutover."
+}

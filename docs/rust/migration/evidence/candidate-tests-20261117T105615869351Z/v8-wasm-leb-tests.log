@@ -1,0 +1,15 @@
+
+running 10 tests
+test tests::accepts_existing_overlong_forms ... ok
+test tests::every_max_length_final_byte_matches_native_validity_classes ... ok
+test tests::final_byte_masks_sign_extension_and_width_boundaries ... ok
+test tests::generated_bit_boundaries_repeated_prefixes_and_all_accepted_lengths ... ok
+test tests::malformed_offsets_and_native_error_classes ... ok
+test tests::original_decoder_padding_and_swar_boundary_slice_semantics ... ok
+test tests::original_helper_size_tables ... ok
+test tests::original_helper_write_decode_value_cases ... ok
+test tests::original_shifted_write_decode_sequences ... ok
+test tests::size_helpers_and_encoders_match ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

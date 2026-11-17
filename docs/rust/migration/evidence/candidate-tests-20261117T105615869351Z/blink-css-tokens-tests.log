@@ -1,0 +1,39 @@
+
+running 34 tests
+test second_review_regressions::numeric_value_equality_uses_ieee_values_with_authoritative_bits ... ok
+test second_review_regressions::raw_ffff_and_surrogate_serialization_follow_distinct_helpers ... ok
+test tests::comment_insertion_policy ... ok
+test tests::escaped_name_stream_assertions_match_original_expected_values_and_count ... ok
+test tests::fixture_runner_checks_expected_token_after_greedy_first_token - should panic ... ok
+test tests::malformed_number_boundaries_preserve_unit_suffix ... ok
+test tests::malformed_url_and_bad_string_reconsume_boundaries ... ok
+test tests::numeric_construction_clamps_to_f32_max_without_provider_fallback ... ok
+test tests::original_at_keyword_token ... ok
+test tests::original_comment_token ... ok
+test tests::original_delimiter_token ... ok
+test tests::original_dimension_token ... ok
+test tests::original_escapes ... ok
+test tests::original_function_token ... ok
+test tests::original_hash_token ... ok
+test tests::original_ident_token ... ok
+test tests::original_keyword_and_unit_ids ... ok
+test tests::original_multiple_character_tokens ... ok
+test tests::original_number_token ... ok
+test tests::original_percentage_token ... ok
+test tests::original_single_character_tokens ... ok
+test tests::original_string_token ... ok
+test tests::original_unicode_range_token ... ok
+test tests::original_url_token ... ok
+test tests::original_whitespace_tokens ... ok
+test tests::preserves_storage_unit_offsets ... ok
+test tests::preserves_valid_and_replaces_lone_surrogates ... ok
+test tests::review_hyphen_numeric_spans_and_numeric_accessor ... ok
+test tests::review_utf16_fast_and_slow_paths_preserve_blink_code_units ... ok
+test tests::serializes_numeric_policy_and_dimension_compatibility ... ok
+test tests::transcribed_escapes_ident_function_and_at_keyword_rows ... ok
+test tests::transcribed_number_dimension_percentage_and_unicode_range_rows ... ok
+test tests::transcribed_single_character_multiple_character_delimiter_and_whitespace_rows ... ok
+test tests::transcribed_url_string_hash_and_comment_rows ... ok
+
+test result: ok. 34 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
