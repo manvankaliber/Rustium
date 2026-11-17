@@ -33,6 +33,13 @@ internal candidate seam; native `SEQUENCE_CHECKER` remains authoritative.
 Signed usage overflow wraps provisionally pending the configured C++ oracle.
 Sources remain unexecuted because the validation gate is occupied.
 
+`reference/SHA256SUMS` now also pins the directly relevant Pickle alignment
+reader (`base/containers/span_reader.h`), alignment helper (`base/bits.h`),
+and `base::File`/`file_util` common, Windows, and POSIX implementations used
+for exact read/write/flush/delete semantics. These are focused helper inputs,
+not a recursive Chromium snapshot. All entries are raw `-text` reference
+copies; their inspected source revision is `e2f0a5e07ebf97115ab84e90356181c1ded93b49`.
+
 ## Integration request
 
 Director review remains required for shared Rust/C++ ABI, path/key ownership,
