@@ -1,0 +1,85 @@
+ninja: Entering directory `out/Default'
+[1/3819] CXX obj/base/base/string_split.obj
+[2/3819] RUST obj/base/libstring_split_rust_40cec81c.rlib obj/base/libstring_split_rust_40cec81c.rmeta obj/base/string_split_rust.rustflags.json obj/base/string_split_rust.rsp.rust
+FAILED: obj/base/libstring_split_rust_40cec81c.rlib obj/base/libstring_split_rust_40cec81c.rmeta obj/base/string_split_rust.rustflags.json obj/base/string_split_rust.rsp.rust 
+"../../third_party/cpython3/host/bin/python3" "../../build/rust/gni_impl/rustc_wrapper.py" --dump-rustc-env-and-flags obj/base/string_split_rust.rustflags.json --rsp=obj/base/string_split_rust.rsp --target-windows --rustc=../../third_party/rust-toolchain/bin/rustc --depfile=obj/base/libstring_split_rust_40cec81c.rlib.d --emit=dep-info=obj/base/libstring_split_rust_40cec81c.rlib.d,link,metadata=obj/base/libstring_split_rust_40cec81c.rmeta -o obj/base/libstring_split_rust_40cec81c.rlib -- ../../base/strings/string_split_rust.rs LDFLAGS RUSTENV OUT_DIR=gen/base/string_split_rust CLIPPY_CONF_DIR=../../build/config
+error: function `split_bytes_owned` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:106:8
+    |
+106 | pub fn split_bytes_owned(
+    |        ^^^^^^^^^^^^^^^^^
+    |
+    = note: `-D dead-code` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+
+error: function `split_utf16_owned` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:122:8
+    |
+122 | pub fn split_utf16_owned(
+    |        ^^^^^^^^^^^^^^^^^
+
+error: function `split_bytes_substr_owned` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:138:8
+    |
+138 | pub fn split_bytes_substr_owned(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: function `split_utf16_substr_owned` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:157:8
+    |
+157 | pub fn split_utf16_substr_owned(
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: enum `ViewOrigin` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:183:10
+    |
+183 | pub enum ViewOrigin {
+    |          ^^^^^^^^^^
+
+error: struct `ViewField` is never constructed
+   --> ../../base/strings\string_split_rust_policy.rs:190:12
+    |
+190 | pub struct ViewField<'a> {
+    |            ^^^^^^^^^
+
+error: struct `ViewPair` is never constructed
+   --> ../../base/strings\string_split_rust_policy.rs:196:12
+    |
+196 | pub struct ViewPair<'a> {
+    |            ^^^^^^^^
+
+error: struct `Pair` is never constructed
+   --> ../../base/strings\string_split_rust_policy.rs:201:12
+    |
+201 | pub struct Pair {
+    |            ^^^^
+
+error: function `key_value_views` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:208:8
+    |
+208 | pub fn key_value_views<'a>(input: &'a [u8], kv: u8, pair: &[u8]) -> (bool, Vec<ViewPair<'a>>) {
+    |        ^^^^^^^^^^^^^^^
+
+error: function `key_value_views_into` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:247:8
+    |
+247 | pub fn key_value_views_into<'a>(
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+error: function `key_value_pairs` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:258:8
+    |
+258 | pub fn key_value_pairs(input: &[u8], kv: u8, pair: &[u8]) -> (bool, Vec<Pair>) {
+    |        ^^^^^^^^^^^^^^^
+
+error: function `key_value_pairs_into` is never used
+   --> ../../base/strings\string_split_rust_policy.rs:269:8
+    |
+269 | pub fn key_value_pairs_into(input: &[u8], kv: u8, pair: &[u8], output: &mut Vec<Pair>) -> bool {
+    |        ^^^^^^^^^^^^^^^^^^^^
+
+error: aborting due to 12 previous errors
+
+ERROR: `rustc` exited with a non-zero exit code: 1
+NOTE: To apply machine-applicable fix suggestions (if any), run: build/rust/apply_fixes.py out\Default rustc obj\base\string_split_rust.rustflags.json
+ninja: build stopped: subcommand failed.

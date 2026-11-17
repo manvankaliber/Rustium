@@ -1,3 +1,5 @@
 candidate-tests-*/** -text whitespace=cr-at-eol,-blank-at-eof
 storage-arithmetic-*/** -text whitespace=cr-at-eol
 net-recovery-native-20261117/ordinary-*.json -text whitespace=cr-at-eol
+shared-intake-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+ui-geometry-review2-20261117.md -text whitespace=cr-at-eol,-blank-at-eol

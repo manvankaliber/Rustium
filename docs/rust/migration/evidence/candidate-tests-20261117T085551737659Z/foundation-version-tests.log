@@ -1,0 +1,17 @@
+
+running 12 tests
+test completed_original_rows::byte_boundaries_and_copy_assignment_adapter ... ok
+test completed_original_rows::comparetowildcardstring ... ok
+test completed_original_rows::getstring ... ok
+test completed_original_rows::isvalidwildcardstring ... ok
+test completed_original_rows::leadingzeros ... ok
+test original_version_tests::original_compare_rows_and_all_relational_operators ... ok
+test original_version_tests::original_default_constructor ... ok
+test original_version_tests::original_get_version_from_string_every_row ... ok
+test original_version_tests::original_value_and_move_semantics ... ok
+test tests::compare_padded_zeros_and_wildcards ... ok
+test tests::copy_move_boundary_and_invalid_state ... ok
+test tests::original_parse_and_serialization_fixtures ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

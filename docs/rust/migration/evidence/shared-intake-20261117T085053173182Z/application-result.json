@@ -1,0 +1,14 @@
+{
+  "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+  "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+  "applied_bindings": 55,
+  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\source-manifest.json",
+  "source_manifest_sha256": "8879d9a8029a4bb837e3a8c0f1ba08519ed2da8d26aabb998a89fceee6fe6df1",
+  "source_count": 1260,
+  "both_checkouts_matched": true,
+  "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z",
+  "status": "Guarded input application only; GN/compiler/native/ABI/platform/performance validation pending",
+  "preexisting_dirty_inputs_preserved_in_before_images": true,
+  "v4_package_unchanged": true
+}

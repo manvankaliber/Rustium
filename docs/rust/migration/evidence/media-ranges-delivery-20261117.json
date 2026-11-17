@@ -33,16 +33,80 @@
     "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T073505298865Z/media-ranges-compiler.log",
     "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T073505298865Z/media-ranges-tests.log",
     "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
-    "batch_passed": false
+    "batch_passed": false,
+    "prepared": "73 original assertion sites plus2 helper/macro records;8 hosttests including public APIs, finite numeric and adapter edges"
   },
   "review": {
-    "status": "pending",
-    "requested": "Terra/xhigh source/core/all75 fixtures/helperclosure"
+    "status": "accepted",
+    "accepted_by": "Director for candidate-artifact scope using independent review and verified small finding resolutions",
+    "independent_report": "docs/rust/migration/evidence/media-ranges-review-20261117.md",
+    "independent_reviewed_commit": "b836b77c499bf115fbf57adcd8dcc23a8fc5cb9d",
+    "successor_re_review_claimed": false,
+    "small_fix_resolution": "All4 artifact findings resolved:73 original assertion sites plus2 helper/macro records accurately distinguished; helpers exercise len/start/end;8 hosttests cover public APIs, TimeDelta adapter, signedzero operand ties and debug observations; native TimeDelta diagnostic precisely an unconnected bridge proposal; raw metadata preserved by scoped -text attributes. Add/intersection algorithms unchanged; Default no longer imposes extraneous T:Default bound."
   },
   "platform_limits": [
     "Finite partial-comparison model; no total NaN order invented",
     "Native TimeDelta/callers/ABI/exports/GN/bridge remain authoritative",
     "No compiler/runtime/native/platform/performance validation"
   ],
-  "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration"
+  "next_action": "Director-owned bridge/provider/caller design and independent ABI/ownership review, then configured affected-consumer and original production-path validation; keep platform/performance and native contract debt open",
+  "integration_commit": "88822a6de99d19460bee62177f6f342863342f37",
+  "integration_scope": "Candidate artifact and original fixtures only. Production C++ callers, resource/platform providers, ABI, build and bridge remain authoritative. No production Rust ownership, native configured pass, performance or subsystem cutover credit.",
+  "artifact_intake": {
+    "docs/rust/migration/drafts/media-ranges/.gitattributes": {
+      "raw_sha256": "49fa269fe6e2eba88e2cd0f5e925797de7d6e4c98a15534dd785b13e1a7f4d50",
+      "candidate_git_blob": "26cdb38f3db5a4ba42aa290ea12a121de6f32d95",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/README.md": {
+      "raw_sha256": "59350471d426979b7183a4ceb83ccc4302cf771bdf44f569feac2fea4c977f1b",
+      "candidate_git_blob": "3582dc1e92f29287b847492055359ab54f0a275a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/ranges.rs": {
+      "raw_sha256": "ae4179cbbc86e06a5c7ad0d6cd6afa3460e46d6362a89822af1b52cca3e45268",
+      "candidate_git_blob": "7bb3322a380faf4ba57c3476c29f405f561cdd26",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/assertion-map.csv": {
+      "raw_sha256": "5289e81223ad33b2b7ebeb271190a31474eb8f5d6c0cf7ac2c87680afbd3fb8d",
+      "candidate_git_blob": "fdfccdbeb922d585914e5060232e16f8fb87446a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source-manifest.json": {
+      "raw_sha256": "e0ba5ab89b3cf9fadead9c75ae35dbf62e8fbba6c344e5a1e78912e372d3baf5",
+      "candidate_git_blob": "c76cd8303fce3a3d8e8847f2847fa20b1bfd64c5",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/base/check.h": {
+      "raw_sha256": "1e5c47e439a3fcfd7f40b8c7ed117b6974602e3c61bed3ea078db4e047df0860",
+      "candidate_git_blob": "f73e8252e7967db424f98029859c8a258ad28d29",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/base/check_op.h": {
+      "raw_sha256": "024d6edba6d60995f7ad6b0f27c4ff4a9883782d06939ef29ebb9de40ea31fe9",
+      "candidate_git_blob": "88fe3d9357d400e8beae3f3ea3825bfa219ecb0f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/base/time/time.h": {
+      "raw_sha256": "9611314b1d0952e28fd8dace035128ae158591b5aa68c5ce20227505dbe3f93b",
+      "candidate_git_blob": "d1d5a00e8201d63494d9e1e9559f3c2a182552a0",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/media/base/ranges.cc": {
+      "raw_sha256": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+      "candidate_git_blob": "11bf870687ba092904c40a90482e24600fe68596",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/media/base/ranges.h": {
+      "raw_sha256": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+      "candidate_git_blob": "d40d82372a9b27ff3a1da89c29c5e2b2ac7b4809",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/media-ranges/reference/source/media/base/ranges_unittest.cc": {
+      "raw_sha256": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+      "candidate_git_blob": "0ed156b81d400348bee89aec003d6bef8f40efc3",
+      "raw_matches_candidate_git": true
+    }
+  }
 }

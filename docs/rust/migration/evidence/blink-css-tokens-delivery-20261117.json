@@ -1,13 +1,13 @@
 {
   "task_id": "BLINK-CSS-TOKENS",
-  "candidate_commit": "48979050b5bd59295524d01526689563dbccdc1e",
+  "candidate_commit": "66d2bbe9bc5589d5b88d618f54f02e4d095737c1",
   "source_identity": {
     "base": "285af1cc64796bba57178dc94a659f192343671d",
     "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-6013ec4a-29dd7b89022f530f",
     "clean": true,
     "file_sha256": {
-      "provider-contract.md": "2fd4b02e1ecdf8bae2dcb822963f1f0c4266bbd4dba2858a9dafbdef2c660f10",
-      "README.md": "ee31977696dc122c651e435f510844cdf4892b81ce779f876a7b9a7971842026",
+      "provider-contract.md": "dde494b869a4c4c0aef8fadbda801b0d54bb9dda149535621d5d114bf0201fb3",
+      "README.md": "944a9b608601a96f69811671b2f11f78e1906d02156b83454b0f9d5d1bb9195c",
       "coverage/all-original-assertions.csv": "116580d0dece330784a678b90e36532367b924f6d62012c914e2d24114577c16",
       "coverage/basic-four-rows.csv": "449dcadd9dba80a6d9d7d2ba09a1c9ea25d8c169f2e1568263435fc46fe1944f",
       "coverage/helper-assertions.csv": "c76a70f20e465786959f98088421f357c0cac35524c353289888e2f7484a7d63",
@@ -24,8 +24,8 @@
       "reference-cpp/numeric-validation-reference-b1d5.json": "891aabd59b5adda1ac16828195e8b65df87e91ea06033e6273136ed5948e416e",
       "rust/src/basic_original_cases.rs": "d36a1b452d1411c7201c800c6e35bbec2f5b1f9169e872575f7a2bc2f9b6623a",
       "rust/src/css_tables.rs": "e7eb5732f7dcd22cd575be00606a2fd638cd1bc906cc163b70da73eaae3e73a9",
-      "rust/src/extended_original_cases.rs": "92ada6f2b74af4206c6814b5f31529a231b10436a90b2d24a9dd36fda5a8832b",
-      "rust/src/lib.rs": "5808a0e8bedb88306468c8d8998bb03c7b57b779f8fa5fc41c4cafea0524670e",
+      "rust/src/extended_original_cases.rs": "18f315cd0d5469e3b897e244ccac8922e0929d91c7683151e0a753006fa15a27",
+      "rust/src/lib.rs": "50e6bef35052e2ac7ab18e520eabd32bf1e4d9b706098723c92064e28a83835f",
       "rust/src/numeric_unicode_cases.rs": "0d3e80c46f23062db04787511e9913fc28d1d8fabdf3297238c0e500f8f34db5",
       "rust/src/url_string_hash_comment_cases.rs": "61372ee72a04765b89c56d9c5c4f86ef776a505d4bcbe40e3d26fe4d0f6c6ef3",
       "reference-cpp/third_party/blink/renderer/platform/wtf/dtoa.cc": "8c1e576427c9398def6173dd6ce33f1d86851476e2a0001b6fb22bee9a8708ce",
@@ -101,19 +101,10 @@
     }
   },
   "tests": {
-    "status": "passed",
-    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
-    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
-    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
-    "listed_tests": 29,
-    "passed_tests": 29,
-    "failed_tests": 0,
-    "ignored_tests": 0,
-    "all_original_and_frozen_inputs_unchanged": true,
-    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T071239780458Z/blink-css-tokens-result.json",
-    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T071239780458Z/blink-css-tokens-compiler.log",
-    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T071239780458Z/blink-css-tokens-tests.log",
-    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained"
+    "status": "pending",
+    "prepared": "263 executable callcases/357 token descriptors across16originalrows;281 assertion records mapped;53 fixed numericfixtures are Rust-policy evidence only",
+    "requested": "Gated host rustc --test from independently copied exact sources; actual native target only after production bridge integration",
+    "executed": "Worker source/format checks and director cleanHEAD/scope/hashinventory only"
   },
   "review": {
     "status": "pending",
@@ -124,5 +115,5 @@
     "C++ callers/ABI/GN/exports and native platform/providers remain production authoritative",
     "CSS numerical fixtures do not establish decimal-provider parity; UI FENV/nonfinite/debugdomain review remains pending"
   ],
-  "next_action": "New independent Terra review of exact compiler-tested candidate; fix findings before director-owned production integration"
+  "next_action": "Director compiler-backed tests, repair and independent review; real shared integration remains director-owned"
 }

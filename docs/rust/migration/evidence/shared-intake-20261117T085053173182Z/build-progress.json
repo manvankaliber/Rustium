@@ -1,0 +1,34 @@
+[
+  {
+    "phase": "gn-gen",
+    "command": [
+      "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+      "gen",
+      "out/Default"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 41.882670400023926
+  },
+  {
+    "phase": "gn-check-base",
+    "command": [
+      "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+      "check",
+      "out/Default",
+      "//base:base_unittests"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 13.61252890000469
+  },
+  {
+    "phase": "gn-check-net",
+    "command": [
+      "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+      "check",
+      "out/Default",
+      "//net:*"
+    ],
+    "exit_code": 1,
+    "elapsed_seconds": 15.177412499993807
+  }
+]

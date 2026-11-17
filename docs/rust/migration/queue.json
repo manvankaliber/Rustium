@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 255,
-  "updated_utc": "2026-11-17T08:38:35.262849+00:00",
+  "revision": 332,
+  "updated_utc": "2026-11-17T09:22:17.328800+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -469,7 +469,7 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "foundation-version-coverage-closure-repair",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-e12ddf5f-e3152e5128c99c06",
         "branch": "rust/foundation-version-20261117",
@@ -477,8 +477,8 @@
         "effort": "high"
       },
       "base_revision": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
-      "delivery_commit": "6d81943827c60e65b7a60472f0ed9a3bd654aff1",
-      "integration_commit": null,
+      "delivery_commit": "5e34605ceb2bc0db7b077e5cd21c6a040ce14aa6",
+      "integration_commit": "b4681bf483649cdca320952d59d2c31719b338b6",
       "acceptance_tests": [
         "VersionTest cases; overflow, invalid wildcard, malformed versions and length/comparison edges"
       ],
@@ -493,20 +493,36 @@
         "required_cases": "Unsigned component bounds, leading zeros, invalid states, wildcard validity, unequal lengths, copy/move boundary and exact serialization.",
         "status": "unmeasured"
       },
-      "state": "implementing",
-      "next_action": "Original worker resumed in exact clean delivery for substantive coverage/reference closure repair",
+      "state": "integrated",
+      "next_action": "Director byte/component bridge design and independent ABI/lifetime review before configured original VersionTest production-path and affected-consumer validation",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-68781fed53bd4694483aaa08ab993434452108589e56495bc2a9d6af6b4b12f3.json",
           "sha256": "68781fed53bd4694483aaa08ab993434452108589e56495bc2a9d6af6b4b12f3",
           "original_alias": "D:\\Rustium\\docs\\rust\\migration\\evidence\\foundation-version-delivery-20261117.json",
           "preserved_from": "Hash-verified original worker JSON and initial review-pending fields; LF"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-eaa542d26227c52c826c91d55bb8c598a58fcfae4202956f95a34c93edc1eb08.json",
+          "sha256": "eaa542d26227c52c826c91d55bb8c598a58fcfae4202956f95a34c93edc1eb08"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-4d58b6de891e071cc54e3fd210544390e2d03cb92af631e79acba6f0d1b00410.json",
+          "sha256": "4d58b6de891e071cc54e3fd210544390e2d03cb92af631e79acba6f0d1b00410"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-d24cf2541a24027e79ebd072baa2269e730b0aadb00bccbe6035c6180c56c465.json",
+          "sha256": "d24cf2541a24027e79ebd072baa2269e730b0aadb00bccbe6035c6180c56c465"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-d24cf2541a24027e79ebd072baa2269e730b0aadb00bccbe6035c6180c56c465.json",
+          "sha256": "d24cf2541a24027e79ebd072baa2269e730b0aadb00bccbe6035c6180c56c465"
         }
       ],
       "stages": {
-        "implementation": "not started",
+        "implementation": "Reviewed core with complete original fixtures and12 hosttests passed",
         "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "production_integration": "Exact candidate artifact integrated only; native Version APIs/callers and bridge pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -580,6 +596,36 @@
           "utc": "2026-11-17T05:06:23.501093+00:00",
           "action": "amended",
           "note": "evidence"
+        },
+        {
+          "utc": "2026-11-17T08:55:50.677569+00:00",
+          "action": "submitted",
+          "note": "Recovered terminal worker committed work and completed remaining source/helper/test preparation; clean scoped successor retained"
+        },
+        {
+          "utc": "2026-11-17T08:55:50.838219+00:00",
+          "action": "validating",
+          "note": "Exact-source host tests and independent originalfixture/helper review pending; nativeownership notclaimed"
+        },
+        {
+          "utc": "2026-11-17T08:56:32.589226+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T09:00:40.589828+00:00",
+          "action": "merge-ready",
+          "note": "Exact reviewed core unchanged; original fixture/helper findings repaired and12 hosttests passed; artifact-only scope"
+        },
+        {
+          "utc": "2026-11-17T09:00:40.925983+00:00",
+          "action": "integrated",
+          "note": "Candidate artifact locally integrated; worker history retained; production C++ and bridge ownership unchanged"
+        },
+        {
+          "utc": "2026-11-17T09:00:41.207922+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -628,7 +674,7 @@
       },
       "base_revision": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
       "delivery_commit": "e10556d86940a8db6907f0053e9578c56869cb6f",
-      "integration_commit": null,
+      "integration_commit": "bf2c6c8c0f5c6a0edca8d3e7380b99fbe44d3140",
       "acceptance_tests": [
         "Original usage-cache cases, corrupted records, reopen/flush errors, incognito behavior and arithmetic limits"
       ],
@@ -643,8 +689,8 @@
         "required_cases": "Exact .usage format, signed usage and dirty count, truncation, incognito isolation, sequence affinity and filesystem errors. Native file/timer services remain documented adapters.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration",
+      "state": "integrated",
+      "next_action": "Director-owned bridge/provider/caller design and independent ABI/ownership review, then configured affected-consumer and original production-path validation; keep platform/performance and native contract debt open",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\storage-usage-sha256-437efb1a9011867a436784f8959183d09de5c7df7da6044703b5752d2b7daf7d.json",
@@ -673,12 +719,20 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\storage-usage-sha256-c03022f6df8cec5608982a10e628e7a0d38bb8c83a0abd1e63ebdd1ab71fcf35.json",
           "sha256": "c03022f6df8cec5608982a10e628e7a0d38bb8c83a0abd1e63ebdd1ab71fcf35"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\storage-usage-sha256-87c5704c9d9b8af423a1eaad20f648c2ff66411ed794fd94d26f057f2338201a.json",
+          "sha256": "87c5704c9d9b8af423a1eaad20f648c2ff66411ed794fd94d26f057f2338201a"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\storage-usage-sha256-87c5704c9d9b8af423a1eaad20f648c2ff66411ed794fd94d26f057f2338201a.json",
+          "sha256": "87c5704c9d9b8af423a1eaad20f648c2ff66411ed794fd94d26f057f2338201a"
         }
       ],
       "stages": {
-        "implementation": "not started",
+        "implementation": "Reviewed and host-tested safe Rust candidate; artifact locally integrated",
         "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "production_integration": "Candidate artifact only; production bridge, native providers and affected-consumer validation pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -857,6 +911,21 @@
           "utc": "2026-11-17T07:39:30.470246+00:00",
           "action": "amended",
           "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T08:41:01.011224+00:00",
+          "action": "merge-ready",
+          "note": "Reviewed core and completed small artifact findings; exact-source hosttests passed; candidate-only scope with native debt explicit"
+        },
+        {
+          "utc": "2026-11-17T08:41:01.220974+00:00",
+          "action": "integrated",
+          "note": "Exact candidate subtree integrated locally; task branches retained; no production ownership or cutover"
+        },
+        {
+          "utc": "2026-11-17T08:41:01.387666+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -896,15 +965,15 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
-        "session": "blink-css-tokens-review-repair-20261117",
+        "active": false,
+        "session": "director-second-review-small-fixes-blink-css-tokens",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-6013ec4a-29dd7b89022f530f",
         "branch": "rust/blink-css-tokens-20261117",
         "model": "gpt-6-luna",
         "effort": "high"
       },
       "base_revision": "285af1cc64796bba57178dc94a659f192343671d",
-      "delivery_commit": "48979050b5bd59295524d01526689563dbccdc1e",
+      "delivery_commit": "66d2bbe9bc5589d5b88d618f54f02e4d095737c1",
       "integration_commit": null,
       "acceptance_tests": [
         "CSSTokenizerTest cases and frozen streams for escapes, EOF, surrogates/NUL, numeric exponents; original independent helper closure"
@@ -920,8 +989,8 @@
         "required_cases": "8/16-bit strings, escapes, identifiers, number/dimension boundaries, comments, URLs, bad strings, offsets, whitespace and serialization. Retain GC/interning boundary explicitly.",
         "status": "unmeasured"
       },
-      "state": "implementing",
-      "next_action": "Same bounded existing Luna/high workspace; repair exact review findings and prepare regression cases; no compiler gate",
+      "state": "validating",
+      "next_action": "Exact-source host harness compilation/tests and independent review pending",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-0da21958c96b17478292cfa520c9d3f78c57dc1c0618c2222c321c0f86fe1cdd.json",
@@ -938,6 +1007,26 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-78a4595d57422450313bb0bf34fa614de0c4b689681b969cafa898688689ee4e.json",
           "sha256": "78a4595d57422450313bb0bf34fa614de0c4b689681b969cafa898688689ee4e"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-3a6ee3a0b288f74e1ab9c42618e800632a803efa5812d245251195c5afc7fb80.json",
+          "sha256": "3a6ee3a0b288f74e1ab9c42618e800632a803efa5812d245251195c5afc7fb80"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-a823651d6e8fce1e3f0bab9ced2806d49cfc52208ac20838f817be234e6d810f.json",
+          "sha256": "a823651d6e8fce1e3f0bab9ced2806d49cfc52208ac20838f817be234e6d810f"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-1376a9de46e3263d816f69c4fa46fee5d40a1e9dbc32e0bb1681b7a155fbb6d6.json",
+          "sha256": "1376a9de46e3263d816f69c4fa46fee5d40a1e9dbc32e0bb1681b7a155fbb6d6"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-e37adeb5ce3e8147a33da454fecab543bcc19c203f3d1771a8c5d144c9411b9e.json",
+          "sha256": "e37adeb5ce3e8147a33da454fecab543bcc19c203f3d1771a8c5d144c9411b9e"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\blink-css-tokens-sha256-2e1a40557780370293d35a36f1b3f8c7e7417989f9ee09c42bb8c9324cd9f451.json",
+          "sha256": "2e1a40557780370293d35a36f1b3f8c7e7417989f9ee09c42bb8c9324cd9f451"
         }
       ],
       "stages": {
@@ -1077,6 +1166,111 @@
           "utc": "2026-11-17T08:36:56.949587+00:00",
           "action": "implementing",
           "note": "Same bounded existing Luna/high workspace; repair exact review findings and prepare regression cases; no compiler gate"
+        },
+        {
+          "utc": "2026-11-17T08:44:24.157196+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:44:24.332003+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T08:45:38.823368+00:00",
+          "action": "needs-repair",
+          "note": "Strengthened32test run passed30 failed2: fastclosedstring replacement flag and one stale signedinteger provider fixture; allfailuresarchived"
+        },
+        {
+          "utc": "2026-11-17T08:45:38.984802+00:00",
+          "action": "assigned",
+          "note": "director-css-small-execution-fixes"
+        },
+        {
+          "utc": "2026-11-17T08:45:39.485618+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-6013ec4a-29dd7b89022f530f"
+        },
+        {
+          "utc": "2026-11-17T08:45:39.645966+00:00",
+          "action": "implementing",
+          "note": "Director fixes specific fastpathflag and fixturebinding against frozenCPP; originalexpectedvalues unchanged"
+        },
+        {
+          "utc": "2026-11-17T08:45:51.724796+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:45:51.888234+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T08:47:10.170922+00:00",
+          "action": "needs-repair",
+          "note": "New edgefixture failure retained: nativeInvScale origins also divide; escaped lone UTF16 codeunit uses replacement-aware NextInputChar"
+        },
+        {
+          "utc": "2026-11-17T08:47:10.339922+00:00",
+          "action": "assigned",
+          "note": "director-new-edge-fixture-fix-blink-css-tokens"
+        },
+        {
+          "utc": "2026-11-17T08:47:10.862508+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-6013ec4a-29dd7b89022f530f"
+        },
+        {
+          "utc": "2026-11-17T08:47:11.036656+00:00",
+          "action": "implementing",
+          "note": "Director corrects newly added fixture expectations from exact frozen native arithmetic/ConsumeEscape; original fixtures unchanged"
+        },
+        {
+          "utc": "2026-11-17T08:47:23.580581+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:47:23.762425+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T08:49:01.737086+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T09:10:32.003224+00:00",
+          "action": "needs-repair",
+          "note": "Second independent review retained; remaining specific platform/unit-scale or UTF16 serialization/value equality fixes required"
+        },
+        {
+          "utc": "2026-11-17T09:10:32.194491+00:00",
+          "action": "assigned",
+          "note": "director-second-review-small-fixes-blink-css-tokens"
+        },
+        {
+          "utc": "2026-11-17T09:10:32.836637+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-6013ec4a-29dd7b89022f530f"
+        },
+        {
+          "utc": "2026-11-17T09:10:32.996997+00:00",
+          "action": "implementing",
+          "note": "Director fixes concrete residual review findings with focused regression sources; no compiler execution during configured build"
+        },
+        {
+          "utc": "2026-11-17T09:10:58.499338+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T09:10:58.665072+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
         }
       ],
       "context_directories": [
@@ -1116,15 +1310,15 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
-        "session": "ui-geometry-review-repair-20261117",
+        "active": false,
+        "session": "director-second-review-small-fixes-ui-geometry",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-fbc23be0-9fbad6cf34955218",
         "branch": "rust/ui-geometry-20261117",
         "model": "gpt-6-luna",
         "effort": "high"
       },
       "base_revision": "c46d3f4975af8785d3fc1d733cf25360914ef884",
-      "delivery_commit": "e4687848f9f05328364a419e87184afc6eef0b0f",
+      "delivery_commit": "c6eed292671ea39bbdb4f50ea21be38c9f96f37f",
       "integration_commit": null,
       "acceptance_tests": [
         "Existing conversion suites, supported NaN/infinity behavior, near-integral and negative boundaries, integer limits"
@@ -1140,8 +1334,8 @@
         "required_cases": "Floor/ceil/round/enclosing/enclosed conversions, float extrema, negative coordinates, empty rectangles, integer clamping and scaling; preserve public ABI through proposal.",
         "status": "unmeasured"
       },
-      "state": "implementing",
-      "next_action": "Same bounded existing Luna/high workspace; repair exact review findings and prepare regression cases; no compiler gate",
+      "state": "validating",
+      "next_action": "Exact-source host harness compilation/tests and independent review pending",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-ff6b6d590087bd955aee0e6f110ec97fcf12bbf2eae10838df53a1d52b54b106.json",
@@ -1162,6 +1356,22 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-c8d9b7c284ba17178243cb549a42e1d4a400dc85423695767a98f49ccb8c79a9.json",
           "sha256": "c8d9b7c284ba17178243cb549a42e1d4a400dc85423695767a98f49ccb8c79a9"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-2898efcb48219f86cac6f00956e12b42b70083f7c13443f93c72b11b33510948.json",
+          "sha256": "2898efcb48219f86cac6f00956e12b42b70083f7c13443f93c72b11b33510948"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-0733441029570a77285f3f48b4693ba57f64940245e0056575b9c38a248cc590.json",
+          "sha256": "0733441029570a77285f3f48b4693ba57f64940245e0056575b9c38a248cc590"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-50531b5d3add68fdf6d8b4bcebb841e94b7bf6ad4c20371aad610b168dd4c9c3.json",
+          "sha256": "50531b5d3add68fdf6d8b4bcebb841e94b7bf6ad4c20371aad610b168dd4c9c3"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\ui-geometry-sha256-9398f496bd37454da0b6e40fdee42e1848d9cdfd20af50431b7ac48f59b4195e.json",
+          "sha256": "9398f496bd37454da0b6e40fdee42e1848d9cdfd20af50431b7ac48f59b4195e"
         }
       ],
       "stages": {
@@ -1336,6 +1546,81 @@
           "utc": "2026-11-17T08:36:57.917754+00:00",
           "action": "implementing",
           "note": "Same bounded existing Luna/high workspace; repair exact review findings and prepare regression cases; no compiler gate"
+        },
+        {
+          "utc": "2026-11-17T08:45:50.658664+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:45:50.819536+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T08:47:08.001825+00:00",
+          "action": "needs-repair",
+          "note": "New edgefixture failure retained: nativeInvScale origins also divide; escaped lone UTF16 codeunit uses replacement-aware NextInputChar"
+        },
+        {
+          "utc": "2026-11-17T08:47:08.169495+00:00",
+          "action": "assigned",
+          "note": "director-new-edge-fixture-fix-ui-geometry"
+        },
+        {
+          "utc": "2026-11-17T08:47:08.679890+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-fbc23be0-9fbad6cf34955218"
+        },
+        {
+          "utc": "2026-11-17T08:47:08.857110+00:00",
+          "action": "implementing",
+          "note": "Director corrects newly added fixture expectations from exact frozen native arithmetic/ConsumeEscape; original fixtures unchanged"
+        },
+        {
+          "utc": "2026-11-17T08:47:22.512073+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:47:22.685082+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
+        },
+        {
+          "utc": "2026-11-17T08:49:01.486440+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T09:10:29.562962+00:00",
+          "action": "needs-repair",
+          "note": "Second independent review retained; remaining specific platform/unit-scale or UTF16 serialization/value equality fixes required"
+        },
+        {
+          "utc": "2026-11-17T09:10:29.724417+00:00",
+          "action": "assigned",
+          "note": "director-second-review-small-fixes-ui-geometry"
+        },
+        {
+          "utc": "2026-11-17T09:10:30.341440+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-fbc23be0-9fbad6cf34955218"
+        },
+        {
+          "utc": "2026-11-17T09:10:30.515876+00:00",
+          "action": "implementing",
+          "note": "Director fixes concrete residual review findings with focused regression sources; no compiler execution during configured build"
+        },
+        {
+          "utc": "2026-11-17T09:10:57.424044+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate and complete claimed original fixture source delivered; no compiler or production acceptance"
+        },
+        {
+          "utc": "2026-11-17T09:10:57.588704+00:00",
+          "action": "validating",
+          "note": "Exact-source host harness compilation/tests and independent review pending"
         }
       ],
       "context_directories": [
@@ -1384,7 +1669,7 @@
       },
       "base_revision": "5e3392ef8b62b8e8c50fc3af124753f256ec2791",
       "delivery_commit": "17f4320b8d8128230876f1fae50d4cd598a94dca",
-      "integration_commit": null,
+      "integration_commit": "88822a6de99d19460bee62177f6f342863342f37",
       "acceptance_tests": [
         "Original Ranges tests; nested/adjacent/disjoint/reversed inputs, intersections, endpoint limits and deterministic operation sequences"
       ],
@@ -1399,8 +1684,8 @@
         "required_cases": "Ordered half-open ranges, adjacent coalescing, empty insertions, endpoint comparison, int64/time units and original invalid-range debug contract.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration",
+      "state": "integrated",
+      "next_action": "Director-owned bridge/provider/caller design and independent ABI/ownership review, then configured affected-consumer and original production-path validation; keep platform/performance and native contract debt open",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\media-ranges-sha256-8d688a047796faa3fbda5317ce410efa74f23ca226d0ad6c2303ddf6f923d583.json",
@@ -1421,12 +1706,20 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\media-ranges-sha256-07be17bc62368d3e5b1cc7f5ea18e0bfa452e50b199a79559f5427f98e53fc23.json",
           "sha256": "07be17bc62368d3e5b1cc7f5ea18e0bfa452e50b199a79559f5427f98e53fc23"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\media-ranges-sha256-c7c05f5ec0079d92d4cef20ea1ac586c2cc52fade6160e3c82ba5fbd5a72c28c.json",
+          "sha256": "c7c05f5ec0079d92d4cef20ea1ac586c2cc52fade6160e3c82ba5fbd5a72c28c"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\media-ranges-sha256-c7c05f5ec0079d92d4cef20ea1ac586c2cc52fade6160e3c82ba5fbd5a72c28c.json",
+          "sha256": "c7c05f5ec0079d92d4cef20ea1ac586c2cc52fade6160e3c82ba5fbd5a72c28c"
         }
       ],
       "stages": {
-        "implementation": "not started",
+        "implementation": "Reviewed and host-tested safe Rust candidate; artifact locally integrated",
         "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "production_integration": "Candidate artifact only; production bridge, native providers and affected-consumer validation pending",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -1535,6 +1828,21 @@
           "utc": "2026-11-17T07:39:30.836468+00:00",
           "action": "amended",
           "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T08:41:21.586328+00:00",
+          "action": "merge-ready",
+          "note": "Reviewed core and completed small artifact findings; exact-source hosttests passed; candidate-only scope with native debt explicit"
+        },
+        {
+          "utc": "2026-11-17T08:41:21.797142+00:00",
+          "action": "integrated",
+          "note": "Exact candidate subtree integrated locally; task branches retained; no production ownership or cutover"
+        },
+        {
+          "utc": "2026-11-17T08:41:21.959014+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -1575,14 +1883,14 @@
       "role": "coding_worker",
       "assignment": {
         "active": false,
-        "session": "director-v8-boundary-fixture-repair",
+        "session": "v8-leb-helper-fixture-repair-20261117",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-f9eea265-22e0cc1e5573c9b1",
         "branch": "rust/v8-wasm-leb-20261117",
         "model": "gpt-6-luna",
         "effort": "high"
       },
       "base_revision": "5b011c026104ce562706781dcaddee1747e02445",
-      "delivery_commit": "d8c4bbfa7ebbe0922ff98ad854f8bf4e41a4884a",
+      "delivery_commit": "383d36c166d0e8d6681850bf9b9a68c608202a31",
       "integration_commit": null,
       "acceptance_tests": [
         "Locate pinned LEB/decoder cases; copy original helper closure with hashes; differential byte-count/sign boundaries; V8 owner review before integration"
@@ -1599,7 +1907,7 @@
         "status": "unmeasured"
       },
       "state": "validating",
-      "next_action": "Independent review plus documented director small-fix resolution required before director-owned production integration",
+      "next_action": "Director source/ordinary validation and independent review pending; allnative/ABI/provider debt retained",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-e66fa1e3cbbb7d5ae0ef6389708a07e0ad1c62c34100813dd89428e5b6f89a46.json",
@@ -1616,6 +1924,10 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-c609848e4f2204578a0fc1ade49ec3a2bb9b3d756d45e46660aa2de1eb81de0c.json",
           "sha256": "c609848e4f2204578a0fc1ade49ec3a2bb9b3d756d45e46660aa2de1eb81de0c"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\v8-wasm-leb-sha256-1a7248a9cbde7e6d3b337e2bdaa787c2a5d8ec2e2a117c117fcef16cdbc9de00.json",
+          "sha256": "1a7248a9cbde7e6d3b337e2bdaa787c2a5d8ec2e2a117c117fcef16cdbc9de00"
         }
       ],
       "stages": {
@@ -1725,6 +2037,36 @@
           "utc": "2026-11-17T08:38:35.262612+00:00",
           "action": "amended",
           "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T08:58:51.075888+00:00",
+          "action": "needs-repair",
+          "note": "Independent Terra found missing SWAR helper freeze and exact original assertion corpus; core arithmetic source-supported, reportretained"
+        },
+        {
+          "utc": "2026-11-17T08:58:51.245914+00:00",
+          "action": "assigned",
+          "note": "v8-leb-helper-fixture-repair-20261117"
+        },
+        {
+          "utc": "2026-11-17T08:58:51.857153+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-f9eea265-22e0cc1e5573c9b1"
+        },
+        {
+          "utc": "2026-11-17T08:58:52.024865+00:00",
+          "action": "implementing",
+          "note": "Existing bounded Luna/high workspace; complete source/helper/fixture repair only; no compilers while configured build active"
+        },
+        {
+          "utc": "2026-11-17T09:11:00.532899+00:00",
+          "action": "submitted",
+          "note": "Clean scoped candidate/archive delivered and everyrawfile bytecompared to Gitobjects; no validation acceptance"
+        },
+        {
+          "utc": "2026-11-17T09:11:00.701541+00:00",
+          "action": "validating",
+          "note": "Director source/ordinary validation and independent review pending; allnative/ABI/provider debt retained"
         }
       ],
       "context_directories": []
@@ -1760,12 +2102,14 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": false,
-        "session": null,
-        "worktree": null,
-        "branch": null
+        "active": true,
+        "session": "blink-text-reused-workspace-20261117",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8e793e24-85c588c23fadd439",
+        "branch": "rust/blink-text-boundaries-20261117",
+        "model": "gpt-6-luna",
+        "effort": "high"
       },
-      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
+      "base_revision": "b4681bf483649cdca320952d59d2c31719b338b6",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -1782,8 +2126,8 @@
         "required_cases": "Character/word/sentence/line contracts, UTF-16 offsets, locale behavior, invalid surrogates, thread-local iterator ownership. Port actual local behavior; an ICU forwarder is not a completed rewrite.",
         "status": "unmeasured"
       },
-      "state": "ready",
-      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "state": "implementing",
+      "next_action": "Prior Strings worker terminal with no childwork; cleanaccepted62f branch retained. Existing host checkout reused, no9th worktree or duplicated configuredtree; exact2 sourcepins match newbase andprimary",
       "evidence": [],
       "stages": {
         "implementation": "not started",
@@ -1797,6 +2141,26 @@
           "utc": "2026-11-17T03:35:14.175245+00:00",
           "action": "amended",
           "note": "base_revision, original_cpp_reference"
+        },
+        {
+          "utc": "2026-11-17T09:04:50.090106+00:00",
+          "action": "amended",
+          "note": "base_revision, next_action"
+        },
+        {
+          "utc": "2026-11-17T09:04:50.262265+00:00",
+          "action": "assigned",
+          "note": "blink-text-reused-workspace-20261117"
+        },
+        {
+          "utc": "2026-11-17T09:04:51.077742+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8e793e24-85c588c23fadd439"
+        },
+        {
+          "utc": "2026-11-17T09:04:51.287606+00:00",
+          "action": "implementing",
+          "note": "Prior Strings worker terminal with no childwork; cleanaccepted62f branch retained. Existing host checkout reused, no9th worktree or duplicated configuredtree; exact2 sourcepins match newbase andprimary"
         }
       ],
       "context_directories": [
@@ -2178,14 +2542,14 @@
       "role": "director",
       "assignment": {
         "active": false,
-        "session": "director-strings-bridge-20261117",
+        "session": "director-strings-log-order-fix",
         "worktree": "D:\\RustiumReview",
         "branch": "rust/foundation-strings-bridge-20261117",
         "model": "gpt-6.1-sol",
         "effort": "xhigh"
       },
       "base_revision": "5b011c026104ce562706781dcaddee1747e02445",
-      "delivery_commit": "80301077862d92e0ea36f79a8ec4cae78a008f12",
+      "delivery_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
       "integration_commit": null,
       "acceptance_tests": [
         "Compile and ordinary-test Rust policy and typed bridge with exact offset/default-null/inputborrow lifetime cases",
@@ -2206,17 +2570,25 @@
         "status": "unmeasured"
       },
       "state": "validating",
-      "next_action": "Independent shared ABI/lifetime/source review and controlled configured compilation pending; preexisting dirty sources preserved",
+      "next_action": "Let active serial build finish without changing inputs; inspect actual result and repair under gate. Then run queued hostrepair tests and reviewed frozen native ordinary validation, retaining full membership and all remaining provider/platform debt.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-87249590a1c0fee5214db9ec4a79ebb2a2dae463dd9aae095b5780548f7405af.json",
           "sha256": "87249590a1c0fee5214db9ec4a79ebb2a2dae463dd9aae095b5780548f7405af"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-cf6799ab8ae3742d79767bc0fe4d21ee30ee30bccebdde734a18fb49a07f4b22.json",
+          "sha256": "cf6799ab8ae3742d79767bc0fe4d21ee30ee30bccebdde734a18fb49a07f4b22"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-ba15bf6d67752128ebb73c0c4da90a85fa3f8b4f73e19906852e7430ab243d40.json",
+          "sha256": "ba15bf6d67752128ebb73c0c4da90a85fa3f8b4f73e19906852e7430ab243d40"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "implementation": "Typed Rust/CXX policy proposal plus diagnostic ordering source fixes prepared; complete accepted policy retained byte-exact",
+        "configured_validation": "GNgen/base/net checks passed; serial base/net consumer build active after3 smallintegration compiler/dependency repairs; no nativepass",
+        "production_integration": "55 guarded inputs applied locally/configured; currentsource1260 bindings, pending acceptance",
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
@@ -2250,6 +2622,41 @@
           "utc": "2026-11-17T08:17:58.308606+00:00",
           "action": "validating",
           "note": "Independent shared ABI/lifetime/source review and controlled configured compilation pending; preexisting dirty sources preserved"
+        },
+        {
+          "utc": "2026-11-17T08:48:29.282734+00:00",
+          "action": "needs-repair",
+          "note": "Independent Terra found callback-observable eager keyvalue parsing and prepared diagnostic/once test gaps; source review archived"
+        },
+        {
+          "utc": "2026-11-17T08:48:29.450821+00:00",
+          "action": "assigned",
+          "note": "director-strings-log-order-fix"
+        },
+        {
+          "utc": "2026-11-17T08:48:29.993910+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T08:48:30.165118+00:00",
+          "action": "implementing",
+          "note": "Director preserves initially trimmed segment boundaries and parses each current segment in Rust immediately before native append/log; add focused native callback tests"
+        },
+        {
+          "utc": "2026-11-17T08:50:11.997532+00:00",
+          "action": "submitted",
+          "note": "Complete guarded55-binding phaseA bridge/connection proposal and native tests prepared; exact before/after guards pass, no compiler/native acceptance"
+        },
+        {
+          "utc": "2026-11-17T08:50:12.158821+00:00",
+          "action": "validating",
+          "note": "Independent shared ABI/lifetime/source review and controlled configured compilation pending; preexisting dirty sources preserved"
+        },
+        {
+          "utc": "2026-11-17T09:22:17.328582+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
         }
       ],
       "context_directories": [

@@ -1,0 +1,178 @@
+{
+  "task_id": "STORAGE-USAGE",
+  "candidate_commit": "e10556d86940a8db6907f0053e9578c56869cb6f",
+  "source_identity": {
+    "base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
+    "clean": true,
+    "reference_sha256sums_sha256": "1f222a0dc302b8cebbdcd10619b3c21c7d649e480a8289ae72b77fe67e02432a",
+    "rust_core_sha256": "8b4149f50c17b2f26ebfc8ba2c0baec48fb3730508f02bf5fea34805b6688e31",
+    "archived_reference_count_verified": 18
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 21,
+    "passed_tests": 21,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T073928605528Z/storage-usage-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained",
+    "batch_passed": true
+  },
+  "review": {
+    "status": "accepted",
+    "accepted_by": "Director for candidate-artifact scope using independent review and verified small finding resolutions",
+    "independent_report": "docs/rust/migration/evidence/storage-usage-review2-20261117.md",
+    "independent_reviewed_commit": "0d8a3ae858cb36b21e5b5980d719d247cb69e097",
+    "successor_re_review_claimed": false,
+    "small_fix_resolution": "All3 findings resolved:18 hashed references with precise platform/provider dependency limits; saved-handle olddirtyzero eviction read/write discrimination and complete native flush lookup traces; policy-driven failed/shortread, malformedcodec, failed/shortwrite plus faileddelete traces retain original errors/bytes and publicoutputs. Reviewed non-test core byte-identical.21 hosttests passed."
+  },
+  "platform_limits": [
+    "No compiler/runtime or native/configured validation for this candidate",
+    "Signed usage overflow wrapping provisional; C++ oracle/compiler contract required before out-of-domain acceptance",
+    "No real bridge, native error/sequence or timer callback lifetime validation"
+  ],
+  "remaining_ownership": "C++ callers and native resources remain production authoritative; Rust candidate owns logical policy only",
+  "next_action": "Director-owned bridge/provider/caller design and independent ABI/ownership review, then configured affected-consumer and original production-path validation; keep platform/performance and native contract debt open",
+  "arithmetic_oracle": {
+    "status": "passed",
+    "cases": 49,
+    "scope": "Original scalar signed addition with current configuredWindows overflow/optimization flags only; wholefunction/platform debt remains",
+    "evidence": "docs/rust/migration/evidence/storage-arithmetic-20261117T063613494489Z/result.json"
+  },
+  "integration_commit": "bf2c6c8c0f5c6a0edca8d3e7380b99fbe44d3140",
+  "integration_scope": "Candidate artifact and original fixtures only. Production C++ callers, resource/platform providers, ABI, build and bridge remain authoritative. No production Rust ownership, native configured pass, performance or subsystem cutover credit.",
+  "artifact_intake": {
+    "docs/rust/migration/drafts/storage-usage/.gitattributes": {
+      "raw_sha256": "4b5fc1549f1f5a7596b9a2089f267059ea7bc4bc9255aff439d074090dbb07f7",
+      "candidate_git_blob": "73de8ef08e3d8ffe054b20317ae0304b32e76fd2",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/Cargo.toml": {
+      "raw_sha256": "882a663b9e95a3a5435c6959ae52ee701d213f97a3105a536876f105435b9113",
+      "candidate_git_blob": "40ba6991a727e549f008aa638ec8d3edc94edf10",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/README.md": {
+      "raw_sha256": "cfb35f49e4b5eac84f22626388d6c61b7b6a1aef3d9c8434d536049e494db3eb",
+      "candidate_git_blob": "2db3ee6239580b2fb015f20acea6a546c57cd114",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/.gitattributes": {
+      "raw_sha256": "f06202a408fef9b9ea69bb6b1cb8160dbb0378c5bb67a444d510d231813824c8",
+      "candidate_git_blob": "883436c6dc977dbc31ddf7d778ef43b4e79f37e1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/SHA256SUMS": {
+      "raw_sha256": "1f222a0dc302b8cebbdcd10619b3c21c7d649e480a8289ae72b77fe67e02432a",
+      "candidate_git_blob": "d303e249da2aaf23fa7785dad147834392e331b9",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/bit_cast.h": {
+      "raw_sha256": "0cd10ccc2b5fe82c1a50fc8f4342e818dfb9335f05452ba308dfb90ad92e004c",
+      "candidate_git_blob": "a3fe20995f855a499bf6ceed0394df079413d751",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/bits.h": {
+      "raw_sha256": "b49197d5803105d7256d043c61334f6853a85d5bdfba0fd44a182c15f61a3c2e",
+      "candidate_git_blob": "70152abe1f1b6a92214346da1a79cbf7d998a22e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/containers/span_reader.h": {
+      "raw_sha256": "04c5e58a3b4f64bb8699f5d5925ba011f5bbf0c6c805988cccb260dff9d92c11",
+      "candidate_git_blob": "38dbf8db6fafd2355c66b5842ada83615188a705",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file.cc": {
+      "raw_sha256": "8b99040404dadb04f77bccb933818124e03b5bcb8b4e79ee28606122764000ff",
+      "candidate_git_blob": "32f051686e119e1b71a4180691104b9d8d8e5799",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file.h": {
+      "raw_sha256": "c335298945efb634fd1b9756fd43eb7ad1e5ffb31fdf44552652fbaa05e92126",
+      "candidate_git_blob": "35863b51e70f5db8276ca6815e671a5beb03342b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_posix.cc": {
+      "raw_sha256": "177bc4d00a7b1cd137db10ee8f655f50dda689011902f15b159aea7325c9738c",
+      "candidate_git_blob": "4a269c6e1823820d5517e8d9e7a027780ca63da4",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_util.cc": {
+      "raw_sha256": "17bc5e956b23b09cabdf95e96605c2dc9a3e5fc71630de11f8fae3f11edd8ad6",
+      "candidate_git_blob": "f794b175f336d04172a806cd567d7c837d0a19e1",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_util.h": {
+      "raw_sha256": "bcddcd7fac90467f900c3e7618f6c0e76d4e09eaa44e0eea41e990199f85795d",
+      "candidate_git_blob": "798ae7fad0cb464f4f4fdc41632aa51af5aa6107",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_util_posix.cc": {
+      "raw_sha256": "ac8a47112c62f02ebfb478452066362403bda000ddd7bc5f66ce28de52a0dbfe",
+      "candidate_git_blob": "e360421d066bb256764c53967cd54689c4eb696b",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_util_win.cc": {
+      "raw_sha256": "5d36de7336a05b960376814cf24d6033927a9a2b178d4e5abc43e7fbb514d94a",
+      "candidate_git_blob": "4b3b7ee07ba65acc141c61db981beabd51875b3d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/files/file_win.cc": {
+      "raw_sha256": "b7000a861ec3fb627c8be9842350951e2d253e41b9ac85f26aabe72d5e5d08a5",
+      "candidate_git_blob": "2c9c2773b6d6f1446f2c65657007b1f7866cbd8d",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/numerics/basic_ops_impl.h": {
+      "raw_sha256": "09859a81183cdffd76379fb3c0bd42c18758c98bf139362586612e163eb6dd40",
+      "candidate_git_blob": "405320bdfa87a182f5dd690180deb4e0a8b63a24",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/numerics/byte_conversions.h": {
+      "raw_sha256": "e4fb7e430845bb7c7743baa0d56adaa3b3a238f36265d1c6e12bf2089b75b65b",
+      "candidate_git_blob": "400f6d4fc62817fa8360f2f841ae5cbbe28cf99a",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/pickle.cc": {
+      "raw_sha256": "2ef8f1a264968a07c0786adc72a5c85c3b95146f540c89b9c8dd5c7bf29a4c14",
+      "candidate_git_blob": "9577b2ebd4b9c4d070b8bf0f978fe0fdf5f574b5",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/base/pickle.h": {
+      "raw_sha256": "fa704182956a268d4abb773bc11257de78734bc3e876809a7f16744c18397ca8",
+      "candidate_git_blob": "44ad2c253fb6ad959c72b15cfdfa63238895a9db",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/helper-completion.json": {
+      "raw_sha256": "1c5e06ff7ae42ecc6819d76e447f8fd434d1dbda0eb3ee4ccd3225fc1fa7730a",
+      "candidate_git_blob": "d4d3cb3d986b4e402d22ccc40d4223cc194db773",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/storage/browser/file_system/file_system_usage_cache.cc": {
+      "raw_sha256": "53fc437f9da13c3d594ea11e99f694dcec1a3d0f59d6a761193f4b54b2e20478",
+      "candidate_git_blob": "741c662a3e930caece192b85827198027c4ca74e",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/storage/browser/file_system/file_system_usage_cache.h": {
+      "raw_sha256": "4a91dfde3d2277808e938a9a66dadfc78147a60453a54b9daa708e52ff6ac051",
+      "candidate_git_blob": "231ac72ad9afcd53707fc3d7462068009deb366f",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/reference/storage/browser/file_system/file_system_usage_cache_unittest.cc": {
+      "raw_sha256": "b2d65b4a4418b5eaab8edb9044cca126df15373409b534ba30571563dec0c34b",
+      "candidate_git_blob": "3ddac6479865471fd7713ca8c56beb8cc1e7be13",
+      "raw_matches_candidate_git": true
+    },
+    "docs/rust/migration/drafts/storage-usage/src/lib.rs": {
+      "raw_sha256": "8b4149f50c17b2f26ebfc8ba2c0baec48fb3730508f02bf5fea34805b6688e31",
+      "candidate_git_blob": "da9f94c67b9bbb9daaceca4d280746b55f98aa30",
+      "raw_matches_candidate_git": true
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+  "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+  "applied_bindings": 55,
+  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085633775255Z\\source-manifest.json",
+  "source_manifest_sha256": "a94ef2ee1459a640c07707d9273c868dcb6d6e4c29e02a82c1e71faf9c047d37",
+  "source_count": 1260,
+  "both_checkouts_matched": true,
+  "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085633775255Z",
+  "status": "Prior GNgen/basecheck passed; netcheck failure archived. One guarded GNdependency repaired; rerun configured checks/build pending",
+  "preexisting_dirty_inputs_preserved_in_before_images": true,
+  "v4_package_unchanged": true,
+  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z",
+  "director_integration_overlay": {
+    "path": "net/BUILD.gn",
+    "before_sha256": "566304c8408940e4a75df700fe94e0b96623fa2bc84a680df6d4174edde647dd",
+    "after_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+    "reason": "Actual GN header check requires independent net_error_rust_reference dependency",
+    "effect": "Build dependency only; no source policy/test assertions changed"
+  }
+}

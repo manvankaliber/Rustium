@@ -1,0 +1,14 @@
+completed_original_rows::byte_boundaries_and_copy_assignment_adapter: test
+completed_original_rows::comparetowildcardstring: test
+completed_original_rows::getstring: test
+completed_original_rows::isvalidwildcardstring: test
+completed_original_rows::leadingzeros: test
+original_version_tests::original_compare_rows_and_all_relational_operators: test
+original_version_tests::original_default_constructor: test
+original_version_tests::original_get_version_from_string_every_row: test
+original_version_tests::original_value_and_move_semantics: test
+tests::compare_padded_zeros_and_wildcards: test
+tests::copy_move_boundary_and_invalid_state: test
+tests::original_parse_and_serialization_fixtures: test
+
+12 tests, 0 benchmarks

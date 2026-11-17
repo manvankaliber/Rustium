@@ -1,0 +1,13 @@
+ERROR at //net/http/http_request_headers_rust_original.cc:2:11: Include not allowed.
+#include "net/base/net_error_rust_reference.h"
+          ^----------------------------------
+It is not in any dependency of
+  //net:http_request_headers_rust_reference
+The include file is in the target(s):
+  //net:net_error_rust_reference
+which should somehow be reachable.
+This might be a false alarm if you are using conditional include. See "gn help nogncheck".
+Suggestion: Add deps = [ ":net_error_rust_reference" ] to :http_request_headers_rust_reference (defined at //net/BUILD.gn:6157)
+  (`gn edit "add deps :net_error_rust_reference" //net:http_request_headers_rust_reference`)
+
+To automatically apply suggestions, add --fix.
