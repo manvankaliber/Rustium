@@ -159,7 +159,7 @@ mod tests {
     }
 }
 #[cfg(test)]
-mod tests {
+mod original_version_tests {
     use super::*;
 
     // Transcribed row-for-row from reference-cpp/base/version_unittest.cc.
