@@ -6,13 +6,16 @@
 
 #include "base/build_time.h"
 #include "base/functional/bind.h"
-#include "base/logging.h"
-#include "base/logging/logging_settings.h"
 #include "base/test/launcher/unit_test_launcher.h"
 #include "build/build_config.h"
 #include "net/socket/transport_client_socket_pool.h"
 #include "net/test/net_test_suite.h"
 #include "url/buildflags.h"
+
+#if BUILDFLAG(IS_WIN)
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#endif
 
 namespace {
 
@@ -47,16 +50,19 @@ bool VerifyBuildIsTimely() {
 }  // namespace
 
 int main(int argc, char** argv) {
-  // The parent launcher logs before TestSuite::Run initializes child logging.
-  // Keep those messages in captured stderr instead of beside sealed binaries.
-  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
-    return 1;
-  }
-
   if (!VerifyBuildIsTimely())
     return 1;
 
   NetTestSuite test_suite(argc, argv);
+#if BUILDFLAG(IS_WIN)
+  // Construction initializes CommandLine. The launcher can log before Run().
+  // Child and single-process Run() still initialize suite logging as before.
+  // Capture early Windows diagnostics without writing beside sealed binaries.
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+#endif
+
 
   return base::LaunchUnitTests(
       argc, argv,
