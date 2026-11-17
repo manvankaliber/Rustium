@@ -5,7 +5,7 @@
       "path": "net/test/run_all_unittests.cc",
       "before_sha256": "87e4e905f4463857acf129d1f3533b219608f0a354f044645ebea5d9b77f91d7",
       "source_snapshot": "source-before/net/test/run_all_unittests.cc",
-      "proposed_sha256": "c8c241f85e1baedba4d00978cfa5590d04b8fe485fcc78a90f1eb9a100f17298",
+      "proposed_sha256": "5db772c1bcd95fa7187c6bb6045d2f174931f2d05ca3bbf7fbc255b743a940b1",
       "proposal": "integration-proposal/net/test/run_all_unittests.cc"
     },
     {
@@ -24,10 +24,25 @@
       "source_snapshot": "source-before/base/test/launcher/unit_test_launcher.cc"
     },
     {
+      "path": "base/test/launcher/test_launcher.cc",
+      "before_sha256": "8591e6002b60737c31c74029512c6cb1f98882533448407384884960cab700a4",
+      "source_snapshot": "source-before/base/test/launcher/test_launcher.cc"
+    },
+    {
+      "path": "base/test/launcher/test_results_tracker.cc",
+      "before_sha256": "ce8f8484cc7269572b6be7e8e543f4e8ef4acd986604f948b4f953a4deaa4069",
+      "source_snapshot": "source-before/base/test/launcher/test_results_tracker.cc"
+    },
+    {
+      "path": ".scratch/net-wave3/configured_validate.py",
+      "before_sha256": "956dbac6fc9401ef435a0e6de4e8bcbe4f56d20326b81e88983b823742041b95",
+      "source_snapshot": "source-before/.scratch/net-wave3/configured_validate.py"
+    },
+    {
       "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
       "before_sha256": "b8af6cdb17a949fc2abf55f281f7976d829644a515cf089133efa87be6faf451",
       "source_snapshot": "source-before/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
-      "proposed_sha256": "ad06d94a29415d2ba9d081a4d752412b4a77a99f8ae15f60c8068337d6ab15a1",
+      "proposed_sha256": "51e72fb46a75d32b437f9f7268243c23dfefda4484482476b4c68ef803561dfa",
       "proposal": "integration-proposal/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py"
     }
   ],

@@ -1,46 +1,94 @@
 --- a/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py
 +++ b/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py
-@@ -16,6 +16,7 @@
- from pathlib import Path
- import re
- import subprocess
-+import tempfile
- import sys
- 
- sys.dont_write_bytecode = True
-@@ -511,6 +512,18 @@
+@@ -511,6 +511,71 @@
              'measurement_output_absent': True, 'runtime_case_enumeration': contract['method'] == 'json-cases'}
  
  
-+def execution_temporary_root(snapshot, parent):
-+    """Keep nested Windows fixture paths short and outside immutable inputs."""
++def execution_temporary_root(snapshot, evidence):
++    """Use the fresh, director-owned evidence directory under the existing trust contract."""
 +    snapshot = Path(snapshot).resolve()
-+    parent = Path(parent).resolve()
-+    require(not parent.is_relative_to(snapshot) and not snapshot.is_relative_to(parent),
-+            'Temporary parent overlaps sealed snapshot')
-+    # Reserve space for the unique run name and nested native fixture paths.
-+    require(len(str(parent)) <= 48, 'Temporary parent must be at most 48 characters')
-+    parent.mkdir(parents=True, exist_ok=True)
-+    return Path(tempfile.mkdtemp(prefix='net-', dir=parent)).resolve()
++    evidence = Path(evidence).resolve()
++    require(not evidence.is_relative_to(snapshot) and not snapshot.is_relative_to(evidence),
++            'Temporary evidence directory overlaps sealed snapshot')
++    temporary = evidence / 'tmp'
++    require(len(str(temporary)) <= 96, 'Use a short unique execution evidence path (TMP maximum 96 characters)')
++    require(evidence.is_dir(), 'Fresh evidence directory must already exist')
++    temporary.mkdir()
++    require(temporary.resolve() == temporary and not temporary.resolve().is_relative_to(snapshot),
++            'Temporary directory mapping changed during allocation')
++    return temporary
++
++
++REQUIRED_RECOVERY_TESTS = {
++    'CookieMonsterTest.GetKey',
++    'CookieMonsterLegacyScopeTest.DeleteAllAliasCookies',
++    'SQLitePersistentCookieStoreTest.LoadingPartitionedCookies',
++    'SQLitePersistentCookieStoreTest.SourcePortIsPersistent',
++    'SQLitePersistentCookieStoreTest.TestInvalidVersionRecovery',
++    'SQLitePersistentCookieStoreTest.TestLoadOldSessionCookies',
++    'SQLitePersistentCookieStoreTest_OriginBoundCookies.DeleteCookie',
++    'SQLitePersistentCookieStorev24UpgradeTest.UpgradeToSchemaVersion24/0',
++    'SQLitePersistentCookieStorev24UpgradeTest.UpgradeToSchemaVersion24/4',
++    'FileOperationsInitWithNVSDirTest.InitSucceedsWhenUnneededFilesUndeletable',
++    'FileOperations/FileOperationsTempDeleteTest.TempSnapshotUndeletable/LegacySubdirectory',
++    'SpdySessionTest.TestYieldingSlowReads',
++    'SpdySessionTest.TestYieldingDuringReadData',
++    'SpdySessionTest.TestYieldingDuringAsyncReadData',
++}
++
++
++def gtest_membership(folder, target):
++    """The launcher's all_tests is captured before its run filters/sharding."""
++    data = load(Path(folder) / 'summary.json')
++    listed = data.get('all_tests')
++    disabled = data.get('disabled_tests')
++    iterations = data.get('per_iteration_data')
++    require(isinstance(listed, list) and listed and all(isinstance(x, str) for x in listed),
++            'Missing complete launcher test enumeration')
++    require(len(set(listed)) == len(listed), 'Duplicate listed tests')
++    require(isinstance(disabled, list) and all(isinstance(x, str) for x in disabled),
++            'Missing disabled-test enumeration')
++    require(len(set(disabled)) == len(disabled) and set(disabled) <= set(listed),
++            'Invalid disabled-test membership')
++    require(isinstance(iterations, list) and len(iterations) == 1 and isinstance(iterations[0], dict),
++            'Expected exactly one complete launcher iteration')
++    expected = set(listed) - set(disabled)
++    actual = set(iterations[0])
++    require(actual == expected, 'Missing or extra enabled test attempts: ' + repr({
++        'missing': sorted(expected - actual), 'extra': sorted(actual - expected)}))
++    require(all(isinstance(attempts, list) and len(attempts) == 1 and
++                isinstance(attempts[0], dict) and attempts[0].get('status')
++                for attempts in iterations[0].values()), 'Missing or repeated test attempts')
++    if target == 'net_unittests':
++        require(REQUIRED_RECOVERY_TESTS <= expected,
++                'Recovery regression tests omitted or disabled: ' + repr(sorted(REQUIRED_RECOVERY_TESTS - expected)))
++    # Status failures and native skips remain the independent parser's concern.
++    # Native skips are recorded explicitly and never counted as passed tests.
++    return {'expected_enabled': len(expected), 'observed_attempts': len(actual),
++            'disabled': len(disabled), 'complete': True,
++            'required_recovery_cases': sorted(REQUIRED_RECOVERY_TESTS) if target == 'net_unittests' else []}
 +
 +
  def run(args):
      base = reused(); snapshot = args.snapshot.resolve()
      complete_snapshot(snapshot)
-@@ -537,7 +550,11 @@
+@@ -537,7 +602,14 @@
      require(not evidence.is_relative_to(snapshot), 'Execution output must be outside sealed snapshot')
      evidence.mkdir(parents=True, exist_ok=False)
      env = base.child_env(snapshot, manifest)
 -    env['TMP'] = env['TEMP'] = str(evidence / 'tmp'); (evidence / 'tmp').mkdir()
-+    temporary = execution_temporary_root(snapshot, args.temporary_root)
++    temporary = execution_temporary_root(snapshot, evidence)
 +    env['TMP'] = env['TEMP'] = str(temporary)
 +    save_new(evidence / 'execution-environment.json', {
-+        'TMP': env['TMP'], 'TEMP': env['TEMP'], 'temporary_parent': str(args.temporary_root.resolve()),
++        'TMP': env['TMP'], 'TEMP': env['TEMP'], 'temporary_parent': str(evidence),
++        'namespace_contract': 'Fresh director-owned evidence namespace remains stable; no adversarial namespace/ACL isolation claimed',
 +        'outside_sealed_snapshot': True, 'retained_after_execution': True})
++    for key in ('GTEST_FILTER', 'GTEST_TOTAL_SHARDS', 'GTEST_SHARD_INDEX', 'GTEST_REPEAT'):
++        require(not env.get(key), 'Test membership environment override: ' + key)
      out = snapshot / 'configured/out/Default'
      records = []
      api = ctypes.WinDLL('kernel32', use_last_error=True)
-@@ -552,7 +569,7 @@
+@@ -552,7 +624,7 @@
          record = {'command': command, 'kind': case['kind'], 'family': case['family'],
              'manifest_sha256': sha(snapshot / 'input-manifest.json'), 'qualification_sha256': sha(args.qualification),
              'performance_measurement': False, 'whole_goal_acceptance': False, 'cpu_requested': args.cpu,
@@ -49,11 +97,11 @@
          if case.get('blockers'):
              record.update(passed=False, execution_blockers=case['blockers'],
                  follow_up='Parent fixes source clock path, rebuilds, refreshes plan/freshness and freezes a new identity')
-@@ -621,6 +638,7 @@
-     s = sub.add_parser('run')
-     for arg in ['snapshot', 'qualification', 'evidence']:
-         s.add_argument('--' + arg, type=Path, required=True)
-+    s.add_argument('--temporary-root', type=Path, default=Path('D:/RustiumTmp'))
-     s.add_argument('--cpu', type=int, default=2); s.add_argument('--timeout', type=int, default=3600)
-     args = p.parse_args()
-     if args.action == 'plan':
+@@ -573,6 +645,7 @@
+             text = (folder / 'output.log').read_text(errors='replace')
+             if case['kind'] == 'gtest':
+                 result = parser.unit_results(folder)
++                result['membership'] = gtest_membership(folder, case['target'])
+             elif case['kind'] == 'rust':
+                 result = ns['rust_unit_results'](text, case['expected_tests'])
+             else:
