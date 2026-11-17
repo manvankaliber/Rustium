@@ -27,13 +27,17 @@
     "native_compilation_and_runtime": "Not run by reviewer; full current build still fails"
   },
   "review": {
+    "status": "accepted",
+    "scope": "Director verified exact independent review artifact and actionable findings; acceptance applies to the review deliverable only, not its reviewed code, ABI or runtime"
+  },
+  "next_action": "Review deliverable retained. Parent source repairs09db0827 applied with guards under source e6ce572a; actual compilation, link ownership, schema output and runtime qualification remain open in Network integration tasks.",
+  "platform_limits": "Source review only; no subsystem cutover, provider independence or platform-wide ABI acceptance",
+  "reviewed_packet_disposition": {
     "status": "needs-repair",
     "findings": [
       "P1: reconcile single proxy reference implementation ownership across SPDY DLL and executables",
       "P2: strict comparator must reject empty, malformed or incomplete records"
     ],
     "other_changes": "Conditional source acceptance; build, ABI, link, runtime and output schema evidence required"
-  },
-  "next_action": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified.",
-  "platform_limits": "Source review only; no subsystem cutover, provider independence or platform-wide ABI acceptance"
+  }
 }

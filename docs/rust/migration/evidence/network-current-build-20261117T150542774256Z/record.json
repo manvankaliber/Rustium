@@ -1,0 +1,13 @@
+{
+  "observed_utc": "2026-11-17T15:27:39.626878+00:00",
+  "source_manifest_sha256": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e",
+  "source_count": 1270,
+  "application_bindings": 94,
+  "source_graph_archive_sha256": "a67b761af9e7701f881ec637ce911e09197b5a63057880f2095f80e241e7c220",
+  "gn_and_header_checks": "passed",
+  "changed_object_preflight": "passed,77 build actions; full consumer command still running",
+  "live_exec_session": 31296,
+  "full_build_terminal_result": "pending; resume same handle, never restart for observation timeout",
+  "review": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-reference-wiring-review-delivery-20261117.json",
+  "scope": "No native runtime, binary ownership, performance or cutover acceptance"
+}

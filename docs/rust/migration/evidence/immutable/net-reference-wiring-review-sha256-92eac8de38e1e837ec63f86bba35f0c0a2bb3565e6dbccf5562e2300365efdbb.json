@@ -1,0 +1,16 @@
+{
+  "task_id": "NET-REFERENCE-WIRING-REVIEW",
+  "candidate_commit": "984d2f066384b3827843c9e9d34bfea4b186252d",
+  "integration_commit": "f04597b5a94edaf4d780554d03c36a1f1b66522d",
+  "observed_utc": "2026-11-17T15:27:39.626878+00:00",
+  "tests": {
+    "status": "passed",
+    "scope": "Exact clean independent review artifact intake only; native build/runtime not assessed by reviewer"
+  },
+  "review": {
+    "status": "needs-repair",
+    "scope": "Hold qualification; comparator requires trusted source/binary capture binding, proxy graph has one owner but binary/runtime evidence pending, auth parent closure and counter links need reconciliation"
+  },
+  "next_action": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs.",
+  "current_source_identity": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e"
+}

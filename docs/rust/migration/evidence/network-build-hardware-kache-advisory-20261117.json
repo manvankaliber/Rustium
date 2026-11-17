@@ -1,0 +1,23 @@
+{
+  "observed_utc": "2026-11-17T15:27:39.626878+00:00",
+  "current_cpu": "Ryzen7 2700X,8cores/16threads",
+  "usable_ram_gib": 15.95,
+  "latest_free_physical_kib": 1295108,
+  "observed_ninja_working_set_bytes": 1445896192,
+  "compiler_jobs": 1,
+  "current_ceiling": 2,
+  "kache_inspection": {
+    "installed_or_executed": false,
+    "captured_cpp_commands": 8532,
+    "commands_with_module_flags": 8532,
+    "documented_modules_behavior": "C/C++ modules pass through uncached; actual wrapper eligibility on this build remains untested"
+  },
+  "sources": [
+    "https://github.com/kunobi-ninja/kache",
+    "https://ninja.kunobi.com/docs/kache/getting-started/c-cpp",
+    "https://ninja.kunobi.com/docs/kache/getting-started/windows",
+    "https://chromium.googlesource.com/chromium/src/+/main/docs/windows_build_instructions.md",
+    "https://gamersnexus.net/cpus/amd-threadripper-9980x-64-core-cpu-review-benchmarks"
+  ],
+  "recommendation": "RAM first if compatible; modern16core desktop,64-96GB RAM,2TB NVMe is a balanced new-builder target. Dedicated machine optional. More parallel jobs need reviewed resource/policy qualification. No predicted Rustium speedup or external build authorized."
+}

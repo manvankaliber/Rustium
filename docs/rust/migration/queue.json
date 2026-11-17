@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 455,
-  "updated_utc": "2026-11-17T14:58:19.335480+00:00",
+  "revision": 466,
+  "updated_utc": "2026-11-17T15:27:40.426112+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -3705,7 +3705,7 @@
       },
       "base_revision": "98652a65b0fd519e15e85ce92e62668df5f4b290",
       "delivery_commit": "c3c2e63afdf579205184e0edd5f82805a90c8af2",
-      "integration_commit": null,
+      "integration_commit": "750bc5a1f0eb2347b553b51f3f7d0f1985e75431",
       "acceptance_tests": [
         "Verify frozen/current before hashes and no excluded connection overlap or test/loop/schema weakening",
         "Review private URL friendship,3DNS and8auth component symbols using actual producer flags/ownership and relevant ABI/consumer boundary",
@@ -3719,12 +3719,20 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified.",
+      "state": "integrated",
+      "next_action": "Review deliverable retained. Parent source repairs09db0827 applied with guards under source e6ce572a; actual compilation, link ownership, schema output and runtime qualification remain open in Network integration tasks.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-compile-integration-review-sha256-fcfcd781a28c1a9cc2605c80ef7eaf93c05e69beb9cf64dc3196e2901e2f47d8.json",
           "sha256": "fcfcd781a28c1a9cc2605c80ef7eaf93c05e69beb9cf64dc3196e2901e2f47d8"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-compile-integration-review-sha256-8a85b927be440848c997bc86e0f3b44f1cb208b5a2d6f61d683df9d34928b7a7.json",
+          "sha256": "8a85b927be440848c997bc86e0f3b44f1cb208b5a2d6f61d683df9d34928b7a7"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-compile-integration-review-sha256-8a85b927be440848c997bc86e0f3b44f1cb208b5a2d6f61d683df9d34928b7a7.json",
+          "sha256": "8a85b927be440848c997bc86e0f3b44f1cb208b5a2d6f61d683df9d34928b7a7"
         }
       ],
       "stages": {
@@ -3764,6 +3772,116 @@
           "utc": "2026-11-17T14:58:19.335170+00:00",
           "action": "validating",
           "note": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified."
+        },
+        {
+          "utc": "2026-11-17T15:12:56.596803+00:00",
+          "action": "merge-ready",
+          "note": "Review deliverable retained. Parent source repairs09db0827 applied with guards under source e6ce572a; actual compilation, link ownership, schema output and runtime qualification remain open in Network integration tasks."
+        },
+        {
+          "utc": "2026-11-17T15:12:56.802558+00:00",
+          "action": "integrated",
+          "note": "Review deliverable retained. Parent source repairs09db0827 applied with guards under source e6ce572a; actual compilation, link ownership, schema output and runtime qualification remain open in Network integration tasks."
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-REFERENCE-WIRING-REVIEW",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Independently review concrete isolated auth probe/CXX wiring, repaired observation windows and current single proxy component ownership",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "docs/rust/migration/drafts/net-reference-probe-wiring-v2",
+          "docs/rust/migration/drafts/net-compile-parent-fixes",
+          "docs/rust/migration/drafts/net-connection-reference-independence"
+        ],
+        "revision": "ee1739128e28d664266b57a8b604cb266fe7a322",
+        "auth_parent_candidate": "c36d1aafb00e413feff07907844c0555a21cd021",
+        "source_manifest_sha256": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-reference-wiring-review"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "reviewer",
+      "assignment": {
+        "active": false,
+        "session": "terra-network-reference-wiring-review-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-reference-wiring-review-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "ee1739128e28d664266b57a8b604cb266fe7a322",
+      "delivery_commit": "984d2f066384b3827843c9e9d34bfea4b186252d",
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Check exact seven same-label Rust/counter ownership, paired CXX roots and no probe leakage in normal graph; identify actual GN/link qualification still required",
+        "Review Windows teardown/in-flight cancellation/reentry and six common non-Kerberos cases at c36d, without promoting compile-only evidence",
+        "Review repaired proxy component/export ownership against current GN graph, unchanged frozen bodies and additive cross-DLL test; explicit remaining ABI/runtime evidence"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "validating",
+      "next_action": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs.",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-reference-wiring-review-sha256-92eac8de38e1e837ec63f86bba35f0c0a2bb3565e6dbccf5562e2300365efdbb.json",
+          "sha256": "92eac8de38e1e837ec63f86bba35f0c0a2bb3565e6dbccf5562e2300365efdbb"
+        }
+      ],
+      "stages": {
+        "implementation": "Independent concrete wiring and repaired observation review requested",
+        "configured_validation": "Current1270-input build in progress; no pass claim",
+        "production_integration": "Auth/probe proposal unapplied; normal compiler/proxy repairs applied under guards",
+        "rust_ownership": "Existing policy preserved; independent reference/probe qualification pending",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T15:13:12.771929+00:00",
+          "action": "enqueued",
+          "note": "Independently review concrete isolated auth probe/CXX wiring, repaired observation windows and current single proxy component ownership"
+        },
+        {
+          "utc": "2026-11-17T15:13:12.946641+00:00",
+          "action": "assigned",
+          "note": "terra-network-reference-wiring-review-20261117"
+        },
+        {
+          "utc": "2026-11-17T15:13:13.504610+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T15:13:13.678582+00:00",
+          "action": "implementing",
+          "note": "Review pinned proposals and current evaluated graph without running builds or changing configured inputs"
+        },
+        {
+          "utc": "2026-11-17T15:27:40.241329+00:00",
+          "action": "submitted",
+          "note": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs."
+        },
+        {
+          "utc": "2026-11-17T15:27:40.425788+00:00",
+          "action": "validating",
+          "note": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs."
         }
       ],
       "context_directories": [
