@@ -1,0 +1,21 @@
+case,width,input_hex,expected_value,consumed,error_offset,error_class,source_basis
+minimum,unsigned32,00,0,1,,,LEBHelper::WriteAndDecode_u32v;DecoderTest::ReadU32v_OneByte
+redundant_zero,unsigned32,80 00,0,2,,,DecoderTest::ReadLEB_SwarAndFallbackPaths overlong lengths
+redundant_one,unsigned32,81 00,1,2,,,DecoderTest::ReadLEB_SwarAndFallbackPaths overlong lengths
+negative_one_overlong,signed32,ff 7f,-1,2,,,DecoderTest::ReadLEB_SwarAndFallbackPaths overlong lengths
+negative_one_overlong,signed33,ff 7f,-1,2,,,DecoderTest::ReadLEB_SwarAndFallbackPaths overlong lengths
+max_unsigned32,unsigned32,ff ff ff ff 0f,4294967295,5,,,DecoderTest::ReadU32v_FiveByte
+min_signed32,signed32,80 80 80 80 78,-2147483648,5,,,DecoderTest::ReadI32v_FiveByte
+max_signed32,signed32,ff ff ff ff 07,2147483647,5,,,DecoderTest::ReadI32v_FiveByte
+min_signed33,signed33,80 80 80 80 70,-4294967296,5,,,DecoderTest::ReadLEB_ExhaustiveLastByteValidation
+max_signed33,signed33,ff ff ff ff 0f,4294967295,5,,,DecoderTest::ReadLEB_ExhaustiveLastByteValidation
+max_unsigned64,unsigned64,ff ff ff ff ff ff ff ff ff 01,18446744073709551615,10,,,DecoderTest::ReadU64v_Bits
+min_signed64,signed64,80 80 80 80 80 80 80 80 80 7f,-9223372036854775808,10,,,DecoderTest::ReadI64v_Bits
+truncated,unsigned32,80,,0,1,reached-end,DecoderTest::ReadU32v_off_end1
+u32_continues_at_limit,unsigned32,80 80 80 80 80,,0,4,length-overflow,DecoderTest::ReadLEB_ExhaustiveLastByteValidation
+u32_final_extra_bits,unsigned32,80 80 80 80 10,,0,4,extra-bits,DecoderTest::ReadU32v_extra_bits
+i32_invalid_positive_extension,signed32,80 80 80 80 08,,0,4,extra-bits,DecoderTest::ReadI32v_extra_bits_positive
+i32_valid_negative_extension,signed32,ff ff ff ff 7f,-1,5,,,DecoderTest::ReadI32v_extra_bits_negative
+i33_invalid_mask,signed33,80 80 80 80 10,,0,4,extra-bits,DecoderTest::ReadLEB_ExhaustiveLastByteValidation
+u64_continuation_at_limit,unsigned64,80 80 80 80 80 80 80 80 80 80,,0,9,length-overflow,DecoderTest::ReadLEB_ExhaustiveLastByteValidation
+i64_valid_negative_extension,signed64,ff ff ff ff ff ff ff ff ff 7f,-1,10,,,DecoderTest::ReadI64v_extra_bits_negative
