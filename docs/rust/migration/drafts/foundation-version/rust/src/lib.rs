@@ -158,3 +158,97 @@ mod tests {
         assert!(!Version::from_components(vec![]).is_valid());
     }
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Transcribed row-for-row from reference-cpp/base/version_unittest.cc.
+    // The C++ assertion/test name is retained in each test name/message.
+    #[test]
+    fn original_default_constructor() {
+        assert!(!Version::default().is_valid(), "VersionTest.DefaultConstructor EXPECT_FALSE");
+    }
+
+    #[test]
+    fn original_value_and_move_semantics() {
+        let v1 = Version::parse(b"1.2.3.4");
+        assert!(v1.is_valid(), "VersionTest.ValueSemantics");
+        let invalid = Version::default();
+        assert!(!invalid.is_valid(), "VersionTest.ValueSemantics");
+        let v2 = v1.clone();
+        let v3 = v2.clone();
+        assert!(v2.is_valid(), "VersionTest.ValueSemantics");
+        assert!(v1.equals_by_compare_to(&v2), "VersionTest.ValueSemantics");
+        assert!(v3.equals_by_compare_to(&v1), "VersionTest.ValueSemantics");
+        let moved = Version::from_components(vec![1, 2, 3, 4]);
+        assert!(moved.is_valid(), "VersionTest.MoveSemantics");
+        assert!(moved.equals_by_compare_to(&v1), "VersionTest.MoveSemantics");
+    }
+
+    #[test]
+    fn original_get_version_from_string_every_row() {
+        struct Case { input: &'static [u8], parts: usize, first: u32, success: bool }
+        let cases = [
+            Case { input: b"", parts: 0, first: 0, success: false },
+            Case { input: b" ", parts: 0, first: 0, success: false },
+            Case { input: b"\t", parts: 0, first: 0, success: false },
+            Case { input: b"\n", parts: 0, first: 0, success: false },
+            Case { input: b"  ", parts: 0, first: 0, success: false },
+            Case { input: b".", parts: 0, first: 0, success: false },
+            Case { input: b" . ", parts: 0, first: 0, success: false },
+            Case { input: b"0", parts: 1, first: 0, success: true },
+            Case { input: b"0.", parts: 0, first: 0, success: false },
+            Case { input: b"0.0", parts: 2, first: 0, success: true },
+            Case { input: b"4294967295.0", parts: 2, first: 4294967295, success: true },
+            Case { input: b"4294967296.0", parts: 0, first: 0, success: false },
+            Case { input: b"-1.0", parts: 0, first: 0, success: false },
+            Case { input: b"1.-1.0", parts: 0, first: 0, success: false },
+            Case { input: b"1,--1.0", parts: 0, first: 0, success: false },
+            Case { input: b"+1.0", parts: 0, first: 0, success: false },
+            Case { input: b"1.+1.0", parts: 0, first: 0, success: false },
+            Case { input: b"1+1.0", parts: 0, first: 0, success: false },
+            Case { input: b"++1.0", parts: 0, first: 0, success: false },
+            Case { input: b"1.0a", parts: 0, first: 0, success: false },
+            Case { input: b"1.2.3.4.5.6.7.8.9.0", parts: 10, first: 1, success: true },
+            Case { input: b"02.1", parts: 0, first: 0, success: false },
+            Case { input: b"0.01", parts: 2, first: 0, success: true },
+            Case { input: b"f.1", parts: 0, first: 0, success: false },
+            Case { input: b"15.007.20011", parts: 3, first: 15, success: true },
+            Case { input: b"15.5.28.130162", parts: 4, first: 15, success: true },
+        ];
+        for (row, c) in cases.iter().enumerate() {
+            let v = Version::parse(c.input);
+            assert_eq!(v.is_valid(), c.success, "GetVersionFromString row {row}: {:?}", c.input);
+            let actual = v.components().unwrap_or(&[]);
+            assert_eq!(actual.len(), c.parts, "GetVersionFromString row {row}: parts");
+            if c.success { assert_eq!(actual[0], c.first, "GetVersionFromString row {row}: firstpart"); }
+        }
+    }
+
+    #[test]
+    fn original_compare_rows_and_all_relational_operators() {
+        struct Case { lhs: &'static [u8], rhs: &'static [u8], expected: i8 }
+        let cases = [
+            Case { lhs: b"1.0", rhs: b"1.0", expected: 0 }, Case { lhs: b"1.0", rhs: b"0.0", expected: 1 },
+            Case { lhs: b"1.0", rhs: b"2.0", expected: -1 }, Case { lhs: b"1.0", rhs: b"1.1", expected: -1 },
+            Case { lhs: b"1.1", rhs: b"1.0", expected: 1 }, Case { lhs: b"1.0", rhs: b"1.0.1", expected: -1 },
+            Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 }, Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 },
+            Case { lhs: b"1.0.0", rhs: b"1.0", expected: 0 }, Case { lhs: b"1.0.3", rhs: b"1.0.20", expected: -1 },
+            Case { lhs: b"11.0.10", rhs: b"15.007.20011", expected: -1 }, Case { lhs: b"11.0.10", rhs: b"15.5.28.130162", expected: -1 },
+            Case { lhs: b"15.5.28.130162", rhs: b"15.5.28.130162", expected: 0 },
+        ];
+        for (row, c) in cases.iter().enumerate() {
+            let lhs = Version::parse(c.lhs); let rhs = Version::parse(c.rhs);
+            let ord = match c.expected { -1 => Ordering::Less, 0 => Ordering::Equal, _ => Ordering::Greater };
+            assert_eq!(lhs.compare_to(&rhs), Some(ord), "Compare row {row}");
+            assert_eq!(lhs.compare_to_wildcard(c.rhs), Some(ord), "Compare wildcard RHS row {row}");
+            assert_eq!(rhs.compare_to_wildcard(c.lhs), Some(ord.reverse()), "Compare wildcard LHS row {row}");
+            assert_eq!(ord == Ordering::Less, lhs.to_string() != rhs.to_string() && lhs.compare_to(&rhs) == Some(Ordering::Less), "operator < row {row}");
+            assert_eq!(ord != Ordering::Greater, lhs.compare_to(&rhs) != Some(Ordering::Greater), "operator <= row {row}");
+            assert_eq!(ord != Ordering::Equal, !lhs.equals_by_compare_to(&rhs), "operator != row {row}");
+            assert_eq!(ord == Ordering::Equal, lhs.equals_by_compare_to(&rhs), "operator == row {row}");
+            assert_eq!(ord != Ordering::Less, lhs.compare_to(&rhs) != Some(Ordering::Less), "operator >= row {row}");
+            assert_eq!(ord == Ordering::Greater, lhs.compare_to(&rhs) == Some(Ordering::Greater), "operator > row {row}");
+        }
+    }
+}
