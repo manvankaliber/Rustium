@@ -1,0 +1,26 @@
+{
+  "observed_utc": "2026-11-17T16:55:33.399787+00:00",
+  "local_environment": {
+    "id": "08fa9e90-7ae3-495b-ab28-c65db54bb027",
+    "label": "DESKTOP-VAN-KALIBER",
+    "role": "editing and targeted tests without compilation"
+  },
+  "compilation_environment": {
+    "id": "39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb",
+    "label": "HQC-VAN_KALIBER",
+    "platform": "Windows x64",
+    "link_status": "reachable",
+    "access": "full-access",
+    "projects_observed": 0
+  },
+  "provider": {
+    "id": "codex",
+    "can_run_child": false,
+    "models": [],
+    "reported_error": "Provider executable is not installed. Could not start Codex CLI (codex); check laptop Settings -> Providers -> Codex -> Binary path.",
+    "fallback_used": false
+  },
+  "github_runner_registration": "No registration attempted; latest repository runner list remains empty",
+  "user_policy": "All compilations on the laptop; desktop editing and targeted tests only; no local-j2 trial",
+  "next_action": "Make Codex CLI available to the laptop T3 provider, then dispatch the scoped setup task there and qualify the GitHub runner. Portable Network profile preparation can continue locally without compilation."
+}

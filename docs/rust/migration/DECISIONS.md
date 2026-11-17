@@ -53,3 +53,12 @@ trusted PR triggering and a real CI run remain pending. No paid execution servic
 automatic push/merge/publication or sanitizer/fuzz campaign is enabled. This is
 the explicit exception to the earlier single-computer execution policy. See
 [CI-RUNNER.md](CI-RUNNER.md).
+
+## 2026-11-17: linked laptop owns every compilation
+
+The user linked HQC-VAN_KALIBER and explicitly directed all future compilations
+there while editing and targeted tests remain on the desktop. Targeted tests that
+invoke a compiler must obtain their build on the laptop. The T3 link is reachable
+with full access, environment39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb. Remote Codex CLI
+is missing/unconfigured, so no Terra setup agent can start yet. Do not substitute
+another provider/model or restart local compilation to bypass this prerequisite.

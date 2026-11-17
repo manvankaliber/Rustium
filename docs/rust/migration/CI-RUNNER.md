@@ -1,11 +1,11 @@
 # Subsystem delivery through GitHub Actions
 
-The user selected an existing separate Windows PC as the compilation machine on
-2026-11-17. Network remains the sole active subsystem; coding workers and QA use
-Terra/xhigh. The proposed local two-job experiment was rejected and is cancelled.
-The already-running local consumer build may finish unchanged; preserve its
-result. Substantial future validation moves to the dedicated builder after it is
-connected and qualified.
+The user selected the linked Windows laptop **HQC-VAN_KALIBER** as the compilation
+machine on2026-11-17. All compilations run there; the desktop retains editing and
+targeted tests that do not invoke a compiler. Cargo tests that compile must build
+on the laptop. Network remains the sole active subsystem; coding workers and QA
+use Terra/xhigh. The local two-job experiment was rejected. The former local build
+was interrupted and its partial result archived; do not restart it here.
 
 One Network integration PR collects the connected implementation, independent
 original/reference closure, production bridges and assertion-complete tests.
@@ -18,10 +18,13 @@ separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
 
 ## Initial builder connection
 
-Repository: https://github.com/manvankaliber/Rustium . Inspection found no
-registered self-hosted runners. The current T3 session exposes no remote-machine
-link tool; the selected PC's SSH/PowerShell access or manual setup route is still
-needed. Registration has not been attempted and no external settings changed.
+Repository: https://github.com/manvankaliber/Rustium . Initial inspection found no
+registered self-hosted runners. The laptop is now linked, reachable and has full
+access under environment39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb. It is Windows x64.
+T3 reports no projects and cannot start a Codex agent: the Codex CLI executable
+is missing or not configured. On the laptop use Settings -> Providers -> Codex ->
+Binary path to select an existing executable, or install Codex CLI if absent.
+No other provider/model has been substituted. Registration has not been attempted.
 
 `tools/ci/Install-WindowsRunner.ps1` pins the official Windows x64 runner2.338.2
 and its release SHA-256. It checks existing installation identity and never

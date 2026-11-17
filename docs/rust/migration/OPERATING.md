@@ -1,6 +1,6 @@
 # Local operation
 
-The user authorized this setup on 2026-11-17; the migration campaign starts only on **go**, **continue** or **resume**. Durable coordination state is Git-readable Markdown/JSON. The latest directive authorizes an existing separate Windows PC as a GitHub self-hosted compilation runner, with connected subsystem delivery through an integration PR. See [CI-RUNNER.md](CI-RUNNER.md) for setup and remaining qualification. Model inference uses the existing ChatGPT subscription. No paid execution service, API billing or automatic push/merge is authorized.
+The user authorized this setup on 2026-11-17; the migration campaign starts only on **go**, **continue** or **resume**. Durable coordination state is Git-readable Markdown/JSON. **All compilations run on the linked Windows laptop HQC-VAN_KALIBER.** Desktop work is editing and targeted tests that do not invoke a compiler. The laptop is the intended GitHub self-hosted builder for subsystem integration PRs. See [CI-RUNNER.md](CI-RUNNER.md) for setup and remaining qualification. Model inference uses the existing ChatGPT subscription. No paid execution service, API billing or automatic push/merge is authorized.
 
 ## Records and precedence
 

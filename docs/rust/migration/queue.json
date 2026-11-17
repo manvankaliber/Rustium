@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 466,
-  "updated_utc": "2026-11-17T15:27:40.426112+00:00",
+  "revision": 467,
+  "updated_utc": "2026-11-17T16:55:33.589817+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -3120,7 +3120,7 @@
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
       "state": "validating",
-      "next_action": "Finish current rebuild, qualify actual header/ABI consumers, then full36-program/232-workload ordinary batch",
+      "next_action": "Make Codex CLI available to the laptop T3 provider, then dispatch the scoped setup task there and qualify the GitHub runner. Portable Network profile preparation can continue locally without compilation.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-current-consumer-closure-sha256-52a9c4ba23a26ae781aabd1cf55a8b362ad5224c95566e30cf749a3fa926393a.json",
@@ -3209,6 +3209,11 @@
           "utc": "2026-11-17T13:41:42.159337+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T16:55:33.589484+00:00",
+          "action": "amended",
+          "note": "next_action"
         }
       ],
       "context_directories": [
