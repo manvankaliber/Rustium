@@ -1,0 +1,15 @@
+{
+  "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "source_count": 1261,
+  "source_bindings": {
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z\\source-manifest.json": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z\\application.json": "7a0e4f21d61f65d0cd132f6411529be6bff777c7d6f757de2ca8f8d829957361",
+    "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\network-focus-20261117-plan.json": "a7bddd6ecafbfb3aad846bf887ecaa90388c8c1ab06ceaacd77a4e020412decc",
+    "D:\\Rustium\\.scratch\\net-wave5\\parent-consumer-target-intake-20261114T001450500298Z\\http2.json": "c12ba02ec277b4dfd1af4d621c3454d27b514f89eecaf8d6f066c4ba66ff1313",
+    "D:\\Rustium\\.scratch\\net-wave5\\parent-consumer-target-intake-20261114T001450500298Z\\connection-jobs.json": "5dbaa9361237f97bb32a667f5989f581a4d9e83153fdb86323a9fd7097498f8b",
+    "D:\\Rustium\\.scratch\\net-wave5\\parent-consumer-target-intake-20261114T001450500298Z\\dns-resolution.json": "f1bf4c79e02a7042cec11471a57b14adfee3dfd803438e7f30ede40d62876416",
+    "D:\\Rustium\\.scratch\\net-wave5\\parent-consumer-target-intake-20261114T001450500298Z\\cookie-storage.json": "7e1d75606e986a7b40c028c0148ba2366f72ba2e7bbee90fe9a7977d2187c1c7"
+  },
+  "review": "Read-only Terra/xhigh assessment; current selected-program owners identified, complete affected-consumer closure remains unqualified",
+  "acceptance": "No ABI/native/cutover acceptance; current graph/source/outputs and header/link evidence capture required"
+}
