@@ -1,0 +1,217 @@
+{
+  "source": "reference-cpp/base/version_unittest.cc",
+  "entries": [
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 155,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 0
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 155,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 1
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 155,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 2
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 156,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 3
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 156,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 4
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 156,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 5
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 157,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 6
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 157,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 7
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 157,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 8
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 158,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 9
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 158,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 10
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 158,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 11
+    },
+    {
+      "original_test": "CompareToWildcardString",
+      "source_line": 159,
+      "rust_test": "completed_original_rows::comparetowildcardstring",
+      "row": 12
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 173,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 0
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 173,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 1
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 173,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 2
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 174,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 3
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 174,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 4
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 174,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 5
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 175,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 6
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 175,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 7
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 175,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 8
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 176,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 9
+    },
+    {
+      "original_test": "IsValidWildcardString",
+      "source_line": 176,
+      "rust_test": "completed_original_rows::isvalidwildcardstring",
+      "row": 10
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 214,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 0
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 215,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 1
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 216,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 2
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 217,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 3
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 218,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 4
+    },
+    {
+      "original_test": "GetString",
+      "source_line": 219,
+      "rust_test": "completed_original_rows::getstring",
+      "row": 5
+    },
+    {
+      "original_test": "DefaultConstructor",
+      "rust_test": "original_version_tests::original_default_constructor",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    },
+    {
+      "original_test": "ValueSemantics",
+      "rust_test": "original_version_tests::original_value_and_move_semantics; completed_original_rows::byte_boundaries_and_copy_assignment_adapter",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    },
+    {
+      "original_test": "MoveSemantics",
+      "rust_test": "original_version_tests::original_value_and_move_semantics",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    },
+    {
+      "original_test": "GetVersionFromString",
+      "rust_test": "original_version_tests::original_get_version_from_string_every_row",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    },
+    {
+      "original_test": "Compare",
+      "rust_test": "original_version_tests::original_compare_rows_and_all_relational_operators",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    },
+    {
+      "original_test": "LeadingZeros",
+      "rust_test": "completed_original_rows::leadingzeros",
+      "coverage": "All table rows or explicit assertions; compare operator expressions use compare_to/equals_by_compare_to adapter semantics, no Rust Eq/Ord trait claimed"
+    }
+  ],
+  "legacy_csv": "original-version-cases.csv retained as historical partial inventory, not executable coverage authority",
+  "native_contract_limits": "Rust values clone/move/assign and compare APIs test semantic adapters. Native invalid DCHECK/fatal, components invalid empty-vs-None, ABI, allocators and callers remain bridge obligations."
+}

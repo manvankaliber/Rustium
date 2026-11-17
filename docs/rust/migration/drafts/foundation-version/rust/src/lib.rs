@@ -187,7 +187,12 @@ mod original_version_tests {
 
     #[test]
     fn original_get_version_from_string_every_row() {
-        struct Case { input: &'static [u8], parts: usize, first: u32, success: bool }
+        struct Case {
+            input: &'static [u8],
+            parts: usize,
+            first: u32,
+            success: bool,
+        }
         let cases = [
             Case { input: b"", parts: 0, first: 0, success: false },
             Case { input: b" ", parts: 0, first: 0, success: false },
@@ -221,34 +226,201 @@ mod original_version_tests {
             assert_eq!(v.is_valid(), c.success, "GetVersionFromString row {row}: {:?}", c.input);
             let actual = v.components().unwrap_or(&[]);
             assert_eq!(actual.len(), c.parts, "GetVersionFromString row {row}: parts");
-            if c.success { assert_eq!(actual[0], c.first, "GetVersionFromString row {row}: firstpart"); }
+            if c.success {
+                assert_eq!(actual[0], c.first, "GetVersionFromString row {row}: firstpart");
+            }
         }
     }
 
     #[test]
     fn original_compare_rows_and_all_relational_operators() {
-        struct Case { lhs: &'static [u8], rhs: &'static [u8], expected: i8 }
+        struct Case {
+            lhs: &'static [u8],
+            rhs: &'static [u8],
+            expected: i8,
+        }
         let cases = [
-            Case { lhs: b"1.0", rhs: b"1.0", expected: 0 }, Case { lhs: b"1.0", rhs: b"0.0", expected: 1 },
-            Case { lhs: b"1.0", rhs: b"2.0", expected: -1 }, Case { lhs: b"1.0", rhs: b"1.1", expected: -1 },
-            Case { lhs: b"1.1", rhs: b"1.0", expected: 1 }, Case { lhs: b"1.0", rhs: b"1.0.1", expected: -1 },
-            Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 }, Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 },
-            Case { lhs: b"1.0.0", rhs: b"1.0", expected: 0 }, Case { lhs: b"1.0.3", rhs: b"1.0.20", expected: -1 },
-            Case { lhs: b"11.0.10", rhs: b"15.007.20011", expected: -1 }, Case { lhs: b"11.0.10", rhs: b"15.5.28.130162", expected: -1 },
+            Case { lhs: b"1.0", rhs: b"1.0", expected: 0 },
+            Case { lhs: b"1.0", rhs: b"0.0", expected: 1 },
+            Case { lhs: b"1.0", rhs: b"2.0", expected: -1 },
+            Case { lhs: b"1.0", rhs: b"1.1", expected: -1 },
+            Case { lhs: b"1.1", rhs: b"1.0", expected: 1 },
+            Case { lhs: b"1.0", rhs: b"1.0.1", expected: -1 },
+            Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 },
+            Case { lhs: b"1.1", rhs: b"1.0.1", expected: 1 },
+            Case { lhs: b"1.0.0", rhs: b"1.0", expected: 0 },
+            Case { lhs: b"1.0.3", rhs: b"1.0.20", expected: -1 },
+            Case { lhs: b"11.0.10", rhs: b"15.007.20011", expected: -1 },
+            Case { lhs: b"11.0.10", rhs: b"15.5.28.130162", expected: -1 },
             Case { lhs: b"15.5.28.130162", rhs: b"15.5.28.130162", expected: 0 },
         ];
         for (row, c) in cases.iter().enumerate() {
-            let lhs = Version::parse(c.lhs); let rhs = Version::parse(c.rhs);
-            let ord = match c.expected { -1 => Ordering::Less, 0 => Ordering::Equal, _ => Ordering::Greater };
+            let lhs = Version::parse(c.lhs);
+            let rhs = Version::parse(c.rhs);
+            let ord = match c.expected {
+                -1 => Ordering::Less,
+                0 => Ordering::Equal,
+                _ => Ordering::Greater,
+            };
             assert_eq!(lhs.compare_to(&rhs), Some(ord), "Compare row {row}");
             assert_eq!(lhs.compare_to_wildcard(c.rhs), Some(ord), "Compare wildcard RHS row {row}");
-            assert_eq!(rhs.compare_to_wildcard(c.lhs), Some(ord.reverse()), "Compare wildcard LHS row {row}");
-            assert_eq!(ord == Ordering::Less, lhs.to_string() != rhs.to_string() && lhs.compare_to(&rhs) == Some(Ordering::Less), "operator < row {row}");
-            assert_eq!(ord != Ordering::Greater, lhs.compare_to(&rhs) != Some(Ordering::Greater), "operator <= row {row}");
-            assert_eq!(ord != Ordering::Equal, !lhs.equals_by_compare_to(&rhs), "operator != row {row}");
-            assert_eq!(ord == Ordering::Equal, lhs.equals_by_compare_to(&rhs), "operator == row {row}");
-            assert_eq!(ord != Ordering::Less, lhs.compare_to(&rhs) != Some(Ordering::Less), "operator >= row {row}");
-            assert_eq!(ord == Ordering::Greater, lhs.compare_to(&rhs) == Some(Ordering::Greater), "operator > row {row}");
+            assert_eq!(
+                rhs.compare_to_wildcard(c.lhs),
+                Some(ord.reverse()),
+                "Compare wildcard LHS row {row}"
+            );
+            assert_eq!(
+                ord == Ordering::Less,
+                lhs.to_string() != rhs.to_string() && lhs.compare_to(&rhs) == Some(Ordering::Less),
+                "operator < row {row}"
+            );
+            assert_eq!(
+                ord != Ordering::Greater,
+                lhs.compare_to(&rhs) != Some(Ordering::Greater),
+                "operator <= row {row}"
+            );
+            assert_eq!(
+                ord != Ordering::Equal,
+                !lhs.equals_by_compare_to(&rhs),
+                "operator != row {row}"
+            );
+            assert_eq!(
+                ord == Ordering::Equal,
+                lhs.equals_by_compare_to(&rhs),
+                "operator == row {row}"
+            );
+            assert_eq!(
+                ord != Ordering::Less,
+                lhs.compare_to(&rhs) != Some(Ordering::Less),
+                "operator >= row {row}"
+            );
+            assert_eq!(
+                ord == Ordering::Greater,
+                lhs.compare_to(&rhs) == Some(Ordering::Greater),
+                "operator > row {row}"
+            );
         }
+    }
+}
+
+#[cfg(test)]
+mod completed_original_rows {
+    use super::*;
+    #[test]
+    fn comparetowildcardstring() {
+        for (lhs, rhs, expected) in [
+            (&b"1.0"[..], &b"1.*"[..], 0i8),
+            (&b"1.0"[..], &b"0.*"[..], 1i8),
+            (&b"1.0"[..], &b"2.*"[..], -1i8),
+            (&b"1.2.3"[..], &b"1.2.3.*"[..], 0i8),
+            (&b"10.0"[..], &b"1.0.*"[..], 1i8),
+            (&b"1.0"[..], &b"3.0.*"[..], -1i8),
+            (&b"1.4"[..], &b"1.3.0.*"[..], 1i8),
+            (&b"1.3.9"[..], &b"1.3.*"[..], 0i8),
+            (&b"1.4.1"[..], &b"1.3.*"[..], 1i8),
+            (&b"1.3"[..], &b"1.4.5.*"[..], -1i8),
+            (&b"1.5"[..], &b"1.4.5.*"[..], 1i8),
+            (&b"1.3.9"[..], &b"1.3.*"[..], 0i8),
+            (&b"1.2.0.0.0.0"[..], &b"1.2.*"[..], 0i8),
+        ] {
+            let expected = match expected {
+                -1 => Ordering::Less,
+                0 => Ordering::Equal,
+                _ => Ordering::Greater,
+            };
+            assert_eq!(
+                Version::parse(lhs).compare_to_wildcard(rhs),
+                Some(expected),
+                "{lhs:?} {rhs:?}"
+            );
+        }
+    }
+    #[test]
+    fn isvalidwildcardstring() {
+        for (input, expected) in [
+            (&b"1.0"[..], true),
+            (&b""[..], false),
+            (&b"1.2.3.4.5.6"[..], true),
+            (&b"1.2.3.*"[..], true),
+            (&b"1.2.3.5*"[..], false),
+            (&b"1.2.3.56*"[..], false),
+            (&b"1.*.3"[..], false),
+            (&b"20.*"[..], true),
+            (&b"+2.*"[..], false),
+            (&b"*"[..], false),
+            (&b"*.2"[..], false),
+        ] {
+            assert_eq!(Version::is_valid_wildcard(input), expected, "{input:?}");
+        }
+    }
+    #[test]
+    fn getstring() {
+        for (input, valid, text) in [
+            (&b""[..], false, "invalid"),
+            (&b"1"[..], true, "1"),
+            (&b"1.0"[..], true, "1.0"),
+            (&b"0.0.1.0"[..], true, "0.0.1.0"),
+            (&b"1.2.3.4.5.6"[..], true, "1.2.3.4.5.6"),
+            (&b"1.*.3"[..], false, "invalid"),
+        ] {
+            let v = Version::parse(input);
+            assert_eq!(v.is_valid(), valid, "{input:?}");
+            assert_eq!(v.to_string(), text, "{input:?}");
+        }
+    }
+    #[test]
+    fn leadingzeros() {
+        assert!(!Version::parse(b"01.1").is_valid());
+        let a = Version::parse(b"1.01");
+        assert!(a.is_valid());
+        assert_eq!(a.to_string(), "1.1");
+        assert!(a.equals_by_compare_to(&Version::parse(b"1.1")));
+        assert_eq!(
+            Version::parse(b"1.02").compare_to(&Version::parse(b"1.1")),
+            Some(Ordering::Greater)
+        );
+    }
+    #[test]
+    fn byte_boundaries_and_copy_assignment_adapter() {
+        for bad in [
+            &b"1\0"[..],
+            b"1.\0",
+            b"1.\xff",
+            b"\xff.1",
+            b"1. 2",
+            b"1.2\t",
+            b"1.\n2",
+            b"1..2",
+            b".1",
+            b"1.",
+            b"1.4294967296",
+            b"1.2.4294967296",
+        ] {
+            assert!(!Version::parse(bad).is_valid(), "{bad:?}");
+        }
+        let long = format!("1.{}1", "0".repeat(1000));
+        let parsed = Version::parse(long.as_bytes());
+        assert_eq!(parsed.components(), Some(&[1, 1][..]));
+        assert_eq!(parsed.to_string(), "1.1");
+        assert!(!Version::parse(format!("{}1.2", "0".repeat(1000)).as_bytes()).is_valid());
+        let mut assigned = Version::default();
+        assert!(!assigned.is_valid());
+        {
+            let source = Version::parse(b"1.2.3.4");
+            assigned.clone_from(&source);
+            assert!(source.is_valid());
+            assert!(assigned.equals_by_compare_to(&source));
+        }
+        assert_eq!(assigned.components(), Some(&[1, 2, 3, 4][..]));
+        assigned.clone_from(&Version::invalid());
+        assert!(!assigned.is_valid());
+        assert_eq!(assigned.to_string(), "invalid");
+        assert!(!Version::from_components(Vec::new()).is_valid());
+        assert_eq!(
+            Version::from_components(vec![u32::MAX, u32::MAX]).to_string(),
+            "4294967295.4294967295"
+        );
+        assert_eq!(Version::invalid().compare_to(&Version::parse(b"1")), None);
+        assert_eq!(Version::parse(b"1").compare_to_wildcard(b"*"), None);
     }
 }
