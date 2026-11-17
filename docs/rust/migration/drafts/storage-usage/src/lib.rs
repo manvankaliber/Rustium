@@ -73,21 +73,26 @@ impl<K:Ord+Clone,H:Clone> UsageCache<K,H>{
  pub fn invalidate<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K)->Result<bool,CacheError<P::Error>>{let Some(mut r)=self.read_record(p,k)?else{return Ok(false)};r.valid=false;self.write_record(p,k,r)?;Ok(true)}
  /// Signed addition behavior remains provisional pending a configured C++ oracle.
  pub fn update_delta<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K,d:i64)->Result<bool,CacheError<P::Error>>{let Some(mut r)=self.read_record(p,k)?else{return Ok(false)};r.usage=r.usage.wrapping_add(d);self.write_record(p,k,r)?;Ok(true)}
+ /// Bool/out-parameter facade shape: errors and misses return false without
+ /// modifying the caller's output, matching the C++ public API contract.
+ pub fn get_usage_into<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K,out:&mut i64)->bool{match self.read_record(p,k){Ok(Some(r))=>{*out=r.usage;true},_=>false}}
+ pub fn get_dirty_into<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K,out:&mut u32)->bool{match self.read_record(p,k){Ok(Some(r))=>{*out=r.dirty;true},_=>false}}
+ pub fn is_valid<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K)->bool{matches!(self.read_record(p,k),Ok(Some(Record{valid:true,..})))}
  pub fn exists<P:PrimitiveProvider<Key=K,Handle=H>>(&self,p:&mut P,k:&K)->Result<bool,CacheError<P::Error>>{if self.incognito{Ok(self.private.contains_key(k))}else{p.exists(k).map_err(CacheError::Provider)}}
  pub fn delete<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P,k:&K)->Result<bool,CacheError<P::Error>>{self.close_all(p);if self.incognito{Ok(self.private.remove(k).is_some())}else{p.delete(k).map_err(CacheError::Provider)}}
 }
 
 #[cfg(test)]mod tests{
  use super::*;use std::collections::BTreeMap;
- #[derive(Default)]struct Fake{files:BTreeMap<String,Vec<u8>>,events:Vec<String>,next:usize,fail_open:bool,short_read:bool,short_write:bool,fail_flush:bool}
+ #[derive(Default)]struct Fake{files:BTreeMap<String,Vec<u8>>,handle_keys:BTreeMap<usize,String>,events:Vec<String>,next:usize,fail_open:bool,fail_read:bool,short_read:bool,fail_write:bool,short_write:bool,fail_flush:bool,fail_delete:bool}
  impl PrimitiveProvider for Fake{type Key=String;type Handle=usize;type Error=&'static str;
-  fn open_always_read_write(&mut self,k:&String)->Result<usize,Self::Error>{self.events.push(format!("open:{k}"));if self.fail_open{return Err("open")}self.next+=1;self.files.entry(k.clone()).or_default();Ok(self.next)}
-  fn read_at(&mut self,h:&usize,o:u64,b:&mut[u8])->Result<usize,Self::Error>{self.events.push(format!("read:{h}:{o}"));let f=self.files.values().next().ok_or("missing")?;let n=if self.short_read{b.len()-1}else{b.len()};b[..n].copy_from_slice(&f[..n.min(f.len())]);Ok(n)}
-  fn write_at(&mut self,h:&usize,o:u64,b:&[u8])->Result<usize,Self::Error>{self.events.push(format!("write:{h}:{o}"));if self.short_write{return Ok(b.len()-1)}let f=self.files.values_mut().next().ok_or("missing")?;f.clear();f.extend_from_slice(b);Ok(b.len())}
+  fn open_always_read_write(&mut self,k:&String)->Result<usize,Self::Error>{self.events.push(format!("open:{k}"));if self.fail_open{return Err("open")}self.next+=1;self.files.entry(k.clone()).or_default();self.handle_keys.insert(self.next,k.clone());Ok(self.next)}
+  fn read_at(&mut self,h:&usize,o:u64,b:&mut[u8])->Result<usize,Self::Error>{self.events.push(format!("read:{h}:{o}"));if self.fail_read{return Err("read")}let k=self.handle_keys.get(h).ok_or("closed")?;let f=self.files.get(k).ok_or("missing")?;let n=if self.short_read{b.len()-1}else{b.len()};let copied=n.min(f.len());b[..copied].copy_from_slice(&f[..copied]);Ok(n)}
+  fn write_at(&mut self,h:&usize,o:u64,b:&[u8])->Result<usize,Self::Error>{self.events.push(format!("write:{h}:{o}"));if self.fail_write{return Err("write")}if self.short_write{return Ok(b.len()-1)}let k=self.handle_keys.get(h).cloned().ok_or("closed")?;let f=self.files.get_mut(&k).ok_or("missing")?;f.clear();f.extend_from_slice(b);Ok(b.len())}
   fn flush(&mut self,h:&usize)->Result<(),Self::Error>{self.events.push(format!("flush:{h}"));if self.fail_flush{Err("flush")}else{Ok(())}}
-  fn close(&mut self,h:usize){self.events.push(format!("close:{h}"))}
+  fn close(&mut self,h:usize){self.events.push(format!("close:{h}"));self.handle_keys.remove(&h);}
   fn exists(&mut self,k:&String)->Result<bool,Self::Error>{Ok(self.files.contains_key(k))}
-  fn delete(&mut self,k:&String)->Result<bool,Self::Error>{self.events.push(format!("delete:{k}"));Ok(self.files.remove(k).is_some())}
+  fn delete(&mut self,k:&String)->Result<bool,Self::Error>{self.events.push(format!("delete:{k}"));if self.fail_delete{return Err("delete")}Ok(self.files.remove(k).is_some())}
   fn restart_close_timer(&mut self,d:Duration){self.events.push(format!("timer:{}",d.as_secs()))}
   fn stop_close_timer(&mut self){self.events.push("stop".into())}
  }
@@ -99,4 +104,19 @@ impl<K:Ord+Clone,H:Clone> UsageCache<K,H>{
  #[test]fn flush_uses_saved_handle_and_dirty_state_and_ignores_error(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake{fail_flush:true,..Default::default()};let k="k".to_string();c.put(&mut p,&k,3).unwrap();c.close_all(&mut p);p.events.clear();assert!(c.increment(&mut p,&k).unwrap());assert!(p.events.iter().any(|e|e.starts_with("flush:")));c.close_all(&mut p);p.events.clear();assert!(c.increment(&mut p,&k).unwrap());assert!(!p.events.iter().any(|e|e.starts_with("flush:")));}
  #[test]fn write_at_capacity_evicts_and_restarts_timer(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let a="a".to_string();let b="b".to_string();c.put(&mut p,&a,1).unwrap();c.put(&mut p,&b,2).unwrap();p.events.clear();c.put(&mut p,&a,3).unwrap();assert_eq!(&p.events[..4], &["close:1","close:2","stop","timer:5"]);assert!(p.events[4].starts_with("open:"));}
  #[test]fn delete_closes_stops_then_deletes_and_destruction_is_idempotent(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let k="k".to_string();c.put(&mut p,&k,1).unwrap();p.events.clear();assert!(c.delete(&mut p,&k).unwrap());assert_eq!(&p.events[..3], &["close:1","stop","delete:k"]);p.events.clear();c.close_for_destruction(&mut p);assert_eq!(p.events,vec!["stop"]);}
+ #[test]fn original_disk_assertions_for_private_and_persistent_modes(){for private in [false,true]{let mut c=UsageCache::<String,usize>::new(private);let mut p=Fake::default();let k=".usage".to_string();
+  assert!(c.put(&mut p,&k,0).is_ok());let mut created=9;assert!(c.get_usage_into(&mut p,&k,&mut created));assert_eq!(created,0);
+  c.put(&mut p,&k,240122).unwrap();let mut usage=0;assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,240122);
+  c.put(&mut p,&k,i64::MAX).unwrap();assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,i64::MAX);
+  c.put(&mut p,&k,98214).unwrap();assert!(c.increment(&mut p,&k).unwrap());let mut dirty=0;assert!(c.get_dirty_into(&mut p,&k,&mut dirty));assert_eq!(dirty,1);assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,98214);
+  c.put(&mut p,&k,71839).unwrap();assert!(!c.decrement(&mut p,&k).unwrap());assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,71839);
+  c.put(&mut p,&k,198491).unwrap();assert!(c.increment(&mut p,&k).unwrap());assert!(c.decrement(&mut p,&k).unwrap());
+  c.put(&mut p,&k,854238).unwrap();assert!(!c.decrement(&mut p,&k).unwrap());assert!(c.increment(&mut p,&k).unwrap());assert!(c.get_dirty_into(&mut p,&k,&mut dirty));assert_eq!(dirty,1);assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,854238);
+  c.put(&mut p,&k,82412).unwrap();for _ in 0..20{assert!(c.increment(&mut p,&k).unwrap())}for _ in 0..20{assert!(c.decrement(&mut p,&k).unwrap())}assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,82412);
+  c.put(&mut p,&k,19319).unwrap();for _ in 0..20{assert!(c.increment(&mut p,&k).unwrap())}for _ in 0..19{assert!(c.decrement(&mut p,&k).unwrap())}assert!(c.get_dirty_into(&mut p,&k,&mut dirty));assert_eq!(dirty,1);assert!(c.get_usage_into(&mut p,&k,&mut usage));assert_eq!(usage,19319);
+  assert!(!c.get_usage_into(&mut p,&"missing".into(),&mut usage));assert!(!c.increment(&mut p,&"missing".into()).unwrap());
+ }}
+ #[test]fn error_and_corruption_leave_outputs_unchanged(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let k="x".to_string();c.put(&mut p,&k,42).unwrap();let mut out=123;assert!(c.get_usage_into(&mut p,&k,&mut out));assert_eq!(out,42);p.fail_read=true;out=77;assert!(!c.get_usage_into(&mut p,&k,&mut out));assert_eq!(out,77);p.fail_read=false;p.files.get_mut(&k).unwrap()[4]=0;out=88;assert!(!c.get_usage_into(&mut p,&k,&mut out));assert_eq!(out,88);}
+ #[test]fn provider_failures_delete_and_reopen_are_traced(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let k="x".to_string();c.put(&mut p,&k,1).unwrap();p.fail_write=true;assert!(c.put(&mut p,&k,2).is_err());assert!(p.events.iter().any(|x|x=="delete:x"));p.fail_write=false;p.fail_delete=true;assert!(c.delete(&mut p,&k).is_err());p.fail_delete=false;assert!(c.get(&mut p,&k).is_ok());p.fail_open=true;c.close_all(&mut p);assert!(c.get(&mut p,&k).is_err());assert!(p.events.iter().filter(|x|*x=="open:x").count()>=2);}
+ #[test]fn timer_restart_expiry_and_sequence_outcomes(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let k="x".to_string();c.get(&mut p,&k).unwrap();p.events.clear();c.get(&mut p,&k).unwrap();assert_eq!(p.events,vec!["timer:5","read:1:0"]);p.events.clear();c.on_timer(&mut p);assert_eq!(p.events,vec!["close:1","stop"]);assert!(c.check_sequence(11).is_ok());assert!(c.check_sequence(11).is_ok());assert_eq!(c.check_sequence(12),Err(SequenceMismatch));}
 }

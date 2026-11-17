@@ -11,27 +11,27 @@ must call `close_for_destruction` before dropping the cache.
 
 | Original test | Candidate coverage / remaining adapter check |
 | --- | --- |
-| CreateTest | `put` creates record; provider-backed execution pending |
-| SetSizeTest | encode/decode usage round trip |
+| CreateTest | creates a valid zero-usage record |
+| SetSizeTest | `240122` round trip |
 | SetLargeSizeTest | `i64::MAX` round trip |
-| IncAndGetSizeTest | increment preserves usage and increments dirty |
-| DecAndGetSizeTest | decrement at zero returns false and preserves record |
-| IncDecAndGetSizeTest | inverse dirty transitions preserve usage |
-| DecIncAndGetSizeTest | underflow rejection then increment |
-| ManyIncsSameDecsAndGetSizeTest | repeated transition loop required in adapter tests |
-| ManyIncsLessDecsAndGetSizeTest | repeated transitions leave dirty=1 |
-| GetSizeWithoutCacheFileTest | missing-provider read maps to false/miss |
-| IncrementDirtyWithoutCacheFileTest | missing-provider read maps to false/miss |
-| DecrementDirtyWithoutCacheFileTest | source test calls IncrementDirty (preserved as source quirk) |
+| IncAndGetSizeTest | usage `98214`; dirty becomes `1` |
+| DecAndGetSizeTest | usage `71839`; decrement at zero is false and unchanged |
+| IncDecAndGetSizeTest | usage `198491`; increment/decrement succeeds |
+| DecIncAndGetSizeTest | usage `854238`; zero decrement false, next dirty is `1` |
+| ManyIncsSameDecsAndGetSizeTest | usage `82412`; 20 increments/decrements preserve usage |
+| ManyIncsLessDecsAndGetSizeTest | usage `19319`; dirty remains `1` after 20/19 |
+| GetSizeWithoutCacheFileTest | missing usage returns false |
+| IncrementDirtyWithoutCacheFileTest | missing usage increment returns false |
+| DecrementDirtyWithoutCacheFileTest | source assertion calls `IncrementDirty`; candidate preserves that exact case |
 
-Codec and fake-provider test sources cover Pickle bool/padding behavior,
-trailing reads, short reads/writes, failed open/write cleanup, capacity eviction
-on a cached-key request, timer stop, and state transitions. Test sources have
-not been run. Remaining ordinary coverage includes keyed fake handles, flush
-condition matrix/failure, delete/reopen failures, timer restart/expiry and
-destruction event sequences, all non-incognito original cases, and facade
-first-use sequence binding. Signed usage overflow wrapping remains provisional
-until a configured C++ oracle is run.
+Fake-provider tests use per-handle key mappings and inject open/read/write/
+short-I/O/flush/delete errors. They cover both persistent and private original
+assertions, unchanged outputs on errors/corruption, dirty wrap, read/write
+eviction at capacity, the saved-handle/dirty flush conditions, timer restart,
+expiry, deletion, and destruction ordering. The facade sequence token is an
+internal candidate seam; native `SEQUENCE_CHECKER` remains authoritative.
+Signed usage overflow wraps provisionally pending the configured C++ oracle.
+Sources remain unexecuted because the validation gate is occupied.
 
 ## Integration request
 
