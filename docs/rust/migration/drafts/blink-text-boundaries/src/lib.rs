@@ -378,16 +378,14 @@ impl<P: BoundaryProvider> LocalLinePolicy<P> {
         if pos < self.start || pos > limit || limit > self.text.len() {
             return Err(BoundaryError::InvalidRange);
         }
-        if pos == limit {
-            return Ok(limit);
-        }
         if self.kind == BreakType::BreakCharacter {
             if self.character_session.is_none() {
                 let backing: Rc<[u16]> = Rc::from(&self.text[self.start..]);
                 let session = self.provider.borrow_mut().acquire_character(backing.clone())?;
                 self.character_session = Some((session, backing));
             }
-            let q = if pos > 0 { pos - 1 } else { 0 };
+            let relative = pos - self.start;
+            let q = if relative > 0 { relative - 1 } else { 0 };
             let query = i32::try_from(q).map_err(|_| BoundaryError::TooLong);
             let (session, _backing) = self.character_session.as_ref().expect("acquired above");
             let result = query.and_then(|q| {
@@ -395,9 +393,9 @@ impl<P: BoundaryProvider> LocalLinePolicy<P> {
             });
             let out = match result.and_then(|(q, following)| match following {
                 Following::Boundary(n)
-                    if n > q as i32 && n >= 0 && (n as usize) <= self.text.len() =>
+                    if n > q as i32 && n >= 0 && (n as usize) <= self.text.len() - self.start =>
                 {
-                    Ok(n as usize)
+                    Ok(self.start + n as usize)
                 }
                 Following::Done => Ok(self.text.len()),
                 _ => Err(BoundaryError::InvalidOffset),
@@ -412,6 +410,9 @@ impl<P: BoundaryProvider> LocalLinePolicy<P> {
                 self.provider.borrow_mut().release_character(session);
             }
             return Ok(out);
+        }
+        if pos == limit {
+            return Ok(limit);
         }
         let mut i = pos;
         let mut c = Ctx::new(self.text, self.start, pos);
@@ -495,7 +496,50 @@ impl<P: BoundaryProvider> LocalLinePolicy<P> {
         if at > self.text.len() {
             return Ok(false);
         }
-        Ok(self.next(at, self.text.len())? == at)
+        let limit = at.saturating_add(1).min(self.text.len());
+        Ok(self.next(at, limit)? == at)
+    }
+    pub fn next_opportunity(&mut self, offset: usize) -> Result<usize, BoundaryError> {
+        if offset > self.text.len() {
+            return Err(BoundaryError::InvalidRange);
+        }
+        self.next(offset, self.text.len())
+    }
+    pub fn next_opportunity_limited(
+        &mut self,
+        offset: usize,
+        len: usize,
+    ) -> Result<usize, BoundaryError> {
+        if offset > len || len > self.text.len() {
+            return Err(BoundaryError::InvalidRange);
+        }
+        self.next(offset, len)
+    }
+    /// Frozen native loop: probe forward at pos with at least one code point
+    /// in the span, then step backward by one UTF-16 scalar (or one Latin-1
+    /// unit), returning min when no boundary is found above it.
+    pub fn previous_opportunity(
+        &mut self,
+        offset: usize,
+        min: usize,
+    ) -> Result<usize, BoundaryError> {
+        let mut pos = offset.min(self.text.len());
+        let mut end = pos.saturating_add(2).min(self.text.len());
+        while pos > min {
+            let next_break = self.next(pos, end)?;
+            if next_break == pos {
+                return Ok(pos);
+            }
+            end = pos;
+            if pos > 0 && trail(self.text[pos - 1]) && pos >= 2 && lead(self.text[pos - 2]) {
+                pos -= 2;
+            } else if pos > 0 {
+                pos -= 1;
+            } else {
+                break;
+            }
+        }
+        Ok(min)
     }
 }
 impl<P: BoundaryProvider> Drop for LocalLinePolicy<P> {
