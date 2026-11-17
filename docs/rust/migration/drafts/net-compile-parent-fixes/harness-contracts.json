@@ -1,0 +1,51 @@
+{
+  "cookie_family": {
+    "cases": [
+      "create_include_domain",
+      "secure_prefix",
+      "host_http_prefix",
+      "file_expiration",
+      "invalid_domain",
+      "hidden_prefix",
+      "strict_redirect",
+      "partitioned",
+      "nonced_partition",
+      "expiry_and_quote"
+    ],
+    "pairs": 20,
+    "lifecycles": 64,
+    "order_seed": 20261113,
+    "fixture": false,
+    "source_bindings": {
+      "net/cookies/cookie_family_test_support.h": "03ebc3941a904f6761af02fb61a431c08eb318364b59a7fc31f391b64d117983",
+      "net/cookies/cookie_family_perftest.cc": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770"
+    }
+  },
+  "cookie_family_store": {
+    "cases": [
+      "store_empty_queries",
+      "store_set_get_delete",
+      "store_overwrite_same_value",
+      "store_overwrite_changed_value",
+      "store_expired_overwrite",
+      "store_secure_overwrite_rejection",
+      "store_http_only_rejection",
+      "store_partitioned_isolation",
+      "store_nonced_partition",
+      "store_domain_priority_gc",
+      "store_partition_bytes_gc",
+      "store_load_deduplicate",
+      "store_load_control_chars",
+      "store_key_load_queue",
+      "store_global_load_queue"
+    ],
+    "pairs": 20,
+    "lifecycles": 4,
+    "order_seed": 20261113,
+    "fixture": true,
+    "source_bindings": {
+      "net/cookies/cookie_family_store_test_support.h": "204833df072a4a04693b3cf1b4bfcddd53eb007088c2e113de56b4fa1fefc589",
+      "net/cookies/cookie_family_store_perftest.cc": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740"
+    }
+  }
+}

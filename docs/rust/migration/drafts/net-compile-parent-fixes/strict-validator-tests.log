@@ -1,0 +1,12 @@
+test_cli_optimized_python_and_hash_pins (test_compare_harness_records.StrictRecordsTest.test_cli_optimized_python_and_hash_pins) ... ok
+test_complete_contracts_accept_and_allow_different_durations (test_compare_harness_records.StrictRecordsTest.test_complete_contracts_accept_and_allow_different_durations) ... ok
+test_equally_incomplete_or_duplicated_outputs_reject (test_compare_harness_records.StrictRecordsTest.test_equally_incomplete_or_duplicated_outputs_reject) ... ok
+test_every_timing_type_range_and_order_field (test_compare_harness_records.StrictRecordsTest.test_every_timing_type_range_and_order_field) ... ok
+test_fixture_seed_timestamp_and_mode_are_bound (test_compare_harness_records.StrictRecordsTest.test_fixture_seed_timestamp_and_mode_are_bound) ... ok
+test_strict_json_and_blank_records (test_compare_harness_records.StrictRecordsTest.test_strict_json_and_blank_records) ... ok
+test_verification_checksum_membership_and_extra_fields (test_compare_harness_records.StrictRecordsTest.test_verification_checksum_membership_and_extra_fields) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.290s
+
+OK

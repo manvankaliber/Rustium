@@ -1,0 +1,224 @@
+{
+  "source_identity": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+  "review": "c3c2e63afdf579205184e0edd5f82805a90c8af2",
+  "changes": [
+    {
+      "path": "net/BUILD.gn",
+      "before_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+      "after_sha256": "9dcf568b2cae90fce3fe23daa7cd7eb2ed744ed88d8ef542e880ab8f0c17c980",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed; R1 single component owner and additive cross-DLL lifecycle test"
+    },
+    {
+      "path": "net/cookies/cookie_family_perftest.cc",
+      "before_sha256": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770",
+      "after_sha256": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed; classic locale explicitly preserves JSON decimal/checksum spelling"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_perftest.cc",
+      "before_sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
+      "after_sha256": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed; classic locale explicitly preserves JSON decimal/checksum spelling"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_test_support.h",
+      "before_sha256": "204833df072a4a04693b3cf1b4bfcddd53eb007088c2e113de56b4fa1fefc589",
+      "after_sha256": "b03ce2fa48325059889a9042f9a4459d4258f7d87dd281a720d72a5c8d901d1c",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_unittest.cc",
+      "before_sha256": "26e6a8bc464f9962dbda191d947223dff1d1668084d63ae6e2774222fa5e9c74",
+      "after_sha256": "45dccff78a6621e929a5703df4932a8de195bfee5ddce1614032658974ea9cfb",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_family_unittest.cc",
+      "before_sha256": "dd1fb2a1d1855a3935468aeed07678512cfa9a0a9030dc6863e3981793e3fd41",
+      "after_sha256": "dce0808244234c534d4fab1ac1fe2cc3ebad2d2a8661d05fe7e405389cf3db40",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "before_sha256": "a3e401b097138d1d20cc3275852811683e3e0df4a4a697f18cd4c678058bd669",
+      "after_sha256": "262eb631904f29e832151105bf146ae725f40326ef80374ec7967e563bef288b",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+      "before_sha256": "1e4a7d4de53e6f6d923d8b5c64e642d766e2d5bc332beae0628960d8bb14c1cd",
+      "after_sha256": "403826e921deeabf84de753521a4b5564798c80182980c4891e3be02c86a4bad",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "before_sha256": "42fed8c91dfde0770d08cd165b7f2041cd1072ff8b5393bd5008e70290cf82bb",
+      "after_sha256": "e55602ec9cff4cc778c7b0751b11733d75324ef361b6579344a6a6f8fb68872f",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_unittest.cc",
+      "before_sha256": "368968e269f0eeb537cbf2d6f253c1a3355ca00bc0ba002e57da7a700ca8466a",
+      "after_sha256": "2822ab5aee0d46c92ea67e30a006589af8301ed4d0ebd3b755cffd4da3a012cf",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/dns_reloader.h",
+      "before_sha256": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39",
+      "after_sha256": "bdc2995e06c9796f91788f03ceefd8f4ea4b9b583b51a15243fa6a40a2bcbbbf",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/dns_request_family_async_workloads.h",
+      "before_sha256": "0a6c82c1a6d4fbad229822c440a23ba33f0562b80dba742da40a7de820cd4b0f",
+      "after_sha256": "d7db65042eb860e334a56563b39eb59758491c75304eee5af5e72df90348d257",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/dns_request_family_http_workloads.cc",
+      "before_sha256": null,
+      "after_sha256": "f820ad8d59a37fc8a8ca26cc5322a0b004feef88088c6eaaa2f7b72bf33b7723",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/dns_request_family_http_workloads.h",
+      "before_sha256": "303005e424a024fe43ba061929dbafbcd7bf35f56710f08ab7ea07997c5679e9",
+      "after_sha256": "42656d347bb58c8d38790a28ac695c92d44099e85d2e44c116a97d317b203889",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "before_sha256": "298ecb4799dc91f711d6ca400545f273b788a8807dc51931851c370ad2f49fd0",
+      "after_sha256": "ee9538aac85b9d6a33b1d42841a0345b88f36003816b01341553e3bb19a5331c",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/host_resolver_cache_rust_test_support.cc",
+      "before_sha256": null,
+      "after_sha256": "6bcee32cf52c32092f95053c2dbd7ea98be5e08c3a879b85bf021dc45a8d1760",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/host_resolver_cache_rust_test_support.h",
+      "before_sha256": "8641d1ff3913d4d9d04d4dc862cdab6d7c857b2e6f3430f89685113854823366",
+      "after_sha256": "4fd07db9d1923a8b38a985dcf98766b810c569e3e557edbbc6c56ea3d1d25f70",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/dns/httpssvc_metrics.h",
+      "before_sha256": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576",
+      "after_sha256": "3e80fa7030f556ef2015cf56574abf58d1106f0185381e9110897f958651f252",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "url/origin.h",
+      "before_sha256": "2433fcb4502f2a673e9806bcd2f0bbaaf242c8c7a5e7e1edf07dd23a445ff871",
+      "after_sha256": "54d3926802dfa444ff14e050af9de313f400bfdbfc76964f6e875e84212b4912",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/base/net_string_util.h",
+      "before_sha256": "ad130253ce7d3ac30e383636fece041c968fef78d80de48a609a49a9eab2458d",
+      "after_sha256": "f81a779ba0d25d1f2c9855ce0f6bf035f35ac03675a07e8d1ead6bad0097bd0f",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/http/http_auth_cache.h",
+      "before_sha256": "38bdf3a7fd95c49f79d3bba2cc05f7530325004017a896c894f8e5c1d69a4b71",
+      "after_sha256": "8aaf06b92412e29de4ba5b77e0100e4d9041e13d885ee07b63359282da7640b1",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/http/http_auth.h",
+      "before_sha256": "fc258d89dc2b18750c28673f03988fdc736e11d9923cc99461319a8f51507592",
+      "after_sha256": "488c45c7c46047731cc778729a000c29e774b325fb3f64a3484890405752d998",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.h",
+      "before_sha256": "d25e1b5098bc0579ffbcf0f809ae9c34db542c7f4118c0afc8fec10233235fde",
+      "after_sha256": "256a3624b711297f3faa62db1c410569d6432d013db58d57fd9a052496d2be4a",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.h",
+      "before_sha256": "1c99c446734c85014482a00b6e9c257902d4cee8bafaa91b0e9c5311d48dee40",
+      "after_sha256": "7f66bd096c904df60b64da90b64406e51433c8ef4273ed351e75e4f97aa878f2",
+      "reason": "Reviewed source/compiler/export proposal; no policy or original expectations changed"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_host_port_pair.h",
+      "before_sha256": "4ac99a5520e20fac2fb3145c8ecc5710916e946a2c154aa0e6ff1802443ddaed",
+      "after_sha256": "a25641e3abfd122c0de7324e7d53482370ca3c751a548476f9c17b7c8d22fa21",
+      "reason": "R1 reference-only component import/export; frozen class bodies, fields and signatures retained"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_chain.h",
+      "before_sha256": "eabbcbd4dd39adacef948a9621756d2a41d4ef5dd4ac42bed5f5b5e32b1cb6e6",
+      "after_sha256": "a0c66be5ea9929f0854e03cea213d18da4e52291223cc2e59d80424bc37563fd",
+      "reason": "R1 reference-only component import/export; frozen class bodies, fields and signatures retained"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_server.h",
+      "before_sha256": "1629e7c1b4513472979b46aaae1366709884fe37ec6d0b49e961e375b8b3af98",
+      "after_sha256": "7a206b8fe6374fa29000e1a300f06240b88d5e97870a91d3409e119b1f92a581",
+      "reason": "R1 reference-only component import/export; frozen class bodies, fields and signatures retained"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_string_util.h",
+      "before_sha256": "895a0a80c4f87fa394f1c91ea7eb3a348a5a364435ff622e5815e9dd9c5bdc7e",
+      "after_sha256": "44cbb70302905553bb8f1361e0ae1aa575867da04541767bb6d5f08cf68f79e7",
+      "reason": "R1 export all nine frozen reference parser/formatter declarations from the same component"
+    },
+    {
+      "path": "net/base/proxy_reference_component_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "59aa3b964308e56a16c5c0d5e5447729896cfc939ba92059175da0a928ac6b3e",
+      "reason": "R1 additive ordinary lifecycle coverage across reference component boundary"
+    }
+  ],
+  "frozen_unchanged_proxy_definitions": [
+    {
+      "path": "net/base/proxy_value_rust_reference_host_port_pair.cc",
+      "sha256": "595c504b215ddfba6bc4f6d0380d978b26b5320a9cd55d34ac04e2a6475d0f2b"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_chain.cc",
+      "sha256": "9dcc87880c98b70b3a0e853c3cbbb375bf2cde977206d6351e999b0126ee71a1"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_server.cc",
+      "sha256": "37dc131b4d918c766430fe89e050078035d0cb38dca902ec55fce4a0ca7bb1b3"
+    },
+    {
+      "path": "net/base/proxy_value_rust_reference_proxy_string_util.cc",
+      "sha256": "8d1596c168a772e183a65ba2f6ee57f7698563c0787e9360a4d470c5edfffc2a"
+    }
+  ],
+  "applied": false,
+  "checks": {
+    "gn_format": {
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "format",
+        "D:\\Rustium\\docs\\rust\\migration\\drafts\\net-compile-parent-fixes\\proposal\\net\\BUILD.gn"
+      ],
+      "exit_code": 0,
+      "tool_sha256": "2c680fec3bd2c2e52f57184e9d389b75f3054c25cb56180f73fdf0cffc87f80f"
+    },
+    "strict_validator_tests": {
+      "command": [
+        "C:\\Python315\\python.exe",
+        "-B",
+        "-O",
+        "-m",
+        "unittest",
+        "-v",
+        "test_compare_harness_records.py"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e76cc1ddd46b98a99c7a792c2b15a61de9e4ed6728f43dc2da13491fdbe08b61",
+      "scope": "Synthetic complete/corrupt records; no native workload or timing"
+    }
+  }
+}
