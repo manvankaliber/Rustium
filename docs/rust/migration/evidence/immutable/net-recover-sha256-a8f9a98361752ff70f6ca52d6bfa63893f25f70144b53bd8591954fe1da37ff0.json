@@ -1,0 +1,50 @@
+{
+  "task_id": "NET-RECOVER",
+  "candidate_commit": "b9e3ad35969831f2886e63e62715ad799cd2a042",
+  "source_identity": {
+    "source_manifest_sha256": "a933976b30daeeb90fe8e25984600f4b0d93208fc039fd2e3c121398de8d2d3f",
+    "frozen_historical_runtime_manifest_sha256": "9f857b8a89a3cc260f941b4f8cc0808497da4918c3986e2cb08e7c84311a6796",
+    "source_count": 22
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Recovery artifact integrity and exact patch applicability only; not native behavior",
+    "commands": [
+      "Verify 22 independently copied source hashes against primary and configured inputs",
+      "git apply --check and git apply in unique copied temporary inputs; exact output hash comparison"
+    ],
+    "outcome": "22 source bindings and 2 patches passed",
+    "validation_directory": "D:\\Rustium\\.rustium-runtime\\net-recovery-proposals-lkm_ef9g"
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Recovery artifact integrity and source review of proposals for guarded intake only; native behavior unvalidated",
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "executed_model_attestation": null,
+    "report": "docs/rust/migration/evidence/net-recover-review-20261117.md",
+    "candidate_reviewed": "b9e3ad35969831f2886e63e62715ad799cd2a042"
+  },
+  "native_validation": {
+    "status": "failed historical run; new repair validation pending",
+    "nine_cookie_crashes": true,
+    "five_failures": true,
+    "sixteen_http2_programs_unexecuted": true
+  },
+  "platform_limits": [
+    "Windows source inspection only; native/platform validation pending",
+    "Sanitizer/fuzz OFF; no native, performance or cutover acceptance"
+  ],
+  "remaining_ownership": "C++ CookieMonster/session native state and providers remain; proposals only; no production/cutover acceptance",
+  "next_action": "Independent Terra review, then guarded production intake and affected-consumer rebuild/ordinary validation",
+  "manifest_git_blob_audit": {
+    "git_blob_sha256": "4120ae525dbe0e9e404214f01ab3aad054b7f57d89ddf95b3904ae89201ec607",
+    "worktree_sha256": "a933976b30daeeb90fe8e25984600f4b0d93208fc039fd2e3c121398de8d2d3f",
+    "exact_bytes_match": false,
+    "next_action": "Preserve exact reviewed manifest bytes under -text during local artifact intake; source/proposal byte pins remain unchanged.",
+    "resolution": "Added -text and restored exact reviewed worktree manifest bytes; imported Git blob and all 22 archived/proposal hashes verified.",
+    "integrated_exact_bytes_match": true
+  },
+  "integration_commit": "9a6381bce48c770f4bfa0612f9abfb46d31d5aaa",
+  "integration_scope": "Recovery artifact and proposals locally integrated; production native repair not installed or validated."
+}

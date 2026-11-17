@@ -1,0 +1,28 @@
+{
+  "task_id": "FOUNDATION-STRINGS",
+  "candidate_commit": "471973023b4b4d8401df7754afb642e50b6e53ad",
+  "source_identity": {
+    "candidate_base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "reference_checkout": "D:/Rustium",
+    "reference_files": "Seven files archived byte-for-byte with SHA-256 hashes and Git attributes in source-manifest.json; all three queue-pinned hashes match.",
+    "reference_manifest_sha256": "1e076670b770b8367eb9c6fec3026c19a046a8250e3d4729fe19d8d316a587db",
+    "core_sha256": "4a731517dcf109df37b8b3c9c7a8ce5a8a3dc3f8d48183d655e2186ac0ce7880"
+  },
+  "tests": {
+    "status": "pending",
+    "candidate_command": "cargo test --manifest-path Cargo.toml",
+    "configured_target_request": "//base:base_unittests, after director-owned integration",
+    "executed_checks": "rustfmt --check src/lib.rs and git diff --check passed. No compiler, tests, linker, benchmark, or browser build was run."
+  },
+  "review": {
+    "status": "pending",
+    "required_model": "gpt-6.1-terra",
+    "required_effort": "xhigh"
+  },
+  "platform_limits": [
+    "Candidate handles byte slices without UTF-8 decoding and UTF-16 code units without rejecting lone surrogates.",
+    "No C++ ABI/export bridge or Windows wchar_t overload is implemented; supported-platform integration remains pending."
+  ],
+  "remaining_cpp_and_bridge_ownership": "Existing C++ APIs, callers, exports, Windows overloads, and provider behavior remain authoritative. Borrowed-view caller lifetimes and all production integration remain to be reviewed.",
+  "next_action": "Director reviews the candidate and integration proposal, selects Rust exports/GN/bridge types, then schedules gated candidate and configured tests. No production migration or cutover is claimed."
+}

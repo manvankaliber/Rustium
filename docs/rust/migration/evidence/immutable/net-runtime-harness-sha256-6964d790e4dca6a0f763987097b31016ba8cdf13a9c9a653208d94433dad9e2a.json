@@ -1,0 +1,31 @@
+{
+  "task_id": "NET-RUNTIME-HARNESS",
+  "candidate_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
+  "source_identity": {
+    "source_manifest_sha256": "07cfb001e626e1503a9b08202a254a9058eefbcf8d3f5a16e882b21cf720f30d",
+    "source_count": 8
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Ordinary synthetic Python temporary-path tests and exact source/patch integrity; no native execution",
+    "commands": [
+      "python validate_proposals.py -v"
+    ],
+    "outcome": "9 synthetic tests; 8 source bindings and 2 exact patch checks passed",
+    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests-repaired.log"
+  },
+  "review": {
+    "status": "pending",
+    "prior_candidate": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
+    "prior_report": "docs/rust/migration/evidence/net-runtime-harness-review-20261117.md",
+    "repairs": "Windows-only after-construction logging; original owned-output TMP with short bound; strict complete gtest membership. General external-parent allocation removed."
+  },
+  "platform_limits": [
+    "Native launcher smoke/rebuild/complete ordinary execution still pending",
+    "Other-platform builds unexecuted",
+    "Sanitizer/fuzz campaigns OFF"
+  ],
+  "remaining_ownership": "Validation infrastructure proposal only; no production migration or cutover credit",
+  "next_action": "Independent review of changed membership/owned-output contract, then current ABI/GN/freshness and complete sealed ordinary family",
+  "native_focused_evidence": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json"
+}

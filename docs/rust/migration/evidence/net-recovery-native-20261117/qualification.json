@@ -1,0 +1,55 @@
+{
+  "qualified": true,
+  "snapshot_manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+  "command": [
+    "vpython3.exe",
+    "-u",
+    "-c",
+    "import ctypes, hashlib, json, pathlib, sys\ndef identity(path):\n p=pathlib.Path(path).resolve()\n return {\"path\":str(p),\"sha256\":hashlib.sha256(p.read_bytes()).hexdigest()}\nk=ctypes.WinDLL(\"kernel32\",use_last_error=True)\nk.GetModuleFileNameW.argtypes=[ctypes.c_void_p,ctypes.c_wchar_p,ctypes.c_uint]\nk.GetModuleFileNameW.restype=ctypes.c_uint\nb=ctypes.create_unicode_buffer(32768)\nn=k.GetModuleFileNameW(ctypes.c_void_p(ctypes.pythonapi._handle),b,len(b))\nassert n and n<len(b),ctypes.get_last_error()\nk.GetCurrentProcess.restype=ctypes.c_void_p\nk.GetProcessAffinityMask.argtypes=[ctypes.c_void_p,ctypes.POINTER(ctypes.c_size_t),ctypes.POINTER(ctypes.c_size_t)]\npm,sm=ctypes.c_size_t(),ctypes.c_size_t()\nassert k.GetProcessAffinityMask(k.GetCurrentProcess(),ctypes.byref(pm),ctypes.byref(sm))\nr={\"executable\":identity(sys.executable),\"python_dll\":identity(b.value),\"version\":sys.version,\"version_info\":list(sys.version_info[:3]),\"prefix\":sys.prefix,\"base_prefix\":sys.base_prefix,\"sys_path\":sys.path,\"affinity_mask\":pm.value}\nif getattr(sys,\"_base_executable\",None):r[\"base_executable\"]=identity(sys._base_executable)\nprint(\"RUSTIUM_PYTHON_RUNTIME=\"+json.dumps(r,sort_keys=True))"
+  ],
+  "launcher": {
+    "path": "D:/depot_tools/.cipd_bin\\vpython3.exe",
+    "sha256": "2d2ad7d1ec898d0c71a13614f16288ab66864958a4c55c7f1d824e7def396bc6"
+  },
+  "exit_code": 0,
+  "selected_runtime": {
+    "affinity_mask": 32,
+    "base_executable": {
+      "path": "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\cpython-mi7dcjml3vvcqgcfj26qe857pk\\contents\\bin\\python3.exe",
+      "sha256": "5f7b89a612c9b8af1d6456cdfcd1dbe5ca630849e79aebced9bee9a6694952ec"
+    },
+    "base_prefix": "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\cpython-mi7dcjml3vvcqgcfj26qe857pk\\contents\\bin",
+    "executable": {
+      "path": "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Scripts\\python3.exe",
+      "sha256": "5f7b89a612c9b8af1d6456cdfcd1dbe5ca630849e79aebced9bee9a6694952ec"
+    },
+    "prefix": "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents",
+    "python_dll": {
+      "path": "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Scripts\\python311.dll",
+      "sha256": "0817a2a657a24c0d5fbb60df56960f42fc66b3039d522ec952dab83e2d869364"
+    },
+    "sys_path": [
+      "",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Scripts\\python311.zip",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\cpython-mi7dcjml3vvcqgcfj26qe857pk\\contents\\bin\\DLLs",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\cpython-mi7dcjml3vvcqgcfj26qe857pk\\contents\\bin\\Lib",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\cpython-mi7dcjml3vvcqgcfj26qe857pk\\contents\\bin",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Lib\\site-packages",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Lib\\site-packages\\win32",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Lib\\site-packages\\win32\\lib",
+      "C:\\Users\\jackv\\AppData\\Local\\vpython-root.0\\store\\uv_venv-q9fk08k59lttuc15anonu3aaq0\\contents\\Lib\\site-packages\\Pythonwin"
+    ],
+    "version": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "version_info": [
+      3,
+      11,
+      9
+    ]
+  },
+  "source_spec_sha256": "b10f0becaff4550d6cb353e15f819381e4b96bd3916b3b198225eba08d4905e9",
+  "source_lock_sha256": "25bfc28ce400d644bc202b7b45bb17c3aa5705f2b85b613f3eb69cb560c3299b",
+  "runtime_mode": "Explicitly pinned external environment; not copied",
+  "limitation": "Interpreter/loaded DLL identities are pinned; the full external package/cache tree is not frozen.",
+  "suite_execution_claimed": false
+}

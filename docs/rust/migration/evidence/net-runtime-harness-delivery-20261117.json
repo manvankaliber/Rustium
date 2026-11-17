@@ -1,8 +1,8 @@
 {
   "task_id": "NET-RUNTIME-HARNESS",
-  "candidate_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
+  "candidate_commit": "d7ecf0848b99a00b0f7230e4121aef33ff1acdcf",
   "source_identity": {
-    "source_manifest_sha256": "07cfb001e626e1503a9b08202a254a9058eefbcf8d3f5a16e882b21cf720f30d",
+    "source_manifest_sha256": "4a096c8eb38b1b1f9d2abbd05cab200aab42e7649354a84ecaede69a1da392f8",
     "source_count": 8
   },
   "tests": {
@@ -11,14 +11,17 @@
     "commands": [
       "python validate_proposals.py -v"
     ],
-    "outcome": "9 synthetic tests; 8 source bindings and 2 exact patch checks passed",
-    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests-repaired.log"
+    "outcome": "10 synthetic tests,8 source/2 patch checks; actual8-program PRE enumeration and bot-mode skip-accounting smoke passed",
+    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests-final.log"
   },
   "review": {
-    "status": "pending",
-    "prior_candidate": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
-    "prior_report": "docs/rust/migration/evidence/net-runtime-harness-review-20261117.md",
-    "repairs": "Windows-only after-construction logging; original owned-output TMP with short bound; strict complete gtest membership. General external-parent allocation removed."
+    "status": "accepted",
+    "scope": "Source/artifact accepted for guarded installation and complete frozen validation; not full native acceptance",
+    "independent_reviewed_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
+    "independent_report": "docs/rust/migration/evidence/net-runtime-harness-review2-20261117.md",
+    "small_fix_resolution": "Director fixed stdio visibility with --test-launcher-print-test-stdio=always, rejected brief overrides, explicitly rejected unqualified PRE suites; actual8-program enumeration and bot-mode parser smoke prove the concrete review conditions. No claim of independent re-review of successor commit.",
+    "verification": "docs/rust/migration/evidence/net-recovery-native-20261117/membership-summary.json",
+    "executed_model_attestation": null
   },
   "platform_limits": [
     "Native launcher smoke/rebuild/complete ordinary execution still pending",
@@ -26,6 +29,8 @@
     "Sanitizer/fuzz campaigns OFF"
   ],
   "remaining_ownership": "Validation infrastructure proposal only; no production migration or cutover credit",
-  "next_action": "Independent review of changed membership/owned-output contract, then current ABI/GN/freshness and complete sealed ordinary family",
-  "native_focused_evidence": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json"
+  "next_action": "Install exact reviewed-and-repaired runner; create fresh source/GN/ABI/freshness-bound copied runtime, qualify and run complete17-program HTTP2 ordinary family",
+  "native_focused_evidence": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
+  "integration_commit": "b1ad73189f6d2e3aebd9d1b034ecf72fbf122ea6",
+  "integration_scope": "Reviewed artifacts and exact repaired ordinary runner installed locally; complete copied-runtime ordinary execution remains pending"
 }

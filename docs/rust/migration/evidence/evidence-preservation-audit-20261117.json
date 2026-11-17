@@ -1,0 +1,47 @@
+{
+  "records": [
+    {
+      "task_id": "NET-RECOVER",
+      "sha256": "2bffee1194f9d05e32cfce2705c529d4350c9f5185bdecac8d25f8fc536bc9c1",
+      "status": "exact recorded bytes preserved",
+      "source": "Hash-verified reconstruction from recorded fields before later extensions; CRLF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-recover-sha256-2bffee1194f9d05e32cfce2705c529d4350c9f5185bdecac8d25f8fc536bc9c1.json"
+    },
+    {
+      "task_id": "NET-RECOVER",
+      "sha256": "a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0",
+      "status": "exact recorded bytes preserved",
+      "source": "Hash-verified reconstruction from recorded fields before later extensions; CRLF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-recover-sha256-a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0.json"
+    },
+    {
+      "task_id": "NET-RECOVER",
+      "sha256": "a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0",
+      "status": "exact recorded bytes preserved",
+      "source": "Hash-verified reconstruction from recorded fields before later extensions; CRLF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-recover-sha256-a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0.json"
+    },
+    {
+      "task_id": "FOUNDATION-VERSION",
+      "sha256": "68781fed53bd4694483aaa08ab993434452108589e56495bc2a9d6af6b4b12f3",
+      "status": "exact recorded bytes preserved",
+      "source": "Hash-verified original worker JSON and initial review-pending fields; LF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-version-sha256-68781fed53bd4694483aaa08ab993434452108589e56495bc2a9d6af6b4b12f3.json"
+    },
+    {
+      "task_id": "NET-RUNTIME-HARNESS",
+      "sha256": "ebe6db10e8ee31b449a850b26bb64c3ffed18ef8d69b98bf54cc8af1c253da2a",
+      "status": "exact recorded bytes preserved",
+      "source": "Git 57cb2fc2bfd10f75b7064b4ca2ee8b0b84639ced; CRLF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-runtime-harness-sha256-ebe6db10e8ee31b449a850b26bb64c3ffed18ef8d69b98bf54cc8af1c253da2a.json"
+    },
+    {
+      "task_id": "NET-RUNTIME-HARNESS",
+      "sha256": "6964d790e4dca6a0f763987097b31016ba8cdf13a9c9a653208d94433dad9e2a",
+      "status": "exact recorded bytes preserved",
+      "source": "Hash-verified reconstruction from recorded fields before later extensions; CRLF",
+      "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-runtime-harness-sha256-6964d790e4dca6a0f763987097b31016ba8cdf13a9c9a653208d94433dad9e2a.json"
+    }
+  ],
+  "scope": "Exact historical queue hashes recovered into immutable byte-preserving files. Any missing entry is explicitly not acceptance evidence."
+}

@@ -1,0 +1,67 @@
+{
+  "task_id": "NET-RUNTIME-HARNESS",
+  "gtest_programs": [
+    {
+      "target": "net_unittests",
+      "listed_tests": 33659,
+      "PRE_tests": []
+    },
+    {
+      "target": "spdy_buffer_rust_unittests",
+      "listed_tests": 34,
+      "PRE_tests": []
+    },
+    {
+      "target": "http2_stream_family_rust_unittests",
+      "listed_tests": 225,
+      "PRE_tests": []
+    },
+    {
+      "target": "http2_read_queue_rust_unittests",
+      "listed_tests": 27,
+      "PRE_tests": []
+    },
+    {
+      "target": "http2_write_queue_rust_unittests",
+      "listed_tests": 23,
+      "PRE_tests": []
+    },
+    {
+      "target": "http2_priority_rust_unittests",
+      "listed_tests": 14,
+      "PRE_tests": []
+    },
+    {
+      "target": "header_coalescer_rust_unittests",
+      "listed_tests": 24,
+      "PRE_tests": []
+    },
+    {
+      "target": "alps_decoder_rust_unittests",
+      "listed_tests": 20,
+      "PRE_tests": []
+    }
+  ],
+  "bot_mode_skip_result": {
+    "format": "Chromium test-launcher summary",
+    "attempt_status_counts": {
+      "SUCCESS": 1
+    },
+    "tests_with_attempts": 1,
+    "listed_tests": 33659,
+    "listed_disabled_tests": 57,
+    "passed": 0,
+    "skipped": 1,
+    "native_skip_names": [
+      "All/DnsTransactionAttemptModeWithNetworkHandleTest.NonKPlatformAttemptWithTargetNetworkFailsWithInvalidArgument/2"
+    ],
+    "native_output_sha256": "e7b0dcb4979af64a582dc7528b1790ab37e1ad818a5a57f143a5df969544d479",
+    "unexpected_statuses": {},
+    "result_file_sha256": "3823a72e04a51acac412d7e1e956881c4e7271f7eb79d44c6ae894fb459822f2"
+  },
+  "source_inputs_stable": true,
+  "runtime_after_matches": true,
+  "raw_record": "D:\\Rustium\\.scratch\\net-wave5\\migration-recovery-20261117T041914330876Z\\native-membership-qualification\\result.json",
+  "raw_record_sha256": "ebe43f56cb4d5c13b5fb27f728f5d7a222090a89f70519819d6b69bf4847958b",
+  "scope": "Actual selected-program enumeration and one intentionally skipped ordinary DNS fixture in bot mode; no full-family or performance/cutover acceptance."
+}

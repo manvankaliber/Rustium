@@ -31,9 +31,13 @@
     "evidence": "docs/rust/migration/evidence/foundation-version-result.json"
   },
   "review": {
-    "status": "pending",
-    "required_model": "gpt-6.1-terra",
-    "required_effort": "xhigh"
+    "status": "changes-required",
+    "report": "docs/rust/migration/evidence/foundation-version-review-20261117.md",
+    "findings": [
+      "Incomplete original executable fixture coverage and unwired subset CSV",
+      "Missing StartsWithT/EndsWithT and numeric/span behavior dependencies in frozen closure"
+    ],
+    "core_source_review": "No definite algorithm mismatch identified; not accepted until repairs and ordinary validation"
   },
   "platform_limits": [
     "No compiler, linker, native tests, configured build, sanitizer, fuzz, benchmark, or publication was run.",
@@ -47,5 +51,6 @@
     "head": "6d81943827c60e65b7a60472f0ed9a3bd654aff1",
     "clean": true,
     "scope": "Only docs/rust/migration/drafts/foundation-version/** changed"
-  }
+  },
+  "next_action": "Same worker repairing full original executable coverage and frozen helper closure; rerun exact repaired candidate tests and independent review before production integration."
 }
