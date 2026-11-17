@@ -1,0 +1,564 @@
+{
+  "observed_utc": "2026-11-17T06:14:07.601847+00:00",
+  "package_sha256": "5405cc7c5994ff26aa0b2cc9ade42acfb128277faea2c17544fe74e87e3f32fc",
+  "binding_count": 46,
+  "all_before_and_after_hashes_match": true,
+  "files_applied": false,
+  "build_tests_run": false,
+  "current_network_repair_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+  "overlap_with_three_repaired_native_paths": false,
+  "bindings": [
+    {
+      "path": "net/http/connection_auth_baseline_unittest.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_baseline_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "f40cf2d0b69ce0b8f9fa5c7e019a6814e5bebab0c5eb240b7a16adb2fc43fdde",
+      "parent_only_shared": false,
+      "staged_actual": "f40cf2d0b69ce0b8f9fa5c7e019a6814e5bebab0c5eb240b7a16adb2fc43fdde",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_basic.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_basic.cc",
+      "before_sha256": null,
+      "after_sha256": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "parent_only_shared": false,
+      "staged_actual": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_basic.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_basic.h",
+      "before_sha256": null,
+      "after_sha256": "ef3ca028485c61c6cb49d9e31530343154ea5107bd514e728d366aceab0e35dc",
+      "parent_only_shared": false,
+      "staged_actual": "ef3ca028485c61c6cb49d9e31530343154ea5107bd514e728d366aceab0e35dc",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_cache.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_cache.cc",
+      "before_sha256": null,
+      "after_sha256": "652d98a6cba94470b8b61926fa42ad16281849dea2e6f6996a937dabc24fd74e",
+      "parent_only_shared": false,
+      "staged_actual": "652d98a6cba94470b8b61926fa42ad16281849dea2e6f6996a937dabc24fd74e",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_cache.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_cache.h",
+      "before_sha256": null,
+      "after_sha256": "5d25a6fd5c7cc6090a88e75d4a44476ea817bbf6ef06c0bbc50154c65fee00f2",
+      "parent_only_shared": false,
+      "staged_actual": "5d25a6fd5c7cc6090a88e75d4a44476ea817bbf6ef06c0bbc50154c65fee00f2",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_controller.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_controller.cc",
+      "before_sha256": null,
+      "after_sha256": "9377075ba1ca324aee39eccec7b9bf86feef5464307fedda1717592b7ce1fd4d",
+      "parent_only_shared": false,
+      "staged_actual": "9377075ba1ca324aee39eccec7b9bf86feef5464307fedda1717592b7ce1fd4d",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_factory.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_factory.cc",
+      "before_sha256": null,
+      "after_sha256": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "parent_only_shared": false,
+      "staged_actual": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_handler.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_handler.cc",
+      "before_sha256": null,
+      "after_sha256": "7923466b1ed1ff95f1d8a10f1c493b89cffb7d4ee9e4f6573d52cafb1c6469fc",
+      "parent_only_shared": false,
+      "staged_actual": "7923466b1ed1ff95f1d8a10f1c493b89cffb7d4ee9e4f6573d52cafb1c6469fc",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_mock.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_mock.cc",
+      "before_sha256": null,
+      "after_sha256": "32d58a1cfdda401d4ac8b86120d23946515755b1b1e19510a7a460fcadf9ff08",
+      "parent_only_shared": false,
+      "staged_actual": "32d58a1cfdda401d4ac8b86120d23946515755b1b1e19510a7a460fcadf9ff08",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_mock.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_mock.h",
+      "before_sha256": null,
+      "after_sha256": "ced8acc0e710ed3e9622cb3070430a4c0e705498fe52f899900fb2232cb489d3",
+      "parent_only_shared": false,
+      "staged_actual": "ced8acc0e710ed3e9622cb3070430a4c0e705498fe52f899900fb2232cb489d3",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_auth_original_policy.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_auth_original_policy.h",
+      "before_sha256": null,
+      "after_sha256": "e78115ca73b2faed5304ccc8d60399075f039c788d154b8759b05339dd40e9a6",
+      "parent_only_shared": false,
+      "staged_actual": "e78115ca73b2faed5304ccc8d60399075f039c788d154b8759b05339dd40e9a6",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_header_baseline_unittest.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_header_baseline_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "22f454ce5319422398ad1e2b2d881e569814a249791405ee8a3ecbf6de399918",
+      "parent_only_shared": false,
+      "staged_actual": "22f454ce5319422398ad1e2b2d881e569814a249791405ee8a3ecbf6de399918",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_header_original_helpers.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_header_original_helpers.h",
+      "before_sha256": null,
+      "after_sha256": "85d410dc89f617d8ecbdf868655b43d6ed1b199cd2e1f2e2779419345037bde4",
+      "parent_only_shared": false,
+      "staged_actual": "85d410dc89f617d8ecbdf868655b43d6ed1b199cd2e1f2e2779419345037bde4",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_header_original_log.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_header_original_log.cc",
+      "before_sha256": null,
+      "after_sha256": "06dad8e26fd5a7b577103b5b0339b0ef35a17ae977a315c2e24000939d57f97e",
+      "parent_only_shared": false,
+      "staged_actual": "06dad8e26fd5a7b577103b5b0339b0ef35a17ae977a315c2e24000939d57f97e",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_header_original_policy.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_header_original_policy.cc",
+      "before_sha256": null,
+      "after_sha256": "e81d993707cc0f5b10ce5eeec13ed95ea5045a06257ed1ab7d267a25e2645200",
+      "parent_only_shared": false,
+      "staged_actual": "e81d993707cc0f5b10ce5eeec13ed95ea5045a06257ed1ab7d267a25e2645200",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/connection_header_original_policy.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\connection_header_original_policy.h",
+      "before_sha256": null,
+      "after_sha256": "03f2a7fc2fb361616b9d5b33448efeff37bc5360097c21bed43205d4faee455d",
+      "parent_only_shared": false,
+      "staged_actual": "03f2a7fc2fb361616b9d5b33448efeff37bc5360097c21bed43205d4faee455d",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/http_proxy_client_socket_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_proxy_client_socket_rust_original.cc",
+      "before_sha256": null,
+      "after_sha256": "5368e4b4ab854cd3472bf9896b8e91039dc36fa7073fee2d7f4f5449479b4194",
+      "parent_only_shared": false,
+      "staged_actual": "5368e4b4ab854cd3472bf9896b8e91039dc36fa7073fee2d7f4f5449479b4194",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/http_proxy_client_socket_rust_original.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_proxy_client_socket_rust_original.h",
+      "before_sha256": null,
+      "after_sha256": "25d9cf85a0f9ff54cde15b86770978e127608c4b61e34fabba68b52a474bd4dc",
+      "parent_only_shared": false,
+      "staged_actual": "25d9cf85a0f9ff54cde15b86770978e127608c4b61e34fabba68b52a474bd4dc",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/http_proxy_connect_job_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_proxy_connect_job_rust_original.cc",
+      "before_sha256": "224a88c0e80a5a03f5addd7a45313156519e01fde496cfdfc3f3b738b8d23abc",
+      "after_sha256": "669a3426ac2b30064965d23feb1b35f879ab6e5b5eb32e202230982c8acb4bdb",
+      "parent_only_shared": false,
+      "staged_actual": "669a3426ac2b30064965d23feb1b35f879ab6e5b5eb32e202230982c8acb4bdb",
+      "destinations": {
+        "primary": "224a88c0e80a5a03f5addd7a45313156519e01fde496cfdfc3f3b738b8d23abc",
+        "configured": "224a88c0e80a5a03f5addd7a45313156519e01fde496cfdfc3f3b738b8d23abc"
+      }
+    },
+    {
+      "path": "net/http/http_proxy_connect_job_rust_original.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_proxy_connect_job_rust_original.h",
+      "before_sha256": "1c1fd9133ccefd7b807435677f8104220e2bdd489f335302bc26b6390f5a2f6a",
+      "after_sha256": "47c792f73efef3eb5eeb01b1c864e56b496a386725b88775577b0a6f5bf3768d",
+      "parent_only_shared": false,
+      "staged_actual": "47c792f73efef3eb5eeb01b1c864e56b496a386725b88775577b0a6f5bf3768d",
+      "destinations": {
+        "primary": "1c1fd9133ccefd7b807435677f8104220e2bdd489f335302bc26b6390f5a2f6a",
+        "configured": "1c1fd9133ccefd7b807435677f8104220e2bdd489f335302bc26b6390f5a2f6a"
+      }
+    },
+    {
+      "path": "net/http/http_proxy_connect_job_rust_original_unittest.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-baseline-parent-fixes-v4\\replacements\\net\\http\\http_proxy_connect_job_rust_original_unittest.cc",
+      "before_sha256": "27f288fb5efb71dec4ab43877256a2dfe2ffd372afe7cb69c769305338d10454",
+      "after_sha256": "a9f890327e3d45fccae3d1a004acb9967c3fcb5985ca84f0d0d79fadcde0ccd8",
+      "parent_only_shared": false,
+      "staged_actual": "a9f890327e3d45fccae3d1a004acb9967c3fcb5985ca84f0d0d79fadcde0ccd8",
+      "destinations": {
+        "primary": "27f288fb5efb71dec4ab43877256a2dfe2ffd372afe7cb69c769305338d10454",
+        "configured": "27f288fb5efb71dec4ab43877256a2dfe2ffd372afe7cb69c769305338d10454"
+      }
+    },
+    {
+      "path": "net/http/http_request_headers_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_request_headers_rust_original.cc",
+      "before_sha256": "5ce630d8d9e445511f5aafcf2f72a5a5eb8f68c9536886b49568291d6feae7d3",
+      "after_sha256": "829d39d761b4797de583e52fbed73ec2c61b2cc2b2c5ffa42981260d1f7bfe61",
+      "parent_only_shared": false,
+      "staged_actual": "829d39d761b4797de583e52fbed73ec2c61b2cc2b2c5ffa42981260d1f7bfe61",
+      "destinations": {
+        "primary": "5ce630d8d9e445511f5aafcf2f72a5a5eb8f68c9536886b49568291d6feae7d3",
+        "configured": "5ce630d8d9e445511f5aafcf2f72a5a5eb8f68c9536886b49568291d6feae7d3"
+      }
+    },
+    {
+      "path": "net/http/http_stream_parser_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_stream_parser_rust_original.cc",
+      "before_sha256": null,
+      "after_sha256": "1a120551911848e2c0e9de3c47ec7c9106fb15b8d5e9958d18318d2c179fbb56",
+      "parent_only_shared": false,
+      "staged_actual": "1a120551911848e2c0e9de3c47ec7c9106fb15b8d5e9958d18318d2c179fbb56",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/http/http_stream_parser_rust_original.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\http\\http_stream_parser_rust_original.h",
+      "before_sha256": null,
+      "after_sha256": "5ba64c00174f1ad701691b9bcd0c65aaedfdfc0a058498b8d82ae5d7234b0190",
+      "parent_only_shared": false,
+      "staged_actual": "5ba64c00174f1ad701691b9bcd0c65aaedfdfc0a058498b8d82ae5d7234b0190",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/log/connection_original_log.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\log\\connection_original_log.h",
+      "before_sha256": null,
+      "after_sha256": "34158e244bbbdcb32d11a2cee5048d995e3f9b0a05d922d538329991eaebfdb5",
+      "parent_only_shared": false,
+      "staged_actual": "34158e244bbbdcb32d11a2cee5048d995e3f9b0a05d922d538329991eaebfdb5",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/socket/client_socket_pool_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\client_socket_pool_rust_original.cc",
+      "before_sha256": "a0ad2e0ee58462a938224b94bcdef840758d26234ecaf7af5d4ea54b75c40764",
+      "after_sha256": "f7748eb488e39f60b1d0f31d1011fdcc77a10bdb81426d4422585c4b1c900934",
+      "parent_only_shared": false,
+      "staged_actual": "f7748eb488e39f60b1d0f31d1011fdcc77a10bdb81426d4422585c4b1c900934",
+      "destinations": {
+        "primary": "a0ad2e0ee58462a938224b94bcdef840758d26234ecaf7af5d4ea54b75c40764",
+        "configured": "a0ad2e0ee58462a938224b94bcdef840758d26234ecaf7af5d4ea54b75c40764"
+      }
+    },
+    {
+      "path": "net/socket/connect_job_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connect_job_rust_original.cc",
+      "before_sha256": "f4d808eef9533dd2e9b72dd24c7c1520af3bc3c14edc7fc7a239bab51087c1d0",
+      "after_sha256": "a4115a075ad4c2b988dd02a04c73624fb4e6d1cd171fc13b671a0d072289a435",
+      "parent_only_shared": false,
+      "staged_actual": "a4115a075ad4c2b988dd02a04c73624fb4e6d1cd171fc13b671a0d072289a435",
+      "destinations": {
+        "primary": "f4d808eef9533dd2e9b72dd24c7c1520af3bc3c14edc7fc7a239bab51087c1d0",
+        "configured": "f4d808eef9533dd2e9b72dd24c7c1520af3bc3c14edc7fc7a239bab51087c1d0"
+      }
+    },
+    {
+      "path": "net/socket/connect_job_rust_original.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connect_job_rust_original.h",
+      "before_sha256": "b31c04c93923d774c8ad70036b38a74ded0da96a0774b0c4e9a2a3b6ec364c35",
+      "after_sha256": "d748e7af4f7b32bb471d92c1be01900c96324b24df7284465da85fb942a6bd88",
+      "parent_only_shared": false,
+      "staged_actual": "d748e7af4f7b32bb471d92c1be01900c96324b24df7284465da85fb942a6bd88",
+      "destinations": {
+        "primary": "b31c04c93923d774c8ad70036b38a74ded0da96a0774b0c4e9a2a3b6ec364c35",
+        "configured": "b31c04c93923d774c8ad70036b38a74ded0da96a0774b0c4e9a2a3b6ec364c35"
+      }
+    },
+    {
+      "path": "net/socket/connection_jobs_http2_baseline_unittest.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connection_jobs_http2_baseline_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "c8d16f50ad09b49000a77752ad4d677972e0ffa32c1f277735840af668f0871d",
+      "parent_only_shared": false,
+      "staged_actual": "c8d16f50ad09b49000a77752ad4d677972e0ffa32c1f277735840af668f0871d",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/socket/connection_jobs_http2_rust_original_context.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connection_jobs_http2_rust_original_context.cc",
+      "before_sha256": null,
+      "after_sha256": "6d2f197e167947c0af75903364f0aec61663b02d43fbe8d26c58f4362524cf9b",
+      "parent_only_shared": false,
+      "staged_actual": "6d2f197e167947c0af75903364f0aec61663b02d43fbe8d26c58f4362524cf9b",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/socket/connection_jobs_http2_rust_original_context.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connection_jobs_http2_rust_original_context.h",
+      "before_sha256": null,
+      "after_sha256": "50e6ef5750c65f7d1be41f8fdaa77591db97d314e8edd09e793050322c90c1d6",
+      "parent_only_shared": false,
+      "staged_actual": "50e6ef5750c65f7d1be41f8fdaa77591db97d314e8edd09e793050322c90c1d6",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connection_jobs_upper_rust_job_workloads.h",
+      "before_sha256": "f579a34ad356abe94070617caa77df799b54699566770109435ddf5c3c5d1430",
+      "after_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "parent_only_shared": false,
+      "staged_actual": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "destinations": {
+        "primary": "f579a34ad356abe94070617caa77df799b54699566770109435ddf5c3c5d1430",
+        "configured": "f579a34ad356abe94070617caa77df799b54699566770109435ddf5c3c5d1430"
+      }
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_original_helpers.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\socket\\connection_jobs_upper_rust_original_helpers.h",
+      "before_sha256": "a59096bb16f566313fed62c1ca709df96ad3342224c1a811238f0a954f136d93",
+      "after_sha256": "ade72520a45087b13fc3ab2c85f752731d1cb6eb5461405b58b60bf9b18d197a",
+      "parent_only_shared": false,
+      "staged_actual": "ade72520a45087b13fc3ab2c85f752731d1cb6eb5461405b58b60bf9b18d197a",
+      "destinations": {
+        "primary": "a59096bb16f566313fed62c1ca709df96ad3342224c1a811238f0a954f136d93",
+        "configured": "a59096bb16f566313fed62c1ca709df96ad3342224c1a811238f0a954f136d93"
+      }
+    },
+    {
+      "path": "net/socket/ssl_connect_job_rust_original_unittest.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-baseline-parent-fixes-v4\\replacements\\net\\socket\\ssl_connect_job_rust_original_unittest.cc",
+      "before_sha256": "ea38fbf75ecb7d1ac026ee46d0f7578eb952d45ce6f135cfdc5f107c00e2a1ac",
+      "after_sha256": "fd3f541764d1485ff22d0ca70ed8b433b35e702b26216dffa5dfb89c2c837111",
+      "parent_only_shared": false,
+      "staged_actual": "fd3f541764d1485ff22d0ca70ed8b433b35e702b26216dffa5dfb89c2c837111",
+      "destinations": {
+        "primary": "ea38fbf75ecb7d1ac026ee46d0f7578eb952d45ce6f135cfdc5f107c00e2a1ac",
+        "configured": "ea38fbf75ecb7d1ac026ee46d0f7578eb952d45ce6f135cfdc5f107c00e2a1ac"
+      }
+    },
+    {
+      "path": "net/spdy/spdy_proxy_client_socket_rust_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\spdy\\spdy_proxy_client_socket_rust_original.cc",
+      "before_sha256": null,
+      "after_sha256": "e01c345024cfcc1700646d907a62c25545286e0ceb68f670c97466d7987fc0fc",
+      "parent_only_shared": false,
+      "staged_actual": "e01c345024cfcc1700646d907a62c25545286e0ceb68f670c97466d7987fc0fc",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/spdy/spdy_proxy_client_socket_rust_original.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\spdy\\spdy_proxy_client_socket_rust_original.h",
+      "before_sha256": null,
+      "after_sha256": "1f64726d69743893ae232b13d035faf2c5b095e7f3fd23e5573904e4be9aac5c",
+      "parent_only_shared": false,
+      "staged_actual": "1f64726d69743893ae232b13d035faf2c5b095e7f3fd23e5573904e4be9aac5c",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/spdy/spdy_session_family_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\spdy\\spdy_session_family_original.cc",
+      "before_sha256": "19a3f1855b8609ef445061e22e12c853a0d873d50b3335a59f63717970c18d0b",
+      "after_sha256": "807d89ada7a08db8c9674ce3c981ee1709de08c286207d98891cde732f9c36f6",
+      "parent_only_shared": false,
+      "staged_actual": "807d89ada7a08db8c9674ce3c981ee1709de08c286207d98891cde732f9c36f6",
+      "destinations": {
+        "primary": "19a3f1855b8609ef445061e22e12c853a0d873d50b3335a59f63717970c18d0b",
+        "configured": "19a3f1855b8609ef445061e22e12c853a0d873d50b3335a59f63717970c18d0b"
+      }
+    },
+    {
+      "path": "net/spdy/spdy_session_pool_family_original_test_peer.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\spdy\\spdy_session_pool_family_original_test_peer.h",
+      "before_sha256": null,
+      "after_sha256": "0e9000e974e05cd3241442c3376c0c55f2f3691e9547773b5b342bcd9514eab3",
+      "parent_only_shared": false,
+      "staged_actual": "0e9000e974e05cd3241442c3376c0c55f2f3691e9547773b5b342bcd9514eab3",
+      "destinations": {
+        "primary": null,
+        "configured": null
+      }
+    },
+    {
+      "path": "net/spdy/spdy_stream_family_original.cc",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\replacements\\net\\spdy\\spdy_stream_family_original.cc",
+      "before_sha256": "65886e3346fde70f6bf1456d9b12260990b6ed1f5348431f8bc73a3ee255bfc2",
+      "after_sha256": "3ce953ecd8153b1a148367bd51478b2491d7e93e8840717ec21291da14a2e37f",
+      "parent_only_shared": false,
+      "staged_actual": "3ce953ecd8153b1a148367bd51478b2491d7e93e8840717ec21291da14a2e37f",
+      "destinations": {
+        "primary": "65886e3346fde70f6bf1456d9b12260990b6ed1f5348431f8bc73a3ee255bfc2",
+        "configured": "65886e3346fde70f6bf1456d9b12260990b6ed1f5348431f8bc73a3ee255bfc2"
+      }
+    },
+    {
+      "path": "net/http/http_auth_cache.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_auth_cache.h.after",
+      "before_sha256": "63214f5c18e2fdbab1829fb174eb5635b8f445c794bbac4ecb002463de5fa7a1",
+      "after_sha256": "38bdf3a7fd95c49f79d3bba2cc05f7530325004017a896c894f8e5c1d69a4b71",
+      "parent_only_shared": true,
+      "staged_actual": "38bdf3a7fd95c49f79d3bba2cc05f7530325004017a896c894f8e5c1d69a4b71",
+      "destinations": {
+        "primary": "63214f5c18e2fdbab1829fb174eb5635b8f445c794bbac4ecb002463de5fa7a1",
+        "configured": "63214f5c18e2fdbab1829fb174eb5635b8f445c794bbac4ecb002463de5fa7a1"
+      }
+    },
+    {
+      "path": "net/http/http_auth_challenge_tokenizer.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_auth_challenge_tokenizer.h.after",
+      "before_sha256": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+      "after_sha256": "bfcb6e6ce724c7a254f0e080e1ed914c818259c4156face82801799abf722f63",
+      "parent_only_shared": true,
+      "staged_actual": "bfcb6e6ce724c7a254f0e080e1ed914c818259c4156face82801799abf722f63",
+      "destinations": {
+        "primary": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+        "configured": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f"
+      }
+    },
+    {
+      "path": "net/http/http_auth_controller.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_auth_controller.h.after",
+      "before_sha256": "eecaaec713628f5fd0f172765666ea25b8155bae0c2408800e8fe118e05b52d4",
+      "after_sha256": "5f9284201d6c2c5d93b15c05b9a38819a545ec066b528c2918a3dba3a1abab8e",
+      "parent_only_shared": true,
+      "staged_actual": "5f9284201d6c2c5d93b15c05b9a38819a545ec066b528c2918a3dba3a1abab8e",
+      "destinations": {
+        "primary": "eecaaec713628f5fd0f172765666ea25b8155bae0c2408800e8fe118e05b52d4",
+        "configured": "eecaaec713628f5fd0f172765666ea25b8155bae0c2408800e8fe118e05b52d4"
+      }
+    },
+    {
+      "path": "net/http/http_auth_handler.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_auth_handler.h.after",
+      "before_sha256": "578c0eeec3ef991c137543410fe1433eaeb07ab6aeb6b16ef4c5521c8287cfa0",
+      "after_sha256": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38",
+      "parent_only_shared": true,
+      "staged_actual": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38",
+      "destinations": {
+        "primary": "578c0eeec3ef991c137543410fe1433eaeb07ab6aeb6b16ef4c5521c8287cfa0",
+        "configured": "578c0eeec3ef991c137543410fe1433eaeb07ab6aeb6b16ef4c5521c8287cfa0"
+      }
+    },
+    {
+      "path": "net/http/http_auth_handler_factory.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_auth_handler_factory.h.after",
+      "before_sha256": "85aa86ff8140567e0e3713fa05b9355f4da157d479af88524daabf6ea409145a",
+      "after_sha256": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050",
+      "parent_only_shared": true,
+      "staged_actual": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050",
+      "destinations": {
+        "primary": "85aa86ff8140567e0e3713fa05b9355f4da157d479af88524daabf6ea409145a",
+        "configured": "85aa86ff8140567e0e3713fa05b9355f4da157d479af88524daabf6ea409145a"
+      }
+    },
+    {
+      "path": "net/http/http_request_headers.h",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net\\http\\http_request_headers.h.after",
+      "before_sha256": "7e742db2596edafb388fda0614bb7bc3592f2d437763031fceb60bdaf838cbcc",
+      "after_sha256": "d752b4ad445c6e51468f255128b4576f765c43417bc6d5ab1ee0f3fa8ebdc1f9",
+      "parent_only_shared": true,
+      "staged_actual": "d752b4ad445c6e51468f255128b4576f765c43417bc6d5ab1ee0f3fa8ebdc1f9",
+      "destinations": {
+        "primary": "7e742db2596edafb388fda0614bb7bc3592f2d437763031fceb60bdaf838cbcc",
+        "configured": "7e742db2596edafb388fda0614bb7bc3592f2d437763031fceb60bdaf838cbcc"
+      }
+    },
+    {
+      "path": "net/BUILD.gn",
+      "source": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-auth-baseline-closure-v3\\parent\\net.BUILD.gn.after",
+      "before_sha256": "24b372265fbbd45fd52e2b56c41997783412aa49fe98188c6040ac24a5efb53b",
+      "after_sha256": "3b9688232574b6275e24a1a8378995d158627c89140c2518b6f327d64c3a6862",
+      "parent_only_shared": true,
+      "staged_actual": "3b9688232574b6275e24a1a8378995d158627c89140c2518b6f327d64c3a6862",
+      "destinations": {
+        "primary": "24b372265fbbd45fd52e2b56c41997783412aa49fe98188c6040ac24a5efb53b",
+        "configured": "24b372265fbbd45fd52e2b56c41997783412aa49fe98188c6040ac24a5efb53b"
+      }
+    }
+  ]
+}

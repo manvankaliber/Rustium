@@ -1,0 +1,16 @@
+error[E0282]: type annotations needed
+   --> D:\Rustium\.scratch\migration-candidate-tests\20261117T063404620563Z\storage-usage\src\lib.rs:436:13
+    |
+436 |         let k = "k".into();
+    |             ^
+437 |         c.private.insert(k.clone(), encode(Record { valid: true, dirty: u32::MAX, usage: 7 }));
+    |                          - type must be known at this point
+    |
+help: consider giving `k` an explicit type
+    |
+436 |         let k: /* Type */ = "k".into();
+    |              ++++++++++++
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0282`.

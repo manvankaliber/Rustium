@@ -1,0 +1,3 @@
+candidate-tests-*/** -text whitespace=cr-at-eol,-blank-at-eof
+storage-arithmetic-*/** -text whitespace=cr-at-eol
+net-recovery-native-20261117/ordinary-*.json -text whitespace=cr-at-eol

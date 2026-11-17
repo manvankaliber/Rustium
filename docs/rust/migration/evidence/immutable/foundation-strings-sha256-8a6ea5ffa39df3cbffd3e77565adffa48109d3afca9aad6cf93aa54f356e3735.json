@@ -1,0 +1,29 @@
+{
+  "task_id": "FOUNDATION-STRINGS",
+  "candidate_commit": "62f30a362c8f217d58baa99463a66632ad99da13",
+  "source_identity": {
+    "candidate_base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "reference_checkout": "D:/Rustium",
+    "reference_files": "10 byte-frozen algorithm/helper/test inputs; all raw archive hashes verified by director",
+    "reference_manifest_sha256": "f4eb3e1ab1fcf2dc143ce351754adf6f4da771cd0a2892c2c766f6efcf29683c",
+    "core_sha256": "84dbcdd6cebf07bd5ab4e0835210adecc9ddc2c79abea6414d7698d27a1b04ec"
+  },
+  "tests": {
+    "status": "pending",
+    "candidate_command": "cargo test --manifest-path Cargo.toml",
+    "configured_target_request": "//base:base_unittests, after director-owned integration",
+    "executed_checks": "Director scope/cleanHEAD/all10 source hashes verified; worker rustfmt/diff checks only; compiler/runtime pending"
+  },
+  "review": {
+    "status": "pending",
+    "prior_review": "changes-required for4719730; repaired candidate requires independent new review",
+    "required_model": "gpt-6.1-terra",
+    "required_effort": "xhigh"
+  },
+  "platform_limits": [
+    "Candidate handles byte slices without UTF-8 decoding and UTF-16 code units without rejecting lone surrogates.",
+    "No C++ ABI/export bridge or Windows wchar_t overload is implemented; supported-platform integration remains pending."
+  ],
+  "remaining_cpp_and_bridge_ownership": "Existing C++ APIs, callers, exports, Windows overloads, and provider behavior remain authoritative. Borrowed-view caller lifetimes and all production integration remain to be reviewed.",
+  "next_action": "Gated full candidate tests and new independent repair review, then director-owned bridge/GN and configured validation"
+}

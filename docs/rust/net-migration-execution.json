@@ -477,7 +477,7 @@
         "net/spdy/spdy_session.h",
         "net/spdy/spdy_session_rust_core.rs"
       ],
-      "current_logic_stage": "Rust control policy configured compilation/consumer rebuild passed; regular native API validation remains pending.",
+      "current_logic_stage": "Rust HTTP2 control policy configured compilation,40-consumer rebuild, GN check and currentWindows ordinary17-program execution passed; broader networking/browser/platform and Rustownership acceptance remain pending",
       "ownership_stage": "C++ session state/containers and native provider ownership remain; not Rust-owned family completion",
       "examples": [
         "SpdySession::DoWriteComplete native effects mutate in_flight_write_, write_state_ and stream ownership",
@@ -514,12 +514,13 @@
       "manifest_sha256": "9f857b8a89a3cc260f941b4f8cc0808497da4918c3986e2cb08e7c84311a6796",
       "files": 20432,
       "copied_with_hardlinks": false,
-      "frozen_before_after_verified": true,
+      "frozen_before_after_verified": false,
       "selected_programs": 17,
       "selected_workload_cases": 69,
-      "qualification": "Passed; copied runtime ordinary native execution running under frozen1221 source identity",
+      "qualification": "Historical runtime qualification passed, ordinaryconductor failed; post-run membership rejected addeddebug.log and16selectedprograms omitted. Preserve failed evidence; new repaired snapshot is separately bound.",
       "ordinary_launch": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-launch.json",
-      "current_tooling_changes_apply_to_snapshot": false
+      "current_tooling_changes_apply_to_snapshot": false,
+      "historical_result_reconciled": true
     },
     "latest_tooling_intake": ".scratch/net-wave5/delivery-intake-20261114T010837404785Z/journal.json",
     "recovery_20261117": {
@@ -529,7 +530,7 @@
       "exit_code": 1,
       "finished_utc": "2026-11-14T01:28:29.557774+00:00",
       "prior_running_label_superseded": true,
-      "per_program_analysis": "Pending read-only Sol/high recovery result; no missing/skipped program is promoted to a pass.",
+      "per_program_analysis": "docs/rust/migration/evidence/net-recover-specialist-20261117.md; historicalrun remainsfailed; all16 previouslyomitted HTTP2 programs executed successfully in NEW repaired identity",
       "snapshot_identity": "Frozen1221; later tooling1222 did not retroactively update this snapshot.",
       "acceptance": false,
       "new_execution": false,
@@ -542,9 +543,12 @@
         "source_count": 1222,
         "configured_build": "docs/rust/migration/evidence/net-recovery-native-20261117/build-summary.json",
         "focused_native": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
-        "acceptance_scope": "17 targets built and14 historical regressions passed on Windows; full consumer/frozen-family/performance/platform acceptance still pending"
+        "acceptance_scope": "Current repaired Windows HTTP2 ordinary17-program execution passed with all before/after identities;40 consumer rebuilds/GN passed. Broader families, platform, ownership, performance/publication and cutover remain pending",
+        "ordinary_summary": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-summary.json",
+        "ordinary_result": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-result.json"
       },
-      "current_phase": "40-consumer build and fresh ordinary qualification in progress"
+      "current_phase": "Fresh repaired17-program HTTP2 ordinary execution passed; continue connection intake, broader native families and actual timing-input qualification",
+      "fresh_repaired_ordinary_passed": true
     }
   }
 }

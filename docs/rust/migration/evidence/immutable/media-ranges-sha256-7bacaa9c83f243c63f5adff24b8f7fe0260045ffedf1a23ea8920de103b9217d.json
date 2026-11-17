@@ -1,0 +1,37 @@
+{
+  "task_id": "MEDIA-RANGES",
+  "candidate_commit": "b836b77c499bf115fbf57adcd8dcc23a8fc5cb9d",
+  "source_identity": {
+    "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791",
+    "workspace": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-baf7b949-2236f1210ced3e17",
+    "clean": true,
+    "candidate_files_sha256": {
+      "ranges.rs": "2556c88062a7ccab777459de527ffacc096cd5bad5c5dd2e684009e3a3216ae9",
+      "README.md": "99edc4886a84904c059bea97253d1f1c7267813faba75dd9ae47cbc11726af3c",
+      "reference/assertion-map.csv": "4b25876b6dd859686e15e38fe0dd0bd2be884a3d79b63e77f26852419bae3ecf",
+      "reference/source-manifest.json": "e0ba5ab89b3cf9fadead9c75ae35dbf62e8fbba6c344e5a1e78912e372d3baf5",
+      "reference/source/base/check.h": "1e5c47e439a3fcfd7f40b8c7ed117b6974602e3c61bed3ea078db4e047df0860",
+      "reference/source/base/check_op.h": "024d6edba6d60995f7ad6b0f27c4ff4a9883782d06939ef29ebb9de40ea31fe9",
+      "reference/source/media/base/ranges.cc": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+      "reference/source/media/base/ranges.h": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+      "reference/source/media/base/ranges_unittest.cc": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+      "reference/source/base/time/time.h": "9611314b1d0952e28fd8dace035128ae158591b5aa68c5ce20227505dbe3f93b"
+    }
+  },
+  "tests": {
+    "status": "pending",
+    "prepared": "Worker reports75 source-mapped original assertion sites and finite-f64/int/time endpoint cases",
+    "request": "rustc --test ranges.rs, hostWindows; configured media_unittests only after real production bridge integration",
+    "executed": "Director cleanHEAD/scope/fileinventory verification; worker format/hash checks only"
+  },
+  "review": {
+    "status": "pending",
+    "requested": "Terra/xhigh source/core/all75 fixtures/helperclosure"
+  },
+  "platform_limits": [
+    "Finite partial-comparison model; no total NaN order invented",
+    "Native TimeDelta/callers/ABI/exports/GN/bridge remain authoritative",
+    "No compiler/runtime/native/platform/performance validation"
+  ],
+  "next_action": "Independent review plus gated candidate tests; repair before director-owned production integration"
+}

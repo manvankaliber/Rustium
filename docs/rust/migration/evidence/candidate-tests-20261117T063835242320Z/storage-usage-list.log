@@ -1,0 +1,20 @@
+tests::capacity_hit_closes_all_before_timer_lookup: test
+tests::codec_and_original_cases: test
+tests::construction_detached_then_first_use_binds: test
+tests::delete_closes_stops_then_deletes_and_destruction_is_idempotent: test
+tests::empty_key_read_rejected_before_private_or_file_activity_but_write_allowed: test
+tests::error_and_corruption_leave_outputs_unchanged: test
+tests::failed_open_keeps_timer_and_failed_write_deletes: test
+tests::flush_uses_saved_handle_and_dirty_state_and_ignores_error: test
+tests::negative_usage_and_malformed_record_boundaries: test
+tests::original_disk_assertions_for_private_and_persistent_modes: test
+tests::partial_write_overwrites_prefix_and_retains_old_tail: test
+tests::private_instances_are_isolated_without_primitive_operations: test
+tests::provider_failures_delete_and_reopen_are_traced: test
+tests::saved_new_handle_stays_false_when_capacity_evicts_during_read: test
+tests::timer_restart_expiry_and_sequence_outcomes: test
+tests::trailing_bytes_and_short_read_and_timer_close: test
+tests::write_at_capacity_evicts_and_restarts_timer: test
+tests::write_open_failure_closes_other_handles_stops_timer_deletes_and_keeps_error: test
+
+18 tests, 0 benchmarks

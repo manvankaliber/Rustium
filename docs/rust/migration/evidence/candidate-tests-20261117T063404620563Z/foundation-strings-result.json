@@ -1,0 +1,52 @@
+{
+  "task_id": "FOUNDATION-STRINGS",
+  "candidate_commit": "2ee757d0a384dbc174d0b3f990a653e4db0988d7",
+  "workspace": "C:/Users/jackv/.t3/worktrees/Rustium/t3-8e793e24-85c588c23fadd439",
+  "source_manifest": {
+    "Cargo.toml": "5a723b049bb48c30964a8c4bc0e2682ecf0843ee4675570a4611bc319fbd5177",
+    "README.md": "d38abd88dfc6b8a09eb763cefe63615bec887397758f397dfcd6d4988a5674cd",
+    "source-manifest.json": "f4eb3e1ab1fcf2dc143ce351754adf6f4da771cd0a2892c2c766f6efcf29683c",
+    "integration-proposal/README.md": "186a8fbd80a4c4280bb5b2db1a6731ce086bda88cba6515ff8b0f3ef21a43ad4",
+    "src/lib.rs": "fdedc48e6fce0a4b57a7c7ce3d2159e57f97387cc530da880704c8d3698190e4",
+    "tests/original-case-map.md": "b7554a30304dabf711dd6a761dfae741f74f91e95a7fca6dee9b7766853f6b32",
+    "reference/base/containers/span.h": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+    "reference/base/containers/span_forward_internal.h": "9a918beca275e4bff3ffc094d9cf92f2a3f4f3c5e6eb3a3ed758a0a330f5d4f9",
+    "reference/base/strings/string_split.cc": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+    "reference/base/strings/string_split.h": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+    "reference/base/strings/string_split_internal.h": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+    "reference/base/strings/string_split_unittest.cc": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+    "reference/base/strings/string_split_win.h": "3948ad4dba15161de85f732b9864cea7b21bf5647c11adec95673a9a0d2c4024",
+    "reference/base/strings/string_view_util.h": "38ca9c59519eec4362c139e071c3e2fd4218defe48a367cc71f03cec6c0e3bf3",
+    "reference/base/strings/trim_string_internal.h": "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+    "reference/base/strings/whitespace_constants.h": "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3"
+  },
+  "compiler_command": [
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "--edition=2021",
+    "--test",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T063404620563Z\\foundation-strings\\src\\lib.rs",
+    "-o",
+    "D:\\Rustium\\.scratch\\migration-candidate-tests\\20261117T063404620563Z\\foundation-strings.exe"
+  ],
+  "compile_exit": 0,
+  "scope": "Host Windows std-only candidate tests from independently copied sources; no production, configured ABI, platform or performance acceptance",
+  "list_exit": 0,
+  "test_exit": 101,
+  "listed_tests": [
+    "tests::malformed_default_empty_differs_from_borrowed_empty",
+    "tests::original_key_value_cases_both_typed_variants",
+    "tests::original_split_any_all_owned_and_borrowed",
+    "tests::original_split_once_permutations",
+    "tests::original_substr_all_owned_and_borrowed",
+    "tests::utf16_bytes_and_owned_variants"
+  ],
+  "binary_sha256": "cffe93f683c63b2234dd8f2a34c67ebd8c95378ae2050cfa8fa16bebb3b116ce",
+  "counts": [
+    "FAILED",
+    "5",
+    "1",
+    "0"
+  ],
+  "passed": false,
+  "original_and_frozen_inputs_unchanged": true
+}

@@ -1,0 +1,44 @@
+{
+  "task_id": "NET-RUNTIME-HARNESS",
+  "candidate_commit": "d7ecf0848b99a00b0f7230e4121aef33ff1acdcf",
+  "source_identity": {
+    "source_manifest_sha256": "4a096c8eb38b1b1f9d2abbd05cab200aab42e7649354a84ecaede69a1da392f8",
+    "source_count": 8
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Ordinary synthetic Python temporary-path tests and exact source/patch integrity; no native execution",
+    "commands": [
+      "python validate_proposals.py -v"
+    ],
+    "outcome": "10 synthetic tests,8 source/2 patch checks; actual8-program PRE enumeration and bot-mode skip-accounting smoke passed",
+    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests-final.log"
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Source/artifact accepted for guarded installation and complete frozen validation; not full native acceptance",
+    "independent_reviewed_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
+    "independent_report": "docs/rust/migration/evidence/net-runtime-harness-review2-20261117.md",
+    "small_fix_resolution": "Director fixed stdio visibility with --test-launcher-print-test-stdio=always, rejected brief overrides, explicitly rejected unqualified PRE suites; actual8-program enumeration and bot-mode parser smoke prove the concrete review conditions. No claim of independent re-review of successor commit.",
+    "verification": "docs/rust/migration/evidence/net-recovery-native-20261117/membership-summary.json",
+    "executed_model_attestation": null
+  },
+  "platform_limits": [
+    "Broader networking/Chrome and other-platform builds/runtime still pending",
+    "Sanitizer/fuzz/security campaigns OFF",
+    "No performance/publication/cutover acceptance"
+  ],
+  "remaining_ownership": "Validation infrastructure proposal only; no production migration or cutover credit",
+  "next_action": "Continue connection-baseline and broader native/platform/provider validation; no performance/publication/cutover acceptance",
+  "native_focused_evidence": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
+  "integration_commit": "b1ad73189f6d2e3aebd9d1b034ecf72fbf122ea6",
+  "integration_scope": "Reviewed artifacts and exact repaired ordinary runner installed locally; complete copied-runtime ordinary execution remains pending",
+  "latest_native_validation": {
+    "status": "passed",
+    "scope": "Current repaired Windows HTTP2 ordinary17-program execution passed with all before/after identities;40 consumer rebuilds/GN passed. Broader families, platform, ownership, performance/publication and cutover remain pending",
+    "summary": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-summary.json",
+    "result": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-result.json",
+    "source_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "snapshot_manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f"
+  }
+}

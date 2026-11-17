@@ -1,0 +1,25 @@
+
+running 6 tests
+test tests::malformed_default_empty_differs_from_borrowed_empty ... FAILED
+test tests::original_key_value_cases_both_typed_variants ... ok
+test tests::original_split_any_all_owned_and_borrowed ... ok
+test tests::original_split_once_permutations ... ok
+test tests::original_substr_all_owned_and_borrowed ... ok
+test tests::utf16_bytes_and_owned_variants ... ok
+
+failures:
+
+---- tests::malformed_default_empty_differs_from_borrowed_empty stdout ----
+
+thread 'tests::malformed_default_empty_differs_from_borrowed_empty' (21904) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T063404620563Z\foundation-strings\src\lib.rs:509:9:
+assertion `left == right` failed
+  left: Input
+ right: DefaultEmpty
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::malformed_default_empty_differs_from_borrowed_empty
+
+test result: FAILED. 5 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

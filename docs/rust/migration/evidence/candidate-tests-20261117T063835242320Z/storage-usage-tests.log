@@ -1,0 +1,55 @@
+
+running 18 tests
+test tests::capacity_hit_closes_all_before_timer_lookup ... FAILED
+test tests::codec_and_original_cases ... ok
+test tests::construction_detached_then_first_use_binds ... ok
+test tests::delete_closes_stops_then_deletes_and_destruction_is_idempotent ... ok
+test tests::empty_key_read_rejected_before_private_or_file_activity_but_write_allowed ... ok
+test tests::error_and_corruption_leave_outputs_unchanged ... ok
+test tests::failed_open_keeps_timer_and_failed_write_deletes ... ok
+test tests::flush_uses_saved_handle_and_dirty_state_and_ignores_error ... ok
+test tests::negative_usage_and_malformed_record_boundaries ... ok
+test tests::original_disk_assertions_for_private_and_persistent_modes ... ok
+test tests::partial_write_overwrites_prefix_and_retains_old_tail ... ok
+test tests::private_instances_are_isolated_without_primitive_operations ... FAILED
+test tests::provider_failures_delete_and_reopen_are_traced ... FAILED
+test tests::saved_new_handle_stays_false_when_capacity_evicts_during_read ... ok
+test tests::timer_restart_expiry_and_sequence_outcomes ... FAILED
+test tests::trailing_bytes_and_short_read_and_timer_close ... ok
+test tests::write_at_capacity_evicts_and_restarts_timer ... ok
+test tests::write_open_failure_closes_other_handles_stops_timer_deletes_and_keeps_error ... ok
+
+failures:
+
+---- tests::capacity_hit_closes_all_before_timer_lookup stdout ----
+
+thread 'tests::capacity_hit_closes_all_before_timer_lookup' (15800) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T063835242320Z\storage-usage\src\lib.rs:456:27:
+called `Result::unwrap()` on an `Err` value: ShortRead
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::private_instances_are_isolated_without_primitive_operations stdout ----
+
+thread 'tests::private_instances_are_isolated_without_primitive_operations' (13024) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T063835242320Z\storage-usage\src\lib.rs:731:9:
+assertion failed: p.events.is_empty()
+
+---- tests::provider_failures_delete_and_reopen_are_traced stdout ----
+
+thread 'tests::provider_failures_delete_and_reopen_are_traced' (24028) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T063835242320Z\storage-usage\src\lib.rs:649:9:
+assertion `left == right` failed
+  left: ["timer:5", "open:x", "write:1:0", "timer:5", "write:1:0", "close:1", "stop", "delete:x"]
+ right: ["timer:5", "write:1:0", "close:1", "stop", "delete:x"]
+
+---- tests::timer_restart_expiry_and_sequence_outcomes stdout ----
+
+thread 'tests::timer_restart_expiry_and_sequence_outcomes' (30492) panicked at D:\Rustium\.scratch\migration-candidate-tests\20261117T063835242320Z\storage-usage\src\lib.rs:707:27:
+called `Result::unwrap()` on an `Err` value: ShortRead
+
+
+failures:
+    tests::capacity_hit_closes_all_before_timer_lookup
+    tests::private_instances_are_isolated_without_primitive_operations
+    tests::provider_failures_delete_and_reopen_are_traced
+    tests::timer_restart_expiry_and_sequence_outcomes
+
+test result: FAILED. 14 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

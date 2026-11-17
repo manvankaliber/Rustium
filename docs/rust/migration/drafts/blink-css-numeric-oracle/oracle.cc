@@ -114,5 +114,14 @@ int main() {
     std::cerr << error.what() << '\n';
     return 1;
   }
+  if (!std::cin.eof() || std::cin.bad()) {
+    std::cerr << "input stream failed\n";
+    return 1;
+  }
+  std::cout.flush();
+  if (!std::cout) {
+    std::cerr << "output stream failed\n";
+    return 1;
+  }
   return 0;
 }

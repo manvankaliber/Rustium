@@ -1,0 +1,38 @@
+{
+  "task_id": "FOUNDATION-STRINGS",
+  "candidate_commit": "62f30a362c8f217d58baa99463a66632ad99da13",
+  "source_identity": {
+    "candidate_base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "reference_checkout": "D:/Rustium",
+    "reference_files": "10 byte-frozen algorithm/helper/test inputs; all raw archive hashes verified by director",
+    "reference_manifest_sha256": "f4eb3e1ab1fcf2dc143ce351754adf6f4da771cd0a2892c2c766f6efcf29683c",
+    "core_sha256": "84dbcdd6cebf07bd5ab4e0835210adecc9ddc2c79abea6414d7698d27a1b04ec"
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Host Windows std-only candidate unit tests from independently copied exact sources; no configured production/ABI/platform/performance acceptance",
+    "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "toolchain_version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+    "listed_tests": 6,
+    "passed_tests": 6,
+    "failed_tests": 0,
+    "ignored_tests": 0,
+    "all_original_and_frozen_inputs_unchanged": true,
+    "evidence": "docs/rust/migration/evidence/candidate-tests-20261117T064658230618Z/foundation-strings-result.json",
+    "compiler_log": "docs/rust/migration/evidence/candidate-tests-20261117T064658230618Z/foundation-strings-compiler.log",
+    "test_log": "docs/rust/migration/evidence/candidate-tests-20261117T064658230618Z/foundation-strings-tests.log",
+    "earlier_failed_runs": "All preceding candidate-tests-* evidence retained"
+  },
+  "review": {
+    "status": "pending",
+    "prior_review": "changes-required for4719730; repaired candidate requires independent new review",
+    "required_model": "gpt-6.1-terra",
+    "required_effort": "xhigh"
+  },
+  "platform_limits": [
+    "Candidate handles byte slices without UTF-8 decoding and UTF-16 code units without rejecting lone surrogates.",
+    "No C++ ABI/export bridge or Windows wchar_t overload is implemented; supported-platform integration remains pending."
+  ],
+  "remaining_cpp_and_bridge_ownership": "Existing C++ APIs, callers, exports, Windows overloads, and provider behavior remain authoritative. Borrowed-view caller lifetimes and all production integration remain to be reviewed.",
+  "next_action": "New independent Terra review of exact compiler-tested candidate; fix findings before director-owned production integration"
+}

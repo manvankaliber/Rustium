@@ -1,0 +1,1549 @@
+{
+  "records": [
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\net_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\net_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\net_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "broad-net",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 33602
+        },
+        "tests_with_attempts": 33602,
+        "listed_tests": 33659,
+        "listed_disabled_tests": 57,
+        "passed": 33491,
+        "skipped": 111,
+        "native_skip_names": [
+          "All/DnsTransactionAttemptModeWithNetworkHandleTest.NonKPlatformAttemptWithTargetNetworkFailsWithInvalidArgument/2",
+          "All/HttpCacheTestSplitCacheFeature.SplitCache/SplitCacheDisabled",
+          "All/HttpNetworkTransactionTest.AlternativeServiceShouldNotPoolToHttp11/2",
+          "All/NoVarySearchCacheTest.LeastRecentlyUsedPartitionEvictedWhenFull/SplitCacheDisabled",
+          "All/NoVarySearchCacheTest.LookupUpdatesPartitionLru/SplitCacheDisabled",
+          "All/NoVarySearchCacheTest.MaxPartitionsLimitEnforced/SplitCacheDisabled",
+          "All/NoVarySearchCacheTest.PerPartitionSizeLimitEnforced/SplitCacheDisabled",
+          "All/QuicSessionPoolAsyncDnsJobTest.AddRequestWhileSecondaryConnectorAwaitingSessionCreation/SyncQuicSession",
+          "All/QuicSessionPoolAsyncDnsJobTest.OnConnectionFailedOnDefaultNetwork/AsyncQuicSession",
+          "All/QuicSessionPoolAsyncDnsJobTest.SessionCreationSignalRace/SyncQuicSession",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/MLDSA44",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/MLDSA65",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/MLDSA87",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/P256",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/P384",
+          "All/SSLPlatformKeyWinTest.KeyMatchesCAPI/P521",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_HasHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_HasHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_HasHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_HasHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BodyEndMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.BytesUsageMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BytesUsageMismatchCorruptionDetectedAndRolledBack/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.BytesUsageMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.BytesUsageMismatchCorruptionDetectedAndRolledBack/NoHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/HasHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/HasHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/NoHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/NoHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderGrow/NoHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/HasHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/HasHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/NoHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/NoHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderReplace/NoHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/HasHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/HasHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/NoHints_HasBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/NoHints_HasBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.HeaderShrink/NoHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/HasHints_NoBody_HasHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/HasHints_NoBody_HasHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/HasHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/HasHints_NoBody_NoHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/NoHints_NoBody_HasHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/NoHints_NoBody_HasHead_Wal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/NoHints_NoBody_NoHead_NonWal",
+          "All/SqlPersistentStoreWriteEntryTest.MultipleBuffers/NoHints_NoBody_NoHead_Wal",
+          "All/TcpConnectJobOptimisticDnsTest.FreshDone_DnsCompletes_DoesNotCrash/0",
+          "All/TcpConnectJobOptimisticDnsTest.StaleAndFreshRacingIndependently/0",
+          "All/TcpConnectJobOptimisticDnsTest.StaleIpv4CompletesAfterStalePrimaryFailsAndFreshArrives/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePrimaryPromoted_StaleIPv4ContinuesConnecting/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_AfterFreshFails/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_FailsAndFallsBackToNextFresh/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_StaggeredResults_FreshBusy/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_StaggeredResults_FreshIdle/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_StaleFails_FreshProceeds/0",
+          "All/TcpConnectJobOptimisticDnsTest.StalePromotedToFresh_TimerAccountsForElapsedTime/0",
+          "All/TcpConnectJobOptimisticDnsTest.StaleSlowTimerNotRestartedAfterFreshDNSArrives/0",
+          "All/TcpConnectJobOptimisticDnsTest.StaleWhileRefreshing_FreshStateDoesNotAdvance/0",
+          "All/TcpConnectJobOptimisticDnsTest.UnstartedStaleCleared/0",
+          "ContextHostResolverTest.ExistingNetworkBoundLookup",
+          "ContextHostResolverTest.NetworkBoundResolverCacheInvalidation",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyMultipleHostPortPairs/0",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyMultipleHostPortPairs/1",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyMultipleHostPortPairs/2",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyWrongPort/0",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyWrongPort/1",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.ConnectProxyWrongPort/2",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalContinuesOnKNotHandled/2",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalContinuesOnKNotHandled/3",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalContinuesOnKNotHandled/4",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalStopsOnErrorResponse/2",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalStopsOnErrorResponse/3",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerEvalStopsOnErrorResponse/4",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerTransfersSocket/2",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerTransfersSocket/3",
+          "EmbeddedTestServerTestInstantiation/EmbeddedTestServerTest.UpgradeRequestHandlerTransfersSocket/4",
+          "HttpContentDispositionTest.ContainsNul/1",
+          "HttpNoVarySearchCanonicalizeQueryTest/HttpNoVarySearchCanonicalizeQueryTest.ResultsSameAsAreEquivalent/0",
+          "HttpNoVarySearchCanonicalizeQueryTest/HttpNoVarySearchCanonicalizeQueryTest.ResultsSameAsAreEquivalent/1",
+          "HttpNoVarySearchCanonicalizeQueryTest/HttpNoVarySearchCanonicalizeQueryTest.ResultsSameAsAreEquivalent/2",
+          "HttpNoVarySearchCanonicalizeQueryTest/HttpNoVarySearchCanonicalizeQueryTest.ResultsSameAsAreEquivalent/3",
+          "HttpNoVarySearchCanonicalizeQueryTest/HttpNoVarySearchCanonicalizeQueryTest.ResultsSameAsAreEquivalent/4",
+          "JobControllerReconsiderProxyAfterErrorHttpProxyTest.Test/TunnelRead_ERR_SSL_PROTOCOL_ERROR_http",
+          "JobControllerReconsiderProxyAfterErrorHttpProxyTest.Test/TunnelRead_ERR_TIMED_OUT_http",
+          "JobControllerReconsiderProxyAfterErrorHttpsProxyTest.Test/TunnelRead_ERR_SSL_PROTOCOL_ERROR_http",
+          "JobControllerReconsiderProxyAfterErrorHttpsProxyTest.Test/TunnelRead_ERR_TIMED_OUT_http",
+          "JobControllerReconsiderProxyAfterErrorHttpsProxyTest.TestCanFalloverToNextProxyReceivesProxyDelegate/TunnelRead_ERR_SSL_PROTOCOL_ERROR_http",
+          "JobControllerReconsiderProxyAfterErrorHttpsProxyTest.TestCanFalloverToNextProxyReceivesProxyDelegate/TunnelRead_ERR_TIMED_OUT_http",
+          "ProxyChainTest.MultiProxyChain",
+          "ProxyChainTest.PickleTwoProxies",
+          "ReportingServiceStoreTest/ReportingServiceTest.ProcessReportsBeforeSendReportsForSourceWhenUninitialized/0",
+          "ReportingServiceStoreTest/ReportingServiceTest.ProcessReportsBeforeSourceExpirationWhenUninitialized/0",
+          "TrustStoreWinTest.MANUAL_AutoSyncCertStores",
+          "UDPSocketTest.SSMSourceFilteringMultiNICIPv4",
+          "URLRequestContextBuilderTest.BindToNetworkCustomManagerOptions",
+          "URLRequestContextBuilderTest.BindToNetworkFinalConfiguration"
+        ],
+        "native_output_sha256": "59ea61053c10ec42a108d220042235861f2236d5c1bf466cc6cfca0ed1b381c4",
+        "unexpected_statuses": {},
+        "result_file_sha256": "5905377f4ae8788dc55212547d0daab47e1e39d60668c1b6d6b1ab040e966db2",
+        "membership": {
+          "expected_enabled": 33602,
+          "observed_attempts": 33602,
+          "disabled": 57,
+          "complete": true,
+          "required_recovery_cases": [
+            "CookieMonsterLegacyScopeTest.DeleteAllAliasCookies",
+            "CookieMonsterTest.GetKey",
+            "FileOperations/FileOperationsTempDeleteTest.TempSnapshotUndeletable/LegacySubdirectory",
+            "FileOperationsInitWithNVSDirTest.InitSucceedsWhenUnneededFilesUndeletable",
+            "SQLitePersistentCookieStoreTest.LoadingPartitionedCookies",
+            "SQLitePersistentCookieStoreTest.SourcePortIsPersistent",
+            "SQLitePersistentCookieStoreTest.TestInvalidVersionRecovery",
+            "SQLitePersistentCookieStoreTest.TestLoadOldSessionCookies",
+            "SQLitePersistentCookieStoreTest_OriginBoundCookies.DeleteCookie",
+            "SQLitePersistentCookieStorev24UpgradeTest.UpgradeToSchemaVersion24/0",
+            "SQLitePersistentCookieStorev24UpgradeTest.UpgradeToSchemaVersion24/4",
+            "SpdySessionTest.TestYieldingDuringAsyncReadData",
+            "SpdySessionTest.TestYieldingDuringReadData",
+            "SpdySessionTest.TestYieldingSlowReads"
+          ]
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_family_rust_policy_unittests.exe",
+        "--test-threads=1"
+      ],
+      "kind": "rust",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Rust libtest",
+        "passed": 28,
+        "skipped": 0,
+        "unexpected_statuses": {},
+        "expected_test_count": 28,
+        "normalized_native_output_sha256": "3b143f4806241bd3e96a7799d2acfb9d2fe995e430ea2ac47fc982e4f4d69f77"
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\spdy_buffer_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\spdy_buffer_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\spdy_buffer_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 34
+        },
+        "tests_with_attempts": 34,
+        "listed_tests": 34,
+        "listed_disabled_tests": 0,
+        "passed": 34,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "01c112d93ed618f8491a36773d1a6cd07d13479ed739724729b88f44d44a1178",
+        "unexpected_statuses": {},
+        "result_file_sha256": "2f7b42478098e90353cfed54bdb6c5a260a582fe56f99f954333849e450f0b12",
+        "membership": {
+          "expected_enabled": 34,
+          "observed_attempts": 34,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\spdy_buffer_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 12,
+        "case_ids": [
+          "raw_small",
+          "raw_large",
+          "owned_frame",
+          "remaining_views",
+          "consume_chunks",
+          "callback_one",
+          "callback_eight",
+          "discard_partial",
+          "discard_full",
+          "nested_consume",
+          "callback_registration",
+          "io_view_lifetime"
+        ],
+        "completion_contract": {
+          "method": "exact-completion-message",
+          "message": "Verified 12 paired SpdyBuffer workloads; no timing."
+        },
+        "json_records": [],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": false
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_stream_family_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_stream_family_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_stream_family_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 225
+        },
+        "tests_with_attempts": 225,
+        "listed_tests": 225,
+        "listed_disabled_tests": 0,
+        "passed": 225,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "bb490c0e04ad0d5fd19bdb6899741dae80be6de05f1c390333b86f91d009673b",
+        "unexpected_statuses": {},
+        "result_file_sha256": "7cf7526e3a42c12a08a73c39e7c5a6633f52a6f88400690286f94bbeed442314",
+        "membership": {
+          "expected_enabled": 225,
+          "observed_attempts": 225,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_stream_family_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 5,
+        "case_ids": [
+          "stream_lifecycle",
+          "response_headers_cycle",
+          "early_hints_and_trailers",
+          "flow_window_adjustments",
+          "closed_window_noop"
+        ],
+        "completion_contract": {
+          "method": "exact-completion-message",
+          "message": "Verified five isolated public stream-control paths; no timing"
+        },
+        "json_records": [],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": false
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_stream_family_io_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 5,
+        "case_ids": [
+          "get_buffered",
+          "get_pending_read",
+          "chunked_upload_echo",
+          "flow_controlled_upload",
+          "cancel_pending_read"
+        ],
+        "completion_contract": {
+          "method": "exact-completion-message",
+          "message": "Verified five complete scripted public HTTP2 paths; no timing"
+        },
+        "json_records": [],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": false
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_read_queue_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_read_queue_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_read_queue_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 27
+        },
+        "tests_with_attempts": 27,
+        "listed_tests": 27,
+        "listed_disabled_tests": 0,
+        "passed": 27,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "d2077fe380abd04baa92ff501ac0068f8956565ff2aae7dc34d960f49ffdba8e",
+        "unexpected_statuses": {},
+        "result_file_sha256": "2d48240b1372a684e79803a543939f90907b89e86668d3b1a1876c046377ccf6",
+        "membership": {
+          "expected_enabled": 27,
+          "observed_attempts": 27,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_read_queue_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 7,
+        "case_ids": [
+          "empty_queries",
+          "empty_dequeue",
+          "single_full",
+          "fragmented_fifo",
+          "partial_reads",
+          "clear",
+          "destruction"
+        ],
+        "completion_contract": {
+          "method": "exact-completion-message",
+          "message": "Verified seven public-API workloads; no timing."
+        },
+        "json_records": [],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": false
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_write_queue_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_write_queue_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_write_queue_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 23
+        },
+        "tests_with_attempts": 23,
+        "listed_tests": 23,
+        "listed_disabled_tests": 0,
+        "passed": 23,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "e5d9b7117a0f55cb04bc314d7b999620d304d0f67b986bd0b3c5a5ad4eb5da89",
+        "unexpected_statuses": {},
+        "result_file_sha256": "d8fa99e675664aae76a9606157ba9187ca9b614a5839fe0dd88c56715c7228f7",
+        "membership": {
+          "expected_enabled": 23,
+          "observed_attempts": 23,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_write_queue_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 10,
+        "case_ids": [
+          "frame_caps",
+          "empty_queries",
+          "priority_fifo",
+          "remove_stream",
+          "remove_after",
+          "change_priority",
+          "clear_reentrant",
+          "destruction",
+          "remove_stream_hit",
+          "change_priority_hit"
+        ],
+        "completion_contract": {
+          "method": "silent-checked-loop",
+          "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+        },
+        "json_records": [],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": false
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_priority_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_priority_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\http2_priority_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 14
+        },
+        "tests_with_attempts": 14,
+        "listed_tests": 14,
+        "listed_disabled_tests": 0,
+        "passed": 14,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "7b5def93ddc785151ee9fc27ec71237069ca57d5c8f828e1a6877b28ed19eff5",
+        "unexpected_statuses": {},
+        "result_file_sha256": "ff7e0d1c136bf2a0e43aef063085ffdcd975bae84648d543c0f50c93f518a71c",
+        "membership": {
+          "expected_enabled": 14,
+          "observed_attempts": 14,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\http2_priority_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 10,
+        "case_ids": [
+          "create_fifo",
+          "create_bands",
+          "destroy_hit",
+          "destroy_miss",
+          "lifetime",
+          "update_reparent",
+          "update_noop",
+          "update_missing",
+          "update_same_parent",
+          "duplicate_create"
+        ],
+        "completion_contract": {
+          "method": "json-cases",
+          "key": "case",
+          "verified_required": true
+        },
+        "json_records": [
+          {
+            "case": "create_fifo",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "39c79ab5e133b225"
+          },
+          {
+            "case": "create_bands",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "7555aec16d554b45"
+          },
+          {
+            "case": "destroy_hit",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "9b582e055143ec25"
+          },
+          {
+            "case": "destroy_miss",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "7555aec16d554b45"
+          },
+          {
+            "case": "lifetime",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "e2832938464b97e5"
+          },
+          {
+            "case": "update_reparent",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "6f7840c19f71035d"
+          },
+          {
+            "case": "update_noop",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "af4a8415697c2b45"
+          },
+          {
+            "case": "update_missing",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "b93a0c83ce3b6325"
+          },
+          {
+            "case": "update_same_parent",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "61fcfb78b712a3e5"
+          },
+          {
+            "case": "duplicate_create",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "01bc04e519160f45"
+          }
+        ],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": true
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\header_coalescer_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\header_coalescer_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\header_coalescer_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 24
+        },
+        "tests_with_attempts": 24,
+        "listed_tests": 24,
+        "listed_disabled_tests": 0,
+        "passed": 24,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "4d4225e911e909eb8f1468e051e80444e91aedcbd443738c7ca3e3d92326789c",
+        "unexpected_statuses": {},
+        "result_file_sha256": "4c02ee03117e4d683ebff20b5e4916b139bc87af55eb8ba9592fbafb273557b9",
+        "membership": {
+          "expected_enabled": 24,
+          "observed_attempts": 24,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\header_coalescer_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 10,
+        "case_ids": [
+          "request",
+          "duplicates",
+          "cookies",
+          "large_value",
+          "obs_text",
+          "invalid_name",
+          "uppercase",
+          "ordering",
+          "size_limit",
+          "invalid_value"
+        ],
+        "completion_contract": {
+          "method": "json-cases",
+          "key": "case",
+          "verified_required": true
+        },
+        "json_records": [
+          {
+            "case": "request",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "008a8f70ba72c165"
+          },
+          {
+            "case": "duplicates",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "cd96194738c7b785"
+          },
+          {
+            "case": "cookies",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "a10bff3920a48a25"
+          },
+          {
+            "case": "large_value",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "17555bb93792a0a5"
+          },
+          {
+            "case": "obs_text",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "63e233a31bbbb8a5"
+          },
+          {
+            "case": "invalid_name",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "c784a3a8e454eb65"
+          },
+          {
+            "case": "uppercase",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "f5707345d5baed25"
+          },
+          {
+            "case": "ordering",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "542b96834a985a85"
+          },
+          {
+            "case": "size_limit",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "3be6c2ae01e75ae5"
+          },
+          {
+            "case": "invalid_value",
+            "verified": true,
+            "iterations": 32,
+            "checksum": "882fcc2bf2c27cc5"
+          }
+        ],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": true
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\alps_decoder_rust_unittests.exe",
+        "--test-launcher-jobs=1",
+        "--test-launcher-retry-limit=0",
+        "--test-launcher-print-test-stdio=always",
+        "--test-launcher-summary-output=D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\alps_decoder_rust_unittests\\summary.json",
+        "--gtest_output=json:D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\alps_decoder_rust_unittests\\gtest.json"
+      ],
+      "kind": "gtest",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "format": "Chromium test-launcher summary",
+        "attempt_status_counts": {
+          "SUCCESS": 20
+        },
+        "tests_with_attempts": 20,
+        "listed_tests": 20,
+        "listed_disabled_tests": 0,
+        "passed": 20,
+        "skipped": 0,
+        "native_skip_names": [],
+        "native_output_sha256": "8a3bf30e05649fb137fb035bc09719005cb7d40ce1c31c9f5ad6f46882d33068",
+        "unexpected_statuses": {},
+        "result_file_sha256": "642240dcde0e048a833269aae57117a54ed7b9ca128985e9b05905f016209daf",
+        "membership": {
+          "expected_enabled": 20,
+          "observed_attempts": 20,
+          "disabled": 0,
+          "complete": true,
+          "required_recovery_cases": []
+        }
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    },
+    {
+      "command": [
+        "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\s\\configured\\out\\Default\\alps_decoder_rust_perftests.exe",
+        "--verify-only"
+      ],
+      "kind": "workload",
+      "family": "http2",
+      "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+      "qualification_sha256": "57032f489b79ee32f5b8e201fa9c6d1e55bcfc2d1ff9868684135088e6fc5b56",
+      "performance_measurement": false,
+      "whole_goal_acceptance": false,
+      "cpu_requested": 2,
+      "executed": true,
+      "temporary_directory": "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\native-runtime-delivery-v2\\n17a\\e\\tmp",
+      "input_identity_before": "matched frozen manifest and external Python",
+      "exit_code": 0,
+      "results": {
+        "expected_workloads": 10,
+        "case_ids": [
+          "empty",
+          "settings_duplicates",
+          "accept_bytes",
+          "accept_many",
+          "malformed_tail",
+          "disabled",
+          "forbidden",
+          "settings_ack",
+          "invalid_stream",
+          "partial_frame"
+        ],
+        "completion_contract": {
+          "method": "json-cases",
+          "key": "case",
+          "verified_required": true
+        },
+        "json_records": [
+          {
+            "case": "empty",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "51d88627df287325"
+          },
+          {
+            "case": "settings_duplicates",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "835cfffbc4767925"
+          },
+          {
+            "case": "accept_bytes",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "c78b3a617cf8f725"
+          },
+          {
+            "case": "accept_many",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "3e9b27fd1ba68925"
+          },
+          {
+            "case": "malformed_tail",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "6619e6c26caf4125"
+          },
+          {
+            "case": "disabled",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "835cfffbc4767925"
+          },
+          {
+            "case": "forbidden",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "33a7f7bcf7b4ef25"
+          },
+          {
+            "case": "settings_ack",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "1e755e60b5ac7925"
+          },
+          {
+            "case": "invalid_stream",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "5e413d969dcd0b25"
+          },
+          {
+            "case": "partial_frame",
+            "verified": true,
+            "iterations": 256,
+            "checksum": "76b9871e4a933d25"
+          }
+        ],
+        "measurement_output_absent": true,
+        "runtime_case_enumeration": true
+      },
+      "passed": true,
+      "input_identity_after": "matched before identity"
+    }
+  ],
+  "all_selected_executed": true,
+  "passed": true,
+  "manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f",
+  "deferred": [
+    "Sanitizer/fuzz/security campaigns remain off by user instruction",
+    "Performance sampling/publication",
+    "Broad services/content/Chrome runtime suites and platform gaps; parent evaluates ABI consumer rebuild closure",
+    "No source-only inventory proves configured correctness or baseline independence"
+  ],
+  "whole_batch_acceptance": false,
+  "full_inventory_sha256": "7f0ddf2bb4d8ae308ab17bb1d4e269dc3f54432c8889fdf640d23f0b007e1362",
+  "selected_families": [
+    "http2"
+  ],
+  "deferred_cases": [
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_rust_core_unittests",
+      "label": "//net:connection_jobs_rust_core_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 23,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_family_rust_unittests",
+      "label": "//net:connection_jobs_family_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connect_job_rust_perftests",
+      "label": "//net:connect_job_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\socket\\connect_job_rust_perftest.cc",
+        "sha256": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "ctor_top",
+        "ctor_nested",
+        "sync_ok_timer",
+        "sync_error",
+        "pending_cancel",
+        "async_ok",
+        "async_error",
+        "timeout",
+        "reset_timer",
+        "priority_changes",
+        "socket_aliases",
+        "pass_socket",
+        "proxy_auth",
+        "done_replace",
+        "const_queries"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\connect-job\\support\\benchmark-descriptor.json",
+        "sha256": "4d2ba70cf9d3aa4b7e1b398b33be05a42ac0e0c147bb5b994b6e378415979d3a"
+      },
+      "expected_workloads": 15,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified15 complete ConnectJob BASE lifecycle workloads; no timing"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_family_rust_perftests",
+      "label": "//net:connection_jobs_family_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\socket\\connection_jobs_family_rust_perftest.cc",
+        "sha256": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "transport_sync_v4",
+        "transport_fail_three",
+        "transport_sync_v6",
+        "transport_dual_sync",
+        "transport_dual_fail",
+        "transport_cancel_unstarted",
+        "tcp_sync_v4",
+        "tcp_fail_three",
+        "tcp_sync_v6",
+        "tcp_dual_sync",
+        "tcp_dual_fail",
+        "tcp_cancel_unstarted",
+        "params_direct_http",
+        "params_direct_https",
+        "params_http_proxy",
+        "params_socks5"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\connection-jobs-family-merged-source-v2-20261113T174242989187Z\\lower-benchmark-descriptor.json",
+        "sha256": "4b433b93134bd442cd66e6a227382491d52319bbbd6cb20bc7df12a6af74d2e6"
+      },
+      "expected_workloads": 16,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified sixteen full-path fixtures; no timing."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_upper_rust_perftests",
+      "label": "//net:connection_jobs_upper_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\socket\\connection_jobs_upper_rust_perftest.cc",
+        "sha256": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "handle_sync",
+        "handle_async",
+        "handle_cancel",
+        "handle_close",
+        "handle_recoverable",
+        "handle_fatal",
+        "handle_reentry",
+        "handle_delete",
+        "handle_priority",
+        "handle_higher",
+        "group_plain",
+        "group_prefixes",
+        "group_partitioned",
+        "idle_timeout",
+        "expand_boundaries",
+        "stream_empty",
+        "stream_fresh",
+        "stream_reused",
+        "stream_transfer",
+        "capacity_invalid",
+        "capacity_probability"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\connection-jobs-family-merged-source-v2-20261113T174242989187Z\\upper-benchmark-descriptor.json",
+        "sha256": "a0f6b5d1b0cfb9618abbac910d296280dc430a99d933fdbb79a08325d5671b58"
+      },
+      "expected_workloads": 21,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified21 upper-family public lifecycle workloads; no measurement clock reads"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_upper_rust_jobs_perftests",
+      "label": "//net:connection_jobs_upper_rust_jobs_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\socket\\connection_jobs_upper_rust_jobs_perftest.cc",
+        "sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "tls_sync",
+        "tls_async",
+        "tls_error",
+        "tls_transport_error",
+        "tls_timeout",
+        "socks4",
+        "socks5",
+        "socks_error",
+        "http_direct",
+        "http_tunnel",
+        "http_auth",
+        "https_direct",
+        "https_tunnel",
+        "http2_pending",
+        "quic_pending",
+        "quic_error"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\docs\\rust\\benchmarks\\connection-jobs-family-merged-source-v2-20261113T174242989187Z\\upper-jobs-benchmark-descriptor.json",
+        "sha256": "1e486b3b96ee942c5ecc0384e0256030e367dd25495ecc4c7fe176be09ace5ed"
+      },
+      "expected_workloads": 16,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified16 connected job lifecycles; no measurement clock reads"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_policy_unittests",
+      "label": "//net/dns:dns_resolution_policy_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 36,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_family_rust_unittests",
+      "label": "//net:dns_resolution_family_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "dns-resolution",
+      "target": "host_resolver_cache_rust_unittests",
+      "label": "//net:host_resolver_cache_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "dns-resolution",
+      "target": "host_resolver_cache_rust_perftests",
+      "label": "//net:host_resolver_cache_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\dns\\host_resolver_cache_rust_perftest.cc",
+        "sha256": "80417c1df73a3f70d7d8d92be236c85ecf1e5e43ff18df64d8daa2982c333da5"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "lookup_hit_64",
+        "lookup_canonical_64",
+        "lookup_miss_64",
+        "lookup_security_64",
+        "lookup_stale_64",
+        "replace_64",
+        "insert_evict_64",
+        "evict_stale_64",
+        "wildcard_replace_64",
+        "network_partition_64",
+        "serialize_64",
+        "logging_64",
+        "restore_64",
+        "restore_full_64",
+        "move_64"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\dns-resolution-subsystem\\alps_measured_optimization\\revision2\\descriptors\\cache.json",
+        "sha256": "96b83a09b1fc1057152c79995ffd9ae919e7a144e8d2cf946229266abac6a097"
+      },
+      "expected_workloads": 15,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "metadata_correction": "Actual source uses --benchmark for timing; only --verify-only is permitted here"
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_family_rust_perftests",
+      "label": "//net:dns_resolution_family_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\dns\\dns_resolution_family_rust_perftest.cc",
+        "sha256": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "literal_ipv4",
+        "literal_ipv6",
+        "literal_canonical_alias",
+        "literal_wrong_family",
+        "literal_non_address",
+        "localhost_dual",
+        "localhost_ipv4",
+        "localhost_ipv6",
+        "localhost_trailing_dot",
+        "empty_name",
+        "oversize_name",
+        "cache_fresh",
+        "cache_negative",
+        "cache_stale",
+        "cache_disallowed"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\dns-resolution-subsystem\\alps_measured_optimization\\revision2\\descriptors\\local.json",
+        "sha256": "4121738665608f04967d31c5de091a6bf4bb46dba639f43d8923e7a2a33747a5"
+      },
+      "expected_workloads": 15,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "metadata_correction": "Actual source uses --benchmark for timing; only --verify-only is permitted here"
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_request_family_async_perftests",
+      "label": "//net:dns_request_family_async_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\dns\\dns_request_family_async_perftest.cc",
+        "sha256": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "dns_udp_async_ok",
+        "dns_udp_sync_ok",
+        "dns_udp_nxdomain",
+        "dns_udp_server_failure",
+        "dns_udp_truncated_tcp_retry",
+        "dns_suffix_nxdomain_then_success",
+        "dns_cancel_pending",
+        "dns_invalid_name_posted_error",
+        "dns_target_network_error",
+        "dns_transaction_survives_factory",
+        "dns_doh_get_ok",
+        "dns_doh_post_ok",
+        "dns_doh_post_nxdomain",
+        "dns_doh_invalid_mime",
+        "dns_doh_cancel_pending",
+        "dns_probe_data_success",
+        "dns_probe_empty_response",
+        "dns_probe_http_error",
+        "dns_probe_already_available",
+        "dns_probe_context_destroyed",
+        "dns_platform_async_success",
+        "dns_platform_sync_success",
+        "dns_platform_server_failure",
+        "dns_platform_cancel_pending",
+        "dns_platform_specific_network"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\dns-resolution-subsystem\\alps_measured_optimization\\revision2\\descriptors\\async.json",
+        "sha256": "0067c97dcc26a59d2e1e178f25f6a4b78a9f649700cd4eea672a79806de6c3de"
+      },
+      "expected_workloads": 25,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "metadata_correction": "Actual source uses --benchmark for timing; only --verify-only is permitted here"
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_rust_policy_unittests",
+      "label": "//net:cookie_storage_family_rust_policy_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 54,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_unittests",
+      "label": "//net:cookie_storage_family_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_perftests",
+      "label": "//net:cookie_storage_family_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\cookies\\cookie_family_perftest.cc",
+        "sha256": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "create_include_domain",
+        "secure_prefix",
+        "host_http_prefix",
+        "file_expiration",
+        "invalid_domain",
+        "hidden_prefix",
+        "strict_redirect",
+        "partitioned",
+        "nonced_partition",
+        "expiry_and_quote"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\cookie-storage-subsystem\\cookie_partition_draft\\shared-lifecycle-descriptor.json",
+        "sha256": "1b23999208f988e5afb02650552d466f71360478766b2c7f5e8fec7c66ccfae5"
+      },
+      "expected_workloads": 10,
+      "completion": {
+        "method": "json-cases",
+        "key": "verify_case"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_store_unittests",
+      "label": "//net:cookie_storage_family_store_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_store_perftests",
+      "label": "//net:cookie_storage_family_store_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\cookies\\cookie_family_store_perftest.cc",
+        "sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "store_empty_queries",
+        "store_set_get_delete",
+        "store_overwrite_same_value",
+        "store_overwrite_changed_value",
+        "store_expired_overwrite",
+        "store_secure_overwrite_rejection",
+        "store_http_only_rejection",
+        "store_partitioned_isolation",
+        "store_nonced_partition",
+        "store_domain_priority_gc",
+        "store_partition_bytes_gc",
+        "store_load_deduplicate",
+        "store_load_control_chars",
+        "store_key_load_queue",
+        "store_global_load_queue"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\cookie-storage-subsystem\\cookie_partition_support\\store-lifecycle-descriptor.json",
+        "sha256": "ed679d939c2903a4d9818a67f94a37e4e6426c9604176316a8a05f751f127dc4"
+      },
+      "expected_workloads": 15,
+      "completion": {
+        "method": "json-cases",
+        "key": "verify_case"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_partition_key_rust_unittests",
+      "label": "//net:cookie_partition_key_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_partition_key_rust_perftests",
+      "label": "//net:cookie_partition_key_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "entrypoint": {
+        "path": "D:\\Rustium\\net\\cookies\\cookie_partition_key_rust_perftest.cc",
+        "sha256": "a81ef43211d7d933f55ebe887b13e3b0748da1ccb9604bc323deb0b4d0aa054c"
+      },
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "storage_empty",
+        "storage_canonical",
+        "storage_rejected",
+        "untrusted_normalize",
+        "untrusted_rejected",
+        "nik_first_party",
+        "nik_cross_site",
+        "nik_nonce_frame",
+        "nik_rejected",
+        "storage_components",
+        "serialize_sites",
+        "serialize_rejected",
+        "comparison_order",
+        "copy_move",
+        "debug_outputs"
+      ],
+      "descriptor": {
+        "path": "D:\\Rustium\\.scratch\\net-wave5\\cookie-partition-key\\support\\benchmark-descriptor.json",
+        "sha256": "10ba7781dbadc13eb11e811a1d68d02e46b7ab3782fbbdb635252abd70dfb6a7"
+      },
+      "expected_workloads": 15,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Prepared 15 public-API workload checksums match; no clock read."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": []
+    }
+  ],
+  "performance_or_whole_goal_acceptance": false
+}

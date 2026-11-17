@@ -1,0 +1,8 @@
+tests::malformed_default_empty_differs_from_borrowed_empty: test
+tests::original_key_value_cases_both_typed_variants: test
+tests::original_split_any_all_owned_and_borrowed: test
+tests::original_split_once_permutations: test
+tests::original_substr_all_owned_and_borrowed: test
+tests::utf16_bytes_and_owned_variants: test
+
+6 tests, 0 benchmarks

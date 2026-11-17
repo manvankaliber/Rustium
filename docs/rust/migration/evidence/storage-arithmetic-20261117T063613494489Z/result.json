@@ -1,0 +1,496 @@
+{
+  "scope": "Isolated original scalar expression under observed configured Windows overflow/optimization flags; no whole-function/platform acceptance",
+  "sources": {
+    "oracle.cc": {
+      "path": "D:\\Rustium\\docs\\rust\\migration\\drafts\\storage-usage-arithmetic-oracle\\oracle.cc",
+      "sha256": "51f3d485763cbbe834f796331fbcd34089e6b7163990a1f409c9bc7b2238ff96"
+    },
+    "original.cc": {
+      "path": "D:\\RustiumBuild\\src\\storage\\browser\\file_system\\file_system_usage_cache.cc",
+      "sha256": "53fc437f9da13c3d594ea11e99f694dcec1a3d0f59d6a761193f4b54b2e20478"
+    },
+    "browser.ninja": {
+      "path": "D:\\RustiumBuild\\src\\out\\Default\\obj\\storage\\browser\\browser.ninja",
+      "sha256": "1cf405a1114d3e1e198889378aa8efc0033b7b2de1dd5fccce8815df1ea4d0a2"
+    },
+    "compiler-BUILD.gn": {
+      "path": "D:\\RustiumBuild\\src\\build\\config\\compiler\\BUILD.gn",
+      "sha256": "da0d9dbb42c2cc3a582e57d77a468146779d7b6418595b0e277d970504878ff4"
+    }
+  },
+  "tools": {
+    "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\clang-cl.exe": "7a9521c7375ee78393e673767b176eecfe545de1684e5fdeb4849b1049a903b8",
+    "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe": "3259307a46c61381c696aba1486085a8efc275c89ab3625958ad0d9408632287"
+  },
+  "commands": [
+    [
+      "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\clang-cl.exe",
+      "/nologo",
+      "/O2",
+      "/GS-",
+      "/clang:-fno-strict-overflow",
+      "/c",
+      "D:\\Rustium\\.scratch\\storage-usage-oracle\\20261117T063613494489Z\\oracle.cc",
+      "/FoD:\\Rustium\\.scratch\\storage-usage-oracle\\20261117T063613494489Z\\oracle.obj"
+    ],
+    [
+      "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe",
+      "/dll",
+      "/noentry",
+      "/nodefaultlib",
+      "/machine:x64",
+      "/out:D:\\Rustium\\.scratch\\storage-usage-oracle\\20261117T063613494489Z\\oracle.dll",
+      "D:\\Rustium\\.scratch\\storage-usage-oracle\\20261117T063613494489Z\\oracle.obj"
+    ]
+  ],
+  "command_results": [
+    0,
+    0
+  ],
+  "cases": [
+    {
+      "usage": "-9223372036854775808",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-18446744073709551616",
+      "within_signed_domain": false,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-18446744073709551615",
+      "within_signed_domain": false,
+      "expected_wrapping": "1",
+      "native_observed": "1",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "-1",
+      "mathematical_sum": "-9223372036854775809",
+      "within_signed_domain": false,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "0",
+      "mathematical_sum": "-9223372036854775808",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "1",
+      "mathematical_sum": "-9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775807",
+      "native_observed": "-9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "-2",
+      "within_signed_domain": true,
+      "expected_wrapping": "-2",
+      "native_observed": "-2",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775808",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-18446744073709551615",
+      "within_signed_domain": false,
+      "expected_wrapping": "1",
+      "native_observed": "1",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-18446744073709551614",
+      "within_signed_domain": false,
+      "expected_wrapping": "2",
+      "native_observed": "2",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "-1",
+      "mathematical_sum": "-9223372036854775808",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "0",
+      "mathematical_sum": "-9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775807",
+      "native_observed": "-9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "1",
+      "mathematical_sum": "-9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775806",
+      "native_observed": "-9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "-9223372036854775807",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "0",
+      "within_signed_domain": true,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-9223372036854775809",
+      "within_signed_domain": false,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-9223372036854775808",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "-1",
+      "mathematical_sum": "-2",
+      "within_signed_domain": true,
+      "expected_wrapping": "-2",
+      "native_observed": "-2",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "0",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "1",
+      "mathematical_sum": "0",
+      "within_signed_domain": true,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "9223372036854775805",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775805",
+      "native_observed": "9223372036854775805",
+      "matches": true
+    },
+    {
+      "usage": "-1",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775806",
+      "native_observed": "9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-9223372036854775808",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775807",
+      "native_observed": "-9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "-1",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "0",
+      "mathematical_sum": "0",
+      "within_signed_domain": true,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "1",
+      "mathematical_sum": "1",
+      "within_signed_domain": true,
+      "expected_wrapping": "1",
+      "native_observed": "1",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775806",
+      "native_observed": "9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "0",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775807",
+      "native_observed": "-9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "-9223372036854775806",
+      "native_observed": "-9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "-1",
+      "mathematical_sum": "0",
+      "within_signed_domain": true,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "0",
+      "mathematical_sum": "1",
+      "within_signed_domain": true,
+      "expected_wrapping": "1",
+      "native_observed": "1",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "1",
+      "mathematical_sum": "2",
+      "within_signed_domain": true,
+      "expected_wrapping": "2",
+      "native_observed": "2",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "1",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "9223372036854775808",
+      "within_signed_domain": false,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-2",
+      "within_signed_domain": true,
+      "expected_wrapping": "-2",
+      "native_observed": "-2",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "-1",
+      "mathematical_sum": "9223372036854775805",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775805",
+      "native_observed": "9223372036854775805",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "0",
+      "mathematical_sum": "9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775806",
+      "native_observed": "9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "1",
+      "mathematical_sum": "9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "18446744073709551612",
+      "within_signed_domain": false,
+      "expected_wrapping": "-4",
+      "native_observed": "-4",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775806",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "18446744073709551613",
+      "within_signed_domain": false,
+      "expected_wrapping": "-3",
+      "native_observed": "-3",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "-9223372036854775808",
+      "mathematical_sum": "-1",
+      "within_signed_domain": true,
+      "expected_wrapping": "-1",
+      "native_observed": "-1",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "-9223372036854775807",
+      "mathematical_sum": "0",
+      "within_signed_domain": true,
+      "expected_wrapping": "0",
+      "native_observed": "0",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "-1",
+      "mathematical_sum": "9223372036854775806",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775806",
+      "native_observed": "9223372036854775806",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "0",
+      "mathematical_sum": "9223372036854775807",
+      "within_signed_domain": true,
+      "expected_wrapping": "9223372036854775807",
+      "native_observed": "9223372036854775807",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "1",
+      "mathematical_sum": "9223372036854775808",
+      "within_signed_domain": false,
+      "expected_wrapping": "-9223372036854775808",
+      "native_observed": "-9223372036854775808",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "9223372036854775806",
+      "mathematical_sum": "18446744073709551613",
+      "within_signed_domain": false,
+      "expected_wrapping": "-3",
+      "native_observed": "-3",
+      "matches": true
+    },
+    {
+      "usage": "9223372036854775807",
+      "delta": "9223372036854775807",
+      "mathematical_sum": "18446744073709551614",
+      "within_signed_domain": false,
+      "expected_wrapping": "-2",
+      "native_observed": "-2",
+      "matches": true
+    }
+  ],
+  "binary_sha256": "f5190685379001a4fb01735da864f65e3e12610e3c1536c376ccc88c12d9c239",
+  "passed": true,
+  "inputs_unchanged": true
+}

@@ -1,0 +1,30 @@
+{
+  "task_id": "STORAGE-USAGE",
+  "candidate_commit": "169749ec41b37550835673102029ed27eb0f996a",
+  "source_identity": {
+    "base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
+    "clean": true,
+    "reference_sha256sums_sha256": "2b49d3e903550bf9650161588649d3156e7b2eddb23b08782ab5f1e606bacbaf",
+    "rust_core_sha256": "84874143968ddbfa0a5aafa7ec4eeebc3b3b83f67ffc3f83ebbf9636d3b595db",
+    "archived_reference_count_verified": 13
+  },
+  "tests": {
+    "status": "pending",
+    "prepared": "Per-key primitive provider failure/event traces; original persistent/private cases; codec/dirty/cache/timer/output/sequence seams",
+    "requested": "Gated rustc --test or cargo test; configured storage_unittests after actual bridge integration",
+    "executed": "Source checks and git diff --check only"
+  },
+  "review": {
+    "status": "pending",
+    "requested": "New Terra/xhigh review after six prior findings repaired and compiler/tests pass",
+    "prior_report": "docs/rust/migration/evidence/storage-usage-review-20261117.md"
+  },
+  "platform_limits": [
+    "No compiler/runtime or native/configured validation for this candidate",
+    "Signed usage overflow wrapping provisional; C++ oracle/compiler contract required before out-of-domain acceptance",
+    "No real bridge, native error/sequence or timer callback lifetime validation"
+  ],
+  "remaining_ownership": "C++ callers and native resources remain production authoritative; Rust candidate owns logical policy only",
+  "next_action": "Gated candidate validation, repair, new independent review, then director-owned bridge/GN integration"
+}

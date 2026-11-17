@@ -1,0 +1,41 @@
+{
+  "records": [
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/point_conversions.cc",
+      "sha256": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    },
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/size_conversions.cc",
+      "sha256": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    },
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/rect_conversions.cc",
+      "sha256": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges.h",
+      "sha256": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges.cc",
+      "sha256": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges_unittest.cc",
+      "sha256": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+      "base": "5e3392ef8b62b8e8c50fc3af124753f256ec2791"
+    }
+  ],
+  "compiler_tests_run": false
+}

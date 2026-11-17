@@ -1,0 +1,29 @@
+{
+  "task_id": "STORAGE-USAGE",
+  "candidate_commit": "ef23fe8abb2d450aa8019d13bc0d5a02c1c09918",
+  "source_identity": {
+    "base": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
+    "clean": true,
+    "reference_sha256sums_sha256": "5f04b1b6cc722f7500d51e1775ee60716b607187157c60909294620ff4f7c3cb",
+    "rust_core_sha256": "4c7286fe43a71fa3aae761b5c0cdec038f3d612fb3ae9715663ac96db2fb8b1b",
+    "all5_archived_reference_hashes_verified": true
+  },
+  "tests": {
+    "status": "pending",
+    "prepared": "Per-key primitive provider failure/event traces; original persistent/private cases; codec/dirty/cache/timer/output/sequence seams",
+    "requested": "Gated rustc --test or cargo test after active native run; configured storage_unittests after actual bridge integration",
+    "executed": "Source checks and git diff --check only"
+  },
+  "review": {
+    "status": "pending",
+    "requested": "Terra/xhigh independent original/helper/core/event-trace and candidate lifetime review"
+  },
+  "platform_limits": [
+    "No compiler/runtime or native/configured validation for this candidate",
+    "Signed usage overflow wrapping provisional; C++ oracle/compiler contract required before out-of-domain acceptance",
+    "No real bridge, native error/sequence or timer callback lifetime validation"
+  ],
+  "remaining_ownership": "C++ callers and native resources remain production authoritative; Rust candidate owns logical policy only",
+  "next_action": "Independent review, gated candidate validation, repair, then director-owned bridge/GN integration"
+}

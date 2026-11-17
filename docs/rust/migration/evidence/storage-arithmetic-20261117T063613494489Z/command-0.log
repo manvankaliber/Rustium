@@ -1,0 +1,5 @@
+D:\Rustium\.scratch\storage-usage-oracle\20261117T063613494489Z\oracle.cc(4,37): warning: 'static_assert' with no message is a C++17 extension [-Wc++17-extensions]
+    4 | static_assert(sizeof(long long) == 8);
+      |                                     ^
+      |                                     , ""
+1 warning generated.

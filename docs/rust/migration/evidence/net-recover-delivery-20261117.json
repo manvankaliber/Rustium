@@ -26,7 +26,7 @@
     "candidate_reviewed": "b9e3ad35969831f2886e63e62715ad799cd2a042"
   },
   "native_validation": {
-    "status": "failed historical run; new repair validation pending",
+    "status": "Historical failedrun preserved; NEW repaired17-program Windows ordinary validation passed",
     "nine_cookie_crashes": true,
     "five_failures": true,
     "sixteen_http2_programs_unexecuted": true
@@ -36,7 +36,7 @@
     "Sanitizer/fuzz OFF; no native, performance or cutover acceptance"
   ],
   "remaining_ownership": "C++ CookieMonster/session native state and providers remain; proposals only; no production/cutover acceptance",
-  "next_action": "Independent Terra review, then guarded production intake and affected-consumer rebuild/ordinary validation",
+  "next_action": "Continue connection-baseline and broader native/platform/provider validation; no performance/publication/cutover acceptance",
   "manifest_git_blob_audit": {
     "git_blob_sha256": "4120ae525dbe0e9e404214f01ab3aad054b7f57d89ddf95b3904ae89201ec607",
     "worktree_sha256": "a933976b30daeeb90fe8e25984600f4b0d93208fc039fd2e3c121398de8d2d3f",
@@ -55,5 +55,13 @@
     "configured_build": "docs/rust/migration/evidence/net-recovery-native-20261117/build-summary.json",
     "focused_native": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
     "acceptance_scope": "17 targets built and14 historical regressions passed on Windows; full consumer/frozen-family/performance/platform acceptance still pending"
+  },
+  "latest_native_validation": {
+    "status": "passed",
+    "scope": "Current repaired Windows HTTP2 ordinary17-program execution passed with all before/after identities;40 consumer rebuilds/GN passed. Broader families, platform, ownership, performance/publication and cutover remain pending",
+    "summary": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-summary.json",
+    "result": "docs/rust/migration/evidence/net-recovery-native-20261117/ordinary-result.json",
+    "source_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "snapshot_manifest_sha256": "b86e6a0d3f9ae40e6c96ac973d4d00454403a6a1cc0185b6d45cc99596dcc64f"
   }
 }
