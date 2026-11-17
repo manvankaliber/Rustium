@@ -1,89 +1,394 @@
-﻿//! Source-bound Rust owner for Blink's local line-boundary policy.
-//! ICU/UAX break decisions are supplied by `BoundaryProvider`; policy, UTF-16
-//! offsets, filtering, cache invalidation and borrowed-input lifetime are local.
-use std::cell::RefCell;
-use std::rc::Rc;
+//! Direct UTF-16 port of Blink's local line-break policy. ICU is a primitive,
+//! lazy boundary/property provider; it does not supply a pre-normalized list.
+//! Native ABI, loaded ICU data and physical iterator pools remain director debt.
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum BreakSpace { AfterRun, Every }
+pub enum BreakSpace {
+    AfterRun,
+    Every,
+}
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum BreakType { Normal, BreakAll, BreakCharacter, KeepAll, Phrase }
+pub enum BreakType {
+    Normal,
+    BreakAll,
+    BreakCharacter,
+    KeepAll,
+    Phrase,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Strictness {
+    Normal = 0,
+    Strict = 1,
+    Loose = 2,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Category {
+    Letter,
+    Number,
+    Mark,
+    Other,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum LineProperty {
+    Numeric,
+    Alphabetic,
+    Complex,
+    Ideographic,
+    Combining,
+    BreakAfter,
+    Other,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Following {
+    Boundary(i32),
+    Done,
+}
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum BoundaryError { Provider, InvalidRange }
-
-/// Provider receives UTF-16 code units and returns offsets relative to that slice.
-/// Implementations must document ICU/data identity and locale fallback.
-pub trait BoundaryProvider {
-    fn line_boundaries(&mut self, utf16: &[u16], locale: &str) -> Result<Vec<usize>, BoundaryError>;
-    fn grapheme_boundaries(&mut self, utf16: &[u16]) -> Result<Vec<usize>, BoundaryError>;
+pub enum BoundaryError {
+    Provider,
+    InvalidRange,
+    InvalidOffset,
+    TooLong,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Fast {
+    No,
+    Yes,
+    Unknown,
 }
 
-/// Borrowed text cannot outlive the iterator; `Rc<RefCell>` deliberately makes
-/// this local cache !Send/!Sync until the director selects a cross-thread bridge.
+/// A session must retain stable backing text until `release_line`; operations
+/// are thread-confined. Implementations validate ICU int32 indices. Values are
+/// primitive so Rust retains all tailoring and boundary policy.
+pub trait BoundaryProvider {
+    fn acquire_line(&mut self, utf16: &[u16], locale: &str) -> Result<(), BoundaryError>;
+    fn following(&mut self, query: i32) -> Result<Following, BoundaryError>;
+    fn release_line(&mut self);
+    fn acquire_character(&mut self, utf16: &[u16]) -> Result<(), BoundaryError>;
+    fn character_following(&mut self, query: i32) -> Result<Following, BoundaryError>;
+    fn release_character(&mut self);
+    fn category(&mut self, codepoint: u32) -> Category;
+    fn line_property(&mut self, codepoint: u32) -> LineProperty;
+    fn fast_pair(&mut self, left: u16, right: u16, right_quote_enabled: bool) -> Option<bool>;
+}
+
+#[derive(Clone, Copy)]
+struct Ctx {
+    current: u16,
+    last: u16,
+    previous: u16,
+    last_space: bool,
+    current_space: bool,
+}
+impl Ctx {
+    fn new(s: &[u16], start: usize, i: usize) -> Self {
+        let last = if i > start { s[i - 1] } else { 0 };
+        Self {
+            current: 0,
+            last,
+            previous: if i > start + 1 { s[i - 2] } else { 0 },
+            last_space: space(last),
+            current_space: false,
+        }
+    }
+    fn fetch(&mut self, s: &[u16], i: usize) -> bool {
+        if i >= s.len() {
+            return false;
+        }
+        self.current = s[i];
+        self.current_space = space(self.current);
+        true
+    }
+    fn advance(&mut self, i: &mut usize) {
+        *i += 1;
+        self.previous = self.last;
+        self.last = self.current;
+        self.last_space = self.current_space;
+    }
+    fn fast<P: BoundaryProvider>(&self, p: &mut P, disable_shy: bool, quote: bool) -> Fast {
+        let (a, b) = (self.last, self.current);
+        if a < 0x21 || b < 0x21 {
+            return Fast::No;
+        }
+        if a == b'-' {
+            if b <= 0x7f && b.is_ascii_digit() {
+                return if self.previous.is_ascii_alphanumeric() { Fast::Yes } else { Fast::No };
+            }
+            if b > 0x7f {
+                return Fast::Unknown;
+            }
+        }
+        if a <= 0xff && b <= 0xff {
+            if let Some(yes) = p.fast_pair(a, b, quote) {
+                if !yes || (disable_shy && a == 0xad) {
+                    return Fast::No;
+                }
+                return Fast::Yes;
+            }
+        }
+        if quote {
+            if b == 0x2019 && a <= 0xff && a != 0x85 {
+                return Fast::No;
+            }
+            if a == 0x2019 && b <= 0xff {
+                return Fast::No;
+            }
+        }
+        Fast::Unknown
+    }
+}
+fn space(c: u16) -> bool {
+    matches!(c, 0x20 | 0x09 | 0x0a)
+}
+fn lead(c: u16) -> bool {
+    (0xd800..=0xdbff).contains(&c)
+}
+fn trail(c: u16) -> bool {
+    (0xdc00..=0xdfff).contains(&c)
+}
+fn cp(s: &[u16], i: usize) -> u32 {
+    let u = s[i] as u32;
+    if trail(s[i]) && i > 0 && lead(s[i - 1]) {
+        0x10000 + (((s[i - 1] as u32 - 0xd800) << 10) | (u - 0xdc00))
+    } else {
+        u
+    }
+}
+fn keep<P: BoundaryProvider>(p: &mut P, prev: u16, last: u16, next: u16) -> bool {
+    let c = if p.category(last as u32) == Category::Mark { prev } else { last };
+    matches!(p.category(c as u32), Category::Letter | Category::Number)
+        && p.line_property(c as u32) != LineProperty::Complex
+        && matches!(p.category(next as u32), Category::Letter | Category::Number)
+        && p.line_property(next as u32) != LineProperty::Complex
+}
+fn after_all(last: LineProperty, cur: LineProperty, ch: u16, strict: Strictness) -> bool {
+    if cur == LineProperty::Combining {
+        return false;
+    }
+    if matches!(cur, LineProperty::Ideographic | LineProperty::Complex) {
+        return true;
+    }
+    if cur == LineProperty::BreakAfter && ch != 0x7c && strict != Strictness::Loose {
+        return false;
+    }
+    matches!(
+        last,
+        LineProperty::Ideographic
+            | LineProperty::Complex
+            | LineProperty::Alphabetic
+            | LineProperty::Numeric
+    )
+}
+
+/// Owns settings and borrowed stable input; Rc/RefCell enforces !Send/!Sync.
 pub struct LocalLinePolicy<'a, P: BoundaryProvider> {
-    text: &'a [u16], start: usize, locale: String, kind: BreakType,
-    space: BreakSpace, soft_hyphen: bool, provider: Rc<RefCell<P>>,
-    cached: Option<(usize, String, Vec<usize>)>,
+    text: &'a [u16],
+    start: usize,
+    locale: String,
+    kind: BreakType,
+    space: BreakSpace,
+    strict: Strictness,
+    soft_hyphen: bool,
+    quote: bool,
+    session: bool,
+    provider: Rc<RefCell<P>>,
 }
 impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
-    pub fn new(text: &'a [u16], provider: Rc<RefCell<P>>) -> Self {
-        Self { text, start: 0, locale: String::new(), kind: BreakType::Normal,
-            space: BreakSpace::AfterRun, soft_hyphen: true, provider, cached: None }
+    pub fn new(text: &'a [u16], provider: Rc<RefCell<P>>) -> Result<Self, BoundaryError> {
+        if text.len() > i32::MAX as usize {
+            return Err(BoundaryError::TooLong);
+        }
+        Ok(Self {
+            text,
+            start: 0,
+            locale: String::new(),
+            kind: BreakType::Normal,
+            space: BreakSpace::AfterRun,
+            strict: Strictness::Normal,
+            soft_hyphen: true,
+            quote: false,
+            session: false,
+            provider,
+        })
+    }
+    fn invalidate(&mut self) {
+        if self.session {
+            self.provider.borrow_mut().release_line();
+            self.session = false
+        }
     }
     pub fn set_start(&mut self, n: usize) -> Result<(), BoundaryError> {
-        if n > self.text.len() { return Err(BoundaryError::InvalidRange); }
-        if self.start != n { self.start = n; self.cached = None; } Ok(())
+        if n > self.text.len() {
+            return Err(BoundaryError::InvalidRange);
+        }
+        if n != self.start {
+            self.invalidate();
+            self.start = n
+        }
+        Ok(())
     }
-    pub fn set_locale(&mut self, s: impl Into<String>) { let s=s.into(); if self.locale != s { self.locale=s; self.cached=None; } }
-    pub fn set_type(&mut self, t: BreakType) { if self.kind != t { self.kind=t; self.cached=None; } }
-    pub fn set_space(&mut self, s: BreakSpace) { self.space=s; }
-    pub fn enable_soft_hyphen(&mut self, yes: bool) { self.soft_hyphen=yes; }
-    fn boundaries(&mut self) -> Result<Vec<usize>, BoundaryError> {
-        if let Some((start, locale, b))=&self.cached { if *start==self.start && *locale==self.locale { return Ok(b.clone()); } }
-        let raw = if self.kind == BreakType::BreakCharacter {
-            self.provider.borrow_mut().grapheme_boundaries(&self.text[self.start..])?
-        } else { self.provider.borrow_mut().line_boundaries(&self.text[self.start..], &self.locale)? };
-        let len=self.text.len()-self.start;
-        if raw.iter().any(|&x| x>len) { return Err(BoundaryError::Provider); }
-        let mut b: Vec<usize>=raw.into_iter().map(|x| x+self.start).collect();
-        b.sort_unstable(); b.dedup(); if b.last().copied()!=Some(self.text.len()) { b.push(self.text.len()); }
-        self.cached=Some((self.start,self.locale.clone(),b.clone())); Ok(b)
+    pub fn set_locale(&mut self, s: impl Into<String>) {
+        let s = s.into();
+        if s != self.locale {
+            self.invalidate();
+            self.locale = s
+        }
     }
-    /// First legal UTF-16 offset >= `offset`, or end. Provider failures stay errors.
-    pub fn next(&mut self, offset: usize, limit: usize) -> Result<usize, BoundaryError> {
-        if offset>limit || limit>self.text.len() || offset<self.start { return Err(BoundaryError::InvalidRange); }
-        if offset==limit { return Ok(limit); }
-        let b=self.boundaries()?;
-        let mut candidates=b.into_iter().filter(|&x| x>=offset && x<=limit);
-        while let Some(mut x)=candidates.next() {
-            if self.kind==BreakType::BreakAll && x>self.start && x<self.text.len() && is_surrogate_pair(self.text,x) { continue; }
-            if !self.soft_hyphen && x>0 && self.text[x-1]==0x00ad { continue; }
-            if self.space==BreakSpace::AfterRun && x>0 && is_space(self.text[x-1]) && x<self.text.len() && is_space(self.text[x]) {
-                while x<limit && x<self.text.len() && is_space(self.text[x]) { x+=1; }
-                if x>limit { return Ok(limit); }
+    pub fn set_type(&mut self, v: BreakType) {
+        if v != self.kind {
+            self.invalidate();
+            self.kind = v
+        }
+    }
+    pub fn set_space(&mut self, v: BreakSpace) {
+        self.space = v
+    }
+    pub fn set_strictness(&mut self, v: Strictness) {
+        self.strict = v;
+        self.invalidate()
+    }
+    pub fn set_soft_hyphen(&mut self, v: bool) {
+        self.soft_hyphen = v
+    }
+    pub fn set_right_quote(&mut self, v: bool) {
+        self.quote = v
+    }
+    fn line_following(&mut self, q: usize) -> Result<usize, BoundaryError> {
+        if !self.session {
+            self.provider.borrow_mut().acquire_line(&self.text[self.start..], &self.locale)?;
+            self.session = true
+        }
+        let q = i32::try_from(q).map_err(|_| BoundaryError::TooLong)?;
+        match self.provider.borrow_mut().following(q)? {
+            Following::Done => Ok(self.text.len()),
+            Following::Boundary(n)
+                if n > q && n >= 0 && (n as usize) <= self.text.len() - self.start =>
+            {
+                self.start.checked_add(n as usize).ok_or(BoundaryError::InvalidOffset)
             }
-            return Ok(x);
+            _ => Err(BoundaryError::InvalidOffset),
+        }
+    }
+    pub fn next(&mut self, pos: usize, limit: usize) -> Result<usize, BoundaryError> {
+        if pos < self.start || pos > limit || limit > self.text.len() {
+            return Err(BoundaryError::InvalidRange);
+        }
+        if pos == limit {
+            return Ok(limit);
+        }
+        if self.kind == BreakType::BreakCharacter {
+            self.provider.borrow_mut().acquire_character(self.text)?;
+            let q = if pos > 0 { pos - 1 } else { 0 };
+            let out = match self
+                .provider
+                .borrow_mut()
+                .character_following(i32::try_from(q).map_err(|_| BoundaryError::TooLong)?)?
+            {
+                Following::Boundary(n)
+                    if n > q as i32 && n >= 0 && (n as usize) <= self.text.len() =>
+                {
+                    n as usize
+                }
+                Following::Done => self.text.len(),
+                _ => return Err(BoundaryError::InvalidOffset),
+            };
+            self.provider.borrow_mut().release_character();
+            return Ok(out);
+        }
+        let mut i = pos;
+        let mut c = Ctx::new(self.text, self.start, pos);
+        let mut cached = 0usize;
+        let mut last_prop = if self.kind == BreakType::BreakAll {
+            let mut p = self.provider.borrow_mut();
+            p.line_property(if c.last == 0 { 0 } else { cp(self.text, pos.saturating_sub(1)) })
+        } else {
+            LineProperty::Other
+        };
+        while i < limit && c.fetch(self.text, i) {
+            match self.space {
+                BreakSpace::AfterRun => {
+                    if c.current_space {
+                        c.advance(&mut i);
+                        continue;
+                    }
+                    if c.last_space {
+                        return Ok(i);
+                    }
+                }
+                BreakSpace::Every => {
+                    if c.last_space || c.last == 0x3000 {
+                        return Ok(i);
+                    }
+                    if (c.current_space || c.current == 0x3000) && i + 1 < limit {
+                        return Ok(i + 1);
+                    }
+                }
+            }
+            let fast = c.fast(&mut *self.provider.borrow_mut(), !self.soft_hyphen, self.quote);
+            if fast == Fast::Yes {
+                return Ok(i);
+            }
+            if self.kind == BreakType::BreakAll && !lead(c.current) {
+                let mut p = self.provider.borrow_mut();
+                let prop = p.line_property(cp(self.text, i));
+                if self.strict == Strictness::Loose
+                    && matches!(c.current, 0x2010 | 0x2013)
+                    && matches!(
+                        last_prop,
+                        LineProperty::Numeric
+                            | LineProperty::Alphabetic
+                            | LineProperty::Complex
+                            | LineProperty::Ideographic
+                    )
+                {
+                    return Ok(i);
+                }
+                if after_all(last_prop, prop, c.current, self.strict) {
+                    return Ok(if i > pos && trail(c.current) { i - 1 } else { i });
+                }
+                if prop != LineProperty::Combining {
+                    last_prop = prop
+                }
+            }
+            if self.kind == BreakType::KeepAll
+                && keep(&mut *self.provider.borrow_mut(), c.previous, c.last, c.current)
+            {
+                c.advance(&mut i);
+                continue;
+            }
+            if fast == Fast::Unknown {
+                if i > self.start && (cached < i || cached == 0) {
+                    let mut q = i - 1;
+                    loop {
+                        cached = self.line_following(q - self.start)?;
+                        if cached == self.text.len() {
+                            break;
+                        }
+                        if !self.soft_hyphen && cached > 0 && self.text[cached - 1] == 0xad {
+                            q = cached;
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                if i == cached && !c.last_space {
+                    return Ok(i);
+                }
+            }
+            c.advance(&mut i)
         }
         Ok(limit)
     }
+    pub fn is_breakable(&mut self, at: usize) -> Result<bool, BoundaryError> {
+        if at > self.text.len() {
+            return Ok(false);
+        }
+        Ok(self.next(at, self.text.len())? == at)
+    }
 }
-fn is_space(c:u16)->bool { matches!(c, 0x20|0x09|0x0a) }
-fn is_surrogate_pair(s:&[u16], i:usize)->bool { (0xd800..=0xdbff).contains(&s[i]) && (0xdc00..=0xdfff).contains(&s[i+1]) }
-
-#[cfg(test)] mod tests {
- use super::*;
- #[derive(Default)] struct Stub { calls:usize, lines:Vec<usize>, graphemes:Vec<usize>, fail:bool }
- impl BoundaryProvider for Stub {
-  fn line_boundaries(&mut self,_:&[u16],_:&str)->Result<Vec<usize>,BoundaryError>{ self.calls+=1; if self.fail {Err(BoundaryError::Provider)} else {Ok(self.lines.clone())} }
-  fn grapheme_boundaries(&mut self,_:&[u16])->Result<Vec<usize>,BoundaryError>{ self.calls+=1; Ok(self.graphemes.clone()) }
- }
- fn make<'a>(s:&'a [u16], lines:Vec<usize>)->LocalLinePolicy<'a,Stub>{ let p=Rc::new(RefCell::new(Stub{lines,..Default::default()})); LocalLinePolicy::new(s,p) }
- // Mirrors original Basic/Newline/Tab and SoftHyphen expected boundary loops;
- // offsets are UTF-16 code units and all raw boundaries originate from provider.
- #[test] fn original_basic_space_run(){let mut x=make(&"a b  c".encode_utf16().collect::<Vec<_>>(),vec![2,5,6]); assert_eq!(x.next(0,6),Ok(2)); assert_eq!(x.next(2,6),Ok(5));}
- #[test] fn original_newline_and_tab(){let mut x=make(&"a\nb\n\nc\n d".encode_utf16().collect::<Vec<_>>(),vec![2,5,8,9]); assert_eq!(x.next(0,9),Ok(2));}
- #[test] fn malformed_utf16_offsets_are_preserved(){let s=[0xd800,0x61,0xdc00]; let mut x=make(&s,vec![1,2,3]); assert_eq!(x.next(0,3),Ok(1));}
- #[test] fn break_all_never_splits_pair(){let s=[0xd83d,0xde00,0x61]; let mut x=make(&s,vec![1,2,3]); x.set_type(BreakType::BreakAll); assert_eq!(x.next(0,3),Ok(2));}
- #[test] fn start_offset_locale_reset_and_cache(){let s=[97,32,98]; let mut x=make(&s,vec![1,3]); assert_eq!(x.next(0,3),Ok(1)); assert_eq!(x.next(0,3),Ok(1)); x.set_start(1).unwrap(); x.set_locale("sv-SE"); assert_eq!(x.next(1,3),Ok(2));}
- #[test] fn provider_error_is_not_success(){let s=[97]; let p=Rc::new(RefCell::new(Stub{fail:true,..Default::default()})); let mut x=LocalLinePolicy::new(&s,p); assert_eq!(x.next(0,1),Err(BoundaryError::Provider));}
+impl<P: BoundaryProvider> Drop for LocalLinePolicy<'_, P> {
+    fn drop(&mut self) {
+        self.invalidate()
+    }
 }
