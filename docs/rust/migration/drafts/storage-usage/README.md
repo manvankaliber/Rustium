@@ -1,5 +1,7 @@
 # STORAGE-USAGE candidate
 
+Paths in `reference/SHA256SUMS` are relative to the `reference/` directory.
+
 This directory holds a Rust behavior candidate and byte-frozen references. It
 does not replace the production C++ class. `src/lib.rs` specifies the 24-byte
 FSU5 Pickle codec, dirty/validity/update policy, private records, and a

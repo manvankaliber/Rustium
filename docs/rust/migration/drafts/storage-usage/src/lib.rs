@@ -433,7 +433,7 @@ mod tests {
         assert!(decode(&b).unwrap().valid);
         let mut c = UsageCache::<String, usize>::new(true);
         let mut p = Fake::default();
-        let k = "k".into();
+        let k: String = "k".into();
         c.private.insert(k.clone(), encode(Record { valid: true, dirty: u32::MAX, usage: 7 }));
         assert!(c.increment(&mut p, &k).unwrap());
         assert_eq!(c.get(&mut p, &k).unwrap().unwrap().dirty, 0);
