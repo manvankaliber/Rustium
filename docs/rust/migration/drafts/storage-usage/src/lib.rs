@@ -453,10 +453,10 @@ mod tests {
         let mut p = Fake::default();
         let a = "a".to_string();
         let b = "b".to_string();
-        c.get(&mut p, &a).unwrap();
-        c.get(&mut p, &b).unwrap();
+        assert_eq!(c.get(&mut p, &a), Err(CacheError::ShortRead));
+        assert_eq!(c.get(&mut p, &b), Err(CacheError::ShortRead));
         p.events.clear();
-        c.get(&mut p, &a).unwrap();
+        assert_eq!(c.get(&mut p, &a), Err(CacheError::ShortRead));
         assert_eq!(&p.events[..4], &["close:1", "close:2", "stop", "timer:5"]);
         assert_eq!(p.events[4], "open:a");
     }
@@ -644,6 +644,7 @@ mod tests {
         let mut p = Fake::default();
         let k = "x".to_string();
         c.put(&mut p, &k, 1).unwrap();
+        p.events.clear();
         p.fail_write = true;
         assert_eq!(c.put(&mut p, &k, 2), Err(CacheError::Provider("write")));
         assert_eq!(p.events, vec!["timer:5", "write:1:0", "close:1", "stop", "delete:x"]);
@@ -704,9 +705,9 @@ mod tests {
         let mut c = UsageCache::<String, usize>::new(false);
         let mut p = Fake::default();
         let k = "x".to_string();
-        c.get(&mut p, &k).unwrap();
+        assert_eq!(c.get(&mut p, &k), Err(CacheError::ShortRead));
         p.events.clear();
-        c.get(&mut p, &k).unwrap();
+        assert_eq!(c.get(&mut p, &k), Err(CacheError::ShortRead));
         assert_eq!(p.events, vec!["timer:5", "read:1:0"]);
         p.events.clear();
         c.on_timer(&mut p);
@@ -716,7 +717,7 @@ mod tests {
         assert_eq!(c.check_sequence(12), Err(SequenceMismatch));
     }
     #[test]
-    fn private_instances_are_isolated_without_primitive_operations() {
+    fn private_instances_are_isolated_without_file_operations() {
         let mut p = Fake::default();
         let k = "same".to_string();
         let mut a = UsageCache::<String, usize>::new(true);
@@ -728,6 +729,9 @@ mod tests {
         assert!(a.exists(&mut p, &k).unwrap());
         assert!(a.delete(&mut p, &k).unwrap());
         assert!(!a.exists(&mut p, &k).unwrap());
-        assert!(p.events.is_empty());
+        // Native Delete invokes CloseCacheFiles even in private mode.
+        assert_eq!(p.events, vec!["stop", "stop"]);
+        assert!(p.files.is_empty());
+        assert!(p.handle_keys.is_empty());
     }
 }
