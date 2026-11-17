@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "started_utc": "2026-11-17T11:24:33.053412+00:00",
+  "command": [
+    "D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117112119\\snapshot\\build\\out\\Default\\base_unittests.exe",
+    "--gtest_filter=*SplitString*:StringSplitTest.*:StringSplitRustBridgeTest.*",
+    "--test-launcher-jobs=1",
+    "--test-launcher-batch-limit=1",
+    "--test-launcher-retry-limit=0",
+    "--test-launcher-bot-mode",
+    "--test-launcher-print-test-stdio=always",
+    "--test-launcher-summary-output=D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117112119\\execution\\summary.json",
+    "--gtest_output=xml:D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117112119\\execution\\gtest.xml"
+  ],
+  "exit_code": 0,
+  "native_results": {
+    "format": "Chromium test-launcher summary",
+    "attempt_status_counts": {
+      "SUCCESS": 62
+    },
+    "tests_with_attempts": 62,
+    "listed_tests": 9225,
+    "listed_disabled_tests": 42,
+    "passed": 62,
+    "skipped": 0,
+    "native_skip_names": [],
+    "native_output_sha256": "8935d904997242532b974857d2a912f30070147ebb3a9d3a9d5f86b6ac427330",
+    "unexpected_statuses": {},
+    "result_file_sha256": "07b4ad8b46336a1c6c26575eda52710392e0aea4ac1979847eee35b4597ef5fe"
+  },
+  "expected_enabled": 62,
+  "disabled": [],
+  "diagnostic_contract_passed": true,
+  "native_skip_names": [],
+  "host_identity_after": true,
+  "snapshot_identity_after": "Snapshot content/membership drift",
+  "artifacts": {
+    "summary.json": true,
+    "gtest.xml": true,
+    "output.log": true
+  },
+  "finished_utc": "2026-11-17T11:24:45.682988+00:00"
+}

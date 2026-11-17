@@ -1,0 +1,33 @@
+{
+  "passed": false,
+  "started_utc": "2026-11-17T11:29:51.594345+00:00",
+  "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "commands": [
+    [
+      "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+      "-C",
+      "out/Default",
+      "-n",
+      "-d",
+      "explain",
+      "-j1",
+      "base_unittests",
+      "net_unittests"
+    ],
+    [
+      "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+      "-C",
+      "out/Default",
+      "-j1",
+      "obj/base/test/run_all_unittests/run_all_unittests.obj",
+      "obj/base/base_unittests/string_split_rust_bridge_unittest.obj"
+    ]
+  ],
+  "exit_codes": [
+    0,
+    0
+  ],
+  "scope": "Compiler feedback and dirty-edge evidence only; full consumer/link/native validation remains required",
+  "exception": "AttributeError: 'str' object has no attribute 'read_bytes'",
+  "finished_utc": "2026-11-17T11:30:13.839963+00:00"
+}

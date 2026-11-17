@@ -1,0 +1,48 @@
+{
+  "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+  "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+  "applied_bindings": 56,
+  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z\\source-manifest.json",
+  "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "source_count": 1261,
+  "both_checkouts_matched": true,
+  "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z",
+  "status": "Native62 cases and diagnostic executed successfully but snapshot failed added debug.log; early launcher logging repaired, current build and copied rerun pending",
+  "preexisting_dirty_inputs_preserved_in_before_images": true,
+  "v4_package_unchanged": true,
+  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z",
+  "director_integration_overlays": [
+    {
+      "path": "net/BUILD.gn",
+      "before_sha256": "566304c8408940e4a75df700fe94e0b96623fa2bc84a680df6d4174edde647dd",
+      "after_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+      "reason": "Actual GN header check requires independent net_error_rust_reference dependency",
+      "effect": "Build dependency only; no source policy/test assertions changed"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "before_sha256": "5262309c26f9c5df853bf2e1f393609db35feb2f5c669b59e0a305d179849398",
+      "after_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "reason": "Configured compiler requires check_op.h for CHECK_EQ/CHECK_LE; no authored policy change"
+    },
+    {
+      "path": "base/strings/string_split_rust.rs",
+      "before_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932",
+      "after_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+      "reason": "Private module contains complete accepted policy;12 not-yet-routed APIs trigger deny(dead_code). Local module-only allowance; no policy/test/lint acceptance weakened."
+    },
+    {
+      "path": "base/strings/string_split_rust_bridge_unittest.cc",
+      "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
+      "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+      "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
+    },
+    {
+      "path": "base/test/run_all_unittests.cc",
+      "before_sha256": "242f989895fbc7b91228e761aa11d62c2ffea36f8da21bc2158ee15f9496e901",
+      "after_sha256": "3d24c43411342948c4cb19195b489b88b1c6bdfcc3032eb9070cfc1ac6eea601",
+      "reason": "Native62test run completed but parent debug.log changed sealed membership; early Windows stderr initialization mirrors reviewed Net launcher repair, no expected cases or compiler checks changed"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+ninja: Entering directory `out/Default'
+[1/3] CXX obj/base/test/run_all_unittests/run_all_unittests.obj
+[2/3] LIB obj/base/test/run_all_unittests.lib
+[3/3] LINK test_cpp_including_rust_dylib_unittests.exe test_cpp_including_rust_dylib_unittests.exe.pdb

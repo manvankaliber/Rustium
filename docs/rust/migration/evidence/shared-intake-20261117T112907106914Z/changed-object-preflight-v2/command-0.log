@@ -1,0 +1,4 @@
+ninja explain: output base_unittests.exe older than most recent input obj/base/test/run_all_unittests.lib (8166170776801114 vs 8166182128095566)
+ninja explain: base_unittests.exe is dirty
+ninja: Entering directory `out/Default'
+[1/1] LINK base_unittests.exe base_unittests.exe.pdb

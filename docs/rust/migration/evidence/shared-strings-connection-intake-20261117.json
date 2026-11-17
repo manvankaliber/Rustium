@@ -1,17 +1,17 @@
 {
   "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
   "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
-  "applied_bindings": 55,
-  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z\\source-manifest.json",
-  "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3",
-  "source_count": 1260,
+  "applied_bindings": 56,
+  "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z\\source-manifest.json",
+  "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "source_count": 1261,
   "both_checkouts_matched": true,
   "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
-  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z",
-  "status": "Prior serial build failed on two unsafe pointer-arithmetic test expressions; bounded source views prepared under gate, rerun pending",
+  "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T112907106914Z",
+  "status": "Native62 cases and diagnostic executed successfully but snapshot failed added debug.log; early launcher logging repaired, current build and copied rerun pending",
   "preexisting_dirty_inputs_preserved_in_before_images": true,
   "v4_package_unchanged": true,
-  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T090327315709Z",
+  "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T105702922642Z",
   "director_integration_overlays": [
     {
       "path": "net/BUILD.gn",
@@ -37,9 +37,15 @@
       "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
       "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
       "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
+    },
+    {
+      "path": "base/test/run_all_unittests.cc",
+      "before_sha256": "242f989895fbc7b91228e761aa11d62c2ffea36f8da21bc2158ee15f9496e901",
+      "after_sha256": "3d24c43411342948c4cb19195b489b88b1c6bdfcc3032eb9070cfc1ac6eea601",
+      "reason": "Native62test run completed but parent debug.log changed sealed membership; early Windows stderr initialization mirrors reviewed Net launcher repair, no expected cases or compiler checks changed"
     }
   ],
-  "observed_utc": "2026-11-17T11:02:32.757143+00:00",
+  "observed_utc": "2026-11-17T11:48:37.151012+00:00",
   "archived_attempts": [
     {
       "path": "docs/rust/migration/evidence/shared-intake-20261117T085053173182Z",
@@ -60,15 +66,50 @@
       "path": "docs/rust/migration/evidence/shared-intake-20261117T090327315709Z",
       "passed": false,
       "source_manifest_sha256": "2212160a18e7d4b6bbfaef014af9de377d236be9bb69b2a2b12e337801baf823"
+    },
+    {
+      "path": "docs/rust/migration/evidence/shared-intake-20261117T105702922642Z",
+      "passed": true,
+      "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3"
+    },
+    {
+      "path": "docs/rust/migration/evidence/shared-intake-20261117T112907106914Z",
+      "passed": true,
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2"
     }
   ],
-  "active_build_job": "2287916d727d4d1187895bd3c052e5c3",
-  "active_build_command": [
-    "python",
-    "-B",
-    "D:\\Rustium\\.rustium-runtime\\build_shared_strings_connection.py",
-    "-j1"
-  ],
-  "native_execution_acceptance": false,
-  "scope": "Guarded55file input application and source/consumer compile repair. Historical0b17program runtime pass remains scoped toits old frozen identity; no current1260-source runtime or performance pass."
+  "active_build_job": null,
+  "active_build_command": null,
+  "native_execution_acceptance": "Selected Network dependency ordinary scope passed; coupled Network consumer/family acceptance remains pending",
+  "scope": "Guarded source input application and source/consumer compile repair. Historical0b17program runtime pass remains scoped toits old frozen identity; no current1260-source runtime or performance pass.",
+  "latest_native_ordinary": {
+    "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+    "source_count": 1261,
+    "applied_bindings": 56,
+    "archive": "docs/rust/migration/evidence/network-base-ordinary-n1117113822",
+    "snapshot_manifest_sha256": "ee0a765335e37f24893b4b252ea4eaaa561855600d26f99a5b88d4f4c9175f05",
+    "passed": true,
+    "actual_native_passed": 62,
+    "native_skipped": 0,
+    "required_bridge_cases": 5,
+    "diagnostic_contract_passed": true,
+    "identity_checks_after": {
+      "source": true,
+      "runtime": true,
+      "configuration": true,
+      "host": true,
+      "helpers": true,
+      "snapshot": true
+    },
+    "scope": "Selected original StringSplit/typed bridge runtime tests on Windows and complete copied-runtime identities; not broad base/net/browser/platform/performance or whole-family cutover"
+  },
+  "prior_native_ordinary": {
+    "archive": "docs/rust/migration/evidence/network-base-ordinary-n1117112119",
+    "source_manifest_sha256": "75324d1273c1fda84302b62caf0dc13f4a7668110145b810202d8178975bcce3",
+    "source_count": 1260,
+    "passed": false,
+    "actual_native_passed": 62,
+    "native_skipped": 0,
+    "failure": "Added debug.log in sealed snapshot; failed run and raw evidence retained"
+  }
 }

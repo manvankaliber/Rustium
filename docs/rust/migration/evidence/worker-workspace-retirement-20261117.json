@@ -1,0 +1,10 @@
+{
+  "observed_utc": "2026-11-17T12:13:38.110143+00:00",
+  "task_id": "STORAGE-USAGE",
+  "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-4e317e64-cb70609d5f01e59d",
+  "branch_retained": "rust/storage-tests-intake-20261117",
+  "commit_retained": "e10556d86940a8db6907f0053e9578c56869cb6f",
+  "clean_and_integrated": true,
+  "replacement_artifact_path": "D:\\Rustium\\docs\\rust\\migration\\drafts\\storage-usage",
+  "reason": "Reuse one ended non-Network slot for the user-directed Terra Network worker; no draft/branch/evidence deletion"
+}

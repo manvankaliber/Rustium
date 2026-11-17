@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "started_utc": "2026-11-17T11:38:22.983565+00:00",
+  "stage": "executing_copied_controller",
+  "manifest_sha256": "ee0a765335e37f24893b4b252ea4eaaa561855600d26f99a5b88d4f4c9175f05",
+  "controller_exit": 0,
+  "execution": {
+    "passed": true,
+    "started_utc": "2026-11-17T11:41:37.963897+00:00",
+    "command": [
+      "D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117113822\\snapshot\\build\\out\\Default\\base_unittests.exe",
+      "--gtest_filter=*SplitString*:StringSplitTest.*:StringSplitRustBridgeTest.*",
+      "--test-launcher-jobs=1",
+      "--test-launcher-batch-limit=1",
+      "--test-launcher-retry-limit=0",
+      "--test-launcher-bot-mode",
+      "--test-launcher-print-test-stdio=always",
+      "--test-launcher-summary-output=D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117113822\\execution\\summary.json",
+      "--gtest_output=xml:D:\\Rustium\\.scratch\\base-ordinary-delivery\\n1117113822\\execution\\gtest.xml"
+    ],
+    "exit_code": 0,
+    "native_results": {
+      "format": "Chromium test-launcher summary",
+      "attempt_status_counts": {
+        "SUCCESS": 62
+      },
+      "tests_with_attempts": 62,
+      "listed_tests": 9225,
+      "listed_disabled_tests": 42,
+      "passed": 62,
+      "skipped": 0,
+      "native_skip_names": [],
+      "native_output_sha256": "0ac1f1acbcb1da95d6426dc755e71c9520ad5fb11b1189ae78886b15f2e1f09d",
+      "unexpected_statuses": {},
+      "result_file_sha256": "5321c5923e5168f7a483d65182f46bcc3ba411a135ea27aefbacba493f9afb0b"
+    },
+    "expected_enabled": 62,
+    "disabled": [],
+    "diagnostic_contract_passed": true,
+    "native_skip_names": [],
+    "host_identity_after": true,
+    "snapshot_identity_after": true,
+    "artifacts": {
+      "summary.json": true,
+      "gtest.xml": true,
+      "output.log": true
+    },
+    "finished_utc": "2026-11-17T11:41:50.609240+00:00"
+  },
+  "execution_artifacts": {
+    "result.json": true,
+    "summary.json": true,
+    "gtest.xml": true,
+    "output.log": true
+  },
+  "controller_log_available": true,
+  "identity_checks_after": {
+    "source": true,
+    "runtime": true,
+    "configuration": true,
+    "host": true,
+    "helpers": true,
+    "snapshot": true
+  },
+  "finished_utc": "2026-11-17T11:42:15.140574+00:00"
+}

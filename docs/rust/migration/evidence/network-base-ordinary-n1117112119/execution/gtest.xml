@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="AllTests" tests="62" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+  <testsuite name="ConstexprSplitStringPieceTest" tests="3" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="SplitStringPieces" status="run" time="0.000" timestamp="2026-11-17T11:24:41" classname="ConstexprSplitStringPieceTest">
+    </testcase>
+    <testcase name="SplitStringPiecesSkipEmpty" status="run" time="0.000" timestamp="2026-11-17T11:24:41" classname="ConstexprSplitStringPieceTest">
+    </testcase>
+    <testcase name="SplitStringUsingSubstr" status="run" time="0.000" timestamp="2026-11-17T11:24:41" classname="ConstexprSplitStringPieceTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringIntoKeyValuePairsTest/0" tests="11" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="DelimiterInValue" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="EmptyKeyWithKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="EmptyPair" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="EmptyString" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="EmptyValue" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="MissingKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="MultipleKeyValueDelimiters" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="OnlySplitAtGivenSeparator" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="TrailingAndLeadingPairDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="TrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+    <testcase name="UntrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/0">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringIntoKeyValuePairsTest/1" tests="11" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="DelimiterInValue" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="EmptyKeyWithKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="EmptyPair" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="EmptyString" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="EmptyValue" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="MissingKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="MultipleKeyValueDelimiters" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="OnlySplitAtGivenSeparator" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="TrailingAndLeadingPairDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="TrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+    <testcase name="UntrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringIntoKeyValuePairsTest/1">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringIntoKeyValuePairsUsingSubstrTest/0" tests="5" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="EmptyString" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/0">
+    </testcase>
+    <testcase name="MissingKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/0">
+    </testcase>
+    <testcase name="MissingKeyValuePairDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/0">
+    </testcase>
+    <testcase name="OnlySplitAtGivenSeparator" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/0">
+    </testcase>
+    <testcase name="UntrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/0">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringIntoKeyValuePairsUsingSubstrTest/1" tests="5" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="EmptyString" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/1">
+    </testcase>
+    <testcase name="MissingKeyValueDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/1">
+    </testcase>
+    <testcase name="MissingKeyValuePairDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/1">
+    </testcase>
+    <testcase name="OnlySplitAtGivenSeparator" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/1">
+    </testcase>
+    <testcase name="UntrimmedWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="SplitStringIntoKeyValuePairsUsingSubstrTest/1">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringPieceUsingSubstrTest" tests="8" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="ConsecutiveDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="KeepWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="LeadingDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="SplitWantAll" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="SplitWantNonEmpty" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="StringWithNoDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="TrailingDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+    <testcase name="TrimWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringPieceUsingSubstrTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="SplitStringUsingSubstrTest" tests="6" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="ConsecutiveDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringUsingSubstrTest">
+    </testcase>
+    <testcase name="EmptyDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringUsingSubstrTest">
+    </testcase>
+    <testcase name="EmptyString" status="run" time="0.000" timestamp="2026-11-17T11:24:39" classname="SplitStringUsingSubstrTest">
+    </testcase>
+    <testcase name="LeadingDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringUsingSubstrTest">
+    </testcase>
+    <testcase name="StringWithNoDelimiter" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringUsingSubstrTest">
+    </testcase>
+    <testcase name="TrailingDelimitersSkipped" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="SplitStringUsingSubstrTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="StringSplitRustBridgeTest" tests="5" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="DiagnosticsAndCallbacksKeepNativeSegmentOrder" status="run" time="0.000" timestamp="2026-11-17T11:24:38" classname="StringSplitRustBridgeTest">
+    </testcase>
+    <testcase name="NullEmptyAndEmbeddedNulInputs" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringSplitRustBridgeTest">
+    </testcase>
+    <testcase name="OnceOverloadsPreserveDirectionAndSeparatorSets" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringSplitRustBridgeTest">
+    </testcase>
+    <testcase name="PartialViewsRetainNullAndBorrowedEmptyIdentity" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringSplitRustBridgeTest">
+    </testcase>
+    <testcase name="TypedUtf16WireUsesCodeUnitsAndOffsets" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringSplitRustBridgeTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="StringSplitTest" tests="6" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="NullSeparatorWantAll" status="run" time="0.000" timestamp="2026-11-17T11:24:41" classname="StringSplitTest">
+    </testcase>
+    <testcase name="NullSeparatorWantNonEmpty" status="run" time="0.000" timestamp="2026-11-17T11:24:41" classname="StringSplitTest">
+    </testcase>
+    <testcase name="RSplitStringOnce" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="StringSplitTest">
+    </testcase>
+    <testcase name="SplitStringAlongWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="StringSplitTest">
+    </testcase>
+    <testcase name="SplitStringOnce" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="StringSplitTest">
+    </testcase>
+    <testcase name="StringSplitKeepWhitespace" status="run" time="0.000" timestamp="2026-11-17T11:24:40" classname="StringSplitTest">
+    </testcase>
+  </testsuite>
+  <testsuite name="StringUtilTest" tests="2" failures="0" disabled="0" errors="0" time="0.000" timestamp="2026-11-17T11:24:41">
+    <testcase name="SplitString_Basics" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringUtilTest">
+    </testcase>
+    <testcase name="SplitString_WhitespaceAndResultType" status="run" time="0.000" timestamp="2026-11-17T11:24:37" classname="StringUtilTest">
+    </testcase>
+  </testsuite>
+</testsuites>

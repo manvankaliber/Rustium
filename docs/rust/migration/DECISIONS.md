@@ -1,5 +1,11 @@
 # Decisions
 
+## 2026-11-17: reference provider injection and build preflight
+
+Connection reference qualification must retain production injection semantics. A non-null injected authentication mechanism needs a separately named, source-bound and independently reviewed reference implementation, with observations of its actual policy entries. Arbitrary callbacks cannot be declared independent. Default NTLM, SSPI, GSSAPI, Negotiate and Digest reference routes still require their complete helper, callback, cancellation and logging closure; this decision grants no acceptance to the current proposals.
+
+The local build expert delivered the throughput report under `drafts/net-native-build-throughput`. Changed-source object compilation now precedes the complete required consumer build, and dirty-edge explanations are retained. Failed preflight and full builds remain archived. This changes feedback order, not acceptance membership or compiler checks. Current concurrency stays one; any future two-job trial requires measured memory headroom and telemetry within the existing maximum and link pool.
+
 ## 2026-11-17: Network focus and Terra workers (current)
 
 The user changed future coding workers to Terra and requested one active subsystem, finishing Network before unrelated work. Coding-worker defaults are now `gpt-6.1-terra`/xhigh in project config, role config and the queue. The global ceiling remains eight coding workers plus the existing auxiliary allowance; it is model-neutral. Historical assignments retain their actual model/effort. Coordinator claims enforce the active Network focus, with the already-applied Strings bridge explicitly allowed because it is a dependency of the current Network cohort.

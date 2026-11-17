@@ -1,0 +1,99 @@
+{
+  "task_id": "NET-CURRENT-CONSUMER-CLOSURE",
+  "kind": "sync",
+  "source_identity": {
+    "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+    "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+    "applied_bindings": 58,
+    "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T124353244617Z\\source-manifest.json",
+    "source_manifest_sha256": "83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5",
+    "source_count": 1261,
+    "both_checkouts_matched": true,
+    "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T124353244617Z",
+    "status": "Second selected Network build failed7 fixture compiler diagnostics; scoped key, explicit bound callback, string-view and raw_ref environment repairs prepared; rebuild/native pending",
+    "preexisting_dirty_inputs_preserved_in_before_images": true,
+    "v4_package_unchanged": true,
+    "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T122036702206Z",
+    "director_integration_overlays": [
+      {
+        "path": "net/BUILD.gn",
+        "before_sha256": "566304c8408940e4a75df700fe94e0b96623fa2bc84a680df6d4174edde647dd",
+        "after_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+        "reason": "Actual GN header check requires independent net_error_rust_reference dependency",
+        "effect": "Build dependency only; no source policy/test assertions changed"
+      },
+      {
+        "path": "base/strings/string_split.cc",
+        "before_sha256": "5262309c26f9c5df853bf2e1f393609db35feb2f5c669b59e0a305d179849398",
+        "after_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+        "reason": "Configured compiler requires check_op.h for CHECK_EQ/CHECK_LE; no authored policy change"
+      },
+      {
+        "path": "base/strings/string_split_rust.rs",
+        "before_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932",
+        "after_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+        "reason": "Private module contains complete accepted policy;12 not-yet-routed APIs trigger deny(dead_code). Local module-only allowance; no policy/test/lint acceptance weakened."
+      },
+      {
+        "path": "base/strings/string_split_rust_bridge_unittest.cc",
+        "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
+        "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+        "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
+      },
+      {
+        "path": "base/test/run_all_unittests.cc",
+        "before_sha256": "242f989895fbc7b91228e761aa11d62c2ffea36f8da21bc2158ee15f9496e901",
+        "after_sha256": "3d24c43411342948c4cb19195b489b88b1c6bdfcc3032eb9070cfc1ac6eea601",
+        "reason": "Native62test run completed but parent debug.log changed sealed membership; early Windows stderr initialization mirrors reviewed Net launcher repair, no expected cases or compiler checks changed"
+      },
+      {
+        "path": "net/socket/connect_job_rust_test_support.h",
+        "source": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T122036702206Z\\after-connect_job_rust_test_support.h",
+        "before_sha256": "183cf36534c87b0eff4207db7244f79490a526951b03af3e5291d601714e2e05",
+        "after_sha256": "bcd0f5cf536d0abf01d44b44a5992ddedefa62c78af40682a6b44768a292de82",
+        "kind": "Director compiler-policy repair of nonowning test helper fields"
+      },
+      {
+        "path": "net/socket/connect_job_rust_test_support.cc",
+        "source": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T122036702206Z\\after-connect_job_rust_test_support.cc",
+        "before_sha256": "d56ec021cda690839ac03483413d197d692bd7d9c9596f7d2c8b7c8649bb465c",
+        "after_sha256": "9dd2887932fb8035b7868beabe6ce3e813dffec8a1c94f85687c3319a34c2550",
+        "kind": "Director compiler-policy repair of nonowning test helper fields"
+      },
+      {
+        "path": "net/http/connection_auth_baseline_unittest.cc",
+        "before_sha256": "f40cf2d0b69ce0b8f9fa5c7e019a6814e5bebab0c5eb240b7a16adb2fc43fdde",
+        "after_sha256": "e97ddce6f2fc2e9f5ee84e14018f2e6b9d08b5cd395274a64acd2a0303a0d0e6",
+        "reason": "Compiler fixture adaptation, same values/cases/ownership/callback deletion semantics"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+        "before_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+        "after_sha256": "1c5f88c4f1598520aba5d7bde7be11c326ad13986df0b04e97fa1ce7528daee2",
+        "reason": "Compiler fixture adaptation, same values/cases/ownership/callback deletion semantics"
+      }
+    ]
+  },
+  "toolchain": {
+    "script_sha256": "444870dd69f23dd839512254f9df6f8b566607c1fc225bea527fa14ae5151a4b"
+  },
+  "build_configuration": {
+    "scope": "Correct exact include filename changed by prior field-access transformation; no policy, tests or diagnostics changed"
+  },
+  "cwd": "D:\\Rustium",
+  "process_reconciliation": {
+    "observed_utc": "2026-11-17T12:52:55.094604+00:00",
+    "compilers_native_tests": []
+  },
+  "command": [
+    "python",
+    "-B",
+    "D:\\Rustium\\.rustium-runtime\\repair_network_include_typo.py",
+    "apply"
+  ],
+  "started_utc": "2026-11-17T12:52:55.265905+00:00",
+  "status": "passed",
+  "exit_code": 0,
+  "finished_utc": "2026-11-17T12:52:56.131120+00:00"
+}

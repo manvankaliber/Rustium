@@ -1,0 +1,32 @@
+{
+  "task_id": "NET-NATIVE-BUILD-THROUGHPUT",
+  "candidate_commit": "0709518c3eed136d338f0a61728d008c442d9e68",
+  "source_identity": {
+    "source_bindings": {
+      ".scratch/shared-strings-connection/20261117T090327315709Z/build-result.json": "f1915ec07e5f0de8114fc1dcba9954f36efafaa3f474a07e192d370e57d21fe9",
+      ".scratch/shared-strings-connection/20261117T090327315709Z/consumer-build.log": "c9d1d575a6b3ae8a2e266e4196bb4c8ba480ae536e1d45e4725faee50a64dda8",
+      ".scratch/shared-strings-connection/20261117T105702922642Z/build-result.json": "005188fe3c9bf0d06b5b36e8eba6908c02af80f0795b7f66ce2150d9a1e33b4a",
+      ".scratch/shared-strings-connection/20261117T105702922642Z/consumer-build.log": "14a5e32eb77320f27c808e6846b5e900493c74516239a7ff3f57c939e387de49",
+      ".rustium-runtime/build_shared_strings_connection.py": "0e77700e2b418fe648485a70bab5ce7bbba16e9bc92c09531221b888686e54fe"
+    },
+    "read_only_expert": "gpt-6.1-sol/high",
+    "task_id": "NET-NATIVE-BUILD-THROUGHPUT",
+    "scope": "Read-only build-throughput diagnosis from actual retained logs; no benchmark or native correctness acceptance",
+    "remaining": "OS memory/disk observations are point-in-time; no retained peak resource trace, avoid causal claims beyond logs"
+  },
+  "tests": {
+    "status": "not_applicable_read_only",
+    "observed": "Source binding hashes verified unchanged; expert performed no compiler/test/benchmark execution"
+  },
+  "review": {
+    "status": "director_intake",
+    "scope": "Source-bound diagnosis and proposed validation steps; actual acceleration remains to be validated"
+  },
+  "platform_limits": [
+    "Windows local retained build observations only",
+    "Memory/disk observations point-in-time; no peak compiler or paging trace",
+    "No native correctness, performance acceptance or cutover credit"
+  ],
+  "remaining_native_ownership": "Director owns all configured/GN/toolchain/resource changes",
+  "next_action": "Changed-object preflight and dirty-edge capture adopted as separate gated phase; complete consumer build and ordinary checks still required. Trial-j2 only with demonstrated memory headroom; do not alter current jobs."
+}

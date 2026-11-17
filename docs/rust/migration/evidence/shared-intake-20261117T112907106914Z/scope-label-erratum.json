@@ -1,0 +1,6 @@
+{
+  "recorded_scope_label": "Configured GN and serial base/net consumers for55 applied bindings; actual production-path native tests and remaining consumers/platform/performance still pending",
+  "actual_source_count": 1261,
+  "actual_applied_bindings": 56,
+  "correction": "Raw build-driver scope text still says55; application/source manifests and actual verified bindings establish56applied/1261source. Raw result preserved unchanged."
+}

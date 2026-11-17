@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 364,
-  "updated_utc": "2026-11-17T11:21:19.227623+00:00",
+  "revision": 415,
+  "updated_utc": "2026-11-17T13:06:50.909750+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -2678,7 +2678,7 @@
         "status": "unmeasured"
       },
       "state": "validating",
-      "next_action": "Let active serial build finish without changing inputs; inspect actual result and repair under gate. Then run queued hostrepair tests and reviewed frozen native ordinary validation, retaining full membership and all remaining provider/platform debt.",
+      "next_action": "Finish current Network consumer/ABI qualification, rebuild all selected connected-family consumers, then run complete ordinary four-family batch. No unrelated subsystem implementation.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-87249590a1c0fee5214db9ec4a79ebb2a2dae463dd9aae095b5780548f7405af.json",
@@ -2695,13 +2695,25 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-82018a960fbdb36b54734c63b6cc6cde4c405a4495584968b41b8d515256d3a6.json",
           "sha256": "82018a960fbdb36b54734c63b6cc6cde4c405a4495584968b41b8d515256d3a6"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-5abf3d5fdf97389d6c9e7ead66e0ea71254cda6fe635af7985b5682a3aa2d226.json",
+          "sha256": "5abf3d5fdf97389d6c9e7ead66e0ea71254cda6fe635af7985b5682a3aa2d226"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-30bfbdd368f51fa774743a9441a0163f26d7f4f2e85fce2b4da87678bb762b22.json",
+          "sha256": "30bfbdd368f51fa774743a9441a0163f26d7f4f2e85fce2b4da87678bb762b22"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-fd174030a9876f2179f76666a083c19fc7e912a2bb3225d5eaae83e4b3134d4a.json",
+          "sha256": "fd174030a9876f2179f76666a083c19fc7e912a2bb3225d5eaae83e4b3134d4a"
         }
       ],
       "stages": {
-        "implementation": "Typed Rust/CXX policy proposal plus diagnostic ordering source fixes prepared; complete accepted policy retained byte-exact",
-        "configured_validation": "GNgen/base/net checks passed; serial base/net consumer build active after4 small integration compiler/dependency/test-expression repairs; no nativepass",
-        "production_integration": "55 guarded inputs applied locally/configured; currentsource1260 bindings, pending acceptance",
-        "rust_ownership": "not established",
+        "implementation": "Typed Rust/CXX policy proposal plus diagnostic ordering and Windows launcher logging repairs; complete accepted policy retained byte-exact",
+        "configured_validation": "Current1261-source serial base/net build and attestation passed;62/62 selected Windows native cases,0skips, diagnostic contract and all before/after identities passed",
+        "production_integration": "56 guarded Network dependency inputs applied; current selected runtime validated, remaining coupled consumer/acceptance gates pending",
+        "rust_ownership": "PhaseA8 out-of-line byte API policy executes Rust behind typed CXX bridge; C++ public containers/logging/ABI and headerinline/UTF16/wchar/constexpr policy ownership remain explicit",
         "subsystem_cutover": "incomplete"
       },
       "history": [
@@ -2772,6 +2784,21 @@
         },
         {
           "utc": "2026-11-17T11:02:33.036366+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T11:34:23.960281+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T11:44:05.566852+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T11:48:37.388237+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -2918,7 +2945,7 @@
       "blockers": [],
       "role": "specialist",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "independent-net-build-expert-20261117",
         "worktree": "D:\\RustiumReview",
         "branch": "rust/net-native-build-throughput-20261117",
@@ -2926,7 +2953,7 @@
         "effort": "high"
       },
       "base_revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
-      "delivery_commit": null,
+      "delivery_commit": "0709518c3eed136d338f0a61728d008c442d9e68",
       "integration_commit": null,
       "acceptance_tests": [
         "Trace recommendations to retained actual build edges/configuration and local resources",
@@ -2940,12 +2967,25 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "implementing",
-      "next_action": "Read-only independent expert; director records report in existing integration workspace; no new configured writes",
-      "evidence": [],
+      "state": "validating",
+      "next_action": "Use preflight on necessary builds; any -j2 trial needs memory telemetry and existing max2/link-pool constraints",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-native-build-throughput-sha256-0959c14555f9fab9163409b78d5f3ad9583ee8f31d07fc5d082dfebbc16d1a96.json",
+          "sha256": "0959c14555f9fab9163409b78d5f3ad9583ee8f31d07fc5d082dfebbc16d1a96"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T125456569946Z/record.json",
+          "sha256": "8f7b0072d5e267ae06b6c7bb8ac373d8efb0daf6200584441b3e5efe73781109"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
+          "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        }
+      ],
       "stages": {
-        "implementation": "Read-only investigation requested",
-        "configured_validation": "No build changes authorized by this task yet",
+        "implementation": "Independent Sol/high report delivered and locally retained; changed-object preflight and dirty-edge capture implemented",
+        "configured_validation": "Preflight caught compiler errors before broad rebuild; no measured throughput gain; -j1 retained pending memory qualification",
         "production_integration": "not integrated",
         "rust_ownership": "not applicable to build investigation",
         "subsystem_cutover": "incomplete"
@@ -2970,6 +3010,338 @@
           "utc": "2026-11-17T11:17:12.069807+00:00",
           "action": "implementing",
           "note": "Read-only independent expert; director records report in existing integration workspace; no new configured writes"
+        },
+        {
+          "utc": "2026-11-17T11:31:01.051337+00:00",
+          "action": "submitted",
+          "note": "Read-only independent build expert report retained; source bindings checked; implementation and throughput qualification pending"
+        },
+        {
+          "utc": "2026-11-17T11:31:01.218070+00:00",
+          "action": "validating",
+          "note": "Read-only independent build expert report retained; source bindings checked; implementation and throughput qualification pending"
+        },
+        {
+          "utc": "2026-11-17T12:55:15.378339+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:06:50.683224+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-CURRENT-CONSUMER-CLOSURE",
+      "subsystem": "network-services",
+      "priority": 1,
+      "objective": "Qualify the current four-family Network runtime consumer and ABI rebuild boundary",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "net/BUILD.gn",
+          "net/dns/BUILD.gn"
+        ],
+        "revision": "81291cc0961405a9e9c3f8cf742fa0d9d1756d7f",
+        "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+        "freeze_status": "Source-bound current four-family ABI/header/consumer assessment; no build or runtime acceptance"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-current-consumer-closure"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "subsystem_manager",
+      "assignment": {
+        "active": false,
+        "session": "terra-current-network-consumers-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-current-consumer-closure-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "81291cc0961405a9e9c3f8cf742fa0d9d1756d7f",
+      "delivery_commit": "3e676d6c3cb85aa35aab76f7e78a362e98a99236",
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Reconcile selected36 runtime roots and82 retained provisional consumer targets with current evaluated graph and source ABI changes",
+        "Director captures fresh GN evidence and completes all required consumers before frozen native execution"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "validating",
+      "next_action": "Finish current rebuild, qualify actual header/ABI consumers, then full36-program/232-workload ordinary batch",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-current-consumer-closure-sha256-52a9c4ba23a26ae781aabd1cf55a8b362ad5224c95566e30cf749a3fa926393a.json",
+          "sha256": "52a9c4ba23a26ae781aabd1cf55a8b362ad5224c95566e30cf749a3fa926393a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T125456569946Z/record.json",
+          "sha256": "8f7b0072d5e267ae06b6c7bb8ac373d8efb0daf6200584441b3e5efe73781109"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
+          "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        }
+      ],
+      "stages": {
+        "implementation": "Read-only current Network consumer/ABI assessment requested",
+        "configured_validation": "1261-input current conservative155-target rebuild in progress; prior failed source-bound compiler/preflight runs retained. Complete header/inline/ABI closure still pending",
+        "production_integration": "not accepted",
+        "rust_ownership": "remaining C++ ownership explicit",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T11:40:33.679095+00:00",
+          "action": "enqueued",
+          "note": "Qualify the current four-family Network runtime consumer and ABI rebuild boundary"
+        },
+        {
+          "utc": "2026-11-17T11:40:33.855124+00:00",
+          "action": "assigned",
+          "note": "terra-current-network-consumers-20261117"
+        },
+        {
+          "utc": "2026-11-17T11:40:35.696386+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T11:40:35.893626+00:00",
+          "action": "implementing",
+          "note": "Independent Terra source/graph consumer review; read-only while copied Network dependency test runs; no new workspace"
+        },
+        {
+          "utc": "2026-11-17T12:13:02.678456+00:00",
+          "action": "submitted",
+          "note": "Terra current Network consumer review retained; current graph/consumer build and ABI qualification pending"
+        },
+        {
+          "utc": "2026-11-17T12:13:02.842326+00:00",
+          "action": "validating",
+          "note": "Terra current Network consumer review retained; current graph/consumer build and ABI qualification pending"
+        },
+        {
+          "utc": "2026-11-17T12:55:15.196930+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:06:50.471188+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+      "subsystem": "network-services",
+      "priority": 2,
+      "objective": "Complete the independent original C++ helper closure and verification sources for the connected Network connection baseline",
+      "behavioral_contract": "Reuse existing correctedv4/v5 baseline and preserve original assertions, errors, ownership, callbacks and lifecycle. Reference policy/helper paths must not silently resolve to migrated Rust algorithms; named native primitive providers remain explicit.",
+      "original_cpp_reference": {
+        "paths": [
+          "net/http",
+          "net/socket",
+          "net/spdy"
+        ],
+        "revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
+        "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+        "frozen_source_snapshot": "D:/Rustium/.scratch/net-wave5/network-current-consumers-20261117T114935331577Z/source-snapshot",
+        "freeze_status": "Current full source map independently copied; worker must bind algorithm-original provenance and helper dependencies before proposing repairs"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-connection-reference-independence"
+      ],
+      "shared_interfaces": {
+        "policy": "Worker submits frozen references, bounded source/test repairs and integration proposals only; director owns GN/exports/shared headers/configured writes"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": true,
+        "session": "terra-connection-reference-20261117",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-b9522825-1c2d775265c524e6",
+        "branch": "rust/net-connection-reference-independence-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Complete connection auth/header/HTTP2/SSL original helper call-path inventory and exact original source bindings",
+        "Executable verification sources for repaired independent reference paths and lifecycle behavior, preserving original expected assertions",
+        "Director-gated current configured reference/production tests and16 lifecycle verification; remaining providers and platform debt explicit"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:connection_jobs_rust_reference",
+          "//net:connection_jobs_family_rust_unittests",
+          "//net:connection_jobs_upper_rust_perftests",
+          "//net:connection_jobs_upper_rust_jobs_perftests"
+        ],
+        "qualification": "Current selected consumer build active; worker must not run compilers/tests or mutate live inputs"
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
+      },
+      "state": "implementing",
+      "next_action": "Complete actual-registry auth verification and per-family observations; injected mechanism requires separately reviewed reference implementation; remaining non-auth closure still open",
+      "evidence": [
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T125456569946Z/record.json",
+          "sha256": "8f7b0072d5e267ae06b6c7bb8ac373d8efb0daf6200584441b3e5efe73781109"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
+          "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        }
+      ],
+      "stages": {
+        "implementation": "Terra checkpoints6862a026/e591719d preserved; named reference provider candidates and frozen source proposals prepared; missing verification being completed",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "Existing Rust policy retained; independent reference/provider debt under repair",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T12:13:40.286807+00:00",
+          "action": "enqueued",
+          "note": "Complete the independent original C++ helper closure and verification sources for the connected Network connection baseline"
+        },
+        {
+          "utc": "2026-11-17T12:13:40.457658+00:00",
+          "action": "assigned",
+          "note": "terra-connection-reference-20261117"
+        },
+        {
+          "utc": "2026-11-17T12:27:56.401833+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-b9522825-1c2d775265c524e6"
+        },
+        {
+          "utc": "2026-11-17T12:27:56.565788+00:00",
+          "action": "implementing",
+          "note": "Terra/xhigh clean exact checkout bound; current connection reference/helper closure work only, no configured writes or compilers"
+        },
+        {
+          "utc": "2026-11-17T12:55:15.553264+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:06:50.909294+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        }
+      ],
+      "context_directories": [
+        "docs/rust",
+        "net/spdy",
+        "net/http"
+      ]
+    },
+    {
+      "id": "NET-CURRENT-ABI-QUALIFICATION",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Independently qualify exact shared-header and typed Strings bridge ABI/consumer boundary using retained current graph and before-images",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "net/BUILD.gn",
+          "net/dns/BUILD.gn"
+        ],
+        "revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
+        "source_manifest_sha256": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+        "freeze_status": "Source-bound current four-family ABI/header/consumer assessment; no build or runtime acceptance"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-current-abi-qualification"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "reviewer",
+      "assignment": {
+        "active": true,
+        "session": "terra-current-network-abi-review-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-current-abi-qualification-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Compare exact six shared HTTP headers and typed Strings CXX ABI against hash-bound before-images; identify actual layout/public/virtual/inline/export changes",
+        "Reconcile evaluated target owners/deps/outputs and conservative155 build; derive evidence-supported required consumer boundary or precise missing capture",
+        "No stale graph/source/runtime evidence promoted; native-provider/reference independence and platform/performance debt kept separate"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "implementing",
+      "next_action": "Independent Terra exact shared-header/bridge ABI and current graph review; no compilers or configured writes",
+      "evidence": [],
+      "stages": {
+        "implementation": "Independent review requested",
+        "configured_validation": "Current necessary consumer build in progress; complete qualification pending",
+        "production_integration": "not accepted",
+        "rust_ownership": "Existing bridge/C++ ownership explicit",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T13:02:23.318270+00:00",
+          "action": "enqueued",
+          "note": "Independently qualify exact shared-header and typed Strings bridge ABI/consumer boundary using retained current graph and before-images"
+        },
+        {
+          "utc": "2026-11-17T13:02:23.335403+00:00",
+          "action": "assigned",
+          "note": "terra-current-network-abi-review-20261117"
+        },
+        {
+          "utc": "2026-11-17T13:02:23.764206+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T13:02:23.784570+00:00",
+          "action": "implementing",
+          "note": "Independent Terra exact shared-header/bridge ABI and current graph review; no compilers or configured writes"
         }
       ],
       "context_directories": [

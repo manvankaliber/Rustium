@@ -1,0 +1,10 @@
+ninja explain: output obj/base/test/run_all_unittests/run_all_unittests.obj older than most recent input ../../base/test/run_all_unittests.cc (8166097710685236 vs 8166181471089384)
+ninja explain: obj/base/test/run_all_unittests/run_all_unittests.obj is dirty
+ninja explain: obj/base/test/run_all_unittests.lib is dirty
+ninja explain: obj/base/test/run_all_unittests.lib is dirty
+ninja explain: base_unittests.exe is dirty
+ninja: Entering directory `out/Default'
+[1/4] CXX obj/base/test/run_all_unittests/run_all_unittests.obj
+[2/4] LIB obj/base/test/run_all_unittests.lib
+[3/4] LINK test_cpp_including_rust_dylib_unittests.exe test_cpp_including_rust_dylib_unittests.exe.pdb
+[4/4] LINK base_unittests.exe base_unittests.exe.pdb

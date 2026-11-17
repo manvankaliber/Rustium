@@ -1,0 +1,194 @@
+IMPORTANT DEBUGGING NOTE: batches of tests are run inside their
+own process. For debugging a test inside a debugger, use the
+--gtest_filter=<your_test_name> flag along with
+--single-process-tests.
+Using sharding settings from environment. This is shard 0/1
+Using 1 parallel jobs.
+[ RUN      ] StringUtilTest.SplitString_Basics
+[       OK ] StringUtilTest.SplitString_Basics (0 ms)
+[1/62] StringUtilTest.SplitString_Basics (0 ms)
+[ RUN      ] StringUtilTest.SplitString_WhitespaceAndResultType
+[       OK ] StringUtilTest.SplitString_WhitespaceAndResultType (0 ms)
+[2/62] StringUtilTest.SplitString_WhitespaceAndResultType (0 ms)
+[ RUN      ] StringSplitRustBridgeTest.PartialViewsRetainNullAndBorrowedEmptyIdentity
+[       OK ] StringSplitRustBridgeTest.PartialViewsRetainNullAndBorrowedEmptyIdentity (0 ms)
+[3/62] StringSplitRustBridgeTest.PartialViewsRetainNullAndBorrowedEmptyIdentity (0 ms)
+[ RUN      ] StringSplitRustBridgeTest.NullEmptyAndEmbeddedNulInputs
+[       OK ] StringSplitRustBridgeTest.NullEmptyAndEmbeddedNulInputs (0 ms)
+[4/62] StringSplitRustBridgeTest.NullEmptyAndEmbeddedNulInputs (0 ms)
+[ RUN      ] StringSplitRustBridgeTest.TypedUtf16WireUsesCodeUnitsAndOffsets
+[       OK ] StringSplitRustBridgeTest.TypedUtf16WireUsesCodeUnitsAndOffsets (0 ms)
+[5/62] StringSplitRustBridgeTest.TypedUtf16WireUsesCodeUnitsAndOffsets (0 ms)
+[ RUN      ] StringSplitRustBridgeTest.OnceOverloadsPreserveDirectionAndSeparatorSets
+[       OK ] StringSplitRustBridgeTest.OnceOverloadsPreserveDirectionAndSeparatorSets (0 ms)
+[6/62] StringSplitRustBridgeTest.OnceOverloadsPreserveDirectionAndSeparatorSets (0 ms)
+[ RUN      ] StringSplitRustBridgeTest.DiagnosticsAndCallbacksKeepNativeSegmentOrder
+[       OK ] StringSplitRustBridgeTest.DiagnosticsAndCallbacksKeepNativeSegmentOrder (0 ms)
+[7/62] StringSplitRustBridgeTest.DiagnosticsAndCallbacksKeepNativeSegmentOrder (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.EmptyString
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.EmptyString (0 ms)
+[8/62] SplitStringIntoKeyValuePairsUsingSubstrTest/0.EmptyString (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValueDelimiter (0 ms)
+[9/62] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValuePairDelimiter
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValuePairDelimiter (0 ms)
+[10/62] SplitStringIntoKeyValuePairsUsingSubstrTest/0.MissingKeyValuePairDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.UntrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.UntrimmedWhitespace (0 ms)
+[11/62] SplitStringIntoKeyValuePairsUsingSubstrTest/0.UntrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.OnlySplitAtGivenSeparator
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/0.OnlySplitAtGivenSeparator (0 ms)
+[12/62] SplitStringIntoKeyValuePairsUsingSubstrTest/0.OnlySplitAtGivenSeparator (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.EmptyString
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.EmptyString (0 ms)
+[13/62] SplitStringIntoKeyValuePairsUsingSubstrTest/1.EmptyString (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValueDelimiter (0 ms)
+[14/62] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValuePairDelimiter
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValuePairDelimiter (0 ms)
+[15/62] SplitStringIntoKeyValuePairsUsingSubstrTest/1.MissingKeyValuePairDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.UntrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.UntrimmedWhitespace (0 ms)
+[16/62] SplitStringIntoKeyValuePairsUsingSubstrTest/1.UntrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.OnlySplitAtGivenSeparator
+[       OK ] SplitStringIntoKeyValuePairsUsingSubstrTest/1.OnlySplitAtGivenSeparator (0 ms)
+[17/62] SplitStringIntoKeyValuePairsUsingSubstrTest/1.OnlySplitAtGivenSeparator (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.EmptyString
+[       OK ] SplitStringIntoKeyValuePairsTest/0.EmptyString (0 ms)
+[18/62] SplitStringIntoKeyValuePairsTest/0.EmptyString (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.MissingKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/0.MissingKeyValueDelimiter (0 ms)
+[19/62] SplitStringIntoKeyValuePairsTest/0.MissingKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.EmptyKeyWithKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/0.EmptyKeyWithKeyValueDelimiter (0 ms)
+[20/62] SplitStringIntoKeyValuePairsTest/0.EmptyKeyWithKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.TrailingAndLeadingPairDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/0.TrailingAndLeadingPairDelimiter (0 ms)
+[21/62] SplitStringIntoKeyValuePairsTest/0.TrailingAndLeadingPairDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.EmptyPair
+[       OK ] SplitStringIntoKeyValuePairsTest/0.EmptyPair (0 ms)
+[22/62] SplitStringIntoKeyValuePairsTest/0.EmptyPair (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.EmptyValue
+[       OK ] SplitStringIntoKeyValuePairsTest/0.EmptyValue (0 ms)
+[23/62] SplitStringIntoKeyValuePairsTest/0.EmptyValue (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.UntrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsTest/0.UntrimmedWhitespace (0 ms)
+[24/62] SplitStringIntoKeyValuePairsTest/0.UntrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.TrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsTest/0.TrimmedWhitespace (0 ms)
+[25/62] SplitStringIntoKeyValuePairsTest/0.TrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.MultipleKeyValueDelimiters
+[       OK ] SplitStringIntoKeyValuePairsTest/0.MultipleKeyValueDelimiters (0 ms)
+[26/62] SplitStringIntoKeyValuePairsTest/0.MultipleKeyValueDelimiters (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.OnlySplitAtGivenSeparator
+[       OK ] SplitStringIntoKeyValuePairsTest/0.OnlySplitAtGivenSeparator (0 ms)
+[27/62] SplitStringIntoKeyValuePairsTest/0.OnlySplitAtGivenSeparator (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/0.DelimiterInValue
+[       OK ] SplitStringIntoKeyValuePairsTest/0.DelimiterInValue (0 ms)
+[28/62] SplitStringIntoKeyValuePairsTest/0.DelimiterInValue (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.EmptyString
+[       OK ] SplitStringIntoKeyValuePairsTest/1.EmptyString (0 ms)
+[29/62] SplitStringIntoKeyValuePairsTest/1.EmptyString (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.MissingKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/1.MissingKeyValueDelimiter (0 ms)
+[30/62] SplitStringIntoKeyValuePairsTest/1.MissingKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.EmptyKeyWithKeyValueDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/1.EmptyKeyWithKeyValueDelimiter (0 ms)
+[31/62] SplitStringIntoKeyValuePairsTest/1.EmptyKeyWithKeyValueDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.TrailingAndLeadingPairDelimiter
+[       OK ] SplitStringIntoKeyValuePairsTest/1.TrailingAndLeadingPairDelimiter (0 ms)
+[32/62] SplitStringIntoKeyValuePairsTest/1.TrailingAndLeadingPairDelimiter (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.EmptyPair
+[       OK ] SplitStringIntoKeyValuePairsTest/1.EmptyPair (0 ms)
+[33/62] SplitStringIntoKeyValuePairsTest/1.EmptyPair (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.EmptyValue
+[       OK ] SplitStringIntoKeyValuePairsTest/1.EmptyValue (0 ms)
+[34/62] SplitStringIntoKeyValuePairsTest/1.EmptyValue (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.UntrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsTest/1.UntrimmedWhitespace (0 ms)
+[35/62] SplitStringIntoKeyValuePairsTest/1.UntrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.TrimmedWhitespace
+[       OK ] SplitStringIntoKeyValuePairsTest/1.TrimmedWhitespace (0 ms)
+[36/62] SplitStringIntoKeyValuePairsTest/1.TrimmedWhitespace (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.MultipleKeyValueDelimiters
+[       OK ] SplitStringIntoKeyValuePairsTest/1.MultipleKeyValueDelimiters (0 ms)
+[37/62] SplitStringIntoKeyValuePairsTest/1.MultipleKeyValueDelimiters (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.OnlySplitAtGivenSeparator
+[       OK ] SplitStringIntoKeyValuePairsTest/1.OnlySplitAtGivenSeparator (0 ms)
+[38/62] SplitStringIntoKeyValuePairsTest/1.OnlySplitAtGivenSeparator (0 ms)
+[ RUN      ] SplitStringIntoKeyValuePairsTest/1.DelimiterInValue
+[       OK ] SplitStringIntoKeyValuePairsTest/1.DelimiterInValue (0 ms)
+[39/62] SplitStringIntoKeyValuePairsTest/1.DelimiterInValue (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.EmptyString
+[       OK ] SplitStringUsingSubstrTest.EmptyString (0 ms)
+[40/62] SplitStringUsingSubstrTest.EmptyString (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.EmptyDelimiter
+[       OK ] SplitStringUsingSubstrTest.EmptyDelimiter (0 ms)
+[41/62] SplitStringUsingSubstrTest.EmptyDelimiter (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.StringWithNoDelimiter
+[       OK ] SplitStringUsingSubstrTest.StringWithNoDelimiter (0 ms)
+[42/62] SplitStringUsingSubstrTest.StringWithNoDelimiter (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.LeadingDelimitersSkipped
+[       OK ] SplitStringUsingSubstrTest.LeadingDelimitersSkipped (0 ms)
+[43/62] SplitStringUsingSubstrTest.LeadingDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.ConsecutiveDelimitersSkipped
+[       OK ] SplitStringUsingSubstrTest.ConsecutiveDelimitersSkipped (0 ms)
+[44/62] SplitStringUsingSubstrTest.ConsecutiveDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringUsingSubstrTest.TrailingDelimitersSkipped
+[       OK ] SplitStringUsingSubstrTest.TrailingDelimitersSkipped (0 ms)
+[45/62] SplitStringUsingSubstrTest.TrailingDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.StringWithNoDelimiter
+[       OK ] SplitStringPieceUsingSubstrTest.StringWithNoDelimiter (0 ms)
+[46/62] SplitStringPieceUsingSubstrTest.StringWithNoDelimiter (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.LeadingDelimitersSkipped
+[       OK ] SplitStringPieceUsingSubstrTest.LeadingDelimitersSkipped (0 ms)
+[47/62] SplitStringPieceUsingSubstrTest.LeadingDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.ConsecutiveDelimitersSkipped
+[       OK ] SplitStringPieceUsingSubstrTest.ConsecutiveDelimitersSkipped (0 ms)
+[48/62] SplitStringPieceUsingSubstrTest.ConsecutiveDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.TrailingDelimitersSkipped
+[       OK ] SplitStringPieceUsingSubstrTest.TrailingDelimitersSkipped (0 ms)
+[49/62] SplitStringPieceUsingSubstrTest.TrailingDelimitersSkipped (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.KeepWhitespace
+[       OK ] SplitStringPieceUsingSubstrTest.KeepWhitespace (0 ms)
+[50/62] SplitStringPieceUsingSubstrTest.KeepWhitespace (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.TrimWhitespace
+[       OK ] SplitStringPieceUsingSubstrTest.TrimWhitespace (0 ms)
+[51/62] SplitStringPieceUsingSubstrTest.TrimWhitespace (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.SplitWantAll
+[       OK ] SplitStringPieceUsingSubstrTest.SplitWantAll (0 ms)
+[52/62] SplitStringPieceUsingSubstrTest.SplitWantAll (0 ms)
+[ RUN      ] SplitStringPieceUsingSubstrTest.SplitWantNonEmpty
+[       OK ] SplitStringPieceUsingSubstrTest.SplitWantNonEmpty (0 ms)
+[53/62] SplitStringPieceUsingSubstrTest.SplitWantNonEmpty (0 ms)
+[ RUN      ] StringSplitTest.SplitStringOnce
+[       OK ] StringSplitTest.SplitStringOnce (0 ms)
+[54/62] StringSplitTest.SplitStringOnce (0 ms)
+[ RUN      ] StringSplitTest.RSplitStringOnce
+[       OK ] StringSplitTest.RSplitStringOnce (0 ms)
+[55/62] StringSplitTest.RSplitStringOnce (0 ms)
+[ RUN      ] StringSplitTest.StringSplitKeepWhitespace
+[       OK ] StringSplitTest.StringSplitKeepWhitespace (0 ms)
+[56/62] StringSplitTest.StringSplitKeepWhitespace (0 ms)
+[ RUN      ] StringSplitTest.SplitStringAlongWhitespace
+[       OK ] StringSplitTest.SplitStringAlongWhitespace (0 ms)
+[57/62] StringSplitTest.SplitStringAlongWhitespace (0 ms)
+[ RUN      ] StringSplitTest.NullSeparatorWantNonEmpty
+[       OK ] StringSplitTest.NullSeparatorWantNonEmpty (0 ms)
+[58/62] StringSplitTest.NullSeparatorWantNonEmpty (0 ms)
+[ RUN      ] StringSplitTest.NullSeparatorWantAll
+[       OK ] StringSplitTest.NullSeparatorWantAll (0 ms)
+[59/62] StringSplitTest.NullSeparatorWantAll (0 ms)
+[ RUN      ] ConstexprSplitStringPieceTest.SplitStringPieces
+[       OK ] ConstexprSplitStringPieceTest.SplitStringPieces (0 ms)
+[60/62] ConstexprSplitStringPieceTest.SplitStringPieces (0 ms)
+[ RUN      ] ConstexprSplitStringPieceTest.SplitStringPiecesSkipEmpty
+[       OK ] ConstexprSplitStringPieceTest.SplitStringPiecesSkipEmpty (0 ms)
+[61/62] ConstexprSplitStringPieceTest.SplitStringPiecesSkipEmpty (0 ms)
+[ RUN      ] ConstexprSplitStringPieceTest.SplitStringUsingSubstr
+[       OK ] ConstexprSplitStringPieceTest.SplitStringUsingSubstr (0 ms)
+[62/62] ConstexprSplitStringPieceTest.SplitStringUsingSubstr (0 ms)
+SUCCESS: all tests passed.
+Tests took 3 seconds.

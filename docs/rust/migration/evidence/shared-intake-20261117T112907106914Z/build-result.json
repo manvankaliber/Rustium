@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "source_count": 1261,
+  "input_identity_before_after_matched": true,
+  "tool_sha256": {
+    "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe": "2c680fec3bd2c2e52f57184e9d389b75f3054c25cb56180f73fdf0cffc87f80f",
+    "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe": "48f6f1b2653e37a846db3faddd1c713c697b74c79318510e573d8ef53db751ac",
+    "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\clang-cl.exe": "7a9521c7375ee78393e673767b176eecfe545de1684e5fdeb4849b1049a903b8",
+    "D:\\RustiumBuild\\src\\third_party\\llvm-build\\Release+Asserts\\bin\\lld-link.exe": "3259307a46c61381c696aba1486085a8efc275c89ab3625958ad0d9408632287",
+    "D:\\RustiumBuild\\src\\third_party\\rust-toolchain\\bin\\rustc.exe": "bc061651ccbf73cae42d2446e6600ad8214766af2e664cc3f9f730c8fcc1c596"
+  },
+  "commands": [
+    {
+      "phase": "gn-gen",
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "gen",
+        "out/Default"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 22.540518599998904
+    },
+    {
+      "phase": "gn-check-base",
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "check",
+        "out/Default",
+        "//base:base_unittests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 13.686691299983067
+    },
+    {
+      "phase": "gn-check-net",
+      "command": [
+        "D:\\RustiumBuild\\src\\buildtools\\win\\gn.exe",
+        "check",
+        "out/Default",
+        "//net:*"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 15.05780959999538
+    },
+    {
+      "phase": "consumer-build",
+      "command": [
+        "D:\\RustiumBuild\\src\\third_party\\ninja\\ninja.exe",
+        "-C",
+        "out/Default",
+        "-j1",
+        "base_unittests",
+        "net_unittests"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 7.883272799983388
+    }
+  ],
+  "native_execution": false,
+  "scope": "Configured GN and serial base/net consumers for55 applied bindings; actual production-path native tests and remaining consumers/platform/performance still pending"
+}
