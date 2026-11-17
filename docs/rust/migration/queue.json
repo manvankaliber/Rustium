@@ -1,0 +1,679 @@
+{
+  "schema_version": 1,
+  "revision": 0,
+  "updated_utc": "2026-11-17",
+  "mode": "prepared; campaign not started",
+  "roles": {
+    "director": {
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh"
+    },
+    "subsystem_manager": {
+      "model": "gpt-6.1-terra",
+      "effort": "xhigh"
+    },
+    "coding_worker": {
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    "specialist": {
+      "model": "gpt-6.1-sol",
+      "effort": "high"
+    },
+    "reviewer": {
+      "model": "gpt-6.1-terra",
+      "effort": "xhigh"
+    }
+  },
+  "limits": {
+    "luna_workers": 8,
+    "editing_workspaces": 8,
+    "auxiliary_children": 2,
+    "requested_children_per_session": 10,
+    "observed_total_native_slots": 11,
+    "substantial_jobs": 1,
+    "compiler_jobs": 2,
+    "pending_validation": 8,
+    "minimum_free_disk_bytes": 8589934592
+  },
+  "network_acceptance_authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake",
+  "tasks": [
+    {
+      "id": "NET-RECOVER",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Reconcile failed frozen ordinary runtime; deliver exact repairs before new network timing.",
+      "behavioral_contract": "Preserve frozen identity 1221, later tooling identity 1222, fixed publication membership and all four drafts. Reconcile per-program outcomes without restarting campaigns.",
+      "original_cpp_reference": {
+        "paths": [
+          "docs/rust/net-migration-execution.json",
+          "docs/rust/net-subsystem-batches.json",
+          "docs/rust/net-followon-ownership.json"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-recover"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/net-recover/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "specialist",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Inspect ordinary-execution per-target results, hashes and live sessions; identify owner and preserve outcomes"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Preserve frozen identity 1221, later tooling identity 1222, fixed publication membership and all four drafts. Reconcile per-program outcomes without restarting campaigns.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Inspect failed conductor and per-program results; return source-bound repair/validation requests. No campaigns.",
+      "evidence": [
+        {
+          "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-conductor-result.json",
+          "observed": "exit_code=1; finished_utc=2026-11-14T01:28:29.557774+00:00; not accepted"
+        }
+      ],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "docs/rust"
+      ]
+    },
+    {
+      "id": "FOUNDATION-STRINGS",
+      "subsystem": "foundation",
+      "priority": 20,
+      "objective": "Implement string splitting family as safe Rust candidate with compatibility fixtures.",
+      "behavioral_contract": "8/16-bit text; character/substrings separators; KEEP/TRIM whitespace; empty/nonempty output; views/owned results; key-value splitting; invalid-input behavior and borrowed lifetimes.",
+      "original_cpp_reference": {
+        "paths": [
+          "base/strings/string_split.cc",
+          "base/strings/string_split.h",
+          "base/strings/string_split_unittest.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/foundation-strings"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/foundation-strings/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Original tests plus Unicode whitespace, NUL, adjacent/empty separators, aliases and lifetime boundaries; deterministic differential fixtures"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//base:base_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "8/16-bit text; character/substrings separators; KEEP/TRIM whitespace; empty/nonempty output; views/owned results; key-value splitting; invalid-input behavior and borrowed lifetimes.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "FOUNDATION-VERSION",
+      "subsystem": "foundation",
+      "priority": 21,
+      "objective": "Implement version parsing, comparison and wildcard matching together.",
+      "behavioral_contract": "Unsigned component bounds, leading zeros, invalid states, wildcard validity, unequal lengths, copy/move boundary and exact serialization.",
+      "original_cpp_reference": {
+        "paths": [
+          "base/version.cc",
+          "base/version.h",
+          "base/version_unittest.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/foundation-version"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/foundation-version/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "VersionTest cases; overflow, invalid wildcard, malformed versions and length/comparison edges"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//base:base_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Unsigned component bounds, leading zeros, invalid states, wildcard validity, unequal lengths, copy/move boundary and exact serialization.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "base"
+      ]
+    },
+    {
+      "id": "STORAGE-USAGE",
+      "subsystem": "network-services",
+      "priority": 22,
+      "objective": "Implement file-system usage codec and dirty/validity/update policy together.",
+      "behavioral_contract": "Exact .usage format, signed usage and dirty count, truncation, incognito isolation, sequence affinity and filesystem errors. Native file/timer services remain documented adapters.",
+      "original_cpp_reference": {
+        "paths": [
+          "storage/browser/file_system/file_system_usage_cache.cc",
+          "storage/browser/file_system/file_system_usage_cache.h",
+          "storage/browser/file_system/file_system_usage_cache_unittest.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/storage-usage"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/storage-usage/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Original usage-cache cases, corrupted records, reopen/flush errors, incognito behavior and arithmetic limits"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//storage:storage_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Exact .usage format, signed usage and dirty count, truncation, incognito isolation, sequence affinity and filesystem errors. Native file/timer services remain documented adapters.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "storage/browser/file_system"
+      ]
+    },
+    {
+      "id": "BLINK-CSS-TOKENS",
+      "subsystem": "blink",
+      "priority": 23,
+      "objective": "Implement CSS tokenizer/token-value family preserving Blink semantics.",
+      "behavioral_contract": "8/16-bit strings, escapes, identifiers, number/dimension boundaries, comments, URLs, bad strings, offsets, whitespace and serialization. Retain GC/interning boundary explicitly.",
+      "original_cpp_reference": {
+        "paths": [
+          "third_party/blink/renderer/core/css/parser/css_tokenizer.cc",
+          "third_party/blink/renderer/core/css/parser/css_parser_token.cc",
+          "third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/blink-css-tokens"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/blink-css-tokens/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "CSSTokenizerTest cases and frozen streams for escapes, EOF, surrogates/NUL, numeric exponents; original independent helper closure"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//third_party/blink/renderer/core:unit_tests"
+        ],
+        "qualification": "Source set exists; identify owning test executable in evaluated configured graph before scheduling. No build claimed."
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "8/16-bit strings, escapes, identifiers, number/dimension boundaries, comments, URLs, bad strings, offsets, whitespace and serialization. Retain GC/interning boundary explicitly.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "third_party/blink/renderer/core/css/parser"
+      ]
+    },
+    {
+      "id": "UI-GEOMETRY",
+      "subsystem": "ui-platform",
+      "priority": 24,
+      "objective": "Implement point, size and rectangle conversion family.",
+      "behavioral_contract": "Floor/ceil/round/enclosing/enclosed conversions, float extrema, negative coordinates, empty rectangles, integer clamping and scaling; preserve public ABI through proposal.",
+      "original_cpp_reference": {
+        "paths": [
+          "ui/gfx/geometry/point_conversions.cc",
+          "ui/gfx/geometry/size_conversions.cc",
+          "ui/gfx/geometry/rect_conversions.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/ui-geometry"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/ui-geometry/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Existing conversion suites, supported NaN/infinity behavior, near-integral and negative boundaries, integer limits"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//ui/gfx:gfx_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Floor/ceil/round/enclosing/enclosed conversions, float extrema, negative coordinates, empty rectangles, integer clamping and scaling; preserve public ABI through proposal.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "ui/gfx/geometry"
+      ]
+    },
+    {
+      "id": "MEDIA-RANGES",
+      "subsystem": "ui-platform",
+      "priority": 25,
+      "objective": "Implement buffered range insertion/coalescing/intersection and time conversion.",
+      "behavioral_contract": "Ordered half-open ranges, adjacent coalescing, empty insertions, endpoint comparison, int64/time units and original invalid-range debug contract.",
+      "original_cpp_reference": {
+        "paths": [
+          "media/base/ranges.h",
+          "media/base/ranges.cc",
+          "media/base/ranges_unittest.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/media-ranges"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/media-ranges/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Original Ranges tests; nested/adjacent/disjoint/reversed inputs, intersections, endpoint limits and deterministic operation sequences"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//media:media_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Ordered half-open ranges, adjacent coalescing, empty insertions, endpoint comparison, int64/time units and original invalid-range debug contract.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "media/base"
+      ]
+    },
+    {
+      "id": "V8-WASM-LEB",
+      "subsystem": "v8-wasm",
+      "priority": 26,
+      "objective": "Implement signed/unsigned LEB encode/decode family from pinned local V8.",
+      "behavioral_contract": "Accepted overlong forms, signed bounds, truncation, maximum byte counts and error positions for all widths actually exposed; no invented acceptance tightening.",
+      "original_cpp_reference": {
+        "paths": [
+          "D:/RustiumBuild/src/v8/src/wasm/leb-helper.h",
+          "D:/RustiumBuild/src/v8/src/wasm/decoder.h"
+        ],
+        "revision": "a1175dcfe49146bd7165715a9919eb4e94be0e77",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "repository": "D:/RustiumBuild/src/v8",
+        "note": "Editing v8/ empty. Configured V8 is separate Git repo with dirty BUILD.gn and gni/v8.gni. Read-only source; inspect and pin helper hashes."
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/v8-wasm-leb"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/v8-wasm-leb/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Locate pinned LEB/decoder cases; copy original helper closure with hashes; differential byte-count/sign boundaries; V8 owner review before integration"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//v8:unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Accepted overlong forms, signed bounds, truncation, maximum byte counts and error positions for all widths actually exposed; no invented acceptance tightening.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": []
+    },
+    {
+      "id": "BLINK-TEXT-BOUNDARIES",
+      "subsystem": "blink",
+      "priority": 27,
+      "objective": "Implement connected local text-boundary policy; keep ICU a documented provider.",
+      "behavioral_contract": "Character/word/sentence/line contracts, UTF-16 offsets, locale behavior, invalid surrogates, thread-local iterator ownership. Port actual local behavior; an ICU forwarder is not a completed rewrite.",
+      "original_cpp_reference": {
+        "paths": [
+          "third_party/blink/renderer/platform/text/text_break_iterator.cc",
+          "third_party/blink/renderer/platform/text/text_break_iterator.h"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/blink-text-boundaries"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/blink-text-boundaries/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Locate text/character-break cases; freeze provider/helper closure; UTF-16 boundary fixtures; identify ICU-owned policy and retirement dependencies"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//third_party/blink/renderer/platform:blink_platform_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Character/word/sentence/line contracts, UTF-16 offsets, locale behavior, invalid surrogates, thread-local iterator ownership. Port actual local behavior; an ICU forwarder is not a completed rewrite.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "third_party/blink/renderer/platform/text"
+      ]
+    },
+    {
+      "id": "NET-HTTP2-BASELINE",
+      "subsystem": "network-services",
+      "priority": 10,
+      "objective": "Finish original HTTP2 provider closure for existing connection timing.",
+      "behavioral_contract": "Resolve recorded F2 for https_tunnel/http2_pending without original C++ calling migrated policy. Preserve fixed cases, helper closure and all regressions.",
+      "original_cpp_reference": {
+        "paths": [
+          "docs/rust/net-migration-execution.json",
+          "net/spdy/spdy_session.cc",
+          "net/http/http_proxy_connect_job.cc"
+        ],
+        "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-http2-baseline"
+      ],
+      "shared_interfaces": {
+        "policy": "Proposal only: director owns production integration, GN, exports and ABI",
+        "proposals": "docs/rust/migration/drafts/net-http2-baseline/integration-proposal"
+      },
+      "dependencies": [
+        "NET-RECOVER"
+      ],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": null,
+        "worktree": null,
+        "branch": null
+      },
+      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Independent provider audit and ordinary probes; inspect staged baseline repair before new work"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net_unittests"
+        ],
+        "qualification": "Verify evaluated targets/filters in configured GN before scheduling; no build claimed"
+      },
+      "performance": {
+        "policy": "Preserve complete existing benchmark gate; freeze paired original helper closure; archive every case",
+        "required_cases": "Resolve recorded F2 for https_tunnel/http2_pending without original C++ calling migrated policy. Preserve fixed cases, helper closure and all regressions.",
+        "status": "unmeasured"
+      },
+      "state": "ready",
+      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
+      "evidence": [],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not established",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [],
+      "context_directories": [
+        "docs/rust",
+        "net/spdy",
+        "net/http"
+      ]
+    }
+  ]
+}

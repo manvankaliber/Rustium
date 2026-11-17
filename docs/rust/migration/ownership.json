@@ -1,0 +1,525 @@
+{
+  "schema_version": 1,
+  "routing": "Longest path prefix wins. Every unlisted root file/component/new dependency defaults to foundation until explicitly routed. Shared surfaces require director integration.",
+  "default_owner": "foundation",
+  "managers": [
+    {
+      "id": "foundation",
+      "role": "subsystem_manager",
+      "scope": "Foundations, shared integration, toolchains, IPC/Mojo, process model, crypto, security and sandbox; cross-cutting ABI and browser viability"
+    },
+    {
+      "id": "network-services",
+      "role": "subsystem_manager",
+      "scope": "Existing networking migration, storage/cache/databases and browser services"
+    },
+    {
+      "id": "blink",
+      "role": "subsystem_manager",
+      "scope": "Blink, DOM, CSS, style/layout, renderer and web-platform behavior"
+    },
+    {
+      "id": "v8-wasm",
+      "role": "subsystem_manager",
+      "scope": "V8, JavaScript runtime/GC/compiler, WebAssembly, gin and embedding boundaries"
+    },
+    {
+      "id": "ui-platform",
+      "role": "subsystem_manager",
+      "scope": "Browser UI, graphics/compositor/GPU, media/codecs, platforms and embedders"
+    }
+  ],
+  "inventory": [
+    {
+      "path": "base",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "build",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "buildtools",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "build_overrides",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "tools",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "testing",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "infra",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "docs",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "url",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "crypto",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "sandbox",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "ipc",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "mojo",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "content",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "agents",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "benchmarks-site",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "internal",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "fake",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "clusterfuzz-data",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "codelabs",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "styleguide",
+      "owner": "foundation",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "net",
+      "owner": "network-services",
+      "stage": "Existing source-bound network ledgers apply",
+      "cutover": "incomplete/unverified",
+      "evidence": "docs/rust/net-migration-execution.json"
+    },
+    {
+      "path": "storage",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "sql",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "services",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "components",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "google_apis",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "rlz",
+      "owner": "network-services",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/blink",
+      "owner": "blink",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "cc",
+      "owner": "blink",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "webkit",
+      "owner": "blink",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "content/renderer",
+      "owner": "blink",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "v8",
+      "owner": "v8-wasm",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "gin",
+      "owner": "v8-wasm",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "chrome",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "ui",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "gpu",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "media",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "device",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "skia",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "pdf",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "printing",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "remoting",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "apps",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "ash",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "android_webview",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "chromecast",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "chromeos",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "dbus",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "extensions",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "headless",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "ios",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "fuchsia_web",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "content/browser",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/angle",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/dawn",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/skia",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/ffmpeg",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/libvpx",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/libaom",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    },
+    {
+      "path": "third_party/webrtc",
+      "owner": "ui-platform",
+      "stage": "Not assessed; Rust files do not establish completion",
+      "cutover": "incomplete/unverified",
+      "evidence": null
+    }
+  ],
+  "shared_interface_owner": "director with foundation/integration manager",
+  "shared_surfaces": [
+    "**/BUILD.gn",
+    "**/*.gni",
+    "build/",
+    "buildtools/",
+    "DEPS",
+    ".gn",
+    "**/*.mojom",
+    "ipc/",
+    "mojo/",
+    "base/task/",
+    "base/threading/",
+    "base/memory/",
+    "net/http/http_util.cc",
+    "Shared Rust exports, ABI types, allocator/ownership/thread contracts and generated bindings",
+    "rust-performance.html",
+    "benchmarks-site/",
+    "docs/rust/benchmarks/",
+    "docs/rust/migration/queue.json",
+    "D:/RustiumBuild/src: all configured writes"
+  ],
+  "boundary_accountability": {
+    "security_and_sandbox": "foundation; ordinary correctness mandatory, security-focused campaigns off",
+    "browser_renderer_process": "foundation boundary; blink + ui-platform consumers",
+    "gpu_process": "foundation boundary; ui-platform behavior",
+    "network_service_process": "foundation boundary; network-services behavior",
+    "v8_heap_and_embedding": "v8-wasm accountable; blink + ui-platform consumers",
+    "third_party_vendors": "Parent domain owners inventory nested repositories; no exclusions from eventual scope"
+  },
+  "network_families": [
+    {
+      "family": "http2",
+      "owner": "network-services",
+      "evidence": "docs/rust/net-subsystem-batches.json",
+      "cutover": "Incomplete; C++/provider ownership and performance debt remain"
+    },
+    {
+      "family": "dns-resolution",
+      "owner": "network-services",
+      "evidence": "docs/rust/net-subsystem-batches.json",
+      "cutover": "Incomplete; C++/provider ownership and performance debt remain"
+    },
+    {
+      "family": "connection-jobs",
+      "owner": "network-services",
+      "evidence": "docs/rust/net-subsystem-batches.json",
+      "cutover": "Incomplete; C++/provider ownership and performance debt remain"
+    },
+    {
+      "family": "cookie-storage",
+      "owner": "network-services",
+      "evidence": "docs/rust/net-subsystem-batches.json",
+      "cutover": "Incomplete; C++/provider ownership and performance debt remain"
+    }
+  ],
+  "platform_policy": "Inventory supported product platforms per task. Host Windows only establishes observed execution environment. Existing platform deletions are user work, not proof requirements retired."
+}

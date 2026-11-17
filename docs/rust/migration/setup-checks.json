@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-17",
+  "scope": "Workflow setup only; no Chromium build, migration campaign, benchmark or production acceptance",
+  "checks": [
+    {
+      "command": "python tools/rustium_coord_unittest.py -v",
+      "outcome": "passed",
+      "tests": 12,
+      "coverage": [
+        "startup schema",
+        "global eight-slot budget",
+        "director lease and explicit recovery",
+        "ownership/dependency rejection",
+        "actual sparse mini-repository worktree isolation",
+        "same queue across linked worktrees",
+        "submitted commit/scope guards",
+        "validation backlog bound",
+        "OS lock contention between processes",
+        "failed job and interrupted marker recovery",
+        "compiler/workspace limits",
+        "atomic rollback and dependency cycle",
+        "subdirectory alias rejection"
+      ]
+    },
+    {
+      "command": "python tools/rustium_coord.py check",
+      "outcome": "passed",
+      "tasks": 10,
+      "ready_coding_workers": 8,
+      "active_workers": 0
+    },
+    {
+      "command": "codex app-server --print-startup-config",
+      "outcome": "passed; exit 0, no stderr"
+    },
+    {
+      "command": "TOML parsing and installed bundled model catalog inspection",
+      "outcome": "passed; all requested identifiers/efforts present"
+    },
+    {
+      "command": "Reference existence, task targets inspection, git check-ignore and git diff --check",
+      "outcome": "passed; build target evaluation still required at acceptance"
+    },
+    {
+      "command": "Compare captured before/after git status excluding setup-owned AGENTS.md and .gitignore",
+      "outcome": "unrelated tracked statuses unchanged in editing and configured trees; content not independently rehashed for every unrelated file"
+    }
+  ],
+  "inputs_sha256": {
+    "AGENTS.md": "1a0f458065d13c7eaccf912b14dec87b1baf16a093e8b6aa886fa5c79c2d4d1b",
+    ".gitignore": "2404484e3b8776fc40a2fea5124cb507184933d715ad937fcc5fabf9d50db319",
+    ".codex/config.toml": "2016c784e83c6001cc69747c007d5cdc0718cd5023530ddfedd2afc690b2f789",
+    ".codex/agents/coding-worker.toml": "3e2e4f7a4c53a2fa8dceb6c74c65686169257db1de5123d206700a9d5f2a3a3c",
+    ".codex/agents/reviewer.toml": "d318e9e1b343db17327d57f96bcab5396086963f826980bc613c5af0544dc3f0",
+    ".codex/agents/specialist.toml": "91f7bc42581529ed9e09c38335743b86b26697b34458b862a22353fedc21e0d6",
+    ".codex/agents/subsystem-manager.toml": "0f44318d6ebe090b08004086862fba9539df01d95e397fb45010db0aaec6b064",
+    "docs/rust/migration/benchmark-policy.md": "69f97ba56e8343d501241b84a92c312adf3238cb7a20038fc0346a6c0e581912",
+    "docs/rust/migration/DECISIONS.md": "66ef52eff92d134a9f2d08830895901f19cc6b08ddd37b92a909723e7127eb29",
+    "docs/rust/migration/HANDOFF.md": "43270a8e89a04b9d58309ff67dc8e8e8899812d8b37593acefc2ecf53177f9da",
+    "docs/rust/migration/OPERATING.md": "07e26edca124f1851a7d862a2558bf07145bd8c0475f299a32322c55d56f5703",
+    "docs/rust/migration/prior-network-instructions.md": "3fd1668cf220f9bf0c327aea9726fe07d68dcea12eeaf3a53582960b64eb1099",
+    "docs/rust/migration/queue.json": "bc587ad09ca4449fa8fb536b9110064cf99c8617afd7de9e5af84b8f6f1fe85e",
+    "docs/rust/migration/ownership.json": "73a1c8493ed5913a4d43539b4d7af796c7407d6b930dee95ec474cfe0581f240",
+    "tools/rustium_coord.py": "c39945ec175a953c8892fbd17c61528ba268717f8bef556117eac390ef2c2981",
+    "tools/rustium_coord_unittest.py": "2f216e57e6d6adf46f81e72d1592cb72b90bd0cef057f06a7e3f4298db254fac"
+  },
+  "limitations": [
+    "No workers or managers launched; configuration availability is not execution attestation",
+    "No production worktrees allocated; isolation/recovery tested in disposable local miniature Git repositories",
+    "Global budget is cooperative across participating sessions, not a host sandbox",
+    "Fresh chat must inspect actual host model/limits and reconcile other running sessions",
+    "Networking runtime conductor has an existing exit-code-1 outcome needing recovery",
+    "No existing copies or historical evidence deleted"
+  ],
+  "unit_test_output": "test_atomic_failure_does_not_change_queue (__main__.CoordinationTest.test_atomic_failure_does_not_change_queue) ... ok\ntest_backlog_bound_and_repair_priority (__main__.CoordinationTest.test_backlog_bound_and_repair_priority) ... ok\ntest_bind_rejects_subdirectory_alias (__main__.CoordinationTest.test_bind_rejects_subdirectory_alias) ... Preparing worktree (new branch 'rust/t0-2cfb52e5')\nAlready on 'rust/t0-2cfb52e5'\nok\ntest_build_ceiling_and_workspace_ceiling (__main__.CoordinationTest.test_build_ceiling_and_workspace_ceiling) ... Preparing worktree (new branch 'rust/t0-64a50bfb')\nAlready on 'rust/t0-64a50bfb'\nok\ntest_job_failure_and_interrupted_marker (__main__.CoordinationTest.test_job_failure_and_interrupted_marker) ... ok\ntest_new_task_and_cycle_rejection (__main__.CoordinationTest.test_new_task_and_cycle_rejection) ... ok\ntest_overlap_and_dependencies (__main__.CoordinationTest.test_overlap_and_dependencies) ... ok\ntest_real_cross_process_lock (__main__.CoordinationTest.test_real_cross_process_lock) ... ok\ntest_single_director_and_explicit_recovery (__main__.CoordinationTest.test_single_director_and_explicit_recovery) ... ok\ntest_sparse_isolation_and_shared_queue (__main__.CoordinationTest.test_sparse_isolation_and_shared_queue) ... Preparing worktree (new branch 'rust/t0-df65ecaf')\nAlready on 'rust/t0-df65ecaf'\nPreparing worktree (new branch 'rust/t1-afb1b619')\nAlready on 'rust/t1-afb1b619'\nok\ntest_startup_and_eight_global_slots (__main__.CoordinationTest.test_startup_and_eight_global_slots) ... ok\ntest_submission_guards_and_slot_release (__main__.CoordinationTest.test_submission_guards_and_slot_release) ... Preparing worktree (new branch 'rust/t0-a2f5f17b')\nAlready on 'rust/t0-a2f5f17b'\nok\n\n----------------------------------------------------------------------\nRan 12 tests in 6.908s\n\nOK\n"
+}

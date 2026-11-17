@@ -1,0 +1,78 @@
+# Local operation
+
+The user authorized this setup on 2026-11-17; the migration campaign starts only on **go**, **continue** or **resume**. All execution stays local. Durable state is Git-readable Markdown/JSON, not a task service. Model inference uses the existing ChatGPT subscription; this does not mean models run offline. No API key, paid API, remote runner or automated push is part of this workflow.
+
+## Records and precedence
+
+- `queue.json`: canonical repository-wide assignments, dependencies, state, evidence pointers and slot reservations. The director alone writes it through `tools/rustium_coord.py`. Workers return structured results, never edit the shared queue from their branches.
+- `ownership.json`: accountable owners, path routing, shared surfaces and cutover inventory. Longest matching path wins; every unlisted/new component defaults to foundation/integration until explicitly routed. Ownership is a responsibility, not a completion claim.
+- `DECISIONS.md`: contracts, exceptions and reasons. `HANDOFF.md`: compact next actions, current blockers and restart command.
+- Existing `docs/rust/net-*.json`, `net-migration-plan.md`, benchmark archives and optimization backlogs remain authoritative for networking source identities and acceptance. The new queue references these rather than copying their historical claims into a second ledger. Resolve discrepancies from actual evidence; never promote status from a planning label.
+- `benchmark-policy.md` preserves the previous benchmark and site instructions. `prior-network-instructions.md` preserves old coordination text for provenance only. This procedure supersedes its team counts, network-exclusive scheduling, push authorization and stale campaign instructions. No goal reset or claim of whole-network completion.
+- `.rustium-runtime/` under the primary checkout is ignored. It contains OS locks, a persistent director receipt, pending job marker, logs and recoveries. All linked worktrees resolve this same location via Git's common directory. Never commit credentials, tokens, process IDs or session receipts. Task session references are coordination identifiers, not authentication material.
+
+## Fresh-chat sequence
+
+1. Read AGENTS, HANDOFF, this file, queue and ownership. Run `python tools/rustium_coord.py status` from the primary checkout. Inspect `git status --short`, branches and `git worktree list --porcelain` without resetting anything. Large dirty/deleted sets already exist; scope reads and writes deliberately. Check existing Rustium directories and free disk before creating workspaces.
+2. Inspect live agent sessions and local compiler/test processes using the available runtime tools and process inventory. A PID, stale timestamp or historical agent name alone proves neither activity nor death. Inspect saved results before rerunning. The failed networking conductor is the first delivery priority; do not restart sanitizer/fuzz campaigns.
+3. Acquire `python tools/rustium_coord.py acquire --session <current-director-session>`. Its token is a local coordination guard, not a credential. If another director lease exists, route to that live session. If it is demonstrably interrupted, write a reconciliation note (session state, processes/children, worktrees, commits, outcomes) and use `recover director --evidence <note>`, then acquire. No TTL-based stealing.
+4. Before initial dispatch, ensure these setup files are locally committed without unrelated changes. Compare each ready task's owned/reference paths with its base; pin it to the resulting current local commit using `amend --patch <json>`. Never silently give a worker HEAD when dirty networking inputs are required. Preserve such inputs in a reviewed task-specific commit or hash-bound copied snapshot, recording the exact mapping. Existing dirty work is not a reason to reset, blanket stage or clone it.
+5. Reconcile pending jobs, tests and review results; assign repairs first. Read networking's latest intake and existing staged proposals. Record missing evidence as missing. Do not count old snapshot passes as validation of current edits.
+6. Pick ready, nonoverlapping tasks in queue priority order across subsystems. Reserve up to eight Luna slots **before launching**. Managers run on demand; retain their logical ownership while idle. Keep two auxiliary agent slots for management/review/specialist work when the runtime allows ten children. If fewer slots are exposed, reduce active work; never bypass the runtime through more sessions.
+7. Deliver, review, schedule validation, repair and integrate in a continuing cycle. Pending validation is bounded at eight submitted/validating/merge-ready deliveries. At the bound, direct effort to repair, fixtures and integration rather than more unvalidated implementations. Pause slots if there is no useful independent work.
+8. Checkpoint queue, evidence pointers, decisions and HANDOFF after assignment, submission, validation, integration, blocker and stop. The stopping checkpoint names an exact restart action and distinguishes usage/runtime constraints from project blockers. Do not stop a go run merely because one round completed.
+
+## Models and dispatch
+
+Installed Codex CLI 0.169.0 and the current tool catalog expose `gpt-6.1-sol`, `gpt-6.1-terra`, `gpt-6-luna` with the requested efforts. Root config selects Sol/xhigh, custom roles live in `.codex/agents/`. Root default is **not** proof a host-selected current chat changed model: T3 or CLI overrides can win. Inspect actual selected model; report mismatches and use the requested director when the host permits selection. Do not pretend model switching occurred.
+
+Native Codex: prefer configured roles or explicit model/effort with `fork_turns="none"` and a complete brief when supported. The session observed during setup has 11 total slots (director + ten children); config requests ten children. Runtime limits override config. Nested delegation is not needed: director dispatches all children and routes manager requests. Native subagents may share the parent's cwd; instruct and verify the exclusive task worktree before editing.
+
+T3: if its active instructions require `delegate_task` for explicit model options or isolated checkouts, call `orchestrator_capabilities` first and use the local `codex` provider, `target.model`, `target.options.reasoningEffort`, `mode:"wait"` when this turn needs the result, and `isolation:"worktree"` for editing. Do not create that child's checkout in the shell or inside its task. Read-only setup/review tasks may use `isolation:"shared"`. Bind the resulting worktree before authorizing edits; a first paused/read-only preparation task can supply its checkout path. Follow returned `next` guidance. Do not create top-level sessions as a substitute for children, use remote environments or silently substitute models. Independently launched sessions still require the same global claim.
+
+The helper is a cooperative project-wide budget, not a sandbox against arbitrary manual launches. All directors and managers must obey it. Model availability/effort support must be rechecked when a new runtime reports an error. Stop affected dispatch and report exact unavailable settings rather than falling back or purchasing access.
+
+## Claims, workspaces and delivery
+
+Commands below use the token from `acquire`; run the canonical helper even from a sparse checkout:
+
+```powershell
+python D:/Rustium/tools/rustium_coord.py claim FOUNDATION-STRINGS --token <token> --session <assignment-id>
+# Native route only; destination must not already exist:
+python D:/Rustium/tools/rustium_coord.py workspace FOUNDATION-STRINGS D:/RustiumWorkers/slot-1 --token <token>
+# Or bind an already prepared, clean rust/* task branch (including a host-prepared checkout):
+python D:/Rustium/tools/rustium_coord.py bind FOUNDATION-STRINGS <worktree> --token <token>
+python D:/Rustium/tools/rustium_coord.py transition FOUNDATION-STRINGS implementing --token <token> --note "Bound worker and froze reference closure"
+```
+
+`workspace` uses Git's shared object store, `--no-checkout`, then sparse cone paths. Existing `tools/git/worktree.py` is retained for full gclient environments; it creates full checkouts/syncs and is unsuitable for eight small editing slots. No new full Chromium checkout per task. At most eight worker workspaces and one necessary review space, in addition to the existing editing/configured pair. Check `git worktree list` for unmanaged workspaces before allocation. A failed creation may leave a branch/worktree; inspect it and bind or repair it, never automatically delete it.
+
+Native worker context can expand with `git sparse-checkout add <directory>`; inspect omitted files with `git show <commit>:<path>`. Do not sync dependencies per worker. T3's worktree preparation may not expose sparse setup controls: inspect its actual size, then use supported sparse-checkout inside the existing clean checkout; do not assume T3 honored a nonexistent sparse option. With tight disk space, use fewer editing slots until worktrees fit. V8 has a separate Git repository under the configured checkout: copy/hash the specific reference closure read-only into the worker candidate directory or prepare a separately pinned sparse V8 worktree through the supported host route. Never mutate the configured V8 repository from a worker.
+
+Use small reviewable task-local commits. Workers own only `owned_files`/prefixes, can read all context, and deliver patches for shared interfaces. Never independently invent parallel bridge/thread/type/schema services. Request a director-owned dependency task. Return JSON with `task_id`, `candidate_commit`, `source_identity`, `tests` (status, commands, outcomes, toolchain/config; status must be passed before merge-ready), `review` (`status: accepted` when independently accepted), `platform_limits`, remaining C++/bridge ownership and next action; use explicit pending values, not fabricated passes.
+
+Before `transition ... submitted --commit <full-sha> --evidence <json>`, confirm the worker has ended, its worktree is clean and changes are in scope. Evidence must be durable in `docs/rust/migration/evidence/` (or an existing component evidence archive); copy relevant runtime results there before checkpoint. Task commits remain on their branches. A submitted task releases its worker slot, not its remaining validation obligations. Inspect that its branch contains the delivery commit and the workspace is clean before `git worktree remove` (no force); preserve the branch and reuse that bounded slot. Never remove a dirty/live workspace or delete a build cache/snapshot just because it is large.
+
+Lifecycle: ready -> assigned -> implementing -> submitted -> validating -> merge-ready -> integrated; failures -> needs-repair, unresolved dependency -> blocked. `amend` updates planning fields with a JSON patch, never lifecycle/assignment. Add follow-up and shared-interface tasks with `enqueue --token <token> --task-file <complete-task.json>` using the existing task schema and a unique ID. `stages` separately records implementation, configured validation, integration, Rust ownership and cutover. `integrated` for a candidate-only task means its candidate artifact landed locally, not that production migrated; acceptance evidence and stages must state this. A subsystem cutover needs all relevant C++ retired and required platform/behavior/performance evidence.
+
+## Validation and configured integration
+
+One director controls `D:/RustiumBuild/src` and its existing `out/Default` caches. Setup observed release/component build, `symbol_level`, `blink_symbol_level`, `v8_symbol_level` all zero. Recheck args/toolchains/source freshness for each job. Use existing benchmark runner, snapshot tool and guarded networking intake manifests. No broad copy/reset, no mutation during an active build, no rebuilding every class. Inspect destination independent changes and apply only intended source bindings with before/after hashes. IPC/ABI/layout changes require all consumers rebuilt.
+
+Use **one validation gate** for configured sync, substantial builds/tests and benchmark windows. Workers submit a manifest request and return to independent work. Before launch, inspect processes outside this helper too; it cannot discover or lock arbitrary manually launched compilers. Initial compiler limit is `-j2`, reduce to `-j1` when memory is tight; two is a ceiling, not a target. Never turn on remote execution. Benchmarks require a quiet system and recorded affinity. Freeze long-run input copies, exact source/configuration/toolchain hashes and adjacent runtime dependencies; no mutable-output hard links. The existing frozen benchmark runner remains responsible for before/after identity verification.
+
+Job manifest requires `task_id`, `kind` (`sync`, `build`, `test`, `benchmark`), `source_identity` (commit plus source manifest/hash where dirty), `toolchain`, `build_configuration`, `cwd`, and `process_reconciliation` (actual observation). Then:
+
+```powershell
+python tools/rustium_coord.py job --token <token> --manifest <request.json> -- <program> <arguments>
+```
+
+The helper holds the gate until exit, captures the command, outcome and log, and returns the child's exit code. Builds require explicit `-j1` or `-j2`. Use the actual local Ninja at `D:/RustiumBuild/src/third_party/ninja/ninja.exe`; GN is `buildtools/win/gn.exe`. Build flags/target existence and no remote compiler wrapper still require preflight. A failed job becomes needs-repair with its exact evidence. Passing individual branches is not combined acceptance; director applies scoped changes, runs combined checks and records the local integration commit before promoting.
+
+An interrupted launcher leaves `job-active.json`. Inspect the child tree and output identity; let a live run finish unchanged. If no child remains, preserve partial logs, mark outcome unknown/failed as appropriate, write reconciliation evidence and `recover job --evidence <note>`. Never infer success from a missing process. Do not clear a marker on timeout alone. The same rules apply to the director lease. Runtime directory loss is recoverable from queue assignments and live worktree/session inspection; no assignment is auto-reclaimed.
+
+## Acceptance boundaries
+
+Prepare ordinary tests and original-reference fixtures with implementation. Validate behavior, errors, aliases, lifetime/reentry/cancellation, layout and platform seams at stable connected milestones. Preserve supported-platform requirements even when local Windows cannot execute them. Deferred sanitizer/fuzz checks stay deferred until the user resumes them; never represent that as full final validation. Independent Terra review is required for unsafe/ABI/ownership changes. Integrate small buildable steps toward full subsystem ownership; keep baseline dependencies independent across rewrites.
+
+All benchmark rules in benchmark-policy.md remain mandatory. Archive every result before considering acceptance, keep exact regressions and optimization follow-ups, hold gallery publication, and do not move slow cases out of a fixed batch. Existing performance debt is part of the work, not a reason to rebrand integrated code as candidate-only. No setup check is a browser build, migration acceptance, benchmark or supported-platform validation.

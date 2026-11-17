@@ -1,0 +1,100 @@
+{
+  "observed_date": "2026-11-17",
+  "os": "Windows 11 Pro 10.0.26300",
+  "cpu": "AMD Ryzen 7 2700X; 8 cores / 16 logical processors",
+  "ram_bytes": 17126842368,
+  "free_ram_observed_bytes": 6182346752,
+  "codex_version": "0.169.0",
+  "auth": "codex login status: Logged in using ChatGPT; no credentials recorded",
+  "model_evidence": "Installed bundled catalog and local orchestrator_capabilities expose requested models/efforts",
+  "roles": {
+    "director": {
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh"
+    },
+    "subsystem_manager": {
+      "model": "gpt-6.1-terra",
+      "effort": "xhigh"
+    },
+    "coding_worker": {
+      "model": "gpt-6-luna",
+      "effort": "high"
+    },
+    "specialist": {
+      "model": "gpt-6.1-sol",
+      "effort": "high"
+    },
+    "reviewer": {
+      "model": "gpt-6.1-terra",
+      "effort": "xhigh"
+    }
+  },
+  "limits": {
+    "luna_workers": 8,
+    "editing_workspaces": 8,
+    "auxiliary_children": 2,
+    "requested_children_per_session": 10,
+    "observed_total_native_slots": 11,
+    "substantial_jobs": 1,
+    "compiler_jobs": 2,
+    "pending_validation": 8,
+    "minimum_free_disk_bytes": 8589934592
+  },
+  "setup_runtime": "T3 selected gpt-6-astra/high; project defaults do not retroactively change it",
+  "root_head_at_inspection": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+  "build_checkout": {
+    "path": "D:/RustiumBuild/src",
+    "head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+    "args": {
+      "is_debug": false,
+      "is_component_build": true,
+      "symbol_level": 0,
+      "blink_symbol_level": 0,
+      "v8_symbol_level": 0
+    },
+    "ninja": "D:/RustiumBuild/src/third_party/ninja/ninja.exe",
+    "gn": "D:/RustiumBuild/src/buildtools/win/gn.exe",
+    "note": "Large independent dirty/deleted set. No whole-tree sync/reset. Freshness not yet accepted."
+  },
+  "inspection": {
+    "editing_tracked_dirty_entries": 3357,
+    "configured_tracked_dirty_entries": 133560,
+    "branches": [
+      "main"
+    ],
+    "registered_worktrees": [
+      "D:/Rustium",
+      "D:/RustiumBuild/src"
+    ],
+    "compiler_processes_observed": 0,
+    "other_sessions": "Codex/T3 processes present; reconcile activity on go, do not terminate"
+  },
+  "v8": {
+    "editing_directory": "empty",
+    "configured_source": "D:/RustiumBuild/src/v8",
+    "head": "a1175dcfe49146bd7165715a9919eb4e94be0e77",
+    "dirty_files": [
+      "BUILD.gn",
+      "gni/v8.gni"
+    ]
+  },
+  "disk": {
+    "D_free_bytes_observed": 30083403776,
+    "other_copies": [
+      "D:/RustiumCiDevPreview",
+      "D:/RustiumCiPreview"
+    ],
+    "action": "Inventory only. No automatic deletion of live/dirty/unknown copies or evidence.",
+    "logical_bytes": {
+      "D:/Rustium": 45877922488,
+      "D:/RustiumBuild": 70171706867,
+      "D:/RustiumCiDevPreview": 76625,
+      "D:/RustiumCiPreview": 19807853
+    }
+  },
+  "documentation": [
+    "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+    "https://learn.chatgpt.com/docs/config-file/config-reference"
+  ],
+  "configuration_verification": "TOML parsed; codex features list and codex app-server --print-startup-config exited 0; catalog has all requested models/efforts. No inference launched to attest custom role execution."
+}

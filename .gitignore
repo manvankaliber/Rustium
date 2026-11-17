@@ -348,3 +348,6 @@ third_party/rust/target/
 
 # Trace files created when using --trace-startup.
 **/chrometrace.log
+
+# Local Rust migration coordination, receipts and scratch logs (not task state).
+/.rustium-runtime/
