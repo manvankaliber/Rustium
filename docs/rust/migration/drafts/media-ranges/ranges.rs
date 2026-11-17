@@ -63,7 +63,7 @@ impl TimeDeltaMicros {
 #[cfg(test)] mod original_ranges_unittest {
  use super::*;
  fn eq<T: PartialEq+std::fmt::Debug>(a:T,b:T){assert_eq!(a,b);}
- fn r<T:PartialEq+std::fmt::Debug>(x:&RangeSet<T>, expected:&[(T,T)]) { eq(&x.ranges,expected); }
+ fn r<T:PartialEq+std::fmt::Debug>(x:&RangeSet<T>, expected:&[(T,T)]) { eq(x.ranges.as_slice(),expected); }
  #[test] fn simple_tests() {
   let mut x=RangeSet::new(); eq(x.len(),0); eq(x.add(0,1),1); eq(x.len(),1); r(&x,&[(0,1)]);
   eq(x.add(2,3),2); r(&x,&[(0,1),(2,3)]); eq(x.add(1,2),1); r(&x,&[(0,3)]);
