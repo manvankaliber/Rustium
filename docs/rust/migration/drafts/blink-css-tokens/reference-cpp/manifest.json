@@ -1,0 +1,26 @@
+{
+  "task_id": "BLINK-CSS-TOKENS",
+  "reference_workspace": "D:/Rustium",
+  "reference_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+  "input_hashes_match_queue": true,
+  "files": [
+    {"path":"third_party/blink/renderer/core/css/parser/css_tokenizer.cc","sha256":"a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_parser_token.cc","sha256":"6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc","sha256":"9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.h","sha256":"576f89356ffcc82a5fccfa5d5673f216bb8151432de2771321189e00f35e6866"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.cc","sha256":"6f074726f93bb0b861888a49e2d880cd3f6b9ff57b71c775bfbe54fcc82a8073"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_tokenizer.h","sha256":"d80504af5f1b751574c1240a0cf1df4781db2c5e94e786d64929c4a1eeffdc5b"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_parser_token.h","sha256":"222306a1023d88786f7b7963e23e86d3aa08b933ad5cf15cb8976d46c98f6798"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_parser_idioms.h","sha256":"cbebde09cf6d1e3571140c2f020a52817f5502c2d84a6b2c857519b3cf4e0177"},
+    {"path":"third_party/blink/renderer/core/css/parser/css_parser_idioms.cc","sha256":"7d5ecf1051da4ed0bbcb2f4a64bb1d707d66e40ec056d7cc9bffd5b1af7d91a5"},
+    {"path":"third_party/blink/renderer/core/html/parser/html_parser_idioms.h","sha256":"0f1c6675fa2d5dcd2e28453cfdc46079f3cc2c4cd3e8dd1955f6d586d7b34a22"},
+    {"path":"third_party/blink/renderer/platform/wtf/text/string_to_number.h","sha256":"593e44149ce20b18320d4473ae7125c227d97d1ee38548f9b021e5bd0e0bd14a"},
+    {"path":"third_party/blink/renderer/platform/wtf/text/string_to_number.cc","sha256":"36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693"}
+  ],
+  "closure_status": "partial: CSS tokenizer/input/idiom behavior and direct WTF number conversion are archived; transitive provider implementation closure is not yet complete",
+  "provider_pins": [
+    {"name":"WTF StringToDouble / CharactersToDouble","implementation":"third_party/blink/renderer/platform/wtf/text/string_to_number.cc","sha256":"36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693","status":"archived; inspect and pin transitive dtoa/number parsing implementation before asserting Rust numeric equivalence"},
+    {"name":"WTF StringView and String storage/width","implementation":"third_party/blink/renderer/platform/wtf/text/string_view.h + wtf_string.h","sha256":"see README.md provider inventory","status":"hash-pinned only; source not archived yet"},
+    {"name":"HTML space predicate","implementation":"third_party/blink/renderer/core/html/parser/html_parser_idioms.h","sha256":"0f1c6675fa2d5dcd2e28453cfdc46079f3cc2c4cd3e8dd1955f6d586d7b34a22","status":"archived; header transitive character type dependencies remain to inspect"}
+  ]
+}
