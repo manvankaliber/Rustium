@@ -1,0 +1,14 @@
+test_bad_or_unrelated_receipts_fail (test_qualify_records.CaptureBindingTest.test_bad_or_unrelated_receipts_fail) ... ok
+test_changed_snapshot_and_added_directory_member_fail (test_qualify_records.CaptureBindingTest.test_changed_snapshot_and_added_directory_member_fail) ... ok
+test_complete_repeatability_and_reviewed_transition (test_qualify_records.CaptureBindingTest.test_complete_repeatability_and_reviewed_transition) ... ok
+test_directory_membership_and_hardlinks_are_enforced (test_qualify_records.CaptureBindingTest.test_directory_membership_and_hardlinks_are_enforced) ... ok
+test_missing_provenance_timing_and_overflow_json_reject (test_qualify_records.CaptureBindingTest.test_missing_provenance_timing_and_overflow_json_reject) ... ok
+test_missing_source_binding_and_changed_review_are_rejected (test_qualify_records.CaptureBindingTest.test_missing_source_binding_and_changed_review_are_rejected) ... ok
+test_optimized_cli_accepts_bound_capture_and_rejects_drift (test_qualify_records.CaptureBindingTest.test_optimized_cli_accepts_bound_capture_and_rejects_drift) ... ok
+test_raw_output_and_normalized_records_cannot_disagree (test_qualify_records.CaptureBindingTest.test_raw_output_and_normalized_records_cannot_disagree) ... ok
+test_wrong_source_relation_and_mapping_fail (test_qualify_records.CaptureBindingTest.test_wrong_source_relation_and_mapping_fail) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.970s
+
+OK

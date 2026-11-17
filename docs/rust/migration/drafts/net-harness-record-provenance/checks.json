@@ -1,0 +1,21 @@
+{
+  "tests": {
+    "status": "passed",
+    "command": [
+      "C:\\Python315\\python.exe",
+      "-B",
+      "-O",
+      "-m",
+      "unittest",
+      "-v",
+      "test_qualify_records.py"
+    ],
+    "cases": 9,
+    "log_sha256": "f8735884cefc5e86de6bbcac25416b20a1e98c907d4499edcb55b6b84d2b2a13",
+    "scope": "Synthetic source/capture metadata only; no actual native capture qualified"
+  },
+  "schema_copy_sha256": "40a5dcf58f9a74b73ff612609fc8543d78528c47d2b054b21d2cbb7030c1ec9f",
+  "independent_review_finding": "984d2f066384b3827843c9e9d34bfea4b186252d P2",
+  "actual_native_qualification": "pending current build and complete copied execution",
+  "benchmark_timing": "rejected by this ordinary gate"
+}
