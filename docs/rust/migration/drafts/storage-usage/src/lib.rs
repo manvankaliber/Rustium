@@ -480,7 +480,7 @@ mod tests {
         p.files.get_mut(&k).unwrap().extend_from_slice(&[1, 2]);
         assert_eq!(c.get(&mut p, &k).unwrap().unwrap().usage, 9);
         p.short_read = true;
-        assert_eq!(c.get(&mut p, &k).unwrap(), None);
+        assert_eq!(c.get(&mut p, &k), Err(CacheError::ShortRead));
         c.on_timer(&mut p);
         assert!(p.events.iter().any(|e| e == "stop"));
     }
