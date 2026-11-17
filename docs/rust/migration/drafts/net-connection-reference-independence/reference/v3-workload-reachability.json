@@ -1,0 +1,216 @@
+{
+  "order_preserved": [
+    "tls_sync",
+    "tls_async",
+    "tls_error",
+    "tls_transport_error",
+    "tls_timeout",
+    "socks4",
+    "socks5",
+    "socks_error",
+    "http_direct",
+    "http_tunnel",
+    "http_auth",
+    "https_direct",
+    "https_tunnel",
+    "http2_pending",
+    "quic_pending",
+    "quic_error"
+  ],
+  "cases": [
+    {
+      "id": "tls_sync",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "tls_async",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "tls_error",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "tls_transport_error",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "tls_timeout",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "socks4",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "socks5",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "socks_error",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "http_direct",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "http_tunnel",
+      "original_request_header_path": "Frozen HTTP/1 socket/parser/header policy",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [
+        "LookupByPath"
+      ],
+      "v3_policy_inside_same_timing": [
+        "ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken -> SelectPreemptiveAuth -> ConnectionAuthOriginalCache::LookupByPath; real native map/clock/path traversal and negative lookup"
+      ],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": [
+        "credentials/token/cache-hit/rejection/restart are not in this fresh empty-cache script"
+      ]
+    },
+    {
+      "id": "http_auth",
+      "original_request_header_path": "Frozen HTTP/1 socket/parser/header policy",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [
+        "LookupByPath",
+        "challenge tokenizer",
+        "Lookup"
+      ],
+      "v3_policy_inside_same_timing": [
+        "ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken -> SelectPreemptiveAuth -> ConnectionAuthOriginalCache::LookupByPath; real native map/clock/path traversal and negative lookup",
+        "ConnectionAuthOriginalFactoryPolicy::ChooseBestChallenge -> CreateAuthHandlerFromString -> native tokenizer OriginalPolicyTag + frozen InitTokenizer -> original registry -> original Basic Factory/Init/ParseRealm",
+        "ConnectionAuthOriginalPolicy::SelectNextAuthIdentityToTry -> ConnectionAuthOriginalCache::Lookup; real realm lookup"
+      ],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": [
+        "credentials/token/cache-hit/rejection/restart are not in this fresh empty-cache script"
+      ]
+    },
+    {
+      "id": "https_direct",
+      "original_request_header_path": "No request-header policy in scripted case",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": []
+    },
+    {
+      "id": "https_tunnel",
+      "original_request_header_path": "Frozen HTTP/1 socket/parser/header policy",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [
+        "LookupByPath"
+      ],
+      "v3_policy_inside_same_timing": [
+        "ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken -> SelectPreemptiveAuth -> ConnectionAuthOriginalCache::LookupByPath; real native map/clock/path traversal and negative lookup"
+      ],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": [
+        "credentials/token/cache-hit/rejection/restart are not in this fresh empty-cache script"
+      ]
+    },
+    {
+      "id": "http2_pending",
+      "original_request_header_path": "Frozen v1 H2 pool/session/stream/socket; repaired header policy",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [
+        "LookupByPath"
+      ],
+      "v3_policy_inside_same_timing": [
+        "ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken -> SelectPreemptiveAuth -> ConnectionAuthOriginalCache::LookupByPath; real native map/clock/path traversal and negative lookup"
+      ],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "All original response/event/header callbacks remain lazy. Frozen formatting/elision and value constructors run only if native dispatch invokes callback for capture mode; source checks do not establish runtime coverage.",
+      "ordinary_only_branches": [
+        "credentials/token/cache-hit/rejection/restart are not in this fresh empty-cache script"
+      ]
+    },
+    {
+      "id": "quic_pending",
+      "original_request_header_path": "No CONNECT header: provider returns pending/error before stream",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "QuicSessionRequest/key/request/cancel lifecycle remains native still-C++ algorithm/provider seam; provider returns before successful QUIC socket/controller token generation or CONNECT headers",
+      "ordinary_only_branches": [
+        "successful QUIC session/stream/socket is not covered by the pending/error provider scripts; no success path is substituted"
+      ]
+    },
+    {
+      "id": "quic_error",
+      "original_request_header_path": "No CONNECT header: provider returns pending/error before stream",
+      "timing": "Unchanged v2 Prepare/Run and canonical steady_clock driver; 32 complete lifecycles/side, 20 paired repetitions; no run executed here",
+      "v2_reachable_policy": [],
+      "v3_policy_inside_same_timing": [],
+      "remaining_same_timed_auth_rust_calls": [],
+      "conditional_logging": "QuicSessionRequest/key/request/cancel lifecycle remains native still-C++ algorithm/provider seam; provider returns before successful QUIC socket/controller token generation or CONNECT headers",
+      "ordinary_only_branches": [
+        "successful QUIC session/stream/socket is not covered by the pending/error provider scripts; no success path is substituted"
+      ]
+    }
+  ],
+  "notes": "No independent-original runtime/performance claim before parent configured build/regular tests/all16 validation; Default QUIC flag remains false. Supplemental optimized feature intake is separate.",
+  "basis": "Source-traced calls and unchanged scripts, not native runtime instrumentation. All16 wire/workload IDs and fixed membership preserved. Old v2 claims kept in v2-records."
+}

@@ -1,0 +1,144 @@
+{
+  "source_root": "D:/Rustium",
+  "current_authority_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
+  "current_authority_count": 1261,
+  "all_1261_root_files_verified": true,
+  "v4_application_sha256": "5405cc7c5994ff26aa0b2cc9ade42acfb128277faea2c17544fe74e87e3f32fc",
+  "v3_workload_reachability_sha256": "c47f46517373ef8c55a1cedde10d3536214305f934de2c73986f1a8a39bafd2e",
+  "historical_snapshot": "D:/Rustium/.scratch/net-wave5/network-current-consumers-20261117T114935331577Z/source-snapshot",
+  "historical_authority_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "inputs": [
+    {
+      "path": "net/http/auth_challenge_reference.cc",
+      "sha256": "965d5ed02c3a4db8a06ab895cc9eaef0c643e47289e008f8a1fd022dfc07fc08",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference.cc"
+    },
+    {
+      "path": "net/http/auth_challenge_reference.h",
+      "sha256": "231971cef53846cde4fe83b061dc12f75cbd15e17f24f6dcf9bed8da877a4657",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference.h"
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp.h",
+      "sha256": "4802f1c4eca14f7d14f54119aaa5ce6e3c5ba0383a3666265dd4ca7547784073",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference_modp.h"
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp.cc",
+      "sha256": "0ba0e240abeeb9333b7e34d906c96a6f1f79889566f7d1c09896dd7a359963cf",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference_modp.cc"
+    },
+    {
+      "path": "net/http/auth_challenge_reference_tokenizer.h",
+      "sha256": "8cd8bf4d34095dcc6550b5938671c902322b58774c709b9a5a3c04bf4b5690f8",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference_tokenizer.h"
+    },
+    {
+      "path": "net/http/http_auth_multi_round_parse.cc",
+      "sha256": "b7995277f5989b139338f28b1601555a89770e34924618f0147a0b9867bdba6d",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_auth_multi_round_parse.cc"
+    },
+    {
+      "path": "net/http/http_auth_challenge_tokenizer.cc",
+      "sha256": "7a5a92845526269feac062c5fd6f0a8720bfddb7ac85e8c405c3f84694a66f7e",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_auth_challenge_tokenizer.cc"
+    },
+    {
+      "path": "net/http/connection_auth_original_factory.cc",
+      "sha256": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/connection_auth_original_factory.cc"
+    },
+    {
+      "path": "net/http/http_auth_ntlm_mechanism.cc",
+      "sha256": "719153b45bc8e700e1aa62b4be653395140c54b79c7cfe6d9b29387e7f62ca39",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_ntlm_mechanism.cc"
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.cc",
+      "sha256": "c6b5c2a3052450e6af2e9f1903f1dc230b94f6bd4cb3e0624a6f9a004897391a",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_sspi_win.cc"
+    },
+    {
+      "path": "net/http/http_auth_gssapi_posix.cc",
+      "sha256": "92814193c41e7f5204d86bd49b838699faffdb2179797b98edd5488a18e6354a",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_gssapi_posix.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate.cc",
+      "sha256": "5ae15d72c2f707573b5b3356edf3d1c77a3321e7448be401254fccca9c4652ee",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_negotiate.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.cc",
+      "sha256": "a9f7fd4c501287a93e9a039c7fa8357aa5d971ddaf2a3e865575d4ecd55a857e",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_ntlm.cc"
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+      "sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/socket/connection_jobs_upper_rust_job_workloads.h"
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.cc",
+      "sha256": "8c44c43ce51306b70a0ba581dadc72e08fa5adc511f983e6d3248e9180362635",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/socket/connection_jobs_upper_rust_job_workloads.cc"
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/socket/connection_jobs_upper_rust_jobs_perftest.cc"
+    },
+    {
+      "path": "net/http/http_stream_parser_rust_original.cc",
+      "sha256": "1a120551911848e2c0e9de3c47ec7c9106fb15b8d5e9958d18318d2c179fbb56",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_stream_parser_rust_original.cc"
+    },
+    {
+      "path": "net/http/http_response_headers.cc",
+      "sha256": "3251ff9c70130d85f4ffa95732c6816f2a8224b0441bab5bb5b82a58781e0232",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_response_headers.cc"
+    },
+    {
+      "path": "net/http/http_util.cc",
+      "sha256": "29456bdf22926fe3f62567acaf5f7cee49120357b29b9ecbbbb68483e732185f",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_util.cc"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/base/strings/string_split.cc"
+    },
+    {
+      "path": "net/socket/connect_job_rust_test_support.h",
+      "sha256": "bcd0f5cf536d0abf01d44b44a5992ddedefa62c78af40682a6b44768a292de82",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/socket/connect_job_rust_test_support.h"
+    },
+    {
+      "path": "net/socket/connect_job_rust_test_support.cc",
+      "sha256": "9dd2887932fb8035b7868beabe6ce3e813dffec8a1c94f85687c3319a34c2550",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/socket/connect_job_rust_test_support.cc"
+    }
+  ]
+}
