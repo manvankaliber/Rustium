@@ -33,10 +33,15 @@ pub trait PrimitiveProvider{
  fn stop_close_timer(&mut self);
 }
 #[derive(Debug,PartialEq,Eq)] pub enum CacheError<E>{Provider(E),ShortRead,ShortWrite}
+#[derive(Clone,Copy,Debug,PartialEq,Eq)]pub struct SequenceMismatch;
 
-pub struct UsageCache<K:Ord+Clone,H:Clone>{incognito:bool,private:BTreeMap<K,[u8;RECORD_SIZE]>,handles:BTreeMap<K,H>}
+pub struct UsageCache<K:Ord+Clone,H:Clone>{incognito:bool,private:BTreeMap<K,[u8;RECORD_SIZE]>,handles:BTreeMap<K,H>,bound_sequence:Option<u64>}
 impl<K:Ord+Clone,H:Clone> UsageCache<K,H>{
- pub fn new(incognito:bool)->Self{Self{incognito,private:BTreeMap::new(),handles:BTreeMap::new()}}
+ pub fn new(incognito:bool)->Self{Self{incognito,private:BTreeMap::new(),handles:BTreeMap::new(),bound_sequence:None}}
+ /// Candidate seam for the facade's existing sequence checker. Construction
+ /// is detached; first use binds, subsequent use must match. This is not a
+ /// scheduler or thread service and does not replace native DCHECK behavior.
+ pub fn check_sequence(&mut self,token:u64)->Result<(),SequenceMismatch>{match self.bound_sequence{None=>{self.bound_sequence=Some(token);Ok(())},Some(bound)if bound==token=>Ok(()),Some(_)=>Err(SequenceMismatch)}}
  pub fn has_handle(&self,k:&K)->bool{self.handles.contains_key(k)}
  pub fn close_all<P:PrimitiveProvider<Key=K,Handle=H>>(&mut self,p:&mut P){for(_,h)in std::mem::take(&mut self.handles){p.close(h)}p.stop_close_timer();}
  /// Timer callback uses exactly the same close-and-stop transition.
@@ -86,7 +91,8 @@ impl<K:Ord+Clone,H:Clone> UsageCache<K,H>{
   fn restart_close_timer(&mut self,d:Duration){self.events.push(format!("timer:{}",d.as_secs()))}
   fn stop_close_timer(&mut self){self.events.push("stop".into())}
  }
- #[test]fn codec_and_original_cases(){let r=Record{valid:true,dirty:u32::MAX,usage:i64::MIN};assert_eq!(decode(&encode(r)),Ok(r));let mut b=encode(r);b[8]=9;b[9..12].fill(255);assert!(decode(&b).unwrap().valid);let mut c=UsageCache::<String,usize>::new(true);let mut p=Fake::default();let k="k".into();c.put(&mut p,&k,7).unwrap();assert!(c.increment(&mut p,&k).unwrap());assert!(c.decrement(&mut p,&k).unwrap());assert!(!c.decrement(&mut p,&k).unwrap());assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,7);}
+ #[test]fn codec_and_original_cases(){let r=Record{valid:true,dirty:u32::MAX,usage:i64::MIN};assert_eq!(decode(&encode(r)),Ok(r));let mut b=encode(r);b[8]=9;b[9..12].fill(255);assert!(decode(&b).unwrap().valid);let mut c=UsageCache::<String,usize>::new(true);let mut p=Fake::default();let k="k".into();c.put(&mut p,&k,7).unwrap();assert!(c.increment(&mut p,&k).unwrap());assert_eq!(c.get(&mut p,&k).unwrap().unwrap().dirty,0);assert!(c.decrement(&mut p,&k).unwrap()==false);assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,7);}
+ #[test]fn construction_detached_then_first_use_binds(){let mut c=UsageCache::<String,usize>::new(false);assert!(c.check_sequence(41).is_ok());assert!(c.check_sequence(41).is_ok());assert_eq!(c.check_sequence(42),Err(SequenceMismatch));}
  #[test]fn capacity_hit_closes_all_before_timer_lookup(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let a="a".to_string();let b="b".to_string();c.get(&mut p,&a).unwrap();c.get(&mut p,&b).unwrap();p.events.clear();c.get(&mut p,&a).unwrap();assert_eq!(&p.events[..4], &["close:1","close:2","stop","timer:5"]);assert_eq!(p.events[4],"open:a");}
  #[test]fn failed_open_keeps_timer_and_failed_write_deletes(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake{fail_open:true,..Default::default()};let k="k".to_string();assert!(c.get(&mut p,&k).is_err());assert_eq!(&p.events[..2],["timer:5","open:k"]);p.fail_open=false;p.short_write=true;let _=c.put(&mut p,&k,1);assert!(p.events.iter().any(|e|e=="delete:k"));}
  #[test]fn trailing_bytes_and_short_read_and_timer_close(){let mut c=UsageCache::<String,usize>::new(false);let mut p=Fake::default();let k="k".to_string();c.put(&mut p,&k,9).unwrap();p.files.get_mut(&k).unwrap().extend_from_slice(&[1,2]);assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,9);p.short_read=true;assert_eq!(c.get(&mut p,&k).unwrap(),None);c.on_timer(&mut p);assert!(p.events.iter().any(|e|e=="stop"));}
