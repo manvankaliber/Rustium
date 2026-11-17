@@ -16,3 +16,5 @@ The complete authoritative test file is `reference/base/strings/string_split_uni
 | `ConstexprSplitStringPieceTest.SplitStringPieces`, `SplitStringPiecesSkipEmpty`, `SplitStringUsingSubstr` | Native C++ obligation only. Exact constexpr expected pieces remain archived; Rust runtime tests cannot establish C++ constexpr compilation. |
 
 Additional executable cases are in `utf16_bytes_and_owned_variants` (non-UTF-8 bytes, UTF-16 including lone surrogates, exact Chromium Unicode whitespace, owned wrappers), and `malformed_default_empty_differs_from_borrowed_empty` (input-relative offsets and explicit origin metadata). Compiler-backed execution is pending the director's gate.
+
+The second independent review's omissions are filled explicitly: the original character-delimiter punctuation fixture at line272 uses `char_case` with X/Y, and both split-once directions run every empty separator and empty-side fixture from lines487–556. The metadata fixture now tests the valid `tail:v` pair's exact offsets as well as a separate delimiter-free segment, and asserts every owned pair after output reuse. Native C++ overload and constexpr obligations remain separate.
