@@ -1,0 +1,385 @@
+{
+  "source_commit": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+  "new_records": [
+    {
+      "path": "base/files/file_util_win.cc",
+      "git_blob": "4b3b7ee07ba65acc141c61db981beabd51875b3d",
+      "sha256": "5d36de7336a05b960376814cf24d6033927a9a2b178d4e5abc43e7fbb514d94a",
+      "direct_provider_dependencies": [
+        {
+          "path": "base/files/file_util.h",
+          "git_blob": "798ae7fad0cb464f4f4fdc41632aa51af5aa6107",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/check.h",
+          "git_blob": "f73e8252e7967db424f98029859c8a258ad28d29",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/clang_profiling_buildflags.h",
+          "git_blob": null,
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/containers/span.h",
+          "git_blob": "184b8c3574aac88043ed351590e807ba2a69e036",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/feature_list.h",
+          "git_blob": "92c0c524329a4a9ba83efc7f0e7366451ad2a77f",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/features.h",
+          "git_blob": "59d06d6e26484f8dea04432cd28e2749c80ace76",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/file.h",
+          "git_blob": "35863b51e70f5db8276ca6815e671a5beb03342b",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/file_enumerator.h",
+          "git_blob": "a14a984a0683521ee1d6f8e96e5894d4f9adc0d1",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/file_path.h",
+          "git_blob": "bbb8f46ef512681e32f434dd2e2672c6a308377d",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/memory_mapped_file.h",
+          "git_blob": "a6c87c2d58338c09fd7b333bb1193a52e83c111f",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/functional/bind.h",
+          "git_blob": "644646e766efa2024551add56c8c13f54e5b1fd4",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/functional/callback.h",
+          "git_blob": "708a334f16c3a3d59ea3599896d3c9dd58bd86b5",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/location.h",
+          "git_blob": "fa1747315fd96cf30d4c2bb8c5ae6f1ebe5a5a56",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/logging.h",
+          "git_blob": "686130e6b91426251f73ef148a30246d45d03eec",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/metrics/histogram_functions.h",
+          "git_blob": "6460fbc2334a45d90ef8393b79afc10926101bb6",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/numerics/safe_conversions.h",
+          "git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/path_service.h",
+          "git_blob": "5a397ad2d34fa897f4587f5c7fd16f2b1d7c02b2",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/process/process_handle.h",
+          "git_blob": "86c6503a180c43b652e6d6daf4944b411934c84f",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/rand_util.h",
+          "git_blob": "ff59e32c84e5766d6a811388164ce75257e2b7f0",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/strcat.h",
+          "git_blob": "3090e26f8b6ae3263a54cf1e3c1aa70df4b42a6e",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_number_conversions.h",
+          "git_blob": "4ba6d201654d3ad390ce60d72efde5024f667aa1",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_split_win.h",
+          "git_blob": "2e4747cec1213a47182af35910024b6efe491700",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_util.h",
+          "git_blob": "658273573df3021e1113f801bcfa9cf628d2df45",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_util_win.h",
+          "git_blob": "28dd24385049cfbb24968f8e497b76b072a03ad4",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_view_util.h",
+          "git_blob": "bd4e973d9d075c3d7d70b9fe81dab642e52645f0",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/utf_string_conversions.h",
+          "git_blob": "3de0c27a2c7e3da5626d609bf893a3d856a209ac",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/task/bind_post_task.h",
+          "git_blob": "d8a5448e1b4aed9a09e7f16e8af0e052290756f5",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/task/sequenced_task_runner.h",
+          "git_blob": "f1af71939152eb2ba3126afa007342750d4ea0a4",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/task/thread_pool.h",
+          "git_blob": "876c921b9b7ad0bc894b7ddf17cd0d65fce90250",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/threading/scoped_blocking_call.h",
+          "git_blob": "95d140132f52968b7234c850f7257b3962b971df",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/threading/scoped_thread_priority.h",
+          "git_blob": "c7ea25d14156c3bcaa3f44b8d5de339545121142",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/time/time.h",
+          "git_blob": "d1d5a00e8201d63494d9e1e9559f3c2a182552a0",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/uuid.h",
+          "git_blob": "1d6d60a04f7f6179d240d3e9d7695d69603078ff",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/win/scoped_handle.h",
+          "git_blob": "45039583bfdc19bcaba6d0f9f89646ff4671e9fa",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/win/security_util.h",
+          "git_blob": "15d5fcd6e11e92272735a0c4910f31997bda1403",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/win/sid.h",
+          "git_blob": "0e7cae8bd359bb0ee805fa3ecb1acb1e841527c2",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/win/windows_types.h",
+          "git_blob": "65f917cbab5d854abc09c03efe606ed52fa10dcd",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/win/windows_version.h",
+          "git_blob": "bf28cd9208d41d3ab099f44e626f349fa2e4e27e",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        }
+      ]
+    },
+    {
+      "path": "base/files/file_util_posix.cc",
+      "git_blob": "e360421d066bb256764c53967cd54689c4eb696b",
+      "sha256": "ac8a47112c62f02ebfb478452066362403bda000ddd7bc5f66ce28de52a0dbfe",
+      "direct_provider_dependencies": [
+        {
+          "path": "base/files/file_util.h",
+          "git_blob": "798ae7fad0cb464f4f4fdc41632aa51af5aa6107",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/base_export.h",
+          "git_blob": "dd4c5912e5dc09c90a5973d7cc2549ea99e13ca5",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/base_switches.h",
+          "git_blob": "1331bf621f532cb0a4242d0515701528e62cdc15",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/bits.h",
+          "git_blob": "70152abe1f1b6a92214346da1a79cbf7d998a22e",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/command_line.h",
+          "git_blob": "282079b9ed84d59c6ceef63603f94ac671096880",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/containers/heap_array.h",
+          "git_blob": "21e43c13ce47d2cddd7b22e8bf6756a1387ac50b",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/containers/span.h",
+          "git_blob": "184b8c3574aac88043ed351590e807ba2a69e036",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/containers/stack.h",
+          "git_blob": "da3639e2731047476d7172b59d9babc0b0fec8cc",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/environment.h",
+          "git_blob": "71f719e904599945d388a10a83158474849d35b7",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/file_enumerator.h",
+          "git_blob": "a14a984a0683521ee1d6f8e96e5894d4f9adc0d1",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/file_path.h",
+          "git_blob": "bbb8f46ef512681e32f434dd2e2672c6a308377d",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/files/scoped_file.h",
+          "git_blob": "0dcf999e4032e0b7649d84e4d7b1ce08f272559d",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/logging.h",
+          "git_blob": "686130e6b91426251f73ef148a30246d45d03eec",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/memory/singleton.h",
+          "git_blob": "5bb01f50c4446740942b393c62e5aed8bd94ea91",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/notreached.h",
+          "git_blob": "c6b94654efea8e98b0459296185d24464db1ce19",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/numerics/safe_conversions.h",
+          "git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/path_service.h",
+          "git_blob": "5a397ad2d34fa897f4587f5c7fd16f2b1d7c02b2",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/posix/eintr_wrapper.h",
+          "git_blob": "aad0534f30762abbfe34eaab6fa32b6d9fca062a",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/cstring_view.h",
+          "git_blob": "d56f2686647dd1e90ca602bdb43aeacb571ab8ee",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/strcat.h",
+          "git_blob": "3090e26f8b6ae3263a54cf1e3c1aa70df4b42a6e",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_split.h",
+          "git_blob": "be85f2ab1ef6b0bd3abad8013cdf8f4d8a4c08e0",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/string_util.h",
+          "git_blob": "658273573df3021e1113f801bcfa9cf628d2df45",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/sys_string_conversions.h",
+          "git_blob": "4499cb30bdb72cb67e1dcd68f6728038b80afe37",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/strings/utf_string_conversions.h",
+          "git_blob": "3de0c27a2c7e3da5626d609bf893a3d856a209ac",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/system/sys_info.h",
+          "git_blob": "a84c6ad32d769cef10f7e969348a8c02037579ee",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/threading/scoped_blocking_call.h",
+          "git_blob": "95d140132f52968b7234c850f7257b3962b971df",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/time/time.h",
+          "git_blob": "d1d5a00e8201d63494d9e1e9559f3c2a182552a0",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "build/branding_buildflags.h",
+          "git_blob": null,
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "build/build_config.h",
+          "git_blob": "5bb7049a35c6119722f575180372399988c2650d",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        },
+        {
+          "path": "base/apple/foundation_util.h",
+          "git_blob": "be35b825ac92a084eef81f230b71c2c2167568f8",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        }
+      ]
+    },
+    {
+      "path": "base/numerics/byte_conversions.h",
+      "git_blob": "400f6d4fc62817fa8360f2f841ae5cbbe28cf99a",
+      "sha256": "e4fb7e430845bb7c7743baa0d56adaa3b3a238f36265d1c6e12bf2089b75b65b",
+      "direct_provider_dependencies": [
+        {
+          "path": "base/numerics/basic_ops_impl.h",
+          "git_blob": "405320bdfa87a182f5dd690180deb4e0a8b63a24",
+          "scope": "Pinned direct build/native provider dependency; not claimed as independently compiled platform oracle"
+        }
+      ]
+    },
+    {
+      "path": "base/numerics/basic_ops_impl.h",
+      "git_blob": "405320bdfa87a182f5dd690180deb4e0a8b63a24",
+      "sha256": "09859a81183cdffd76379fb3c0bd42c18758c98bf139362586612e163eb6dd40",
+      "direct_provider_dependencies": []
+    },
+    {
+      "path": "base/bit_cast.h",
+      "git_blob": "a3fe20995f855a499bf6ceed0394df079413d751",
+      "sha256": "0cd10ccc2b5fe82c1a50fc8f4342e818dfb9335f05452ba308dfb90ad92e004c",
+      "direct_provider_dependencies": []
+    }
+  ],
+  "scope": "Native DeleteFile/PathExists implementations and native-endian codec helpers frozen from pre-migration Git authority. Direct build/platform providers identified and pinned, not a standalone full-platform build closure.",
+  "production_cpp_modified": false
+}
