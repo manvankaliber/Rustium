@@ -1,0 +1,22 @@
+{
+  "net/dns/dns_reloader.h": {
+    "root": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39",
+    "configured": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39",
+    "git": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39"
+  },
+  "net/dns/dns_reloader.cc": {
+    "root": "a1abfd9014e3bbb3b88fd69eb4c6883457f038ab00edfecd5484f1b9fb1e65ed",
+    "configured": "a1abfd9014e3bbb3b88fd69eb4c6883457f038ab00edfecd5484f1b9fb1e65ed",
+    "git": "a1abfd9014e3bbb3b88fd69eb4c6883457f038ab00edfecd5484f1b9fb1e65ed"
+  },
+  "net/dns/httpssvc_metrics.h": {
+    "root": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576",
+    "configured": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576",
+    "git": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576"
+  },
+  "net/dns/httpssvc_metrics.cc": {
+    "root": "f5bbb9d457e0fe83410690326a831809a3a571d63a4d244aa08facf788d98986",
+    "configured": "f5bbb9d457e0fe83410690326a831809a3a571d63a4d244aa08facf788d98986",
+    "git": "f5bbb9d457e0fe83410690326a831809a3a571d63a4d244aa08facf788d98986"
+  }
+}

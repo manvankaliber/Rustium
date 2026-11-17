@@ -1,0 +1,156 @@
+{
+  "frozen_source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+  "frozen_log_sha256": "2bd611255db5d8bf613279274280d610f31bcba09891e093d4b71113c4b9b713",
+  "frozen_result_sha256": "fecd0c45b9ce5b2845e33bf464e1fba9382e78b38ec15eb6ac2b975011055000",
+  "frozen_originals": {
+    "net/BUILD.gn": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+    "url/origin.h": "2433fcb4502f2a673e9806bcd2f0bbaaf242c8c7a5e7e1edf07dd23a445ff871",
+    "net/cookies/cookie_family_perftest.cc": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770",
+    "net/cookies/cookie_family_store_perftest.cc": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
+    "net/cookies/cookie_family_store_test_support.h": "204833df072a4a04693b3cf1b4bfcddd53eb007088c2e113de56b4fa1fefc589",
+    "net/cookies/cookie_family_store_unittest.cc": "26e6a8bc464f9962dbda191d947223dff1d1668084d63ae6e2774222fa5e9c74",
+    "net/cookies/cookie_family_test_support.h": "03ebc3941a904f6761af02fb61a431c08eb318364b59a7fc31f391b64d117983",
+    "net/cookies/cookie_family_unittest.cc": "dd1fb2a1d1855a3935468aeed07678512cfa9a0a9030dc6863e3981793e3fd41",
+    "net/cookies/cookie_partition_key_rust_reference.cc": "1bee96c8341030aecf49d1a823ae28bf9a9bc97e767500b27e6645d006ff720c",
+    "net/cookies/cookie_partition_key_rust_reference.h": "636395c754667f8b17fc3ea1c2902a684680e98ce8504c55d0d802f50b2f4d8d",
+    "net/cookies/cookie_partition_key_rust_reference_schemeful_site.cc": "c8daef71271f94bc19562ac6502e7b706f11d5e77dbcbd5d016f11efddd259ba",
+    "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h": "a3e401b097138d1d20cc3275852811683e3e0df4a4a697f18cd4c678058bd669",
+    "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.cc": "4a3a17e500247724d06881694fc87d6878c16a603af9af76f8f72ee89925cb14",
+    "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h": "1e4a7d4de53e6f6d923d8b5c64e642d766e2d5bc332beae0628960d8bb14c1cd",
+    "net/cookies/cookie_partition_key_rust_reference_url_helpers.cc": "aa08704f05b3be2271e5a6b325b8a42ebfb195d3817e146ee728f5a7893e00c4",
+    "net/cookies/cookie_partition_key_rust_reference_url_helpers.h": "54f04c0425e5f25dfc9dde6279a035ca20e6dff1bdb1300c52c584f9efb412ee",
+    "net/cookies/cookie_partition_key_rust_test_support.h": "42fed8c91dfde0770d08cd165b7f2041cd1072ff8b5393bd5008e70290cf82bb",
+    "net/cookies/cookie_partition_key_rust_unittest.cc": "368968e269f0eeb537cbf2d6f253c1a3355ca00bc0ba002e57da7a700ca8466a",
+    "net/dns/dns_reloader.h": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39",
+    "net/dns/dns_request_family_async_perftest.cc": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4",
+    "net/dns/dns_request_family_async_workloads.h": "0a6c82c1a6d4fbad229822c440a23ba33f0562b80dba742da40a7de820cd4b0f",
+    "net/dns/dns_request_family_http_workloads.h": "303005e424a024fe43ba061929dbafbcd7bf35f56710f08ab7ea07997c5679e9",
+    "net/dns/dns_request_family_platform_workloads.h": "1d9d1dc1d76e3ae777c757d5a8e905b8d21143975078947999385f4a5ceba83e",
+    "net/dns/dns_request_family_whole_path_unittest.cc": "ddaf9145f08d8a42bf793bc7921477b51deb4117fb5c83859ac9dc8571109a20",
+    "net/dns/dns_resolution_family_attached_rust_unittest.cc": "298ecb4799dc91f711d6ca400545f273b788a8807dc51931851c370ad2f49fd0",
+    "net/dns/dns_response_rust_names_reference.cc": "981c3cf101a94736833d2027ce4241c222527f75af26708720279b6c347507b7",
+    "net/dns/dns_response_rust_names_reference.h": "9dea832c774d07031fbefb4fcf79495cae0e5b029139daac8b5bd0febcf2517e",
+    "net/dns/host_resolver_cache_rust_perftest.cc": "80417c1df73a3f70d7d8d92be236c85ecf1e5e43ff18df64d8daa2982c333da5",
+    "net/dns/host_resolver_cache_rust_test_support.h": "8641d1ff3913d4d9d04d4dc862cdab6d7c857b2e6f3430f89685113854823366",
+    "net/dns/host_resolver_cache_rust_unittest.cc": "526d53813dd6bbdef4bc697594de43dbf9fde2df25ba8365c2c1cc04aa614acf",
+    "net/dns/httpssvc_metrics.h": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576"
+  },
+  "changes": [
+    {
+      "path": "net/BUILD.gn",
+      "before_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+      "after_sha256": "de210fef1f3dd0c610fe4c81a8e0b744c985b59a82883a7a9e8d9e8d0539cb55",
+      "classification": "director-owned"
+    },
+    {
+      "path": "net/cookies/cookie_family_perftest.cc",
+      "before_sha256": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770",
+      "after_sha256": "538b30b76bfe887f400e7087298e3a62121299973ec42589bae9112608b5f805",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_perftest.cc",
+      "before_sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
+      "after_sha256": "cb0cde567356cce3e952e5e64385aa0c94e6baa5f964dc7c08750c7dcec1f40c",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_test_support.h",
+      "before_sha256": "204833df072a4a04693b3cf1b4bfcddd53eb007088c2e113de56b4fa1fefc589",
+      "after_sha256": "b03ce2fa48325059889a9042f9a4459d4258f7d87dd281a720d72a5c8d901d1c",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_unittest.cc",
+      "before_sha256": "26e6a8bc464f9962dbda191d947223dff1d1668084d63ae6e2774222fa5e9c74",
+      "after_sha256": "45dccff78a6621e929a5703df4932a8de195bfee5ddce1614032658974ea9cfb",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_family_unittest.cc",
+      "before_sha256": "dd1fb2a1d1855a3935468aeed07678512cfa9a0a9030dc6863e3981793e3fd41",
+      "after_sha256": "dce0808244234c534d4fab1ac1fe2cc3ebad2d2a8661d05fe7e405389cf3db40",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "before_sha256": "a3e401b097138d1d20cc3275852811683e3e0df4a4a697f18cd4c678058bd669",
+      "after_sha256": "262eb631904f29e832151105bf146ae725f40326ef80374ec7967e563bef288b",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+      "before_sha256": "1e4a7d4de53e6f6d923d8b5c64e642d766e2d5bc332beae0628960d8bb14c1cd",
+      "after_sha256": "403826e921deeabf84de753521a4b5564798c80182980c4891e3be02c86a4bad",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "before_sha256": "42fed8c91dfde0770d08cd165b7f2041cd1072ff8b5393bd5008e70290cf82bb",
+      "after_sha256": "e55602ec9cff4cc778c7b0751b11733d75324ef361b6579344a6a6f8fb68872f",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_unittest.cc",
+      "before_sha256": "368968e269f0eeb537cbf2d6f253c1a3355ca00bc0ba002e57da7a700ca8466a",
+      "after_sha256": "2822ab5aee0d46c92ea67e30a006589af8301ed4d0ebd3b755cffd4da3a012cf",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/dns_reloader.h",
+      "before_sha256": "01fb656a6bc5977a609e523b62f829044d6142934fd74a797b0dbe05e9efce39",
+      "after_sha256": "bdc2995e06c9796f91788f03ceefd8f4ea4b9b583b51a15243fa6a40a2bcbbbf",
+      "classification": "director-owned"
+    },
+    {
+      "path": "net/dns/dns_request_family_async_workloads.h",
+      "before_sha256": "0a6c82c1a6d4fbad229822c440a23ba33f0562b80dba742da40a7de820cd4b0f",
+      "after_sha256": "d7db65042eb860e334a56563b39eb59758491c75304eee5af5e72df90348d257",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/dns_request_family_http_workloads.cc",
+      "before_sha256": null,
+      "after_sha256": "f820ad8d59a37fc8a8ca26cc5322a0b004feef88088c6eaaa2f7b72bf33b7723",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/dns_request_family_http_workloads.h",
+      "before_sha256": "303005e424a024fe43ba061929dbafbcd7bf35f56710f08ab7ea07997c5679e9",
+      "after_sha256": "42656d347bb58c8d38790a28ac695c92d44099e85d2e44c116a97d317b203889",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "before_sha256": "298ecb4799dc91f711d6ca400545f273b788a8807dc51931851c370ad2f49fd0",
+      "after_sha256": "ee9538aac85b9d6a33b1d42841a0345b88f36003816b01341553e3bb19a5331c",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/host_resolver_cache_rust_test_support.cc",
+      "before_sha256": null,
+      "after_sha256": "6bcee32cf52c32092f95053c2dbd7ea98be5e08c3a879b85bf021dc45a8d1760",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/host_resolver_cache_rust_test_support.h",
+      "before_sha256": "8641d1ff3913d4d9d04d4dc862cdab6d7c857b2e6f3430f89685113854823366",
+      "after_sha256": "4fd07db9d1923a8b38a985dcf98766b810c569e3e557edbbc6c56ea3d1d25f70",
+      "classification": "fixture-source-proposal"
+    },
+    {
+      "path": "net/dns/httpssvc_metrics.h",
+      "before_sha256": "d2598eb66666ec8162f24606ad441f5ef2f73f188f361e1beeff23ac72577576",
+      "after_sha256": "3e80fa7030f556ef2015cf56574abf58d1106f0185381e9110897f958651f252",
+      "classification": "director-owned"
+    },
+    {
+      "path": "url/origin.h",
+      "before_sha256": "2433fcb4502f2a673e9806bcd2f0bbaaf242c8c7a5e7e1edf07dd23a445ff871",
+      "after_sha256": "54d3926802dfa444ff14e050af9de313f400bfdbfc76964f6e875e84212b4912",
+      "classification": "director-owned"
+    }
+  ],
+  "supplemental_identity": "supplemental/identities.json",
+  "patch_sha256": "b1e22607c2d5ae8f71a551c209e24ac018db3bc4ee23495abe540192167fc4fa"
+}
