@@ -20,17 +20,37 @@ verify-only arguments and completion contracts. Workload completion text alone
 does not establish correctness or source/binary provenance.
 
 The inventory contains repository-relative entrypoint paths and GN labels.
-Source hashes bind those entrypoints to the recorded 1,270-input authority;
-they are not claims that a clean integration PR already contains that closure.
+Source hashes bind actual candidate LF entrypoint blobs, with original raw hashes
+retained. The1,270-input source/graph identity is historical discovery evidence.
+The clean integration candidate includes its recorded closure and complete auth
+union; neither the old graph nor past runtime results qualify that candidate.
 Two cookie entrypoints changed since the original plan. Both old and current
 identities are recorded, and the cookie-store clock contract still needs a
 reviewed successor. No measurement or gallery import occurred.
 
-Before adding an executable Network workflow:
+The prepared `network-consumer-build.yml` builds the recorded roots on the
+dedicated runner. It accepts a reviewed same-repository PR with maintainer label
+`rustium-build-approved`, or a manually dispatched full commit. Repository policy
+requires approval for all external contributors; a workflow's job condition alone
+is not the public-fork trust boundary. The optional label
+`rustium-probe-build-approved` adds a sequential probe configuration build.
+
+`build_network_consumers.py` checks source/entrypoint/tool/config/dependency and
+graph identity, runs fresh GN generation and header checks, resolves current GN
+outputs (including nondefault toolchains), and builds all recorded roots in one
+Ninja batch with `-k0`. It records failures and never reports ordinary or cutover
+acceptance. Default parallelism is1;2 requires an observed8GiB available memory.
+The workflow is not yet published or executed. Data-only planning checks,
+PowerShell parsing and actionlint validate preparation, not actual builds.
+Full raw records persist under `C:/Users/micro/rb/evidence`; GitHub artifact
+copies expire after3days. Preserve local records and archive acceptance evidence
+before deleting any run. No automatic cleanup is configured.
+
+Before ordinary Network acceptance:
 
 1. Assemble the connected implementation, independent reference helpers and
-   tests into a clean integration branch. Apply and review the pending complete
-   auth/probe union, preserving all existing inventory members.
+   tests into the integration PR. Re-evaluate the included complete auth/probe
+   union in fresh normal/probe graphs, preserving all existing inventory members.
 2. Qualify the laptop's executable/toolchain/dependency/configuration identity.
    Resolve GN outputs on that machine, including the three nondefault allocator
    roots; desktop Rust output hashes and DLL/PDB names are not portable.

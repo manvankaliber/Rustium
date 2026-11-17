@@ -169,13 +169,13 @@ return 0; }
 SpdySessionPool::~SpdySessionPool() {
 RunSpdySessionPoolRust(35, [&](uint32_t operation, [[maybe_unused]] uint64_t a, [[maybe_unused]] uint64_t b, [[maybe_unused]] uint64_t c) -> int64_t {
     switch(operation) {
-      case 0: { 
+      case 0: {
 #if DCHECK_IS_ON()
        for (const auto& request_info : spdy_session_request_map_) {
          DCHECK(request_info.second.request_set.empty());
        }
 #endif
-    
+
 return 0; }
       case 1: { CloseAllSessions();
 return 0; }

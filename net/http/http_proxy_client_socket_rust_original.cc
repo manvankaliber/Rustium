@@ -299,7 +299,7 @@ int HttpProxyClientSocketOriginal::DoLoop(int last_io_result) {
         break;
       case STATE_SEND_REQUEST_COMPLETE:
         rv = DoSendRequestComplete(rv);
-        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_,
             NetLogEventType::HTTP_TRANSACTION_TUNNEL_SEND_REQUEST, rv);
         break;
       case STATE_READ_HEADERS:
@@ -310,7 +310,7 @@ int HttpProxyClientSocketOriginal::DoLoop(int last_io_result) {
         break;
       case STATE_READ_HEADERS_COMPLETE:
         rv = DoReadHeadersComplete(rv);
-        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_,
             NetLogEventType::HTTP_TRANSACTION_TUNNEL_READ_HEADERS, rv);
         break;
       case STATE_PROCESS_RESPONSE_HEADERS:
@@ -343,7 +343,7 @@ int HttpProxyClientSocketOriginal::DoLoop(int last_io_result) {
 
 int HttpProxyClientSocketOriginal::DoGenerateAuthToken() {
   next_state_ = STATE_GENERATE_AUTH_TOKEN_COMPLETE;
-  return ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken(auth_.get(), 
+  return ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken(auth_.get(),
       &request_, response_.ssl_info,
       base::BindOnce(&HttpProxyClientSocketOriginal::OnIOComplete,
                      weak_factory_.GetWeakPtr()),

@@ -367,7 +367,7 @@ int SpdyProxyClientSocketOriginal::DoLoop(int last_io_result) {
         rv = DoSendRequest();
         break;
       case STATE_SEND_REQUEST_COMPLETE:
-        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_,
             NetLogEventType::HTTP_TRANSACTION_TUNNEL_SEND_REQUEST, rv);
         rv = DoSendRequestComplete(rv);
         if (rv >= 0 || rv == ERR_IO_PENDING) {
@@ -379,7 +379,7 @@ int SpdyProxyClientSocketOriginal::DoLoop(int last_io_result) {
         break;
       case STATE_READ_REPLY_COMPLETE:
         rv = DoReadReplyComplete(rv);
-        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_,
             NetLogEventType::HTTP_TRANSACTION_TUNNEL_READ_HEADERS, rv);
         break;
       case STATE_PROCESS_RESPONSE_HEADERS:
@@ -403,7 +403,7 @@ int SpdyProxyClientSocketOriginal::DoLoop(int last_io_result) {
 
 int SpdyProxyClientSocketOriginal::DoGenerateAuthToken() {
   next_state_ = STATE_GENERATE_AUTH_TOKEN_COMPLETE;
-  return ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken(auth_.get(), 
+  return ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken(auth_.get(),
       &request_, response_.ssl_info,
       base::BindOnce(&SpdyProxyClientSocketOriginal::OnIOComplete,
                      weak_factory_.GetWeakPtr()),

@@ -1601,7 +1601,7 @@ RequestPriority priority=MINIMUM_PRIORITY;
          DCHECK(!std::ranges::contains(base::span(pending_create_stream_queues_)[i],request.get(),[](const PendingStreamRequest& item){return item.request.get();}));
        }
 #endif
-    
+
 return 0; }
       case 1: { queue=&base::span(pending_create_stream_queues_)[priority]; it=queue->begin();
 return 0; }
@@ -3073,11 +3073,11 @@ base::circular_deque<SpdyStream*> streams_to_requeue;
       case 0: { return availability_state_==STATE_DRAINING; }
       case 1: { return drain_session_pending_; }
       case 2: { return IsSendStalled(); }
-      case 3: { 
+      case 3: {
 #if DCHECK_IS_ON()
        old_size=GetTotalSize(stream_send_unstall_queue_);
 #endif
-    
+
 return 0; }
       case 4: { stream_id=PopStreamToPossiblyResume(); return stream_id; }
       case 5: { it=active_streams_.find(stream_id); return it!=active_streams_.end(); }

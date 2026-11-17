@@ -74,7 +74,7 @@ struct connect_job_factoryRustBridge : connection_jobs_upper_rust::Invocation {
   static void Clear(Invocation* value) {
     auto& c = *static_cast<connect_job_factoryRustBridge*>(value);
     c.owner = nullptr; c.mutable_owner = nullptr;
-    
+
   }
   int64_t Run(Op operation, int64_t argument = 0) {
     return connection_jobs_rust_run(3, static_cast<uint32_t>(operation),

@@ -81,7 +81,7 @@ struct ClientSocketHandleFamilyRustBridge final
                       int64_t* value) {
     auto& c = *static_cast<ClientSocketHandleFamilyRustBridge*>(context);
     *value = 0;
-    
+
     if (!c.Live() || module != 7) { return false; }
     if(action==UINT32_MAX){*value=1;return true;}
     switch (action) {

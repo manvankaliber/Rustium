@@ -95,7 +95,7 @@ HttpAuthCache::Entry* ConnectionAuthOriginalCache::Lookup(HttpAuthCache* self,
     const std::string& realm,
     HttpAuth::Scheme scheme,
     const NetworkAnonymizationKey& network_anonymization_key) {
-  EntryMap::iterator entry_it = LookupEntryIt(self, 
+  EntryMap::iterator entry_it = LookupEntryIt(self,
       scheme_host_port, target, realm, scheme, network_anonymization_key);
   if (entry_it == self->entries_.end()) {
     return nullptr;
@@ -161,7 +161,7 @@ HttpAuthCache::Entry* ConnectionAuthOriginalCache::Add(HttpAuthCache* self,
   base::TimeTicks now_ticks = self->tick_clock_->NowTicks();
 
   // Check for existing entry (we will re-use it if present).
-  HttpAuthCache::Entry* entry = Lookup(self, 
+  HttpAuthCache::Entry* entry = Lookup(self,
       scheme_host_port, target, realm, scheme, network_anonymization_key);
   if (!entry) {
     // Failsafe to prevent unbounded memory growth of the cache.
@@ -209,7 +209,7 @@ bool ConnectionAuthOriginalCache::Remove(HttpAuthCache* self,
     HttpAuth::Scheme scheme,
     const NetworkAnonymizationKey& network_anonymization_key,
     const AuthCredentials& credentials) {
-  EntryMap::iterator entry_it = LookupEntryIt(self, 
+  EntryMap::iterator entry_it = LookupEntryIt(self,
       scheme_host_port, target, realm, scheme, network_anonymization_key);
   if (entry_it == self->entries_.end()) {
     return false;
@@ -257,7 +257,7 @@ bool ConnectionAuthOriginalCache::UpdateStaleChallenge(HttpAuthCache* self,
     HttpAuth::Scheme scheme,
     const NetworkAnonymizationKey& network_anonymization_key,
     const std::string& auth_challenge) {
-  HttpAuthCache::Entry* entry = Lookup(self, 
+  HttpAuthCache::Entry* entry = Lookup(self,
       scheme_host_port, target, realm, scheme, network_anonymization_key);
   if (!entry) {
     return false;

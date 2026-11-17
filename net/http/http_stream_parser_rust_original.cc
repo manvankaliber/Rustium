@@ -423,7 +423,7 @@ int HttpStreamParserOriginal::DoLoop(int result) {
         break;
       case STATE_READ_HEADERS_COMPLETE:
         result = DoReadHeadersComplete(result);
-        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(net_log_,
             NetLogEventType::HTTP_STREAM_PARSER_READ_HEADERS, result);
         break;
       case STATE_READ_BODY:

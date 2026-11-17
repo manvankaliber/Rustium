@@ -217,7 +217,7 @@ CookieMonsterRustNative context(this);
 void CookieMonster::SetForceKeepSessionState() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2001,request);
 }
 
@@ -413,7 +413,7 @@ CookieMonsterRustNative context(this);
 std::vector<std::string> CookieMonster::GetDefaultCookieableSchemes() {
 CookieMonsterRustNative context(static_cast<CookieMonster*>(nullptr));
   CookieFamilyRequest request{};
-  
+
   context.Run(2004,request);
   return std::move(context.schemes);
 }
@@ -426,7 +426,7 @@ CookieMonster::~CookieMonster() {
   CookieMonsterRustNative::BeforeDestruction(this);
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2005,request);
 }
 
@@ -505,21 +505,21 @@ CookieMonsterRustNative context(this);
 void CookieMonster::MarkCookieStoreAsInitialized() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2014,request);
 }
 
 void CookieMonster::FetchAllCookiesIfNecessary() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2015,request);
 }
 
 void CookieMonster::FetchAllCookies() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2016,request);
 }
 
@@ -552,14 +552,14 @@ CookieMonsterRustNative context(this);
 void CookieMonster::InvokeQueue() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2020,request);
 }
 
 void CookieMonster::EnsureCookiesMapIsValid() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   context.Run(2021,request);
 }
 
@@ -928,7 +928,7 @@ CookieMonsterRustNative context(this);
 bool CookieMonster::DoRecordPeriodicStats() {
 CookieMonsterRustNative context(this);
   CookieFamilyRequest request{};
-  
+
   const auto result=context.Run(2053,request);
   return result.scalar;
 }

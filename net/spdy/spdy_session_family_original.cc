@@ -1194,7 +1194,7 @@ std::unique_ptr<SpdyBufferOriginal> SpdySessionOriginal::CreateDataBuffer(
     // Even though we're currently stalled only by the stream, we
     // might end up being stalled by the session also.
     QueueSendStalledStream(*stream);
-    ConnectionOriginalLog::AddEventWithIntParams(net_log_, 
+    ConnectionOriginalLog::AddEventWithIntParams(net_log_,
         NetLogEventType::HTTP2_SESSION_STREAM_STALLED_BY_STREAM_SEND_WINDOW,
         "stream_id", stream_id);
     return nullptr;
@@ -1206,7 +1206,7 @@ std::unique_ptr<SpdyBufferOriginal> SpdySessionOriginal::CreateDataBuffer(
   if (send_stalled_by_session) {
     stream->set_send_stalled_by_flow_control(true);
     QueueSendStalledStream(*stream);
-    ConnectionOriginalLog::AddEventWithIntParams(net_log_, 
+    ConnectionOriginalLog::AddEventWithIntParams(net_log_,
         NetLogEventType::HTTP2_SESSION_STREAM_STALLED_BY_SESSION_SEND_WINDOW,
         "stream_id", stream_id);
     return nullptr;
@@ -2367,7 +2367,7 @@ void SpdySessionOriginal::HandleSetting(uint32_t id, uint32_t value) {
       break;
     case spdy::SETTINGS_INITIAL_WINDOW_SIZE: {
       if (value > static_cast<uint32_t>(std::numeric_limits<int32_t>::max())) {
-        ConnectionOriginalLog::AddEventWithIntParams(net_log_, 
+        ConnectionOriginalLog::AddEventWithIntParams(net_log_,
             NetLogEventType::HTTP2_SESSION_INITIAL_WINDOW_SIZE_OUT_OF_RANGE,
             "initial_window_size", value);
         return;
@@ -2379,7 +2379,7 @@ void SpdySessionOriginal::HandleSetting(uint32_t id, uint32_t value) {
           static_cast<int32_t>(value) - stream_initial_send_window_size_;
       stream_initial_send_window_size_ = static_cast<int32_t>(value);
       UpdateStreamsSendWindowSize(delta_window_size);
-      ConnectionOriginalLog::AddEventWithIntParams(net_log_, 
+      ConnectionOriginalLog::AddEventWithIntParams(net_log_,
           NetLogEventType::HTTP2_SESSION_UPDATE_STREAMS_SEND_WINDOW_SIZE,
           "delta_window_size", delta_window_size);
       break;

@@ -51,7 +51,7 @@ struct transport_connect_sub_jobRustBridge : connection_jobs_upper_rust::Invocat
   static void Clear(Invocation* value) {
     auto& c = *static_cast<transport_connect_sub_jobRustBridge*>(value);
     c.owner = nullptr; c.mutable_owner = nullptr;
-    
+
   }
   int64_t Run(Op operation, int64_t argument = 0) {
     return connection_jobs_rust_run(9, static_cast<uint32_t>(operation),

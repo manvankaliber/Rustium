@@ -227,7 +227,7 @@ void ConnectionHeaderOriginalPolicy::AddAuthorizationHeader(
   // auth.auth_token_ can be empty if we encountered a permanent error with
   // the auth scheme and want to retry.
   if (!auth.auth_token_.empty()) {
-    SetHeader(*authorization_headers, 
+    SetHeader(*authorization_headers,
         HttpAuth::GetAuthorizationHeaderName(auth.target_), auth.auth_token_);
     auth.auth_token_.clear();
   }

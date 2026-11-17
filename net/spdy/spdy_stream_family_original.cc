@@ -680,7 +680,7 @@ SpdyStreamOriginal::ShouldRequeueStream SpdyStreamOriginal::PossiblyResumeIfSend
   if (session_->IsSendStalled() || send_window_size_ <= 0) {
     return Requeue;
   }
-  ConnectionOriginalLog::AddEventWithIntParams(net_log_, 
+  ConnectionOriginalLog::AddEventWithIntParams(net_log_,
       NetLogEventType::HTTP2_STREAM_FLOW_CONTROL_UNSTALLED, "stream_id",
       stream_id_);
   send_stalled_by_flow_control_ = false;

@@ -1548,7 +1548,7 @@ TEST_P(HttpProxyConnectJobTestRustOriginal, HaveAuth) {
   url::SchemeHostPort proxy_scheme_host_port(
       GetParam() == HTTP ? GURL(std::string("http://") + kHttpProxyHost)
                          : GURL(std::string("https://") + kHttpsProxyHost));
-  ConnectionAuthOriginalCache::Add(session_->http_auth_cache(), 
+  ConnectionAuthOriginalCache::Add(session_->http_auth_cache(),
       proxy_scheme_host_port, HttpAuth::AUTH_PROXY, "MyRealm1",
       HttpAuth::AUTH_SCHEME_BASIC, NetworkAnonymizationKey(),
       "Basic realm=MyRealm1", AuthCredentials(kFoo, kBar), "/");

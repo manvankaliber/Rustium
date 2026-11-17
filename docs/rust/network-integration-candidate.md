@@ -11,7 +11,7 @@ The source assembly preserves the original main platform/build configuration.
 Unrelated desktop platform removals are excluded; the base orderfile target and
 Android Cargo/gnrt entries are retained. CRLF C++/Rust/GN source line endings are
 normalized for Git. Exact raw inputs and resulting blobs are recorded in the
-director's retained assembly evidence. Existing frozen reference bodies remain
+portable evidence under docs/rust/migration/evidence. Existing frozen reference bodies remain
 reference code; their dependency independence still needs runtime qualification.
 
 All compilation belongs on HQC-VAN_KALIBER. No GN generation, compiler, native
@@ -25,3 +25,10 @@ workload cases; it is not yet an executable CI conductor. Retain the additional
 and supported-platform obligations. Run source/build/ABI/runtime identity checks
 and archive every failed or passing run. Campaigns remain off and publication
 held. This branch is not a completed Network cutover and has not been pushed.
+
+The raw-source archive uses SHA-256 object members and preserves original
+input bytes. The v2 repair record identifies raw-to-Git hash rebinding, exact
+main-blob restoration and inspected code whitespace changes. Four intentional
+spaces inside certificate fixture text remain; original string bytes are retained.
+The selected-consumer workflow is prepared for fresh laptop qualification,
+including a sequential optional probe build. Ordinary execution remains pending.

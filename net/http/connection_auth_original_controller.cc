@@ -131,7 +131,7 @@ int ConnectionAuthOriginalPolicy::MaybeGenerateAuthToken(HttpAuthController* sel
   }
   DCHECK(self->auth_token_.empty());
   DCHECK(self->callback_.is_null());
-  int rv = ConnectionAuthOriginalHandlerPolicy::GenerateAuthToken(self->handler_.get(), 
+  int rv = ConnectionAuthOriginalHandlerPolicy::GenerateAuthToken(self->handler_.get(),
       credentials, request,
       base::BindOnce(&ConnectionAuthOriginalPolicy::OnGenerateAuthTokenDone,
                      base::Unretained(self)),
@@ -161,7 +161,7 @@ bool ConnectionAuthOriginalPolicy::SelectPreemptiveAuth(HttpAuthController* self
   // is expected to be fast. LookupByPath() is fast in the common case, since
   // the number of http auth cache entries is expected to be very small.
   // (For most users in fact, it will be 0.)
-  HttpAuthCache::Entry* entry = ConnectionAuthOriginalCache::LookupByPath(self->http_auth_cache_, 
+  HttpAuthCache::Entry* entry = ConnectionAuthOriginalCache::LookupByPath(self->http_auth_cache_,
       self->auth_scheme_host_port_, self->target_, self->network_anonymization_key_, self->auth_path_);
   if (!entry) {
     return false;
@@ -172,7 +172,7 @@ bool ConnectionAuthOriginalPolicy::SelectPreemptiveAuth(HttpAuthController* self
   // Try to create a handler using the previous auth challenge.
   std::unique_ptr<HttpAuthHandler> handler_preemptive;
   int rv_create =
-      ConnectionAuthOriginalFactoryPolicy::CreatePreemptiveAuthHandlerFromString(self->http_auth_handler_factory_, 
+      ConnectionAuthOriginalFactoryPolicy::CreatePreemptiveAuthHandlerFromString(self->http_auth_handler_factory_,
           entry->auth_challenge(), self->target_, self->network_anonymization_key_,
           self->auth_scheme_host_port_, ConnectionAuthOriginalCache::IncrementNonceCount(entry), self->net_log_,
           self->host_resolver_, &handler_preemptive);
@@ -230,7 +230,7 @@ int ConnectionAuthOriginalPolicy::HandleAuthChallenge(HttpAuthController* self,
         InvalidateCurrentHandler(self, INVALIDATE_HANDLER_AND_CACHED_CREDENTIALS);
         break;
       case HttpAuth::AUTHORIZATION_RESULT_STALE:
-        if (ConnectionAuthOriginalCache::UpdateStaleChallenge(self->http_auth_cache_, 
+        if (ConnectionAuthOriginalCache::UpdateStaleChallenge(self->http_auth_cache_,
                 self->auth_scheme_host_port_, self->target_, self->handler_->realm(),
                 self->handler_->auth_scheme(), self->network_anonymization_key_,
                 challenge_used)) {
@@ -248,7 +248,7 @@ int ConnectionAuthOriginalPolicy::HandleAuthChallenge(HttpAuthController* self,
         // previous realm.  If the server rejects a preemptive
         // authorization and requests credentials for a different
         // realm, we keep the cached credentials.
-        InvalidateCurrentHandler(self, 
+        InvalidateCurrentHandler(self,
             (self->identity_.source == HttpAuth::IDENT_SRC_PATH_LOOKUP) ?
             INVALIDATE_HANDLER :
             INVALIDATE_HANDLER_AND_CACHED_CREDENTIALS);
@@ -281,7 +281,7 @@ int ConnectionAuthOriginalPolicy::HandleAuthChallenge(HttpAuthController* self,
         // active network attacker could control its contents.  Instead, we just
         // fail to establish the tunnel.
         DCHECK_EQ(self->target_, HttpAuth::AUTH_PROXY);
-        ConnectionOriginalLog::EndEventWithNetErrorCode(self->net_log_, 
+        ConnectionOriginalLog::EndEventWithNetErrorCode(self->net_log_,
             NetLogEventType::AUTH_HANDLE_CHALLENGE, ERR_PROXY_AUTH_UNSUPPORTED);
         return ERR_PROXY_AUTH_UNSUPPORTED;
       }
@@ -462,7 +462,7 @@ bool ConnectionAuthOriginalPolicy::SelectNextAuthIdentityToTry(HttpAuthControlle
   }
 
   // Check the auth cache for a realm entry.
-  HttpAuthCache::Entry* entry = ConnectionAuthOriginalCache::Lookup(self->http_auth_cache_, 
+  HttpAuthCache::Entry* entry = ConnectionAuthOriginalCache::Lookup(self->http_auth_cache_,
       self->auth_scheme_host_port_, self->target_, self->handler_->realm(),
       self->handler_->auth_scheme(), self->network_anonymization_key_);
 
