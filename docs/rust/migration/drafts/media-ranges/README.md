@@ -5,9 +5,9 @@ Candidate source: `ranges.rs`; base/source identity: `5e3392ef8b62b8e8c50fc3af12
 ## Frozen source closure
 
 - `media/base/ranges.h` — `Ranges<T>` implementation, templates, `DCHECK_LT`; SHA-256: pending.
-- `media/base/ranges.cc` — `TimeDelta` debug check specialization; SHA-256: pending.
-- `media/base/ranges_unittest.cc` — all four original tests and exact assertion strings; SHA-256: pending.
-- Helper closure: `base/check_op.h` comparison/debug assertion; `base/time/time.h` `TimeDelta` signed-microsecond representation and `ToInternalValue`/`FromInternalValue`; standard vector/pair/algorithm semantics.
+- `media/base/ranges.h` — `Ranges<T>` implementation, templates, `DCHECK_LT`; SHA-256: CABACF5697CFD1987FA592BA9B62201F87D038B1E3BE130392A8CBBC18EB3099.
+- `media/base/ranges.cc` — `TimeDelta` debug check specialization; SHA-256: 207581EBB026B86B92E976A4ECD9A772DEF060AF21A5BA6AC41A1941903A63FF.
+- `media/base/ranges_unittest.cc` — all four original tests and exact assertion strings; SHA-256: 89A2980B4A000067702D97DCD24B17A932B9AA10E3260E28577A21890508AB36.
 
 ## Source-case mapping and executable assertion vectors
 
