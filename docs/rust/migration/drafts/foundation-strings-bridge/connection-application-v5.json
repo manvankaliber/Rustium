@@ -235,7 +235,7 @@
       "path": "net/socket/ssl_connect_job_rust_original_unittest.cc",
       "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\net\\socket\\ssl_connect_job_rust_original_unittest.cc",
       "before_sha256": "ea38fbf75ecb7d1ac026ee46d0f7578eb952d45ce6f135cfdc5f107c00e2a1ac",
-      "after_sha256": "4351781f6fa8faa921175142677717edf62e8acafd91fa80dab77c3edcf6c525",
+      "after_sha256": "f7f9682092b8181c6e79630a50496be4ae97ea61a6f41e7f28bfad2dcd59f453",
       "parent_only_shared": false
     },
     {

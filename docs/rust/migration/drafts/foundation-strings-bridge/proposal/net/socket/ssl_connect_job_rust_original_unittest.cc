@@ -206,7 +206,7 @@ class SSLConnectJobTestBaseRustOriginal : public ::testing::Test {
   void AddAuthToCache() {
     const std::u16string kFoo(u"foo");
     const std::u16string kBar(u"bar");
-    ConnectionAuthOriginalCache::Add(session_->http_auth_cache(), 
+    ConnectionAuthOriginalCache::Add(session_->http_auth_cache(),
         url::SchemeHostPort(GURL("http://proxy:443/")), HttpAuth::AUTH_PROXY,
         "MyRealm1", HttpAuth::AUTH_SCHEME_BASIC, NetworkAnonymizationKey(),
         "Basic realm=MyRealm1", AuthCredentials(kFoo, kBar), "/");
