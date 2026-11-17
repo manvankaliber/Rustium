@@ -1,0 +1,91 @@
+{
+  "candidate_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "review_base_commit": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+  "source_authority_reported_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+  "source_authority_count_reported": 1261,
+  "actual_scope": "candidate artifact exact Git blobs, three hash-bound frozen input inventories, and read-only GN graph source",
+  "candidate_git_blobs_checked": 125,
+  "candidate_git_blob_mismatches": 0,
+  "sha256_inventory_counts_verified": {
+    "input-bindings.json": 22,
+    "provider-input-bindings.json": 24,
+    "observation-input-bindings.json": 25,
+    "proposal-manifest.json": 40
+  },
+  "probe_copies_compared": 7,
+  "probe_comparison": "after removing cfg-gated hit calls and appended cfg module/comment, ignoring whitespace; exact remaining source matched",
+  "lifecycle_header": "bound copy predates director fixture repairs; do not overwrite current header",
+  "root_configured_or_runtime_reverification": "not performed; running build inputs unchanged",
+  "review_inputs": [
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/QUALIFICATION.md",
+      "sha256": "cd99a56d7001e42e557615b55ec045797bb9d39ca8ffbe727e260563b59b0841"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/AUTH-CLOSURE.md",
+      "sha256": "21b2753036909dcc880db7dff8f5acc4ad14744a146136582b4ada8de6333080"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/REFERENCE-CONTRACT.md",
+      "sha256": "cb3cc9fcd0610cd6820b6fec460fcc1b4340234a74c5a1fd8af5fb21cb563293"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/SUCCESSOR.md",
+      "sha256": "241de2f9afae3f4a113d78ad20bf9a66d506a05d74fbf6836f19c268389b65dc"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/input-bindings.json",
+      "sha256": "56b96df09baaa8eb624d1db449e97878a1776ae0c61cd87fbd74d1c1c7e256e7"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/provider-input-bindings.json",
+      "sha256": "b718daad22f33b38756b24fc962e70849152f0198b6959bbd581247165d9cc59"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/observation-input-bindings.json",
+      "sha256": "5c3c35ae6823862d79c5bf2eb2c4c933d41c8a871158026997ffff9bbd002288"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/proposal-manifest.json",
+      "sha256": "e08699fd19097df37c7008f31aecffb45ba8b2ca178ae9687825a15b38a443bc"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/proposal/BUILD.fragment.gn",
+      "sha256": "ca62f5baf665bfb3a09bc482221537f0dbebbf7211609ce3e9728634efa8a93b"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/proposal/instrumentation/BUILD.instructions.gn",
+      "sha256": "b041ad66a69b10b67f3920352a1bed7dd320f3a6da0e0a39eb416a6657bbd6ae"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/proposal/friend-declarations.patch",
+      "sha256": "9495ef1c1d563b91ef1c504abce87e17c3edfa748e1f301177da4f6c13aa2199"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-connection-reference-independence/proposal/reference-decoder-export.patch",
+      "sha256": "52b7748d451486dcf04ebfe81567115d516c9dcd55011aed7b22fef794349180"
+    }
+  ],
+  "additional_root_read_only_inputs": [
+    {
+      "path": "D:/Rustium/base/BUILD.gn",
+      "sha256": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9",
+      "role": "supplemental graph or API observation; not a substitute for final director rebind"
+    },
+    {
+      "path": "D:/Rustium/net/BUILD.gn",
+      "sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+      "role": "supplemental graph or API observation; not a substitute for final director rebind"
+    },
+    {
+      "path": "D:/Rustium/build/rust/rust_static_library.gni",
+      "sha256": "c9030ff2ef3dfa396016103d2a6e6d70ca6392f047f3f89471105793c6c16d55",
+      "role": "supplemental graph or API observation; not a substitute for final director rebind"
+    },
+    {
+      "path": "D:/Rustium/net/http/http_auth_handler_factory.cc",
+      "sha256": "a1f2845b255743d8d7e35e96f1a0837f67a71acb7222c2a416624af8d1788abc",
+      "role": "supplemental graph or API observation; not a substitute for final director rebind"
+    }
+  ]
+}

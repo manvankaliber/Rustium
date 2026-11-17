@@ -1,0 +1,24 @@
+{
+  "candidate_commit": "1fd755aa78d20d08e724283f77a6a025d2853338",
+  "files": [
+    {
+      "path": "docs/rust/migration/drafts/net-auth-reference-review/REVIEW.md",
+      "raw_archive": "docs/rust/migration/evidence/net-auth-reference-review-20261117/REVIEW.md",
+      "raw_sha256": "1d89eb6a284fd2814b98cd9eefb397fdef311cdeb649cfc03c371575a3d78e22",
+      "git_blob_intake_sha256": "c0961aeea5d73782e238c7ed98755231367171c83dcc0fafd8b3f345d98c9726"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-auth-reference-review/disposition.json",
+      "raw_archive": "docs/rust/migration/evidence/net-auth-reference-review-20261117/disposition.json",
+      "raw_sha256": "b8169814004da896884cd21400a6523e186131bb65a4b913edda9abcfeffd581",
+      "git_blob_intake_sha256": "e5a104de80258bae1c35e66f73f2627efaee7cf77a84d5d0fdea670b5b188a5a"
+    },
+    {
+      "path": "docs/rust/migration/drafts/net-auth-reference-review/input-bindings.json",
+      "raw_archive": "docs/rust/migration/evidence/net-auth-reference-review-20261117/input-bindings.json",
+      "raw_sha256": "0c556e0327157291542c1177c09e7c49cdf3d15661f5f1366770e3969fe61198",
+      "git_blob_intake_sha256": "dbbb5279300c69409a8451ae8ba502ebb508b6ec69345224c3faf3cac260e710"
+    }
+  ],
+  "scope": "Exact review raw bytes retained separately from Git text-normalized artifact; no runtime acceptance"
+}

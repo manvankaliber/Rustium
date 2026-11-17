@@ -1,0 +1,32 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-REVIEW",
+  "candidate_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "disposition": "needs_repair_before_qualification",
+  "algorithm_defects_established": false,
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P1",
+      "kind": "validation_gap",
+      "summary": "Windows async teardown and provider release not fully included in all observation windows."
+    },
+    {
+      "id": "R2",
+      "priority": "P1",
+      "kind": "missing_wiring",
+      "summary": "GN/CXX probe configuration is a proposal; link, unique static libraries and production isolation are unverified."
+    },
+    {
+      "id": "R3",
+      "priority": "P2",
+      "kind": "coverage_gap",
+      "summary": "Whole qualification fixture is Kerberos gated, omitting common auth and controls in non-Kerberos builds."
+    }
+  ],
+  "runtime_tests": "pending_not_run",
+  "compilation": "not_run",
+  "supported_platforms": "source review only; Windows SSPI and POSIX GSSAPI executions pending; no other platform runtime claim",
+  "security_sanitizer_fuzz": "deferred_by_user",
+  "full_network_independence": "not_claimed",
+  "next_action": "Repair teardown windows and guards; director integrate isolated single-instance probe graph, rebind hashes, compile and run positive controls and bounded qualification at the validation gate."
+}
