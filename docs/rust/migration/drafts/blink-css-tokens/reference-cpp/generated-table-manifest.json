@@ -1,0 +1,12 @@
+{
+  "keyword_count": 1172,
+  "unit_count": 63,
+  "unit_enum_count": 69,
+  "source_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+  "configured_generated_source_head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+  "generated_header_sha256": "049c3b44ccd89e547d24bec6f759d8a687c2c15bc9de881870cf41e1f963c1d2",
+  "generated_cc_sha256": "7e2639294bf46eacb1928423d1da161370070a85336b6faad8a34be7fed0be69",
+  "unit_input_sha256": "96b1cc070eacd9edbfd3ddbca4053c7624ccc746a1ae2a90cd1f90b753297609",
+  "unit_enum_source_sha256": "86c894ac99d917aaeab0df9a3e17fa0e4177a2f6d6233f0a8008743696d5d6c7",
+  "rust_table_sha256": "e7eb5732f7dcd22cd575be00606a2fd638cd1bc906cc163b70da73eaae3e73a9"
+}

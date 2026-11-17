@@ -6,6 +6,8 @@
 use std::borrow::Cow;
 use std::ops::Range;
 
+mod css_tables;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Input<'a> {
     Bytes(&'a [u8]),
@@ -67,18 +69,262 @@ pub struct Token<'a> {
     pub value: Option<Cow<'a, [u16]>>,
     pub delimiter: Option<u16>,
     pub number: Option<f64>,
+    pub number_bits: Option<u64>,
     /// Exact lexical spelling for numeric tokens, supplied to NumberProvider.
     pub numeric_source: Option<Cow<'a, [u16]>>,
     pub numeric_is_integer: bool,
     pub numeric_sign: i8,
     pub hash_is_id: bool,
+    pub value_id: u16,
+    pub unit_id: Option<u16>,
     pub unicode_range: Option<(u32, u32)>,
     pub block: i8,
 }
 
-pub trait NumberProvider {
-    fn parse_blink_decimal(&self, source: &[u16]) -> f64;
-    fn format_blink_number(&self, value: f64) -> String;
+impl Token<'_> {
+    /// Token serialization policy. Numeric spelling itself is delegated only
+    /// to the three approved decimal provider operations.
+    pub fn serialize(&self, numbers: &impl NumberProvider) -> Option<Vec<u16>> {
+        use Kind::*;
+        let text = |s: &str| s.encode_utf16().collect::<Vec<_>>();
+        let val = self.value.as_deref().unwrap_or(&[]);
+        let out = match self.kind {
+            Ident => serialize_identifier(val, false),
+            Function => {
+                let mut x = serialize_identifier(val, false);
+                x.push(40);
+                x
+            }
+            AtKeyword => {
+                let mut x = vec![64];
+                x.extend(serialize_identifier(val, false));
+                x
+            }
+            Hash => {
+                let mut x = vec![35];
+                x.extend(serialize_identifier(val, !self.hash_is_id));
+                x
+            }
+            Url => {
+                let mut x = text("url(");
+                x.extend(serialize_identifier(val, false));
+                x.push(41);
+                x
+            }
+            Delimiter => {
+                let c = self.delimiter?;
+                if c == 92 {
+                    text("\\\n")
+                } else {
+                    vec![c]
+                }
+            }
+            Number | Percentage | Dimension => serialize_numeric(self, numbers)?,
+            UnicodeRange => {
+                let (a, b) = self.unicode_range?;
+                text(&format!("U+{a:X}-{b:X}"))
+            }
+            String => serialize_string(val),
+            BadString => text("'\n"),
+            BadUrl => text("url(()"),
+            Whitespace => vec![32],
+            IncludeMatch => text("~="),
+            DashMatch => text("|="),
+            PrefixMatch => text("^="),
+            SuffixMatch => text("$="),
+            SubstringMatch => text("*="),
+            Column => text("||"),
+            Cdo => text("<!--"),
+            Cdc => text("-->"),
+            Colon => vec![58],
+            Semicolon => vec![59],
+            Comma => vec![44],
+            LParen => vec![40],
+            RParen => vec![41],
+            LBracket => vec![91],
+            RBracket => vec![93],
+            LBrace => vec![123],
+            RBrace => vec![125],
+            Eof | Comment => return None,
+        };
+        Some(out)
+    }
+
+    pub fn semantically_equal(&self, other: &Token<'_>) -> bool {
+        if self.kind != other.kind {
+            return false;
+        }
+        use Kind::*;
+        match self.kind {
+            Delimiter => self.delimiter == other.delimiter,
+            Hash => self.hash_is_id == other.hash_is_id && self.value == other.value,
+            Ident | Function | String | Url => self.value == other.value,
+            Dimension => {
+                self.value == other.value
+                    && self.numeric_sign == other.numeric_sign
+                    && self.number == other.number
+                    && self.numeric_is_integer == other.numeric_is_integer
+            }
+            Number | Percentage => {
+                self.numeric_sign == other.numeric_sign
+                    && self.number == other.number
+                    && self.numeric_is_integer == other.numeric_is_integer
+            }
+            UnicodeRange => self.unicode_range == other.unicode_range,
+            _ => true,
+        }
+    }
+}
+
+fn ascii_u16(bytes: &[u8]) -> Vec<u16> {
+    bytes.iter().map(|b| *b as u16).collect()
+}
+fn serialize_numeric(t: &Token<'_>, p: &impl NumberProvider) -> Option<Vec<u16>> {
+    let bits = t.number_bits?;
+    let value = f64::from_bits(bits);
+    let raw = match t.kind {
+        Kind::Number if t.numeric_is_integer => {
+            let n = if value.is_nan() {
+                0
+            } else if value >= i64::MAX as f64 {
+                i64::MAX
+            } else if value <= i64::MIN as f64 {
+                i64::MIN
+            } else {
+                value as i64
+            };
+            n.to_string().into_bytes()
+        }
+        Kind::Percentage => p.format_wtf_six_significant(bits),
+        Kind::Number | Kind::Dimension => p.format_ecmascript_shortest(bits),
+        _ => return None,
+    };
+    let mut out = ascii_u16(&raw);
+    if t.kind == Kind::Number
+        && !t.numeric_is_integer
+        && !raw.contains(&b'.')
+        && !raw.contains(&b'e')
+    {
+        out.extend([46, 48]);
+    }
+    if t.kind == Kind::Percentage {
+        out.push(37);
+    }
+    if t.kind == Kind::Dimension {
+        out.extend(serialize_identifier(t.value.as_deref()?, false));
+    }
+    Some(out)
+}
+fn serialize_string(v: &[u16]) -> Vec<u16> {
+    let mut o = vec![34];
+    let mut i = 0;
+    while i < v.len() {
+        let c = v[i];
+        let cp = if (0xd800..=0xdbff).contains(&c)
+            && v.get(i + 1).is_some_and(|x| (0xdc00..=0xdfff).contains(x))
+        {
+            let hi = (c as u32) - 0xd800;
+            let lo = (v[i + 1] as u32) - 0xdc00;
+            i += 2;
+            0x10000 + ((hi << 10) | lo)
+        } else {
+            i += 1;
+            c as u32
+        };
+        if cp <= 0x1f || cp == 0x7f {
+            append_hex_escape(&mut o, cp)
+        } else if cp == 34 || cp == 92 {
+            o.push(92);
+            o.push(cp as u16)
+        } else {
+            append_scalar(&mut o, cp)
+        }
+    }
+    o.push(34);
+    o
+}
+fn serialize_identifier(v: &[u16], skip_start: bool) -> Vec<u16> {
+    let mut o = Vec::new();
+    let mut i = 0;
+    let mut first = !skip_start;
+    let mut second = false;
+    let mut first_hyphen = false;
+    while i < v.len() {
+        let c = v[i];
+        let cp = if (0xd800..=0xdbff).contains(&c)
+            && v.get(i + 1).is_some_and(|x| (0xdc00..=0xdfff).contains(x))
+        {
+            let hi = c as u32 - 0xd800;
+            let lo = v[i + 1] as u32 - 0xdc00;
+            i += 2;
+            0x10000 + ((hi << 10) | lo)
+        } else {
+            i += 1;
+            c as u32
+        };
+        if cp == 0 {
+            o.push(0xfffd);
+        } else if cp <= 0x1f
+            || cp == 0x7f
+            || ((48..=57).contains(&cp) && (first || (second && first_hyphen)))
+        {
+            append_hex_escape(&mut o, cp)
+        } else if cp == 45 && first && i == v.len() {
+            o.push(45)
+        } else if cp >= 0x80
+            || cp == 45
+            || cp == 95
+            || (48..=57).contains(&cp)
+            || (65..=90).contains(&cp)
+            || (97..=122).contains(&cp)
+        {
+            append_scalar(&mut o, cp)
+        } else {
+            o.push(92);
+            append_scalar(&mut o, cp)
+        }
+        if first {
+            first = false;
+            second = true;
+            first_hyphen = cp == 45
+        } else if second {
+            second = false
+        }
+    }
+    o
+}
+fn append_hex_escape(o: &mut Vec<u16>, cp: u32) {
+    let s = format!("\\{cp:x} ");
+    o.extend(s.bytes().map(|b| b as u16));
+}
+fn append_scalar(o: &mut Vec<u16>, cp: u32) {
+    if let Some(c) = char::from_u32(cp) {
+        let mut b = [0u16; 2];
+        o.extend_from_slice(c.encode_utf16(&mut b));
+    } else {
+        o.push(0xfffd)
+    }
+}
+
+pub(crate) trait NumberProvider {
+    fn parse_ascii_decimal(&self, source: &[u8]) -> DecimalResult;
+    fn format_ecmascript_shortest(&self, binary64_bits: u64) -> Vec<u8>;
+    fn format_wtf_six_significant(&self, binary64_bits: u64) -> Vec<u8>;
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum DecimalStatus {
+    Ok,
+    Invalid,
+    Overflow,
+    Underflow,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) struct DecimalResult {
+    pub binary64_bits: u64,
+    pub consumed: usize,
+    pub status: DecimalStatus,
 }
 
 #[derive(Clone, Debug)]
@@ -119,8 +365,31 @@ impl<'a> Tokenizer<'a> {
     fn peek(&self, n: usize) -> u16 {
         self.units.get(self.pos + n).copied().unwrap_or(0)
     }
+    fn effective(&self, p: usize) -> u16 {
+        let Some(&c) = self.units.get(p) else { return 0 };
+        if c == 0 {
+            return 0xfffd;
+        }
+        if (0xd800..=0xdbff).contains(&c)
+            && !self.units.get(p + 1).is_some_and(|x| (0xdc00..=0xdfff).contains(x))
+        {
+            return 0xfffd;
+        }
+        if (0xdc00..=0xdfff).contains(&c)
+            && !(p > 0 && (0xd800..=0xdbff).contains(&self.units[p - 1]))
+        {
+            return 0xfffd;
+        }
+        c
+    }
     fn raw(&self, n: usize) -> u16 {
         self.peek(n)
+    }
+    fn source_value(&self, range: Range<usize>) -> Cow<'a, [u16]> {
+        match &self.input {
+            Input::Utf16(source) => Cow::Borrowed(&source[range]),
+            Input::Bytes(_) => Cow::Owned(self.units[range].to_vec()),
+        }
     }
     fn eof(&self) -> bool {
         self.pos >= self.units.len()
@@ -129,13 +398,8 @@ impl<'a> Tokenizer<'a> {
         if self.eof() {
             return 0;
         }
-        let c = self.units[self.pos];
         self.pos += 1;
-        if c == 0 || (0xd800..=0xdfff).contains(&c) {
-            0xfffd
-        } else {
-            c
-        }
+        self.effective(self.pos - 1)
     }
     fn html_space(c: u16) -> bool {
         matches!(c, 9 | 10 | 12 | 13 | 32)
@@ -166,16 +430,16 @@ impl<'a> Tokenizer<'a> {
         c >= 0x80 || c == 95 || (65..=90).contains(&c) || (97..=122).contains(&c)
     }
     fn valid_escape(a: u16, b: u16) -> bool {
-        a == 92 && !Self::newline(b) && b != 0
+        a == 92 && !Self::newline(b)
     }
     fn starts_ident(&self, first: u16) -> bool {
-        let second = self.peek(0);
+        let second = self.effective(self.pos);
         Self::name_start(first)
             || Self::valid_escape(first, second)
             || (first == 45
                 && (Self::name_start(second)
                     || second == 45
-                    || Self::valid_escape(second, self.peek(1))))
+                    || Self::valid_escape(second, self.effective(self.pos + 1))))
     }
     fn token(&self, kind: Kind, start: usize) -> Token<'a> {
         Token {
@@ -184,10 +448,13 @@ impl<'a> Tokenizer<'a> {
             value: None,
             delimiter: None,
             number: None,
+            number_bits: None,
             numeric_source: None,
             numeric_is_integer: true,
             numeric_sign: 0,
             hash_is_id: false,
+            value_id: 0,
+            unit_id: None,
             unicode_range: None,
             block: 0,
         }
@@ -202,7 +469,7 @@ impl<'a> Tokenizer<'a> {
             self.pos += 1;
         }
     }
-    fn consume_escape(&mut self) -> u16 {
+    fn consume_escape(&mut self) -> u32 {
         let mut c = self.consume();
         if let Some(mut n) = Self::hex(c) {
             for _ in 1..6 {
@@ -221,7 +488,7 @@ impl<'a> Tokenizer<'a> {
             if n == 0 || n > 0x10ffff || (0xd800..=0xdfff).contains(&n) {
                 return 0xfffd;
             }
-            return n as u16;
+            return n;
         }
         if c == 0 {
             0xfffd
@@ -232,9 +499,13 @@ impl<'a> Tokenizer<'a> {
     fn consume_name(&mut self, start: usize) -> (Cow<'a, [u16]>, bool) {
         let mut escaped = false;
         while !self.eof() {
-            if Self::name(self.peek(0)) {
+            let normalized = self.effective(self.pos);
+            if Self::name(normalized) {
+                if normalized != self.peek(0) {
+                    escaped = true;
+                }
                 self.pos += 1;
-            } else if Self::valid_escape(self.peek(0), self.peek(1)) {
+            } else if Self::valid_escape(normalized, self.effective(self.pos + 1)) {
                 escaped = true;
                 self.pos += 1;
                 self.consume_escape();
@@ -247,21 +518,21 @@ impl<'a> Tokenizer<'a> {
             let mut p = start;
             while p < self.pos {
                 let c = self.units[p];
-                if c == 92 && p + 1 < self.pos {
+                if c == 92 && p + 1 <= self.pos {
                     p += 1;
                     let save = self.pos;
                     self.pos = p;
-                    out.push(self.consume_escape());
+                    append_scalar(&mut out, self.consume_escape());
                     p = self.pos;
                     self.pos = save;
                 } else {
-                    out.push(if c == 0 || (0xd800..=0xdfff).contains(&c) { 0xfffd } else { c });
+                    out.push(self.effective(p));
                     p += 1;
                 }
             }
             (Cow::Owned(out), true)
         } else {
-            (Cow::Borrowed(&self.units[start..self.pos]), false)
+            (self.source_value(start..self.pos), false)
         }
     }
     fn would_number(&self, first: u16) -> bool {
@@ -326,6 +597,14 @@ impl<'a> Tokenizer<'a> {
             if c == 34 || c == 39 {
                 return self.string(start, c);
             }
+            if (c == 117 || c == 85)
+                && self.unicode_ranges_allowed
+                && self.peek(0) == 43
+                && (Self::hex(self.peek(1)).is_some() || self.peek(1) == 63)
+            {
+                self.pos += 1;
+                return self.unicode_range(start);
+            }
             if self.would_number(c) {
                 self.pos = start;
                 return self.number(start, numbers);
@@ -382,18 +661,20 @@ impl<'a> Tokenizer<'a> {
                 self.pos = start;
                 return self.ident_like(start);
             }
-            if c == 64 && self.starts_ident(self.peek(0)) {
+            if c == 64 && self.starts_ident(self.effective(self.pos)) {
                 let s = self.pos;
                 let (v, _) = self.consume_name(s);
                 return self.text_token(Kind::AtKeyword, start, v);
             }
             if c == 35
-                && (Self::name(self.peek(0)) || Self::valid_escape(self.peek(0), self.peek(1)))
+                && (Self::name(self.effective(self.pos))
+                    || Self::valid_escape(self.effective(self.pos), self.effective(self.pos + 1)))
             {
+                let is_id = self.starts_ident(self.peek(0));
                 let s = self.pos;
                 let (v, _) = self.consume_name(s);
                 let mut t = self.text_token(Kind::Hash, start, v);
-                t.hash_is_id = self.starts_ident(self.peek(0));
+                t.hash_is_id = is_id;
                 return t;
             }
             if c == 42 && self.peek(0) == 61 {
@@ -445,11 +726,14 @@ impl<'a> Tokenizer<'a> {
                 }
             }
             let mut t = self.text_token(Kind::Function, start, v);
+            t.value_id = keyword_id(t.value.as_deref().unwrap_or(&[]));
             t.block = 1;
             self.block_stack.push(Kind::LParen);
             t
         } else {
-            self.text_token(Kind::Ident, start, v)
+            let mut t = self.text_token(Kind::Ident, start, v);
+            t.value_id = keyword_id(t.value.as_deref().unwrap_or(&[]));
+            t
         }
     }
     fn number(&mut self, start: usize, numbers: &impl NumberProvider) -> Token<'a> {
@@ -459,16 +743,49 @@ impl<'a> Tokenizer<'a> {
         t.numeric_is_integer = integer;
         t.numeric_sign = sign;
         let raw = &self.units[start..end];
-        t.number = Some(numbers.parse_blink_decimal(raw));
-        t.numeric_source = Some(Cow::Borrowed(raw));
-        if self.starts_ident(self.peek(0)) {
+        let unsigned_start = start + usize::from(sign != 0);
+        let value =
+            if integer && matches!(&self.input, Input::Bytes(_)) && end - unsigned_start <= 14 {
+                let mut n = 0u64;
+                for c in &self.units[unsigned_start..end] {
+                    n = n * 10 + (*c - 48) as u64;
+                }
+                if sign < 0 {
+                    -(n as f64)
+                } else {
+                    n as f64
+                }
+            } else {
+                let ascii: Vec<u8> = raw.iter().map(|c| *c as u8).collect();
+                let parsed = numbers.parse_ascii_decimal(&ascii);
+                if parsed.consumed != ascii.len() || parsed.status == DecimalStatus::Invalid {
+                    0.0
+                } else {
+                    f64::from_bits(parsed.binary64_bits)
+                }
+            };
+        let limit = f32::MAX as f64;
+        let value = if value > limit {
+            limit
+        } else if value < -limit {
+            -limit
+        } else {
+            value
+        };
+        t.number_bits = Some(value.to_bits());
+        t.number = Some(value);
+        t.unit_id = Some(1); // CSSPrimitiveValue::UnitType::kNumber
+        t.numeric_source = Some(self.source_value(start..end));
+        if self.starts_ident(self.effective(self.pos)) {
             let s = self.pos;
             let (v, _) = self.consume_name(s);
             t.kind = Kind::Dimension;
+            t.unit_id = Some(unit_id(&v));
             t.value = Some(v);
         } else if self.peek(0) == 37 {
             self.pos += 1;
             t.kind = Kind::Percentage;
+            t.unit_id = Some(2); // CSSPrimitiveValue::UnitType::kPercentage
         }
         t
     }
@@ -481,6 +798,7 @@ impl<'a> Tokenizer<'a> {
                 t.span = start..self.pos;
                 return t;
             }
+            let raw = self.peek(0);
             let c = self.consume();
             if c == q {
                 let mut t = self.text_token(
@@ -489,11 +807,14 @@ impl<'a> Tokenizer<'a> {
                     if escaped {
                         Cow::Owned(out)
                     } else {
-                        Cow::Borrowed(&self.units[start + 1..self.pos - 1])
+                        self.source_value(start + 1..self.pos - 1)
                     },
                 );
                 t.span = start..self.pos;
                 return t;
+            }
+            if raw != c {
+                escaped = true;
             }
             if Self::newline(c) {
                 self.pos -= 1;
@@ -511,7 +832,7 @@ impl<'a> Tokenizer<'a> {
                         self.pos += 1
                     }
                 } else {
-                    out.push(self.consume_escape())
+                    append_scalar(&mut out, self.consume_escape())
                 }
             } else {
                 out.push(c)
@@ -540,13 +861,13 @@ impl<'a> Tokenizer<'a> {
                 self.bad_url();
                 return self.token(Kind::BadUrl, start);
             }
-            if c == 34 || c == 39 || c == 40 || c == 127 {
+            if c == 34 || c == 39 || c == 40 || is_non_printable(c) {
                 self.bad_url();
                 return self.token(Kind::BadUrl, start);
             }
             if c == 92 {
                 if Self::valid_escape(c, self.peek(0)) {
-                    out.push(self.consume_escape())
+                    append_scalar(&mut out, self.consume_escape())
                 } else {
                     self.bad_url();
                     return self.token(Kind::BadUrl, start);
@@ -567,6 +888,80 @@ impl<'a> Tokenizer<'a> {
             }
         }
     }
+
+    fn unicode_range(&mut self, start: usize) -> Token<'a> {
+        let mut remaining = 6usize;
+        let mut first = 0u32;
+        while remaining > 0 {
+            if let Some(v) = Self::hex(self.peek(0)) {
+                first = first * 16 + v;
+                self.pos += 1;
+                remaining -= 1
+            } else {
+                break;
+            }
+        }
+        let mut last = first;
+        if remaining > 0 && self.peek(0) == 63 {
+            while remaining > 0 && self.peek(0) == 63 {
+                first *= 16;
+                last = last * 16 + 15;
+                self.pos += 1;
+                remaining -= 1
+            }
+        } else if self.peek(0) == 45 && Self::hex(self.peek(1)).is_some() {
+            self.pos += 1;
+            remaining = 6;
+            last = 0;
+            while remaining > 0 {
+                if let Some(v) = Self::hex(self.peek(0)) {
+                    last = last * 16 + v;
+                    self.pos += 1;
+                    remaining -= 1
+                } else {
+                    break;
+                }
+            }
+        }
+        let mut t = self.token(Kind::UnicodeRange, start);
+        t.unicode_range = Some((first, last));
+        t
+    }
+}
+
+pub fn needs_inserted_comment(a: &Token<'_>, b: &Token<'_>) -> bool {
+    use Kind::*;
+    let at = a.kind;
+    let bt = b.kind;
+    let ad = a.delimiter.unwrap_or(0);
+    let bd = b.delimiter.unwrap_or(0);
+    if matches!(at, Ident | AtKeyword | Hash | Dimension | Number)
+        || (at == Delimiter && (ad == 35 || ad == 45))
+    {
+        if at == Ident && bt == LParen {
+            return true;
+        }
+        if at == Number && bt == Delimiter {
+            if bd == 45 {
+                return false;
+            }
+            if bd == 37 {
+                return true;
+            }
+        }
+        return matches!(
+            bt,
+            Ident | Function | Url | BadUrl | Number | Percentage | Dimension | Cdc
+        ) || (bt == Delimiter && bd == 45);
+    }
+    if at == Delimiter && ad == 64 {
+        return matches!(bt, Ident | Function | Url | BadUrl | Cdc)
+            || (bt == Delimiter && bd == 45);
+    }
+    if at == Delimiter && (ad == 46 || ad == 43) {
+        return matches!(bt, Number | Percentage | Dimension);
+    }
+    at == Delimiter && bt == Delimiter && ad == 47 && bd == 42
 }
 
 fn ascii_eq_ignore_case(a: &[u16], b: &[u16]) -> bool {
@@ -575,4 +970,288 @@ fn ascii_eq_ignore_case(a: &[u16], b: &[u16]) -> bool {
             let fold = |c: u16| if (65..=90).contains(&c) { c + 32 } else { c };
             fold(*x) == fold(*y)
         })
+}
+fn is_non_printable(c: u16) -> bool {
+    c <= 8 || c == 11 || (14..=31).contains(&c) || c == 127
+}
+
+fn keyword_id(v: &[u16]) -> u16 {
+    if v.iter().any(|c| *c > 127) {
+        return 0;
+    }
+    let lower: Vec<u8> =
+        v.iter().map(|c| if (65..=90).contains(c) { (*c + 32) as u8 } else { *c as u8 }).collect();
+    css_tables::CSS_KEYWORDS
+        .iter()
+        .position(|s| s.as_bytes() == lower.as_slice())
+        .map_or(0, |i| (i + 1) as u16)
+}
+fn unit_id(v: &[u16]) -> u16 {
+    if v.iter().any(|c| *c > 127) {
+        return 0;
+    }
+    let lower: Vec<u8> =
+        v.iter().map(|c| if (65..=90).contains(c) { (*c + 32) as u8 } else { *c as u8 }).collect();
+    css_tables::CSS_UNITS
+        .iter()
+        .find(|(s, _)| s.as_bytes() == lower.as_slice())
+        .map_or(0, |(_, id)| *id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    struct FixedNumbers;
+    impl NumberProvider for FixedNumbers {
+        fn parse_ascii_decimal(&self, s: &[u8]) -> DecimalResult {
+            let value = match s {
+                b"2.0" | b"2e0" => 2.0,
+                b"1.5" => 1.5,
+                b"-0.0" => -0.0,
+                b"2e3" => 2000.0,
+                _ => 0.0,
+            };
+            DecimalResult {
+                binary64_bits: value.to_bits(),
+                consumed: s.len(),
+                status: DecimalStatus::Ok,
+            }
+        }
+        fn format_ecmascript_shortest(&self, b: u64) -> Vec<u8> {
+            match f64::from_bits(b) {
+                2.0 => b"2".to_vec(),
+                1.5 => b"1.5".to_vec(),
+                2000.0 => b"2000".to_vec(),
+                _ => b"0".to_vec(),
+            }
+        }
+        fn format_wtf_six_significant(&self, b: u64) -> Vec<u8> {
+            self.format_ecmascript_shortest(b)
+        }
+    }
+    fn kinds(s: &[u8], comments: bool) -> Vec<Kind> {
+        let mut t = Tokenizer::new(Input::Bytes(s), 0).with_comments(comments);
+        let mut v = Vec::new();
+        for _ in 0..64 {
+            let x = t.next_token(&FixedNumbers);
+            v.push(x.kind);
+            if x.kind == Kind::Eof {
+                break;
+            }
+        }
+        v
+    }
+
+    #[test]
+    fn original_single_character_tokens() {
+        assert_eq!(
+            kinds(b"()[],;{}", false),
+            vec![
+                Kind::LParen,
+                Kind::RParen,
+                Kind::LBracket,
+                Kind::RBracket,
+                Kind::Comma,
+                Kind::Semicolon,
+                Kind::LBrace,
+                Kind::RBrace,
+                Kind::Eof
+            ]
+        );
+    }
+    #[test]
+    fn original_multiple_character_tokens() {
+        assert_eq!(
+            kinds(b"~= |= ^= $= *= || <!-- -->", false),
+            vec![
+                Kind::IncludeMatch,
+                Kind::Whitespace,
+                Kind::DashMatch,
+                Kind::Whitespace,
+                Kind::PrefixMatch,
+                Kind::Whitespace,
+                Kind::SuffixMatch,
+                Kind::Whitespace,
+                Kind::SubstringMatch,
+                Kind::Whitespace,
+                Kind::Column,
+                Kind::Whitespace,
+                Kind::Cdo,
+                Kind::Whitespace,
+                Kind::Cdc,
+                Kind::Eof
+            ]
+        );
+    }
+    #[test]
+    fn original_delimiter_token() {
+        assert_eq!(
+            kinds(b"^*&~|&", false),
+            vec![Kind::Delimiter; 6].into_iter().chain([Kind::Eof]).collect::<Vec<_>>()
+        );
+    }
+    #[test]
+    fn original_whitespace_tokens() {
+        assert_eq!(
+            kinds(b" \t\r\n\x0c*", false),
+            vec![Kind::Whitespace, Kind::Delimiter, Kind::Eof]
+        );
+    }
+    #[test]
+    fn original_escapes() {
+        let mut t = Tokenizer::new(Input::Bytes(b"hel\\6Co"), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.kind, Kind::Ident);
+        assert_eq!(x.value.unwrap().as_ref(), &[104, 101, 108, 108, 111]);
+    }
+    #[test]
+    fn original_ident_token() {
+        assert_eq!(kinds(b"simple-ident", false), vec![Kind::Ident, Kind::Eof]);
+    }
+    #[test]
+    fn original_function_token() {
+        assert_eq!(
+            kinds(b"scale(2)", false),
+            vec![Kind::Function, Kind::Number, Kind::RParen, Kind::Eof]
+        );
+    }
+    #[test]
+    fn original_at_keyword_token() {
+        assert_eq!(kinds(b"@media", false), vec![Kind::AtKeyword, Kind::Eof]);
+    }
+    #[test]
+    fn original_url_token() {
+        assert_eq!(kinds(b"url(foo)", false), vec![Kind::Url, Kind::Eof]);
+    }
+    #[test]
+    fn original_string_token() {
+        assert_eq!(kinds(b"'text'", false), vec![Kind::String, Kind::Eof]);
+    }
+    #[test]
+    fn original_hash_token() {
+        assert_eq!(kinds(b"#id", false), vec![Kind::Hash, Kind::Eof]);
+    }
+    #[test]
+    fn original_number_token() {
+        assert_eq!(kinds(b"2.0", false), vec![Kind::Number, Kind::Eof]);
+    }
+    #[test]
+    fn original_dimension_token() {
+        assert_eq!(kinds(b"2px", false), vec![Kind::Dimension, Kind::Eof]);
+    }
+    #[test]
+    fn original_percentage_token() {
+        assert_eq!(kinds(b"2%", false), vec![Kind::Percentage, Kind::Eof]);
+    }
+    #[test]
+    fn original_unicode_range_token() {
+        let mut t = Tokenizer::new(Input::Bytes(b"U+2??"), 0);
+        t.unicode_ranges_allowed = true;
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.unicode_range, Some((0x200, 0x2ff)));
+    }
+    #[test]
+    fn original_comment_token() {
+        assert_eq!(kinds(b"/*x*/a", false), vec![Kind::Ident, Kind::Eof]);
+        assert_eq!(kinds(b"/*x*/a", true), vec![Kind::Comment, Kind::Ident, Kind::Eof]);
+    }
+
+    #[test]
+    fn preserves_valid_and_replaces_lone_surrogates() {
+        let mut t = Tokenizer::new(Input::Utf16(&[0xd83d, 0xde00]), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.value.unwrap().as_ref(), &[0xd83d, 0xde00]);
+        let mut t = Tokenizer::new(Input::Utf16(&[0xd800]), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.value.unwrap().as_ref(), &[0xfffd]);
+        let mut t = Tokenizer::new(Input::Utf16(&[97, 0, 98]), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.value.unwrap().as_ref(), &[97, 0xfffd, 98]);
+    }
+    #[test]
+    fn serializes_numeric_policy_and_dimension_compatibility() {
+        let mut t = Tokenizer::new(Input::Bytes(b"2.0"), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.serialize(&FixedNumbers).unwrap(), vec![50, 46, 48]);
+        let mut t = Tokenizer::new(Input::Bytes(b"4e3e2"), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.kind, Kind::Dimension);
+    }
+
+    #[test]
+    fn original_keyword_and_unit_ids() {
+        let mut t = Tokenizer::new(Input::Bytes(b"inherit 2PX"), 0);
+        let id = t.next_token(&FixedNumbers);
+        assert_eq!(id.value_id, 1);
+        let _ = t.next_token(&FixedNumbers);
+        let d = t.next_token(&FixedNumbers);
+        assert_eq!(d.kind, Kind::Dimension);
+        assert_eq!(d.unit_id, Some(5));
+    }
+    #[test]
+    fn preserves_storage_unit_offsets() {
+        let mut b = Tokenizer::new(Input::Bytes(b"a b"), 0);
+        let a = b.next_token(&FixedNumbers);
+        let ws = b.next_token(&FixedNumbers);
+        let z = b.next_token(&FixedNumbers);
+        assert_eq!((a.span, ws.span, z.span), (0..1, 1..2, 2..3));
+        let source = [0x61, 0x20, 0xd83d, 0xde00];
+        let mut u = Tokenizer::new(Input::Utf16(&source), 0);
+        let _ = u.next_token(&FixedNumbers);
+        let _ = u.next_token(&FixedNumbers);
+        let emoji = u.next_token(&FixedNumbers);
+        assert_eq!(emoji.span, 2..4);
+    }
+    #[test]
+    fn malformed_number_boundaries_preserve_unit_suffix() {
+        let mut t = Tokenizer::new(Input::Bytes(b"2e+"), 0);
+        let x = t.next_token(&FixedNumbers);
+        assert_eq!(x.kind, Kind::Dimension);
+        assert_eq!(x.value.unwrap().as_ref(), &[101]);
+        assert_eq!(t.next_token(&FixedNumbers).delimiter, Some(43));
+    }
+    #[test]
+    fn malformed_url_and_bad_string_reconsume_boundaries() {
+        assert_eq!(kinds(b"url(a b)", false), vec![Kind::BadUrl, Kind::Eof]);
+        assert_eq!(
+            kinds(b"'bad\nnext", false),
+            vec![Kind::BadString, Kind::Whitespace, Kind::Ident, Kind::Eof]
+        );
+    }
+    #[test]
+    fn comment_insertion_policy() {
+        let a = Token {
+            kind: Kind::Ident,
+            span: 0..1,
+            value: Some(Cow::Owned(vec![97])),
+            delimiter: None,
+            number: None,
+            number_bits: None,
+            numeric_source: None,
+            numeric_is_integer: true,
+            numeric_sign: 0,
+            hash_is_id: false,
+            value_id: 0,
+            unit_id: None,
+            unicode_range: None,
+            block: 0,
+        };
+        let b = Token {
+            kind: Kind::LParen,
+            span: 0..1,
+            value: None,
+            delimiter: None,
+            number: None,
+            number_bits: None,
+            numeric_source: None,
+            numeric_is_integer: true,
+            numeric_sign: 0,
+            hash_is_id: false,
+            value_id: 0,
+            unit_id: None,
+            unicode_range: None,
+            block: 0,
+        };
+        assert!(needs_inserted_comment(&a, &b));
+    }
 }

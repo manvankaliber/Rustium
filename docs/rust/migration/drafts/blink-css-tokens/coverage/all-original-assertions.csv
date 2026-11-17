@@ -1,0 +1,282 @@
+original_test,source_line,assertion_macro,rust_test_target,original_assertion_arguments,mapping_status
+unscoped,14,TEST_TOKENS,original_unscoped,"string, ...",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,23,ASSERT_EQ,original_unscoped,"expected.GetType(), actual.GetType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,26,ASSERT_EQ,original_unscoped,"expected.Delimiter(), actual.Delimiter()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,32,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,35,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,36,ASSERT_EQ,original_unscoped,"expected.GetNumericValueType(), actual.GetNumericValueType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,37,ASSERT_DOUBLE_EQ,original_unscoped,"expected.NumericValue(), actual.NumericValue()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,40,ASSERT_EQ,original_unscoped,"expected.GetNumericSign(), actual.GetNumericSign()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,43,ASSERT_EQ,original_unscoped,"expected.GetNumericValueType(), actual.GetNumericValueType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,44,ASSERT_DOUBLE_EQ,original_unscoped,"expected.NumericValue(), actual.NumericValue()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,47,ASSERT_EQ,original_unscoped,"expected.UnicodeRangeStart(), actual.UnicodeRangeStart()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,48,ASSERT_EQ,original_unscoped,"expected.UnicodeRangeEnd(), actual.UnicodeRangeEnd()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,51,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,52,ASSERT_EQ,original_unscoped,"expected.GetHashTokenType(), actual.GetHashTokenType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,97,TestUnicodeRangeTokens,original_unscoped,"const String& string, const CSSParserToken& token1, const CSSParserToken& token2 = CSSParserToken(kEOFToken), const CSSParserToken& token3 = CSSParserToken(kEOFToken)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,102,TEST_TOKENS,original_unscoped,"string, token1, token2, token3, true",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,191,TEST_TOKENS,original_SingleCharacterTokens,"""("", LeftParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,192,TEST_TOKENS,original_SingleCharacterTokens,""")"", RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,193,TEST_TOKENS,original_SingleCharacterTokens,"""["", LeftBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,194,TEST_TOKENS,original_SingleCharacterTokens,"""]"", RightBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,195,TEST_TOKENS,original_SingleCharacterTokens,""","", Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,196,TEST_TOKENS,original_SingleCharacterTokens,""":"", Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,197,TEST_TOKENS,original_SingleCharacterTokens,""";"", Semicolon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,198,TEST_TOKENS,original_SingleCharacterTokens,""")["", RightParenthesis(), LeftBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,199,TEST_TOKENS,original_SingleCharacterTokens,"""[)"", LeftBracket(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,200,TEST_TOKENS,original_SingleCharacterTokens,"""{}"", LeftBrace(), RightBrace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+SingleCharacterTokens,201,TEST_TOKENS,original_SingleCharacterTokens,""",,"", Comma(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,205,TEST_TOKENS,original_MultipleCharacterTokens,"""~="", IncludeMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,206,TEST_TOKENS,original_MultipleCharacterTokens,"""|="", DashMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,207,TEST_TOKENS,original_MultipleCharacterTokens,"""^="", PrefixMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,208,TEST_TOKENS,original_MultipleCharacterTokens,"""$="", SuffixMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,209,TEST_TOKENS,original_MultipleCharacterTokens,"""*="", SubstringMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,210,TEST_TOKENS,original_MultipleCharacterTokens,"""||"", Column()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,211,TEST_TOKENS,original_MultipleCharacterTokens,"""|||"", Column(), Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,212,TEST_TOKENS,original_MultipleCharacterTokens,"""<!--"", Cdo()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,213,TEST_TOKENS,original_MultipleCharacterTokens,"""<!---"", Cdo(), Delim('-')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+MultipleCharacterTokens,214,TEST_TOKENS,original_MultipleCharacterTokens,"""-->"", Cdc()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,218,TEST_TOKENS,original_DelimiterToken,"""^"", Delim('^')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,219,TEST_TOKENS,original_DelimiterToken,"""*"", Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,220,TEST_TOKENS,original_DelimiterToken,"""%"", Delim('%')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,221,TEST_TOKENS,original_DelimiterToken,"""~"", Delim('~')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,222,TEST_TOKENS,original_DelimiterToken,"""|"", Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,223,TEST_TOKENS,original_DelimiterToken,"""&"", Delim('&')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,224,TEST_TOKENS,original_DelimiterToken,"""\x7f"", Delim('\x7f')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,225,TEST_TOKENS,original_DelimiterToken,"""\1"", Delim('\x1')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,226,TEST_TOKENS,original_DelimiterToken,"""~-"", Delim('~'), Delim('-')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,227,TEST_TOKENS,original_DelimiterToken,"""^|"", Delim('^'), Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,228,TEST_TOKENS,original_DelimiterToken,"""$~"", Delim('$'), Delim('~')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DelimiterToken,229,TEST_TOKENS,original_DelimiterToken,"""*^"", Delim('*'), Delim('^')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+WhitespaceTokens,233,TEST_TOKENS,original_WhitespaceTokens,""" "", Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+WhitespaceTokens,234,TEST_TOKENS,original_WhitespaceTokens,"""\n\rS"", Whitespace(), Ident(""S"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+WhitespaceTokens,235,TEST_TOKENS,original_WhitespaceTokens,""" *"", Whitespace(), Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+WhitespaceTokens,236,TEST_TOKENS,original_WhitespaceTokens,"""\r\n\f\t2"", Whitespace(), Number(kIntegerValueType, 2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,240,TEST_TOKENS,original_Escapes,"""hel\\6Co"", Ident(""hello"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,241,TEST_TOKENS,original_Escapes,"""\\26 B"", Ident(""&B"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,242,TEST_TOKENS,original_Escapes,"""'hel\\6c o'"", GetString(""hello"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,243,TEST_TOKENS,original_Escapes,"""'spac\\65\r\ns'"", GetString(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,244,TEST_TOKENS,original_Escapes,"""spac\\65\r\ns"", Ident(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,245,TEST_TOKENS,original_Escapes,"""spac\\65\n\rs"", Ident(""space""), Whitespace(), Ident(""s"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,246,TEST_TOKENS,original_Escapes,"""sp\\61\tc\\65\fs"", Ident(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,247,TEST_TOKENS,original_Escapes,"""hel\\6c o"", Ident(""hell""), Whitespace(), Ident(""o"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,248,TEST_TOKENS,original_Escapes,"""test\\\n"", Ident(""test""), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,249,TEST_TOKENS,original_Escapes,"""test\\D799"", Ident(""test"" + FromUChar32(0xD799))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,250,TEST_TOKENS,original_Escapes,"""\\E000"", Ident(FromUChar32(0xE000))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,251,TEST_TOKENS,original_Escapes,"""te\\s\\t"", Ident(""test"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,252,TEST_TOKENS,original_Escapes,"""spaces\\ in\\\tident"", Ident(""spaces in\tident"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,253,TEST_TOKENS,original_Escapes,"""\\.\\,\\:\\!"", Ident("".,:!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,254,TEST_TOKENS,original_Escapes,"""\\\r"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,255,TEST_TOKENS,original_Escapes,"""\\\f"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,256,TEST_TOKENS,original_Escapes,"""\\\r\n"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,258,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""null\\\0"")), Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,260,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""null\\\0\0"")), Ident(""null"" + replacement + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,262,TEST_TOKENS,original_Escapes,"""null\\0"", Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,263,TEST_TOKENS,original_Escapes,"""null\\0000"", Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,264,TEST_TOKENS,original_Escapes,"""large\\110000"", Ident(""large"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,265,TEST_TOKENS,original_Escapes,"""large\\23456a"", Ident(""large"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,266,TEST_TOKENS,original_Escapes,"""surrogate\\D800"", Ident(""surrogate"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,267,TEST_TOKENS,original_Escapes,"""surrogate\\0DABC"", Ident(""surrogate"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,268,TEST_TOKENS,original_Escapes,"""\\00DFFFsurrogate"", Ident(replacement + ""surrogate"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,269,TEST_TOKENS,original_Escapes,"""\\10fFfF"", Ident(FromUChar32(0x10ffff))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,270,TEST_TOKENS,original_Escapes,"""\\10fFfF0"", Ident(FromUChar32(0x10ffff) + ""0"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,271,TEST_TOKENS,original_Escapes,"""\\10000000"", Ident(FromUChar32(0x100000) + ""00"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,272,TEST_TOKENS,original_Escapes,"""eof\\"", Ident(""eof"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,281,TEST_TOKENS,original_Escapes,"long_escaped.ToString(), Ident(long_expected.ToString())",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,288,TEST_TOKENS,original_Escapes,"huge_escaped.ToString(), Ident(huge_expected.ToString())",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,300,EXPECT_EQ,original_Escapes,"token.Value(), ""w-[24px]""",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,304,EXPECT_EQ,original_Escapes,"count, 3000",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,308,TEST_TOKENS,original_Escapes,"""abcdefghijklmnop\\:x"", Ident(""abcdefghijklmnop:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,309,TEST_TOKENS,original_Escapes,"""abcdefghijklmno\\:x"", Ident(""abcdefghijklmno:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,310,TEST_TOKENS,original_Escapes,"""abcdefghijklmnopq\\:x"", Ident(""abcdefghijklmnopq:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,311,TEST_TOKENS,original_Escapes,"""\\:abcdefghijklmnopqrstuvwxyz"", Ident("":abcdefghijklmnopqrstuvwxyz"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,314,TEST_TOKENS,original_Escapes,"String::FromUtf8(""caf\u00e9\\:x""), Ident(String::FromUtf8(""caf\u00e9:x""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,316,TEST_TOKENS,original_Escapes,"String::FromUtf8(""na\\:\u00efve""), Ident(String::FromUtf8(""na:\u00efve""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,318,TEST_TOKENS,original_Escapes,"String::FromUtf8(""a\\:\u2026b""), Ident(String::FromUtf8(""a:\u2026b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,320,TEST_TOKENS,original_Escapes,"String::FromUtf8(""a\\:\U0001F600b""), Ident(String::FromUtf8(""a:\U0001F600b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,322,TEST_TOKENS,original_Escapes,"String::FromUtf8(""\u2026\\:a""), Ident(String::FromUtf8(""\u2026:a""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,324,TEST_TOKENS,original_Escapes,"""a\\e9 b"", Ident(String::FromUtf8(""a\u00e9b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,325,TEST_TOKENS,original_Escapes,"""a\\2026 b"", Ident(String::FromUtf8(""a\u2026b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,326,TEST_TOKENS,original_Escapes,"""a\\:\\"", Ident(""a:"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,327,TEST_TOKENS,original_Escapes,"""a\\:\\\n"", Ident(""a:""), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,328,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""a\\:\0b"")), Ident(""a:"" + replacement + ""b"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+Escapes,330,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""a\\:b\\\0"")), Ident(""a:b"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,335,TEST_TOKENS,original_IdentToken,"""simple-ident"", Ident(""simple-ident"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,336,TEST_TOKENS,original_IdentToken,"""testing123"", Ident(""testing123"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,337,TEST_TOKENS,original_IdentToken,"""hello!"", Ident(""hello""), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,338,TEST_TOKENS,original_IdentToken,"""world\5"", Ident(""world""), Delim('\5')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,339,TEST_TOKENS,original_IdentToken,"""_under score"", Ident(""_under""), Whitespace(), Ident(""score"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,340,TEST_TOKENS,original_IdentToken,"""-_underscore"", Ident(""-_underscore"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,341,TEST_TOKENS,original_IdentToken,"""-text"", Ident(""-text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,342,TEST_TOKENS,original_IdentToken,"""-\\6d"", Ident(""-m"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,343,TEST_TOKENS,original_IdentToken,"""--abc"", Ident(""--abc"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,344,TEST_TOKENS,original_IdentToken,"""--"", Ident(""--"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,345,TEST_TOKENS,original_IdentToken,"""--11"", Ident(""--11"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,346,TEST_TOKENS,original_IdentToken,"""---"", Ident(""---"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,347,TEST_TOKENS,original_IdentToken,"FromUChar32(0x2003), Ident(FromUChar32(0x2003))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,348,TEST_TOKENS,original_IdentToken,"FromUChar32(0xA0), Ident(FromUChar32(0xA0))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,350,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1234), Ident(FromUChar32(0x1234))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,351,TEST_TOKENS,original_IdentToken,"FromUChar32(0x12345), Ident(FromUChar32(0x12345))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,352,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""\0"")), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,354,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""-\0"")), Ident(""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,356,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,358,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,361,TEST_TOKENS,original_IdentToken,"FromUChar32(0xD800), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,362,TEST_TOKENS,original_IdentToken,"""foo"" + FromUChar32(0xD800), Ident(""foo"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,363,TEST_TOKENS,original_IdentToken,"FromUChar32(0xD800) + ""foo"", Ident(FromUChar32(0xFFFD) + ""foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,364,TEST_TOKENS,original_IdentToken,"""f"" + FromUChar32(0xD800) + ""oo"", Ident(""f"" + FromUChar32(0xFFFD) + ""oo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,366,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDBFF), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,367,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDC00), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,368,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDFFF), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,370,TEST_TOKENS,original_IdentToken,"FromUChar32(0x10000), Ident(FromUChar32(0x10000))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,371,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1F600), Ident(FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,372,TEST_TOKENS,original_IdentToken,"""foo"" + FromUChar32(0x1F600), Ident(""foo"" + FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,374,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1F600) + ""foo"", Ident(FromUChar32(0x1F600) + ""foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,376,TEST_TOKENS,original_IdentToken,"FromUChar32(0x10FFFF), Ident(FromUChar32(0x10FFFF))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,378,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xD800), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,380,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xDC00), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,382,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xD800) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD) + ""suffix"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,385,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600), Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+IdentToken,387,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,392,TEST_TOKENS,original_FunctionToken,"""scale(2)"", Func(""scale""), Number(kIntegerValueType, 2, kNoSign), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,394,TEST_TOKENS,original_FunctionToken,"""foo-bar\\ baz("", Func(""foo-bar baz"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,395,TEST_TOKENS,original_FunctionToken,"""fun\\(ction("", Func(""fun(ction"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,396,TEST_TOKENS,original_FunctionToken,"""-foo("", Func(""-foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,397,TEST_TOKENS,original_FunctionToken,"""url(\""foo.gif\"""", Func(""url""), GetString(""foo.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,398,TEST_TOKENS,original_FunctionToken,"""foo( \'bar.gif\'"", Func(""foo""), Whitespace(), GetString(""bar.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+FunctionToken,402,TEST_TOKENS,original_FunctionToken,"""url( \'bar.gif\'"", Func(""url""), GetString(""bar.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,406,TEST_TOKENS,original_AtKeywordToken,"""@at-keyword"", AtKeyword(""at-keyword"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,407,TEST_TOKENS,original_AtKeywordToken,"""@testing123"", AtKeyword(""testing123"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,408,TEST_TOKENS,original_AtKeywordToken,"""@hello!"", AtKeyword(""hello""), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,409,TEST_TOKENS,original_AtKeywordToken,"""@-text"", AtKeyword(""-text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,410,TEST_TOKENS,original_AtKeywordToken,"""@--abc"", AtKeyword(""--abc"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,411,TEST_TOKENS,original_AtKeywordToken,"""@--"", AtKeyword(""--"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,412,TEST_TOKENS,original_AtKeywordToken,"""@--11"", AtKeyword(""--11"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,413,TEST_TOKENS,original_AtKeywordToken,"""@---"", AtKeyword(""---"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,414,TEST_TOKENS,original_AtKeywordToken,"""@\\ "", AtKeyword("" "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,415,TEST_TOKENS,original_AtKeywordToken,"""@-\\ "", AtKeyword(""- "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,416,TEST_TOKENS,original_AtKeywordToken,"String(base::span_from_cstring(""@-\0"")), AtKeyword(""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,418,TEST_TOKENS,original_AtKeywordToken,"""@@"", Delim('@'), Delim('@')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,419,TEST_TOKENS,original_AtKeywordToken,"""@2"", Delim('@'), Number(kIntegerValueType, 2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+AtKeywordToken,420,TEST_TOKENS,original_AtKeywordToken,"""@-1"", Delim('@'), Number(kIntegerValueType, -1, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,424,TEST_TOKENS,original_UrlToken,"""url(foo.gif)"", Url(""foo.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,425,TEST_TOKENS,original_UrlToken,"""urL(https://example.com/cats.png)"", Url(""https://example.com/cats.png"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,427,TEST_TOKENS,original_UrlToken,"""uRl(what-a.crazy^URL~this\\ is!)"", Url(""what-a.crazy^URL~this is!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,429,TEST_TOKENS,original_UrlToken,"""uRL(123#test)"", Url(""123#test"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,430,TEST_TOKENS,original_UrlToken,"""Url(escapes\\ \\\""\\'\\)\\()"", Url(""escapes \""')("")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,431,TEST_TOKENS,original_UrlToken,"""UrL( whitespace )"", Url(""whitespace"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,432,TEST_TOKENS,original_UrlToken,"""URl( whitespace-eof "", Url(""whitespace-eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,433,TEST_TOKENS,original_UrlToken,"""URL(eof"", Url(""eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,434,TEST_TOKENS,original_UrlToken,"""url(not/*a*/comment)"", Url(""not/*a*/comment"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,435,TEST_TOKENS,original_UrlToken,"""urL()"", Url("""")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,436,TEST_TOKENS,original_UrlToken,"""uRl(white space),"", BadUrl(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,437,TEST_TOKENS,original_UrlToken,"""Url(b(ad),"", BadUrl(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,438,TEST_TOKENS,original_UrlToken,"""uRl(ba'd):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,439,TEST_TOKENS,original_UrlToken,"""urL(b\""ad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,440,TEST_TOKENS,original_UrlToken,"""uRl(b\""ad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,441,TEST_TOKENS,original_UrlToken,"""Url(b\\\rad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,442,TEST_TOKENS,original_UrlToken,"""url(b\\\nad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,443,TEST_TOKENS,original_UrlToken,"""url(/*'bad')*/"", BadUrl(), Delim('*'), Delim('/')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UrlToken,444,TEST_TOKENS,original_UrlToken,"""url(ba'd\\\\))"", BadUrl(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,448,TEST_TOKENS,original_StringToken,"""'text'"", GetString(""text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,449,TEST_TOKENS,original_StringToken,"""\""text\"""", GetString(""text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,450,TEST_TOKENS,original_StringToken,"""'testing, 123!'"", GetString(""testing, 123!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,451,TEST_TOKENS,original_StringToken,"""'es\\'ca\\\""pe'"", GetString(""es'ca\""pe"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,452,TEST_TOKENS,original_StringToken,"""'\""quotes\""'"", GetString(""\""quotes\"""")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,453,TEST_TOKENS,original_StringToken,"""\""'quotes'\"""", GetString(""'quotes'"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,454,TEST_TOKENS,original_StringToken,"""\""mismatch'"", GetString(""mismatch'"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,455,TEST_TOKENS,original_StringToken,"""'text\5\t\13'"", GetString(""text\5\t\13"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,456,TEST_TOKENS,original_StringToken,"""\""end on eof"", GetString(""end on eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,457,TEST_TOKENS,original_StringToken,"""'esca\\\nped'"", GetString(""escaped"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,458,TEST_TOKENS,original_StringToken,"""\""esc\\\faped\"""", GetString(""escaped"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,459,TEST_TOKENS,original_StringToken,"""'new\\\rline'"", GetString(""newline"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,460,TEST_TOKENS,original_StringToken,"""\""new\\\r\nline\"""", GetString(""newline"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,461,TEST_TOKENS,original_StringToken,"""'bad\nstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,462,TEST_TOKENS,original_StringToken,"""'bad\rstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,463,TEST_TOKENS,original_StringToken,"""'bad\r\nstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,464,TEST_TOKENS,original_StringToken,"""'bad\fstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,465,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'\0'"")), GetString(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,467,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'hel\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+StringToken,469,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'h\\65l\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,474,TEST_TOKENS,original_HashToken,"""#id-selector"", GetHash(""id-selector"", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,475,TEST_TOKENS,original_HashToken,"""#FF7700"", GetHash(""FF7700"", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,476,TEST_TOKENS,original_HashToken,"""#3377FF"", GetHash(""3377FF"", kHashTokenUnrestricted)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,477,TEST_TOKENS,original_HashToken,"""#\\ "", GetHash("" "", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,478,TEST_TOKENS,original_HashToken,"String(base::span_from_cstring(""#\0"")), GetHash(FromUChar32(0xFFFD), kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,480,TEST_TOKENS,original_HashToken,"String(base::span_from_cstring(""#-\0"")), GetHash(""-"" + FromUChar32(0xFFFD), kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,482,TEST_TOKENS,original_HashToken,"""# "", Delim('#'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,483,TEST_TOKENS,original_HashToken,"""#\\\n"", Delim('#'), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,484,TEST_TOKENS,original_HashToken,"""#\\\r\n"", Delim('#'), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+HashToken,485,TEST_TOKENS,original_HashToken,"""#!"", Delim('#'), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,489,TEST_TOKENS,original_NumberToken,"""10"", Number(kIntegerValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,490,TEST_TOKENS,original_NumberToken,"""12.0"", Number(kNumberValueType, 12, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,491,TEST_TOKENS,original_NumberToken,"""+45.6"", Number(kNumberValueType, 45.6, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,492,TEST_TOKENS,original_NumberToken,"""-7"", Number(kIntegerValueType, -7, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,493,TEST_TOKENS,original_NumberToken,"""010"", Number(kIntegerValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,494,TEST_TOKENS,original_NumberToken,"""10e0"", Number(kNumberValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,495,TEST_TOKENS,original_NumberToken,"""12e3"", Number(kNumberValueType, 12000, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,496,TEST_TOKENS,original_NumberToken,"""3e+1"", Number(kNumberValueType, 30, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,497,TEST_TOKENS,original_NumberToken,"""12E-1"", Number(kNumberValueType, 1.2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,498,TEST_TOKENS,original_NumberToken,""".7"", Number(kNumberValueType, 0.7, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,499,TEST_TOKENS,original_NumberToken,"""-.3"", Number(kNumberValueType, -0.3, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,500,TEST_TOKENS,original_NumberToken,"""+637.54e-2"", Number(kNumberValueType, 6.3754, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,501,TEST_TOKENS,original_NumberToken,"""-12.34E+2"", Number(kNumberValueType, -1234, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,503,TEST_TOKENS,original_NumberToken,"""+ 5"", Delim('+'), Whitespace(), Number(kIntegerValueType, 5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,505,TEST_TOKENS,original_NumberToken,"""-+12"", Delim('-'), Number(kIntegerValueType, 12, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,506,TEST_TOKENS,original_NumberToken,"""+-21"", Delim('+'), Number(kIntegerValueType, -21, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,507,TEST_TOKENS,original_NumberToken,"""++22"", Delim('+'), Number(kIntegerValueType, 22, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,508,TEST_TOKENS,original_NumberToken,"""13."", Number(kIntegerValueType, 13, kNoSign), Delim('.')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,509,TEST_TOKENS,original_NumberToken,"""1.e2"", Number(kIntegerValueType, 1, kNoSign), Delim('.'), Ident(""e2"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,511,TEST_TOKENS,original_NumberToken,"""2e3.5"", Number(kNumberValueType, 2000, kNoSign), Number(kNumberValueType, 0.5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,513,TEST_TOKENS,original_NumberToken,"""2e3."", Number(kNumberValueType, 2000, kNoSign), Delim('.')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+NumberToken,514,TEST_TOKENS,original_NumberToken,"""1000000000000000000000000"", Number(kIntegerValueType, 1e24, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,519,TEST_TOKENS,original_DimensionToken,"""10px"", Dimension(kIntegerValueType, 10, ""px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,520,TEST_TOKENS,original_DimensionToken,"""12.0em"", Dimension(kNumberValueType, 12, ""em"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,521,TEST_TOKENS,original_DimensionToken,"""-12.0em"", Dimension(kNumberValueType, -12, ""em"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,522,TEST_TOKENS,original_DimensionToken,"""+45.6__qem"", Dimension(kNumberValueType, 45.6, ""__qem"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,523,TEST_TOKENS,original_DimensionToken,"""5e"", Dimension(kIntegerValueType, 5, ""e"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,524,TEST_TOKENS,original_DimensionToken,"""5px-2px"", Dimension(kIntegerValueType, 5, ""px-2px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,525,TEST_TOKENS,original_DimensionToken,"""5e-"", Dimension(kIntegerValueType, 5, ""e-"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,526,TEST_TOKENS,original_DimensionToken,"""5\\ "", Dimension(kIntegerValueType, 5, "" "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,527,TEST_TOKENS,original_DimensionToken,"""40\\70\\78"", Dimension(kIntegerValueType, 40, ""px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,528,TEST_TOKENS,original_DimensionToken,"""4e3e2"", Dimension(kNumberValueType, 4000, ""e2"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,529,TEST_TOKENS,original_DimensionToken,"""0x10px"", Dimension(kIntegerValueType, 0, ""x10px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,530,TEST_TOKENS,original_DimensionToken,"""4unit "", Dimension(kIntegerValueType, 4, ""unit""), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,531,TEST_TOKENS,original_DimensionToken,"String(base::span_from_cstring(""1-\0"")), Dimension(kIntegerValueType, 1, ""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,533,TEST_TOKENS,original_DimensionToken,"""5e+"", Dimension(kIntegerValueType, 5, ""e""), Delim('+')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,534,TEST_TOKENS,original_DimensionToken,"""2e.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+DimensionToken,536,TEST_TOKENS,original_DimensionToken,"""2e+.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+PercentageToken,541,TEST_TOKENS,original_PercentageToken,"""10%"", Percentage(kIntegerValueType, 10)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+PercentageToken,542,TEST_TOKENS,original_PercentageToken,"""+12.0%"", Percentage(kNumberValueType, 12)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+PercentageToken,543,TEST_TOKENS,original_PercentageToken,"""-48.99%"", Percentage(kNumberValueType, -48.99)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+PercentageToken,544,TEST_TOKENS,original_PercentageToken,"""6e-1%"", Percentage(kNumberValueType, 0.6)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+PercentageToken,545,TEST_TOKENS,original_PercentageToken,"""5%%"", Percentage(kIntegerValueType, 5), Delim('%')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,549,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+012345-123456"", UnicodeRng(0x012345, 0x123456)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,550,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+1234-2345"", UnicodeRng(0x1234, 0x2345)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,551,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+222-111"", UnicodeRng(0x222, 0x111)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,552,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+CafE-d00D"", UnicodeRng(0xcafe, 0xd00d)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,553,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+2??"", UnicodeRng(0x200, 0x2ff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,554,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+ab12??"", UnicodeRng(0xab1200, 0xab12ff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,555,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+??????"", UnicodeRng(0x000000, 0xffffff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,556,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+??"", UnicodeRng(0x00, 0xff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,558,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+222+111"", UnicodeRng(0x222, 0x222), Number(kIntegerValueType, 111, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,560,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+12345678"", UnicodeRng(0x123456, 0x123456), Number(kIntegerValueType, 78, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,562,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+123-12345678"", UnicodeRng(0x123, 0x123456), Number(kIntegerValueType, 78, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,564,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+cake"", UnicodeRng(0xca, 0xca), Ident(""ke"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,565,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+1234-gggg"", UnicodeRng(0x1234, 0x1234), Ident(""-gggg"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,567,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+ab12???"", UnicodeRng(0xab1200, 0xab12ff), Delim('?')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,569,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+a1?-123"", UnicodeRng(0xa10, 0xa1f), Number(kIntegerValueType, -123, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,571,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+1??4"", UnicodeRng(0x100, 0x1ff), Number(kIntegerValueType, 4, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,573,TEST_TOKENS,original_UnicodeRangeToken,"""u+z"", Ident(""u""), Delim('+'), Ident(""z"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,574,TEST_TOKENS,original_UnicodeRangeToken,"""u+"", Ident(""u""), Delim('+')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,575,TEST_TOKENS,original_UnicodeRangeToken,"""u+-543"", Ident(""u""), Delim('+'), Number(kIntegerValueType, -543, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,578,TEST_TOKENS,original_UnicodeRangeToken,"""u+012345"", Ident(""u""), Number(kIntegerValueType, 12345, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,580,TEST_TOKENS,original_UnicodeRangeToken,"""u+a"", Ident(""u""), Delim('+'), Ident(""a"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+UnicodeRangeToken,581,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+a"", UnicodeRng(0xa, 0xa)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,585,TEST_TOKENS,original_CommentToken,"""/*comment*/a"", Ident(""a"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,586,TEST_TOKENS,original_CommentToken,"""/**\\2f**//"", Delim('/')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,587,TEST_TOKENS,original_CommentToken,"""/**y*a*y**/ "", Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,588,TEST_TOKENS,original_CommentToken,""",/* \n :) \n */)"", Comma(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,589,TEST_TOKENS,original_CommentToken,""":/*/*/"", Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,590,TEST_TOKENS,original_CommentToken,"""/**/*"", Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+CommentToken,591,TEST_TOKENS,original_CommentToken,""";/******"", Semicolon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed

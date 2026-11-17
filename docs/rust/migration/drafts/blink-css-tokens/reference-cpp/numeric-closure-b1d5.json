@@ -1,0 +1,245 @@
+{
+  "task_id": "BLINK-CSS-TOKENS",
+  "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+  "extraction": "git cat-file blob; exact blob bytes; no line-ending normalization",
+  "files": [
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "0c1f82aad88ce592eb37bc9fbce7f9e5c86fc689",
+      "raw_sha256": "8c1e576427c9398def6173dd6ce33f1d86851476e2a0001b6fb22bee9a8708ce",
+      "byte_length": 8133
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "78542c57feed575b011f3a5de10fb419d1d02269",
+      "raw_sha256": "6dacb0909a70ab454e3ef0056e2d022b9018597760423942f50b794cc2c5d4d4",
+      "byte_length": 2521
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/math_extras.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "a0c67db038fa3ccda3fd71bc27981fbe74ab529b",
+      "raw_sha256": "eeb5d43ce4793ef0043326a65318d4e1a66e17d4af218387619ebd71d598238f",
+      "byte_length": 12171
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_builder.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "77bfcc281ca92fc72cf8a2309379aca5d981902e",
+      "raw_sha256": "1ec658bef96cfa5c6edc1da91d09fc4b58e8f9d00e5e10f6191ac8898d6edab1",
+      "byte_length": 10930
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_builder.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "d4d4f7bd784232816620bf6c005f8d926b5638fd",
+      "raw_sha256": "376fdd28ba42dbce01607a70e0a407df054fbc968e660a5abb084fbabf6810ac",
+      "byte_length": 15983
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/integer_to_string_conversion.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "dd479d4cfe8ff7260f9a6cbf3593b427c639935b",
+      "raw_sha256": "3250d00e828ad0390853665fd417fd5208e89caf23a5bf8a02ca28183fe3ffc6",
+      "byte_length": 4044
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/ascii_ctype.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "6ac7a7bc5962302b8f186121d6c1a4594c1cabf7",
+      "raw_sha256": "fea2278f2f956831b070f282a9ab9daffc1137353b91f8b2425a0312ea4b21b1",
+      "byte_length": 8235
+    },
+    {
+      "path": "base/numerics/safe_conversions.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+      "raw_sha256": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "byte_length": 16189
+    },
+    {
+      "path": "base/numerics/safe_conversions_impl.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "0a49213eed7676b561d788b5ad688da7f68db85e",
+      "raw_sha256": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511",
+      "byte_length": 29033
+    },
+    {
+      "path": "base/numerics/safe_conversions_arm_impl.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "55d92355c73bf242c2c6c65e0816ec5f6690f1d9",
+      "raw_sha256": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "byte_length": 1671
+    },
+    {
+      "path": "base/numerics/integral_constant_like.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "e9d01b0b77723074c9ffab8638cd7b4d8d84e34c",
+      "raw_sha256": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "byte_length": 830
+    },
+    {
+      "path": "base/third_party/double_conversion/BUILD.gn",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "d95a1eb183db7a7d3d41639584d931c9664b48dc",
+      "raw_sha256": "00c032c04c37cd13c8f2a7cbfd26068d7f31ebe1cee07678da8ebe277c80dd32",
+      "byte_length": 1223
+    },
+    {
+      "path": "base/third_party/double_conversion/README.chromium",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "011406e326dec90170852f492bf831582312e9d0",
+      "raw_sha256": "35939d1e743e5a7be8ea4055c3524d00e70246b3471d753528d7b4f1d1651741",
+      "byte_length": 500
+    },
+    {
+      "path": "base/third_party/double_conversion/crowbar.txtpb",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "c7b9f42de2a1583165df88f7b26314103dd211c8",
+      "raw_sha256": "5c5407cf40be89ff5f4eb5ac7f0a42261020aa2d7e07b72a3f4302a80c27718f",
+      "byte_length": 369
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/string-to-double.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "972956ca6907d58a26d9cc5bfcb9b185f3e7d839",
+      "raw_sha256": "9aafd7e77a23164ee94903cfd16bd1e84344a5d7a18b4ee430e35e76568b108d",
+      "byte_length": 27899
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/string-to-double.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "fdf302d4c38cec67f3bc9830231e58052ed7300d",
+      "raw_sha256": "1976310fdd04e3bc350c5f8f4b443ba0287abb4004b318f048ac41611278e4c9",
+      "byte_length": 10848
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/strtod.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "5fb1b2f104e545342cefca64b168546bb3877451",
+      "raw_sha256": "923f15ce6bff38b9aaa1f3bced157c468978ac9443fbb781f0826daeae5cd4ee",
+      "byte_length": 23469
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/strtod.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "77221fb9d5388f4fc869cdc40b345165c2a86872",
+      "raw_sha256": "08c3a8f9852b6e3399b694ead7511e0ecadc96a6a61431fc1f9df003f2ff41d8",
+      "byte_length": 3038
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/cached-powers.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "56bdfc9d6361119c668bbe2734c72de18a26f588",
+      "raw_sha256": "f0cabcc74f54ca33072671cc6c2819e39e8cd9b55db508946f2bd5acc1b48367",
+      "byte_length": 9913
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/cached-powers.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "f38c26d201fad654612c81bca05f71feafc16111",
+      "raw_sha256": "1da91324ffd4200b3cb41d1f0707277175cdd28fcbffa13104e14df431f00744",
+      "byte_length": 3021
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-to-string.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "9ea3d18d5f70070b549f4340ba38b514074c79ed",
+      "raw_sha256": "98b001f0cdfe091af43201bdcb45ed6f68d38e4a823fe29879a894ab7932efc7",
+      "byte_length": 16169
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-to-string.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "35449feeb7c588142962ebfb2dbf1f05b375f3bd",
+      "raw_sha256": "cb0b7ec6c4d8896a9d24e737ae4c33e1a341e2e5c61022a9adc1c67f4be0073b",
+      "byte_length": 24647
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fast-dtoa.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "d7a23984df2de338354fd7c7b3896f8e5fe63613",
+      "raw_sha256": "c2042b7bdd218435bcb4881a86a033bbd5dddbb6bd386a3a099247ca67882440",
+      "byte_length": 31645
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fast-dtoa.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "5f1e8eee5e56e7c496c84dc0a5bf9dad0b97fc9f",
+      "raw_sha256": "523d778935995dea5d21e59f55629ba40eaf68dedfe99e82b71efd4ae75f4e40",
+      "byte_length": 4064
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fixed-dtoa.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "e739b19804cdc219376fc9e85f825d2e6af41ab7",
+      "raw_sha256": "6cbef46bd0f6a482f4c79e34d14e49b448094d85bcefc25177957d84b62b2144",
+      "byte_length": 15352
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fixed-dtoa.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "3bdd08e21f59d5fece37eb14a6f510f464c3f2ba",
+      "raw_sha256": "5c22077d3d333998b87c578aa1a015503d162895e20e5f2ee92721c834748ee1",
+      "byte_length": 2770
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum-dtoa.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "15123e6a63cfad9d497d9de8885145ccf3101714",
+      "raw_sha256": "85a803ff5eaea5acc840182ab03dc1205b77519cb61d6615682314eb8aa90914",
+      "byte_length": 27617
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum-dtoa.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "34b961992d672c1713bc19dde430939d28dffb53",
+      "raw_sha256": "d11517ebb69107c515c5b45d820e1a2ff665ac64182f62fdd25bac804acf1d1f",
+      "byte_length": 4300
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum.cc",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "5c74d70d3df28f0bef37939cda2f0dba0411223b",
+      "raw_sha256": "cc33c3775d66d138aa49ea5a18e73ad6766ecca17009225811c33cea64bcd11b",
+      "byte_length": 24858
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "14d1ca86fc7fdefbcd394585026165225de71a14",
+      "raw_sha256": "6b63faea13f36f6026b56855aa8d28329ba1a91c564b9abc94b21608ca42cbfb",
+      "byte_length": 5891
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/diy-fp.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "a2200c4ded0cddd173eab631223b58bfa0447a0e",
+      "raw_sha256": "f8f5d66be5684ac547f68b997d41fdc57e8dc2ca1ef2ef2e3b10c6a76c9c5b75",
+      "byte_length": 5030
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/ieee.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "9203f4d558e0cea52007cc5809a715042451e8f9",
+      "raw_sha256": "bc9a4adae492f692e19db9c279eac52d4933ddf872aff43056bceee42d65a8f5",
+      "byte_length": 15223
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/utils.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "4f4dd71bf75080d5fff3dada66bc908ab6186793",
+      "raw_sha256": "ab745c4b74fdd27d967d8026d082bff3ef59ca2ca581c163dcf266bebd413795",
+      "byte_length": 15556
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-conversion.h",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "6e8884d84ca56dbfd05964e463dd7999364b3b35",
+      "raw_sha256": "2754e5e7ef1a158d00f529da03dcf943dd239ccc70e798a594f22e13e8dd0f94",
+      "byte_length": 1804
+    }
+  ]
+}

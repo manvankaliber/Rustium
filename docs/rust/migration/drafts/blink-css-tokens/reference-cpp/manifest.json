@@ -101,25 +101,23 @@
       "sha256": "41d646fd590b5ff46f2b94172970a233adbf0e5fc803aecf60d004ee3f29c4bc"
     }
   ],
-  "closure_status": "expanded but still incomplete: tokenizer/token algorithms, input/string providers, HTML spacing, CSS markup, primitive units, dtoa/format sources and direct StringToDouble sources are archived; generated keyword tables and transitive conversion/build dependencies remain to inspect",
+  "closure_status": "original tokenizer helpers plus complete numeric implementation/vendor closure and generated CSS keyword/unit source/output pins are archived; exact provenance is in linked sidecar manifests. Decimal provider operations remain director-approved external debt.",
   "provider_pins": [
     {
-      "name": "WTF StringToDouble / CharactersToDouble",
-      "implementation": "third_party/blink/renderer/platform/wtf/text/string_to_number.cc",
-      "sha256": "36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693",
-      "status": "archived; inspect and pin transitive dtoa/number parsing implementation before asserting Rust numeric equivalence"
+      "name": "WTF decimal parse + shortest + WTF6 formatting",
+      "manifest": "numeric-closure-b1d5.json",
+      "status": "all locally available implementation/vendor/helper files extracted from exact b1d5 Git blobs; Rust parity not validated; provider debt remains"
     },
     {
-      "name": "WTF StringView and String storage/width",
-      "implementation": "third_party/blink/renderer/platform/wtf/text/string_view.h + wtf_string.h",
-      "sha256": "see README.md provider inventory",
-      "status": "hash-pinned only; source not archived yet"
-    },
-    {
-      "name": "HTML space predicate",
-      "implementation": "third_party/blink/renderer/core/html/parser/html_parser_idioms.h",
-      "sha256": "0f1c6675fa2d5dcd2e28453cfdc46079f3cc2c4cd3e8dd1955f6d586d7b34a22",
-      "status": "archived; header transitive character type dependencies remain to inspect"
+      "name": "CSS keyword IDs and primitive unit IDs",
+      "manifest": "generated-inputs-b1d5.json + generated-table-manifest.json",
+      "status": "JSON5/generator/template Git blobs and configured generated outputs pinned; Rust tables generated and hash recorded"
     }
+  ],
+  "additional_manifests": [
+    "numeric-closure-b1d5.json",
+    "generated-inputs-b1d5.json",
+    "numeric-validation-reference-b1d5.json",
+    "generated-table-manifest.json"
   ]
 }

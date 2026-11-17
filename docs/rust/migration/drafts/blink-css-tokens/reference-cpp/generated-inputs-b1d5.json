@@ -1,0 +1,78 @@
+{
+  "task_id": "BLINK-CSS-TOKENS",
+  "source_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+  "configured_head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+  "files": [
+    {
+      "path": "third_party/blink/renderer/core/css/css_value_keywords.json5",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "ae1350609f0858ccf1f957d2d0fe6c46ecc67fda",
+      "raw_sha256": "54b0a5edaada31e06163636e2d0d8160529e8bbfe5d6cc15e65e124902a5697c",
+      "byte_length": 36875
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/css_primitive_value_units.json5",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "bd6a81bdc51bf0a21ed06224cfa3faad5122ff40",
+      "raw_sha256": "96b1cc070eacd9edbfd3ddbca4053c7624ccc746a1ae2a90cd1f90b753297609",
+      "byte_length": 4283
+    },
+    {
+      "path": "third_party/blink/renderer/build/scripts/core/css/make_css_value_keywords.py",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "e1657fd47a708e300664d370da071fb7b55bd4f6",
+      "raw_sha256": "dd41549ffe19c61889a1bafe3ceac402bc9ff4d012eb2869163df2789ef3372b",
+      "byte_length": 3289
+    },
+    {
+      "path": "third_party/blink/renderer/build/scripts/core/css/templates/css_value_keywords.h.tmpl",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "505e6ae84e676dce72119f4a95199fb6484d8a85",
+      "raw_sha256": "02d45322f7b0d1b6413df3acc8a80878293f09f749047df302854380d3924df1",
+      "byte_length": 1148
+    },
+    {
+      "path": "third_party/blink/renderer/build/scripts/core/css/templates/css_value_keywords.cc.tmpl",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "80bfbc6b9ef1557eee98819eec083936a6e60f77",
+      "raw_sha256": "87deec671ce3d12c05c07ff882df0ba5c01bbef7ec06434d6d34dea60675864c",
+      "byte_length": 2374
+    },
+    {
+      "path": "third_party/blink/renderer/build/scripts/core/css/make_css_primitive_value_unit_trie.py",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "75ebdd8f10375d3feeb857bb9cf7599c1421996e",
+      "raw_sha256": "263fddcee956096aa8b77bc2a2a49809ff9f490d829ffc859ffbef3cc6f62706",
+      "byte_length": 1048
+    },
+    {
+      "path": "third_party/blink/renderer/build/scripts/core/css/templates/css_primitive_value_unit_trie.cc.tmpl",
+      "origin_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+      "git_blob": "d5e0d6d1939bd5b440d4cdc3efb25ecc4d802fb1",
+      "raw_sha256": "7fc81df80d2871db27985757d6748374cac0f0a7ba30a5a71754f634089d5db9",
+      "byte_length": 1257
+    },
+    {
+      "path": "configured-generated/third_party/blink/renderer/core/css_value_keywords.h",
+      "origin_configured_head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+      "configured_source": "D:\\RustiumBuild\\src\\out\\Default\\gen\\third_party\\blink\\renderer\\core\\css_value_keywords.h",
+      "raw_sha256": "049c3b44ccd89e547d24bec6f759d8a687c2c15bc9de881870cf41e1f963c1d2",
+      "byte_length": 24549
+    },
+    {
+      "path": "configured-generated/third_party/blink/renderer/core/css_value_keywords.cc",
+      "origin_configured_head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+      "configured_source": "D:\\RustiumBuild\\src\\out\\Default\\gen\\third_party\\blink\\renderer\\core\\css_value_keywords.cc",
+      "raw_sha256": "7e2639294bf46eacb1928423d1da161370070a85336b6faad8a34be7fed0be69",
+      "byte_length": 391695
+    },
+    {
+      "path": "configured-generated/third_party/blink/renderer/core/css/css_primitive_value_unit_trie.cc",
+      "origin_configured_head": "a1dfec08a2f3ce634fcfc77bd27a88b43cfd4136",
+      "configured_source": "D:\\RustiumBuild\\src\\out\\Default\\gen\\third_party\\blink\\renderer\\core\\css\\css_primitive_value_unit_trie.cc",
+      "raw_sha256": "fd0ab3ce1245ce96fc63806ea09ae311014e70d2623f66894a12510dff3c16de",
+      "byte_length": 11102
+    }
+  ],
+  "note": "Git inputs extracted from exact blobs; generated outputs copied read-only from configured tree; hashes are raw bytes."
+}
