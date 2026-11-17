@@ -1010,7 +1010,9 @@ mod tests {
                 b"1.5" => 1.5,
                 b"-0.0" => -0.0,
                 b"2e3" => 2000.0,
-                _ => 0.0,
+                b"5" => 5.0,
+                b"-1" => -1.0,
+                _ => panic!("missing explicit numeric fixture: {:?}", s),
             };
             DecimalResult {
                 binary64_bits: value.to_bits(),
@@ -1023,11 +1025,44 @@ mod tests {
                 2.0 => b"2".to_vec(),
                 1.5 => b"1.5".to_vec(),
                 2000.0 => b"2000".to_vec(),
-                _ => b"0".to_vec(),
+                _ => panic!("missing explicit numeric formatting fixture: {b}"),
             }
         }
         fn format_wtf_six_significant(&self, b: u64) -> Vec<u8> {
             self.format_ecmascript_shortest(b)
+        }
+    }
+
+    struct StrictCaseNumbers {
+        fixtures: std::cell::RefCell<std::collections::VecDeque<(Vec<u8>, u64)>>,
+    }
+    impl StrictCaseNumbers {
+        fn new(fixtures: &[(&[u8], u64)]) -> Self {
+            Self {
+                fixtures: std::cell::RefCell::new(
+                    fixtures.iter().map(|(s, b)| (s.to_vec(), *b)).collect(),
+                ),
+            }
+        }
+        fn assert_consumed(&self, label: &str) {
+            assert!(self.fixtures.borrow().is_empty(), "{label}: unused numeric fixtures");
+        }
+    }
+    impl NumberProvider for StrictCaseNumbers {
+        fn parse_ascii_decimal(&self, source: &[u8]) -> DecimalResult {
+            let (expected, bits) = self
+                .fixtures
+                .borrow_mut()
+                .pop_front()
+                .expect("unexpected decimal provider call without fixture");
+            assert_eq!(source, expected.as_slice(), "unexpected numeric source in case fixture");
+            DecimalResult { binary64_bits: bits, consumed: source.len(), status: DecimalStatus::Ok }
+        }
+        fn format_ecmascript_shortest(&self, _: u64) -> Vec<u8> {
+            panic!("formatter was not expected in tokenizer-only case")
+        }
+        fn format_wtf_six_significant(&self, _: u64) -> Vec<u8> {
+            panic!("formatter was not expected in tokenizer-only case")
         }
     }
     fn kinds(s: &[u8], comments: bool) -> Vec<Kind> {
@@ -1271,7 +1306,7 @@ mod tests {
             Kind::Delimiter => {
                 assert_eq!(actual.delimiter, e.delimiter, "{label} delimiter {index}")
             }
-            Kind::Ident | Kind::Function | Kind::String | Kind::Url => {
+            Kind::Ident | Kind::AtKeyword | Kind::Function | Kind::String | Kind::Url => {
                 assert_eq!(actual.value.as_deref(), e.value, "{label} value {index}")
             }
             Kind::Dimension => {
@@ -1329,6 +1364,65 @@ mod tests {
             );
             run_original_case(case, false);
             run_original_case(case, true);
+        }
+    }
+
+    include!("extended_original_cases.rs");
+
+    fn compare_extended(
+        label: &str,
+        index: usize,
+        actual: &Token<'_>,
+        expected: Option<&ExtendedExpected>,
+    ) {
+        let kind = expected.map_or(Kind::Eof, |e| e.kind);
+        assert_eq!(actual.kind, kind, "{label} token {index}");
+        let Some(e) = expected else { return };
+        match e.kind {
+            Kind::Ident | Kind::AtKeyword | Kind::Function | Kind::String | Kind::Url => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} value {index}")
+            }
+            Kind::Delimiter => {
+                assert_eq!(actual.delimiter, e.delimiter, "{label} delimiter {index}")
+            }
+            Kind::Number => {
+                assert_eq!(actual.numeric_sign, e.sign, "{label} sign {index}");
+                assert_eq!(actual.numeric_is_integer, e.integer, "{label} integer kind {index}");
+                assert_eq!(actual.number_bits, e.number_bits, "{label} value {index}");
+            }
+            _ => {}
+        }
+    }
+    fn run_extended_case(case: &ExtendedCase, wide: bool) {
+        let bytes: Vec<u8> = case.input.iter().map(|u| *u as u8).collect();
+        let mut tokenizer = if wide {
+            Tokenizer::new(Input::Utf16(case.input), 0)
+        } else {
+            Tokenizer::new(Input::Bytes(&bytes), 0)
+        };
+        let numbers = StrictCaseNumbers::new(case.parse_fixtures);
+        for i in 0..3 {
+            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
+                break;
+            }
+            let actual = tokenizer.next_token(&numbers);
+            compare_extended(case.label, i, &actual, case.expected.get(i));
+            if actual.kind == Kind::Eof {
+                break;
+            }
+        }
+        if wide {
+            numbers.assert_consumed(case.label)
+        }
+    }
+    #[test]
+    fn transcribed_escapes_ident_function_and_at_keyword_rows() {
+        assert_eq!(EXTENDED_ORIGINAL_CASES.len(), 105);
+        for case in EXTENDED_ORIGINAL_CASES {
+            if case.input.iter().all(|u| *u <= 255) {
+                run_extended_case(case, false)
+            }
+            run_extended_case(case, true);
         }
     }
 }
