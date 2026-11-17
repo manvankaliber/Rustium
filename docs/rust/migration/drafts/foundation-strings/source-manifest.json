@@ -2,7 +2,7 @@
   "task_id": "FOUNDATION-STRINGS",
   "base_revision": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
   "reference_checkout": "D:/Rustium",
-  "reference_revision": "observed working tree at implementation intake; pinned queue revision 4f246b50e3f64f7c3880973ae986dadedfc43adf",
+  "reference_revision": "observed D:/Rustium HEAD c46d3f4975af8785d3fc1d733cf25360914ef884; source file hashes bind working-tree bytes",
   "format": "exact source bytes copied; SHA-256 over bytes",
   "files": [
     {
@@ -59,6 +59,30 @@
       "queued_sha256": null,
       "queue_hash_matches": true,
       "git_attributes": "base/strings/whitespace_constants.h: text: set\nbase/strings/whitespace_constants.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_view_util.h",
+      "sha256": "38ca9c59519eec4362c139e071c3e2fd4218defe48a367cc71f03cec6c0e3bf3",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_view_util.h: text: set\nbase/strings/string_view_util.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/containers/span.h",
+      "sha256": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/containers/span.h: text: set\nbase/containers/span.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/containers/span_forward_internal.h",
+      "sha256": "9a918beca275e4bff3ffc094d9cf92f2a3f4f3c5e6eb3a3ed758a0a330f5d4f9",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/containers/span_forward_internal.h: text: set\nbase/containers/span_forward_internal.h: eol: lf",
       "archive_byte_equal": true
     }
   ]
