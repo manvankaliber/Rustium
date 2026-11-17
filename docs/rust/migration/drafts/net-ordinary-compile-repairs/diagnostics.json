@@ -1,0 +1,1932 @@
+{
+  "inputs": {
+    "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+    "source_count": 1261,
+    "directory": "D:\\Rustium\\.scratch\\net-wave5\\remaining-network-compile-inputs-20261117T133408720410Z",
+    "build_result_sha256": "fecd0c45b9ce5b2845e33bf464e1fba9382e78b38ec15eb6ac2b975011055000",
+    "full_log_sha256": "2bd611255db5d8bf613279274280d610f31bcba09891e093d4b71113c4b9b713",
+    "director_excluded_files": [
+      "net/socket/connection_jobs_family_flow_fixture.h",
+      "net/socket/connection_jobs_family_flow_unittest.cc",
+      "net/socket/connection_jobs_family_rust_unittest.cc",
+      "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "net/socket/socket_pool_additional_capacity_rust_original_unittest.cc"
+    ],
+    "scope": "Frozen terminal-k0 compiler diagnostics and source inputs; no runtime/ABI pass"
+  },
+  "captured_occurrences": 237,
+  "unique_target_source_diagnostics": [
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_fixture.obj",
+      "file": "net/socket/connection_jobs_family_flow_fixture.h",
+      "source_line": 134,
+      "diagnostic": "[chromium-rawref] Use raw_ref<T> instead of a native reference.",
+      "log_lines": [
+        7
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_fixture.obj",
+      "file": "net/socket/connection_jobs_family_flow_fixture.h",
+      "source_line": 134,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        10
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 15,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        17
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 16,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        23
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 24,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        29
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 25,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        47
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 30,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        65
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 31,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        83
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 36,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        101
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_unittest.cc",
+      "source_line": 37,
+      "diagnostic": "'Run' does not refer to a template",
+      "log_lines": [
+        107
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_fixture.h",
+      "source_line": 134,
+      "diagnostic": "[chromium-rawref] Use raw_ref<T> instead of a native reference.",
+      "log_lines": [
+        114
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_flow_unittest.obj",
+      "file": "net/socket/connection_jobs_family_flow_fixture.h",
+      "source_line": 134,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        117
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_rust_unittest.obj",
+      "file": "net/socket/connection_jobs_family_rust_unittest.cc",
+      "source_line": 20,
+      "diagnostic": "'Run' is a private member of 'testing::Test'",
+      "log_lines": [
+        124,
+        148
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_rust_unittest.obj",
+      "file": "net/socket/connection_jobs_family_rust_unittest.cc",
+      "source_line": 20,
+      "diagnostic": "too many arguments to function call, expected 0, have 3",
+      "log_lines": [
+        130,
+        154
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_family_rust_unittest.obj",
+      "file": "net/socket/connection_jobs_family_rust_unittest.cc",
+      "source_line": 20,
+      "diagnostic": "no matching function for call to 'Compare'",
+      "log_lines": [
+        172
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_provider_wiring_unittest.obj",
+      "file": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "source_line": 59,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        204
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_provider_wiring_unittest.obj",
+      "file": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "source_line": 60,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        207
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_provider_wiring_unittest.obj",
+      "file": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "source_line": 61,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        210
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_provider_wiring_unittest.obj",
+      "file": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "source_line": 63,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        213
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/connection_jobs_provider_wiring_unittest.obj",
+      "file": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+      "source_line": 64,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        216
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/connection_jobs_family_rust_unittests/socket_pool_additional_capacity_rust_original_unittest.obj",
+      "file": "net/socket/socket_pool_additional_capacity_rust_original_unittest.cc",
+      "source_line": 494,
+      "diagnostic": "no matching function for call to 'ValidateAdditionalCapacityForSocketPool'",
+      "log_lines": [
+        226
+      ],
+      "excluded_director": true
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 185,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        261
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 188,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        265
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 193,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        269,
+        284,
+        297
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 194,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        310,
+        325,
+        338
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "source_line": 194,
+      "diagnostic": "no viable conversion from 'base::expected<std::optional<CookiePartitionKey>, std::string>' (aka 'base::expected<std::optional<CookiePartitionKey>, basic_string<char>>') to 'bool'",
+      "log_lines": [
+        349,
+        384
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_perftests/cookie_partition_key_rust_perftest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "source_line": 206,
+      "diagnostic": "no viable conversion from 'base::expected<std::optional<CookiePartitionKey>, std::string>' (aka 'base::expected<std::optional<CookiePartitionKey>, basic_string<char>>') to 'bool'",
+      "log_lines": [
+        377,
+        412
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_reference/cookie_partition_key_rust_reference.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+      "source_line": 177,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        423,
+        436,
+        447
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_reference/cookie_partition_key_rust_reference.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+      "source_line": 178,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        458,
+        471,
+        482
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_reference/cookie_partition_key_rust_reference_schemeful_site.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.cc",
+      "source_line": 265,
+      "diagnostic": "'Deserialize' is a private member of 'url::Origin'",
+      "log_lines": [
+        498
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_reference/cookie_partition_key_rust_reference_schemeful_site.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.cc",
+      "source_line": 277,
+      "diagnostic": "'SerializeWithNonceAndInitIfNeeded' is a private member of 'url::Origin'",
+      "log_lines": [
+        504
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 185,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        520
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 188,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        524
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 193,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        528,
+        543,
+        556
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+      "source_line": 194,
+      "diagnostic": "unqualified friend declaration referring to type outside of the nearest enclosing namespace is a Microsoft extension; add a nested name specifier [-Werror,-Wmicrosoft-unqualified-friend]",
+      "log_lines": [
+        569,
+        584,
+        597
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_unittest.cc",
+      "source_line": 77,
+      "diagnostic": "no viable conversion from 'base::expected<std::optional<CookiePartitionKey>, std::string>' (aka 'base::expected<std::optional<CookiePartitionKey>, basic_string<char>>') to 'bool'",
+      "log_lines": [
+        607
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "source_line": 194,
+      "diagnostic": "no viable conversion from 'base::expected<std::optional<CookiePartitionKey>, std::string>' (aka 'base::expected<std::optional<CookiePartitionKey>, basic_string<char>>') to 'bool'",
+      "log_lines": [
+        614,
+        649
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_partition_key_rust_unittests/cookie_partition_key_rust_unittest.obj",
+      "file": "net/cookies/cookie_partition_key_rust_test_support.h",
+      "source_line": 206,
+      "diagnostic": "no viable conversion from 'base::expected<std::optional<CookiePartitionKey>, std::string>' (aka 'base::expected<std::optional<CookiePartitionKey>, basic_string<char>>') to 'bool'",
+      "log_lines": [
+        642,
+        677
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 29,
+      "diagnostic": "function 'fprintf' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        689
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 29,
+      "diagnostic": "string argument is not guaranteed to be null-terminated",
+      "log_lines": [
+        693
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 38,
+      "diagnostic": "function 'strcmp' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        697
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 39,
+      "diagnostic": "function 'strcmp' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        701
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 52,
+      "diagnostic": "function 'printf' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        723
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_perftests/cookie_family_perftest.obj",
+      "file": "net/cookies/cookie_family_perftest.cc",
+      "source_line": 52,
+      "diagnostic": "string argument is not guaranteed to be null-terminated",
+      "log_lines": [
+        727
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 24,
+      "diagnostic": "function 'strcmp' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        735
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 25,
+      "diagnostic": "function 'strcmp' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        739
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 40,
+      "diagnostic": "function 'fprintf' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        761
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 40,
+      "diagnostic": "string argument is not guaranteed to be null-terminated",
+      "log_lines": [
+        765
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 47,
+      "diagnostic": "function 'printf' is unsafe [-Werror,-Wunsafe-buffer-usage-in-libc-call]",
+      "log_lines": [
+        769
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_perftest.cc",
+      "source_line": 48,
+      "diagnostic": "string argument is not guaranteed to be null-terminated",
+      "log_lines": [
+        775
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "base/functional/bind_internal.h",
+      "source_line": 1756,
+      "diagnostic": "static assertion failed: Capturing lambdas and stateful functors are intentionally not supported. Use a non-capturing lambda or stateless functor (i.e. has no non-static data members) and bind arguments directly.",
+      "log_lines": [
+        782,
+        862,
+        944,
+        1034,
+        1116,
+        1197,
+        1285,
+        1366,
+        1445,
+        1524
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 131,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'CookieChangeCallback' (aka 'base::RepeatingCallback<void (const CookieChangeInfo &)>')",
+      "log_lines": [
+        819
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 147,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        899
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 152,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetCookieListCallback' (aka 'base::OnceCallback<void (const std::vector<CookieWithAccessResult> &, const std::vector<CookieWithAccessResult> &)>')",
+      "log_lines": [
+        981
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 159,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        1071
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 166,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        1153
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 139,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'SetCookiesCallback' (aka 'base::OnceCallback<void (CookieAccessResult)>')",
+      "log_lines": [
+        1234
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 174,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetCookieListCallback' (aka 'base::OnceCallback<void (const std::vector<CookieWithAccessResult> &, const std::vector<CookieWithAccessResult> &)>')",
+      "log_lines": [
+        1322
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 185,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        1403
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 197,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'DeleteCallback' (aka 'base::OnceCallback<void (unsigned int)>')",
+      "log_lines": [
+        1482
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_perftests/cookie_family_store_perftest.obj",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "fatal error: too many errors emitted, stopping now [-ferror-limit=]",
+      "log_lines": [
+        1560
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_unittest.cc",
+      "source_line": 69,
+      "diagnostic": "misleading indentation; statement is not part of the previous 'for' [-Werror,-Wmisleading-indentation]",
+      "log_lines": [
+        1565
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "base/functional/bind_internal.h",
+      "source_line": 1756,
+      "diagnostic": "static assertion failed: Capturing lambdas and stateful functors are intentionally not supported. Use a non-capturing lambda or stateless functor (i.e. has no non-static data members) and bind arguments directly.",
+      "log_lines": [
+        1574,
+        1676,
+        1778,
+        1880,
+        1982,
+        2062,
+        2144,
+        2234,
+        2316
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_unittest.cc",
+      "source_line": 81,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'SetCookiesCallback' (aka 'base::OnceCallback<void (CookieAccessResult)>')",
+      "log_lines": [
+        1622,
+        1826
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_unittest.cc",
+      "source_line": 82,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        1724,
+        1928
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 131,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'CookieChangeCallback' (aka 'base::RepeatingCallback<void (const CookieChangeInfo &)>')",
+      "log_lines": [
+        2019
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 147,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        2099
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 152,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetCookieListCallback' (aka 'base::OnceCallback<void (const std::vector<CookieWithAccessResult> &, const std::vector<CookieWithAccessResult> &)>')",
+      "log_lines": [
+        2181
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 159,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        2271
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": "net/cookies/cookie_family_store_test_support.h",
+      "source_line": 166,
+      "diagnostic": "no viable conversion from 'BindFailedCheckPreviousErrors' to 'GetAllCookiesCallback' (aka 'base::OnceCallback<void (const std::vector<CanonicalCookie> &)>')",
+      "log_lines": [
+        2353
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_store_unittests/cookie_family_store_unittest.obj",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "fatal error: too many errors emitted, stopping now [-ferror-limit=]",
+      "log_lines": [
+        2394
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_unittests/cookie_family_unittest.obj",
+      "file": "base/functional/bind_internal.h",
+      "source_line": 1756,
+      "diagnostic": "static assertion failed: Capturing lambdas and stateful functors are intentionally not supported. Use a non-capturing lambda or stateless functor (i.e. has no non-static data members) and bind arguments directly.",
+      "log_lines": [
+        2401,
+        2479
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_unittests/cookie_family_unittest.obj",
+      "file": "third_party/libc++/src/include/__memory/unique_ptr.h",
+      "source_line": 713,
+      "diagnostic": "no matching constructor for initialization of 'net::cookie_family_test::(anonymous namespace)::TerminalHookCookie<net::cookie_family_test::Production>'",
+      "log_lines": [
+        2450
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/cookie_storage_family_unittests/cookie_family_unittest.obj",
+      "file": "third_party/libc++/src/include/__memory/unique_ptr.h",
+      "source_line": 713,
+      "diagnostic": "no matching constructor for initialization of 'net::cookie_family_test::(anonymous namespace)::TerminalHookCookie<net::cookie_family_test::Original>'",
+      "log_lines": [
+        2528
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 49,
+      "diagnostic": "no member named 'dns_response_rust_names_reference' in namespace 'net'",
+      "log_lines": [
+        2560
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 80,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2563
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 101,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2573
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_platform_workloads.h",
+      "source_line": 32,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2583
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 44,
+      "diagnostic": "[chromium-style] Complex constructor has an inlined body.",
+      "log_lines": [
+        2605
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 42,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        2608
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 46,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2611
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 47,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2614
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 67,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2617
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 74,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2620
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 89,
+      "diagnostic": "[chromium-style] Complex constructor has an inlined body.",
+      "log_lines": [
+        2623
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 87,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        2626
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 90,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2629
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_request_family_async_perftests/dns_request_family_async_perftest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 68,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        2633
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 49,
+      "diagnostic": "no member named 'dns_response_rust_names_reference' in namespace 'net'",
+      "log_lines": [
+        2643
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 80,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2646
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 101,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2668
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_platform_workloads.h",
+      "source_line": 32,
+      "diagnostic": "variable has incomplete type 'void'",
+      "log_lines": [
+        2690
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 44,
+      "diagnostic": "[chromium-style] Complex constructor has an inlined body.",
+      "log_lines": [
+        2724
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 42,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        2727
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 46,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2730
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 47,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2733
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 67,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2736
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 74,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2739
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 89,
+      "diagnostic": "[chromium-style] Complex constructor has an inlined body.",
+      "log_lines": [
+        2742
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 87,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        2745
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_http_workloads.h",
+      "source_line": 90,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        2748
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_request_family_whole_path_unittest.obj",
+      "file": "net/dns/dns_request_family_async_workloads.h",
+      "source_line": 68,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        2752
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "base/functional/bind_internal.h",
+      "source_line": 1756,
+      "diagnostic": "static assertion failed: Capturing lambdas and stateful functors are intentionally not supported. Use a non-capturing lambda or stateless functor (i.e. has no non-static data members) and bind arguments directly.",
+      "log_lines": [
+        2762,
+        2814,
+        2866,
+        2918,
+        2970,
+        3046,
+        3122,
+        3198,
+        3274,
+        3350
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "source_line": 84,
+      "diagnostic": "no matching function for call to 'MakeRequest'",
+      "log_lines": [
+        2798,
+        2902
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "source_line": 85,
+      "diagnostic": "no matching function for call to 'MakeRequest'",
+      "log_lines": [
+        2850,
+        2954
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "source_line": 99,
+      "diagnostic": "no matching function for call to 'MakeRequest'",
+      "log_lines": [
+        3018,
+        3094
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "source_line": 121,
+      "diagnostic": "no matching function for call to 'MakeRequest'",
+      "log_lines": [
+        3170,
+        3322
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": "net/dns/dns_resolution_family_attached_rust_unittest.cc",
+      "source_line": 122,
+      "diagnostic": "no matching function for call to 'MakeRequest'",
+      "log_lines": [
+        3246
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/dns_resolution_family_rust_unittests/dns_resolution_family_attached_rust_unittest.obj",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "fatal error: too many errors emitted, stopping now [-ferror-limit=]",
+      "log_lines": [
+        3398
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 52,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line constructor.",
+      "log_lines": [
+        3407
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 52,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        3410
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 53,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        3411
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 65,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line constructor.",
+      "log_lines": [
+        3414
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 65,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        3417
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 66,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        3418
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_perftests/host_resolver_cache_rust_perftest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 77,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        3421
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 52,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line constructor.",
+      "log_lines": [
+        3432
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 52,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        3435
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 53,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        3436
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 65,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line constructor.",
+      "log_lines": [
+        3439
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 65,
+      "diagnostic": "[chromium-style] Complex class/struct needs an explicit out-of-line destructor.",
+      "log_lines": [
+        3442
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 66,
+      "diagnostic": "[chromium-style] virtual methods with non-empty bodies shouldn't be declared inline.",
+      "log_lines": [
+        3443
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "obj/net/host_resolver_cache_rust_unittests/host_resolver_cache_rust_unittest.obj",
+      "file": "net/dns/host_resolver_cache_rust_test_support.h",
+      "source_line": 77,
+      "diagnostic": "[chromium-rawptr] Use raw_ptr<T> instead of a raw pointer.",
+      "log_lines": [
+        3446
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "net_dns_dns_resolution_original.dll net_dns_dns_resolution_original.dll.lib net_dns_dns_resolution_original.dll.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: enum net::HttpssvcDnsRcode __cdecl net::TranslateDnsRcodeForHttpssvcExperiment(unsigned char)",
+      "log_lines": [
+        3466
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "net_dns_dns_resolution_original.dll net_dns_dns_resolution_original.dll.lib net_dns_dns_resolution_original.dll.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: void __cdecl net::EnsureDnsReloaderInit(void)",
+      "log_lines": [
+        3469
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "net_dns_dns_resolution_original.dll net_dns_dns_resolution_original.dll.lib net_dns_dns_resolution_original.dll.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: void __cdecl net::DnsReloaderMaybeReload(void)",
+      "log_lines": [
+        3472
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: char const *const net::kCharsetLatin1",
+      "log_lines": [
+        3483
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: bool __cdecl net::ConvertToUtf8AndNormalize(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, char const *, class std::__Cr::basic_string<char, struct std::__Cr::char_traits<char>, class std::__Cr::allocator<char>> *)",
+      "log_lines": [
+        3486
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::EntryMapKey(class url::SchemeHostPort const &, enum net::HttpAuth::Target, class net::NetworkAnonymizationKey const &, bool)",
+      "log_lines": [
+        3489
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::~EntryMapKey(void)",
+      "log_lines": [
+        3494
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: bool __cdecl net::HttpAuthCache::EntryMapKey::operator<(struct net::HttpAuthCache::EntryMapKey const &) const",
+      "log_lines": [
+        3500
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuth::Identity::Identity(void)",
+      "log_lines": [
+        3506
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthHandlerNTLM::Factory::Factory(void)",
+      "log_lines": [
+        3509
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::SSPILibraryDefault::SSPILibraryDefault(wchar_t const *)",
+      "log_lines": [
+        3512
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: class net::proxy_value_rust_reference::ProxyChain __cdecl net::proxy_value_rust_reference::ProxyChain::Prefix(unsigned __int64) const",
+      "log_lines": [
+        3516
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::~ProxyChain(void)",
+      "log_lines": [
+        3519
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::HostPortPair::HostPortPair(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, unsigned short)",
+      "log_lines": [
+        3524
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyServer::ProxyServer(enum net::proxy_value_rust_reference::ProxyServer::Scheme, class net::proxy_value_rust_reference::HostPortPair const &)",
+      "log_lines": [
+        3529
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(void)",
+      "log_lines": [
+        3534
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>)",
+      "log_lines": [
+        3538
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connect_job_rust_perftests.exe connect_job_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: private: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>, class std::__Cr::optional<int>)",
+      "log_lines": [
+        3542
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: char const *const net::kCharsetLatin1",
+      "log_lines": [
+        3550
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: bool __cdecl net::ConvertToUtf8AndNormalize(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, char const *, class std::__Cr::basic_string<char, struct std::__Cr::char_traits<char>, class std::__Cr::allocator<char>> *)",
+      "log_lines": [
+        3553
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::EntryMapKey(class url::SchemeHostPort const &, enum net::HttpAuth::Target, class net::NetworkAnonymizationKey const &, bool)",
+      "log_lines": [
+        3556
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::~EntryMapKey(void)",
+      "log_lines": [
+        3561
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: bool __cdecl net::HttpAuthCache::EntryMapKey::operator<(struct net::HttpAuthCache::EntryMapKey const &) const",
+      "log_lines": [
+        3567
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuth::Identity::Identity(void)",
+      "log_lines": [
+        3573
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthHandlerNTLM::Factory::Factory(void)",
+      "log_lines": [
+        3576
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::SSPILibraryDefault::SSPILibraryDefault(wchar_t const *)",
+      "log_lines": [
+        3579
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: class net::proxy_value_rust_reference::ProxyChain __cdecl net::proxy_value_rust_reference::ProxyChain::Prefix(unsigned __int64) const",
+      "log_lines": [
+        3583
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::~ProxyChain(void)",
+      "log_lines": [
+        3586
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::HostPortPair::HostPortPair(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, unsigned short)",
+      "log_lines": [
+        3591
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyServer::ProxyServer(enum net::proxy_value_rust_reference::ProxyServer::Scheme, class net::proxy_value_rust_reference::HostPortPair const &)",
+      "log_lines": [
+        3596
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(void)",
+      "log_lines": [
+        3601
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>)",
+      "log_lines": [
+        3605
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_family_rust_perftests.exe connection_jobs_family_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: private: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>, class std::__Cr::optional<int>)",
+      "log_lines": [
+        3609
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: char const *const net::kCharsetLatin1",
+      "log_lines": [
+        3617
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: bool __cdecl net::ConvertToUtf8AndNormalize(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, char const *, class std::__Cr::basic_string<char, struct std::__Cr::char_traits<char>, class std::__Cr::allocator<char>> *)",
+      "log_lines": [
+        3620
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::EntryMapKey(class url::SchemeHostPort const &, enum net::HttpAuth::Target, class net::NetworkAnonymizationKey const &, bool)",
+      "log_lines": [
+        3623
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::~EntryMapKey(void)",
+      "log_lines": [
+        3628
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: bool __cdecl net::HttpAuthCache::EntryMapKey::operator<(struct net::HttpAuthCache::EntryMapKey const &) const",
+      "log_lines": [
+        3634
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuth::Identity::Identity(void)",
+      "log_lines": [
+        3640
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthHandlerNTLM::Factory::Factory(void)",
+      "log_lines": [
+        3643
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::SSPILibraryDefault::SSPILibraryDefault(wchar_t const *)",
+      "log_lines": [
+        3646
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: class net::proxy_value_rust_reference::ProxyChain __cdecl net::proxy_value_rust_reference::ProxyChain::Prefix(unsigned __int64) const",
+      "log_lines": [
+        3650
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::~ProxyChain(void)",
+      "log_lines": [
+        3653
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::HostPortPair::HostPortPair(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, unsigned short)",
+      "log_lines": [
+        3658
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyServer::ProxyServer(enum net::proxy_value_rust_reference::ProxyServer::Scheme, class net::proxy_value_rust_reference::HostPortPair const &)",
+      "log_lines": [
+        3663
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(void)",
+      "log_lines": [
+        3668
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>)",
+      "log_lines": [
+        3672
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_jobs_perftests.exe connection_jobs_upper_rust_jobs_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: private: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>, class std::__Cr::optional<int>)",
+      "log_lines": [
+        3676
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: char const *const net::kCharsetLatin1",
+      "log_lines": [
+        3685
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: bool __cdecl net::ConvertToUtf8AndNormalize(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, char const *, class std::__Cr::basic_string<char, struct std::__Cr::char_traits<char>, class std::__Cr::allocator<char>> *)",
+      "log_lines": [
+        3688
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::EntryMapKey(class url::SchemeHostPort const &, enum net::HttpAuth::Target, class net::NetworkAnonymizationKey const &, bool)",
+      "log_lines": [
+        3691
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthCache::EntryMapKey::~EntryMapKey(void)",
+      "log_lines": [
+        3696
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: bool __cdecl net::HttpAuthCache::EntryMapKey::operator<(struct net::HttpAuthCache::EntryMapKey const &) const",
+      "log_lines": [
+        3702
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuth::Identity::Identity(void)",
+      "log_lines": [
+        3708
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::HttpAuthHandlerNTLM::Factory::Factory(void)",
+      "log_lines": [
+        3711
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::SSPILibraryDefault::SSPILibraryDefault(wchar_t const *)",
+      "log_lines": [
+        3714
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: class net::proxy_value_rust_reference::ProxyChain __cdecl net::proxy_value_rust_reference::ProxyChain::Prefix(unsigned __int64) const",
+      "log_lines": [
+        3718
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::~ProxyChain(void)",
+      "log_lines": [
+        3721
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::HostPortPair::HostPortPair(class std::__Cr::basic_string_view<char, struct std::__Cr::char_traits<char>>, unsigned short)",
+      "log_lines": [
+        3726
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyServer::ProxyServer(enum net::proxy_value_rust_reference::ProxyServer::Scheme, class net::proxy_value_rust_reference::HostPortPair const &)",
+      "log_lines": [
+        3731
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(void)",
+      "log_lines": [
+        3736
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: public: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>)",
+      "log_lines": [
+        3740
+      ],
+      "excluded_director": false
+    },
+    {
+      "target": "connection_jobs_upper_rust_perftests.exe connection_jobs_upper_rust_perftests.exe.pdb",
+      "file": null,
+      "source_line": null,
+      "diagnostic": "lld-link: error: undefined symbol: private: __cdecl net::proxy_value_rust_reference::ProxyChain::ProxyChain(class std::__Cr::vector<class net::proxy_value_rust_reference::ProxyServer, class std::__Cr::allocator<class net::proxy_value_rust_reference::ProxyServer>>, class std::__Cr::optional<int>)",
+      "log_lines": [
+        3744
+      ],
+      "excluded_director": false
+    }
+  ],
+  "interpretation": "Each target/source/line/message is retained; bind_internal and unique_ptr are callback instantiation cascades; error limits prevent claims about later diagnostics. See DELIVERY.md for mappings and link boundary."
+}

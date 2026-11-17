@@ -1,0 +1,847 @@
+--- a/net/BUILD.gn
++++ b/net/BUILD.gn
+@@ -8494,6 +8494,7 @@
+     ":net",
+     ":net_error_rust_reference",
+     ":net_log_values_rust_reference",
++    ":proxy_value_rust_reference",
+     ":test_support",
+     "//base",
+     "//base/test:test_support",
+@@ -8697,6 +8698,7 @@
+ # visibility; no engine/campaign declarations.
+ test("dns_resolution_family_rust_unittests") {
+   sources = [
++    "dns/dns_request_family_http_workloads.cc",
+     "dns/dns_request_family_async_workloads.h",
+     "dns/dns_request_family_http_workloads.h",
+     "dns/dns_request_family_platform_workloads.h",
+@@ -8754,6 +8756,7 @@
+ executable("dns_request_family_async_perftests") {
+   testonly = true
+   sources = [
++    "dns/dns_request_family_http_workloads.cc",
+     "dns/dns_request_family_async_perftest.cc",
+     "dns/dns_request_family_async_workloads.h",
+     "dns/dns_request_family_http_workloads.h",
+@@ -8808,6 +8811,7 @@
+ test("host_resolver_cache_rust_unittests") {
+   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+   sources = [
++    "dns/host_resolver_cache_rust_test_support.cc",
+     "dns/host_resolver_cache_reference_upstream_unittest.cc",
+     "dns/host_resolver_cache_regular_upstream_unittest.cc",
+     "dns/host_resolver_cache_result_reference_test_util.cc",
+@@ -8834,6 +8838,7 @@
+ executable("host_resolver_cache_rust_perftests") {
+   testonly = true
+   sources = [
++    "dns/host_resolver_cache_rust_test_support.cc",
+     "dns/host_resolver_cache_rust_perftest.cc",
+     "dns/host_resolver_cache_rust_test_support.h",
+   ]
+--- a/net/cookies/cookie_family_perftest.cc
++++ b/net/cookies/cookie_family_perftest.cc
+@@ -2,8 +2,9 @@
+ // Use of this source code is governed by a BSD-style license.
+ // Prepared only. Parent runs after full-family integration in a quiet window.
+ #include "net/cookies/cookie_family_test_support.h"
+-#include <cstdio>
+-#include <cstring>
++#include <iomanip>
++#include <iostream>
++#include <string_view>
+ #include "base/at_exit.h"
+ #include "base/check.h"
+ #include "base/command_line.h"
+@@ -26,7 +27,9 @@
+     const auto cpp=Pipeline<Original>(input,1469598103934665603ULL);
+     const auto rust=Pipeline<Production>(input,1469598103934665603ULL);
+     CHECK_EQ(cpp,rust)<<input.id;
+-    std::fprintf(stderr,"{\"verify_case\":\"%s\",\"checksum\":\"%016llx\"}\n",input.id,static_cast<unsigned long long>(cpp));
++    std::cerr << "{\"verify_case\":\"" << input.id << "\",\"checksum\":\""
++              << std::hex << std::setw(16) << std::setfill('0') << cpp
++              << std::dec << std::setfill(' ') << "\"}\n";
+   }
+ }
+ }
+@@ -35,8 +38,8 @@
+   base::test::AllowCheckIsTestForTesting();
+   bool timing=false;bool verify_only=false;
+   for(int i=1;i<argc;++i) {
+-    if(!std::strcmp(argv[i],"--timing")) timing=true;
+-    else {CHECK(!std::strcmp(argv[i],"--verify-only"));verify_only=true;}
++    if(std::string_view(argv[i])=="--timing") timing=true;
++    else {CHECK(std::string_view(argv[i])=="--verify-only");verify_only=true;}
+   }
+   Verify();
+   // No timing helper is reached in the default/--verify-only mode.
+@@ -49,7 +52,10 @@
+       double cpp,rust;
+       if(order&1) {cpp=Sample<Original>(input,seed);rust=Sample<Production>(input,seed);}
+       else {rust=Sample<Production>(input,seed);cpp=Sample<Original>(input,seed);}
+-      std::printf("{\"case\":\"%s\",\"pair\":%zu,\"cpp_ns\":%.17g,\"rust_ns\":%.17g,\"lifecycles\":%zu,\"cpp_first\":%s}\n",input.id,pair,cpp,rust,kLifecycles,(order&1)?"true":"false");
++    std::cout << "{\"case\":\"" << input.id
++              << "\",\"pair\":" << pair << ",\"cpp_ns\":" << std::setprecision(17) << cpp
++              << ",\"rust_ns\":" << rust << ",\"lifecycles\":" << kLifecycles
++              << ",\"cpp_first\":" << ((order & 1) ? "true" : "false") << "}\n";
+     }
+   }
+ }
+--- a/net/cookies/cookie_family_store_perftest.cc
++++ b/net/cookies/cookie_family_store_perftest.cc
+@@ -1,50 +1,56 @@
+-// Copyright 2026 The Chromium Authors
+-// Use of this source code is governed by a BSD-style license.
+-// Prepared paired lifecycle harness. Only --timing enables duration measurement.
+-#include "net/cookies/cookie_family_store_test_support.h"
+-#include <cstdio>
+-#include <cstring>
+-#include "base/at_exit.h"
+-#include "base/command_line.h"
+-#include "base/test/allow_check_is_test_for_testing.h"
+-namespace {
+-using namespace net::cookie_family_store_test;
+-constexpr size_t kLifecycles=4,kPairs=20;
+-volatile uint64_t consumed;
+-template<class Family> double Sample(const Case& scenario,const Inputs& input,base::test::TaskEnvironment& env,uint64_t seed) {
+-  const auto start=base::TimeTicks::Now();
+-  for(size_t i=0;i<kLifecycles;++i)seed=Run<Family>(scenario,input,env).Digest(seed+i);
+-  const auto elapsed=base::TimeTicks::Now()-start;consumed=seed;
+-  return static_cast<double>(elapsed.InNanoseconds())/kLifecycles;
+-}
+-}
+-int main(int argc,char** argv) {
+-  base::AtExitManager at_exit;base::CommandLine::Init(argc,argv);base::test::AllowCheckIsTestForTesting();
+-  bool timing=false,verify_only=false;
+-  for(int i=1;i<argc;++i){if(!std::strcmp(argv[i],"--timing"))timing=true;
+-    else{CHECK(!std::strcmp(argv[i],"--verify-only"));verify_only=true;}}
+-  // Verification uses a fixed business clock; timed samples keep system time.
+-  const bool measure = timing && !verify_only;
+-  base::test::TaskEnvironment env(measure
+-      ? base::test::TaskEnvironment::TimeSource::SYSTEM_TIME
+-      : base::test::TaskEnvironment::TimeSource::MOCK_TIME);
+-  if (!measure) {
+-    const auto fixed = base::Time::UnixEpoch() + base::Days(20000);
+-    CHECK_LE(base::Time::Now(), fixed);
+-    env.AdvanceClock(fixed - base::Time::Now());
+-  }
+-  const Inputs input{base::Time::Now()};
+-  std::fprintf(stderr,"{\"fixture_creation_internal_us\":%lld,\"order_seed\":20261113}\n",static_cast<long long>(input.creation.ToInternalValue()));
+-  for(const auto& scenario:kCases){const auto cpp=Run<Original>(scenario,input,env),rust=Run<Production>(scenario,input,env);
+-    CHECK(cpp==rust)<<scenario.id;
+-    std::fprintf(stderr,"{\"verify_case\":\"%s\",\"checksum\":\"%016llx\"}\n",scenario.id,static_cast<unsigned long long>(cpp.Digest(1469598103934665603ULL)));}
+-  if(!timing||verify_only)return 0;
+-  uint64_t order=20261113;
+-  for(const auto& scenario:kCases)for(size_t pair=0;pair<kPairs;++pair){order^=order<<13;order^=order>>7;order^=order<<17;
+-    const auto seed=1469598103934665603ULL+pair;double cpp,rust;
+-    if(order&1){cpp=Sample<Original>(scenario,input,env,seed);rust=Sample<Production>(scenario,input,env,seed);}
+-    else{rust=Sample<Production>(scenario,input,env,seed);cpp=Sample<Original>(scenario,input,env,seed);}
+-    std::printf("{\"case\":\"%s\",\"pair\":%zu,\"cpp_ns\":%.17g,\"rust_ns\":%.17g,\"lifecycles\":%zu,\"cpp_first\":%s}\n",
+-      scenario.id,pair,cpp,rust,kLifecycles,(order&1)?"true":"false");
+-  }
+-}
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license.
++// Prepared paired lifecycle harness. Only --timing enables duration measurement.
++#include "net/cookies/cookie_family_store_test_support.h"
++#include <iomanip>
++#include <iostream>
++#include <string_view>
++#include "base/at_exit.h"
++#include "base/command_line.h"
++#include "base/test/allow_check_is_test_for_testing.h"
++namespace {
++using namespace net::cookie_family_store_test;
++constexpr size_t kLifecycles=4,kPairs=20;
++volatile uint64_t consumed;
++template<class Family> double Sample(const Case& scenario,const Inputs& input,base::test::TaskEnvironment& env,uint64_t seed) {
++  const auto start=base::TimeTicks::Now();
++  for(size_t i=0;i<kLifecycles;++i)seed=Run<Family>(scenario,input,env).Digest(seed+i);
++  const auto elapsed=base::TimeTicks::Now()-start;consumed=seed;
++  return static_cast<double>(elapsed.InNanoseconds())/kLifecycles;
++}
++}
++int main(int argc,char** argv) {
++  base::AtExitManager at_exit;base::CommandLine::Init(argc,argv);base::test::AllowCheckIsTestForTesting();
++  bool timing=false,verify_only=false;
++  for(int i=1;i<argc;++i){if(std::string_view(argv[i])=="--timing")timing=true;
++    else{CHECK(std::string_view(argv[i])=="--verify-only");verify_only=true;}}
++  // Verification uses a fixed business clock; timed samples keep system time.
++  const bool measure = timing && !verify_only;
++  base::test::TaskEnvironment env(measure
++      ? base::test::TaskEnvironment::TimeSource::SYSTEM_TIME
++      : base::test::TaskEnvironment::TimeSource::MOCK_TIME);
++  if (!measure) {
++    const auto fixed = base::Time::UnixEpoch() + base::Days(20000);
++    CHECK_LE(base::Time::Now(), fixed);
++    env.AdvanceClock(fixed - base::Time::Now());
++  }
++  const Inputs input{base::Time::Now()};
++  std::cerr << "{\"fixture_creation_internal_us\":" << input.creation.ToInternalValue()
++            << ",\"order_seed\":20261113}\n";
++  for(const auto& scenario:kCases){const auto cpp=Run<Original>(scenario,input,env),rust=Run<Production>(scenario,input,env);
++    CHECK(cpp==rust)<<scenario.id;
++    std::cerr << "{\"verify_case\":\"" << scenario.id << "\",\"checksum\":\""
++              << std::hex << std::setw(16) << std::setfill('0') << cpp.Digest(1469598103934665603ULL)
++              << std::dec << std::setfill(' ') << "\"}\n";}
++  if(!timing||verify_only)return 0;
++  uint64_t order=20261113;
++  for(const auto& scenario:kCases)for(size_t pair=0;pair<kPairs;++pair){order^=order<<13;order^=order>>7;order^=order<<17;
++    const auto seed=1469598103934665603ULL+pair;double cpp,rust;
++    if(order&1){cpp=Sample<Original>(scenario,input,env,seed);rust=Sample<Production>(scenario,input,env,seed);}
++    else{rust=Sample<Production>(scenario,input,env,seed);cpp=Sample<Original>(scenario,input,env,seed);}
++    std::cout << "{\"case\":\"" << scenario.id
++              << "\",\"pair\":" << pair << ",\"cpp_ns\":" << std::setprecision(17) << cpp
++              << ",\"rust_ns\":" << rust << ",\"lifecycles\":" << kLifecycles
++              << ",\"cpp_first\":" << ((order & 1) ? "true" : "false") << "}\n";
++  }
++}
+--- a/net/cookies/cookie_family_store_test_support.h
++++ b/net/cookies/cookie_family_store_test_support.h
+@@ -12,6 +12,7 @@
+ #include <vector>
+ #include "base/check.h"
+ #include "base/functional/bind.h"
++#include "base/test/bind.h"
+ #include "base/location.h"
+ #include "base/memory/ref_counted.h"
+ #include "base/task/single_thread_task_runner.h"
+@@ -128,15 +129,14 @@
+   auto backend=base::MakeRefCounted<RecordingBackend<Family>>();
+   {
+     typename Family::Monster store(backend,nullptr);
+-    auto subscription=store.GetChangeDispatcher().AddCallbackForAllChanges(base::BindRepeating(
+-      [&](const typename Family::Change& change){out.causes.push_back(static_cast<int>(change.cause));}));
++    auto subscription=store.GetChangeDispatcher().AddCallbackForAllChanges(base::BindLambdaForTesting([&](const typename Family::Change& change){out.causes.push_back(static_cast<int>(change.cause));}));
+     auto options=Family::Options::MakeAllInclusive();options.set_do_not_update_access_time();
+     const GURL http("http://example.test/"),https("https://example.test/");
+     auto set=[&](std::unique_ptr<CookieType> c,const GURL& url,const auto& used,const char* label,bool immediate=true) {
+       const auto before=out.callbacks.size();
+       // Pending callbacks never capture the local completion flag.
+       store.SetCanonicalCookieAsync(std::move(c),url,used,
+-        base::BindOnce([&,label](typename Family::Access access){out.callbacks.push_back(label);out.statuses.push_back(common::AccessDigest(access));
++        base::BindLambdaForTesting([&,label](typename Family::Access access){out.callbacks.push_back(label);out.statuses.push_back(common::AccessDigest(access));
+           if(std::string_view(label)=="rejected")CHECK(access.status.HasExclusionReason(
+             static_cast<typename Family::Status::ExclusionReason>(id=="store_secure_overwrite_rejection"?12:13)));
+           else CHECK(access.status.IsInclude());}),std::nullopt);
+@@ -144,26 +144,25 @@
+     };
+     auto all=[&](const char* label="all") {
+       typename Family::List rows;bool done=false;
+-      store.GetAllCookiesAsync(base::BindOnce([&](const typename Family::List& cookies){rows=cookies;done=true;out.callbacks.push_back(label);}));
++      store.GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& cookies){rows=cookies;done=true;out.callbacks.push_back(label);}));
+       env.RunUntilIdle();CHECK(done);return rows;
+     };
+     auto query=[&](const typename Family::Collection& collection,const char* label) {
+       bool done=false;std::string line;
+-      store.GetCookieListWithOptionsAsync(https,options,collection,base::BindOnce(
+-        [&](const typename Family::AccessList& included,const typename Family::AccessList& excluded){
++      store.GetCookieListWithOptionsAsync(https,options,collection,base::BindLambdaForTesting([&](const typename Family::AccessList& included,const typename Family::AccessList& excluded){
+           line=CookieType::BuildCookieLine(included);out.queries.push_back(std::string(label)+":"+line);
+           for(const auto& row:included)out.statuses.push_back(common::AccessDigest(row.access_result));
+           for(const auto& row:excluded)out.statuses.push_back(common::AccessDigest(row.access_result));done=true;}));
+       env.RunUntilIdle();CHECK(done);return line;
+     };
+-    auto initialize=[&]{store.GetAllCookiesAsync(base::BindOnce([&](const typename Family::List& rows){CHECK(rows.empty());out.callbacks.push_back("initial");}));
++    auto initialize=[&]{store.GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& rows){CHECK(rows.empty());out.callbacks.push_back("initial");}));
+       CHECK_EQ(backend->loads,1u);backend->FinishAll();env.RunUntilIdle();};
+     auto key=[&](const char* top,bool nonce=false) {
+       const auto token=base::UnguessableToken::Deserialize(0x123456789abcdef0ULL,0x0fedcba987654321ULL).value();
+       return Key::FromURLForTesting(GURL(top),Key::AncestorChainBit::kSameSite,nonce?std::optional(token):std::nullopt);
+     };
+     if(id=="store_load_deduplicate"||id=="store_load_control_chars") {
+-      store.GetAllCookiesAsync(base::BindOnce([&](const typename Family::List& rows){
++      store.GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& rows){
+         for(const auto& c:rows)out.queries.push_back(CookieDigest<Family>(c));out.callbacks.push_back("loaded");}));
+       typename RecordingBackend<Family>::Rows rows;
+       if(id=="store_load_deduplicate") {rows.push_back(Cookie<Family>(input,"n","old",0));rows.push_back(Cookie<Family>(input,"n","new",1));}
+@@ -171,8 +170,7 @@
+       backend->FinishAll(std::move(rows));env.RunUntilIdle();
+     }else if(id=="store_key_load_queue") {
+       set(Cookie<Family>(input,"n","value"),http,options,"set-key",false);
+-      store.GetCookieListWithOptionsAsync(http,options,typename Family::Collection(),base::BindOnce(
+-        [&](const typename Family::AccessList& rows,const typename Family::AccessList&){out.queries.push_back(CookieType::BuildCookieLine(rows));out.callbacks.push_back("get-key");}));
++      store.GetCookieListWithOptionsAsync(http,options,typename Family::Collection(),base::BindLambdaForTesting([&](const typename Family::AccessList& rows,const typename Family::AccessList&){out.queries.push_back(CookieType::BuildCookieLine(rows));out.callbacks.push_back("get-key");}));
+       CHECK(out.callbacks.empty());CHECK_EQ(backend->keys.size(),1u);
+       typename RecordingBackend<Family>::Rows chained;
+       chained.push_back(Family::Cookie::CreateUnsafeCookieForTesting("chain","value","chain.test","/",input.creation,
+@@ -182,7 +180,7 @@
+       CHECK(out.callbacks==(std::vector<std::string>{"set-key","get-key"}));backend->FinishAll();env.RunUntilIdle();
+     }else if(id=="store_global_load_queue") {
+       set(Cookie<Family>(input,"a","one"),http,options,"set-a",false);
+-      store.GetAllCookiesAsync(base::BindOnce([&](const typename Family::List& rows){CHECK_EQ(rows.size(),1u);out.callbacks.push_back("get-all");}));
++      store.GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& rows){CHECK_EQ(rows.size(),1u);out.callbacks.push_back("get-all");}));
+       set(Cookie<Family>(input,"b","two",1),http,options,"set-b",false);
+       CHECK(out.callbacks.empty());backend->FinishAll();env.RunUntilIdle();
+       CHECK(out.callbacks==(std::vector<std::string>{"set-a","get-all","set-b"}));
+@@ -194,7 +192,7 @@
+       else if(id=="store_set_get_delete") {
+         set(Cookie<Family>(input,"n","value"),http,options,"set");auto rows=all();CHECK_EQ(rows.size(),1u);
+         query(Family::Collection::ContainsAll(),"get");bool done=false;
+-        store.DeleteCanonicalCookieAsync(rows.front(),base::BindOnce([&](uint32_t count){out.deleted=count;done=true;out.callbacks.push_back("delete");}));
++        store.DeleteCanonicalCookieAsync(rows.front(),base::BindLambdaForTesting([&](uint32_t count){out.deleted=count;done=true;out.callbacks.push_back("delete");}));
+         env.RunUntilIdle();CHECK(done);CHECK_EQ(out.deleted,1u);
+       }else if(id=="store_overwrite_same_value") {
+         set(Cookie<Family>(input,"n","v"),http,options,"first");
+@@ -236,7 +234,7 @@
+     if(id=="store_partition_bytes_gc"){CHECK_EQ(final.size(),2u);CHECK_EQ(final.front().Name(),"b");}
+     if(id=="store_load_deduplicate"){CHECK_EQ(final.size(),1u);CHECK_EQ(final.front().Value(),"new");}
+     store.SetForceKeepSessionState();bool flushed=false;
+-    store.FlushStore(base::BindOnce([&]{out.callbacks.push_back("flush");flushed=true;}));env.RunUntilIdle();CHECK(flushed);
++    store.FlushStore(base::BindLambdaForTesting([&]{out.callbacks.push_back("flush");flushed=true;}));env.RunUntilIdle();CHECK(flushed);
+     // Observer, store, maps, native strings/crypto values and pending weak tasks
+     // are destroyed inside this lifecycle. The backend is retained to observe it.
+   }
+--- a/net/cookies/cookie_family_store_unittest.cc
++++ b/net/cookies/cookie_family_store_unittest.cc
+@@ -1,6 +1,7 @@
+ // Copyright 2026 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license.
+ // Authored ordinary tests; no compiler/native execution in the draft phase.
++#include "base/test/bind.h"
+ #include "net/cookies/cookie_family_store_test_support.h"
+ #include <sstream>
+ #include "testing/gtest/include/gtest/gtest.h"
+@@ -61,12 +62,15 @@
+   auto nonced=Family::Key::FromURLForTesting(GURL("https://top.test"),Family::Key::AncestorChainBit::kSameSite,token);
+   cookies.push_back(Cookie<Family>(input,"a","v",5,true,false,nonced));
+   std::vector<std::string> out;
+-  for(const auto& a:cookies)for(const auto& b:cookies){const auto order=*a<=>*b;
++  for(const auto& a:cookies) {
++    for(const auto& b:cookies){const auto order=*a<=>*b;
+     out.push_back(std::to_string(*a==*b)+std::to_string(order<0)+std::to_string(order>0)+
+       std::to_string(a->IsEquivalent(*b))+std::to_string(a->IsEquivalentForSecureCookieMatching(*b))+
+       std::to_string(a->IsProbablyEquivalentTo(*b))+std::to_string(a->IsWebEquivalentTo(*b))+
+       std::to_string(a->IsValueEqual(*b))+std::to_string(a->IsValueEqual(std::string_view("v"))));
+-  }return out;
++    }
++  }
++  return out;
+ }
+ TEST(CookieFamilyStoreTest, KeyEqualityOrderingAndLazyValueComparisonMatrix) {
+   const Inputs input{base::Time::FromInternalValue(13380163200000000LL)};
+@@ -78,8 +82,8 @@
+     auto store=std::make_unique<typename Family::Monster>(backend,nullptr);
+     auto options=Family::Options::MakeAllInclusive();
+     store->SetCanonicalCookieAsync(Cookie<Family>(input,"n","v"),GURL("http://example.test/"),options,
+-      base::BindOnce([&](typename Family::Access){++callbacks;}),std::nullopt);
+-    store->GetAllCookiesAsync(base::BindOnce([&](const typename Family::List&){++callbacks;}));
++      base::BindLambdaForTesting([&](typename Family::Access){++callbacks;}),std::nullopt);
++    store->GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List&){++callbacks;}));
+     CHECK_EQ(backend->loads,1u);CHECK_EQ(backend->key_loads,1u);
+   }
+   backend->FinishAll();backend->FinishKey("example.test");env.RunUntilIdle();CHECK_EQ(callbacks,0u);
+@@ -93,7 +97,7 @@
+   typename Family::Monster store(nullptr,nullptr);auto options=Family::Options::MakeAllInclusive();
+   auto set=[&](std::unique_ptr<typename Family::Cookie> cookie){bool done=false;
+     store.SetCanonicalCookieAsync(std::move(cookie),GURL("https://example.test/"),options,
+-      base::BindOnce([&](typename Family::Access access){CHECK(access.status.IsInclude());done=true;}),std::nullopt);
++      base::BindLambdaForTesting([&](typename Family::Access access){CHECK(access.status.IsInclude());done=true;}),std::nullopt);
+     env.RunUntilIdle();CHECK(done);};
+   set(Cookie<Family>(input,"old","unpartitioned",0,true));
+   auto key=Family::Key::FromURLForTesting(GURL("https://top.test"),Family::Key::AncestorChainBit::kSameSite);
+@@ -101,9 +105,9 @@
+   typename Family::List replacement;
+   replacement.push_back(*Cookie<Family>(input,"new","replacement",2,true));
+   replacement.push_back(*Cookie<Family>(input,"expired","ignored",3,true,false,std::nullopt,1,input.creation));
+-  bool done=false;store.SetAllCookiesAsync(replacement,base::BindOnce([&](typename Family::Access access){CHECK(access.status.IsInclude());done=true;}));
++  bool done=false;store.SetAllCookiesAsync(replacement,base::BindLambdaForTesting([&](typename Family::Access access){CHECK(access.status.IsInclude());done=true;}));
+   env.RunUntilIdle();CHECK(done);std::vector<std::string> out;done=false;
+-  store.GetAllCookiesAsync(base::BindOnce([&](const typename Family::List& rows){CHECK_EQ(rows.size(),2u);
++  store.GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& rows){CHECK_EQ(rows.size(),2u);
+     for(const auto& c:rows){CHECK(c.Name()=="new"||c.Name()=="kept");out.push_back(CookieDigest<Family>(c));}done=true;}));
+   env.RunUntilIdle();CHECK(done);return out;
+ }
+@@ -119,7 +123,7 @@
+   std::vector<std::string> trace;
+   store->SetCanonicalCookieAsync(
+       Cookie<Family>(input, "name", "value"), GURL("http://example.test/"),
+-      options, base::BindOnce([&](typename Family::Access access) {
++      options, base::BindLambdaForTesting([&](typename Family::Access access) {
+         CHECK(access.status.IsInclude());
+         trace.push_back("set");
+         if (!on_read) {
+@@ -129,8 +133,7 @@
+   env.RunUntilIdle();
+   if (on_read) {
+     CHECK(store);
+-    store->GetAllCookiesAsync(base::BindOnce(
+-        [&](const typename Family::List& cookies) {
++    store->GetAllCookiesAsync(base::BindLambdaForTesting([&](const typename Family::List& cookies) {
+           CHECK_EQ(cookies.size(), 1u);
+           const auto expected = CookieDigest<Family>(cookies.front());
+           store.reset();
+--- a/net/cookies/cookie_family_unittest.cc
++++ b/net/cookies/cookie_family_unittest.cc
+@@ -1,6 +1,7 @@
+ // Copyright 2026 The Chromium Authors
+ // Use of this source code is governed by a BSD-style license.
+ // Prepared ordinary native tests; not compiled/executed in the draft phase.
++#include "base/test/bind.h"
+ #include "net/cookies/cookie_family_test_support.h"
+ #include "testing/gtest/include/gtest/gtest.h"
+ #include "base/functional/bind.h"
+@@ -122,7 +123,7 @@
+ std::string TerminalHookResult(bool setting) {
+   std::unique_ptr<TerminalHookCookie<Family>> cookie;
+   int callbacks = 0;
+-  cookie = std::make_unique<TerminalHookCookie<Family>>(base::BindOnce([&] {
++  cookie = std::make_unique<TerminalHookCookie<Family>>(base::BindLambdaForTesting([&] {
+     ++callbacks;
+     cookie.reset();
+   }));
+--- a/net/cookies/cookie_partition_key_rust_reference_schemeful_site.h
++++ b/net/cookies/cookie_partition_key_rust_reference_schemeful_site.h
+@@ -36,6 +36,17 @@
+ template <typename DataViewType, typename T>
+ struct StructTraits;
+ }  // namespace mojo
++
++namespace net {
++class IsolationInfo;
++class URLRequest;
++class SchemefulSiteTest_OpaqueSerialization_Test;
++class SchemefulSiteTest_DISABLED_OpaqueSerialization_Test;
++class SchemefulSiteTest_FLAKY_OpaqueSerialization_Test;
++class SchemefulSiteTest_InternalValue_Test;
++class SchemefulSiteTest_DISABLED_InternalValue_Test;
++class SchemefulSiteTest_FLAKY_InternalValue_Test;
++}  // namespace net
+ 
+ namespace net::cookie_partition_key_reference {
+ 
+@@ -182,16 +193,20 @@
+   // Needed to create a bogus origin from a site.
+   // TODO(crbug.com/40157262): Give IsolationInfos empty origins instead,
+   // in this case, and unfriend IsolationInfo.
+-  friend class IsolationInfo;
++  friend class ::net::IsolationInfo;
+ 
+   // Needed to create a bogus origin from a site.
+-  friend class URLRequest;
++  friend class ::net::URLRequest;
+ 
+   // Needed for access to nonce for serialization.
+   friend class blink::StorageKey;
+ 
+-  FRIEND_TEST_ALL_PREFIXES(SchemefulSiteTest, OpaqueSerialization);
+-  FRIEND_TEST_ALL_PREFIXES(SchemefulSiteTest, InternalValue);
++  friend class ::net::SchemefulSiteTest_OpaqueSerialization_Test;
++  friend class ::net::SchemefulSiteTest_DISABLED_OpaqueSerialization_Test;
++  friend class ::net::SchemefulSiteTest_FLAKY_OpaqueSerialization_Test;
++  friend class ::net::SchemefulSiteTest_InternalValue_Test;
++  friend class ::net::SchemefulSiteTest_DISABLED_InternalValue_Test;
++  friend class ::net::SchemefulSiteTest_FLAKY_InternalValue_Test;
+ 
+   struct ObtainASiteResult;
+ 
+--- a/net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h
++++ b/net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h
+@@ -12,6 +12,15 @@
+ #include "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h"
+ #include "url/gurl.h"
+ #include "url/origin.h"
++
++namespace net {
++class SiteForCookiesTest_SameScheme_Test;
++class SiteForCookiesTest_DISABLED_SameScheme_Test;
++class SiteForCookiesTest_FLAKY_SameScheme_Test;
++class SiteForCookiesTest_SameSchemeOpaque_Test;
++class SiteForCookiesTest_DISABLED_SameSchemeOpaque_Test;
++class SiteForCookiesTest_FLAKY_SameSchemeOpaque_Test;
++}  // namespace net
+ 
+ namespace net::cookie_partition_key_reference {
+ 
+@@ -174,8 +183,12 @@
+                                    const SiteForCookies& rhs);
+ 
+  private:
+-  FRIEND_TEST_ALL_PREFIXES(SiteForCookiesTest, SameScheme);
+-  FRIEND_TEST_ALL_PREFIXES(SiteForCookiesTest, SameSchemeOpaque);
++  friend class ::net::SiteForCookiesTest_SameScheme_Test;
++  friend class ::net::SiteForCookiesTest_DISABLED_SameScheme_Test;
++  friend class ::net::SiteForCookiesTest_FLAKY_SameScheme_Test;
++  friend class ::net::SiteForCookiesTest_SameSchemeOpaque_Test;
++  friend class ::net::SiteForCookiesTest_DISABLED_SameSchemeOpaque_Test;
++  friend class ::net::SiteForCookiesTest_FLAKY_SameSchemeOpaque_Test;
+ 
+   bool IsSchemefullyFirstParty(const GURL& url) const;
+ 
+--- a/net/cookies/cookie_partition_key_rust_test_support.h
++++ b/net/cookies/cookie_partition_key_rust_test_support.h
+@@ -191,7 +191,7 @@
+       case Workload::kStorageEmpty: {
+         auto result = Key::FromStorage(std::string(), cross);
+         hash = Mix(hash, result.has_value());
+-        if (result) hash = Digest(hash, *result);
++        if (result.has_value()) hash = Digest(hash, *result);
+         else hash = Bytes(hash, result.error());
+         break;
+       }
+@@ -203,7 +203,7 @@
+                        : in.rejected[i % (in.rejected.size() - 1)]);
+         auto result = Key::FromStorage(input, cross);
+         hash = Mix(hash, result.has_value());
+-        if (result) hash = Digest(hash, *result);
++        if (result.has_value()) hash = Digest(hash, *result);
+         else hash = Bytes(hash, result.error());
+         break;
+       }
+@@ -214,7 +214,7 @@
+             : in.rejected[i % in.rejected.size()];
+         auto result = Key::FromUntrustedInput(input, cross);
+         hash = Mix(hash, result.has_value());
+-        if (result) hash = Digest(hash, *result);
++        if (result.has_value()) hash = Digest(hash, *result);
+         else hash = Bytes(hash, result.error());
+         break;
+       }
+--- a/net/cookies/cookie_partition_key_rust_unittest.cc
++++ b/net/cookies/cookie_partition_key_rust_unittest.cc
+@@ -74,13 +74,19 @@
+       auto a = Key::FromStorage(input, cross);
+       auto b = RefKey::FromStorage(input, cross);
+       ASSERT_EQ(a.has_value(), b.has_value());
+-      if (a) EXPECT_EQ(Digest(0, *a), Digest(0, *b));
+-      else EXPECT_EQ(a.error(), b.error());
++      if (a.has_value()) {
++        EXPECT_EQ(Digest(0, *a), Digest(0, *b));
++      } else {
++        EXPECT_EQ(a.error(), b.error());
++      }
+       auto x = Key::FromUntrustedInput(input, cross);
+       auto y = RefKey::FromUntrustedInput(input, cross);
+       ASSERT_EQ(x.has_value(), y.has_value());
+-      if (x) EXPECT_EQ(Digest(0, *x), Digest(0, *y));
+-      else EXPECT_EQ(x.error(), y.error());
++      if (x.has_value()) {
++        EXPECT_EQ(Digest(0, *x), Digest(0, *y));
++      } else {
++        EXPECT_EQ(x.error(), y.error());
++      }
+     }
+   }
+ }
+--- a/net/dns/dns_reloader.h
++++ b/net/dns/dns_reloader.h
+@@ -6,15 +6,16 @@
+ #define NET_DNS_DNS_RELOADER_H_
+ 
+ #include "build/build_config.h"
++#include "net/base/net_export.h"
+ 
+ namespace net {
+ 
+ // Call on the network thread before calling DnsReloaderMaybeReload() anywhere.
+-void EnsureDnsReloaderInit();
++NET_EXPORT_PRIVATE void EnsureDnsReloaderInit();
+ 
+ // Call on the worker thread before doing a DNS lookup to reload the
+ // resolver for that thread by doing res_ninit() if required.
+-void DnsReloaderMaybeReload();
++NET_EXPORT_PRIVATE void DnsReloaderMaybeReload();
+ 
+ }  // namespace net
+ 
+--- a/net/dns/dns_request_family_async_workloads.h
++++ b/net/dns/dns_request_family_async_workloads.h
+@@ -10,6 +10,7 @@
+ #include <vector>
+ #include "base/check.h"
+ #include "base/functional/bind.h"
++#include "base/memory/raw_ptr.h"
+ #include "base/run_loop.h"
+ #include "base/test/bind.h"
+ #include "base/test/task_environment.h"
+@@ -17,6 +18,7 @@
+ #include "net/dns/dns_names_util.h"
+ #include "net/dns/dns_query.h"
+ #include "net/dns/dns_response.h"
++#include "net/dns/dns_response_rust_names_reference.h"
+ #include "net/dns/dns_resolution_original_dns_transaction.h"
+ #include "net/dns/dns_resolution_original_resolve_context.h"
+ #include "net/dns/dns_resolution_rust_original_types.h"
+@@ -65,7 +67,7 @@
+   ~ActiveWindow(){if(elapsed_){*elapsed_+=std::chrono::duration<double,std::nano>(Clock::now()-begin_).count();}}
+  private:
+   using Clock=std::chrono::steady_clock;
+-  double* elapsed_;
++  raw_ptr<double> elapsed_;
+   Clock::time_point begin_;
+ };
+ 
+--- /dev/null
++++ b/net/dns/dns_request_family_http_workloads.cc
+@@ -0,0 +1,51 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license in LICENSE.
++#include "net/dns/dns_request_family_http_workloads.h"
++
++namespace net::dns_request_family_test {
++DnsFixtureHttpJob::DnsFixtureHttpJob(URLRequest* request, std::shared_ptr<HttpRow> row)
++    : URLRequestJob(request), row_(std::move(row)) {}
++DnsFixtureHttpJob::~DnsFixtureHttpJob() = default;
++void DnsFixtureHttpJob::SetUpload(UploadDataStream* upload) {upload_=upload;}
++void DnsFixtureHttpJob::Start() {
++    ++row_->started;
++    std::string wire;
++    if(row_->post){
++      CHECK_EQ(request()->method(),"POST");CHECK(upload_);
++      CHECK_EQ(upload_->Init(CompletionOnceCallback(),NetLogWithSource()),OK);
++      CHECK(upload_->IsInMemory());
++      auto buffer=base::MakeRefCounted<IOBufferWithSize>(upload_->size());
++      CHECK_EQ(upload_->Read(buffer.get(),buffer->size(),CompletionOnceCallback()),static_cast<int>(upload_->size()));
++      wire=base::as_string_view(buffer->span());
++    }else{
++      CHECK_EQ(request()->method(),"GET");std::string encoded;
++      CHECK(GetValueForKeyInQuery(request()->url(),"dns",&encoded));
++      CHECK(base::Base64UrlDecode(encoded,base::Base64UrlDecodePolicy::IGNORE_PADDING,&wire));
++    }
++    CHECK_EQ(wire,row_->expected_query);++row_->matched;
++    if(row_->hang){return;}
++    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(FROM_HERE,
++        base::BindOnce(&DnsFixtureHttpJob::StartAsync,weak_factory_.GetWeakPtr()));
++  }
++int DnsFixtureHttpJob::ReadRawData(IOBuffer* buffer,int size) {
++    CHECK_GE(size,0);
++    if(offset_==row_->body.size()){++row_->eof;return 0;}
++    const size_t amount=std::min(static_cast<size_t>(size),row_->body.size()-offset_);
++    buffer->span().copy_prefix_from(base::as_byte_span(row_->body).subspan(offset_,amount));
++    offset_+=amount;return static_cast<int>(amount);
++  }
++void DnsFixtureHttpJob::GetResponseInfo(HttpResponseInfo* info) {
++    const std::string headers="HTTP/1.1 "+std::to_string(row_->status)+" Fixture\nContent-Type: "+row_->mime+
++        "\nContent-Length: "+std::to_string(row_->body.size())+"\n";
++    info->headers=base::MakeRefCounted<HttpResponseHeaders>(HttpUtil::AssembleRawHeaders(headers));
++  }
++
++
++DnsFixtureInterceptor::DnsFixtureInterceptor(std::shared_ptr<HttpRow> row)
++    : row_(std::move(row)) {}
++DnsFixtureInterceptor::~DnsFixtureInterceptor() = default;
++std::unique_ptr<URLRequestJob> DnsFixtureInterceptor::MaybeInterceptRequest(URLRequest* request) const {
++    return std::make_unique<DnsFixtureHttpJob>(request,row_);
++  }
++
++}  // namespace net
+--- a/net/dns/dns_request_family_http_workloads.h
++++ b/net/dns/dns_request_family_http_workloads.h
+@@ -41,41 +41,12 @@
+ // Expected query and response bytes were independently generated by each Api.
+ class DnsFixtureHttpJob final : public URLRequestJob {
+  public:
+-  DnsFixtureHttpJob(URLRequest* request,std::shared_ptr<HttpRow> row)
+-      :URLRequestJob(request),row_(std::move(row)){}
+-  void SetUpload(UploadDataStream* upload) override{upload_=upload;}
+-  void Start() override{
+-    ++row_->started;
+-    std::string wire;
+-    if(row_->post){
+-      CHECK_EQ(request()->method(),"POST");CHECK(upload_);
+-      CHECK_EQ(upload_->Init(CompletionOnceCallback(),NetLogWithSource()),OK);
+-      CHECK(upload_->IsInMemory());
+-      auto buffer=base::MakeRefCounted<IOBufferWithSize>(upload_->size());
+-      CHECK_EQ(upload_->Read(buffer.get(),buffer->size(),CompletionOnceCallback()),static_cast<int>(upload_->size()));
+-      wire=base::as_string_view(buffer->span());
+-    }else{
+-      CHECK_EQ(request()->method(),"GET");std::string encoded;
+-      CHECK(GetValueForKeyInQuery(request()->url(),"dns",&encoded));
+-      CHECK(base::Base64UrlDecode(encoded,base::Base64UrlDecodePolicy::IGNORE_PADDING,&wire));
+-    }
+-    CHECK_EQ(wire,row_->expected_query);++row_->matched;
+-    if(row_->hang){return;}
+-    base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(FROM_HERE,
+-        base::BindOnce(&DnsFixtureHttpJob::StartAsync,weak_factory_.GetWeakPtr()));
+-  }
+-  int ReadRawData(IOBuffer* buffer,int size) override{
+-    CHECK_GE(size,0);
+-    if(offset_==row_->body.size()){++row_->eof;return 0;}
+-    const size_t amount=std::min(static_cast<size_t>(size),row_->body.size()-offset_);
+-    buffer->span().copy_prefix_from(base::as_byte_span(row_->body).subspan(offset_,amount));
+-    offset_+=amount;return static_cast<int>(amount);
+-  }
+-  void GetResponseInfo(HttpResponseInfo* info) override{
+-    const std::string headers="HTTP/1.1 "+std::to_string(row_->status)+" Fixture\nContent-Type: "+row_->mime+
+-        "\nContent-Length: "+std::to_string(row_->body.size())+"\n";
+-    info->headers=base::MakeRefCounted<HttpResponseHeaders>(HttpUtil::AssembleRawHeaders(headers));
+-  }
++  DnsFixtureHttpJob(URLRequest* request,std::shared_ptr<HttpRow> row);
++  ~DnsFixtureHttpJob() override;
++  void SetUpload(UploadDataStream* upload) override;
++  void Start() override;
++  int ReadRawData(IOBuffer* buffer,int size) override;
++  void GetResponseInfo(HttpResponseInfo* info) override;
+  private:
+   void StartAsync(){NotifyHeadersComplete();} // Terminal: callback may delete job.
+   std::shared_ptr<HttpRow> row_;
+@@ -86,10 +57,9 @@
+ 
+ class DnsFixtureInterceptor final : public URLRequestInterceptor {
+  public:
+-  explicit DnsFixtureInterceptor(std::shared_ptr<HttpRow> row):row_(std::move(row)){}
+-  std::unique_ptr<URLRequestJob> MaybeInterceptRequest(URLRequest* request) const override{
+-    return std::make_unique<DnsFixtureHttpJob>(request,row_);
+-  }
++  explicit DnsFixtureInterceptor(std::shared_ptr<HttpRow> row);
++  ~DnsFixtureInterceptor() override;
++  std::unique_ptr<URLRequestJob> MaybeInterceptRequest(URLRequest* request) const override;
+  private:
+   std::shared_ptr<HttpRow> row_;
+ };
+--- a/net/dns/dns_resolution_family_attached_rust_unittest.cc
++++ b/net/dns/dns_resolution_family_attached_rust_unittest.cc
+@@ -1,6 +1,7 @@
+ // Copyright 2026 The Chromium Authors
+ // BSD-style license; see LICENSE.
+ // Ordinary real-adapter tests. No I/O/campaign and not yet compiled or run.
++#include "base/test/bind.h"
+ #include "net/dns/dns_resolution_family_rust_test_support.h"
+ #include "net/dns/host_resolver_manager_job.h"
+ #include "net/dns/host_resolver_manager_request_impl.h"
+@@ -81,8 +82,8 @@
+ };
+ template<class Api>std::vector<int> PriorityAndAbort(){
+   Attached<Api> f;std::vector<int> callbacks;
+-  auto first=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindOnce([&](int rv){callbacks.push_back(rv);}));
+-  auto second=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,MEDIUM,base::BindOnce([&](int rv){callbacks.push_back(rv);}));
++  auto first=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int rv){callbacks.push_back(rv);}));
++  auto second=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,MEDIUM,base::BindLambdaForTesting([&](int rv){callbacks.push_back(rv);}));
+   std::vector<int> state={Peer::Priority<Api>(*f.job),static_cast<int>(Peer::Count<Api>(*f.job))};
+   first->ChangeRequestPriority(HIGHEST);state.push_back(Peer::Priority<Api>(*f.job));
+   first.reset();state.push_back(Peer::Priority<Api>(*f.job));state.push_back(static_cast<int>(Peer::Count<Api>(*f.job)));
+@@ -96,7 +97,7 @@
+ }
+ template<class Api>std::vector<int> LastCancellation(){
+   Attached<Api> f;int callbacks=0;
+-  auto request=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindOnce([&](int){++callbacks;}));
++  auto request=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int){++callbacks;}));
+   request.reset();return {callbacks,static_cast<int>(Peer::Count<Api>(*f.job)),Peer::Priority<Api>(*f.job)};
+ }
+ TEST(DnsResolutionFamilyRust, NativeLastCancellationSuppressesUserCallback){
+@@ -118,8 +119,8 @@
+ }
+ template<class Api>std::vector<int> ManagerDeletedByCallback(){
+   Attached<Api> f;int first_calls=0,second_calls=0;
+-  auto first=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindOnce([&](int){++first_calls;f.manager.reset();}));
+-  auto second=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindOnce([&](int){++second_calls;}));
++  auto first=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int){++first_calls;f.manager.reset();}));
++  auto second=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int){++second_calls;}));
+   f.job->Abort();f.job.reset();return {first_calls,second_calls,second->HasJob()};
+ }
+ TEST(DnsResolutionFamilyRust, NativeCompletionStopsAfterManagerDeletion){
+--- /dev/null
++++ b/net/dns/host_resolver_cache_rust_test_support.cc
+@@ -0,0 +1,30 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license in LICENSE.
++#include "net/dns/host_resolver_cache_rust_test_support.h"
++
++namespace net::host_resolver_cache_rust_test {
++Clocks::Wall::Wall() = default;
++Clocks::Wall::~Wall() = default;
++base::Time Clocks::Wall::Now() const {
++      events.push_back('w');
++      std::function<void()> next = std::exchange(hook, {});
++      if (next) {
++        next();
++      }
++      return now;
++    }
++
++Clocks::Ticks::Ticks() = default;
++Clocks::Ticks::~Ticks() = default;
++base::TimeTicks Clocks::Ticks::NowTicks() const {
++      if (wall) {
++        wall->events.push_back('t');
++      }
++      std::function<void()> next = std::exchange(hook, {});
++      if (next) {
++        next();
++      }
++      return now;
++    }
++
++}  // namespace net
+--- a/net/dns/host_resolver_cache_rust_test_support.h
++++ b/net/dns/host_resolver_cache_rust_test_support.h
+@@ -11,6 +11,7 @@
+ #include <utility>
+ #include <vector>
+ 
++#include "base/memory/raw_ptr.h"
+ #include "base/time/clock.h"
+ #include "base/time/tick_clock.h"
+ #include "base/values.h"
+@@ -50,31 +51,19 @@
+ // generation changes. They do not erase iterators or destroy the owner.
+ struct Clocks {
+   struct Wall final : base::Clock {
+-    base::Time Now() const override {
+-      events.push_back('w');
+-      std::function<void()> next = std::exchange(hook, {});
+-      if (next) {
+-        next();
+-      }
+-      return now;
+-    }
++    Wall();
++    ~Wall() override;
++    base::Time Now() const override;
+     base::Time now = base::Time::FromSecondsSinceUnixEpoch(1000);
+     mutable std::vector<char> events;
+     mutable std::function<void()> hook;
+   };
+   struct Ticks final : base::TickClock {
+-    base::TimeTicks NowTicks() const override {
+-      if (wall) {
+-        wall->events.push_back('t');
+-      }
+-      std::function<void()> next = std::exchange(hook, {});
+-      if (next) {
+-        next();
+-      }
+-      return now;
+-    }
++    Ticks();
++    ~Ticks() override;
++    base::TimeTicks NowTicks() const override;
+     base::TimeTicks now = base::TimeTicks() + base::Seconds(100);
+-    Wall* wall = nullptr;
++    raw_ptr<Wall> wall = nullptr;
+     mutable std::function<void()> hook;
+   };
+   Clocks() { ticks.wall = &wall; }
+--- a/net/dns/httpssvc_metrics.h
++++ b/net/dns/httpssvc_metrics.h
+@@ -37,7 +37,8 @@
+ // contiguous range in order to satisfy the UMA enumeration function's
+ // requirements. This function never returns |kTimedOut| |kUnrecognizedRcode|,
+ // or |kMissingDnsResponse|.
+-enum HttpssvcDnsRcode TranslateDnsRcodeForHttpssvcExperiment(uint8_t rcode);
++NET_EXPORT_PRIVATE HttpssvcDnsRcode TranslateDnsRcodeForHttpssvcExperiment(
++    uint8_t rcode);
+ 
+ // Tool for aggregating HTTPS RR metrics. Accumulates metrics via the Save*
+ // methods. Records metrics to UMA on destruction.
+--- a/url/origin.h
++++ b/url/origin.h
+@@ -53,6 +53,9 @@
+ 
+ namespace net {
+ class SchemefulSite;
++namespace cookie_partition_key_reference {
++class SchemefulSite;
++}  // namespace cookie_partition_key_reference
+ namespace cookie_family_original {
+ class SchemefulSite;
+ }  // namespace cookie_family_original
+@@ -349,6 +352,7 @@
+   // SchemefulSite needs access to the serialization/deserialization logic which
+   // includes the nonce.
+   friend class net::SchemefulSite;
++  friend class net::cookie_partition_key_reference::SchemefulSite;
+   // Frozen cookie reference uses the same Origin nonce primitive.
+   friend class net::cookie_family_original::SchemefulSite;
+   friend class OriginTest;
