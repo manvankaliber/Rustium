@@ -41,6 +41,26 @@ pub struct Rect {
     pub height: i32,
 }
 
+impl SizeF {
+    /// Mirrors SizeF::clamp before integer conversion: only values strictly
+    /// greater than eight float epsilons are retained (NaN and negatives -> 0).
+    fn normalized(self) -> Self {
+        let threshold = 8.0 * f32::EPSILON;
+        Self {
+            width: if self.width > threshold { self.width } else { 0.0 },
+            height: if self.height > threshold { self.height } else { 0.0 },
+        }
+    }
+}
+
+impl RectF {
+    /// Mirrors RectF's SizeF-backed constructor/setter before edge arithmetic.
+    fn normalized(self) -> Self {
+        let size = SizeF { width: self.width, height: self.height }.normalized();
+        Self { width: size.width, height: size.height, ..self }
+    }
+}
+
 #[derive(Clone, Copy)]
 enum Mode {
     Floor,
@@ -86,12 +106,15 @@ pub fn round_point(p: PointF) -> Point {
     Point { x: convert(p.x, Mode::Round), y: convert(p.y, Mode::Round) }
 }
 pub fn floor_size(s: SizeF) -> Size {
+    let s = s.normalized();
     Size { width: convert(s.width, Mode::Floor), height: convert(s.height, Mode::Floor) }
 }
 pub fn ceil_size(s: SizeF) -> Size {
+    let s = s.normalized();
     Size { width: convert(s.width, Mode::Ceil), height: convert(s.height, Mode::Ceil) }
 }
 pub fn round_size(s: SizeF) -> Size {
+    let s = s.normalized();
     Size { width: convert(s.width, Mode::Round), height: convert(s.height, Mode::Round) }
 }
 
@@ -179,6 +202,7 @@ fn ceil_ignoring_error(v: f32, error: f32) -> i32 {
 }
 
 pub fn enclosing_rect(r: RectF) -> Rect {
+    let r = r.normalized();
     let l = convert(r.x, Mode::Floor);
     let t = convert(r.y, Mode::Floor);
     // Preserve C++ truthiness (`-0.0` and both zero signs are false).
@@ -187,6 +211,7 @@ pub fn enclosing_rect(r: RectF) -> Rect {
     rect_by_bounds(l, t, right, bottom)
 }
 pub fn enclosed_rect(r: RectF) -> Rect {
+    let r = r.normalized();
     rect_by_bounds(
         convert(r.x, Mode::Ceil),
         convert(r.y, Mode::Ceil),
@@ -195,6 +220,7 @@ pub fn enclosed_rect(r: RectF) -> Rect {
     )
 }
 pub fn enclosing_rect_ignoring_error(r: RectF, error: f32) -> Rect {
+    let r = r.normalized();
     let l = floor_ignoring_error(r.x, error);
     let t = floor_ignoring_error(r.y, error);
     let right = if r.width != 0.0 { ceil_ignoring_error(r.x + r.width, error) } else { l };
@@ -202,6 +228,7 @@ pub fn enclosing_rect_ignoring_error(r: RectF, error: f32) -> Rect {
     rect_by_bounds(l, t, right, bottom)
 }
 pub fn enclosed_rect_ignoring_error(r: RectF, error: f32) -> Rect {
+    let r = r.normalized();
     let l = ceil_ignoring_error(r.x, error);
     let t = ceil_ignoring_error(r.y, error);
     let right = if r.width != 0.0 { floor_ignoring_error(r.x + r.width, error) } else { l };
@@ -209,6 +236,7 @@ pub fn enclosed_rect_ignoring_error(r: RectF, error: f32) -> Rect {
     rect_by_bounds(l, t, right, bottom)
 }
 pub fn nearest_rect(r: RectF) -> Rect {
+    let r = r.normalized();
     rect_by_bounds(
         convert(r.x, Mode::Round),
         convert(r.y, Mode::Round),
@@ -220,6 +248,7 @@ pub fn rounded_rect(r: RectF) -> Rect {
     nearest_rect(r)
 }
 pub fn floored_rect_deprecated(r: RectF) -> Rect {
+    let r = r.normalized();
     Rect {
         x: convert(r.x, Mode::Floor),
         y: convert(r.y, Mode::Floor),
@@ -229,6 +258,7 @@ pub fn floored_rect_deprecated(r: RectF) -> Rect {
 }
 
 pub fn is_nearest_rect_within_distance(r: RectF, distance: f32) -> bool {
+    let r = r.normalized();
     let edges = [r.x, r.y, r.x + r.width, r.y + r.height];
     edges.into_iter().all(|v| ((convert(v, Mode::Round) as f32) - v).abs() < distance)
 }

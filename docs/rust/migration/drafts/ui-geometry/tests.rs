@@ -94,6 +94,11 @@ fn conversion_edge_matrix() {
     );
     assert_eq!(
         round_point(PointF { x: 2147483520.0, y: -2147483648.0 }),
+        // 2147483520 is the actual f32 value and is below i32::MAX.
+        Point { x: 2147483520, y: i32::MIN }
+    );
+    assert_eq!(
+        round_point(PointF { x: 2147483648.0, y: -2147483648.0 }),
         Point { x: i32::MAX, y: i32::MIN }
     );
     assert_eq!(
