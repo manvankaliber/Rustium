@@ -214,6 +214,23 @@ fn cp(s: &[u16], i: usize) -> u32 {
         u
     }
 }
+/// Mirrors LineBreakPropertyValue(last_ch, ch): `+` tailoring precedes ICU,
+/// and a valid UTF-16 pair is classified at its trail code unit.
+fn line_property<P: BoundaryProvider>(
+    p: &mut P,
+    left: u16,
+    right: u16,
+) -> Result<u8, BoundaryError> {
+    if right == b'+' as u16 {
+        return Ok(IcuLineBreak::AL as u8);
+    }
+    let value = if lead(left) && trail(right) {
+        0x10000 + (((left as u32 - 0xd800) << 10) | (right as u32 - 0xdc00))
+    } else {
+        right as u32
+    };
+    p.line_property(value)
+}
 fn keep<P: BoundaryProvider>(
     p: &mut P,
     prev: u16,
@@ -221,10 +238,16 @@ fn keep<P: BoundaryProvider>(
     next: u16,
 ) -> Result<bool, BoundaryError> {
     let c = if p.category(last as u32) == Category::Mark { prev } else { last };
-    Ok(matches!(p.category(c as u32), Category::Letter | Category::Number)
-        && p.line_property(c as u32)? != IcuLineBreak::SA as u8
-        && matches!(p.category(next as u32), Category::Letter | Category::Number)
-        && p.line_property(next as u32)? != IcuLineBreak::SA as u8)
+    if !matches!(p.category(c as u32), Category::Letter | Category::Number) {
+        return Ok(false);
+    }
+    if p.line_property(c as u32)? == IcuLineBreak::SA as u8 {
+        return Ok(false);
+    }
+    if !matches!(p.category(next as u32), Category::Letter | Category::Number) {
+        return Ok(false);
+    }
+    Ok(p.line_property(next as u32)? != IcuLineBreak::SA as u8)
 }
 fn after_all(last: u8, cur: u8, ch: u16, strict: Strictness) -> bool {
     if last >= 49 || cur >= 49 {
@@ -357,14 +380,7 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
         let mut cached = 0usize;
         let mut last_prop = if self.kind == BreakType::BreakAll {
             let mut p = self.provider.borrow_mut();
-            match p.line_property(if c.last == 0 {
-                0
-            } else {
-                cp(self.text, pos.saturating_sub(1))
-            }) {
-                Ok(v) => v,
-                Err(_) => return Err(BoundaryError::Provider),
-            }
+            line_property(&mut *p, c.previous, c.last)?
         } else {
             IcuLineBreak::XX as u8
         };
@@ -394,14 +410,7 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
             }
             if self.kind == BreakType::BreakAll && !lead(c.current) {
                 let mut p = self.provider.borrow_mut();
-                let prop = match p.line_property(if c.current == b'+' as u16 {
-                    b'+' as u32
-                } else {
-                    cp(self.text, i)
-                }) {
-                    Ok(v) => v,
-                    Err(_) => return Err(BoundaryError::Provider),
-                };
+                let prop = line_property(&mut *p, c.last, c.current)?;
                 if self.strict == Strictness::Loose
                     && matches!(c.current, 0x2010 | 0x2013)
                     && matches!(last_prop, 19 | 2 | 24 | 14)
@@ -454,5 +463,153 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
 impl<P: BoundaryProvider> Drop for LocalLinePolicy<'_, P> {
     fn drop(&mut self) {
         self.invalidate()
+    }
+}
+
+#[cfg(test)]
+mod policy_trace_source {
+    use super::*;
+
+    #[derive(Default)]
+    struct Trace {
+        events: Vec<String>,
+        boundaries: Vec<i32>,
+        property_error: bool,
+    }
+    impl BoundaryProvider for Trace {
+        fn acquire_line(&mut self, text: &[u16], locale: &str) -> Result<(), BoundaryError> {
+            self.events.push(format!("line({},{locale})", text.len()));
+            Ok(())
+        }
+        fn following(&mut self, q: i32) -> Result<Following, BoundaryError> {
+            self.events.push(format!("following({q})"));
+            Ok(self
+                .boundaries
+                .iter()
+                .copied()
+                .find(|v| *v > q)
+                .map_or(Following::Done, Following::Boundary))
+        }
+        fn release_line(&mut self) {
+            self.events.push("release-line".into());
+        }
+        fn acquire_character(&mut self, _: &[u16]) -> Result<(), BoundaryError> {
+            self.events.push("character".into());
+            Ok(())
+        }
+        fn character_following(&mut self, q: i32) -> Result<Following, BoundaryError> {
+            self.events.push(format!("character-following({q})"));
+            Ok(Following::Done)
+        }
+        fn release_character(&mut self) {
+            self.events.push("release-character".into());
+        }
+        fn category(&mut self, _: u32) -> Category {
+            Category::Letter
+        }
+        fn line_property(&mut self, cp: u32) -> Result<u8, BoundaryError> {
+            self.events.push(format!("property(U+{cp:04X})"));
+            if self.property_error {
+                Err(BoundaryError::Provider)
+            } else {
+                Ok(IcuLineBreak::AL as u8)
+            }
+        }
+    }
+
+    // Prepared event-trace regressions. These are source fixtures; not run
+    // under the active-build/user constraint and do not claim runtime parity.
+    #[test]
+    fn fast_positive_and_negative_avoid_icu() {
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let yes_text = [b'a' as u16, b'(' as u16];
+        let no_text = [b'a' as u16, b'b' as u16];
+        let mut yes = LocalLinePolicy::new(&yes_text, p.clone()).unwrap();
+        assert_eq!(yes.next(1, 2), Ok(1));
+        let mut no = LocalLinePolicy::new(&no_text, p.clone()).unwrap();
+        assert_eq!(no.next(1, 2), Ok(2));
+        assert!(p.borrow().events.is_empty());
+    }
+    #[test]
+    fn right_quote_feature_changes_fast_three_state() {
+        let text = [b'a' as u16, 0x2019, b'b' as u16];
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let mut enabled = LocalLinePolicy::new(&text, p.clone()).unwrap();
+        enabled.set_right_quote(true);
+        assert_eq!(enabled.next(1, 3), Ok(3));
+        assert!(p.borrow().events.is_empty());
+        let mut disabled = LocalLinePolicy::new(&text, p.clone()).unwrap();
+        assert_eq!(disabled.next(1, 3), Ok(3));
+        assert!(p.borrow().events.iter().any(|e| e.starts_with("following(")));
+    }
+    #[test]
+    fn keep_all_propagates_property_error_unchanged() {
+        let p = Rc::new(RefCell::new(Trace { property_error: true, ..Default::default() }));
+        let text = [0x4e00, 0x4e01];
+        let mut x = LocalLinePolicy::new(&text, p).unwrap();
+        x.set_type(BreakType::KeepAll);
+        assert_eq!(x.next(1, 2), Err(BoundaryError::Provider));
+    }
+    #[test]
+    fn break_all_property_trace_covers_plus_mark_and_pair() {
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let mut provider = p.borrow_mut();
+        assert_eq!(
+            line_property(&mut *provider, b'A' as u16, b'+' as u16),
+            Ok(IcuLineBreak::AL as u8)
+        );
+        assert_eq!(line_property(&mut *provider, b'A' as u16, 0x0301), Ok(IcuLineBreak::AL as u8));
+        assert_eq!(line_property(&mut *provider, 0xd83d, 0xde00), Ok(IcuLineBreak::AL as u8));
+        assert!(after_all(
+            IcuLineBreak::AL as u8,
+            IcuLineBreak::AL as u8,
+            b'a' as u16,
+            Strictness::Normal
+        ));
+        assert!(!after_all(
+            IcuLineBreak::AL as u8,
+            IcuLineBreak::CM as u8,
+            0x0301,
+            Strictness::Normal
+        ));
+        assert!(!after_all(
+            IcuLineBreak::AL as u8,
+            IcuLineBreak::BA as u8,
+            0x1361,
+            Strictness::Normal
+        ));
+        assert!(after_all(
+            IcuLineBreak::AL as u8,
+            IcuLineBreak::BA as u8,
+            0x1361,
+            Strictness::Loose
+        ));
+        drop(provider);
+        let events = &p.borrow().events;
+        assert!(!events.iter().any(|e| e == "property(U+002B)")); // '+' is tailored to AL before ICU.
+        assert!(events.iter().any(|e| e == "property(U+0301)"));
+        assert!(events.iter().any(|e| e == "property(U+1F600)"));
+    }
+    #[test]
+    fn following_is_strictly_after_query_and_soft_hyphen_retries() {
+        let s = [b'a' as u16, 0xad, 0x4e2d];
+        let p = Rc::new(RefCell::new(Trace { boundaries: vec![2], ..Default::default() }));
+        let mut x = LocalLinePolicy::new(&s, p.clone()).unwrap();
+        x.set_soft_hyphen(false);
+        let _ = x.next(1, 3);
+        let trace = p.borrow().events.join(",");
+        assert!(trace.contains("following(1)"));
+        assert!(trace.contains("following(2)"));
+    }
+    #[test]
+    fn whitespace_after_run_and_every_space_are_local() {
+        let s = [b' ' as u16, b' ' as u16, b'a' as u16];
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let mut run = LocalLinePolicy::new(&s, p.clone()).unwrap();
+        assert_eq!(run.next(0, 3), Ok(2));
+        let mut each = LocalLinePolicy::new(&s, p.clone()).unwrap();
+        each.set_space(BreakSpace::Every);
+        assert_eq!(each.next(0, 3), Ok(1));
+        assert!(p.borrow().events.is_empty());
     }
 }
