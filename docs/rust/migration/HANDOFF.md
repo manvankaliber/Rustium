@@ -1,5 +1,33 @@
 # Active Network migration - 2026-11-17
 
+## Latest user steering: dedicated GitHub builder
+
+The user rejected the proposed local-j2 experiment. They selected an existing
+separate Windows PC with T3 Code installed as a self-hosted GitHub runner. Current
+T3 runtime has no environment link/list tools (both attempted and unavailable).
+The chosen setup/access route needs a one-time local T3 task on that PC, or SSH
+access. Existing GitHub CLI authenticates as repository owner; runner list was0.
+No registration token, host change, external settings write, push or PR occurred.
+
+Bootstrap prepared: tools/ci/Install-WindowsRunner.ps1 pins official runner2.338.2
+and SHA-256; .github/workflows/windows-runner-inventory.yml is manual-only and
+reports inventory, not compilation. Both PowerShell scripts parse. Full YAML
+lint/GitHub execution and builder setup remain pending. AGENTS/OPERATING/DECISIONS
+now record the user-controlled builder exception and subsystem integration-PR
+delivery model. CI-RUNNER.md is the runbook. No purchased compute/API billing.
+
+Root also prepared complete46-after-image auth/provider/shared-patch/probe union
+at2402b776, with40parent proposal and71historical bindings verified; unapplied.
+Harness provenance gatead3f20e3 has9synthetic tests passing normal/optimized,
+requires trusted copied source/binary/execution provenance and rejects timing;
+no real capture has been qualified yet. Preserve all earlier review findings.
+
+The already-running source-e6ce572a local build remains on SAME exec31296, -j1.
+77preflight actions passed; last observed full build489/875, still live. Do not
+alter inputs or restart on observation timeout. Let it finish unchanged and
+archive its exact outcome; no subsequent local parallelism trial is authorized.
+New substantial validation should use the dedicated builder after qualification.
+
 ## Build checkpoint (2026-11-17T15:27:39.626878+00:00)
 
 Terra/xhigh workers; Network sole active subsystem. Goal active, weekly remaining last56%, no new goal. Campaigns OFF, publication held. Current source e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e,1270inputs94application bindings, guarded29-file parent package09db0827 applied to both checkouts. No source mutation during the current build.

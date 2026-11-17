@@ -1,0 +1,31 @@
+{
+  "observed_utc": "2026-11-17T16:02:34.217879+00:00",
+  "repository": "manvankaliber/Rustium",
+  "repository_visibility": "public",
+  "registered_runners_observed": 0,
+  "selected_machine": "Existing separate Windows PC, T3 Code installed; remote access not connected",
+  "remote_t3_tools": "t3_environment_links and t3_environment_link unavailable in current runtime",
+  "runner_release": {
+    "version": "2.338.2",
+    "sha256": "a1f17aa987fc8158bc7521d284912267a0d01b7c2c4684b33c86783b5e8221cc",
+    "official_release": "https://github.com/actions/runner/releases/tag/v2.338.2"
+  },
+  "checks": [
+    {
+      "path": "tools\\ci\\Install-WindowsRunner.ps1",
+      "sha256": "da586da25cc70d8742c6dea82c87c8b206d0510158589fa19b78a64ead8cb8d6",
+      "powershell_syntax_exit": 0
+    },
+    {
+      "path": ".rustium-runtime\\runner-inventory-inline.ps1",
+      "sha256": "23928360e33c06d75f5d426337f8b751c127b283309381711fbeaa34f1e95f90",
+      "powershell_syntax_exit": 0
+    }
+  ],
+  "workflow_sha256": "e7d5bf532890b8916355dbc9f4f1596487dd592672da197dc8d27fa0875a4da0",
+  "yaml_linter": "not installed; structure inspected and inline PowerShell parsed, no GitHub execution yet",
+  "registration_or_service_installation": "not attempted",
+  "publication_or_pr_creation": "not performed",
+  "subsystem_compilation_acceptance": false,
+  "next_action": "Configure the runner locally from T3 on the selected builder or establish SSH access; after registration, run inventory and bind the portable Network PR build/test profile. No local-j2 trial."
+}

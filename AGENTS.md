@@ -22,7 +22,7 @@ Distinguish candidate, validated/integrated behavior, Rust ownership behind a do
 
 ## Local resources and evidence
 
-Use only this computer and the existing ChatGPT subscription. No API billing, purchased services, external task store or remote execution. No automatic pushes, release publication or messages to others. Task-local commits and reviewed local integration are authorized; preserve unrelated dirty work.
+Use the existing ChatGPT subscription. The 2026-11-17 user directive authorizes one existing separate Windows PC as a GitHub self-hosted compilation runner and subsystem delivery through an integration PR; see [CI-RUNNER.md](docs/rust/migration/CI-RUNNER.md). Prepare and qualify that runner before moving substantial validation to it. No purchased execution services or API billing. The proposed local two-job trial was explicitly rejected; preserve the already-running build unchanged. No automatic pushes, merges, release publication or messages to others. Task-local commits and reviewed local integration remain authorized; preserve unrelated dirty work.
 
 Use `python tools/rustium_coord.py check` and `status`. The director lease, global claims and one validation gate are documented in OPERATING.md. Initially **one substantial job; at most two compiler/linker jobs** (reduce to one under memory pressure). Keep timing free of competing builds/tests. No worker full-browser builds. Bound pending validation to eight deliveries, then prioritize repair/integration.
 

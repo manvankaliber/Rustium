@@ -39,3 +39,17 @@ Initial independent tasks prepare real candidate families, fixtures, reference c
 ## V8 is a nested source repository
 
 The editing checkout's v8 directory is empty; the configured checkout has V8 at a1175dcfe49146bd7165715a9919eb4e94be0e77 with dirty BUILD.gn and gni/v8.gni. Use read-only pinned helper copies for the initial LEB candidate. Future production integration must explicitly own the nested repository and preserve its local build edits. Do not report V8 missing or silently copy/sync the entire dependency tree.
+## 2026-11-17: subsystem PRs and a dedicated Windows builder
+
+The user rejected the proposed local two-job trial and selected an existing
+separate Windows PC as a self-hosted GitHub runner. Network remains the sole
+active implementation subsystem and workers remain Terra/xhigh. Deliver connected
+code, independent references, bridges and complete tests into one integration PR;
+compile affected consumers and run full ordinary subsystem acceptance on the
+builder, then repair that PR from its logs/checks. Do not count draft checkpoints
+or an inventory workflow as subsystem acceptance. Preserve the already-running
+local source-e6ce572a build unchanged. Registration, portable Network commands,
+trusted PR triggering and a real CI run remain pending. No paid execution service,
+automatic push/merge/publication or sanitizer/fuzz campaign is enabled. This is
+the explicit exception to the earlier single-computer execution policy. See
+[CI-RUNNER.md](CI-RUNNER.md).
