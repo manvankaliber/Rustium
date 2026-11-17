@@ -1,0 +1,544 @@
+{
+  "accepted_candidate": "5e34605ceb2bc0db7b077e5cd21c6a040ce14aa6",
+  "original_revision": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+  "records": [
+    {
+      "path": "base/version.cc",
+      "sha256": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/version.cc"
+    },
+    {
+      "path": "base/version.h",
+      "sha256": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/version.h"
+    },
+    {
+      "path": "base/version_unittest.cc",
+      "sha256": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/version_unittest.cc"
+    },
+    {
+      "path": "base/strings/string_number_conversions.cc",
+      "sha256": "2197d2c7874be6ebd98420eace7d5cd62f69ba06076d7c1fa6722a9d664cf812",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_number_conversions.cc"
+    },
+    {
+      "path": "base/strings/string_number_conversions.h",
+      "sha256": "dcecf9161bb1e2bd2ee0482e68c199263289bf0a60874cd50d2cc426de6b3b2c",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_number_conversions.h"
+    },
+    {
+      "path": "base/strings/string_number_conversions_internal.h",
+      "sha256": "c60c3610dd1bb9e355af3e66f04ec96e11f282f7e8e9c9c2e6cff79cd362ae6d",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_number_conversions_internal.h"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_split.cc"
+    },
+    {
+      "path": "base/strings/string_split.h",
+      "sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_split.h"
+    },
+    {
+      "path": "base/strings/string_split_internal.h",
+      "sha256": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_split_internal.h"
+    },
+    {
+      "path": "base/strings/string_util.cc",
+      "sha256": "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_util.cc"
+    },
+    {
+      "path": "base/strings/string_util.h",
+      "sha256": "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_util.h"
+    },
+    {
+      "path": "base/strings/string_util_internal.h",
+      "sha256": "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_util_internal.h"
+    },
+    {
+      "path": "base/strings/trim_string_internal.h",
+      "sha256": "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/trim_string_internal.h"
+    },
+    {
+      "path": "base/strings/whitespace_constants.h",
+      "sha256": "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/whitespace_constants.h"
+    },
+    {
+      "path": "base/bit_cast.h",
+      "sha256": "0cd10ccc2b5fe82c1a50fc8f4342e818dfb9335f05452ba308dfb90ad92e004c",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/bit_cast.h"
+    },
+    {
+      "path": "base/bits.h",
+      "sha256": "b49197d5803105d7256d043c61334f6853a85d5bdfba0fd44a182c15f61a3c2e",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/bits.h"
+    },
+    {
+      "path": "base/containers/checked_iterators.h",
+      "sha256": "25d51088e004cb60a229de29c278f8fa1115962816da2a161f313b72c91ba2c1",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/containers/checked_iterators.h"
+    },
+    {
+      "path": "base/containers/span.h",
+      "sha256": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/containers/span.h"
+    },
+    {
+      "path": "base/containers/span_forward_internal.h",
+      "sha256": "9a918beca275e4bff3ffc094d9cf92f2a3f4f3c5e6eb3a3ed758a0a330f5d4f9",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/containers/span_forward_internal.h"
+    },
+    {
+      "path": "base/numerics/checked_math.h",
+      "sha256": "3f4d1fd2d6d9cab2cbc94d9612e466dfa021c1a8abe1afc7dc550def84f5177d",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/checked_math.h"
+    },
+    {
+      "path": "base/numerics/checked_math_impl.h",
+      "sha256": "49d2bb59788b43f5b161727a9fca7e4d9548b4a0794dba44045ae3f3d31c9d57",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/checked_math_impl.h"
+    },
+    {
+      "path": "base/numerics/clamped_math.h",
+      "sha256": "1b3208a6f26d2b78508b94b940a17eb33c252a549bb0927cbcff2eeba41c3fad",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/clamped_math.h"
+    },
+    {
+      "path": "base/numerics/clamped_math_impl.h",
+      "sha256": "f6aea00b13a7b8dae6301e293704725c13ef9520df895ce69563901b8fadeb79",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/clamped_math_impl.h"
+    },
+    {
+      "path": "base/numerics/integral_constant_like.h",
+      "sha256": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/integral_constant_like.h"
+    },
+    {
+      "path": "base/numerics/safe_conversions.h",
+      "sha256": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_conversions.h"
+    },
+    {
+      "path": "base/numerics/safe_conversions_arm_impl.h",
+      "sha256": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_conversions_arm_impl.h"
+    },
+    {
+      "path": "base/numerics/safe_conversions_impl.h",
+      "sha256": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_conversions_impl.h"
+    },
+    {
+      "path": "base/numerics/safe_math.h",
+      "sha256": "dd0611ccd543f8a697212d94b357feb4626490ca49355372d1e36797c4abb735",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_math.h"
+    },
+    {
+      "path": "base/numerics/safe_math_arm_impl.h",
+      "sha256": "af9ff8b00fa3105f89f0bece42d9c529c32bda1d4a9f4ea192bc31de94314349",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_math_arm_impl.h"
+    },
+    {
+      "path": "base/numerics/safe_math_clang_gcc_impl.h",
+      "sha256": "2c17dea7483a7f1e0941af093d0404ed0f98fb4ed3922992a2623b845eef1201",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_math_clang_gcc_impl.h"
+    },
+    {
+      "path": "base/numerics/safe_math_shared_impl.h",
+      "sha256": "ae86304e978ec15452f6e84876f5d86123f7452475de0319a71205b0fe4c2ad2",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/numerics/safe_math_shared_impl.h"
+    },
+    {
+      "path": "base/strings/string_util_impl_helpers.h",
+      "sha256": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+      "origin": "Accepted independently frozen Version14/source18/helper archive",
+      "copy": "reference/base/strings/string_util_impl_helpers.h"
+    },
+    {
+      "path": "base/check.h",
+      "sha256": "1e5c47e439a3fcfd7f40b8c7ed117b6974602e3c61bed3ea078db4e047df0860",
+      "git_blob": "f73e8252e7967db424f98029859c8a258ad28d29",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/check.h"
+    },
+    {
+      "path": "base/check_op.h",
+      "sha256": "024d6edba6d60995f7ad6b0f27c4ff4a9883782d06939ef29ebb9de40ea31fe9",
+      "git_blob": "88fe3d9357d400e8beae3f3ea3825bfa219ecb0f",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/check_op.h"
+    },
+    {
+      "path": "base/compiler_specific.h",
+      "sha256": "4809b7c9ae9394929e3023611e438b64d443ad54e48e19dfaff9c9d4205c3a29",
+      "git_blob": "9da9f1113d611d6745faa9fab82dd33b37ed63f9",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/compiler_specific.h"
+    },
+    {
+      "path": "base/logging.h",
+      "sha256": "51f086feb2250f4d638a7f77bcfb88cd44cf572f9cfda71320d578edf3b600ea",
+      "git_blob": "686130e6b91426251f73ef148a30246d45d03eec",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/logging.h"
+    },
+    {
+      "path": "base/notreached.h",
+      "sha256": "3793a02d64c9dac9489f20f207bd10b9c3123a1a1009b8c8637d21db87cbfd4f",
+      "git_blob": "c6b94654efea8e98b0459296185d24464db1ce19",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/notreached.h"
+    },
+    {
+      "path": "base/third_party/icu/icu_utf.h",
+      "sha256": "5250d5680278029c7c53de633c812b91e8aab1fb825036bda26e116b5865d35e",
+      "git_blob": "0b50b710058a1cf6065563a8961c522a4c5078a9",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/third_party/icu/icu_utf.h"
+    },
+    {
+      "path": "base/base_export.h",
+      "sha256": "bf8e625312db80b7f4902b2a23fe24df6f9b53c42a34a2b1968e3df5a7c32049",
+      "git_blob": "dd4c5912e5dc09c90a5973d7cc2549ea99e13ca5",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/base_export.h"
+    },
+    {
+      "path": "base/dcheck_is_on.h",
+      "sha256": "05574580530732cdc478252e54e6c66139ad8620819a9254728b869804d1494e",
+      "git_blob": "1c094410a516f4658021b9581189d43fa21f9c50",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/dcheck_is_on.h"
+    },
+    {
+      "path": "base/functional/callback_forward.h",
+      "sha256": "6ffbed9bc5ead1b97b58a340d3f8584aa3fe878742044b5711db6b876eefbd67",
+      "git_blob": "923fbef6e31c8b1c1cb4fe13af09de68911cac3a",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/functional/callback_forward.h"
+    },
+    {
+      "path": "base/logging/log_severity.h",
+      "sha256": "6b8e793937db6814cdcba96e663f3ca1c0e10822e5c0650591cd4379fef3179b",
+      "git_blob": "36150551dc01e05f45b84aee10c004fbafb0c18b",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/logging/log_severity.h"
+    },
+    {
+      "path": "base/strings/utf_ostream_operators.h",
+      "sha256": "aa454b5f21b892eecc0a5356bb3759be8b899c6aab240c38b4e9362f3448519b",
+      "git_blob": "b2bb7cd78bb154f6b0258c55ef9fc9725a90d2a4",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/utf_ostream_operators.h"
+    },
+    {
+      "path": "build/build_config.h",
+      "sha256": "da6ac66e5f4b5b2fc90fb2d17dc1cc21117ca176007cc51cb1486f3dc2673ef5",
+      "git_blob": "5bb7049a35c6119722f575180372399988c2650d",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/build/build_config.h"
+    },
+    {
+      "path": "base/win/windows_types.h",
+      "sha256": "3ae29652540a72ef63253cb9092a1a3a5808cf528ad657ef9c7daedc51d6226c",
+      "git_blob": "65f917cbab5d854abc09c03efe606ed52fa10dcd",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/win/windows_types.h"
+    },
+    {
+      "path": "base/win/win_handle_types.h",
+      "sha256": "e0ae8047ed618735da6c92a26c444435327bbc8b3d3f0352dd2bc8240052a699",
+      "git_blob": "503bf6f8b7b08fc1b879671e577e5d3e67fb10e2",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/win/win_handle_types.h"
+    },
+    {
+      "path": "base/win/win_handle_types_list.inc",
+      "sha256": "95d2b9066fa0db406894e23efec3e53c9e960cfec5c54c0b4555d36c7445bf51",
+      "git_blob": "917c4b2844767500461f786dbe8bc15c91ad825d",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/win/win_handle_types_list.inc"
+    },
+    {
+      "path": "build/buildflag.h",
+      "sha256": "40538acaa9b39d0f68e895503752bde340f8ea1cdb67a87bfaee865dba54c5cd",
+      "git_blob": "634697986ceae78f0c9239e8824f40f551332b8c",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/build/buildflag.h"
+    },
+    {
+      "path": "base/memory/raw_ptr_exclusion.h",
+      "sha256": "d341357ae72ca29a343460bece70d619b9a526c6abf34546fb8feba7b742f0be",
+      "git_blob": "e5d3fb8f79d85f2fcb55eb49efccd06b69c3b61a",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/memory/raw_ptr_exclusion.h"
+    },
+    {
+      "path": "base/types/is_arc_pointer.h",
+      "sha256": "ae99ec140c78e321200ce699438fc3d67f84922216d200b8bcbf4e4e353092d2",
+      "git_blob": "62f81544c2b8523f26a0aad1e1325c62fa02135b",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/types/is_arc_pointer.h"
+    },
+    {
+      "path": "base/types/supports_ostream_operator.h",
+      "sha256": "e28edb5bae69a0105e231f1cc751110ab11e8d298d002db976aa9569f01b7759",
+      "git_blob": "7e0100f970701100ad669cde55802706d176e25b",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/types/supports_ostream_operator.h"
+    },
+    {
+      "path": "base/types/supports_to_string.h",
+      "sha256": "cb8ec1d5a5b1958290dc77c7f6760e66177cb1b56e11d79dbddf4de12d8b9b8b",
+      "git_blob": "ec612b23c3330a4e5b2f7c65aa2f9d5b1ded4bac",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/types/supports_to_string.h"
+    },
+    {
+      "path": "base/immediate_crash.h",
+      "sha256": "a39bf79fb35879f65aa0dd0eadec076151e3865831053c6f6be807d6abd08e56",
+      "git_blob": "45ba38153ea9b4f4e49cbe71d1962f4169159a6e",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/immediate_crash.h"
+    },
+    {
+      "path": "base/location.h",
+      "sha256": "b87f8584160866c637069caf122932f57c8d3c5feb1c4fb08e022b6369833cef",
+      "git_blob": "fa1747315fd96cf30d4c2bb8c5ae6f1ebe5a5a56",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/location.h"
+    },
+    {
+      "path": "base/macros/if.h",
+      "sha256": "d0d9f44489a98a70b32729a4cebf503325c7318a03e392cc61cbc6a24769ef4b",
+      "git_blob": "bcb146b718106e3f299d464b53ae2253e26e284c",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/macros/if.h"
+    },
+    {
+      "path": "base/macros/is_empty.h",
+      "sha256": "e88011b71e772e24537e36eb4ae67a7863b18e2415c2ebf4382d223ee84dde80",
+      "git_blob": "6a11adc7422e361cbfde7b615c226c662fe04a00",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/macros/is_empty.h"
+    },
+    {
+      "path": "base/not_fatal_until.h",
+      "sha256": "2114309a5e7e8fd33eee957f102fda359a5876e8f0d477db1496d21cd440ce42",
+      "git_blob": "4b751252cbf4136e8b79ab9a5f96f2ccf68db89d",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/not_fatal_until.h"
+    },
+    {
+      "path": "base/macros/concat.h",
+      "sha256": "4f90f9390c77a510de25784d770874c95258c50a69251fb8916283ef8e2c80cf",
+      "git_blob": "5909d4e1af017007ac3a537ac4590a6b6f647d31",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/macros/concat.h"
+    },
+    {
+      "path": "base/trace_event/base_tracing_forward.h",
+      "sha256": "742120e6d64653b4f1bda851f4d1b3d5b178f57b57ba70d076aec05360463145",
+      "git_blob": "a688127fbb994bdfaa5cfc5b228a4fb795b90f81",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/trace_event/base_tracing_forward.h"
+    },
+    {
+      "path": "base/types/to_address.h",
+      "sha256": "414a4d34ba8b28290500bfa80ef6f34cc4441fc527ac6bcc4109d383901991b6",
+      "git_blob": "ac71b0103dcbe7771071c399586943963c9f4c59",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/types/to_address.h"
+    },
+    {
+      "path": "base/strings/join_string_internal.h",
+      "sha256": "51613aff607fbac25ed137ce357fa4e523d8385f54a2ef6224b77eaa0b2c09e4",
+      "git_blob": "03cee7b2e1f2076265c0de8f26330251a16be6fb",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/join_string_internal.h"
+    },
+    {
+      "path": "base/strings/string_util_win.h",
+      "sha256": "f89fb7d7c5556b3045935f6378fbc150ba16b6f97cc3e832d8217ae042b1d8ae",
+      "git_blob": "28dd24385049cfbb24968f8e497b76b072a03ad4",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/string_util_win.h"
+    },
+    {
+      "path": "base/strings/string_util_posix.h",
+      "sha256": "efb87b972f035030aab5d42b9dea120d88b7649c24726df80ce0bb60a5f4c9ac",
+      "git_blob": "3c84d0b6ee27ff05a1dcbd74d3951b10314aae9b",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/string_util_posix.h"
+    },
+    {
+      "path": "base/no_destructor.h",
+      "sha256": "0704c6f981f722a2ed3263884f40103f05f9ab424b7e7c638e3ebc31f0aa3989",
+      "git_blob": "9c035c1b651f68f7da90bcc30b1ff81b56bcfee0",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/no_destructor.h"
+    },
+    {
+      "path": "base/strings/utf_string_conversion_utils.h",
+      "sha256": "e320894fd249bca1ea4bb603d749389753016c9a0287ab0333d8a74f3cbb360e",
+      "git_blob": "2603ef33138f1b93feb42740cc5871d124b2b05b",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/utf_string_conversion_utils.h"
+    },
+    {
+      "path": "base/strings/utf_string_conversions.h",
+      "sha256": "9a44082b7a8cde528172e1d782370c046bc767125acb70088f900dbfbbd08724",
+      "git_blob": "3de0c27a2c7e3da5626d609bf893a3d856a209ac",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/utf_string_conversions.h"
+    },
+    {
+      "path": "base/strings/string_split_win.h",
+      "sha256": "3948ad4dba15161de85f732b9864cea7b21bf5647c11adec95673a9a0d2c4024",
+      "git_blob": "2e4747cec1213a47182af35910024b6efe491700",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/string_split_win.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-conversion.h",
+      "sha256": "2754e5e7ef1a158d00f529da03dcf943dd239ccc70e798a594f22e13e8dd0f94",
+      "git_blob": "6e8884d84ca56dbfd05964e463dd7999364b3b35",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/third_party/double_conversion/src/double-conversion/double-conversion.h"
+    },
+    {
+      "path": "base/strings/string_number_conversions_win.h",
+      "sha256": "788975b49d6b3a43e420a669f759d495cf5d7c7b39d09ca55ba361ea884bf3bd",
+      "git_blob": "e0a317055720541c5641cfc9d719af7c186565ee",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/base/strings/string_number_conversions_win.h"
+    },
+    {
+      "path": "testing/gtest/include/gtest/gtest.h",
+      "sha256": "e65bc0f551d8016c5027352b013ecd90f0ee3c61ff0ddd9d1f8e7ba6676dee58",
+      "git_blob": "ede1e42574c3fe102860179cc8c62c2cdf4b3a7e",
+      "origin": "Pinned original quoted-header closure d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "copy": "reference/testing/gtest/include/gtest/gtest.h"
+    }
+  ],
+  "before": [
+    {
+      "path": "base/version.cc",
+      "sha256": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+      "copy": "before/base/version.cc"
+    },
+    {
+      "path": "base/version.h",
+      "sha256": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+      "copy": "before/base/version.h"
+    },
+    {
+      "path": "base/version_unittest.cc",
+      "sha256": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+      "copy": "before/base/version_unittest.cc"
+    },
+    {
+      "path": "base/BUILD.gn",
+      "sha256": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9",
+      "copy": "before/base/BUILD.gn"
+    }
+  ],
+  "unresolved_quoted_headers": [
+    "base/debug/debugging_buildflags.h",
+    "base/fuzzing_buildflags.h",
+    "base/tracing_buildflags.h",
+    "double-to-string.h",
+    "partition_alloc/bounds_checks.h",
+    "partition_alloc/buildflags.h",
+    "partition_alloc/pointers/raw_ptr_exclusion.h",
+    "string-to-double.h",
+    "third_party/googletest/src/googletest/include/gtest/gtest.h",
+    "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
+  ],
+  "system_stl_include_names": [
+    "TargetConditionals.h",
+    "algorithm",
+    "array",
+    "bit",
+    "cassert",
+    "cmath",
+    "compare",
+    "concepts",
+    "cstddef",
+    "cstdint",
+    "errno.h",
+    "features.h",
+    "functional",
+    "initializer_list",
+    "iosfwd",
+    "iterator",
+    "limits",
+    "math.h",
+    "memory",
+    "new",
+    "numeric",
+    "optional",
+    "ostream",
+    "ranges",
+    "sal.h",
+    "sanitizer/msan_interface.h",
+    "span",
+    "specstrings.h",
+    "sstream",
+    "stdarg.h",
+    "stddef.h",
+    "stdint.h",
+    "stdio.h",
+    "stdlib.h",
+    "string",
+    "string.h",
+    "string_view",
+    "time.h",
+    "type_traits",
+    "utility",
+    "vector",
+    "wchar.h"
+  ],
+  "scope": "Independent original algorithms and recursively quoted source headers frozen before production derivative. Not an independently compiled C++ oracle or complete evaluated build closure.",
+  "remaining": "Resolve missing generated/nested-provider headers, selected preprocessor configuration and independent original symbol binding; freeze compiler/STL/SDK/link providers at configured validation. No native/runtime/ABI acceptance."
+}
