@@ -68,7 +68,6 @@ pub struct Token<'a> {
     /// Decoded string payload. Unescaped input stays borrowed; escapes allocate.
     pub value: Option<Cow<'a, [u16]>>,
     pub delimiter: Option<u16>,
-    number: Option<f64>,
     number_bits: Option<u64>,
     /// Exact lexical spelling for numeric tokens, supplied to NumberProvider.
     pub numeric_source: Option<Cow<'a, [u16]>>,
@@ -166,12 +165,12 @@ impl Token<'_> {
             Dimension => {
                 self.value == other.value
                     && self.numeric_sign == other.numeric_sign
-                    && self.number_bits == other.number_bits
+                    && self.numeric_value() == other.numeric_value()
                     && self.numeric_is_integer == other.numeric_is_integer
             }
             Number | Percentage => {
                 self.numeric_sign == other.numeric_sign
-                    && self.number_bits == other.number_bits
+                    && self.numeric_value() == other.numeric_value()
                     && self.numeric_is_integer == other.numeric_is_integer
             }
             UnicodeRange => self.unicode_range == other.unicode_range,
@@ -233,7 +232,12 @@ fn serialize_string(v: &[u16]) -> Vec<u16> {
             0x10000 + ((hi << 10) | lo)
         } else {
             i += 1;
-            c as u32
+            // CodePointAtOrZero returns zero for an unpaired surrogate.
+            if (0xd800..=0xdfff).contains(&c) {
+                0
+            } else {
+                c as u32
+            }
         };
         if cp <= 0x1f || cp == 0x7f {
             append_hex_escape(&mut o, cp)
@@ -282,10 +286,10 @@ fn serialize_identifier(v: &[u16], skip_start: bool) -> Vec<u16> {
             || (65..=90).contains(&cp)
             || (97..=122).contains(&cp)
         {
-            append_scalar(&mut o, cp)
+            append_escaped_codepoint(&mut o, cp)
         } else {
             o.push(92);
-            append_scalar(&mut o, cp)
+            append_escaped_codepoint(&mut o, cp)
         }
         if first {
             first = false;
@@ -459,7 +463,6 @@ impl<'a> Tokenizer<'a> {
             span: start..self.pos,
             value: None,
             delimiter: None,
-            number: None,
             number_bits: None,
             numeric_source: None,
             numeric_is_integer: true,
@@ -795,7 +798,6 @@ impl<'a> Tokenizer<'a> {
             value
         };
         t.number_bits = Some(value.to_bits());
-        t.number = Some(value);
         t.unit_id = Some(1); // CSSPrimitiveValue::UnitType::kNumber
         t.numeric_source = Some(self.source_value(start..end));
         if self.starts_ident_at(self.pos) {
@@ -868,7 +870,9 @@ impl<'a> Tokenizer<'a> {
         // source view, preserving lone surrogates and avoiding replacement.
         let content_start = self.pos;
         for offset in 0.. {
-            let c = self.units.get(content_start + offset).copied().unwrap_or(0xffff);
+            let Some(&c) = self.units.get(content_start + offset) else {
+                break;
+            };
             if c == 41 {
                 self.pos = content_start + offset + 1;
                 return self.text_token(
@@ -877,7 +881,7 @@ impl<'a> Tokenizer<'a> {
                     self.source_value(content_start..content_start + offset),
                 );
             }
-            if c <= 32 || c == 92 || c == 34 || c == 39 || c == 40 || c == 127 || c == 0xffff {
+            if c <= 32 || c == 92 || c == 34 || c == 39 || c == 40 || c == 127 {
                 break;
             }
         }
@@ -1042,7 +1046,7 @@ fn unit_id(v: &[u16]) -> u16 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    struct FixedNumbers;
+    pub(super) struct FixedNumbers;
     impl NumberProvider for FixedNumbers {
         fn parse_ascii_decimal(&self, s: &[u8]) -> DecimalResult {
             let value: f64 = match s {
@@ -1448,7 +1452,6 @@ mod tests {
             span: 0..1,
             value: Some(Cow::Owned(vec![97])),
             delimiter: None,
-            number: None,
             number_bits: None,
             numeric_source: None,
             numeric_is_integer: true,
@@ -1464,7 +1467,6 @@ mod tests {
             span: 0..1,
             value: None,
             delimiter: None,
-            number: None,
             number_bits: None,
             numeric_source: None,
             numeric_is_integer: true,
@@ -1845,5 +1847,45 @@ mod tests {
             }
         }
         assert_eq!(count, 3000);
+    }
+}
+
+#[cfg(test)]
+mod second_review_regressions {
+    use super::tests::FixedNumbers;
+    use super::*;
+    #[test]
+    fn raw_ffff_and_surrogate_serialization_follow_distinct_helpers() {
+        let url = [117, 114, 108, 40, 0xd800, 0xffff, 41];
+        let mut lexer = Tokenizer::new(Input::Utf16(&url), 0);
+        let token = lexer.next_token(&FixedNumbers);
+        assert_eq!(token.value.as_deref(), Some(&[0xd800, 0xffff][..]));
+        assert_eq!(token.span, 0..7);
+        assert_eq!(token.serialize(&FixedNumbers), Some(url.to_vec()));
+        assert_eq!(lexer.next_token(&FixedNumbers).kind, Kind::Eof);
+        let string = [34, 0xd800, 0xffff, 34];
+        let token = Tokenizer::new(Input::Utf16(&string), 0).next_token(&FixedNumbers);
+        assert_eq!(token.serialize(&FixedNumbers), Some(vec![34, 92, 48, 32, 0xffff, 34]));
+        for source in [vec![34, 0xd83d, 0xde00, 34], vec![117, 114, 108, 40, 0xd83d, 0xde00, 41]] {
+            let token = Tokenizer::new(Input::Utf16(&source), 0).next_token(&FixedNumbers);
+            assert_eq!(token.serialize(&FixedNumbers), Some(source.clone()));
+        }
+    }
+    #[test]
+    fn numeric_value_equality_uses_ieee_values_with_authoritative_bits() {
+        for (positive, negative) in
+            [(b"0".as_slice(), b"-0".as_slice()), (b"0px", b"-0px"), (b"0%", b"-0%")]
+        {
+            let mut a = Tokenizer::new(Input::Bytes(positive), 0).next_token(&FixedNumbers);
+            let mut b = Tokenizer::new(Input::Bytes(negative), 0).next_token(&FixedNumbers);
+            assert_ne!(a.number_bits, b.number_bits);
+            // Sign/type are explicit metadata. Only the tokenizer can write
+            // authoritative value bits; equality compares values and metadata.
+            a.numeric_sign = 0;
+            b.numeric_sign = 0;
+            assert!(a.semantically_equal(&b));
+            b.number_bits = Some(f64::NAN.to_bits());
+            assert!(!b.semantically_equal(&b));
+        }
     }
 }
