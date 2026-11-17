@@ -1,0 +1,2 @@
+reference/** -text whitespace=cr-at-eol
+reference-manifest.json -text whitespace=cr-at-eol

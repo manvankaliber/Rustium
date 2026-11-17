@@ -1,0 +1,9 @@
+# Blink decimal validation oracle proposal
+
+The director-owned adapter isolates the pinned double-conversion provider used by WTF. It emits raw binary64 bits and consumption, ECMAScript shortest text, and WTF precision-six text. It does not tokenize CSS or establish Rust numeric-provider parity. All compiler, execution, differential, configured and platform validation remains pending.
+
+`reference-manifest.json` binds independent Git-extracted source/helper bytes at b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a. The twenty vendor files retain their notices; the missing upstream license packaging file is explicitly recorded. The archived WTF files define the adapter policy. This is a behavior reference closure, not the whole Blink include/build closure.
+
+The stdin protocol is one `operation<TAB>hex` record per line: `P8` takes two hex digits per byte, `P16` takes four per UTF-16 code unit, and `F` takes sixteen hex digits of binary64 bits. JSON lines preserve exact result bytes and bits. Parse exposes provider consumption separately from the outer full-consumption validity check. Input lengths above INT_MAX are rejected by this utility rather than exercising WTF's saturation policy; they are outside its corpus qualification.
+
+Build and run only through the director validation gate after the active frozen networking run ends. Use local pinned compiler/SDK inputs and all vendor .cc files, with one compiler job. Before acceptance, independently review wrapper equivalence and verify original fixture assertions, signed zero, boundaries, notation transitions, halfway rounding, overflow/underflow, long significands/exponents, 8/16-bit paths and non-ASCII rejection. Preserve every raw result and source/toolchain identities. No sanitizer/fuzz/security campaign or performance measurement is authorized here.

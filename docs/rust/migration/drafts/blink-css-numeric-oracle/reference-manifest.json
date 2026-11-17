@@ -1,0 +1,170 @@
+{
+  "source_commit": "b1d5d004ec5ee1250dd6d9f8a46cc4c80065631a",
+  "records": [
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum-dtoa.cc",
+      "sha256": "85a803ff5eaea5acc840182ab03dc1205b77519cb61d6615682314eb8aa90914",
+      "git_blob": "15123e6a63cfad9d497d9de8885145ccf3101714",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/bignum-dtoa.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum-dtoa.h",
+      "sha256": "d11517ebb69107c515c5b45d820e1a2ff665ac64182f62fdd25bac804acf1d1f",
+      "git_blob": "34b961992d672c1713bc19dde430939d28dffb53",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/bignum-dtoa.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum.cc",
+      "sha256": "cc33c3775d66d138aa49ea5a18e73ad6766ecca17009225811c33cea64bcd11b",
+      "git_blob": "5c74d70d3df28f0bef37939cda2f0dba0411223b",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/bignum.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/bignum.h",
+      "sha256": "6b63faea13f36f6026b56855aa8d28329ba1a91c564b9abc94b21608ca42cbfb",
+      "git_blob": "14d1ca86fc7fdefbcd394585026165225de71a14",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/bignum.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/cached-powers.cc",
+      "sha256": "f0cabcc74f54ca33072671cc6c2819e39e8cd9b55db508946f2bd5acc1b48367",
+      "git_blob": "56bdfc9d6361119c668bbe2734c72de18a26f588",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/cached-powers.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/cached-powers.h",
+      "sha256": "1da91324ffd4200b3cb41d1f0707277175cdd28fcbffa13104e14df431f00744",
+      "git_blob": "f38c26d201fad654612c81bca05f71feafc16111",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/cached-powers.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/diy-fp.h",
+      "sha256": "f8f5d66be5684ac547f68b997d41fdc57e8dc2ca1ef2ef2e3b10c6a76c9c5b75",
+      "git_blob": "a2200c4ded0cddd173eab631223b58bfa0447a0e",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/diy-fp.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-conversion.h",
+      "sha256": "2754e5e7ef1a158d00f529da03dcf943dd239ccc70e798a594f22e13e8dd0f94",
+      "git_blob": "6e8884d84ca56dbfd05964e463dd7999364b3b35",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/double-conversion.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-to-string.cc",
+      "sha256": "98b001f0cdfe091af43201bdcb45ed6f68d38e4a823fe29879a894ab7932efc7",
+      "git_blob": "9ea3d18d5f70070b549f4340ba38b514074c79ed",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/double-to-string.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/double-to-string.h",
+      "sha256": "cb0b7ec6c4d8896a9d24e737ae4c33e1a341e2e5c61022a9adc1c67f4be0073b",
+      "git_blob": "35449feeb7c588142962ebfb2dbf1f05b375f3bd",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/double-to-string.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fast-dtoa.cc",
+      "sha256": "c2042b7bdd218435bcb4881a86a033bbd5dddbb6bd386a3a099247ca67882440",
+      "git_blob": "d7a23984df2de338354fd7c7b3896f8e5fe63613",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/fast-dtoa.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fast-dtoa.h",
+      "sha256": "523d778935995dea5d21e59f55629ba40eaf68dedfe99e82b71efd4ae75f4e40",
+      "git_blob": "5f1e8eee5e56e7c496c84dc0a5bf9dad0b97fc9f",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/fast-dtoa.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fixed-dtoa.cc",
+      "sha256": "6cbef46bd0f6a482f4c79e34d14e49b448094d85bcefc25177957d84b62b2144",
+      "git_blob": "e739b19804cdc219376fc9e85f825d2e6af41ab7",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/fixed-dtoa.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/fixed-dtoa.h",
+      "sha256": "5c22077d3d333998b87c578aa1a015503d162895e20e5f2ee92721c834748ee1",
+      "git_blob": "3bdd08e21f59d5fece37eb14a6f510f464c3f2ba",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/fixed-dtoa.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/ieee.h",
+      "sha256": "bc9a4adae492f692e19db9c279eac52d4933ddf872aff43056bceee42d65a8f5",
+      "git_blob": "9203f4d558e0cea52007cc5809a715042451e8f9",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/ieee.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/string-to-double.cc",
+      "sha256": "9aafd7e77a23164ee94903cfd16bd1e84344a5d7a18b4ee430e35e76568b108d",
+      "git_blob": "972956ca6907d58a26d9cc5bfcb9b185f3e7d839",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/string-to-double.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/string-to-double.h",
+      "sha256": "1976310fdd04e3bc350c5f8f4b443ba0287abb4004b318f048ac41611278e4c9",
+      "git_blob": "fdf302d4c38cec67f3bc9830231e58052ed7300d",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/string-to-double.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/strtod.cc",
+      "sha256": "923f15ce6bff38b9aaa1f3bced157c468978ac9443fbb781f0826daeae5cd4ee",
+      "git_blob": "5fb1b2f104e545342cefca64b168546bb3877451",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/strtod.cc"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/strtod.h",
+      "sha256": "08c3a8f9852b6e3399b694ead7511e0ecadc96a6a61431fc1f9df003f2ff41d8",
+      "git_blob": "77221fb9d5388f4fc869cdc40b345165c2a86872",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/strtod.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/src/double-conversion/utils.h",
+      "sha256": "ab745c4b74fdd27d967d8026d082bff3ef59ca2ca581c163dcf266bebd413795",
+      "git_blob": "4f4dd71bf75080d5fff3dada66bc908ab6186793",
+      "archive": "reference/base/third_party/double_conversion/src/double-conversion/utils.h"
+    },
+    {
+      "path": "base/third_party/double_conversion/BUILD.gn",
+      "sha256": "00c032c04c37cd13c8f2a7cbfd26068d7f31ebe1cee07678da8ebe277c80dd32",
+      "git_blob": "d95a1eb183db7a7d3d41639584d931c9664b48dc",
+      "archive": "reference/base/third_party/double_conversion/BUILD.gn"
+    },
+    {
+      "path": "base/third_party/double_conversion/README.chromium",
+      "sha256": "35939d1e743e5a7be8ea4055c3524d00e70246b3471d753528d7b4f1d1651741",
+      "git_blob": "011406e326dec90170852f492bf831582312e9d0",
+      "archive": "reference/base/third_party/double_conversion/README.chromium"
+    },
+    {
+      "path": "base/third_party/double_conversion/crowbar.txtpb",
+      "sha256": "5c5407cf40be89ff5f4eb5ac7f0a42261020aa2d7e07b72a3f4302a80c27718f",
+      "git_blob": "c7b9f42de2a1583165df88f7b26314103dd211c8",
+      "archive": "reference/base/third_party/double_conversion/crowbar.txtpb"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.cc",
+      "sha256": "8c1e576427c9398def6173dd6ce33f1d86851476e2a0001b6fb22bee9a8708ce",
+      "git_blob": "0c1f82aad88ce592eb37bc9fbce7f9e5c86fc689",
+      "archive": "reference/third_party/blink/renderer/platform/wtf/dtoa.cc"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.h",
+      "sha256": "6dacb0909a70ab454e3ef0056e2d022b9018597760423942f50b794cc2c5d4d4",
+      "git_blob": "78542c57feed575b011f3a5de10fb419d1d02269",
+      "archive": "reference/third_party/blink/renderer/platform/wtf/dtoa.h"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_to_number.cc",
+      "sha256": "36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693",
+      "git_blob": "6ea59c25042fb4ad8e303f921d6f108f1e06b0f1",
+      "archive": "reference/third_party/blink/renderer/platform/wtf/text/string_to_number.cc"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/ascii_ctype.h",
+      "sha256": "fea2278f2f956831b070f282a9ab9daffc1137353b91f8b2425a0312ea4b21b1",
+      "git_blob": "6ac7a7bc5962302b8f186121d6c1a4594c1cabf7",
+      "archive": "reference/third_party/blink/renderer/platform/wtf/text/ascii_ctype.h"
+    }
+  ],
+  "scope": "Behavior-bearing double-conversion vendor family plus WTF parsing/format policy references; not a standalone Blink build closure",
+  "packaging_gap": "README.chromium refers to src/LICENSE, absent at pinned commit; all embedded vendor copyright/license notices preserved",
+  "compiler_tests_run": false
+}
