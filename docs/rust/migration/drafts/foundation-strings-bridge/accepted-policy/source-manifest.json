@@ -1,0 +1,89 @@
+{
+  "task_id": "FOUNDATION-STRINGS",
+  "base_revision": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+  "reference_checkout": "D:/Rustium",
+  "reference_revision": "observed D:/Rustium HEAD c46d3f4975af8785d3fc1d733cf25360914ef884; source file hashes bind working-tree bytes",
+  "format": "exact source bytes copied; SHA-256 over bytes",
+  "files": [
+    {
+      "path": "base/strings/string_split.cc",
+      "sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "queued_sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_split.cc: text: set\nbase/strings/string_split.cc: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_split.h",
+      "sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "queued_sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_split.h: text: set\nbase/strings/string_split.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_split_internal.h",
+      "sha256": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_split_internal.h: text: set\nbase/strings/string_split_internal.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_split_win.h",
+      "sha256": "3948ad4dba15161de85f732b9864cea7b21bf5647c11adec95673a9a0d2c4024",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_split_win.h: text: set\nbase/strings/string_split_win.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_split_unittest.cc",
+      "sha256": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+      "queued_sha256": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_split_unittest.cc: text: set\nbase/strings/string_split_unittest.cc: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/trim_string_internal.h",
+      "sha256": "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/trim_string_internal.h: text: set\nbase/strings/trim_string_internal.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/whitespace_constants.h",
+      "sha256": "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/whitespace_constants.h: text: set\nbase/strings/whitespace_constants.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/strings/string_view_util.h",
+      "sha256": "38ca9c59519eec4362c139e071c3e2fd4218defe48a367cc71f03cec6c0e3bf3",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/strings/string_view_util.h: text: set\nbase/strings/string_view_util.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/containers/span.h",
+      "sha256": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/containers/span.h: text: set\nbase/containers/span.h: eol: lf",
+      "archive_byte_equal": true
+    },
+    {
+      "path": "base/containers/span_forward_internal.h",
+      "sha256": "9a918beca275e4bff3ffc094d9cf92f2a3f4f3c5e6eb3a3ed758a0a330f5d4f9",
+      "queued_sha256": null,
+      "queue_hash_matches": true,
+      "git_attributes": "base/containers/span_forward_internal.h: text: set\nbase/containers/span_forward_internal.h: eol: lf",
+      "archive_byte_equal": true
+    }
+  ]
+}
