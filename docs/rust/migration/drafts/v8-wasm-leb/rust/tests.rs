@@ -2,43 +2,58 @@ use super::*;
 
 #[test]
 fn original_helper_size_tables() {
-    for v in 0..128u64 {
-        assert_eq!(encoded_len_unsigned(v), 1);
+    assert_eq!(encoded_len_unsigned(0), 1);
+    assert_eq!(encoded_len_unsigned(1), 1);
+    assert_eq!(encoded_len_unsigned(3), 1);
+    for v in 4..128usize {
+        assert_eq!(encoded_len_unsigned(v as u64), 1);
     }
-    for shift in (7..64).step_by(7) {
-        let low = 1u64 << shift;
-        for v in [low, low + 1, low | (low - 1)] {
-            assert_eq!(encoded_len_unsigned(v), ((64 - v.leading_zeros() + 6) / 7) as usize);
-        }
+    for v in (1 << 7)..(1 << 9) {
+        assert_eq!(encoded_len_unsigned(v), 2);
     }
-    for v in [
-        0,
-        1,
-        3,
-        63,
-        64,
-        127,
-        8191,
-        8192,
-        -1,
-        -64,
-        -65,
-        -8192,
-        -8193,
-        i32::MIN as i64,
-        i32::MAX as i64,
-        i64::MIN,
-        i64::MAX,
-    ] {
-        assert_eq!(
-            encoded_len_signed(v),
-            encode_signed(
-                v,
-                if v >= i32::MIN as i64 && v <= i32::MAX as i64 { Width::I32 } else { Width::I64 }
-            )
-            .unwrap()
-            .len()
-        );
+    for v in ((1 << 14)..(1 << 16)).step_by(33) {
+        assert_eq!(encoded_len_unsigned(v), 3);
+    }
+    for v in ((1 << 21)..(1 << 24)).step_by(33_999) {
+        assert_eq!(encoded_len_unsigned(v), 4);
+    }
+    for v in ((1usize << 28)..(1usize << 31)).step_by(33_997_779) {
+        assert_eq!(encoded_len_unsigned(v as u64), 5);
+    }
+    assert_eq!(encoded_len_unsigned(0xffff_ffff), 5);
+
+    assert_eq!(encoded_len_signed(0), 1);
+    assert_eq!(encoded_len_signed(1), 1);
+    assert_eq!(encoded_len_signed(3), 1);
+    for v in 0..(1 << 6) {
+        assert_eq!(encoded_len_signed(v), 1);
+    }
+    for v in (1 << 6)..(1 << 8) {
+        assert_eq!(encoded_len_signed(v), 2);
+    }
+    for v in ((1 << 13)..(1 << 15)).step_by(31) {
+        assert_eq!(encoded_len_signed(v), 3);
+    }
+    for v in ((1 << 20)..(1 << 22)).step_by(31_991) {
+        assert_eq!(encoded_len_signed(v), 4);
+    }
+    for v in ((1 << 27)..(1 << 29)).step_by(3_199_893) {
+        assert_eq!(encoded_len_signed(v), 5);
+    }
+    for v in -(1 << 6)..=0 {
+        assert_eq!(encoded_len_signed(v), 1);
+    }
+    for v in -(1 << 13)..-(1 << 6) {
+        assert_eq!(encoded_len_signed(v), 2);
+    }
+    for v in (-(1 << 20)..-(1 << 18)).step_by(11) {
+        assert_eq!(encoded_len_signed(v), 3);
+    }
+    for v in (-(1 << 27)..-(1 << 25)).step_by(11_999) {
+        assert_eq!(encoded_len_signed(v), 4);
+    }
+    for v in (-(1 << 30)..-(1 << 28)).step_by(1_199_999) {
+        assert_eq!(encoded_len_signed(v), 5);
     }
 }
 
@@ -73,6 +88,14 @@ fn original_helper_write_decode_value_cases() {
         let b = encode_unsigned(v, Width::U64).unwrap();
         assert_eq!(decode(&b, Width::U64, ValidationMode::Full).unwrap().value, v as i128);
     }
+    let mut u64_bits = 0x3au64;
+    while u64_bits != 0 {
+        let b = encode_unsigned(u64_bits, Width::U64).unwrap();
+        let got = decode(&b, Width::U64, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, u64_bits as i128);
+        assert_eq!(got.bytes, b.len());
+        u64_bits = u64_bits.wrapping_shl(1);
+    }
     for v in [
         0,
         1,
@@ -92,6 +115,61 @@ fn original_helper_write_decode_value_cases() {
     ] {
         let b = encode_signed(v, Width::I64).unwrap();
         assert_eq!(decode(&b, Width::I64, ValidationMode::Full).unwrap().value, v as i128);
+    }
+}
+
+#[test]
+fn original_shifted_write_decode_sequences() {
+    let mut u32v = 0x3au32;
+    while u32v != 0 {
+        let bytes = encode_unsigned(u32v as u64, Width::U32).unwrap();
+        assert_eq!(bytes.len(), encoded_len_unsigned(u32v as u64));
+        let got = decode(&bytes, Width::U32, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, u32v as i128);
+        assert_eq!(got.bytes, bytes.len());
+        u32v = u32v.wrapping_shl(1);
+    }
+
+    let mut i32_positive_bits = 0x3au32;
+    while i32_positive_bits != 0 {
+        let value = i32_positive_bits as i32;
+        let bytes = encode_signed(value as i64, Width::I32).unwrap();
+        assert_eq!(bytes.len(), encoded_len_signed(value as i64));
+        let got = decode(&bytes, Width::I32, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, value as i128);
+        assert_eq!(got.bytes, bytes.len());
+        i32_positive_bits = i32_positive_bits.wrapping_shl(1);
+    }
+    let mut i32_negative_bits = 0xffff_ff3bu32;
+    while i32_negative_bits != 0 {
+        let value = i32_negative_bits as i32;
+        let bytes = encode_signed(value as i64, Width::I32).unwrap();
+        assert_eq!(bytes.len(), encoded_len_signed(value as i64));
+        let got = decode(&bytes, Width::I32, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, value as i128);
+        assert_eq!(got.bytes, bytes.len());
+        i32_negative_bits = i32_negative_bits.wrapping_shl(1);
+    }
+
+    let mut i64_positive_bits = 0x3au64;
+    while i64_positive_bits != 0 {
+        let value = i64_positive_bits as i64;
+        let bytes = encode_signed(value, Width::I64).unwrap();
+        assert_eq!(bytes.len(), encoded_len_signed(value));
+        let got = decode(&bytes, Width::I64, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, value as i128);
+        assert_eq!(got.bytes, bytes.len());
+        i64_positive_bits = i64_positive_bits.wrapping_shl(1);
+    }
+    let mut i64_negative_bits = 0xffff_ffff_ffff_ff3bu64;
+    while i64_negative_bits != 0 {
+        let value = i64_negative_bits as i64;
+        let bytes = encode_signed(value, Width::I64).unwrap();
+        assert_eq!(bytes.len(), encoded_len_signed(value));
+        let got = decode(&bytes, Width::I64, ValidationMode::Full).unwrap();
+        assert_eq!(got.value, value as i128);
+        assert_eq!(got.bytes, bytes.len());
+        i64_negative_bits = i64_negative_bits.wrapping_shl(1);
     }
 }
 
@@ -272,6 +350,41 @@ fn generated_bit_boundaries_repeated_prefixes_and_all_accepted_lengths() {
                     assert_eq!(decoded.bytes, target_len);
                 }
             }
+        }
+    }
+}
+
+#[test]
+fn original_decoder_padding_and_swar_boundary_slice_semantics() {
+    // Reproduces the meaningful read/result/length behavior for V8's padded
+    // 2/4/8-byte SWAR thresholds using safe Rust slices. Padding bytes after
+    // the terminator must not change the value or consumed length.
+    let cases: [(Width, Vec<u8>, i128); 5] = [
+        (Width::U32, encode_unsigned(300, Width::U32).unwrap(), 300),
+        (Width::I32, encode_signed(-10_000, Width::I32).unwrap(), -10_000),
+        (Width::I33, encode_signed(-(1i64 << 32), Width::I33).unwrap(), -(1i128 << 32)),
+        (Width::U64, encode_unsigned(u64::MAX, Width::U64).unwrap(), u64::MAX as i128),
+        (Width::I64, encode_signed(i64::MIN, Width::I64).unwrap(), i64::MIN as i128),
+    ];
+    for (width, encoded, expected) in cases {
+        for pad in [0x00, 0x7f, 0x80, 0xff] {
+            for prefix in [0usize, 1, 7, 8] {
+                for trailing in [0usize, 1, 2, 4, 8, 16] {
+                    let mut storage = vec![pad; prefix];
+                    storage.extend_from_slice(&encoded);
+                    storage.extend(std::iter::repeat(pad).take(trailing));
+                    let view = &storage[prefix..];
+                    let decoded = decode(view, width, ValidationMode::Full).unwrap();
+                    assert_eq!(decoded.value, expected);
+                    assert_eq!(decoded.bytes, encoded.len());
+                    assert_eq!(&storage[prefix..prefix + decoded.bytes], encoded.as_slice());
+                }
+            }
+        }
+        for limit in 0..encoded.len() {
+            let err = decode(&encoded[..limit], width, ValidationMode::Full).unwrap_err();
+            assert_eq!(err.offset, limit);
+            assert_eq!(err.kind, DecodeErrorKind::ReachedEnd);
         }
     }
 }

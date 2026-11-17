@@ -13,10 +13,12 @@ This directory proposes semantics only. The director owns production exports, Ru
 
 ## Actual widths and callers inspected
 
-Decoder entrypoints expose `u32`, `i32`, `u64`, `i64`, and signed `i33`. The LEB helper separately exposes `write/read/size` for u32/i32/u64/i64 (only `read_u32v` is in the helper; general decode lives in `Decoder`). i33 is used for WasmGC heap/block type encodings. Unsigned 33-bit is not an exposed entrypoint in this revision.
+Decoder entrypoints expose `u32`, `i32`, `u64`, `i64`, and signed `i33`. `LEBHelper` exposes write operations for u32/i32/u64/i64; only `read_u32v` among its read operations; and exactly three native size helpers: `sizeof_u32v(size_t)`, `sizeof_i32v(int32_t)`, and `sizeof_u64v(uint64_t)`. There is no native `sizeof_i64v`. General variable-width decode lives in `Decoder`. i33 is used for WasmGC heap/block type encodings. Unsigned 33-bit is not an exposed entrypoint in this revision.
 
 Observed caller families include function/module decoders (indices, locals, branch depths, constants, offsets, alignments, heap/block types and prefixed opcodes), baseline liftoff, disassembly, module instantiation, serialization, streaming, module building and wasm external references. Callers depend on consumed byte count, validation mode, names in diagnostics and unchanged input pointers for non-consuming `read_*` methods; `consume_*` methods advance the owned decoder cursor.
 
-## Status
+## Status and evidence
 
-Candidate source, frozen original headers/tests, and assertion-level Rust cases are prepared. Rust tests and native configured targets were not run by instruction. This does not establish compilation, differential parity, performance, production ownership, or cutover.
+Archived host evidence at [candidate-tests-20261117T083826507172Z/v8-wasm-leb-result.json](D:/Rustium/docs/rust/migration/evidence/candidate-tests-20261117T083826507172Z/v8-wasm-leb-result.json) records 8/8 passing tests for the older `d8c4bbfa7ebbe0922ff98ad854f8bf4e41a4884a` candidate and its then-frozen input hashes. That result does not cover the added base-helper source closure or the revised tests in this checkout. The newly added/revised Rust assertions are **pending execution** by explicit instruction. Native configured targets, ABI/platform behavior, performance and production ownership remain unverified. This is not production integration or cutover.
+
+The frozen base closure for the two decoder SWAR helpers and their direct V8 header dependencies is listed in `reference/source-manifest.json`. The generated `include/v8-gn.h`, compiler/system headers, and target-specific behavior remain configuration-specific dependencies.
