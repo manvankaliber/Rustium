@@ -1,3 +1,4 @@
 source-before/** -text
 integration-proposal/** -text
 *.patch -text
+source-manifest.json -text
