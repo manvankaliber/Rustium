@@ -36,19 +36,41 @@ OUTPUTS = {'out/NetworkCI', 'out/NetworkProbeCI'}
 HOST_ROOT_NAMES = {'visual_studio', 'windows_sdk', 'depot_tools', 'git'}
 
 
+def is_reparse_or_symlink(info):
+    return (stat.S_ISLNK(info.st_mode) or
+            bool(getattr(info, 'st_file_attributes', 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT))
+
+
 def require_ordinary_path(path):
     info = path.lstat()
-    is_link = (bool(info.st_file_attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT)
-               if os.name == 'nt' else path.is_symlink())
-    require(not is_link,
+    require(not is_reparse_or_symlink(info),
             'Reparse point or symlink in builder inputs: ' + str(path))
     return info
+
+
+def checkout_file_link(root, path, info):
+    require(stat.S_ISLNK(info.st_mode) and
+            (os.name != 'nt' or info.st_reparse_tag == stat.IO_REPARSE_TAG_SYMLINK),
+            'Unsupported checkout reparse point: ' + str(path))
+    target = os.readlink(path)
+    relative_target = Path(target)
+    require(not relative_target.anchor,
+            'Absolute checkout symlink target: ' + str(path))
+    location = path.parent
+    for part in relative_target.parts:
+        location = location.parent if part == '..' else location / part
+        require(location.is_relative_to(root),
+                'Checkout symlink target escapes source: ' + str(path))
+    # Bind the stored link spelling as well as the named input, without opening
+    # through the link. Package archives may retain POSIX separators on Windows.
+    return {'target': target, 'target_path': location.relative_to(root).as_posix()}
 
 
 def checkout_inputs(root):
     """Record every actual checkout file, including ignored tool inputs."""
     repositories = []
     files = {}
+    file_links = {}
 
     def visit(directory):
         for path in sorted(directory.iterdir()):
@@ -57,11 +79,14 @@ def checkout_inputs(root):
                 require_ordinary_path(path)
                 repositories.append(directory)
                 continue
-            info = require_ordinary_path(path)
             if relative in OUTPUTS:
+                info = require_ordinary_path(path)
                 require(stat.S_ISDIR(info.st_mode), 'Build output is not a directory: ' + relative)
                 continue
-            if stat.S_ISDIR(info.st_mode):
+            info = path.lstat()
+            if is_reparse_or_symlink(info):
+                file_links[relative] = checkout_file_link(root, path, info)
+            elif stat.S_ISDIR(info.st_mode):
                 visit(path)
             else:
                 require(stat.S_ISREG(info.st_mode), 'Unexpected input type: ' + relative)
@@ -69,6 +94,9 @@ def checkout_inputs(root):
 
     require_ordinary_path(root)
     visit(root)
+    for name, link in file_links.items():
+        require(link['target_path'] in files,
+                'Checkout symlink does not name an inventoried file: ' + name)
     require(root in repositories, 'Primary Git checkout not found')
     git_revisions = {}
     for repo in sorted(repositories):
@@ -84,7 +112,7 @@ def checkout_inputs(root):
                                                        cwd=repo, text=True).strip()
     configuration = root.parent / '.gclient'
     require_ordinary_path(configuration)
-    return {'git_revisions': git_revisions, 'files': files,
+    return {'git_revisions': git_revisions, 'files': files, 'file_links': file_links,
             'gclient_sha256': sha(configuration)}
 
 
@@ -94,6 +122,8 @@ def compare_inputs(expected, actual):
     changed = sorted(name for name in previous.keys() | current.keys()
                      if previous.get(name) != current.get(name))
     require(not changed, f'{len(changed)} input files differ: {changed[:20]}')
+    require(expected['file_links'] == actual['file_links'],
+            'Checkout file symlink identity changed')
     require(expected['git_revisions'] == actual['git_revisions'],
             'Git repository membership or revisions changed')
     require(expected['gclient_sha256'] == actual['gclient_sha256'],

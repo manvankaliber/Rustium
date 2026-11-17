@@ -47,8 +47,8 @@ acceptance. Default parallelism is1;2 requires an observed8GiB available memory.
 Qualification uses a run-specific empty output tree and hashes the selected
 external tool installations before and after execution. The [runner runbook](../../docs/rust/migration/CI-RUNNER.md)
 defines the laptop host record and interruption recovery.
-The workflow is not yet published or executed. Data-only planning checks,
-PowerShell parsing and actionlint validate preparation, not actual builds.
+The workflow is published on the Network PR branch and awaits its first run.
+Data-only planning checks, PowerShell parsing and actionlint cover preparation.
 Full raw records persist under `C:/Users/micro/rb/evidence`; GitHub artifact
 copies expire after3days. Preserve local records and archive acceptance evidence
 before deleting any run. No automatic cleanup is configured.
@@ -70,5 +70,6 @@ Before ordinary Network acceptance:
 
 The existing manual `windows-runner-inventory.yml` only records hardware and tool
 paths. It neither compiles nor accepts Network. The repository is public; enable
-the dedicated runner's PR workflow only for maintainer-approved source. Workflow
-publication, automatic pushes and merges are not authorized by preparation.
+the dedicated runner's PR workflow only for maintainer-approved source. The
+director coordinates scoped branch pushes and PR feedback. See the runner
+runbook for delivery and validation.

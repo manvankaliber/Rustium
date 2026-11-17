@@ -105,6 +105,43 @@ class CheckoutIdentityTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'tool-cache/tool.exe'):
             compare_inputs(before, checkout_inputs(self.root))
 
+    def test_checkout_symlink_binds_target_and_target_contents(self):
+        cache = self.root / 'tool-cache'
+        cache.mkdir()
+        for name in ('first', 'second'):
+            (cache / name).write_bytes(b'input')
+        commands = cache / '.bin'
+        commands.mkdir()
+        alias = commands / 'invoke'
+        alias.symlink_to('../first')
+        before = checkout_inputs(self.root)
+        key = 'tool-cache/.bin/invoke'
+        self.assertEqual(before['file_links'][key]['target'], os.readlink(alias))
+        self.assertEqual(before['file_links'][key]['target_path'], 'tool-cache/first')
+        self.assertIn('tool-cache/first', before['files'])
+        self.assertNotIn(key, before['files'])
+        alias.unlink()
+        alias.symlink_to('../second')
+        with self.assertRaisesRegex(ValueError, 'symlink identity changed'):
+            compare_inputs(before, checkout_inputs(self.root))
+
+    def test_checkout_symlink_cannot_include_external_or_excluded_file(self):
+        cache = self.root / 'tool-cache'
+        cache.mkdir()
+        external = self.root.parent / 'external'
+        external.write_bytes(b'outside the source')
+        output = self.root / 'out/NetworkCI/object.obj'
+        output.parent.mkdir(parents=True)
+        output.write_bytes(b'outside the input record')
+        alias = cache / 'alias'
+        for target, reason in [('../../external', 'escapes source'),
+                               ('../out/NetworkCI/object.obj', 'inventoried file')]:
+            with self.subTest(target=target):
+                alias.symlink_to(target)
+                with self.assertRaisesRegex(ValueError, reason):
+                    checkout_inputs(self.root)
+                alias.unlink()
+
     def test_existing_outputs_cannot_be_reused_or_deleted(self):
         first = choose_output(self.root, 'gh-123-1', False)
         old = self.root / first / 'object.obj'

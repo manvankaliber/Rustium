@@ -124,7 +124,7 @@ The first consumer-build workflow uses manual dispatch only. Select the workflow
 ref at the exact reviewed commit and pass that commit plus the SHA-256 of its
 approved input record. Use a separate dispatch for the reference probe after
 the ordinary build. PR labels cannot grant approval across revisions. This
-workflow is prepared locally and awaits publication and first execution.
+workflow is published on the Network PR branch and awaits its first execution.
 Do not approve public-fork execution on this persistent personal host. The
 inventory workflow cannot stand in for a compile/test check.
 
@@ -136,7 +136,10 @@ preparation before recording inputs. On the laptop, run the reviewed
 and `--evidence <new-directory-outside-src>` using the qualified depot_tools
 Python and environment. It locks the native window, checks each Git worktree,
 and records actual file contents by hash, including ignored package inputs.
-Only Git metadata and the two named CI output trees are excluded. Review the
+For relative file symlinks, it records the stored target and hashes the file
+named by that target. It rejects links that leave the source tree or name
+anything outside the recorded files. Only Git metadata and the two named CI
+output trees are excluded. Review the
 record and approve its digest for dispatch. Preparation changes invalidate
 that approval. The Actions job verifies the pinned record against the checkout
 before building and verifies the inputs again before releasing the lock.
