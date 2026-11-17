@@ -209,7 +209,9 @@ def native_processes():
         } | Select-Object ProcessId,Name)
         ConvertTo-Json -InputObject $owners -Compress
     '''
-    raw = subprocess.check_output(['powershell.exe', '-NoProfile', '-Command', script])
+    powershell = (Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershell.exe')
+    raw = subprocess.check_output([str(powershell), '-NoProfile', '-NonInteractive',
+                                   '-Command', script])
     return json.loads(raw)
 
 

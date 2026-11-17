@@ -1,13 +1,27 @@
 """Data-only checks: no GN, compiler, source checkout or native programs."""
+import os
 from pathlib import Path, PurePosixPath
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
-from build_network_consumers import checkout_inputs, choose_output, compare_inputs, resolve_targets
+from build_network_consumers import (
+    checkout_inputs, choose_output, compare_inputs, native_processes, resolve_targets,
+)
 
 
 class BuildPlanningTest(unittest.TestCase):
+    def test_native_process_check_does_not_need_powershell_on_path(self):
+        windows = Path('C:/Windows')
+        process = {'ProcessId': 42, 'Name': 'ninja.exe'}
+        with patch.dict(os.environ, {'SystemRoot': str(windows), 'PATH': ''}), patch(
+                'build_network_consumers.subprocess.check_output',
+                return_value=b'[{"ProcessId":42,"Name":"ninja.exe"}]') as run:
+            self.assertEqual(native_processes(), [process])
+        self.assertEqual(run.call_args.args[0][0], str(
+            windows / 'System32/WindowsPowerShell/v1.0/powershell.exe'))
+
     def test_nondefault_roots_use_current_outputs(self):
         label = '//base:base(//build/toolchain/win:win_clang_x64_with_system_allocator)'
         roots = {'build_roots': [label]}
