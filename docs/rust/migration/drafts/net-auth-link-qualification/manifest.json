@@ -1,0 +1,63 @@
+{
+  "source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+  "changes": [
+    {
+      "path": "net/base/net_string_util.h",
+      "before_sha256": "ad130253ce7d3ac30e383636fece041c968fef78d80de48a609a49a9eab2458d",
+      "after_sha256": "f81a779ba0d25d1f2c9855ce0f6bf035f35ac03675a07e8d1ead6bad0097bd0f",
+      "scope": "Method/data export annotation only; no body, fields, bases, vtable or dispatch change"
+    },
+    {
+      "path": "net/http/http_auth_cache.h",
+      "before_sha256": "38bdf3a7fd95c49f79d3bba2cc05f7530325004017a896c894f8e5c1d69a4b71",
+      "after_sha256": "8aaf06b92412e29de4ba5b77e0100e4d9041e13d885ee07b63359282da7640b1",
+      "scope": "Method/data export annotation only; no body, fields, bases, vtable or dispatch change"
+    },
+    {
+      "path": "net/http/http_auth.h",
+      "before_sha256": "fc258d89dc2b18750c28673f03988fdc736e11d9923cc99461319a8f51507592",
+      "after_sha256": "488c45c7c46047731cc778729a000c29e774b325fb3f64a3484890405752d998",
+      "scope": "Method/data export annotation only; no body, fields, bases, vtable or dispatch change"
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.h",
+      "before_sha256": "d25e1b5098bc0579ffbcf0f809ae9c34db542c7f4118c0afc8fec10233235fde",
+      "after_sha256": "256a3624b711297f3faa62db1c410569d6432d013db58d57fd9a052496d2be4a",
+      "scope": "Method/data export annotation only; no body, fields, bases, vtable or dispatch change"
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.h",
+      "before_sha256": "1c99c446734c85014482a00b6e9c257902d4cee8bafaa91b0e9c5311d48dee40",
+      "after_sha256": "7f66bd096c904df60b64da90b64406e51433c8ef4273ed351e75e4f97aa878f2",
+      "scope": "Method/data export annotation only; no body, fields, bases, vtable or dispatch change"
+    }
+  ],
+  "frozen_definition_inputs": [
+    {
+      "path": "net/http/http_auth_cache.cc",
+      "sha256": "ac4f7dc27e5f7c716ddabc97daf2f6a879d835e919ab5b3e57902668516a149c",
+      "root_and_configured_match": true
+    },
+    {
+      "path": "net/http/http_auth.cc",
+      "sha256": "069a5f5f6e46eb9726cfddf8a55975d75e8df5a4b06c529d8ac39ed15802830f",
+      "root_and_configured_match": true
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.cc",
+      "sha256": "a9f7fd4c501287a93e9a039c7fa8357aa5d971ddaf2a3e865575d4ecd55a857e",
+      "root_and_configured_match": true
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.cc",
+      "sha256": "c6b5c2a3052450e6af2e9f1903f1dc230b94f6bd4cb3e0624a6f9a004897391a",
+      "root_and_configured_match": true
+    },
+    {
+      "path": "net/base/net_string_util_icu.cc",
+      "sha256": "ff9c1e2d7d2f75967bf8dedc7f8fc262e4df4b04fa6cf463d0afedf47cc79692",
+      "root_and_configured_match": true
+    }
+  ],
+  "scope": "Director-owned source proposal for8captured unresolved auth symbols; independent ABI/source review and actual current Net export/link/build proof pending"
+}
