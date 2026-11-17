@@ -80,7 +80,7 @@ impl<K: Ord + Clone> UsageCache<K> {
     pub fn increment<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{
         let Some(mut r)=self.get(p,k)? else{return Ok(false)};
         let Some(d)=r.dirty.checked_add(1) else{return Ok(false)}; r.dirty=d;
-        self.write(p,k,r)?; if d==1 && !self.incognito { p.flush(k)?; } Ok(true)
+        self.write(p,k,r)?; if d==1 && !self.incognito { let _ = p.flush(k); } Ok(true)
     }
     pub fn decrement<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)}; if r.dirty==0{return Ok(false)} r.dirty-=1; self.write(p,k,r)?; Ok(true)}
     pub fn invalidate<P: FileProvider<Key=K>>(&mut self,p:&mut P,k:&K)->Result<bool,P::Error>{let Some(mut r)=self.get(p,k)? else{return Ok(false)};r.valid=false;self.write(p,k,r)?;Ok(true)}
@@ -91,6 +91,30 @@ impl<K: Ord + Clone> UsageCache<K> {
 
 #[cfg(test)] mod tests {
  use super::*;
+ use std::collections::BTreeMap;
+ #[derive(Default)] struct Mem(BTreeMap<String,Vec<u8>>);
+ impl FileProvider for Mem { type Key=String; type Error=();
+  fn read_exact(&mut self,k:&String,out:&mut[u8])->Result<(),()>{let b=self.0.get(k).ok_or(())?; if b.len()!=out.len(){return Err(())} out.copy_from_slice(b);Ok(())}
+  fn write_exact(&mut self,k:&String,b:&[u8])->Result<(),()>{self.0.insert(k.clone(),b.to_vec());Ok(())}
+  fn flush(&mut self,_:&String)->Result<(),()>{Ok(())}
+  fn exists(&mut self,k:&String)->Result<bool,()>{Ok(self.0.contains_key(k))}
+  fn delete(&mut self,k:&String)->Result<bool,()>{Ok(self.0.remove(k).is_some())}
+ }
  #[test] fn exact_bytes_and_signed_values(){let r=Record{valid:true,dirty:u32::MAX,usage:i64::MIN};let b=encode(r);assert_eq!(b.len(),24);assert_eq!(&b[..8], &[20,0,0,0,b'F',b'S',b'U',b'5']);assert_eq!(decode(&b),Ok(r));}
  #[test] fn corrupt_truncated_and_bad_headers(){let b=encode(Record{valid:false,dirty:3,usage:-8});for n in 0..24{assert_eq!(decode(&b[..n]),Err(CodecError::Truncated));}let mut x=b;x[0]=19;assert_eq!(decode(&x),Err(CodecError::BadPickleLength));x=b;x[4]=0;assert_eq!(decode(&x),Err(CodecError::BadMagic));x=b;x[8]=2;assert_eq!(decode(&x),Err(CodecError::InvalidBool));}
+ #[test] fn source_test_cases_and_policy_transitions(){let mut c=UsageCache::new(false);let mut p=Mem::default();let k="cache".to_string();
+  assert!(c.put(&mut p,&k,0).is_ok());assert_eq!(c.get(&mut p,&k).unwrap(),Some(Record{valid:true,dirty:0,usage:0}));
+  c.put(&mut p,&k,240122).unwrap();assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,240122);
+  c.put(&mut p,&k,i64::MAX).unwrap();assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,i64::MAX);
+  c.put(&mut p,&k,98214).unwrap();assert!(c.increment(&mut p,&k).unwrap());assert_eq!(c.get(&mut p,&k).unwrap().unwrap(),Record{valid:true,dirty:1,usage:98214});
+  c.put(&mut p,&k,71839).unwrap();assert!(!c.decrement(&mut p,&k).unwrap());assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,71839);
+  c.put(&mut p,&k,198491).unwrap();assert!(c.increment(&mut p,&k).unwrap());assert!(c.decrement(&mut p,&k).unwrap());
+  c.put(&mut p,&k,854238).unwrap();assert!(!c.decrement(&mut p,&k).unwrap());assert!(c.increment(&mut p,&k).unwrap());assert_eq!(c.get(&mut p,&k).unwrap().unwrap().dirty,1);
+  c.put(&mut p,&k,82412).unwrap();for _ in 0..20{assert!(c.increment(&mut p,&k).unwrap());}for _ in 0..20{assert!(c.decrement(&mut p,&k).unwrap());}assert_eq!(c.get(&mut p,&k).unwrap().unwrap().usage,82412);
+  c.put(&mut p,&k,19319).unwrap();for _ in 0..20{assert!(c.increment(&mut p,&k).unwrap());}for _ in 0..19{assert!(c.decrement(&mut p,&k).unwrap());}assert_eq!(c.get(&mut p,&k).unwrap().unwrap().dirty,1);
+  assert!(c.invalidate(&mut p,&k).unwrap());assert!(!c.get(&mut p,&k).unwrap().unwrap().valid);
+ }
+ #[test] fn absent_private_isolation_and_overflow(){let mut p=Mem::default();let k="private".to_string();let mut a=UsageCache::new(true);let b=UsageCache::new(true);assert!(a.get(&mut p,&k).unwrap().is_none());assert!(a.put(&mut p,&k,i64::MAX).is_ok());assert!(b.get(&mut p,&k).unwrap().is_none());assert!(!p.exists(&k).unwrap());assert!(!a.update_delta(&mut p,&k,1).unwrap());
+  a.put(&mut p,&k,0).unwrap();a.write(&mut p,&k,Record{valid:true,dirty:u32::MAX,usage:0}).unwrap();assert!(!a.increment(&mut p,&k).unwrap());assert!(!a.decrement(&mut p,&k).unwrap());
+ }
 }
