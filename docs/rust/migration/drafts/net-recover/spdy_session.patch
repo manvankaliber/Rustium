@@ -1,0 +1,19 @@
+--- a/net/spdy/spdy_session.cc
++++ b/net/spdy/spdy_session.cc
+@@ -1789,6 +1789,7 @@
+ }
+ 
+ int SpdySession::DoReadLoop(ReadState expected_read_state, int result) {
++  const base::Location read_loop_location = FROM_HERE;
+ base::TimeTicks yield_after_time;
+   const int64_t rust_result = RunSpdySessionRust(13,[&](uint32_t operation,[[maybe_unused]] uint64_t a,[[maybe_unused]] uint64_t b,[[maybe_unused]] uint64_t c)->int64_t {
+     switch(operation) {
+@@ -1804,7 +1805,7 @@
+       case 8: { return drain_session_pending_; }
+       case 9: { return kYieldAfterBytesRead; }
+       case 10: { return time_func_()>yield_after_time; }
+-      case 11: { base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(FROM_HERE,base::BindOnce(&SpdySession::PumpReadLoop,weak_factory_.GetWeakPtr(),READ_STATE_DO_READ,OK)); result=ERR_IO_PENDING;
++      case 11: { base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(read_loop_location,base::BindOnce(&SpdySession::PumpReadLoop,weak_factory_.GetWeakPtr(),READ_STATE_DO_READ,OK)); result=ERR_IO_PENDING;
+ return 0; }
+       case 12: { CHECK(in_io_loop_); in_io_loop_=false;
+ return 0; }

@@ -1,0 +1,153 @@
+{
+  "task_id": "NET-RECOVER",
+  "scope": "Recovery proposals only; not installed or native-validated. Exact affected policy/bridge/fixture sources copied independently; complete historical runtime reference authority retained. Not the entire transitive Chromium header closure.",
+  "sources": [
+    {
+      "path": "base/location.h",
+      "root_before_sha256": "b87f8584160866c637069caf122932f57c8d3c5feb1c4fb08e022b6369833cef",
+      "configured_before_sha256": "b87f8584160866c637069caf122932f57c8d3c5feb1c4fb08e022b6369833cef",
+      "source_snapshot": "source-before/base/location.h"
+    },
+    {
+      "path": "net/cookies/cookie_family_base.rs",
+      "root_before_sha256": "b2531b12d8c350edf9f37f59743bca799eda31335f9f6e483d0b72c8b8856f7e",
+      "configured_before_sha256": "b2531b12d8c350edf9f37f59743bca799eda31335f9f6e483d0b72c8b8856f7e",
+      "source_snapshot": "source-before/net/cookies/cookie_family_base.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_canonical.rs",
+      "root_before_sha256": "c859d347a399799408ff9238bc1ad4ec4dacf496189ebe44e1082a4dc9da41f7",
+      "configured_before_sha256": "c859d347a399799408ff9238bc1ad4ec4dacf496189ebe44e1082a4dc9da41f7",
+      "source_snapshot": "source-before/net/cookies/cookie_family_canonical.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_canonical_dispatch.rs",
+      "root_before_sha256": "4bffeb0990a7c81289669df79c7e2b360abdc9f8057288075e5dff7adc188ee0",
+      "configured_before_sha256": "4bffeb0990a7c81289669df79c7e2b360abdc9f8057288075e5dff7adc188ee0",
+      "source_snapshot": "source-before/net/cookies/cookie_family_canonical_dispatch.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_collection.rs",
+      "root_before_sha256": "bdb42749524bc3fb5c1a236291067554a04442a53952ea4bcac6d8f622597f27",
+      "configured_before_sha256": "bdb42749524bc3fb5c1a236291067554a04442a53952ea4bcac6d8f622597f27",
+      "source_snapshot": "source-before/net/cookies/cookie_family_collection.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_ffi.rs",
+      "root_before_sha256": "419b225d081b04af757e897f0bef6ed20654ca06b429b4b6fe09f2e29fbdc980",
+      "configured_before_sha256": "419b225d081b04af757e897f0bef6ed20654ca06b429b4b6fe09f2e29fbdc980",
+      "source_snapshot": "source-before/net/cookies/cookie_family_ffi.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_monster.rs",
+      "root_before_sha256": "109bf03e203c3a84dd973a5a8a43e6a63c68b89aba59fbfcbe0ae7cb74d43ad7",
+      "configured_before_sha256": "109bf03e203c3a84dd973a5a8a43e6a63c68b89aba59fbfcbe0ae7cb74d43ad7",
+      "source_snapshot": "source-before/net/cookies/cookie_family_monster.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_monster_dispatch.rs",
+      "root_before_sha256": "9ea05eb6b6c5c13b0a32e84e039f81f455d7c38d6ccedd088925531f0a52e593",
+      "configured_before_sha256": "9ea05eb6b6c5c13b0a32e84e039f81f455d7c38d6ccedd088925531f0a52e593",
+      "source_snapshot": "source-before/net/cookies/cookie_family_monster_dispatch.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_monster_native.cc",
+      "root_before_sha256": "61115ff4cbddb96d6a5069f44deb9ebc12a5958ffcd544157f5546a4dfa1ea6b",
+      "configured_before_sha256": "61115ff4cbddb96d6a5069f44deb9ebc12a5958ffcd544157f5546a4dfa1ea6b",
+      "source_snapshot": "source-before/net/cookies/cookie_family_monster_native.cc",
+      "proposed_sha256": "47f5b120f2a2274fc421d3aa7c474497c699967ea014b2988b39be3c7cc0c025",
+      "proposal": "integration-proposal/net/cookies/cookie_family_monster_native.cc"
+    },
+    {
+      "path": "net/cookies/cookie_family_monster_native.h",
+      "root_before_sha256": "f4e2fbce0da2a4de1d9d09cd142e7a068818f43b573b567c88e2e06275d0f54b",
+      "configured_before_sha256": "f4e2fbce0da2a4de1d9d09cd142e7a068818f43b573b567c88e2e06275d0f54b",
+      "source_snapshot": "source-before/net/cookies/cookie_family_monster_native.h"
+    },
+    {
+      "path": "net/cookies/cookie_family_options.rs",
+      "root_before_sha256": "f5e161d47ee03a75667b3e87f49423aa16e2554d8ceed9b97b31ab4d9945f389",
+      "configured_before_sha256": "f5e161d47ee03a75667b3e87f49423aa16e2554d8ceed9b97b31ab4d9945f389",
+      "source_snapshot": "source-before/net/cookies/cookie_family_options.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_tests.rs",
+      "root_before_sha256": "3f61636016e141eaea92978d89242e73b108d7b507febec4eac768d53fc15f09",
+      "configured_before_sha256": "3f61636016e141eaea92978d89242e73b108d7b507febec4eac768d53fc15f09",
+      "source_snapshot": "source-before/net/cookies/cookie_family_tests.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_types.rs",
+      "root_before_sha256": "e07ef5adb300af5f4326c8b01ccf3d101b15fcdd9093db9d0715020c5402c2fa",
+      "configured_before_sha256": "e07ef5adb300af5f4326c8b01ccf3d101b15fcdd9093db9d0715020c5402c2fa",
+      "source_snapshot": "source-before/net/cookies/cookie_family_types.rs"
+    },
+    {
+      "path": "net/cookies/cookie_family_util.rs",
+      "root_before_sha256": "c66972171e98d0692cc69b1580b0a6786c7948a54f378dc2247f6746561401d2",
+      "configured_before_sha256": "c66972171e98d0692cc69b1580b0a6786c7948a54f378dc2247f6746561401d2",
+      "source_snapshot": "source-before/net/cookies/cookie_family_util.rs"
+    },
+    {
+      "path": "net/cookies/cookie_monster.cc",
+      "root_before_sha256": "2494e487866a950bcb171b793a40b79287319962e1850f084530fa59eacfc1bd",
+      "configured_before_sha256": "2494e487866a950bcb171b793a40b79287319962e1850f084530fa59eacfc1bd",
+      "source_snapshot": "source-before/net/cookies/cookie_monster.cc"
+    },
+    {
+      "path": "net/cookies/cookie_monster.h",
+      "root_before_sha256": "8d27e8c550486b22f4fddcf54436bfad8a9f293dca559a04632f95a01ddcee86",
+      "configured_before_sha256": "8d27e8c550486b22f4fddcf54436bfad8a9f293dca559a04632f95a01ddcee86",
+      "source_snapshot": "source-before/net/cookies/cookie_monster.h"
+    },
+    {
+      "path": "net/cookies/cookie_monster_unittest.cc",
+      "root_before_sha256": "39ca05e84102ca38c7cd692130dd3cbfc7726cb5bc093892ae35ca804c2edee3",
+      "configured_before_sha256": "39ca05e84102ca38c7cd692130dd3cbfc7726cb5bc093892ae35ca804c2edee3",
+      "source_snapshot": "source-before/net/cookies/cookie_monster_unittest.cc"
+    },
+    {
+      "path": "net/cookies/cookie_storage_family_rust.rs",
+      "root_before_sha256": "7a8bb07888c0eac4f518d421bc2f3a0371700688499f53146c308933c3e662c9",
+      "configured_before_sha256": "7a8bb07888c0eac4f518d421bc2f3a0371700688499f53146c308933c3e662c9",
+      "source_snapshot": "source-before/net/cookies/cookie_storage_family_rust.rs"
+    },
+    {
+      "path": "net/spdy/spdy_session.cc",
+      "root_before_sha256": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb",
+      "configured_before_sha256": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb",
+      "source_snapshot": "source-before/net/spdy/spdy_session.cc",
+      "proposed_sha256": "ebbcf915ff4dcf72dbf8dd947610d98de50215a7205a088a5640aed746c681e9",
+      "proposal": "integration-proposal/net/spdy/spdy_session.cc"
+    },
+    {
+      "path": "net/spdy/spdy_session.h",
+      "root_before_sha256": "0629e50637c4c1d6d663819282fad61367f359d1e9a3cabba1503608429fa7b7",
+      "configured_before_sha256": "0629e50637c4c1d6d663819282fad61367f359d1e9a3cabba1503608429fa7b7",
+      "source_snapshot": "source-before/net/spdy/spdy_session.h"
+    },
+    {
+      "path": "net/spdy/spdy_session_rust_core.rs",
+      "root_before_sha256": "ff87201cedaa83711d61b973e7efd7fc419cbaf32f84d0a2b0b31e56ab59ddb9",
+      "configured_before_sha256": "ff87201cedaa83711d61b973e7efd7fc419cbaf32f84d0a2b0b31e56ab59ddb9",
+      "source_snapshot": "source-before/net/spdy/spdy_session_rust_core.rs"
+    },
+    {
+      "path": "net/spdy/spdy_session_unittest.cc",
+      "root_before_sha256": "1f4ddc9333f2d0205cb5bc822d22371f559c2f62100cdbd6121ce7d215728998",
+      "configured_before_sha256": "1f4ddc9333f2d0205cb5bc822d22371f559c2f62100cdbd6121ce7d215728998",
+      "source_snapshot": "source-before/net/spdy/spdy_session_unittest.cc"
+    }
+  ],
+  "validation_required": [
+    "Nine cookie crashes and static GetKey coverage",
+    "Three SpdySession yield failures and actual posted-task execution",
+    "Fresh snapshot with short TMP/TEMP and external logging; successful before/after identity",
+    "Affected consumer rebuilds; complete 17-program HTTP2 ordinary family",
+    "Independent Terra ownership/threading review"
+  ],
+  "platform_limits": [
+    "Windows source inspection only; native/platform validation pending",
+    "Sanitizer/fuzz OFF; no native, performance or cutover acceptance"
+  ]
+}

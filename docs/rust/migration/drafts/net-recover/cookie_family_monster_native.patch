@@ -1,0 +1,23 @@
+--- a/net/cookies/cookie_family_monster_native.cc
++++ b/net/cookies/cookie_family_monster_native.cc
+@@ -162,6 +162,20 @@
+   }
+   if(call.operation==2000&&a!=0){if(a==4)CHECK(b);else DCHECK(b);return;}
+   if(call.operation==2073){base::UmaHistogramCustomMicrosecondsTimes(a?"Cookie.DeleteCanonicalCookie.Duration":"Cookie.GetCookieListWithOptions.Duration.Subsampled",timer->Elapsed(),base::Microseconds(1),base::Milliseconds(128),100);return;}
++  // GetKey is a static API: its string primitives have no store owner.
++  // Instance dispatch still reaches the thread check below.
++  if (!monster) {
++    switch (call.operation) {
++      case 2013:
++        out.bytes = View(a == 1 ? key : domain);
++        return;
++      case 2068:
++        key = std::string(StringView(call.bytes));
++        return;
++      default:
++        CHECK(monster) << "CookieMonster required for primitive " << call.operation;
++    }
++  }
+   auto& m=*monster;
+   DCHECK_CALLED_ON_VALID_THREAD(m.thread_checker_);
+   switch(call.operation){
