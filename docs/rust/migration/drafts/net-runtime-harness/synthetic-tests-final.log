@@ -1,0 +1,16 @@
+Verified 8 source bindings and 2 exact patches; retained: D:\Rustium\.rustium-runtime\harness-proposals-v9cy88il
+test_rejects_long_root_before_creating_it (__main__.TemporaryRoots.test_rejects_long_root_before_creating_it) ... ok
+test_rejects_resolved_overlap (__main__.TemporaryRoots.test_rejects_resolved_overlap) ... ok
+test_rejects_snapshot_and_ancestor_overlap (__main__.TemporaryRoots.test_rejects_snapshot_and_ancestor_overlap) ... ok
+test_unique_external_roots_leave_snapshot_and_environment_unchanged (__main__.TemporaryRoots.test_unique_external_roots_leave_snapshot_and_environment_unchanged) ... ok
+test_accepts_one_complete_iteration_with_explicit_disabled_membership (__main__.TestMembership.test_accepts_one_complete_iteration_with_explicit_disabled_membership) ... ok
+test_cli_run_help_preserves_existing_execution_options (__main__.TestMembership.test_cli_run_help_preserves_existing_execution_options) ... ok
+test_rejects_duplicate_enumeration_and_multiple_iterations (__main__.TestMembership.test_rejects_duplicate_enumeration_and_multiple_iterations) ... ok
+test_rejects_filtered_missing_extra_and_repeated_attempts (__main__.TestMembership.test_rejects_filtered_missing_extra_and_repeated_attempts) ... ok
+test_rejects_missing_or_disabled_recovery_regressions (__main__.TestMembership.test_rejects_missing_or_disabled_recovery_regressions) ... ok
+test_rejects_unqualified_PRE_execution_contract (__main__.TestMembership.test_rejects_unqualified_PRE_execution_contract) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.245s
+
+OK

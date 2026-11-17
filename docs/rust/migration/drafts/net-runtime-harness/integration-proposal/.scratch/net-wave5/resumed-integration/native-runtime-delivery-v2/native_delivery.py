@@ -560,6 +560,8 @@ def gtest_membership(folder, target):
     require(isinstance(iterations, list) and len(iterations) == 1 and isinstance(iterations[0], dict),
             'Expected exactly one complete launcher iteration')
     expected = set(listed) - set(disabled)
+    require(not any(name.split('.', 1)[-1].startswith('PRE_') for name in expected),
+            'PRE suites require independent execution proof before this membership contract can be used')
     actual = set(iterations[0])
     require(actual == expected, 'Missing or extra enabled test attempts: ' + repr({
         'missing': sorted(expected - actual), 'extra': sorted(actual - expected)}))
@@ -608,7 +610,7 @@ def run(args):
         'TMP': env['TMP'], 'TEMP': env['TEMP'], 'temporary_parent': str(evidence),
         'namespace_contract': 'Fresh director-owned evidence namespace remains stable; no adversarial namespace/ACL isolation claimed',
         'outside_sealed_snapshot': True, 'retained_after_execution': True})
-    for key in ('GTEST_FILTER', 'GTEST_TOTAL_SHARDS', 'GTEST_SHARD_INDEX', 'GTEST_REPEAT'):
+    for key in ('GTEST_FILTER', 'GTEST_TOTAL_SHARDS', 'GTEST_SHARD_INDEX', 'GTEST_REPEAT', 'GTEST_ALSO_RUN_DISABLED_TESTS', 'GTEST_FLAGFILE', 'GTEST_BRIEF'):
         require(not env.get(key), 'Test membership environment override: ' + key)
     out = snapshot / 'configured/out/Default'
     records = []
@@ -618,7 +620,7 @@ def run(args):
         folder = evidence / case['target']; folder.mkdir()
         command = [str(out / (case['target'] + '.exe')), *case['arguments']]
         if case['kind'] == 'gtest':
-            command += ['--test-launcher-jobs=1', '--test-launcher-retry-limit=0',
+            command += ['--test-launcher-jobs=1', '--test-launcher-retry-limit=0', '--test-launcher-print-test-stdio=always',
                         '--test-launcher-summary-output=' + str(folder / 'summary.json'),
                         '--gtest_output=json:' + str(folder / 'gtest.json')]
         record = {'command': command, 'kind': case['kind'], 'family': case['family'],
