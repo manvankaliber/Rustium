@@ -80,6 +80,12 @@ fn size_conversion_original_assertion_rows() {
 
 #[test]
 fn conversion_edge_matrix() {
+    // Native constructor/setter clamp is distinct from later InvScale.
+    assert_eq!(SizeF::constructed(f32::EPSILON, -1.0), SizeF { width: 0.0, height: 0.0 });
+    assert_eq!(
+        RectF::constructed(1.0, 2.0, f32::EPSILON, f32::NAN),
+        RectF { x: 1.0, y: 2.0, width: 0.0, height: 0.0 }
+    );
     assert_eq!(floor_point(PointF { x: -0.1, y: -1.5 }), Point { x: -1, y: -2 });
     assert_eq!(ceil_point(PointF { x: -0.1, y: -1.5 }), Point { x: 0, y: -1 });
     assert_eq!(round_point(PointF { x: -0.5, y: 0.5 }), Point { x: -1, y: 1 });
@@ -106,13 +112,49 @@ fn conversion_edge_matrix() {
         Rect { x: 5, y: 5, width: 0, height: 0 }
     );
     assert_eq!(
-        enclosing_rect(RectF { x: 3.5, y: 2.5, width: f32::EPSILON, height: -0.0 }),
+        enclosing_rect(RectF::constructed(3.5, 2.5, f32::EPSILON, -0.0)),
         Rect { x: 3, y: 2, width: 0, height: 0 }
     );
     assert_eq!(
         enclosing_rect(RectF { x: 3.5, y: 2.5, width: 0.0, height: 0.001 }),
         Rect { x: 3, y: 2, width: 0, height: 1 }
     );
+    // Native Rect(x,y,w,h) clamps positive extents at positive origins.
+    let overflow_floor = floored_rect_deprecated(RectF {
+        x: 2147483520.0,
+        y: 2147483520.0,
+        width: 256.0,
+        height: 512.0,
+    });
+    assert_eq!(overflow_floor, Rect { x: 2147483520, y: 2147483520, width: 127, height: 127 });
+    let scaled_overflow_floor = scale_enclosing_rect(overflow_floor, 2.0, 2.0);
+    assert_eq!(scaled_overflow_floor, Rect { x: i32::MAX, y: i32::MAX, width: 0, height: 0 });
+    // Native constructor clamps, but a later InvScale preserves tiny fields.
+    let constructed = RectF::constructed(0.0, 0.0, 1.0, 1.0);
+    let inv_scaled = constructed.inv_scale(2097152.0, 2097152.0);
+    assert_eq!(inv_scaled.width, 1.0 / 2097152.0);
+    assert_eq!(enclosing_rect(inv_scaled), Rect { x: 0, y: 0, width: 1, height: 1 });
+    let negative_inv_scaled = constructed.inv_scale(-2.0, -2.0);
+    assert_eq!((negative_inv_scaled.width, negative_inv_scaled.height), (-0.5, -0.5));
+    assert_eq!(enclosing_rect(negative_inv_scaled), Rect::default());
+    let infinite_inv_scaled = constructed.inv_scale(0.0, 0.0);
+    assert!(infinite_inv_scaled.width.is_infinite() && infinite_inv_scaled.height.is_infinite());
+    assert_eq!(
+        enclosing_rect(infinite_inv_scaled),
+        Rect { x: 0, y: 0, width: i32::MAX, height: i32::MAX }
+    );
+    let nan_inv_scaled = RectF::constructed(2.0, 2.0, 0.0, 0.0).inv_scale(0.0, 0.0);
+    assert!(nan_inv_scaled.width.is_nan() && nan_inv_scaled.height.is_nan());
+    assert_eq!(enclosing_rect(nan_inv_scaled), Rect { x: 2, y: 2, width: 0, height: 0 });
+    let size_tiny = SizeF::constructed(1.0, 1.0).inv_scale(2097152.0, 2097152.0);
+    assert_eq!(ceil_size(size_tiny), Size { width: 1, height: 1 });
+    let size_negative = SizeF::constructed(1.0, 1.0).inv_scale(-2.0, -2.0);
+    assert_eq!(floor_size(size_negative), Size { width: 0, height: 0 });
+    let size_infinite = SizeF::constructed(1.0, 1.0).inv_scale(0.0, 0.0);
+    assert_eq!(ceil_size(size_infinite), Size { width: i32::MAX, height: i32::MAX });
+    let size_nan = SizeF::constructed(0.0, 0.0).inv_scale(0.0, 0.0);
+    assert!(size_nan.width.is_nan() && size_nan.height.is_nan());
+    assert_eq!(ceil_size(size_nan), Size::default());
     assert_eq!(
         enclosing_rect(RectF { x: -1.5, y: -1.5, width: 3.0, height: 3.0 }),
         Rect { x: -2, y: -2, width: 4, height: 4 }
@@ -239,6 +281,10 @@ fn every_original_rect_conversion_assertion_row() {
         nearest_rect(RectF { x: -1.00001, y: -0.999999, width: 3.0000001, height: 2.999999 }),
         Rect { x: -1, y: -1, width: 3, height: 3 }
     ); // RC-N03 :149-150
+    let off_grid = RectF { x: 0.49, y: 0.49, width: 0.49, height: 0.49 };
+    assert!(!is_nearest_rect_within_distance(off_grid, 0.01));
+    // RoundedRect is intentionally usable outside ToNearestRect's DCHECK band.
+    assert_eq!(rounded_rect(off_grid), Rect { x: 0, y: 0, width: 1, height: 1 });
 
     // RC-F01..F04: rect_conversions_unittest.cc:154-160, deprecated floor.
     let floored = [
@@ -271,7 +317,7 @@ fn every_original_enclosing_rect_assertion_row() {
             Rect { x: 5, y: 5, width: 0, height: 0 },
         ), // RC-C02 :61
         (
-            RectF { x: 3.5, y: 2.5, width: f32::EPSILON, height: -0.0 },
+            RectF::constructed(3.5, 2.5, f32::EPSILON, -0.0),
             Rect { x: 3, y: 2, width: 0, height: 0 },
         ), // RC-C03 :62-63
         (
@@ -349,7 +395,7 @@ fn every_original_enclosing_ignoring_error_assertion_row() {
             Rect { x: 5, y: 5, width: 0, height: 0 },
         ), // RC-I02 :105-106
         (
-            RectF { x: 3.5, y: 2.5, width: f32::EPSILON, height: -0.0 },
+            RectF::constructed(3.5, 2.5, f32::EPSILON, -0.0),
             Rect { x: 3, y: 2, width: 0, height: 0 },
         ), // RC-I03 :107-109
         (
@@ -484,7 +530,7 @@ fn every_original_rect_scaling_assertion_row() {
 
     // Shared TestScaleRectOverflowClamp: rect_unittest.cc:401-451, invoked at
     // lines 463, 475 and 487. These 13 exact expected Rects are asserted for
-    // every conversion function (36 translated assertions).
+    // every conversion function (39 translated assertions).
     let maxf = i32::MAX as f32;
     // Constructor clamp assertion at rect_unittest.cc:432-434.
     let constructed_max_origin = rect_from_xywh(i32::MAX, i32::MAX, i32::MAX, i32::MAX);
