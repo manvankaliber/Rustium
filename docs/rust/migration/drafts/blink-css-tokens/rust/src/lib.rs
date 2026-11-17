@@ -1425,4 +1425,65 @@ mod tests {
             run_extended_case(case, true);
         }
     }
+    include!("url_string_hash_comment_cases.rs");
+
+    fn compare_next(
+        label: &str,
+        index: usize,
+        actual: &Token<'_>,
+        expected: Option<&NextExpected>,
+    ) {
+        let kind = expected.map_or(Kind::Eof, |e| e.kind);
+        assert_eq!(actual.kind, kind, "{label} token {index}");
+        let Some(e) = expected else { return };
+        match e.kind {
+            Kind::Ident | Kind::String | Kind::Url => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} value {index}");
+            }
+            Kind::Hash => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} hash value {index}");
+                assert_eq!(actual.hash_is_id, e.hash_is_id, "{label} hash classification {index}");
+            }
+            Kind::Delimiter => {
+                assert_eq!(actual.delimiter, e.delimiter, "{label} delimiter {index}")
+            }
+            _ => {}
+        }
+    }
+
+    fn run_next_case(case: &NextCase, wide: bool) {
+        let bytes: Vec<u8> = case.input.iter().map(|u| *u as u8).collect();
+        let mut tokenizer = if wide {
+            Tokenizer::new(Input::Utf16(case.input), 0)
+        } else {
+            Tokenizer::new(Input::Bytes(&bytes), 0)
+        };
+        // CSSParserTokenStream omits comments from Peek()/ConsumeRaw(). The
+        // tokenizer's default mode has the same observable stream semantics.
+        let numbers = StrictCaseNumbers::new(&[]);
+        for i in 0..3 {
+            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
+                break;
+            }
+            let actual = tokenizer.next_token(&numbers);
+            compare_next(case.label, i, &actual, case.expected.get(i));
+            if actual.kind == Kind::Eof {
+                break;
+            }
+        }
+        if wide {
+            numbers.assert_consumed(case.label);
+        }
+    }
+
+    #[test]
+    fn transcribed_url_string_hash_and_comment_rows() {
+        assert_eq!(NEXT_ORIGINAL_CASES.len(), 56);
+        for case in NEXT_ORIGINAL_CASES {
+            if case.input.iter().all(|u| *u <= 255) {
+                run_next_case(case, false);
+            }
+            run_next_case(case, true);
+        }
+    }
 }
