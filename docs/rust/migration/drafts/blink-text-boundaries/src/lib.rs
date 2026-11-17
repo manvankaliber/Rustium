@@ -120,12 +120,27 @@ enum Fast {
 /// are thread-confined. Implementations validate ICU int32 indices. Values are
 /// primitive so Rust retains all tailoring and boundary policy.
 pub trait BoundaryProvider {
-    fn acquire_line(&mut self, utf16: &[u16], locale: &str) -> Result<(), BoundaryError>;
-    fn following(&mut self, query: i32) -> Result<Following, BoundaryError>;
-    fn release_line(&mut self);
-    fn acquire_character(&mut self, utf16: &[u16]) -> Result<(), BoundaryError>;
-    fn character_following(&mut self, query: i32) -> Result<Following, BoundaryError>;
-    fn release_character(&mut self);
+    /// Opaque, non-transferable-to-the-user session token. Adapter must bind
+    /// each token to exactly one cursor and retain the supplied stable buffer.
+    type Session;
+    fn acquire_line(
+        &mut self,
+        utf16: Rc<[u16]>,
+        locale: &str,
+    ) -> Result<Self::Session, BoundaryError>;
+    fn following(
+        &mut self,
+        session: &Self::Session,
+        query: i32,
+    ) -> Result<Following, BoundaryError>;
+    fn release_line(&mut self, session: Self::Session);
+    fn acquire_character(&mut self, utf16: Rc<[u16]>) -> Result<Self::Session, BoundaryError>;
+    fn character_following(
+        &mut self,
+        session: &Self::Session,
+        query: i32,
+    ) -> Result<Following, BoundaryError>;
+    fn release_character(&mut self, session: Self::Session);
     fn category(&mut self, codepoint: u32) -> Category;
     /// Exact u_getIntPropertyValue(..., UCHAR_LINE_BREAK), ICU-78 numeric ID.
     fn line_property(&mut self, codepoint: u32) -> Result<u8, BoundaryError>;
@@ -261,8 +276,8 @@ fn after_all(last: u8, cur: u8, ch: u16, strict: Strictness) -> bool {
 }
 
 /// Owns settings and borrowed stable input; Rc/RefCell enforces !Send/!Sync.
-pub struct LocalLinePolicy<'a, P: BoundaryProvider> {
-    text: &'a [u16],
+pub struct LocalLinePolicy<P: BoundaryProvider> {
+    text: Rc<[u16]>,
     start: usize,
     locale: String,
     kind: BreakType,
@@ -270,11 +285,16 @@ pub struct LocalLinePolicy<'a, P: BoundaryProvider> {
     strict: Strictness,
     soft_hyphen: bool,
     quote: bool,
-    session: bool,
+    line_session: Option<(P::Session, Rc<[u16]>)>,
+    character_session: Option<(P::Session, Rc<[u16]>)>,
     provider: Rc<RefCell<P>>,
 }
-impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
-    pub fn new(text: &'a [u16], provider: Rc<RefCell<P>>) -> Result<Self, BoundaryError> {
+impl<P: BoundaryProvider> LocalLinePolicy<P> {
+    pub fn new(
+        text: impl Into<Rc<[u16]>>,
+        provider: Rc<RefCell<P>>,
+    ) -> Result<Self, BoundaryError> {
+        let text = text.into();
         if text.len() > i32::MAX as usize {
             return Err(BoundaryError::TooLong);
         }
@@ -287,14 +307,17 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
             strict: Strictness::Normal,
             soft_hyphen: true,
             quote: false,
-            session: false,
+            line_session: None,
+            character_session: None,
             provider,
         })
     }
     fn invalidate(&mut self) {
-        if self.session {
-            self.provider.borrow_mut().release_line();
-            self.session = false
+        if let Some((session, _backing)) = self.line_session.take() {
+            self.provider.borrow_mut().release_line(session);
+        }
+        if let Some((session, _backing)) = self.character_session.take() {
+            self.provider.borrow_mut().release_character(session);
         }
     }
     pub fn set_start(&mut self, n: usize) -> Result<(), BoundaryError> {
@@ -334,12 +357,14 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
         self.quote = v
     }
     fn line_following(&mut self, q: usize) -> Result<usize, BoundaryError> {
-        if !self.session {
-            self.provider.borrow_mut().acquire_line(&self.text[self.start..], &self.locale)?;
-            self.session = true
+        if self.line_session.is_none() {
+            let backing: Rc<[u16]> = Rc::from(&self.text[self.start..]);
+            let session = self.provider.borrow_mut().acquire_line(backing.clone(), &self.locale)?;
+            self.line_session = Some((session, backing));
         }
         let q = i32::try_from(q).map_err(|_| BoundaryError::TooLong)?;
-        match self.provider.borrow_mut().following(q)? {
+        let (session, _backing) = self.line_session.as_ref().expect("acquired above");
+        match self.provider.borrow_mut().following(session, q)? {
             Following::Done => Ok(self.text.len()),
             Following::Boundary(n)
                 if n > q && n >= 0 && (n as usize) <= self.text.len() - self.start =>
@@ -357,22 +382,35 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
             return Ok(limit);
         }
         if self.kind == BreakType::BreakCharacter {
-            self.provider.borrow_mut().acquire_character(self.text)?;
+            if self.character_session.is_none() {
+                let backing: Rc<[u16]> = Rc::from(&self.text[self.start..]);
+                let session = self.provider.borrow_mut().acquire_character(backing.clone())?;
+                self.character_session = Some((session, backing));
+            }
             let q = if pos > 0 { pos - 1 } else { 0 };
-            let out = match self
-                .provider
-                .borrow_mut()
-                .character_following(i32::try_from(q).map_err(|_| BoundaryError::TooLong)?)?
-            {
+            let query = i32::try_from(q).map_err(|_| BoundaryError::TooLong);
+            let (session, _backing) = self.character_session.as_ref().expect("acquired above");
+            let result = query.and_then(|q| {
+                self.provider.borrow_mut().character_following(session, q).map(|v| (q, v))
+            });
+            let out = match result.and_then(|(q, following)| match following {
                 Following::Boundary(n)
                     if n > q as i32 && n >= 0 && (n as usize) <= self.text.len() =>
                 {
-                    n as usize
+                    Ok(n as usize)
                 }
-                Following::Done => self.text.len(),
-                _ => return Err(BoundaryError::InvalidOffset),
+                Following::Done => Ok(self.text.len()),
+                _ => Err(BoundaryError::InvalidOffset),
+            }) {
+                Ok(v) => v,
+                Err(e) => {
+                    self.invalidate();
+                    return Err(e);
+                }
             };
-            self.provider.borrow_mut().release_character();
+            if let Some((session, _backing)) = self.character_session.take() {
+                self.provider.borrow_mut().release_character(session);
+            }
             return Ok(out);
         }
         let mut i = pos;
@@ -460,7 +498,7 @@ impl<'a, P: BoundaryProvider> LocalLinePolicy<'a, P> {
         Ok(self.next(at, self.text.len())? == at)
     }
 }
-impl<P: BoundaryProvider> Drop for LocalLinePolicy<'_, P> {
+impl<P: BoundaryProvider> Drop for LocalLinePolicy<P> {
     fn drop(&mut self) {
         self.invalidate()
     }
@@ -470,19 +508,35 @@ impl<P: BoundaryProvider> Drop for LocalLinePolicy<'_, P> {
 mod policy_trace_source {
     use super::*;
 
+    struct FakeSession {
+        id: usize,
+        backing: Rc<[u16]>,
+    }
     #[derive(Default)]
     struct Trace {
         events: Vec<String>,
         boundaries: Vec<i32>,
         property_error: bool,
+        next_id: usize,
     }
     impl BoundaryProvider for Trace {
-        fn acquire_line(&mut self, text: &[u16], locale: &str) -> Result<(), BoundaryError> {
-            self.events.push(format!("line({},{locale})", text.len()));
-            Ok(())
+        type Session = FakeSession;
+        fn acquire_line(
+            &mut self,
+            text: Rc<[u16]>,
+            locale: &str,
+        ) -> Result<Self::Session, BoundaryError> {
+            self.next_id += 1;
+            let id = self.next_id;
+            self.events.push(format!("line({},{locale})#{id}", text.len()));
+            Ok(FakeSession { id, backing: text })
         }
-        fn following(&mut self, q: i32) -> Result<Following, BoundaryError> {
-            self.events.push(format!("following({q})"));
+        fn following(
+            &mut self,
+            session: &Self::Session,
+            q: i32,
+        ) -> Result<Following, BoundaryError> {
+            self.events.push(format!("following({}:{q})", session.id));
             Ok(self
                 .boundaries
                 .iter()
@@ -490,19 +544,33 @@ mod policy_trace_source {
                 .find(|v| *v > q)
                 .map_or(Following::Done, Following::Boundary))
         }
-        fn release_line(&mut self) {
-            self.events.push("release-line".into());
+        fn release_line(&mut self, session: Self::Session) {
+            self.events.push(format!(
+                "release-line({})-retained{}",
+                session.id,
+                session.backing.len()
+            ));
         }
-        fn acquire_character(&mut self, _: &[u16]) -> Result<(), BoundaryError> {
-            self.events.push("character".into());
-            Ok(())
+        fn acquire_character(&mut self, text: Rc<[u16]>) -> Result<Self::Session, BoundaryError> {
+            self.next_id += 1;
+            let id = self.next_id;
+            self.events.push(format!("character#{id}"));
+            Ok(FakeSession { id, backing: text })
         }
-        fn character_following(&mut self, q: i32) -> Result<Following, BoundaryError> {
-            self.events.push(format!("character-following({q})"));
+        fn character_following(
+            &mut self,
+            session: &Self::Session,
+            q: i32,
+        ) -> Result<Following, BoundaryError> {
+            self.events.push(format!("character-following({}:{q})", session.id));
             Ok(Following::Done)
         }
-        fn release_character(&mut self) {
-            self.events.push("release-character".into());
+        fn release_character(&mut self, session: Self::Session) {
+            self.events.push(format!(
+                "release-character({})-retained{}",
+                session.id,
+                session.backing.len()
+            ));
         }
         fn category(&mut self, _: u32) -> Category {
             Category::Letter
@@ -598,8 +666,8 @@ mod policy_trace_source {
         x.set_soft_hyphen(false);
         let _ = x.next(1, 3);
         let trace = p.borrow().events.join(",");
-        assert!(trace.contains("following(1)"));
-        assert!(trace.contains("following(2)"));
+        assert!(trace.contains("following(1:1)"));
+        assert!(trace.contains("following(1:2)"));
     }
     #[test]
     fn whitespace_after_run_and_every_space_are_local() {
@@ -611,5 +679,34 @@ mod policy_trace_source {
         each.set_space(BreakSpace::Every);
         assert_eq!(each.next(0, 3), Ok(1));
         assert!(p.borrow().events.is_empty());
+    }
+    #[test]
+    fn policies_sharing_provider_keep_distinct_sessions_and_releases() {
+        let text_a = Rc::<[u16]>::from([b'a' as u16, 0x4e2d]);
+        let text_b = Rc::<[u16]>::from([b'b' as u16, 0x4e2d]);
+        let p = Rc::new(RefCell::new(Trace { boundaries: vec![1], ..Default::default() }));
+        let mut a = LocalLinePolicy::new(text_a, p.clone()).unwrap();
+        let mut b = LocalLinePolicy::new(text_b, p.clone()).unwrap();
+        let _ = a.next(1, 2);
+        let _ = b.next(1, 2);
+        a.set_locale("en");
+        b.set_locale("ja");
+        let events = p.borrow().events.join("|");
+        assert!(events.contains("following(1:1)"));
+        assert!(events.contains("following(2:1)"));
+        assert!(events.contains("release-line(1)"));
+        assert!(events.contains("release-line(2)"));
+    }
+    #[test]
+    fn session_keeps_stable_suffix_backing_until_release() {
+        let input = Rc::<[u16]>::from([b'a' as u16, 0x4e2d]);
+        let p = Rc::new(RefCell::new(Trace { boundaries: vec![1], ..Default::default() }));
+        let mut policy = LocalLinePolicy::new(input.clone(), p.clone()).unwrap();
+        policy.set_start(1).unwrap();
+        let _ = policy.next(1, 2);
+        assert!(p.borrow().events.iter().any(|e| e == "line(1,)#1"));
+        policy.set_start(0).unwrap();
+        assert!(p.borrow().events.iter().any(|e| e == "release-line(1)-retained1"));
+        assert_eq!(input[0], b'a' as u16);
     }
 }
