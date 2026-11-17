@@ -1,0 +1,38 @@
+# Director-review proposal only, relative to //net/BUILD.gn. Reconcile against
+# the current source identity and GN graph before use. This does not authorize
+# or constitute a configured-tree write or a successful GN evaluation.
+#
+# Add to existing source_set("connection_jobs_rust_reference"). The existing
+# connection_auth_original_factory.cc entry is REPLACED with the proposed file
+# at the same path, never compiled twice.
+connection_reference_additional_sources = [
+  "http/connection_auth_original_digest_factory.cc",
+  "http/connection_auth_original_digest_factory.h",
+  "http/connection_auth_original_providers.cc",
+  "http/connection_auth_original_providers.h",
+  "http/connection_auth_original_rounds.cc",
+  "http/connection_auth_original_rounds.h",
+]
+if (use_kerberos) {
+  connection_reference_additional_sources += [
+    "http/connection_auth_original_negotiate_factory.cc",
+    "http/connection_auth_original_negotiate_factory.h",
+    "http/connection_auth_original_negotiate_handler.cc",
+    "http/connection_auth_original_negotiate_handler.h",
+  ]
+  if (is_posix) {
+    connection_reference_additional_sources +=
+        [ "http/connection_auth_original_gssapi.cc" ]
+  }
+}
+# Append to sources and retain existing :auth_challenge_reference,
+# :net_error_rust_reference and :connection_original_log_reference deps.
+# Verify whether direct :net_log_values_rust_reference and GSSAPI platform
+# dependencies must also be explicit for this target's GN check.
+# Add these sources to the existing ordinary reference unittest target:
+connection_reference_additional_tests = [
+  "http/connection_auth_original_provider_unittest.cc",
+  "http/connection_auth_original_rounds_unittest.cc",
+]
+# Link platform mock libraries and :auth_challenge_reference as required.
+# Independent family entry probes are NOT implemented by this fragment.

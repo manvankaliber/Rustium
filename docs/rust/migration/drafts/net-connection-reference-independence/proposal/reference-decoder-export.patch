@@ -1,0 +1,24 @@
+--- a/net/http/auth_challenge_reference.h
++++ b/net/http/auth_challenge_reference.h
+@@ -10,6 +10,9 @@
+ #include "net/http/http_auth.h"
+ #include "net/http/http_util.h"
+ namespace net::auth_challenge_reference {
++// Reference-only access to the same strict frozen decoder used by Later.
++COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE)
++bool FrozenDecode(std::string_view input, std::string* output);
+ // Frozen original algorithm. It never calls the production tokenizer or Rust.
+ class COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE) Tokenizer {
+  public:
+--- a/net/http/auth_challenge_reference.cc
++++ b/net/http/auth_challenge_reference.cc
+@@ -35,6 +35,9 @@
+   return true;
+ }
+ }  // namespace
++bool FrozenDecode(std::string_view input, std::string* output) {
++  return Decode(input, output);
++}
+ // Frozen copies of StringViewTokenizer's original algorithm and the original
+ // TrimLWS helper. ASCII normalization uses the unchanged original base DLL.
+ [[clang::noinline]] std::string_view FrozenTrim(std::string_view string) {

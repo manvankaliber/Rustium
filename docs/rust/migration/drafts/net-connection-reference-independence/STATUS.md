@@ -1,5 +1,10 @@
 # Connection reference independence: blocked candidate
 
+This is the historical `6862a026` checkpoint. The subsequent provider and
+factory proposals, and their remaining blockers, are described in
+`SUCCESSOR.md`; statements below about the adapter being unwired apply to
+that checkpoint only.
+
 This is **not a complete independent connection reference** and is not a build,
 test, benchmark, acceptance, or cutover result. It contains a candidate for one
 confirmed remaining policy edge, source-bound evidence and the exact existing

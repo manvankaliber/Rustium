@@ -1,2 +1,3 @@
 # Preserve byte hashes, including existing line endings and whitespace.
 reference/** -text whitespace=-blank-at-eol,cr-at-eol
+proposal/*.patch -text whitespace=-blank-at-eol,cr-at-eol

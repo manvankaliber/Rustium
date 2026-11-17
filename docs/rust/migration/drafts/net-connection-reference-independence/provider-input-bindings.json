@@ -1,0 +1,149 @@
+{
+  "manifest_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
+  "inputs": [
+    {
+      "path": "net/http/http_auth_handler_ntlm.h",
+      "sha256": "d25e1b5098bc0579ffbcf0f809ae9c34db542c7f4118c0afc8fec10233235fde",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_ntlm.h"
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm_portable.cc",
+      "sha256": "8f014f8c670a269f517b9e62c0b26b4f1e02fe60cdd0ba4cce51dd335d72f208",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_ntlm_portable.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm_win.cc",
+      "sha256": "f379d4cca75194de116f9679311b5af01a0bf57e483fa7a9efb531675a6cbe7d",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_ntlm_win.cc"
+    },
+    {
+      "path": "net/http/http_auth_ntlm_mechanism.h",
+      "sha256": "22e9662748acb947a3194502cf1c264b86a92579a3a7b973219a825ccfc8cc63",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_ntlm_mechanism.h"
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.h",
+      "sha256": "1c99c446734c85014482a00b6e9c257902d4cee8bafaa91b0e9c5311d48dee40",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_sspi_win.h"
+    },
+    {
+      "path": "net/http/http_auth_gssapi_posix.h",
+      "sha256": "e0a73fc0a032c942ae5e37457f90bff200af50bb19a1b97377373c61b50c8a03",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_gssapi_posix.h"
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate.h",
+      "sha256": "6c9849dc58b9d95a673b696590843ec2017366fab17b49001f0612d49ececceb",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_negotiate.h"
+    },
+    {
+      "path": "net/http/http_auth_handler_digest.h",
+      "sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_digest.h"
+    },
+    {
+      "path": "net/http/http_auth_handler_digest.cc",
+      "sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler_digest.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler.cc",
+      "sha256": "55cdce44340bf73ed15f34c0bbb012f835662a66d1a1eba8d8c3ce385dd41de8",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_handler.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler.h",
+      "sha256": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_auth_handler.h"
+    },
+    {
+      "path": "net/http/http_auth_mechanism.h",
+      "sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_mechanism.h"
+    },
+    {
+      "path": "net/http/connection_auth_original_handler.cc",
+      "sha256": "7923466b1ed1ff95f1d8a10f1c493b89cffb7d4ee9e4f6573d52cafb1c6469fc",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/connection_auth_original_handler.cc"
+    },
+    {
+      "path": "net/http/connection_auth_original_policy.h",
+      "sha256": "e78115ca73b2faed5304ccc8d60399075f039c788d154b8759b05339dd40e9a6",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/connection_auth_original_policy.h"
+    },
+    {
+      "path": "net/log/connection_original_log.h",
+      "sha256": "34158e244bbbdcb32d11a2cee5048d995e3f9b0a05d922d538329991eaebfdb5",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/log/connection_original_log.h"
+    },
+    {
+      "path": "net/base/net_error_rust_reference.h",
+      "sha256": "bc624d638ea81f1d46f82af96e56753c94d58b11350221a82a0797fe667e355e",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/base/net_error_rust_reference.h"
+    },
+    {
+      "path": "net/log/net_log_values.cc",
+      "sha256": "6e2b1cf9b544d7642a07c797efe98724cd7351f8c0c83fe60d103b0b8525855b",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/log/net_log_values.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_factory.h",
+      "sha256": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/http_auth_handler_factory.h"
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp_data.h",
+      "sha256": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/http/auth_challenge_reference_modp_data.h"
+    },
+    {
+      "path": "net/log/net_log_values_rust_reference.cc",
+      "sha256": "51259ec857526eeee85dde2d677c63b03abd9295e1eef733ae0913c17daaaa25",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/log/net_log_values_rust_reference.cc"
+    },
+    {
+      "path": "net/log/net_log_values_rust_reference.h",
+      "sha256": "cb839c36c3946986cf51af08c7e0acf9ce4a0f0016aebe3b5737e6e59e8f5025",
+      "in_current_1261_manifest": true,
+      "copy": "reference/current/net/log/net_log_values_rust_reference.h"
+    },
+    {
+      "path": "net/http/http_auth.cc",
+      "sha256": "069a5f5f6e46eb9726cfddf8a55975d75e8df5a4b06c529d8ac39ed15802830f",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth.cc"
+    },
+    {
+      "path": "net/http/http_auth_preferences.cc",
+      "sha256": "2ae17f15448e0fb0cd77889abd668b25f4ed8946f451a85c28bf3df5cc207dbf",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_preferences.cc"
+    },
+    {
+      "path": "net/http/http_auth_preferences.h",
+      "sha256": "ae0d851c28e90e4b2c6e21e7465ddb5779ea82c7369da591b8314bc4b466c512",
+      "in_current_1261_manifest": false,
+      "copy": "reference/current/net/http/http_auth_preferences.h"
+    }
+  ]
+}

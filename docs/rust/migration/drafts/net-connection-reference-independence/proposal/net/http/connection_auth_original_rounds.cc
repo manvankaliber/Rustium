@@ -3,9 +3,7 @@
 // Adapted from auth_challenge_reference.cc; see the input manifest.
 #include "net/http/connection_auth_original_rounds.h"
 
-#include <utility>
-
-#include "net/http/auth_challenge_reference_modp.h"
+#include "net/http/auth_challenge_reference.h"
 #include "net/http/http_auth_challenge_tokenizer.h"
 
 namespace net::connection_auth_original_rounds {
@@ -16,17 +14,6 @@ std::string_view Encoded(std::string_view params) {
     --n;
   }
   return params.substr(0, n);
-}
-bool Decode(std::string_view input, std::string* output) {
-  std::string buffer(input.size() / 4 * 3 + 2, '\0');
-  const size_t n = auth_challenge_ref_modp_decode(
-      buffer.data(), input.data(), input.size(),
-      AuthChallengeRefDecodePolicy::kStrict);
-  if (n == AUTH_CHALLENGE_REF_B64_ERROR)
-    return false;
-  buffer.resize(n);
-  *output = std::move(buffer);
-  return true;
 }
 }  // namespace
 
@@ -47,7 +34,7 @@ HttpAuth::AuthorizationResult LaterFields(HttpAuth::Scheme scheme,
   *encoded = Encoded(params);
   if (encoded->empty())
     return HttpAuth::AUTHORIZATION_RESULT_REJECT;
-  if (!Decode(*encoded, decoded))
+  if (!auth_challenge_reference::FrozenDecode(*encoded, decoded))
     return HttpAuth::AUTHORIZATION_RESULT_INVALID;
   return HttpAuth::AUTHORIZATION_RESULT_ACCEPT;
 }

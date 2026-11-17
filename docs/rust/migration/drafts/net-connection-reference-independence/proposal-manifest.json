@@ -1,0 +1,84 @@
+{
+  "base_commit": "6862a026047ed3b5b3943243e5100ebea31b3ce7",
+  "status": "uncompiled_partial_candidate",
+  "bound_authority_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
+  "newer_authority_sha256": "83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5",
+  "copied_inputs_verified": 46,
+  "observed_root_drift": [
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+      "bound_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "root_sha256": "1c5f88c4f1598520aba5d7bde7be11c326ad13986df0b04e97fa1ce7528daee2"
+    }
+  ],
+  "proposal_files": [
+    {
+      "path": "proposal/BUILD.fragment.gn",
+      "sha256": "b90daecd91ed6ba9a6d5fa0483fdee7dd64b906e31f4eedf945fc0deff167070"
+    },
+    {
+      "path": "proposal/friend-declarations.patch",
+      "sha256": "5a54ce826e246f94def3ced8aae1c0f2d07ed8bde6ca926d67b48f6ba1ff745b"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_digest_factory.cc",
+      "sha256": "7e56f483e30e02487a3eee322f38dfe07e94e66b9d66c5ddf4ea070fce3db0d7"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_digest_factory.h",
+      "sha256": "46beb41dfdd7230ae3089c3f6316717dc4a42ecfc8f78e34b10ca60570a02921"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_factory.cc",
+      "sha256": "c9bf6bf07e9daee311d10c6b1799bd991448e5c474783affcae302760ef71739"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_gssapi.cc",
+      "sha256": "4f5241eb8526551ba0e17250a66e980173b93d64dab0415b66610337762f5a7b"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_negotiate_factory.cc",
+      "sha256": "af8c02e24863f95e0e9b9ee4493e6acf47da7c889c14662b2167a27fadf0aaad"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_negotiate_factory.h",
+      "sha256": "7ac12bcae81d2aa6b2a68636bc3449af783bcaac97304bd629f31ec79eaf784c"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_negotiate_handler.cc",
+      "sha256": "237f5c390c8867785eb51a1305c29c4b7fb1b27aa1917cdc2d7282a539551a3b"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_negotiate_handler.h",
+      "sha256": "e59a12bc86755738cd0c19e37ea1e639ebcf693948e0063ff66d242a78196971"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_provider_unittest.cc",
+      "sha256": "1a8c45ee137a27e3798d8ef4badc9cfc49ea6aa02c6b2813732692ba0e75790a"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_providers.cc",
+      "sha256": "700efba7fdc2d229c27b20b9626ba644cff4b288b5a9595d4097fc800059b352"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_providers.h",
+      "sha256": "81a26e496b3b76cf94da9ab9fdd21130f9023078fdddb8024835be82cdb544e2"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_rounds.cc",
+      "sha256": "521c237c1a372a4c5d4d717f3d99d1973479e970f340f1ec284870504bb5eed5"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_rounds.h",
+      "sha256": "20a2d66752792452b156fc0f42856ebdd9f833b3ab4f9ee4ef6b0fb1f60d2c84"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_rounds_unittest.cc",
+      "sha256": "3ed57f250cbb68088be54961679ef7bb4d26cfd070084d6fec62cfa823890da5"
+    },
+    {
+      "path": "proposal/reference-decoder-export.patch",
+      "sha256": "11da008c9a87cebbc3255e7443e93b6b032a9a90338fefd672254244d8c6f60c"
+    }
+  ]
+}
