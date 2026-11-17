@@ -7,7 +7,7 @@ fn original_helper_size_tables() {
     }
     for shift in (7..64).step_by(7) {
         let low = 1u64 << shift;
-        for v in [low, low + 1, (low << 1).saturating_sub(1)] {
+        for v in [low, low + 1, low | (low - 1)] {
             assert_eq!(encoded_len_unsigned(v), ((64 - v.leading_zeros() + 6) / 7) as usize);
         }
     }
@@ -139,7 +139,7 @@ fn final_byte_masks_sign_extension_and_width_boundaries() {
         -1
     );
     assert_eq!(
-        decode(&[0xff, 0xff, 0xff, 0xff, 0x1f], Width::I33, ValidationMode::Full).unwrap().value,
+        decode(&[0xff, 0xff, 0xff, 0xff, 0x7f], Width::I33, ValidationMode::Full).unwrap().value,
         -1
     );
 }
@@ -197,32 +197,40 @@ fn every_max_length_final_byte_matches_native_validity_classes() {
         for last in 0u16..=255 {
             let mut bytes = vec![0x80; max];
             bytes[max - 1] = last as u8;
-            match decode(&bytes, width, ValidationMode::Full) {
-                Ok(decoded) => {
-                    assert!(valid_final(last as u8, width));
-                    assert_eq!(decoded.bytes, max);
-                    let mut payload = 0u128;
-                    for (i, b) in bytes.iter().enumerate() {
-                        payload |= ((b & 0x7f) as u128) << (i * 7);
+            // Independent accepted ranges from the frozen decoder contract:
+            // used payload bits followed by zero or sign-extension bits.
+            let used = width.bits() - ((max - 1) * 7) as u32;
+            let valid = last < 128
+                && if width.signed() {
+                    let half = 1u16 << (used - 1);
+                    last < half || last >= 128 - half
+                } else {
+                    last < (1u16 << used)
+                };
+            let result = decode(&bytes, width, ValidationMode::Full);
+            assert_eq!(result.is_ok(), valid, "{width:?} final={last:02x}");
+            if valid {
+                let decoded = result.unwrap();
+                let payload_bits = used.min(7);
+                let payload = (last as i128 & ((1i128 << payload_bits) - 1)) << ((max - 1) * 7);
+                let expected = if width.signed() && last >= 64 {
+                    payload - (1i128 << width.bits())
+                } else {
+                    payload
+                };
+                assert_eq!(decoded.value, expected, "{width:?} final={last:02x}");
+                assert_eq!(decoded.bytes, max);
+            } else {
+                let err = result.unwrap_err();
+                assert_eq!(err.offset, max - 1);
+                assert_eq!(
+                    err.kind,
+                    if last >= 128 {
+                        DecodeErrorKind::LengthOverflow
+                    } else {
+                        DecodeErrorKind::ExtraBits
                     }
-                    let used = width.bits();
-                    if width.signed() && last & 0x40 != 0 {
-                        payload |= (!0u128) << used;
-                    }
-                    assert_eq!(decoded.value, payload as i128);
-                }
-                Err(err) => {
-                    assert_eq!(err.offset, max - 1);
-                    assert_eq!(
-                        err.kind,
-                        if last & 0x80 != 0 {
-                            DecodeErrorKind::LengthOverflow
-                        } else {
-                            DecodeErrorKind::ExtraBits
-                        }
-                    );
-                    assert!(!valid_final(last as u8, width) || last & 0x80 != 0);
-                }
+                );
             }
         }
     }
