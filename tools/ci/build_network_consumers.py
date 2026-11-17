@@ -158,6 +158,7 @@ def host_configuration(root):
                                 (roots['depot_tools'], roots['git'] / 'cmd',
                                  python_root, windows / 'System32', windows)),
         'GYP_MSVS_OVERRIDE_PATH': str(roots['visual_studio']),
+        'vs2026_install': str(roots['visual_studio']),
         'WINDOWSSDKDIR': str(roots['windows_sdk']),
         'DEPOT_TOOLS_UPDATE': '0',
         'DEPOT_TOOLS_WIN_TOOLCHAIN': '0',
@@ -175,7 +176,7 @@ def host_inputs(configuration):
     tools = {name: {'path': str(directory), 'files': host_input_tree(directory)}
              for name, directory in sorted(roots.items())}
     environment_keys = ('PATH', 'SystemRoot', 'COMSPEC', 'TEMP', 'TMP',
-                        'GYP_MSVS_OVERRIDE_PATH', 'WINDOWSSDKDIR',
+                        'GYP_MSVS_OVERRIDE_PATH', 'vs2026_install', 'WINDOWSSDKDIR',
                         'DEPOT_TOOLS_WIN_TOOLCHAIN', 'DEPOT_TOOLS_UPDATE')
     return {'configuration_sha256': expected_digest, 'installations': tools,
             'windows_version': list(sys.getwindowsversion().platform_version),

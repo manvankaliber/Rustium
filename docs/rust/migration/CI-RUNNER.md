@@ -150,6 +150,11 @@ trees and the running Python's base installation, records the chosen tool paths
 and relevant environment, and records the Windows version. The Windows OS and
 its system components remain platform dependencies. This record does not claim
 to seal the entire machine. Qualify the actual laptop selections before launch.
+Use `host_config_values` in `evidence/linked-builder-host-toolchain-20261117.json`
+as the measured starting configuration. The driver sets both `vs2026_install`
+and `GYP_MSVS_OVERRIDE_PATH` because this Build Tools installation is outside
+Chromium's default Visual Studio 2026 search path. The independent laptop
+lock check established contention and release for two participating processes.
 
 Each qualification creates a new `out/NetworkCI/<run-id>` or
 `out/NetworkProbeCI/<run-id>` directory. Existing output and logs stay in place.
