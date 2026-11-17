@@ -1,0 +1,4 @@
+# Preserve frozen original source bytes, including original trailing blank lines.
+ui-geometry/source-before/** -text whitespace=cr-at-eol,-blank-at-eof
+blink-css-tokens/reference-cpp/** -text whitespace=cr-at-eol,-blank-at-eof
+v8-wasm-leb/reference/** -text whitespace=cr-at-eol,-blank-at-eof

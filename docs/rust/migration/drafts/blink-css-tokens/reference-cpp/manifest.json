@@ -1,0 +1,123 @@
+{
+  "task_id": "BLINK-CSS-TOKENS",
+  "reference_workspace": "D:/Rustium",
+  "reference_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+  "input_hashes_match_queue": true,
+  "files": [
+    {
+      "path": "third_party/blink/renderer/core/css/css_markup.cc",
+      "sha256": "f6a1e74d7379c39e96f5829169127a7f16964ed01b922ddd97aaa17c75707760"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/css_markup.h",
+      "sha256": "9bc5d616ae644841738ae4675ba14f5fd74d549a7b4775a39f2f0f54e517d700"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/css_primitive_value.cc",
+      "sha256": "c7815521f2cf316cd6399b3a4ab7821cc613504d90f046bbb96601bfbb722774"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/css_primitive_value.h",
+      "sha256": "86c894ac99d917aaeab0df9a3e17fa0e4177a2f6d6233f0a8008743696d5d6c7"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_parser_idioms.cc",
+      "sha256": "7d5ecf1051da4ed0bbcb2f4a64bb1d707d66e40ec056d7cc9bffd5b1af7d91a5"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_parser_idioms.h",
+      "sha256": "cbebde09cf6d1e3571140c2f020a52817f5502c2d84a6b2c857519b3cf4e0177"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_parser_token.cc",
+      "sha256": "6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_parser_token.h",
+      "sha256": "222306a1023d88786f7b7963e23e86d3aa08b933ad5cf15cb8976d46c98f6798"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer.cc",
+      "sha256": "a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer.h",
+      "sha256": "d80504af5f1b751574c1240a0cf1df4781db2c5e94e786d64929c4a1eeffdc5b"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.cc",
+      "sha256": "6f074726f93bb0b861888a49e2d880cd3f6b9ff57b71c775bfbe54fcc82a8073"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer_input_stream.h",
+      "sha256": "576f89356ffcc82a5fccfa5d5673f216bb8151432de2771321189e00f35e6866"
+    },
+    {
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc",
+      "sha256": "9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2"
+    },
+    {
+      "path": "third_party/blink/renderer/core/html/parser/html_parser_idioms.h",
+      "sha256": "0f1c6675fa2d5dcd2e28453cfdc46079f3cc2c4cd3e8dd1955f6d586d7b34a22"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.cc",
+      "sha256": "8c1e576427c9398def6173dd6ce33f1d86851476e2a0001b6fb22bee9a8708ce"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/dtoa.h",
+      "sha256": "6dacb0909a70ab454e3ef0056e2d022b9018597760423942f50b794cc2c5d4d4"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/character_visitor.h",
+      "sha256": "8d7273e9ad6745048889f772744c0f151722f833b42b5c36ca4c20c52f35f3ba"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/format.cc",
+      "sha256": "587eb1e60fca279cbcdf3a16824a80aa4b70508c95713fc8278f3c6320814ac5"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/format.h",
+      "sha256": "c1490681b9dd802e105fda722bc673b2ecee50e7cb28f4e41d69b95abef4d575"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_to_number.cc",
+      "sha256": "36630bfabbe351269131f55a88e8eac1963f063d8c1b0990b2f4dd515d0f6693"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_to_number.h",
+      "sha256": "593e44149ce20b18320d4473ae7125c227d97d1ee38548f9b021e5bd0e0bd14a"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_view.h",
+      "sha256": "24e60a6d55171ecea2e8b187b5a6701fa13851ca8e5091caa76547380c949919"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/wtf_string.h",
+      "sha256": "a180e79f316df8098e102deb393d706f25c9ff81fcd314cd7da1a2839f1bfedc"
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/wtf_uchar.h",
+      "sha256": "41d646fd590b5ff46f2b94172970a233adbf0e5fc803aecf60d004ee3f29c4bc"
+    }
+  ],
+  "closure_status": "original tokenizer helpers plus complete numeric implementation/vendor closure and generated CSS keyword/unit source/output pins are archived; exact provenance is in linked sidecar manifests. Decimal provider operations remain director-approved external debt.",
+  "provider_pins": [
+    {
+      "name": "WTF decimal parse + shortest + WTF6 formatting",
+      "manifest": "numeric-closure-b1d5.json",
+      "status": "all locally available implementation/vendor/helper files extracted from exact b1d5 Git blobs; Rust parity not validated; provider debt remains"
+    },
+    {
+      "name": "CSS keyword IDs and primitive unit IDs",
+      "manifest": "generated-inputs-b1d5.json + generated-table-manifest.json",
+      "status": "JSON5/generator/template Git blobs and configured generated outputs pinned; Rust tables generated and hash recorded"
+    }
+  ],
+  "additional_manifests": [
+    "numeric-closure-b1d5.json",
+    "generated-inputs-b1d5.json",
+    "numeric-validation-reference-b1d5.json",
+    "generated-table-manifest.json"
+  ]
+}
