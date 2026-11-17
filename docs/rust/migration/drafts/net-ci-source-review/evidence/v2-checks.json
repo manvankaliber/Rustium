@@ -1,0 +1,117 @@
+{
+  "candidate": "5719c09eb5483dce2ec0562b6ccd10e082e504a5",
+  "historical_parent": "fe18b237de48d2fbc0026a534c61ae8281dbddef",
+  "plan_sha256": "a7bddd6ecafbfb3aad846bf887ecaa90388c8c1ab06ceaacd77a4e020412decc",
+  "archive_sha256": "2af0bafa6f9c77a491b96a9b68260143f3dc48ff055d7ee5b834178cc960cd43",
+  "archive_members": 1329,
+  "archive_object_count": 1326,
+  "index_groups": {
+    "cohort": 1270,
+    "auth_proposals": 46,
+    "host_mapping": 13
+  },
+  "programs": 36,
+  "workload_ids": 232,
+  "roots": 96,
+  "unique_roots": 96,
+  "rust_counts": [
+    28,
+    23,
+    36,
+    54
+  ],
+  "entrypoints": [
+    {
+      "path": "net/spdy/spdy_buffer_rust_perftest.cc",
+      "expected": "f85ab75b558206d61448637b5f6fd2b49fc4f0eaf79e0aab4ce8364de3a880f0",
+      "actual": "f85ab75b558206d61448637b5f6fd2b49fc4f0eaf79e0aab4ce8364de3a880f0"
+    },
+    {
+      "path": "net/spdy/http2_stream_family_rust_perftest.cc",
+      "expected": "2ae3ab93fef6916f5cd72daefd73096d1165f96f6a8b8aba0ca5c6a87be64c3b",
+      "actual": "2ae3ab93fef6916f5cd72daefd73096d1165f96f6a8b8aba0ca5c6a87be64c3b"
+    },
+    {
+      "path": "net/spdy/http2_stream_family_io_perftest.cc",
+      "expected": "eeb5439ef87164fb632f6c9567536f50173e61297fcb64215497e7c05bfa2cd4",
+      "actual": "eeb5439ef87164fb632f6c9567536f50173e61297fcb64215497e7c05bfa2cd4"
+    },
+    {
+      "path": "net/spdy/http2_read_queue_rust_perftest.cc",
+      "expected": "0ea02f6f976d63241f57b863dde716050a3b23f18b4ce7741280b6374228cb9e",
+      "actual": "0ea02f6f976d63241f57b863dde716050a3b23f18b4ce7741280b6374228cb9e"
+    },
+    {
+      "path": "net/spdy/http2_write_queue_rust_perftest.cc",
+      "expected": "4ba774cef11e4bf1cdc6253d6fb11759d4f274e04ab0cbe6aecf6e06d0768592",
+      "actual": "4ba774cef11e4bf1cdc6253d6fb11759d4f274e04ab0cbe6aecf6e06d0768592"
+    },
+    {
+      "path": "net/spdy/http2_priority_rust_perftest.cc",
+      "expected": "d445067e6587597cc4237189de0839248b444266a300ef1a2236a6a40ee7cc2e",
+      "actual": "d445067e6587597cc4237189de0839248b444266a300ef1a2236a6a40ee7cc2e"
+    },
+    {
+      "path": "net/spdy/header_coalescer_rust_perftest.cc",
+      "expected": "f0d0a859c4b29a7aecabb8c3ac1932ffe6f264da290c55fb36e038e127a7c773",
+      "actual": "f0d0a859c4b29a7aecabb8c3ac1932ffe6f264da290c55fb36e038e127a7c773"
+    },
+    {
+      "path": "net/spdy/alps_decoder_rust_perftest.cc",
+      "expected": "005e3990b1053e4ecb1a2245d6031f10caf29afaeaaf7a8e9f337afc3aca9644",
+      "actual": "005e3990b1053e4ecb1a2245d6031f10caf29afaeaaf7a8e9f337afc3aca9644"
+    },
+    {
+      "path": "net/socket/connect_job_rust_perftest.cc",
+      "expected": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96",
+      "actual": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96"
+    },
+    {
+      "path": "net/socket/connection_jobs_family_rust_perftest.cc",
+      "expected": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1",
+      "actual": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1"
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_perftest.cc",
+      "expected": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd",
+      "actual": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd"
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "expected": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "actual": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18"
+    },
+    {
+      "path": "net/dns/host_resolver_cache_rust_perftest.cc",
+      "expected": "80417c1df73a3f70d7d8d92be236c85ecf1e5e43ff18df64d8daa2982c333da5",
+      "actual": "80417c1df73a3f70d7d8d92be236c85ecf1e5e43ff18df64d8daa2982c333da5"
+    },
+    {
+      "path": "net/dns/dns_resolution_family_rust_perftest.cc",
+      "expected": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7",
+      "actual": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7"
+    },
+    {
+      "path": "net/dns/dns_request_family_async_perftest.cc",
+      "expected": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4",
+      "actual": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4"
+    },
+    {
+      "path": "net/cookies/cookie_family_perftest.cc",
+      "expected": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996",
+      "actual": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_perftest.cc",
+      "expected": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6",
+      "actual": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6"
+    },
+    {
+      "path": "net/cookies/cookie_partition_key_rust_perftest.cc",
+      "expected": "a81ef43211d7d933f55ebe887b13e3b0748da1ccb9604bc323deb0b4d0aa054c",
+      "actual": "a81ef43211d7d933f55ebe887b13e3b0748da1ccb9604bc323deb0b4d0aa054c"
+    }
+  ],
+  "repair_count": 20,
+  "failures": {}
+}

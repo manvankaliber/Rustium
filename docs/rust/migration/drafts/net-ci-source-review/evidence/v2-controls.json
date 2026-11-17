@@ -1,0 +1,51 @@
+{
+  "powershell_version": "5.1.26100.9818",
+  "process_examples": [
+    {
+      "name": "gn.exe",
+      "workflow": true,
+      "driver": false
+    },
+    {
+      "name": "ninja.exe",
+      "workflow": true,
+      "driver": true
+    },
+    {
+      "name": "cl.exe",
+      "workflow": false,
+      "driver": false
+    },
+    {
+      "name": "link.exe",
+      "workflow": false,
+      "driver": false
+    },
+    {
+      "name": "siso.exe",
+      "workflow": false,
+      "driver": false
+    },
+    {
+      "name": "foo_perftest.exe",
+      "workflow": false,
+      "driver": false
+    },
+    {
+      "name": "foo_perftests.exe",
+      "workflow": true,
+      "driver": true
+    }
+  ],
+  "planning_exit_code": 0,
+  "planning_output": "test_default_group_keeps_its_exact_alias (test_network_build_planning.BuildPlanningTest.test_default_group_keeps_its_exact_alias) ... ok\ntest_missing_root_cannot_shrink_the_build (test_network_build_planning.BuildPlanningTest.test_missing_root_cannot_shrink_the_build) ... ok\ntest_nondefault_root_cannot_fall_back_to_default_alias (test_network_build_planning.BuildPlanningTest.test_nondefault_root_cannot_fall_back_to_default_alias) ... ok\ntest_nondefault_roots_use_current_outputs (test_network_build_planning.BuildPlanningTest.test_nondefault_roots_use_current_outputs) ... ok\ntest_outputs_cannot_escape_or_reuse_other_configuration (test_network_build_planning.BuildPlanningTest.test_outputs_cannot_escape_or_reuse_other_configuration) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.001s\n\nOK\n",
+  "powershell_workflow_blocks_parsed": 4,
+  "actionlint": "unavailable; not run",
+  "scratch_sha256": {
+    "actionlint.yaml": "2bd4e9b77faeed9b69b1e3a6a2c47eface59b7d16e38489c17b219cecb40c365",
+    "attributes": "5ca6574f0f22f0142a894f600ecdd6ebd63bc4a828a1c343fbd32c08fce850f8",
+    "build_network_consumers.py": "a7aa27bac3d35a591af8bfa783abd3bfc96f862306bee792dd893d6f06d1972d",
+    "network-consumer-build.yml": "f6f94f509f3d9f08d9e7ffdc7979085252c5c142631ab01246d572e966910c99",
+    "test_network_build_planning.py": "e1048436b6b0b09c0c946b02ea72100f21c0983d8ac7a4de912e239dc31f1fce"
+  }
+}
