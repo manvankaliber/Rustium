@@ -1,0 +1,260 @@
+{
+  "recorded_utc": "2026-11-17T03:46:39.534220+00:00",
+  "director_model": "gpt-6.1-sol",
+  "director_effort": "xhigh",
+  "records": [
+    {
+      "task_id": "NET-RECOVER",
+      "path": "docs/rust/net-migration-execution.json",
+      "resolved_path": "D:\\Rustium\\docs\\rust\\net-migration-execution.json",
+      "sha256": "243946a9a6877f508d6aa5a092145ef7519d5f9d017efe053c66876bb8fb9460",
+      "matches_setup": true,
+      "task_base_blob_missing": true
+    },
+    {
+      "task_id": "NET-RECOVER",
+      "path": "docs/rust/net-subsystem-batches.json",
+      "resolved_path": "D:\\Rustium\\docs\\rust\\net-subsystem-batches.json",
+      "sha256": "e77189680dab49acd40ce03d010729b82d44be2993a82a2dfbdbd5320d54deca",
+      "matches_setup": true,
+      "task_base_blob_missing": true
+    },
+    {
+      "task_id": "NET-RECOVER",
+      "path": "docs/rust/net-followon-ownership.json",
+      "resolved_path": "D:\\Rustium\\docs\\rust\\net-followon-ownership.json",
+      "sha256": "1d59267aed2d2edbb35f78b72c2ca63f1f856bdfbe96beb671de6498e8a79570",
+      "matches_setup": true,
+      "task_base_blob_missing": true
+    },
+    {
+      "task_id": "FOUNDATION-STRINGS",
+      "path": "base/strings/string_split.cc",
+      "resolved_path": "D:\\Rustium\\base\\strings\\string_split.cc",
+      "sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "matches_setup": true,
+      "task_base_blob_sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "FOUNDATION-STRINGS",
+      "path": "base/strings/string_split.h",
+      "resolved_path": "D:\\Rustium\\base\\strings\\string_split.h",
+      "sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "matches_setup": true,
+      "task_base_blob_sha256": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "FOUNDATION-STRINGS",
+      "path": "base/strings/string_split_unittest.cc",
+      "resolved_path": "D:\\Rustium\\base\\strings\\string_split_unittest.cc",
+      "sha256": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+      "matches_setup": true,
+      "task_base_blob_sha256": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "FOUNDATION-VERSION",
+      "path": "base/version.cc",
+      "resolved_path": "D:\\Rustium\\base\\version.cc",
+      "sha256": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+      "matches_setup": true,
+      "task_base_blob_sha256": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "FOUNDATION-VERSION",
+      "path": "base/version.h",
+      "resolved_path": "D:\\Rustium\\base\\version.h",
+      "sha256": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+      "matches_setup": true,
+      "task_base_blob_sha256": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "FOUNDATION-VERSION",
+      "path": "base/version_unittest.cc",
+      "resolved_path": "D:\\Rustium\\base\\version_unittest.cc",
+      "sha256": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+      "matches_setup": true,
+      "task_base_blob_sha256": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "STORAGE-USAGE",
+      "path": "storage/browser/file_system/file_system_usage_cache.cc",
+      "resolved_path": "D:\\Rustium\\storage\\browser\\file_system\\file_system_usage_cache.cc",
+      "sha256": "53fc437f9da13c3d594ea11e99f694dcec1a3d0f59d6a761193f4b54b2e20478",
+      "matches_setup": true,
+      "task_base_blob_sha256": "53fc437f9da13c3d594ea11e99f694dcec1a3d0f59d6a761193f4b54b2e20478",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "STORAGE-USAGE",
+      "path": "storage/browser/file_system/file_system_usage_cache.h",
+      "resolved_path": "D:\\Rustium\\storage\\browser\\file_system\\file_system_usage_cache.h",
+      "sha256": "4a91dfde3d2277808e938a9a66dadfc78147a60453a54b9daa708e52ff6ac051",
+      "matches_setup": true,
+      "task_base_blob_sha256": "4a91dfde3d2277808e938a9a66dadfc78147a60453a54b9daa708e52ff6ac051",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "STORAGE-USAGE",
+      "path": "storage/browser/file_system/file_system_usage_cache_unittest.cc",
+      "resolved_path": "D:\\Rustium\\storage\\browser\\file_system\\file_system_usage_cache_unittest.cc",
+      "sha256": "b2d65b4a4418b5eaab8edb9044cca126df15373409b534ba30571563dec0c34b",
+      "matches_setup": true,
+      "task_base_blob_sha256": "b2d65b4a4418b5eaab8edb9044cca126df15373409b534ba30571563dec0c34b",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "BLINK-CSS-TOKENS",
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer.cc",
+      "resolved_path": "D:\\Rustium\\third_party\\blink\\renderer\\core\\css\\parser\\css_tokenizer.cc",
+      "sha256": "a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71",
+      "matches_setup": true,
+      "task_base_blob_sha256": "a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "BLINK-CSS-TOKENS",
+      "path": "third_party/blink/renderer/core/css/parser/css_parser_token.cc",
+      "resolved_path": "D:\\Rustium\\third_party\\blink\\renderer\\core\\css\\parser\\css_parser_token.cc",
+      "sha256": "6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c",
+      "matches_setup": true,
+      "task_base_blob_sha256": "6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "BLINK-CSS-TOKENS",
+      "path": "third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc",
+      "resolved_path": "D:\\Rustium\\third_party\\blink\\renderer\\core\\css\\parser\\css_tokenizer_test.cc",
+      "sha256": "9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2",
+      "matches_setup": true,
+      "task_base_blob_sha256": "9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/point_conversions.cc",
+      "resolved_path": "D:\\Rustium\\ui\\gfx\\geometry\\point_conversions.cc",
+      "sha256": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+      "matches_setup": true,
+      "task_base_blob_sha256": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/size_conversions.cc",
+      "resolved_path": "D:\\Rustium\\ui\\gfx\\geometry\\size_conversions.cc",
+      "sha256": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+      "matches_setup": true,
+      "task_base_blob_sha256": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "UI-GEOMETRY",
+      "path": "ui/gfx/geometry/rect_conversions.cc",
+      "resolved_path": "D:\\Rustium\\ui\\gfx\\geometry\\rect_conversions.cc",
+      "sha256": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b",
+      "matches_setup": true,
+      "task_base_blob_sha256": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges.h",
+      "resolved_path": "D:\\Rustium\\media\\base\\ranges.h",
+      "sha256": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+      "matches_setup": true,
+      "task_base_blob_sha256": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges.cc",
+      "resolved_path": "D:\\Rustium\\media\\base\\ranges.cc",
+      "sha256": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+      "matches_setup": true,
+      "task_base_blob_sha256": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "MEDIA-RANGES",
+      "path": "media/base/ranges_unittest.cc",
+      "resolved_path": "D:\\Rustium\\media\\base\\ranges_unittest.cc",
+      "sha256": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+      "matches_setup": true,
+      "task_base_blob_sha256": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "V8-WASM-LEB",
+      "path": "D:/RustiumBuild/src/v8/src/wasm/leb-helper.h",
+      "resolved_path": "D:\\RustiumBuild\\src\\v8\\src\\wasm\\leb-helper.h",
+      "sha256": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3",
+      "matches_setup": true
+    },
+    {
+      "task_id": "V8-WASM-LEB",
+      "path": "D:/RustiumBuild/src/v8/src/wasm/decoder.h",
+      "resolved_path": "D:\\RustiumBuild\\src\\v8\\src\\wasm\\decoder.h",
+      "sha256": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827",
+      "matches_setup": true
+    },
+    {
+      "task_id": "BLINK-TEXT-BOUNDARIES",
+      "path": "third_party/blink/renderer/platform/text/text_break_iterator.cc",
+      "resolved_path": "D:\\Rustium\\third_party\\blink\\renderer\\platform\\text\\text_break_iterator.cc",
+      "sha256": "1bf73e8a30d14c71dbd041f23a949ca01188812411c9bad845973854fbf5af0b",
+      "matches_setup": true,
+      "task_base_blob_sha256": "1bf73e8a30d14c71dbd041f23a949ca01188812411c9bad845973854fbf5af0b",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "BLINK-TEXT-BOUNDARIES",
+      "path": "third_party/blink/renderer/platform/text/text_break_iterator.h",
+      "resolved_path": "D:\\Rustium\\third_party\\blink\\renderer\\platform\\text\\text_break_iterator.h",
+      "sha256": "ec36a5e58a3780ced7314a3a5ef07df2b8d2889ecebb8bc54e0b112e86024593",
+      "matches_setup": true,
+      "task_base_blob_sha256": "ec36a5e58a3780ced7314a3a5ef07df2b8d2889ecebb8bc54e0b112e86024593",
+      "matches_task_base_bytes": true
+    },
+    {
+      "task_id": "NET-HTTP2-BASELINE",
+      "path": "docs/rust/net-migration-execution.json",
+      "resolved_path": "D:\\Rustium\\docs\\rust\\net-migration-execution.json",
+      "sha256": "243946a9a6877f508d6aa5a092145ef7519d5f9d017efe053c66876bb8fb9460",
+      "matches_setup": true,
+      "task_base_blob_missing": true
+    },
+    {
+      "task_id": "NET-HTTP2-BASELINE",
+      "path": "net/spdy/spdy_session.cc",
+      "resolved_path": "D:\\Rustium\\net\\spdy\\spdy_session.cc",
+      "sha256": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb",
+      "matches_setup": true,
+      "task_base_blob_sha256": "8700e5f75311b3d95f36cd48d7eb7d1178dd6f297c9827a378c7721bd50794db",
+      "matches_task_base_bytes": false
+    },
+    {
+      "task_id": "NET-HTTP2-BASELINE",
+      "path": "net/http/http_proxy_connect_job.cc",
+      "resolved_path": "D:\\Rustium\\net\\http\\http_proxy_connect_job.cc",
+      "sha256": "ce5d959bc29f527b6701c000b58de162955f26d67b9b3f596e7bd29b499c0da2",
+      "matches_setup": true,
+      "task_base_blob_sha256": "f095ecab448621ed0af9254b3fe61bcd7dfa5e270aa888fa08ff7ef21fe42cb6",
+      "matches_task_base_bytes": false
+    }
+  ],
+  "scope": "Exact listed source paths only. Not frozen helper closures, compilation, native validation, performance or cutover.",
+  "prior_conductor_exit_code": 1,
+  "weekly_window_minutes": 10080,
+  "weekly_used_percent_observed": 33,
+  "campaigns_off": [
+    "sanitizer",
+    "fuzz",
+    "security side campaign"
+  ]
+}

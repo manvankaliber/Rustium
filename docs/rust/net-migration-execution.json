@@ -1,0 +1,540 @@
+{
+  "schema_version": 1,
+  "policy_approved_date": "2026-11-13",
+  "objective": "Continue the existing goal: rewrite the complete Chromium networking stack in Rust, preserving functionality, compatibility, safety and the existing performance requirements. Preserve the existing goal identity and accounting; do not create a replacement goal or treat a smaller batch as whole-goal completion.\n\nOptimize delivery around whole connected subsystems, not individual functions or small classes. Eight implementation agents work as four exclusive-ownership pairs on HTTP/2 streams/sessions, DNS resolver orchestration/transactions, connection establishment, and cookie storage. Two delivery agents prepare shared interfaces, original-reference dependencies, GN integration and consumer rebuilds. Follow docs/rust/net-subsystem-batches.json and extend dependency-ordered coverage until the entire networking scope is done.\n\nDraft all related policy and control flow for an assigned subsystem together. Prefer reusable safe Rust-to-Rust paths and progressively retire redundant bridges. Preserve independent original C++ algorithms and helper dependencies. Prepare ordinary tests and benchmark workloads alongside code. Use small contract/compiler checks only at meaningful draft milestones; do not interrupt each function or class with a rebuild, extensive test run or benchmark cycle.\n\nAt a stable subsystem milestone, integrate the complete production path, batch shared interface changes, build affected targets and consumers, and run regular compatibility, boundary, lifetime, reentry and cancellation tests. Keep configurations stable and one parent-controlled configured writer; coordinate compiler resources. Use source-bound immutable snapshots for longer validation. Broader networking and Chrome checks occur at coordinated milestones and final completion. Sanitizer/fuzz campaigns and security-focused side work remain off under the user's explicit standing override; unperformed checks are recorded as deferred, never as passed.\n\nAfter subsystem integration and its required regular checks, benchmark complete execution paths in a quiet window, retaining all existing microbenchmarks, cases and history. Archive every run and track every regression. Optimize demonstrated bottlenecks; bridge presence alone proves neither a cause nor a hard blocker. Do not start a new small measurement cycle after each leaf change.\n\nKeep the benchmark page unchanged until the existing publication gate is satisfied. Preserve every pending measurement and accepted or temporary regression. Nothing in the larger-batch workflow waives final correctness, compatibility or performance acceptance. Report draft implementation, compiled integration, correctness validation, performance acceptance and publication separately. Track actual phase durations, rebuild causes and the critical path. Continue through the whole networking backlog, including remaining native/platform/external-provider seams.",
+  "goal_lifecycle": "Continue the existing goal and accounting. This updates its repository execution instructions only; it does not create/reset the app goal, mark it complete, or reduce whole-network scope.",
+  "standing_instructions": "AGENTS.md: Network goal execution policy",
+  "dependency_plan": "docs/rust/net-migration-plan.md",
+  "stage_ledger": "docs/rust/net-migration-status.json",
+  "delivery": {
+    "default_cohort_size": {
+      "unit": "connected subsystem family",
+      "min": null,
+      "max": null,
+      "note": "Earlier 3-5 slices is not a cap. Batch actual dependency-connected modules before integration checks."
+    },
+    "allow_smaller_tightly_coupled_cohorts": true,
+    "truncate_modules_to_fit": false,
+    "native_handoff_is_final_acceptance": false,
+    "backlog_priority": [
+      "complete connected subsystem Rust implementation drafts",
+      "shared interfaces, independent original baseline dependencies and integration preparation in parallel",
+      "affected configured build, consumer rebuild and regular functional validation at subsystem milestone",
+      "quiet complete-path and retained microbenchmark measurements after integration",
+      "measured optimization and acceptance under unchanged publication gate",
+      "next dependency-ordered subsystem coverage"
+    ],
+    "intake": "Eight workers draft four complete connected families; delivery pair prepares shared integration. Existing small drafts are inputs. Build/test/benchmark at stable subsystem milestones."
+  },
+  "current_cohort": {
+    "id": "net-wave4-integration-a",
+    "modules": [
+      "http2-read-queue",
+      "http2-priority-dependencies",
+      "net-errors"
+    ],
+    "prerequisites": [
+      "Integrate independently reviewed frozen TCP native/error baseline closure"
+    ],
+    "prepared_gn_proposal": ".scratch/net-wave4/joint-integration-20261113T081415096879Z/report.json",
+    "prepared_acceptance_plan": ".scratch/net-wave4/measurement-plan-20261113T082724753033Z/configured-acceptance-plan.json",
+    "configured_integration": "Latest combined15 target regular checkpoint passed:175 tests,1 skipped,all63 untimed workloads. This is not whole-network acceptance.",
+    "performance_acceptance": "Latest43-case archive:24 faster intervals,16 slower,3 overlappingzero. All cases retained; optimization and final performance acceptance remain pending.",
+    "publication": "held",
+    "initial_measurement": "docs\\rust\\benchmarks\\net-cohort-a-initial-20261113T102749705981Z",
+    "optimization_sync": ".scratch/net-wave4/optimization-sync-20261113T104121800383Z/journal.json",
+    "active_build_directory": ".scratch/net-wave4/configured-cohort-20261113T154248986944Z",
+    "independent_optimization_review": ".scratch/net-wave4/review-second-optimization/review.json",
+    "latest_measurement": "docs/rust/benchmarks/net-cohort-a-optimization-20261113T161559748190Z",
+    "latest_validation": "docs/rust/benchmarks/net-configured-validation-20261113T154619501461Z",
+    "second_optimization_sync": ".scratch/net-wave4/second-optimization-sync-20261113T123648279836Z/journal.json",
+    "next_tcp_candidate": "Lazy suspended callback optional slot in exclusive worker validation; not yet configured or measured."
+  },
+  "following_native_handoffs": [
+    {
+      "module": "header-coalescer",
+      "report": "docs/rust/benchmarks/header-coalescer-wave4-20261113T083512488757Z/report.json",
+      "configured_integration": "Sources and regular build targets synchronized; normal configured build in progress. New campaign targets/config additions omitted per user.",
+      "performance_acceptance": "unmeasured"
+    },
+    {
+      "module": "alps-decoder",
+      "report": "docs/rust/benchmarks/alps-decoder-wave4-20261113T083945156739Z/report.json",
+      "configured_integration": "Sources and regular build targets synchronized; normal configured build in progress. New campaign targets/config additions omitted per user.",
+      "performance_acceptance": "unmeasured"
+    }
+  ],
+  "validation": {
+    "new_long_runs": "Copied immutable source/configuration/build/runtime snapshots, verified before launch and after execution; preserve original-to-snapshot mappings and runtime-relative layout.",
+    "mutable_output_hard_links_allowed": false,
+    "snapshot_accepts_later_edits": false,
+    "development": "Relevant fast unit/boundary checks and small differential probes.",
+    "stable_snapshot": "Required native tests, million-input differential/fuzz work, applicable sanitizers, runtime coverage and lint/format; retain failures and limitations.",
+    "reuse": "Only identical relevant source/ABI/helper/runtime/configuration identity with adequate recorded scope. Changes, failures, drift and new concerns trigger affected reruns.",
+    "broad_suites": "After coordinated cohorts and required layout/ownership changes; rebuild consumers first.",
+    "current_inflight_campaign": null,
+    "last_completed_campaign": {
+      "evidence": "docs/rust/benchmarks/net-auth-frozen-fuzz-resume-20261113T090652203308Z",
+      "immutable_manifest": ".scratch/validation-snapshots/20261113T090215297460Z/frozen-manifest.json",
+      "verified_completed_targets": 15,
+      "completion_sha256": "851ead150521bd74cba0d857187cf52e3890c21680558ab1b2ee1b963024e1ba",
+      "scope": "Original15 target snapshot only; later wave4 modules excluded."
+    },
+    "current_coverage_work": {
+      "status": "Affected second-optimization checkpoint passed; raw estimators and exact-source unions documented",
+      "report": "docs/rust/benchmarks/second-optimization-runtime-coverage-20261113T130226270327Z/report.json",
+      "scope": "Queue core/ABI and mapper including native binding; TCP reuse only identical Rust sources",
+      "configured_or_sanitizer_acceptance": false
+    },
+    "current_sanitizer_build": {
+      "build": ".scratch/net-wave3/fuzz-engine-parent/configured-20261113T125715691322Z",
+      "build_status": "GN full net check, target builds, freshness and runtime manifests passed",
+      "artifact_audit": "docs/rust/benchmarks/net-rust-fuzz-artifact-audit-20261113T125925274630Z/report.json",
+      "rust_feedback_libraries": 22,
+      "tcp_rust_asan_artifact_proof": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/tcp-rust-address-instrumentation.json",
+      "snapshot": ".scratch/validation-snapshots/20261113T130030087254Z",
+      "manifest_sha256": "50c9cedeec471abd6c436ce42467a0444ecbd26db3a1fa23c56d2766062a204f",
+      "preflight": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/preflight/results.json",
+      "preflight_callbacks_per_target": 64,
+      "tcp_sanitizer_unit": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/tcp-unit-20261113T130527283668Z/result.json",
+      "tcp_tests_passed": 55,
+      "all_campaigns_completed": false,
+      "benchmark_measurements": false,
+      "limitations": "Validates copied identity only. New TCP lazy-slot candidate is a later source change and is excluded.",
+      "historical_campaign_records": [
+        {
+          "target": "http2_read_queue_rust_fuzzer",
+          "cpu": 6,
+          "session": 41390,
+          "requested_callbacks": 1000000,
+          "timeout_seconds": 3600,
+          "evidence": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/million-http2_read_queue_rust_fuzzer",
+          "status": "running; completion not claimed"
+        },
+        {
+          "target": "http2_priority_rust_fuzzer",
+          "cpu": 12,
+          "session": 71828,
+          "requested_callbacks": 1000000,
+          "timeout_seconds": 3600,
+          "evidence": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/million-http2_priority_rust_fuzzer",
+          "status": "running; completion not claimed"
+        },
+        {
+          "target": "net_error_rust_fuzzer",
+          "cpu": 14,
+          "session": 90778,
+          "requested_callbacks": 1000000,
+          "timeout_seconds": 3600,
+          "evidence": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/million-net_error_rust_fuzzer",
+          "status": "running; completion not claimed"
+        }
+      ],
+      "active_campaigns": [],
+      "current_status": "Not running; do not resume. Historical results preserved, not reclassified."
+    },
+    "campaign_mode": "off by user instruction"
+  },
+  "baseline_dependencies": {
+    "required_per_cohort": [
+      "frozen original C++ policy/helper dependencies",
+      "shared primitive services and limits",
+      "affected benchmarks and timing boundaries",
+      "source/binary hashes",
+      "baseline-independence evidence"
+    ],
+    "dependency_change": "Flag affected closures and rerun affected independence/correctness/measurement work before acceptance.",
+    "probes_in_release_measurements": false
+  },
+  "resources": {
+    "shared_integration_writer": "parent",
+    "agents": "Sol medium through xhigh reasoning, exclusive ownership and explicit native CPU/job limits",
+    "native_concurrency": "Bound by observed CPU/memory capacity; one writer per configured output.",
+    "timing_window": "Sequential verified-affinity sampling with competing builds/validation stopped; archive every paired result."
+  },
+  "publication": {
+    "existing_gate_preserved": true,
+    "current_prepared_batch": ".scratch/net-wave4/measurement-plan-20261113T082724753033Z/plan.json",
+    "drop_regressions_by_changing_membership": false,
+    "requirements": "Every workload meets the improvement/no-measurable-regression requirement, or each residual has a demonstrated hard blocker and concrete near-term follow-up rewrite. Bridge presence alone is not causal proof. Include all accepted measured cases and history.",
+    "smaller_integration_cohort_waives_batch_gate": false
+  },
+  "completion": {
+    "whole_network_scope_preserved": true,
+    "partial_cohort_is_goal_completion": false,
+    "required": "All remaining network policies, ownership, external/platform seams and consumers meet the original migration, build, safety, functional, performance and publication requirements with source-bound evidence and no omitted required work."
+  },
+  "recorded_utc": "2026-11-13T18:59:25.479894+00:00",
+  "current_user_override": {
+    "recorded_utc": "2026-11-13T14:18:10.086165+00:00",
+    "instruction": "Do not start or restart sanitizer/fuzz campaigns or security-focused side work unless user explicitly resumes them. Continue Rust integration, regular tests and performance benchmarks.",
+    "running_campaign_processes_observed": 0,
+    "existing_evidence": "Preserved unchanged; unperformed/deferred checks are not passes."
+  },
+  "next_regular_cohort": {
+    "modules": [
+      "header-coalescer",
+      "alps-decoder"
+    ],
+    "with_tcp_optimization": "tcp-lazy-slot-wave4-20261113T132320392013Z",
+    "integration_journal": ".scratch/net-wave4/header-alps-tcp-integration-20261113T141642961091Z/journal.json",
+    "build": ".scratch/net-wave4/configured-cohort-20261113T154248986944Z",
+    "configured_execution": "Passed within genuine combined15 target checkpoint:175 tests,1 skipped overall,63 untimed workloads.",
+    "performance": "Initial20-case baseline retained. Integrated latest optimizations not yet measured; next small remeasurement deferred to larger subsystem milestone by current user direction.",
+    "publication": "held",
+    "dependency_check": "passed",
+    "build_status": "passed"
+  },
+  "coordination_mode": "Agent-owned ordinary module implementation/test/performance work; parent controls shared integration and serial configured builds. Rejected actions are stopped, not rerouted to bypass rejection.",
+  "agent_teams": {
+    "plan": "docs/rust/net-subsystem-batches.json",
+    "capacity_workers": 10,
+    "implementation_workers": 8,
+    "delivery_workers": 2,
+    "manager": 1,
+    "mode": "Four connected subsystem implementation pairs, plus shared integration/delivery pair. No per-function rebuild/benchmark loop."
+  },
+  "progress_meter": "docs/rust/net-progress/v1/metric.json",
+  "subsystem_batch_override": {
+    "recorded_utc": "2026-11-13T16:22:15.370842+00:00",
+    "plan": "docs/rust/net-subsystem-batches.json",
+    "priority": "Whole connected family drafts; batch builds/tests/benchmarks after subsystem milestones, rather than after each function or small class.",
+    "existing_goal_accounting_reset": false,
+    "requirements_waived": false
+  },
+  "goal_instruction_update": {
+    "approved_utc": "2026-11-13T16:37:04.133980+00:00",
+    "user_request": "Please do that and continue. Update the goal accordingly",
+    "instruction_source": "Latest user-approved connected-subsystem drafting and batched validation workflow",
+    "app_goal_edit": "Available goal tools expose read and status changes only, not objective editing or resumption; app goal text/accounting left intact.",
+    "repo_goal_instructions_updated": true,
+    "plan": "docs/rust/net-subsystem-batches.json"
+  },
+  "current_draft_handoffs": {
+    "connection-jobs-lower": {
+      "owner": "/root/net_errors_regular_optimization",
+      "status": "Complete source-only half sealed; not compiled, integrated, tested or measured",
+      "report": {
+        "path": "docs/rust/benchmarks/connection-jobs-family-source-draft-20261113T171753062770Z/report.json",
+        "sha256": "90b8c732a8df0b69fc2b11270ce171fab56028e5e78142e9dea831d600619219"
+      },
+      "prepared_tests_not_passed": {
+        "rust": 19,
+        "original_upstream_static_declarations": 130
+      },
+      "prepared_benchmarks_not_measured": 16,
+      "next": "Combine all fourteen connection-job modules, helper types and full-flow fixtures with upper owner before family integration."
+    },
+    "http2-session-pool": {
+      "owner": "/root/net_percentage_scope",
+      "status": "Complete source-only half sealed; not compiled, integrated, tested or measured",
+      "report": {
+        "path": ".scratch/net-wave5/http2-subsystem/net_percentage_scope/revisions/v1/report.json",
+        "sha256": "dc4dfe50ffc8470c42ea4f177427d6bcd4932b2c51ee9d784a96ee9f0f67b5d8"
+      },
+      "next": "Combine with complete stream/buffer half, including original write-queue type closure; merged metadata check is queued for RAM."
+    }
+  },
+  "current_subsystem_compiler_queue": {
+    "family": "http2 + connection-jobs + dns-resolution + cookie-storage",
+    "scope": "Native link/consumer/regular test and clock-free workload executable build after successful 38-object/four-Rust-test milestone",
+    "max_parallel_compilers": 1,
+    "minimum_available_memory_gib": 2.5,
+    "status": "HTTP2 configured native build succeeded with40 explicit consumer aliases. No configured compiler writer; copied native runtime tests are active. Other family-specific native reference/executable integration remains pending.",
+    "configured_cpp_build_started": true,
+    "benchmark_started": false,
+    "full_cpp_codegen_link_minimum_available_memory_gib": 2.5,
+    "first_attempt": {
+      "path": ".scratch/net-wave5/http2-subsystem/net_percentage_scope/interface-checks/20261113T171304587939Z/compiler-result.json",
+      "sha256": "5236bc8e51688fa19064cca543d90da92eb8a6b4e87fe398de7b389c3582e271",
+      "exit_code": 1,
+      "elapsed_seconds": 0.670633,
+      "peak_memory": "Not recorded"
+    },
+    "resource_grant": ".scratch/net-wave5/subsystem-delivery/http2-metadata-resource-grant.json",
+    "successful_metadata_result": {
+      "path": ".scratch/net-wave5/http2-subsystem/net_percentage_scope/interface-checks/20261113T172654935126Z/compiler-result.json",
+      "sha256": "03e0e89dddc39264fd44f7a77fc0bbebf8b445c73efd9d7d481fdc750967d346",
+      "exit_code": 0,
+      "elapsed_seconds": 0.628097
+    },
+    "compiler_slot_released": true,
+    "next": "Inspect copied complete ordinary HTTP2 execution; handle functional failures, then actual timing-input qualification and quiet paired measurements.",
+    "active_compiler_pass": null,
+    "native_family": "http2",
+    "planned_actions_observed": 742,
+    "latest_successful_native_build": ".scratch/net-wave5/subsystem-native-build-20261114T002250965076Z/build-result.json"
+  },
+  "current_subsystem_milestones": {
+    "http2": {
+      "scope": "Six assigned production adapters and both Rust archive targets",
+      "stage": "Configured production/native reference/test/workload build and40 explicit consumer rebuild targets passed; sealed ordinary runtime qualified and execution running. Performance and full ownership/provider acceptance pending.",
+      "compiler_result": {
+        "path": ".scratch/net-wave5/http2-compiler-pass-20261113T183756256094Z/build-result.json",
+        "sha256": "a48348a6a887e394e11dfb299e17a53162451de34728313e19552d36f064a1aa"
+      },
+      "native_or_Rust_tests_executed": "28 current Rust policy tests passed; copied native networking/HTTP2 regular execution is active, not yet accepted.",
+      "linked_new_net_dll": false,
+      "benchmark_executed": false,
+      "later_edits_automatically_validated": false,
+      "compiler_evidence": "docs/rust/benchmarks/net-subsystem-compiler-tests-20261113T202518052858Z/report.json",
+      "regular_rust_policy_evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+      "latest_production_compiler_checkpoint": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build-result.json",
+      "native_build_evidence": ".scratch/net-wave5/subsystem-native-build-20261114T002250965076Z/build-result.json",
+      "runtime_execution": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-launch.json"
+    },
+    "connection-jobs": {
+      "scope": "Fourteen assigned modules, upperR3 source corrections and exact non-storage friend insertions",
+      "stage": "Production configured compiler checkpoint and Rust policy suite passed. Family-specific native reference/executable integration, complete ordinary runtime and performance acceptance pending.",
+      "installation_journal": ".scratch/net-wave5/connection-family-install-20261113T185406625619Z/journal.json",
+      "native_or_Rust_tests_executed": "Rust policy tests only; native C++ execution pending",
+      "benchmark_executed": false,
+      "compiler_evidence": "docs/rust/benchmarks/net-subsystem-compiler-tests-20261113T202518052858Z/report.json",
+      "regular_rust_policy_evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+      "latest_production_compiler_checkpoint": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build-result.json"
+    },
+    "dns-resolution": {
+      "scope": "Seven-module combined R2 source proposal",
+      "stage": "Production configured compiler checkpoint and Rust policy suite passed. Family-specific native reference/executable integration, complete ordinary runtime and performance acceptance pending.",
+      "native_or_Rust_tests_executed": "Rust policy tests only; native C++ execution pending",
+      "benchmark_executed": false,
+      "installation_journal": ".scratch/net-wave5/dns-cookie-family-install-20261113T193708659783Z/journal.json",
+      "compiler_evidence": "docs/rust/benchmarks/net-subsystem-compiler-tests-20261113T202518052858Z/report.json",
+      "regular_rust_policy_evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+      "latest_production_compiler_checkpoint": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build-result.json"
+    },
+    "cookie-storage": {
+      "scope": "Eight-module paired source proposal",
+      "stage": "Production configured compiler checkpoint and Rust policy suite passed. Family-specific native reference/executable integration, complete ordinary runtime and performance acceptance pending.",
+      "native_or_Rust_tests_executed": "Rust policy tests only; native C++ execution pending",
+      "benchmark_executed": false,
+      "installation_journal": ".scratch/net-wave5/dns-cookie-family-install-20261113T193708659783Z/journal.json",
+      "compiler_evidence": "docs/rust/benchmarks/net-subsystem-compiler-tests-20261113T202518052858Z/report.json",
+      "regular_rust_policy_evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+      "latest_production_compiler_checkpoint": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build-result.json"
+    }
+  },
+  "observed_build_bottleneck": {
+    "evidence": ".scratch/net-wave5/http2-compiler-pass-20261113T183756256094Z/build.log",
+    "measured_ninja_parse_milliseconds": 81978.9,
+    "finding": "Global Ninja graph parsing dominates this small affected-object pass; compiler performance is not the demonstrated cause of that startup cost.",
+    "action": "Batch shared GN/source changes and affected compiler/test targets; keep broad consumer graph deferred to coordinated milestones.",
+    "broader_attempt": ".scratch/net-wave5/http2-native-build-20261113T180551355412Z/scope-cancellation.json",
+    "broader_planned_actions": 16899,
+    "focused_initial_actions": 8,
+    "comparison_qualification": "Different validation scopes; not an equivalent-work speedup claim."
+  },
+  "agent_usage_limits": {
+    "failed_workers": [
+      "/root/net_errors_regular_optimization",
+      "/root/net_percentage_scope"
+    ],
+    "condition": "Provider usage limit rejected their next turns. Existing source evidence preserved; no automatic model/provider switch or repeated retries.",
+    "parent_continuing_integration": true
+  },
+  "automatic_section_progression": {
+    "approved_utc": "2026-11-13T19:38:35.250660+00:00",
+    "instruction": "Continue the established connected-subsystem workflow hands-on, automatically advancing to the next dependency-ordered section after each milestone; do not wait for another next-section prompt.",
+    "whole_network_scope_unchanged": true,
+    "goal_accounting_reset": false,
+    "current_batch": "All35 initial subsystem source drafts are installed/synchronized; joint configured checks, compiler fixes and regular runtime validation are next.",
+    "current_installation_journal": ".scratch/net-wave5/dns-cookie-family-install-20261113T193708659783Z/journal.json",
+    "campaign_override": "Remains off until explicitly resumed; goal resumption alone does not resume deferred campaigns.",
+    "publication_gate": "Unchanged"
+  },
+  "current_subsystem_gn_validation": {
+    "path": ".scratch/net-wave5/configured-subsystems-20261113T214427292308Z/configure-complete.json",
+    "source_count": 1103,
+    "compiler_runtime_or_performance": false
+  },
+  "current_subsystem_validation": {
+    "report": "docs/rust/benchmarks/net-subsystem-compiler-tests-20261113T202518052858Z/report.json",
+    "ordinary_rust_tests_passed": 141,
+    "ordinary_native_cpp_tests_passed": null,
+    "benchmark_publication": "held"
+  },
+  "latest_execution_policy": {
+    "recorded_utc": "2026-11-13T21:34:48.213697+00:00",
+    "instruction": "Continue existing whole-Net goal; no replacement or accounting reset",
+    "active_family_limit": 4,
+    "worker_limit": 10,
+    "configured_writers": 1,
+    "global_compiler_linker_jobs": 3,
+    "default_model": "gpt-6.1-sol",
+    "default_reasoning": "high",
+    "mechanical_fixture_reasoning": "medium",
+    "difficult_lifetime_async_abi_reasoning": "xhigh",
+    "inventory_preference": {
+      "model": "gpt-6-luna",
+      "reasoning": "high",
+      "availability": "Not requested in current dispatch; must verify before use"
+    },
+    "delegation_options_key": "reasoningEffort",
+    "assignment_complete_only_after_delivery": true,
+    "daily_target": "One accepted bounded subsystem family; provisional, not a guaranteed deadline",
+    "throughput_recalibration": "After three fully accepted subsystem deliveries",
+    "sanitizer_fuzz_campaigns": "Off until explicitly resumed",
+    "publication": "Held under existing whole-batch gate"
+  },
+  "resumed_delivery_intake": {
+    "applied": ".scratch/net-wave5/delivery-intake-20261113T224141324185Z/journal.json",
+    "applied_files": 95,
+    "gn_validation": ".scratch/net-wave5/configured-subsystems-20261114T001002655692Z/configure-complete.json",
+    "dns_reference_repair_staged": ".scratch/net-wave5/resumed-integration/dns-reference-fixes/manifest.json",
+    "formatting_staged": ".scratch/net-wave5/resumed-integration/rust-formatting-v2/parent-manifest.json",
+    "pending_formatting_issue": null,
+    "native_runtime_delivery": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/HANDOFF.md",
+    "updated_utc": "2026-11-14T01:09:06.666869+00:00",
+    "formatting_stage": "63/63 files installed from scoped formatting intake; four Rust policy suites passed on current source. Native acceptance remains separate.",
+    "benchmark_registry_staged": ".scratch/net-wave5/resumed-integration/benchmark-registry/application.json",
+    "next_guarded_intake": ".scratch/net-wave5/next-delivery-intake-20261113T222135197882Z/preflight.json",
+    "parent_test_fix_staged": ".scratch/net-wave5/resumed-integration/http2-parent-byte-count-fix-v3/application.json",
+    "preflight": "101 bindings and 24 source pins applied after guarded terminal writer checkpoint; new identity 1143 inputs",
+    "active_native_build_observation": {
+      "status": "Completed successfully; no active Ninja writer",
+      "evidence": ".scratch/net-wave5/subsystem-native-build-20261114T002250965076Z/build-result.json",
+      "jobs": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 14.221260199992685,
+      "source_inputs_stable": true,
+      "explicit_consumer_targets": 40,
+      "native_test_or_performance_acceptance": false
+    },
+    "http2_delivery_fix_workers": [
+      {
+        "task": "rust-net-http2-native-fixture-fixes-20261113-v3",
+        "requested_model": "gpt-6.1-sol",
+        "requested_reasoning": "high",
+        "returned_model": "gpt-6.1-sol",
+        "returned_reasoning": "high",
+        "executed_model_attestation": null,
+        "scope": "Staged fixtures only"
+      },
+      {
+        "task": "rust-net-http2-reference-link-fix-20261113-v3",
+        "requested_model": "gpt-6.1-sol",
+        "requested_reasoning": "high",
+        "returned_model": "gpt-6.1-sol",
+        "returned_reasoning": "high",
+        "executed_model_attestation": null,
+        "scope": "Staged original reference helper/link closure only"
+      }
+    ],
+    "source_identity_count": 1222,
+    "stage": "Frozen1221 ordinary conductor completed with exit code 1 on 2026-11-14; per-program recovery intake in progress. Historical configured compilation and Rust policy checks remain exact-snapshot evidence only. No native/performance acceptance.",
+    "prior_native_attempt": {
+      "evidence": ".scratch/net-wave5/subsystem-native-build-20261113T214654593700Z",
+      "elapsed_seconds": 3244.8350326000073,
+      "last_recorded_action": "[522/737] CXX obj/net/net_unittests/transport_security_state_unittest.obj",
+      "source_inputs_stable": true,
+      "status": "Controlled stop after confirmed fatal diagnostics and all relevant concrete repairs ready; incomplete failed attempt, not a pass",
+      "checkpoint_record": ".scratch/net-wave5/subsystem-native-build-20261113T214654593700Z/controlled-repair-checkpoint.json"
+    },
+    "applied_bindings": 101,
+    "changed_binding_files": 95,
+    "guarded_unchanged_bindings": 6,
+    "regular_verification_plans": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-plans-20261113T225112225402Z/summary.json",
+    "latest_small_repair": ".scratch/net-wave5/delivery-intake-20261114T000937637772Z/journal.json",
+    "source_manifest_sha256": "768bf8f97f23d517269fca450285f9dd73e3fb323a31705da2f3360e8d3c3fd0",
+    "consumer_target_proposals": ".scratch/net-wave5/parent-consumer-target-intake-20261114T001450500298Z/rebind.json",
+    "measurement_intake": ".scratch/net-wave5/parent-measurement-intake-20261113T230433319314Z/application.json",
+    "measurement_preconditions": {
+      "review": ".scratch/net-wave5/resumed-integration/family-measurement-closure-v3/report.json",
+      "current_findings": [
+        "F1: quic_pending/quic_error need optimized supplemental feature validation; Default feature behavior unchanged",
+        "F2: https_tunnel/http2_pending original paths require independent original HTTP2 provider closure",
+        "F3: configured-only/generated providers must be bound to immutable execution",
+        "F4: additive source/flag capture installed, not timed",
+        "F5: new cookie descriptor prepared without overwriting history",
+        "F6: immutable timing execution path in delivery"
+      ],
+      "owners": [
+        {
+          "task": "rust-net-connection-http2-baseline-closure-20261114-v1",
+          "model": "gpt-6.1-sol",
+          "reasoning": "xhigh"
+        },
+        {
+          "task": "rust-net-optimized-quic-feature-checkpoint-20261114-v1",
+          "model": "gpt-6.1-sol",
+          "reasoning": "high",
+          "stage": "Prepared only; no config/build/tests performed"
+        },
+        {
+          "task": "rust-net-immutable-timing-delivery-20261114-v1",
+          "model": "gpt-6.1-sol",
+          "reasoning": "high"
+        }
+      ],
+      "performance_acceptance": false,
+      "publication": "Held",
+      "corrected_timing_review": ".scratch/net-wave5/resumed-integration/immutable-timing-corrected-review-v2/REVIEW.md",
+      "corrected_timing_stage": "Corrected F6 runner/helper installed and selectively synchronized; installed CLI checks pass. Actual evaluated input-policy qualification, new freshness/provenance identity and quiet timing remain pending."
+    },
+    "whole_goal_completion_limits": {
+      "source_inspection_scope": [
+        "net/spdy/spdy_session.cc",
+        "net/spdy/spdy_session.h",
+        "net/spdy/spdy_session_rust_core.rs"
+      ],
+      "current_logic_stage": "Rust control policy configured compilation/consumer rebuild passed; regular native API validation remains pending.",
+      "ownership_stage": "C++ session state/containers and native provider ownership remain; not Rust-owned family completion",
+      "examples": [
+        "SpdySession::DoWriteComplete native effects mutate in_flight_write_, write_state_ and stream ownership",
+        "SpdySession::SendInitialData uses native frame/container storage with Rust decisions",
+        "SpdySession::OnReceiveCompressedFrame still stores its native scalar field directly"
+      ],
+      "remaining_scope": [
+        "Rust ownership and coherent Rust-to-Rust paths",
+        "Remaining C++ policy/helpers",
+        "Platform and external providers including QUICHE",
+        "Nonexecuted consumer rebuilds and final networking/Chrome/platform acceptance",
+        "Deferred required sanitizer/fuzz checks remain OFF, not passed"
+      ],
+      "full_family_or_whole_goal_completion_claimed": false,
+      "next": "Finish source-bound integration/correctness and complete-path measurements, then target demonstrated costs while continuing the same connected family toward full ownership."
+    },
+    "compiler_checkpoint": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build-result.json",
+    "rust_policy_tests": {
+      "evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+      "passed": 141,
+      "source_inputs_stable": true,
+      "scope": "Four ordinary Rust policy suites only; no native networking/browser/performance acceptance"
+    },
+    "observed_startup_bottleneck": {
+      "evidence": ".scratch/net-wave5/subsystem-compiler-pass-20261114T001216727492Z/build.log",
+      "actual_no_work_elapsed_seconds": 153.76924860000145,
+      "ninja_parse_total_ms": 122619.3,
+      "ninja_parse_count": 2,
+      "graph_node_entries": 493272,
+      "next": "Assess documented GN root-target/root-pattern scoped graph while preserving all required targets, compiler settings and later full Chrome closure."
+    },
+    "native_runtime_snapshot": {
+      "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/snapshot",
+      "manifest_sha256": "9f857b8a89a3cc260f941b4f8cc0808497da4918c3986e2cb08e7c84311a6796",
+      "files": 20432,
+      "copied_with_hardlinks": false,
+      "frozen_before_after_verified": true,
+      "selected_programs": 17,
+      "selected_workload_cases": 69,
+      "qualification": "Passed; copied runtime ordinary native execution running under frozen1221 source identity",
+      "ordinary_launch": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-launch.json",
+      "current_tooling_changes_apply_to_snapshot": false
+    },
+    "latest_tooling_intake": ".scratch/net-wave5/delivery-intake-20261114T010837404785Z/journal.json",
+    "recovery_20261117": {
+      "recorded_utc": "2026-11-17T03:47:35.205904+00:00",
+      "conductor_result": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-conductor-result.json",
+      "conductor_result_sha256": "f572700436c173c9aa2bb525c9d6817896fb9a1c09e57ebae52d62cb57fa5cb5",
+      "exit_code": 1,
+      "finished_utc": "2026-11-14T01:28:29.557774+00:00",
+      "prior_running_label_superseded": true,
+      "per_program_analysis": "Pending read-only Sol/high recovery result; no missing/skipped program is promoted to a pass.",
+      "snapshot_identity": "Frozen1221; later tooling1222 did not retroactively update this snapshot.",
+      "acceptance": false,
+      "new_execution": false,
+      "publication": "Held",
+      "deferred_campaigns": "Sanitizer/fuzz/security side campaigns OFF"
+    }
+  }
+}
