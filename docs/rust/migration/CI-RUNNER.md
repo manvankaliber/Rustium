@@ -131,7 +131,16 @@ inventory workflow cannot stand in for a compile/test check.
 Keep checkout, dependency sync and hooks in the preparation window. Any operator
 or script that mutates the checkout or runs native work must hold the same
 exclusive byte-range lock on the first byte of `rb/.rustium-native.lock`. Finish
-preparation before recording inputs. On the laptop, run the reviewed
+preparation before recording inputs. If provisioning used a hooks-disabled
+sync, run the `lastchange`, `minibranch`, `gpu_lists_version`, `lastchange_skia`,
+and `lastchange_dawn` actions from the pinned `DEPS` under that lock. They
+generate checkout-local metadata from the final source and dependency
+revisions. Verify `build/util/LASTCHANGE.committime` against the checked-out
+commit and retain the generated file hashes. Regenerate source-derived
+metadata whenever the candidate revision changes. Run fresh GN generation on
+the laptop to qualify provisioning before recording inputs.
+
+On the laptop, run the reviewed
 `tools/ci/build_network_consumers.py` with `--record-inputs --revision <commit>`
 and `--evidence <new-directory-outside-src>` using the qualified depot_tools
 Python and environment. It locks the native window, checks each Git worktree,
