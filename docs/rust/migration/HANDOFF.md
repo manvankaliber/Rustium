@@ -1,5 +1,21 @@
 # Active Network migration - 2026-11-17
 
+## Current build reconciliation - supersedes live labels below
+
+The e6ce572a build is interrupted, not running and not passed. Exec31296 no longer
+exists; independent OS queries found no recorded launcher476/child23232 or native
+build process. The full build stopped after495/875 with no finished exit/result.
+All77preflight actions had passed. Recovery-time1270Root/configured hashes match;
+this is not the missing completed build postcheck. Raw partial logs/results and
+observed prelink binaries are archived in evidence/network-build-interruption-
+20261117. The stale gate was recovered from that evidence. No restart occurred.
+
+The user selected T3 Code on the separate Windows builder for setup. Current
+runtime cannot link another machine, so a one-time local setup task in T3 on
+that PC is required to register the runner. Bootstrap commit ffa0d0da is local;
+no runner, PR or remote workflow has been installed/published yet. Next compile
+must be on the dedicated builder after qualification. No local-j2 trial.
+
 ## Latest user steering: dedicated GitHub builder
 
 The user rejected the proposed local-j2 experiment. They selected an existing

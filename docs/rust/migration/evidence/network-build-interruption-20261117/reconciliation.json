@@ -1,0 +1,19 @@
+{
+  "task_id": "NET-CURRENT-CONSUMER-CLOSURE",
+  "observed_utc": "2026-11-17T16:08:51.187320+00:00",
+  "job_id": "332c36acee634634bd2c79b10f3bd6c7",
+  "outcome": "interrupted; no completed full-build exit/result",
+  "process_reconciliation": "Original exec31296 unavailable; independent Get-Process and Win32_Process queries found no recorded launcher/child, Ninja, clang-cl, lld-link or Python build process",
+  "source_manifest_sha256": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e",
+  "source_count": 1270,
+  "recovery_time_both_checkout_hashes_matched": true,
+  "not_claimed": "Recovery-time source check is not a completed build postcheck, ABI proof or native test pass",
+  "preflight_exit_code": 0,
+  "last_full_progress": {
+    "completed_action_index": 495,
+    "planned_actions": 875
+  },
+  "archive_sha256": "d7357a40facaf973f4f94d29b172eb56bb072c040645460335fa4469b7ca6b27",
+  "restart_authorized": false,
+  "next_action": "Preserve cached completed work and move the next compilation to the selected dedicated GitHub builder after registration/qualification; no local-j2 trial"
+}

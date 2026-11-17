@@ -1,0 +1,77 @@
+[
+  {
+    "path": "network-selected-consumer-build-v2/build.log",
+    "sha256": "3088c2ae53214a02454198e6f4ab828784607ff3211317a92c72d3db10b077c1",
+    "bytes": 31914
+  },
+  {
+    "path": "network-selected-consumer-build-v2/changed-objects.log",
+    "sha256": "4105487b9d0a7a30640ba13ed1e116077f0b50ac7f44fffdb6169ada3ff42fbf",
+    "bytes": 6557
+  },
+  {
+    "path": "network-selected-consumer-build-v2/manifest.json",
+    "sha256": "0ebbeda26e1c824fbff23db8537dfb921af4ef56e8e066be04b9180174ba86cf",
+    "bytes": 23013
+  },
+  {
+    "path": "network-selected-consumer-build-v2/result.json",
+    "sha256": "6670c90412fb31817529cb0f5c1a0fc9b1fafaa8bcd853ae09660c0479c95244",
+    "bytes": 16043
+  },
+  {
+    "path": "observed-prelink-binaries/base.dll",
+    "sha256": "09c7288662fa44dc7c99934c09702186ed56964df57bafdefb502887039fb753",
+    "bytes": 6148096
+  },
+  {
+    "path": "observed-prelink-binaries/base.dll.exports.txt",
+    "sha256": "04013cd1c64e4691fe03b8c61bae27d03097ab083844055eefa13c5228ab2230",
+    "bytes": 713421
+  },
+  {
+    "path": "observed-prelink-binaries/net.dll",
+    "sha256": "bdb4b4e8b802fd84c5b1cb00b7df036375174df57a707d56fe3f8a1c952fa5f3",
+    "bytes": 16752128
+  },
+  {
+    "path": "observed-prelink-binaries/net.dll.exports.txt",
+    "sha256": "6a8bb51b428c88b2ad354c306c5e8ddd413ea2bc86c846c6b643cf613b7feed4",
+    "bytes": 1499787
+  },
+  {
+    "path": "observed-prelink-binaries/net.dll.lib",
+    "sha256": "a9bc037fce2d68bfe37f617c1fc069fe607e6f6eb83a7561d25ccb3d397a131d",
+    "bytes": 7158026
+  },
+  {
+    "path": "observed-prelink-binaries/net_spdy_session_key_rust_reference.dll",
+    "sha256": "0ede9c8fd889974c8511f727229310a8dee7d889ba453795f8dea9edd45d2848",
+    "bytes": 63488
+  },
+  {
+    "path": "observed-prelink-binaries/net_spdy_session_key_rust_reference.dll.exports.txt",
+    "sha256": "e1ca7f69469a08b01d6c0611e4fc6687838da5422f4ba776e8a8588747d049ea",
+    "bytes": 1354
+  },
+  {
+    "path": "observed-prelink-binaries/net_spdy_session_key_rust_reference.dll.lib",
+    "sha256": "751c8d839c8b3920bedd7974d159709a3a2d722abdd3eda20fd78641fd93d63e",
+    "bytes": 5428
+  },
+  {
+    "path": "observed-prelink-binaries/record.json",
+    "sha256": "86ac733109935f8c784e782ed5f9d8d84ecfeb3fa3f71f8d03ab8ce0d657e10f",
+    "bytes": 3364
+  },
+  {
+    "path": "observed-prelink-binaries/url_lib.dll",
+    "sha256": "254dde6ae0fcc58de5409e2a9d7fe7ec086bbe7f7d5f62e03777ca82160f131d",
+    "bytes": 305664
+  },
+  {
+    "path": "observed-prelink-binaries/url_lib.dll.exports.txt",
+    "sha256": "d56a9daa542c3443b81dd22513150cb2f082a638986ac79e28f88dc3dc69339f",
+    "bytes": 42117
+  }
+]
