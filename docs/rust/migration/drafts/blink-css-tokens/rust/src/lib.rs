@@ -68,8 +68,8 @@ pub struct Token<'a> {
     /// Decoded string payload. Unescaped input stays borrowed; escapes allocate.
     pub value: Option<Cow<'a, [u16]>>,
     pub delimiter: Option<u16>,
-    pub number: Option<f64>,
-    pub number_bits: Option<u64>,
+    number: Option<f64>,
+    number_bits: Option<u64>,
     /// Exact lexical spelling for numeric tokens, supplied to NumberProvider.
     pub numeric_source: Option<Cow<'a, [u16]>>,
     pub numeric_is_integer: bool,
@@ -82,6 +82,10 @@ pub struct Token<'a> {
 }
 
 impl Token<'_> {
+    /// Numeric value owned by this token, derived from its authoritative bits.
+    pub fn numeric_value(&self) -> Option<f64> {
+        self.number_bits.map(f64::from_bits)
+    }
     /// Token serialization policy. Numeric spelling itself is delegated only
     /// to the three approved decimal provider operations.
     pub fn serialize(&self, numbers: &impl NumberProvider) -> Option<Vec<u16>> {
@@ -162,12 +166,12 @@ impl Token<'_> {
             Dimension => {
                 self.value == other.value
                     && self.numeric_sign == other.numeric_sign
-                    && self.number == other.number
+                    && self.number_bits == other.number_bits
                     && self.numeric_is_integer == other.numeric_is_integer
             }
             Number | Percentage => {
                 self.numeric_sign == other.numeric_sign
-                    && self.number == other.number
+                    && self.number_bits == other.number_bits
                     && self.numeric_is_integer == other.numeric_is_integer
             }
             UnicodeRange => self.unicode_range == other.unicode_range,
@@ -270,7 +274,7 @@ fn serialize_identifier(v: &[u16], skip_start: bool) -> Vec<u16> {
         {
             append_hex_escape(&mut o, cp)
         } else if cp == 45 && first && i == v.len() {
-            o.push(45)
+            o.extend([92, 45])
         } else if cp >= 0x80
             || cp == 45
             || cp == 95
@@ -303,6 +307,14 @@ fn append_scalar(o: &mut Vec<u16>, cp: u32) {
         o.extend_from_slice(c.encode_utf16(&mut b));
     } else {
         o.push(0xfffd)
+    }
+}
+
+fn append_escaped_codepoint(o: &mut Vec<u16>, cp: u32) {
+    if (0xd800..=0xdfff).contains(&cp) {
+        o.push(cp as u16);
+    } else {
+        append_scalar(o, cp);
     }
 }
 
@@ -522,7 +534,7 @@ impl<'a> Tokenizer<'a> {
                     p += 1;
                     let save = self.pos;
                     self.pos = p;
-                    append_scalar(&mut out, self.consume_escape());
+                    append_escaped_codepoint(&mut out, self.consume_escape());
                     p = self.pos;
                     self.pos = save;
                 } else {
@@ -788,6 +800,7 @@ impl<'a> Tokenizer<'a> {
             t.kind = Kind::Percentage;
             t.unit_id = Some(2); // CSSPrimitiveValue::UnitType::kPercentage
         }
+        t.span.end = self.pos;
         t
     }
     fn string(&mut self, start: usize, q: u16) -> Token<'a> {
@@ -833,7 +846,7 @@ impl<'a> Tokenizer<'a> {
                         self.pos += 1
                     }
                 } else {
-                    append_scalar(&mut out, self.consume_escape())
+                    append_escaped_codepoint(&mut out, self.consume_escape())
                 }
             } else {
                 out.push(c)
@@ -868,7 +881,7 @@ impl<'a> Tokenizer<'a> {
             }
             if c == 92 {
                 if Self::valid_escape(c, self.peek(0)) {
-                    append_scalar(&mut out, self.consume_escape())
+                    append_escaped_codepoint(&mut out, self.consume_escape())
                 } else {
                     self.bad_url();
                     return self.token(Kind::BadUrl, start);
@@ -1355,9 +1368,6 @@ mod tests {
             Tokenizer::new(Input::Bytes(&bytes), 0)
         };
         for index in 0..3 {
-            if index > 0 && tokenizer.pos >= tokenizer.units.len() {
-                break;
-            }
             let actual = tokenizer.next_token(&FixedNumbers);
             compare_original_token(case.label, index, &actual, case.expected.get(index));
             if actual.kind == Kind::Eof {
@@ -1415,9 +1425,6 @@ mod tests {
         };
         let numbers = StrictCaseNumbers::new(case.parse_fixtures);
         for i in 0..3 {
-            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
-                break;
-            }
             let actual = tokenizer.next_token(&numbers);
             compare_extended(case.label, i, &actual, case.expected.get(i));
             if actual.kind == Kind::Eof {
@@ -1475,9 +1482,6 @@ mod tests {
         // tokenizer's default mode has the same observable stream semantics.
         let numbers = StrictCaseNumbers::new(&[]);
         for i in 0..3 {
-            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
-                break;
-            }
             let actual = tokenizer.next_token(&numbers);
             compare_next(case.label, i, &actual, case.expected.get(i));
             if actual.kind == Kind::Eof {
@@ -1591,9 +1595,6 @@ mod tests {
         };
         let numbers = OriginalDecimalFixtures::new(&byte_fixtures);
         for i in 0..3 {
-            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
-                break;
-            }
             let actual = tokenizer.next_token(&numbers);
             compare_numeric_unicode(case.label, i, &actual, case.expected.get(i));
             if actual.kind == Kind::Eof {
