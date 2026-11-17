@@ -1,0 +1,122 @@
+{
+  "auth_parent_candidate": "c36d1aafb00e413feff07907844c0555a21cd021",
+  "normal_net_dependency_candidate": "f00b0d0c0667a634436f7c75fff11ea3ae25441e",
+  "before": {
+    "base/BUILD.gn": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9",
+    "net/BUILD.gn": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8"
+  },
+  "normal_net_dependency_after_sha256": "de210fef1f3dd0c610fe4c81a8e0b744c985b59a82883a7a9e8d9e8d0539cb55",
+  "rust_roots": [
+    {
+      "label": "//base:base64_rust_shim",
+      "normal_root": "base/base64_rust_shim.rs",
+      "probe_root": "base/base64_rust_shim_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//base:string_split_rust",
+      "normal_root": "base/strings/string_split_rust.rs",
+      "probe_root": "base/strings/string_split_rust_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//net:auth_challenge_rust",
+      "normal_root": "net/http/auth_challenge_ffi.rs",
+      "probe_root": "net/http/auth_challenge_ffi_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//net:http_auth_cache_rust",
+      "normal_root": "net/http/http_auth_cache_rust_ffi.rs",
+      "probe_root": "net/http/http_auth_cache_rust_ffi_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//net:http_request_headers_rust",
+      "normal_root": "net/http/http_request_headers_rust_ffi.rs",
+      "probe_root": "net/http/http_request_headers_rust_ffi_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//net:net_error_rust",
+      "normal_root": "net/base/net_error_rust_ffi.rs",
+      "probe_root": "net/base/net_error_rust_ffi_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    },
+    {
+      "label": "//net:net_log_values_rust",
+      "normal_root": "net/log/net_log_values_rust_ffi.rs",
+      "probe_root": "net/log/net_log_values_rust_ffi_reference_probe.rs",
+      "same_directory_module_paths": true,
+      "same_existing_label_single_crate": true
+    }
+  ],
+  "cpp_variants": [
+    {
+      "normal": "base/base64.cc",
+      "probe": "base/base64_reference_probe.cc",
+      "normal_sha256": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+      "only_change": "Generated CXX include path; algorithm/body otherwise byte-identical"
+    },
+    {
+      "normal": "base/strings/string_split.cc",
+      "probe": "base/strings/string_split_reference_probe.cc",
+      "normal_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "only_change": "Generated CXX include path; algorithm/body otherwise byte-identical"
+    },
+    {
+      "normal": "base/strings/string_split_rust_bridge_unittest.cc",
+      "probe": "base/strings/string_split_rust_bridge_reference_probe_unittest.cc",
+      "normal_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+      "only_change": "Generated CXX include path; algorithm/body otherwise byte-identical"
+    }
+  ],
+  "after": {
+    "base/base64_reference_probe.cc": "e120854eb234639aa41e2a4c8cb0ab158f79cc9e60f3b64fa13bcc12fb3abe43",
+    "base/base64_rust_shim_reference_probe.rs": "95339df42c3f4c3df359f61f98c5cc4a902d9d635576132e4faeb7eca7869342",
+    "base/BUILD.gn": "4fa9d5a7cec6e4cf79817802f7066c90de13e5a90f578be1ad80b0505507f262",
+    "net/BUILD.gn": "4795aa241a7825e251cfb7bb7263efdd9ade8b866dabc6560346e97a5f47d934",
+    "net/base/net_error_rust_ffi_reference_probe.rs": "9020f49915bbfacfd67013f56b23c89c7a52db4ee2a381b7f42c44acfca33d1d",
+    "net/http/auth_challenge_ffi_reference_probe.rs": "9eea082877c3a68b65d2b50afa46e845937924790eb2b8a561385564a165e693",
+    "net/http/connection_auth_reference_qualification_unittest.cc": "e98e014c23e116b6eb6efe65db34e65abf27ad17a7c8c17ec45291c3def71e06",
+    "net/http/http_auth_cache_rust_ffi_reference_probe.rs": "7adb82292783b969b10dab840a729687741669d430ff7db4d0fc4424acb3c4d2",
+    "net/http/http_request_headers_rust_ffi_reference_probe.rs": "832576e6395966c7840c06940cff6d7ba5bd2b584af6134b4caf28a024da76a1",
+    "net/http/rustium_reference_probe.cc": "efa40be1bf4028e69a6a90d3c966b23ed12e0625fc947637dfb12f5e9b7be4d1",
+    "net/http/rustium_reference_probe.h": "35fa80f28b7392195f5f57bb0ca5da0cbe06986c1570b8fd03990a9e74e317b5",
+    "net/http/rustium_reference_probe_test_support.h": "4de2b714fee7a4e1fe96424c15453f062c3af5533e56927a4d1e825ba5fce455",
+    "net/log/net_log_values_rust_ffi_reference_probe.rs": "e87587694d87c2dfb1c66b1ec25ed64fa498a45d6675849c0a7de0590bd147d7",
+    "build/rust/rustium_reference_probe.gni": "bdbca25e4fb93f343a6318bc854acc21c97493077beb9608f470786d5a6fdfe2",
+    "base/strings/rustium_reference_probe.cc": "913e646e4755ac39a25b51cbe931eb6eb71c01472fc9e124f5b339e78f9de77b",
+    "base/strings/rustium_reference_probe.h": "91f8282c57f9a2290e706b38f60a8fc75a17d13b55eb4fa27d211801dc6f57cf",
+    "base/strings/string_split_reference_probe.cc": "21a1349760277427d743f21996a07c5876947f5f8ddfdbca68d0a999331efe79",
+    "base/strings/string_split_rust_bridge_reference_probe_unittest.cc": "bfd10e76df306d2c83ce35e2a92d9771fb203be1503a5ccaf1cfc1ca6a8fd0db",
+    "base/strings/string_split_rust_reference_probe.rs": "e763ab2612afb7018a75d9ca391eb572d4b285e70ca6956bd7c99441004337d7"
+  },
+  "scope": "Concrete unapplied GN/source selection; original normalRust/CPP sources unchanged and labels replaced once only in explicit probe configuration. GN evaluation, ABI/link ownership and no-leak runtime proof pending",
+  "syntax_qualification": {
+    "tool": "D:/RustiumBuild/src/buildtools/win/gn.exe",
+    "sha256": "2c680fec3bd2c2e52f57184e9d389b75f3054c25cb56180f73fdf0cffc87f80f",
+    "commands": [
+      "gn format proposal/base/BUILD.gn",
+      "gn format proposal/net/BUILD.gn",
+      "gn format proposal/build/rust/rustium_reference_probe.gni"
+    ],
+    "all_exit_zero": true,
+    "scope": "Formatting/parser only; no GN generation/evaluation, compiler or linking"
+  },
+  "normal_roots_unchanged": {
+    "base/base64_rust_shim.rs": "c829f4bd470c5828885be4f11e341c7003a30c70392e4dd918aded104d097c10",
+    "base/strings/string_split_rust.rs": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+    "net/http/auth_challenge_ffi.rs": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+    "net/http/http_auth_cache_rust_ffi.rs": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+    "net/http/http_request_headers_rust_ffi.rs": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+    "net/base/net_error_rust_ffi.rs": "b97078cf70ca2d12318568fd82b3b215930986a97e4668eaaf859ff2b32a36ff",
+    "net/log/net_log_values_rust_ffi.rs": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa"
+  }
+}

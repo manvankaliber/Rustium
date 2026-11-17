@@ -1,0 +1,3 @@
+before/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+reference/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+proposal/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
