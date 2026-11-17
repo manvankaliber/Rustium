@@ -1,24 +1,81 @@
 {
-  "base_commit": "6862a026047ed3b5b3943243e5100ebea31b3ce7",
-  "status": "uncompiled_partial_candidate",
-  "bound_authority_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
-  "newer_authority_sha256": "83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5",
-  "copied_inputs_verified": 46,
-  "observed_root_drift": [
+  "base_commit": "e591719d1393b4d44568dd8ebbac6f77d254a4bf",
+  "status": "source_only_uncompiled_review_pending",
+  "latest_authority_at_check": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+  "latest_authority_source_count": 1261,
+  "frozen_inputs_verified": 71,
+  "root_drift": [
     {
       "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
-      "bound_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
-      "root_sha256": "1c5f88c4f1598520aba5d7bde7be11c326ad13986df0b04e97fa1ce7528daee2"
+      "bound": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "root": "da9d911100c52d7b9e55598e7affa82bf43e01d6c65c6f6ebb7866d979d1246e",
+      "latest_manifest": "da9d911100c52d7b9e55598e7affa82bf43e01d6c65c6f6ebb7866d979d1246e"
     }
   ],
   "proposal_files": [
     {
       "path": "proposal/BUILD.fragment.gn",
-      "sha256": "b90daecd91ed6ba9a6d5fa0483fdee7dd64b906e31f4eedf945fc0deff167070"
+      "sha256": "ca62f5baf665bfb3a09bc482221537f0dbebbf7211609ce3e9728634efa8a93b"
     },
     {
       "path": "proposal/friend-declarations.patch",
-      "sha256": "5a54ce826e246f94def3ced8aae1c0f2d07ed8bde6ca926d67b48f6ba1ff745b"
+      "sha256": "9495ef1c1d563b91ef1c504abce87e17c3edfa748e1f301177da4f6c13aa2199"
+    },
+    {
+      "path": "proposal/instrumentation/base/base64_rust_shim.rs",
+      "sha256": "95339df42c3f4c3df359f61f98c5cc4a902d9d635576132e4faeb7eca7869342"
+    },
+    {
+      "path": "proposal/instrumentation/base/strings/rustium_reference_probe.cc",
+      "sha256": "d9c8d0fbf2ce7dabdd6be8065e042b85e87e77d7c158e33a63ef8529f8562ad1"
+    },
+    {
+      "path": "proposal/instrumentation/base/strings/rustium_reference_probe.h",
+      "sha256": "91f8282c57f9a2290e706b38f60a8fc75a17d13b55eb4fa27d211801dc6f57cf"
+    },
+    {
+      "path": "proposal/instrumentation/base/strings/string_split_rust.rs",
+      "sha256": "e763ab2612afb7018a75d9ca391eb572d4b285e70ca6956bd7c99441004337d7"
+    },
+    {
+      "path": "proposal/instrumentation/BUILD.instructions.gn",
+      "sha256": "b041ad66a69b10b67f3920352a1bed7dd320f3a6da0e0a39eb416a6657bbd6ae"
+    },
+    {
+      "path": "proposal/instrumentation/net/base/net_error_rust_ffi.rs",
+      "sha256": "9020f49915bbfacfd67013f56b23c89c7a52db4ee2a381b7f42c44acfca33d1d"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/auth_challenge_ffi.rs",
+      "sha256": "9eea082877c3a68b65d2b50afa46e845937924790eb2b8a561385564a165e693"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/http_auth_cache_rust_ffi.rs",
+      "sha256": "7adb82292783b969b10dab840a729687741669d430ff7db4d0fc4424acb3c4d2"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/http_request_headers_rust_ffi.rs",
+      "sha256": "832576e6395966c7840c06940cff6d7ba5bd2b584af6134b4caf28a024da76a1"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/rustium_reference_probe.cc",
+      "sha256": "48a33dfc8fd7b59dce253c48aacbfa22bc3f08cde935bca5690334dbca6e6492"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/rustium_reference_probe.h",
+      "sha256": "35fa80f28b7392195f5f57bb0ca5da0cbe06986c1570b8fd03990a9e74e317b5"
+    },
+    {
+      "path": "proposal/instrumentation/net/http/rustium_reference_probe_test_support.h",
+      "sha256": "4de2b714fee7a4e1fe96424c15453f062c3af5533e56927a4d1e825ba5fce455"
+    },
+    {
+      "path": "proposal/instrumentation/net/log/net_log_values_rust_ffi.rs",
+      "sha256": "e87587694d87c2dfb1c66b1ec25ed64fa498a45d6675849c0a7de0590bd147d7"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_basic.cc",
+      "sha256": "601bc0b197fa0c64d9ee35fd800b91d6f5b8c21eb46915f213a8d3c847b8b7c3"
     },
     {
       "path": "proposal/net/http/connection_auth_original_digest_factory.cc",
@@ -34,7 +91,7 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_gssapi.cc",
-      "sha256": "4f5241eb8526551ba0e17250a66e980173b93d64dab0415b66610337762f5a7b"
+      "sha256": "bd7a031551104e1dbdfc44d8700d431d35a68969d7911854e462fabcba7ff2c5"
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_factory.cc",
@@ -46,11 +103,27 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_handler.cc",
-      "sha256": "237f5c390c8867785eb51a1305c29c4b7fb1b27aa1917cdc2d7282a539551a3b"
+      "sha256": "d98a39432e0feea1f22279e4ed4b1506adfa04bc1c4110776ea6f167361c6a72"
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_handler.h",
-      "sha256": "e59a12bc86755738cd0c19e37ea1e639ebcf693948e0063ff66d242a78196971"
+      "sha256": "2f3d7ca1ae6d3f0ada1b257bdf46603ff4a43d5579efd241a554bd112ba8ea1d"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_ntlm_handler.cc",
+      "sha256": "db39689d629e40d09efa2e9628464eaf8fdc6bd3c8a180495691fcc16af76d32"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_ntlm_handler.h",
+      "sha256": "bbb42cb304477f96e2278012b1429f72beeed4fa4ddf052cbe609e86a7793b70"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_ntlm_mechanism.cc",
+      "sha256": "a75b9a82aa28a3f50820796e3514dd103f9b305597b7e3d8461f802aff569679"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_ntlm_mechanism.h",
+      "sha256": "4e314e2752ff77502572f425cabc4ee043ebfdef4f4f0e3019a89f25e18459b6"
     },
     {
       "path": "proposal/net/http/connection_auth_original_provider_unittest.cc",
@@ -58,11 +131,11 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_providers.cc",
-      "sha256": "700efba7fdc2d229c27b20b9626ba644cff4b288b5a9595d4097fc800059b352"
+      "sha256": "e1bcece751d57a30d8848d33ef18cc3bccd1e886d646224fef68ae122753698d"
     },
     {
       "path": "proposal/net/http/connection_auth_original_providers.h",
-      "sha256": "81a26e496b3b76cf94da9ab9fdd21130f9023078fdddb8024835be82cdb544e2"
+      "sha256": "3e587ee56da3a16da0b049039c86cb8112066082410ae74b2b157e5f85b8f608"
     },
     {
       "path": "proposal/net/http/connection_auth_original_rounds.cc",
@@ -77,8 +150,28 @@
       "sha256": "3ed57f250cbb68088be54961679ef7bb4d26cfd070084d6fec62cfa823890da5"
     },
     {
+      "path": "proposal/net/http/connection_auth_original_sspi.cc",
+      "sha256": "53636df10753fca6f047cfdc234127928382065d3748eda50153dea7fed438ca"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_original_sspi.h",
+      "sha256": "53e3844ab1106152b8814aab167f370166ba6e69a0cd095355b2988e81432e60"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_reference_qualification_unittest.cc",
+      "sha256": "3908dfe42517f23ca5c6d0519956589b8901b5eea5dac11c09be2c987ad2532a"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_reference_test_mechanism.cc",
+      "sha256": "13281e31be616eaf0be213d3699a25e6b23530ccee9f2990ac739d7172db9619"
+    },
+    {
+      "path": "proposal/net/http/connection_auth_reference_test_mechanism.h",
+      "sha256": "c55a1c35dab95e09933a96ed26e990a0cd6cd234f3fbeb3f0c385aabd63d3b0c"
+    },
+    {
       "path": "proposal/reference-decoder-export.patch",
-      "sha256": "11da008c9a87cebbc3255e7443e93b6b032a9a90338fefd672254244d8c6f60c"
+      "sha256": "52b7748d451486dcf04ebfe81567115d516c9dcd55011aed7b22fef794349180"
     }
   ]
 }

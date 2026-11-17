@@ -1,5 +1,9 @@
 # Reference-provider successor: candidate, not closed
 
+This document describes the `e591719d` checkpoint. Later auth-provider,
+Base64, observation and verification proposals are documented in
+`AUTH-CLOSURE.md`, `REFERENCE-CONTRACT.md` and `QUALIFICATION.md`.
+
 **Authority advanced during this work.** The latest pointer names a 1,261-entry
 manifest SHA-256 `83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5`,
 replacing the captured `774df90a…613d929e` authority. Its two manifest changes

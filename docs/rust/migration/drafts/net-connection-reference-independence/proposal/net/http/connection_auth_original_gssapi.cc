@@ -7,7 +7,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
-#include "base/base64.h"
+#include "net/http/auth_challenge_reference.h"
 #include "base/compiler_specific.h"
 #include "base/containers/span.h"
 #include "base/logging.h"
@@ -433,7 +433,7 @@ int ConnectionAuthOriginalGSSAPI::GenerateAuthToken(const AuthCredentials* crede
   // Base64 encode data in output buffer and prepend the scheme.
   std::string encode_input(static_cast<char*>(output_token.value),
                            output_token.length);
-  std::string encode_output = base::Base64Encode(encode_input);
+  std::string encode_output = auth_challenge_reference::FrozenEncode(encode_input);
   *auth_token = "Negotiate " + encode_output;
   return OK;
 }

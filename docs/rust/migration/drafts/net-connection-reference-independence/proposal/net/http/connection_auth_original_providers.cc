@@ -13,26 +13,6 @@
 
 namespace net {
 namespace rounds = connection_auth_original_rounds;
-#if BUILDFLAG(IS_WIN)
-HttpAuth::AuthorizationResult ConnectionAuthOriginalProviders::Parse(
-    HttpAuthSSPI* self, HttpAuthChallengeTokenizer* tok) {
-  if (!self->has_security_context_)
-    return rounds::First(self->scheme_, *tok);
-  std::string encoded;
-  return rounds::Later(self->scheme_, *tok, &encoded,
-                       &self->decoded_server_auth_token_);
-}
-#else
-HttpAuth::AuthorizationResult ConnectionAuthOriginalProviders::Parse(
-    HttpAuthNtlmMechanism* self, HttpAuthChallengeTokenizer* tok) {
-  if (!self->first_token_sent_)
-    return rounds::First(HttpAuth::AUTH_SCHEME_NTLM, *tok);
-  self->challenge_token_.clear();
-  std::string encoded;
-  return rounds::Later(HttpAuth::AUTH_SCHEME_NTLM, *tok, &encoded,
-                       &self->challenge_token_);
-}
-#endif
 #if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 HttpAuth::AuthorizationResult ConnectionAuthOriginalProviders::Parse(
     HttpAuthGSSAPI* self, HttpAuthChallengeTokenizer* tok) {
@@ -44,29 +24,6 @@ HttpAuth::AuthorizationResult ConnectionAuthOriginalProviders::Parse(
 }
 #endif
 
-#if BUILDFLAG(IS_WIN)
-ConnectionAuthOriginalNtlmHandler::ConnectionAuthOriginalNtlmHandler(
-    scoped_refptr<SSPILibrary> library, const HttpAuthPreferences* preferences)
-    : HttpAuthHandlerNTLM(std::move(library), preferences) {}
-#else
-ConnectionAuthOriginalNtlmHandler::ConnectionAuthOriginalNtlmHandler(
-    const HttpAuthPreferences* preferences) : HttpAuthHandlerNTLM(preferences) {}
-#endif
-bool ConnectionAuthOriginalNtlmHandler::Init(
-    HttpAuthChallengeTokenizer* tok, const SSLInfo& ssl_info,
-    const NetworkAnonymizationKey&) {
-  auth_scheme_ = HttpAuth::AUTH_SCHEME_NTLM;
-  score_ = 3;
-  properties_ = ENCRYPTS_IDENTITY | IS_CONNECTION_BASED;
-  if (ssl_info.is_valid())
-    x509_util::GetTLSServerEndPointChannelBinding(*ssl_info.cert, &channel_bindings_);
-  return ConnectionAuthOriginalProviders::Parse(&mechanism_, tok) ==
-         HttpAuth::AUTHORIZATION_RESULT_ACCEPT;
-}
-HttpAuth::AuthorizationResult ConnectionAuthOriginalNtlmHandler::HandleAnotherChallengeImpl(
-    HttpAuthChallengeTokenizer* tok) {
-  return ConnectionAuthOriginalProviders::Parse(&mechanism_, tok);
-}
 int ConnectionAuthOriginalNtlmFactory::CreateAuthHandler(
     HttpAuthChallengeTokenizer* challenge, HttpAuth::Target target,
     const SSLInfo& ssl_info, const NetworkAnonymizationKey& key,
@@ -86,12 +43,7 @@ int ConnectionAuthOriginalNtlmFactory::CreateAuthHandler(
   *handler = std::move(candidate);
   return OK;
 }
-#if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_WIN)
-HttpAuth::AuthorizationResult ConnectionAuthOriginalSSPI::ParseChallenge(
-    HttpAuthChallengeTokenizer* tok) {
-  return ConnectionAuthOriginalProviders::Parse(this, tok);
-}
-#elif BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 HttpAuth::AuthorizationResult ConnectionAuthOriginalGSSAPI::ParseChallenge(
     HttpAuthChallengeTokenizer* tok) {
   return ConnectionAuthOriginalProviders::Parse(this, tok);

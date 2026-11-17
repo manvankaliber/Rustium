@@ -1,0 +1,50 @@
+# Integration proposal, not an evaluated BUILD.gn file. It requires a separate
+# isolated director-owned qualification output and guarded source identity.
+# No flag, export, instrumentation object, or test belongs in production.
+#
+# In EACH rust_static_library target named below, apply the matching
+# instrumentation/<crate_root> source and add both flags for this probe build:
+rustium_probe_rustflags = [
+  "--cfg=rustium_reference_probe",
+  "--check-cfg=cfg(rustium_reference_probe)",
+]
+# //base:base64_rust_shim                base/base64_rust_shim.rs
+# //base:string_split_rust                base/strings/string_split_rust.rs
+# //net:auth_challenge_rust               net/http/auth_challenge_ffi.rs
+# //net:http_auth_cache_rust              net/http/http_auth_cache_rust_ffi.rs
+# //net:http_request_headers_rust          net/http/http_request_headers_rust_ffi.rs
+# //net:net_error_rust                    net/base/net_error_rust_ffi.rs
+# //net:net_log_values_rust               net/log/net_log_values_rust_ffi.rs
+# Reconcile invoker rustflags with existing target values; do not clobber them.
+# Count definitions are in the SAME Rust crate as the observed entries so they
+# see calls on every thread, including generated CXX bridge calls.
+#
+# In //base:base, only in this configuration, add
+#   "strings/rustium_reference_probe.cc", "strings/rustium_reference_probe.h"
+# and define RUSTIUM_REFERENCE_PROBE for that C++ translation unit. In
+# //net:net add the similarly named http/rustium_reference_probe.cc/.h and the
+# same define. These exported C++ bridges keep direct Rust counter symbols
+# inside their owning component and expose accessors to the test executable.
+# Confirm target imports, component exports, generated CXX ABI and static-lib
+# retention via actual link; otherwise stop qualification rather than omit a
+# counter. Never treat an unresolved accessor as a zero.
+#
+# Under use_kerberos, add to an ordinary test target linking the existing
+# connection reference, :auth_challenge_reference, :test_support and platform
+# mock sources/targets:
+rustium_qualification_sources = [
+  "http/connection_auth_reference_qualification_unittest.cc",
+  "http/connection_auth_reference_test_mechanism.cc",
+  "http/connection_auth_reference_test_mechanism.h",
+  "http/rustium_reference_probe_test_support.h",
+]
+# Also include connection_auth_original_provider_unittest.cc and
+# connection_auth_original_rounds_unittest.cc from BUILD.fragment.gn.
+# Run each platform executable as one process, with no unrelated concurrent
+# tests. The counters are process-wide and monotonic, not thread-local or
+# resettable. All callbacks, background tasks, lazy capture, destruction and
+# provider release must settle before reading the final snapshot. Positive
+# controls for all seven entries are mandatory before a zero is meaningful.
+# Other Rust families and process-external provider internals remain outside
+# the probe; resolve and instrument any newly reachable family before claiming
+# a complete closure. Evaluate and review this wiring under the director gate.

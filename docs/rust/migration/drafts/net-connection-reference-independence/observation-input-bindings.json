@@ -1,0 +1,157 @@
+{
+  "authority_sha256": "47453b88f70d02febc31d22c2bc562c426ec851d89ca376b6a203743b365f4ad",
+  "source_count": 1261,
+  "inputs": [
+    {
+      "path": "net/http/auth_challenge_ffi.rs",
+      "sha256": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+      "in_manifest": true,
+      "copy": "reference/observation/net/http/auth_challenge_ffi.rs"
+    },
+    {
+      "path": "net/base/net_error_rust_ffi.rs",
+      "sha256": "b97078cf70ca2d12318568fd82b3b215930986a97e4668eaaf859ff2b32a36ff",
+      "in_manifest": true,
+      "copy": "reference/observation/net/base/net_error_rust_ffi.rs"
+    },
+    {
+      "path": "net/log/net_log_values_rust_ffi.rs",
+      "sha256": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa",
+      "in_manifest": true,
+      "copy": "reference/observation/net/log/net_log_values_rust_ffi.rs"
+    },
+    {
+      "path": "base/strings/string_split_rust.rs",
+      "sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+      "in_manifest": true,
+      "copy": "reference/observation/base/strings/string_split_rust.rs"
+    },
+    {
+      "path": "net/http/auth_challenge_ffi.h",
+      "sha256": "6b37d86cbd36bd85808ee17edfb02c0e23e11156d290d66d75c34d5bcf0745bb",
+      "in_manifest": true,
+      "copy": "reference/observation/net/http/auth_challenge_ffi.h"
+    },
+    {
+      "path": "net/base/net_error_rust_ffi.h",
+      "sha256": "65accd02b5ad53783ded512ce842b02b48945faeb6dfb39580f1c3e501a2c3b6",
+      "in_manifest": true,
+      "copy": "reference/observation/net/base/net_error_rust_ffi.h"
+    },
+    {
+      "path": "net/log/net_log_values_rust_ffi.h",
+      "sha256": "f91ba574fb2c44f2fa4969669780276543fedaae23f13ee8ed0c24cc00fd541f",
+      "in_manifest": true,
+      "copy": "reference/observation/net/log/net_log_values_rust_ffi.h"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "in_manifest": true,
+      "copy": "reference/observation/base/strings/string_split.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate_unittest.cc",
+      "sha256": "9b2e947e8ce276e9294888a0b12e153ebc0068cc9f828a2006adf4be8549df30",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/http_auth_handler_negotiate_unittest.cc"
+    },
+    {
+      "path": "net/http/mock_gssapi_library_posix.h",
+      "sha256": "a205319852fc4349eb3b8acd78ca66d4b0fd9f6c84fd50387482ce709ec60b16",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/mock_gssapi_library_posix.h"
+    },
+    {
+      "path": "net/http/mock_gssapi_library_posix.cc",
+      "sha256": "98986785e3a1977b4d47bfc9e67f245bc15c93049679e70caee505343f7d737f",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/mock_gssapi_library_posix.cc"
+    },
+    {
+      "path": "net/http/mock_sspi_library_win.h",
+      "sha256": "318d3b0b8ca19bec3eb2843f06af080df988a00e558fbf607e558c7698694fa1",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/mock_sspi_library_win.h"
+    },
+    {
+      "path": "net/http/mock_sspi_library_win.cc",
+      "sha256": "d1bbc691b9c8f09d0b132cd325d3135c5780335bb564ca3a2b9d687d8c5b9f42",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/mock_sspi_library_win.cc"
+    },
+    {
+      "path": "net/http/mock_allow_http_auth_preferences.h",
+      "sha256": "cf2e3571dda3405c06711b734cd7ee5d1e0f064a2ff4bc06a4d471b234d89977",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/mock_allow_http_auth_preferences.h"
+    },
+    {
+      "path": "net/log/test_net_log.h",
+      "sha256": "b8287b6bfc41b8df0070dca6e8aeb262301b89c590d75e282524f3f7acf89776",
+      "in_manifest": false,
+      "copy": "reference/observation/net/log/test_net_log.h"
+    },
+    {
+      "path": "net/log/net_log_with_source.h",
+      "sha256": "82bebb24f20d6f62b1ff9c17db8f246103d29d1a0beb922e9ea70656eb97eeea",
+      "in_manifest": false,
+      "copy": "reference/observation/net/log/net_log_with_source.h"
+    },
+    {
+      "path": "net/log/net_log_entry.h",
+      "sha256": "8afe5b5b02590c475cbb1d4d422a6c738b67c669ebdf08a342ea9788f4d8f0da",
+      "in_manifest": false,
+      "copy": "reference/observation/net/log/net_log_entry.h"
+    },
+    {
+      "path": "net/http/http_auth_mechanism.h",
+      "sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/http_auth_mechanism.h"
+    },
+    {
+      "path": "net/http/http_auth_cache_rust_ffi.rs",
+      "sha256": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+      "in_manifest": true,
+      "copy": "reference/observation/net/http/http_auth_cache_rust_ffi.rs"
+    },
+    {
+      "path": "net/http/http_request_headers_rust_ffi.rs",
+      "sha256": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+      "in_manifest": true,
+      "copy": "reference/observation/net/http/http_request_headers_rust_ffi.rs"
+    },
+    {
+      "path": "base/base64.cc",
+      "sha256": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+      "in_manifest": false,
+      "copy": "reference/observation/base/base64.cc"
+    },
+    {
+      "path": "base/base64_rust_shim.rs",
+      "sha256": "c829f4bd470c5828885be4f11e341c7003a30c70392e4dd918aded104d097c10",
+      "in_manifest": false,
+      "copy": "reference/observation/base/base64_rust_shim.rs"
+    },
+    {
+      "path": "net/http/connection_auth_original_basic.cc",
+      "sha256": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "in_manifest": true,
+      "copy": "reference/observation/net/http/connection_auth_original_basic.cc"
+    },
+    {
+      "path": "net/http/http_auth_sspi_win_unittest.cc",
+      "sha256": "0ba175f03c75c9dece4260f53bdf67c64a4ce06151d98527046a6ca9f841d586",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/http_auth_sspi_win_unittest.cc"
+    },
+    {
+      "path": "net/http/http_auth_handler_digest_unittest.cc",
+      "sha256": "c2b856fd3bdb77838fef9951d18dcb3754e36c2b5f74c090bb6899d973fb840f",
+      "in_manifest": false,
+      "copy": "reference/observation/net/http/http_auth_handler_digest_unittest.cc"
+    }
+  ],
+  "rechecked_authority_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4"
+}

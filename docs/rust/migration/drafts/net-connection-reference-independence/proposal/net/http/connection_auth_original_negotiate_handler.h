@@ -38,49 +38,8 @@ class HttpAuthPreferences;
 // See http://tools.ietf.org/html/rfc4178 and http://tools.ietf.org/html/rfc4559
 // for more information about the protocol.
 
-class NET_EXPORT_PRIVATE ConnectionAuthOriginalNegotiateHandler : public HttpAuthHandler {
+class ConnectionAuthOriginalNegotiateHandler : public HttpAuthHandler {
  public:
-#if BUILDFLAG(IS_WIN)
-  typedef SSPILibrary AuthLibrary;
-#elif BUILDFLAG(IS_POSIX)
-  typedef GSSAPILibrary AuthLibrary;
-#endif
-
-  class NET_EXPORT_PRIVATE Factory : public HttpAuthHandlerFactory {
-   public:
-    explicit Factory(HttpAuthMechanismFactory negotiate_auth_system_factory);
-    ~Factory() override;
-
-    // Sets the system library to use. Ownership is shared: on Windows the
-    // SSPI calls run on a separate sequence and an in-flight call keeps
-    // |auth_library| alive even if this Factory is destroyed.
-    void set_library(scoped_refptr<AuthLibrary> auth_provider) {
-      auth_library_ = std::move(auth_provider);
-    }
-
-#if BUILDFLAG(IS_POSIX)
-    const std::string& GetLibraryNameForTesting() const;
-#endif  // BUILDFLAG(IS_POSIX)
-
-    // HttpAuthHandlerFactory overrides
-    int CreateAuthHandler(
-        HttpAuthChallengeTokenizer* challenge,
-        HttpAuth::Target target,
-        const SSLInfo& ssl_info,
-        const NetworkAnonymizationKey& network_anonymization_key,
-        const url::SchemeHostPort& scheme_host_port,
-        CreateReason reason,
-        int digest_nonce_count,
-        const NetLogWithSource& net_log,
-        HostResolver* host_resolver,
-        std::unique_ptr<HttpAuthHandler>* handler) override;
-
-   private:
-    HttpAuthMechanismFactory negotiate_auth_system_factory_;
-    bool is_unsupported_ = false;
-    scoped_refptr<AuthLibrary> auth_library_;
-  };
-
   ConnectionAuthOriginalNegotiateHandler(std::unique_ptr<HttpAuthMechanism> auth_system,
                            const HttpAuthPreferences* prefs,
                            HostResolver* host_resolver);

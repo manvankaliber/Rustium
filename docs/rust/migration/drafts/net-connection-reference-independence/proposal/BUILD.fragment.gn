@@ -3,16 +3,30 @@
 # or constitute a configured-tree write or a successful GN evaluation.
 #
 # Add to existing source_set("connection_jobs_rust_reference"). The existing
-# connection_auth_original_factory.cc entry is REPLACED with the proposed file
-# at the same path, never compiled twice.
+# connection_auth_original_factory.cc and connection_auth_original_basic.cc
+# entries are REPLACED by the proposed files at the same paths, never compiled
+# twice. Apply the proposed exported frozen encoder/decoder patch first.
 connection_reference_additional_sources = [
   "http/connection_auth_original_digest_factory.cc",
   "http/connection_auth_original_digest_factory.h",
   "http/connection_auth_original_providers.cc",
   "http/connection_auth_original_providers.h",
+  "http/connection_auth_original_ntlm_handler.cc",
+  "http/connection_auth_original_ntlm_handler.h",
   "http/connection_auth_original_rounds.cc",
   "http/connection_auth_original_rounds.h",
 ]
+if (is_win) {
+  connection_reference_additional_sources += [
+    "http/connection_auth_original_sspi.cc",
+    "http/connection_auth_original_sspi.h",
+  ]
+} else {
+  connection_reference_additional_sources += [
+    "http/connection_auth_original_ntlm_mechanism.cc",
+    "http/connection_auth_original_ntlm_mechanism.h",
+  ]
+}
 if (use_kerberos) {
   connection_reference_additional_sources += [
     "http/connection_auth_original_negotiate_factory.cc",
@@ -35,4 +49,5 @@ connection_reference_additional_tests = [
   "http/connection_auth_original_rounds_unittest.cc",
 ]
 # Link platform mock libraries and :auth_challenge_reference as required.
-# Independent family entry probes are NOT implemented by this fragment.
+# A separate isolated probe configuration adds the test sources and hooks in
+# instrumentation/BUILD.instructions.gn. Do not add probe hooks to production.

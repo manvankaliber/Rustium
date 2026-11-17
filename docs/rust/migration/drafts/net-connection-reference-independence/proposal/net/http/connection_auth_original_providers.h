@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "build/build_config.h"
-#include "net/http/http_auth_handler_ntlm.h"
+#include "net/http/connection_auth_original_ntlm_handler.h"
 #include "net/net_buildflags.h"
 #if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 #include "net/http/http_auth_gssapi_posix.h"
@@ -18,32 +18,10 @@ namespace net {
 // friend declarations are proposals; no production class layout is changed.
 class ConnectionAuthOriginalProviders {
  public:
-#if BUILDFLAG(IS_WIN)
-  static HttpAuth::AuthorizationResult Parse(HttpAuthSSPI*,
-                                              HttpAuthChallengeTokenizer*);
-#else
-  static HttpAuth::AuthorizationResult Parse(HttpAuthNtlmMechanism*,
-                                              HttpAuthChallengeTokenizer*);
-#endif
 #if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
   static HttpAuth::AuthorizationResult Parse(HttpAuthGSSAPI*,
                                               HttpAuthChallengeTokenizer*);
 #endif
-};
-
-class ConnectionAuthOriginalNtlmHandler : public HttpAuthHandlerNTLM {
- public:
-#if BUILDFLAG(IS_WIN)
-  ConnectionAuthOriginalNtlmHandler(scoped_refptr<SSPILibrary> library,
-                                    const HttpAuthPreferences* preferences);
-#else
-  explicit ConnectionAuthOriginalNtlmHandler(const HttpAuthPreferences* preferences);
-#endif
- protected:
-  bool Init(HttpAuthChallengeTokenizer*, const SSLInfo&,
-            const NetworkAnonymizationKey&) override;
-  HttpAuth::AuthorizationResult HandleAnotherChallengeImpl(
-      HttpAuthChallengeTokenizer*) override;
 };
 
 class ConnectionAuthOriginalNtlmFactory : public HttpAuthHandlerFactory {
@@ -64,13 +42,7 @@ class ConnectionAuthOriginalNtlmFactory : public HttpAuthHandlerFactory {
 #endif
 };
 
-#if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_WIN)
-class ConnectionAuthOriginalSSPI : public HttpAuthSSPI {
- public:
-  using HttpAuthSSPI::HttpAuthSSPI;
-  HttpAuth::AuthorizationResult ParseChallenge(HttpAuthChallengeTokenizer*) override;
-};
-#elif BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 class ConnectionAuthOriginalGSSAPI : public HttpAuthGSSAPI {
  public:
   using HttpAuthGSSAPI::HttpAuthGSSAPI;

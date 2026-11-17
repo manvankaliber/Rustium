@@ -1,23 +1,45 @@
 --- a/net/http/auth_challenge_reference.h
 +++ b/net/http/auth_challenge_reference.h
-@@ -10,6 +10,9 @@
+@@ -10,6 +10,11 @@
  #include "net/http/http_auth.h"
  #include "net/http/http_util.h"
  namespace net::auth_challenge_reference {
-+// Reference-only access to the same strict frozen decoder used by Later.
++// Reference-only access to the existing strict decoder and frozen encoder.
 +COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE)
 +bool FrozenDecode(std::string_view input, std::string* output);
++COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE)
++std::string FrozenEncode(std::string_view input);
  // Frozen original algorithm. It never calls the production tokenizer or Rust.
  class COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE) Tokenizer {
   public:
 --- a/net/http/auth_challenge_reference.cc
 +++ b/net/http/auth_challenge_reference.cc
-@@ -35,6 +35,9 @@
+@@ -3,8 +3,10 @@
+ // found in the LICENSE file.
+ #include "net/http/auth_challenge_reference.h"
+ 
++#include <cstdint>
+ #include <utility>
+ 
++#include "base/check_op.h"
+ #include "base/strings/string_util.h"
+ #include "net/http/auth_challenge_reference_modp.h"
+ #include "net/http/auth_challenge_reference_tokenizer.h"
+@@ -35,6 +37,18 @@
    return true;
  }
  }  // namespace
 +bool FrozenDecode(std::string_view input, std::string* output) {
 +  return Decode(input, output);
++}
++std::string FrozenEncode(std::string_view input) {
++  CHECK_LE(input.size(), AUTH_CHALLENGE_REF_B64_MAX_INPUT_LEN);
++  const size_t size = auth_challenge_ref_modp_encode_data_len(input.size());
++  std::string output(size, '\0');
++  const size_t written = auth_challenge_ref_modp_encode_data(
++      output.data(), input.data(), input.size());
++  CHECK_EQ(written, size);
++  return output;
 +}
  // Frozen copies of StringViewTokenizer's original algorithm and the original
  // TrimLWS helper. ASCII normalization uses the unchanged original base DLL.
