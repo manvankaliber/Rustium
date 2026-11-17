@@ -1,0 +1,32 @@
+{
+  "task_id": "NET-CURRENT-ABI-QUALIFICATION",
+  "candidate_commit": "7009cb3c3c211d9b459d06ca2b5e233e1f6d82c5",
+  "source_identity": {
+    "reviewed_global_manifest_sha256": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+    "current_global_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+    "reviewed_shared_inputs_still_match": true,
+    "exact_before_after_verified": 9,
+    "resolved_mutable_aliases": [],
+    "graph_result_sha256": "7a879787ca8a71117e56356d3dad8d218dc2bccd9c90db5ea7b0c7b769123b3c",
+    "artifact_intake_commit": "c8cf6db51e3aa19afe69eb74cb518f708fed2d09"
+  },
+  "tests": {
+    "status": "pending",
+    "checks": "Clean exact task commit, scoped diff/check, all immutable input pins and all9before/after header/bridge bindings verified; mutable pointer resolved to matching immutable intake result",
+    "not_run": "No compiler, native, binary ABI, runtime or performance validation by this review"
+  },
+  "review": {
+    "status": "conditional",
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "report": "docs/rust/migration/drafts/net-current-abi-qualification/REVIEW.md",
+    "disposition": "No production-header ABI/layout/existing-inline expansion beyond conservative155 boundary; reference changed-type cohort owner+5executables within boundary. Current161 explicit aliases/artifacts equivalent; successful build, generated/link artifacts/export availability and bounded compilerdeps capture still required"
+  },
+  "platform_limits": [
+    "Windows source/graph inspection only",
+    "No production/runtime/cutover acceptance",
+    "Native/provider/reference independence, optimizedQUIC and performance remain open"
+  ],
+  "remaining_cpp_bridge_ownership": "C++ public containers, resource/platform lifetimes and remaining policy/bridge ownership explicit",
+  "next_action": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable."
+}

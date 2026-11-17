@@ -435,7 +435,7 @@
     "guarded_unchanged_bindings": 6,
     "regular_verification_plans": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-plans-20261113T225112225402Z/summary.json",
     "latest_small_repair": ".scratch/net-wave5/delivery-intake-20261114T000937637772Z/journal.json",
-    "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+    "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
     "consumer_target_proposals": ".scratch/net-wave5/parent-consumer-target-intake-20261114T001450500298Z/rebind.json",
     "measurement_intake": ".scratch/net-wave5/parent-measurement-intake-20261113T230433319314Z/application.json",
     "measurement_preconditions": {
@@ -667,26 +667,26 @@
     },
     "prior_source_manifest_before_shared_intake_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
     "network_current_consumer_progress_20261117": {
-      "observed_utc": "2026-11-17T13:06:32.577881+00:00",
-      "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/raw-evidence.zip",
-      "archive_sha256": "3ec672b0c7e3766d30804df46eaf23fb4944d3d3cf54d5808723971ebc6ca816",
-      "raw_files": 76,
-      "raw_bytes": 13258789,
-      "archive_bytes": 3531224,
+      "observed_utc": "2026-11-17T13:28:01.769872+00:00",
+      "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/raw-evidence.zip",
+      "archive_sha256": "033276cefc22456d754e12568477ab090967a5b59ff95bcf24a97184b3677140",
+      "raw_files": 49,
+      "raw_bytes": 6465240,
+      "archive_bytes": 1800628,
       "source_identity": {
         "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
         "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
-        "applied_bindings": 60,
-        "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130349246158Z\\source-manifest.json",
-        "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+        "applied_bindings": 62,
+        "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z\\source-manifest.json",
+        "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
         "source_count": 1261,
         "both_checkouts_matched": true,
         "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
-        "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130349246158Z",
-        "status": "Fixture-owned immutable native SSL test constants; original assertions preserved; configured rebuild/native pending",
+        "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z",
+        "status": "Retain fake provider pending handle only during an asynchronous request; synchronous/error paths do not retain an unused dangling borrow. Original events and case expectations preserved; configured rebuild/native pending",
         "preexisting_dirty_inputs_preserved_in_before_images": true,
         "v4_package_unchanged": true,
-        "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130347727428Z",
+        "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T131845726735Z",
         "director_integration_overlays": [
           {
             "path": "net/BUILD.gn",
@@ -780,6 +780,24 @@
             "before_sha256": "aa2897fa120ae4c836b2f9fd608554041cb7cd7d584c478e28164ebff88f59be",
             "after_sha256": "bac4fe7b8cdea8efe70bc8fcfdca4ef3f9c1b29c8e9698c43716fec757968786",
             "reason": "Fixture-owned immutable native SSL test constants; original assertions preserved"
+          },
+          {
+            "path": "net/socket/connection_jobs_upper_rust_test_support.h",
+            "before_sha256": "501dc46fc6567c0609a5ada747c693cf53818c65584ad3cc298d2abbb12d61f0",
+            "after_sha256": "9422ca3e981e431b610620c5b2bd8c33139901591312b7e32455277564afe391",
+            "reason": "Nonowning upper test helper Trace and pending handle fields use raw_ref/raw_ptr; callback lifetime and expectations preserved"
+          },
+          {
+            "path": "net/socket/connection_jobs_upper_rust_test_support.cc",
+            "before_sha256": "55849d6abc98e1d8e93431c7ca9411740e56370ee50d6c0ec435ddf197756d17",
+            "after_sha256": "b8792828a43eb10cdd7ced430a7d03736de0b8ca353b64f9f2033138b0c01f36",
+            "reason": "Upper fake socket accesses its borrowed raw_ref Trace; same events and sequence"
+          },
+          {
+            "path": "net/socket/connection_jobs_upper_rust_test_support.h",
+            "before_sha256": "9422ca3e981e431b610620c5b2bd8c33139901591312b7e32455277564afe391",
+            "after_sha256": "ff8f7e2261e54bd16a5a05d9ec91024a5fa7b86891928aac75c365b44bcef6dd",
+            "reason": "Retain fake provider pending handle only during an asynchronous request; synchronous/error paths do not retain an unused dangling borrow. Original events and case expectations preserved"
           }
         ]
       },
@@ -811,6 +829,20 @@
           "kind": "sync",
           "source_manifest_sha256": "dc6d179c3182c54889065b8e235f12ab5271672b3c03492814a58adb65fe8507",
           "record": "job-1370a5766d244c529c659188a36b468e.json"
+        },
+        {
+          "job_id": "1a8ab445fc3f4825a8f80e433cc8d7b9",
+          "status": "passed",
+          "kind": "sync",
+          "source_manifest_sha256": "caa975a2d6c17e8a015579c7d3e4ef92d78f306248138e38f8d5916ecb2d679d",
+          "record": "job-1a8ab445fc3f4825a8f80e433cc8d7b9.json"
+        },
+        {
+          "job_id": "1b3429bf1ba945bb90267b36d4da6db0",
+          "status": "passed",
+          "kind": "sync",
+          "source_manifest_sha256": "7f7c740de50a68a9bb5e50b724a6f6d8a2a59d7caa886347b3bfecf4bf585544",
+          "record": "job-1b3429bf1ba945bb90267b36d4da6db0.json"
         },
         {
           "job_id": "23877fedbd304a9394e23d569dc73960",
@@ -855,6 +887,13 @@
           "record": "job-64acae260e6d45e9a855963be19031e6.json"
         },
         {
+          "job_id": "6828f3dcb2a04b968d2ae7fda2b47db0",
+          "status": "failed",
+          "kind": "build",
+          "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+          "record": "job-6828f3dcb2a04b968d2ae7fda2b47db0.json"
+        },
+        {
           "job_id": "735a7c46967c43dcbc853f05e8f7a598",
           "status": "passed",
           "kind": "test",
@@ -867,6 +906,13 @@
           "kind": "test",
           "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
           "record": "job-7b2f9017fa0d4d6ca22fc6c03973cbc0.json"
+        },
+        {
+          "job_id": "80ab74cd81644390a6a9af917382fe27",
+          "status": "passed",
+          "kind": "sync",
+          "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+          "record": "job-80ab74cd81644390a6a9af917382fe27.json"
         },
         {
           "job_id": "81ad1f5236244d048be7cfcf53800929",
@@ -918,13 +964,13 @@
           "record": "job-ff50280928e14ac6a9c73589b8b928fd.json"
         }
       ],
-      "current_build_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130349246158Z\\network-selected-consumer-build-v2",
+      "current_build_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z\\network-selected-consumer-build-v2",
       "scope": "Raw discovery, failed compiler/preflight runs, exact source repairs and controller provenance. No complete consumer/ABI, native four-family, performance, platform or cutover acceptance.",
       "prior_progress_archive": {
-        "record": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-consumer-progress-20261117T125456569946Z\\record.json",
-        "record_sha256": "8f7b0072d5e267ae06b6c7bb8ac373d8efb0daf6200584441b3e5efe73781109",
-        "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T125456569946Z/raw-evidence.zip",
-        "archive_sha256": "73a99eefb3cbcdad494ce7e50e7086ce07c3945982d24c6baff50e824bee496f"
+        "record": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-consumer-progress-20261117T130632577881Z\\record.json",
+        "record_sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0",
+        "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/raw-evidence.zip",
+        "archive_sha256": "3ec672b0c7e3766d30804df46eaf23fb4944d3d3cf54d5808723971ebc6ca816"
       }
     }
   }

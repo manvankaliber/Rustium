@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 415,
-  "updated_utc": "2026-11-17T13:06:50.909750+00:00",
+  "revision": 430,
+  "updated_utc": "2026-11-17T13:28:19.207414+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -2981,6 +2981,10 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
           "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
+          "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
         }
       ],
       "stages": {
@@ -3028,6 +3032,11 @@
         },
         {
           "utc": "2026-11-17T13:06:50.683224+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:28:19.032695+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -3097,6 +3106,10 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
           "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
+          "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
         }
       ],
       "stages": {
@@ -3146,6 +3159,11 @@
           "utc": "2026-11-17T13:06:50.471188+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:28:18.846308+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
         }
       ],
       "context_directories": [
@@ -3179,7 +3197,7 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "terra-connection-reference-20261117",
         "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-b9522825-1c2d775265c524e6",
         "branch": "rust/net-connection-reference-independence-20261117",
@@ -3187,7 +3205,7 @@
         "effort": "xhigh"
       },
       "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
-      "delivery_commit": null,
+      "delivery_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
       "integration_commit": null,
       "acceptance_tests": [
         "Complete connection auth/header/HTTP2/SSL original helper call-path inventory and exact original source bindings",
@@ -3207,7 +3225,7 @@
         "status": "unmeasured",
         "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
       },
-      "state": "implementing",
+      "state": "validating",
       "next_action": "Complete actual-registry auth verification and per-family observations; injected mechanism requires separately reviewed reference implementation; remaining non-auth closure still open",
       "evidence": [
         {
@@ -3217,6 +3235,14 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T130632577881Z/record.json",
           "sha256": "cb1fda7d30521f7b4265287706862ca6a8c6e0fc401dd6e35e97a20fa868cfd0"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-connection-reference-independence-sha256-dd0c8cc5c13eaeeeb9a9612294d547ff9dcdb1b6f8371b488be5f7f0a8f14964.json",
+          "sha256": "dd0c8cc5c13eaeeeb9a9612294d547ff9dcdb1b6f8371b488be5f7f0a8f14964"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
+          "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
         }
       ],
       "stages": {
@@ -3256,6 +3282,21 @@
           "utc": "2026-11-17T13:06:50.909294+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:15:53.484638+00:00",
+          "action": "submitted",
+          "note": "Independent Terra review of coherent auth provider/test/probe proposal; reconcile newer lifecycle fixture header, then director-owned guarded integration and ordinary validation. Current configured build inputs unchanged."
+        },
+        {
+          "utc": "2026-11-17T13:15:53.676996+00:00",
+          "action": "validating",
+          "note": "Independent Terra review of coherent auth provider/test/probe proposal; reconcile newer lifecycle fixture header, then director-owned guarded integration and ordinary validation. Current configured build inputs unchanged."
+        },
+        {
+          "utc": "2026-11-17T13:28:19.207102+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
         }
       ],
       "context_directories": [
@@ -3289,7 +3330,7 @@
       "blockers": [],
       "role": "reviewer",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "terra-current-network-abi-review-20261117",
         "worktree": "D:\\RustiumReview",
         "branch": "rust/net-current-abi-qualification-20261117",
@@ -3297,7 +3338,7 @@
         "effort": "xhigh"
       },
       "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
-      "delivery_commit": null,
+      "delivery_commit": "7009cb3c3c211d9b459d06ca2b5e233e1f6d82c5",
       "integration_commit": null,
       "acceptance_tests": [
         "Compare exact six shared HTTP headers and typed Strings CXX ABI against hash-bound before-images; identify actual layout/public/virtual/inline/export changes",
@@ -3312,9 +3353,14 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "implementing",
-      "next_action": "Independent Terra exact shared-header/bridge ABI and current graph review; no compilers or configured writes",
-      "evidence": [],
+      "state": "validating",
+      "next_action": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable.",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-current-abi-qualification-sha256-93c02a13d9d3fa7803bd072d0a7aa3d2502dac07da0b21547a89ab3e08ea6d96.json",
+          "sha256": "93c02a13d9d3fa7803bd072d0a7aa3d2502dac07da0b21547a89ab3e08ea6d96"
+        }
+      ],
       "stages": {
         "implementation": "Independent review requested",
         "configured_validation": "Current necessary consumer build in progress; complete qualification pending",
@@ -3342,6 +3388,100 @@
           "utc": "2026-11-17T13:02:23.784570+00:00",
           "action": "implementing",
           "note": "Independent Terra exact shared-header/bridge ABI and current graph review; no compilers or configured writes"
+        },
+        {
+          "utc": "2026-11-17T13:11:59.371061+00:00",
+          "action": "submitted",
+          "note": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable."
+        },
+        {
+          "utc": "2026-11-17T13:11:59.595248+00:00",
+          "action": "validating",
+          "note": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable."
+        }
+      ],
+      "context_directories": [
+        "base/strings"
+      ]
+    },
+    {
+      "id": "NET-CONNECTION-REFERENCE-REVIEW",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Independent review of source-bound auth reference providers, callback/platform ownership and isolated7family observations",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "net/BUILD.gn",
+          "net/dns/BUILD.gn"
+        ],
+        "revision": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+        "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+        "freeze_status": "Source-bound current four-family ABI/header/consumer assessment; no build or runtime acceptance"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-auth-reference-review"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "reviewer",
+      "assignment": {
+        "active": true,
+        "session": "terra-auth-reference-review-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-auth-reference-review-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Compare proposed named provider algorithms/OS handles/callback paths to71frozen inputs",
+        "Inspect seven separate instrumentation coverage/positive controls and source-preserving copies, GN/CXX/export isolation and lifetimes",
+        "Give concrete findings against exact candidate; preserve non-auth/platform/runtime and full16lifecycle debt as open"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "implementing",
+      "next_action": "Independent Terra exactauth provider/test/probe review; no builds/tests or configured writes",
+      "evidence": [],
+      "stages": {
+        "implementation": "Independent Terra review requested",
+        "configured_validation": "Provider/probe proposal uncompiled and unrun",
+        "production_integration": "not applied",
+        "rust_ownership": "Existing Rust policy retained; original-reference correctness debt under repair",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T13:16:44.756506+00:00",
+          "action": "enqueued",
+          "note": "Independent review of source-bound auth reference providers, callback/platform ownership and isolated7family observations"
+        },
+        {
+          "utc": "2026-11-17T13:16:44.780109+00:00",
+          "action": "assigned",
+          "note": "terra-auth-reference-review-20261117"
+        },
+        {
+          "utc": "2026-11-17T13:16:45.669007+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T13:16:45.707520+00:00",
+          "action": "implementing",
+          "note": "Independent Terra exactauth provider/test/probe review; no builds/tests or configured writes"
         }
       ],
       "context_directories": [

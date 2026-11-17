@@ -1,0 +1,36 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "candidate_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "source_identity": {
+    "artifact_intake_commit": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+    "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+    "frozen_inputs_verified": 71,
+    "proposal_files_verified": 40,
+    "known_frozen_lifecycle_header_drift": [
+      {
+        "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+        "frozen_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+        "current_sha256": "da9d911100c52d7b9e55598e7affa82bf43e01d6c65c6f6ebb7866d979d1246e"
+      }
+    ],
+    "v4_46binding_application_sha256": "5405cc7c5994ff26aa0b2cc9ade42acfb128277faea2c17544fe74e87e3f32fc"
+  },
+  "tests": {
+    "status": "pending",
+    "checks": "Clean exact worker branch, all scoped changes, frozen copied bytes and indexed proposal hashes verified; worker format/patch checks only",
+    "not_run": "Compiler, native, Rust probe controls, Windows SSPI, POSIX GSSAPI and lifecycle runtime tests"
+  },
+  "review": {
+    "status": "pending",
+    "required_model": "gpt-6.1-terra",
+    "required_effort": "xhigh",
+    "scope": "Independent provider/helper, lifetime/callback, injection, seven-entry-probe coverage and GN/component ABI review before any configured application"
+  },
+  "platform_limits": [
+    "Windows and POSIX proposal branches uncompiled",
+    "Arbitrary injected mechanisms remain external and require individual reference contracts",
+    "Non-auth helper closure remains open;7probes are bounded observations only"
+  ],
+  "remaining_cpp_bridge_ownership": "Director owns proposed shared friends/decoder encoder exports, generated CXX/accessors/GN and isolated probe build; native crypto/OS/URL/provider boundaries retain explicit debt",
+  "next_action": "Independent Terra review of coherent auth provider/test/probe proposal; reconcile newer lifecycle fixture header, then director-owned guarded integration and ordinary validation. Current configured build inputs unchanged."
+}
