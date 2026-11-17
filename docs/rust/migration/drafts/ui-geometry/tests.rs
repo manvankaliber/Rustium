@@ -138,14 +138,23 @@ fn conversion_edge_matrix() {
     assert_eq!((negative_inv_scaled.width, negative_inv_scaled.height), (-0.5, -0.5));
     assert_eq!(enclosing_rect(negative_inv_scaled), Rect::default());
     let infinite_inv_scaled = constructed.inv_scale(0.0, 0.0);
+    assert!(infinite_inv_scaled.x.is_nan() && infinite_inv_scaled.y.is_nan());
     assert!(infinite_inv_scaled.width.is_infinite() && infinite_inv_scaled.height.is_infinite());
+    // RectF::InvScale divides the origin too: 0/0 is NaN, not zero.
+    assert_eq!(enclosing_rect(infinite_inv_scaled), Rect::default());
+    let finite_origin_infinite_dimensions =
+        constructed.inv_scale(f32::from_bits(1), f32::from_bits(1));
     assert_eq!(
-        enclosing_rect(infinite_inv_scaled),
+        enclosing_rect(finite_origin_infinite_dimensions),
         Rect { x: 0, y: 0, width: i32::MAX, height: i32::MAX }
     );
     let nan_inv_scaled = RectF::constructed(2.0, 2.0, 0.0, 0.0).inv_scale(0.0, 0.0);
+    assert!(nan_inv_scaled.x.is_infinite() && nan_inv_scaled.y.is_infinite());
     assert!(nan_inv_scaled.width.is_nan() && nan_inv_scaled.height.is_nan());
-    assert_eq!(enclosing_rect(nan_inv_scaled), Rect { x: 2, y: 2, width: 0, height: 0 });
+    assert_eq!(
+        enclosing_rect(nan_inv_scaled),
+        Rect { x: i32::MAX, y: i32::MAX, width: 0, height: 0 }
+    );
     let size_tiny = SizeF::constructed(1.0, 1.0).inv_scale(2097152.0, 2097152.0);
     assert_eq!(ceil_size(size_tiny), Size { width: 1, height: 1 });
     let size_negative = SizeF::constructed(1.0, 1.0).inv_scale(-2.0, -2.0);
