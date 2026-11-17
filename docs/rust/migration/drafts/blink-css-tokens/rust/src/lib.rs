@@ -1486,4 +1486,169 @@ mod tests {
             run_next_case(case, true);
         }
     }
+    struct OriginalDecimalFixtures {
+        fixtures: std::cell::RefCell<Vec<(Vec<u8>, u64)>>,
+    }
+    impl OriginalDecimalFixtures {
+        fn new(fixtures: &[(&[u8], u64)]) -> Self {
+            Self {
+                fixtures: std::cell::RefCell::new(
+                    fixtures.iter().map(|(source, bits)| (source.to_vec(), *bits)).collect(),
+                ),
+            }
+        }
+        fn assert_consumed(&self, label: &str) {
+            assert!(self.fixtures.borrow().is_empty(), "{label}: unused decimal fixtures");
+        }
+    }
+    impl NumberProvider for OriginalDecimalFixtures {
+        fn parse_ascii_decimal(&self, source: &[u8]) -> DecimalResult {
+            let mut fixtures = self.fixtures.borrow_mut();
+            let index = fixtures
+                .iter()
+                .position(|(expected, _)| expected.as_slice() == source)
+                .unwrap_or_else(|| panic!("no frozen expected-value fixture for {source:?}"));
+            let (expected, binary64_bits) = fixtures.remove(index);
+            assert_eq!(source, expected.as_slice());
+            DecimalResult { binary64_bits, consumed: source.len(), status: DecimalStatus::Ok }
+        }
+        fn format_ecmascript_shortest(&self, _: u64) -> Vec<u8> {
+            panic!("numeric tokenizer rows must not invoke formatting")
+        }
+        fn format_wtf_six_significant(&self, _: u64) -> Vec<u8> {
+            panic!("numeric tokenizer rows must not invoke formatting")
+        }
+    }
+
+    include!("numeric_unicode_cases.rs");
+
+    fn compare_numeric_unicode(
+        label: &str,
+        index: usize,
+        actual: &Token<'_>,
+        expected: Option<&NumericExpected>,
+    ) {
+        let kind = expected.map_or(Kind::Eof, |e| e.kind);
+        assert_eq!(actual.kind, kind, "{label} token {index}");
+        let Some(e) = expected else { return };
+        match e.kind {
+            Kind::Number | Kind::Percentage | Kind::Dimension => {
+                assert_eq!(actual.number_bits, e.number_bits, "{label} numeric value {index}");
+                assert_eq!(actual.numeric_is_integer, e.integer, "{label} numeric type {index}");
+                assert_eq!(actual.numeric_sign, e.sign.unwrap(), "{label} numeric sign {index}");
+                assert_eq!(actual.unit_id, e.unit_id, "{label} unit id {index}");
+                if e.kind == Kind::Dimension {
+                    assert_eq!(actual.value.as_deref(), e.value, "{label} dimension unit {index}");
+                }
+            }
+            Kind::UnicodeRange => {
+                assert_eq!(actual.unicode_range, e.range, "{label} Unicode bounds {index}");
+            }
+            Kind::Ident => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} ident value {index}")
+            }
+            Kind::Delimiter => {
+                assert_eq!(actual.delimiter, e.delimiter, "{label} delimiter {index}")
+            }
+            _ => {}
+        }
+    }
+
+    fn run_numeric_unicode_case(case: &NumericCase, wide: bool) {
+        let bytes: Vec<u8> = case.input.iter().map(|u| *u as u8).collect();
+        let mut tokenizer = if wide {
+            Tokenizer::new(Input::Utf16(case.input), 0)
+        } else {
+            Tokenizer::new(Input::Bytes(&bytes), 0)
+        };
+        tokenizer.unicode_ranges_allowed = case.unicode_ranges_allowed;
+        let byte_fixtures: Vec<(&[u8], u64)> = if wide {
+            case.parse_fixtures.to_vec()
+        } else {
+            case.parse_fixtures
+                .iter()
+                .zip(case.expected.iter().filter(|e| {
+                    matches!(e.kind, Kind::Number | Kind::Dimension | Kind::Percentage)
+                }))
+                .filter_map(|(fixture, expected)| {
+                    let digits = fixture.0.iter().filter(|b| b.is_ascii_digit()).count();
+                    (!expected.integer || digits > 14).then_some(*fixture)
+                })
+                .collect()
+        };
+        let numbers = OriginalDecimalFixtures::new(&byte_fixtures);
+        for i in 0..3 {
+            if i > 0 && tokenizer.pos >= tokenizer.units.len() {
+                break;
+            }
+            let actual = tokenizer.next_token(&numbers);
+            compare_numeric_unicode(case.label, i, &actual, case.expected.get(i));
+            if actual.kind == Kind::Eof {
+                break;
+            }
+        }
+        numbers.assert_consumed(case.label);
+    }
+
+    #[test]
+    fn transcribed_number_dimension_percentage_and_unicode_range_rows() {
+        assert_eq!(NUMERIC_UNICODE_CASES.len(), 65);
+        assert_eq!(NUMERIC_UNICODE_CASES.iter().filter(|c| c.unicode_ranges_allowed).count(), 17);
+        for case in NUMERIC_UNICODE_CASES {
+            assert!(
+                case.input.iter().all(|u| *u <= 255),
+                "{} byte-representable source",
+                case.label
+            );
+            run_numeric_unicode_case(case, false);
+            run_numeric_unicode_case(case, true);
+        }
+    }
+
+    fn assert_clamp_token(token: Token<'_>) {
+        assert_eq!(token.kind, Kind::Number);
+        assert!(token.numeric_is_integer);
+        assert_eq!(token.numeric_sign, 0);
+        assert_eq!(token.number_bits, Some((f32::MAX as f64).to_bits()));
+    }
+
+    #[test]
+    fn numeric_construction_clamps_to_f32_max_without_provider_fallback() {
+        const TWO_POW_128_BITS: u64 = 0x47f0000000000000;
+        let input = b"340282366920938463463374607431768211456";
+        let mut byte_provider =
+            OriginalDecimalFixtures::new(&[(input.as_slice(), TWO_POW_128_BITS)]);
+        let mut byte_tokenizer = Tokenizer::new(Input::Bytes(input), 0);
+        assert_clamp_token(byte_tokenizer.next_token(&byte_provider));
+        byte_provider.assert_consumed("byte f32 clamp boundary");
+
+        let units: Vec<u16> = input.iter().map(|b| *b as u16).collect();
+        let wide_provider = OriginalDecimalFixtures::new(&[(input.as_slice(), TWO_POW_128_BITS)]);
+        let mut wide_tokenizer = Tokenizer::new(Input::Utf16(&units), 0);
+        assert_clamp_token(wide_tokenizer.next_token(&wide_provider));
+        wide_provider.assert_consumed("wide f32 clamp boundary");
+    }
+
+    #[test]
+    fn escaped_name_stream_assertions_match_original_expected_values_and_count() {
+        let mut input = Vec::new();
+        for _ in 0..3000 {
+            input.extend_from_slice(b".w-\\[24px\\] ");
+        }
+        let mut tokenizer = Tokenizer::new(Input::Bytes(&input), 0);
+        let numbers = FixedNumbers;
+        let expected = [119, 45, 91, 50, 52, 112, 120, 93];
+        let mut count = 0;
+        loop {
+            let token = tokenizer.next_token(&numbers);
+            if token.kind == Kind::Ident {
+                assert_eq!(token.value.as_deref(), Some(expected.as_slice()));
+                count += 1;
+            }
+            if token.kind == Kind::Eof {
+                break;
+            }
+        }
+        assert_eq!(count, 3000);
+    }
 }

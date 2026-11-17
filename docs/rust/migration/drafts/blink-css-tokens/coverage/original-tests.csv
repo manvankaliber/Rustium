@@ -1,17 +1,17 @@
-﻿original_test,line,source_file,rust_target,assertion_mapping_status
-SingleCharacterTokens,190,css_tokenizer_test.cc,original_single_character_tokens,pending
-MultipleCharacterTokens,204,css_tokenizer_test.cc,original_multiple_character_tokens,pending
-DelimiterToken,217,css_tokenizer_test.cc,original_delimiter_token,pending
-WhitespaceTokens,232,css_tokenizer_test.cc,original_whitespace_tokens,pending
-Escapes,239,css_tokenizer_test.cc,original_escapes,pending
-IdentToken,334,css_tokenizer_test.cc,original_ident_token,pending
-FunctionToken,391,css_tokenizer_test.cc,original_function_token,pending
-AtKeywordToken,405,css_tokenizer_test.cc,original_at_keyword_token,pending
-UrlToken,423,css_tokenizer_test.cc,original_url_token,pending
-StringToken,447,css_tokenizer_test.cc,original_string_token,pending
-HashToken,473,css_tokenizer_test.cc,original_hash_token,pending
-NumberToken,488,css_tokenizer_test.cc,original_number_token,pending
-DimensionToken,518,css_tokenizer_test.cc,original_dimension_token,pending
-PercentageToken,540,css_tokenizer_test.cc,original_percentage_token,pending
-UnicodeRangeToken,548,css_tokenizer_test.cc,original_unicode_range_token,pending
-CommentToken,584,css_tokenizer_test.cc,original_comment_token,pending
+original_test,line,source_file,rust_target,assertion_mapping_status
+SingleCharacterTokens,190,css_tokenizer_test.cc,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,executable mappings: 11 source calls; byte/forced-UTF-16 cases prepared; execution pending
+MultipleCharacterTokens,204,css_tokenizer_test.cc,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,executable mappings: 10 source calls; byte/forced-UTF-16 cases prepared; execution pending
+DelimiterToken,217,css_tokenizer_test.cc,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,executable mappings: 12 source calls; byte/forced-UTF-16 cases prepared; execution pending
+WhitespaceTokens,232,css_tokenizer_test.cc,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,executable mappings: 4 source calls; byte/forced-UTF-16 cases prepared; execution pending
+Escapes,239,css_tokenizer_test.cc,transcribed_escapes_ident_function_and_at_keyword_rows,executable mappings: 47 source calls; byte/forced-UTF-16 cases prepared; execution pending
+IdentToken,334,css_tokenizer_test.cc,transcribed_escapes_ident_function_and_at_keyword_rows,executable mappings: 37 source calls; byte/forced-UTF-16 cases prepared; execution pending
+FunctionToken,391,css_tokenizer_test.cc,transcribed_escapes_ident_function_and_at_keyword_rows,executable mappings: 7 source calls; byte/forced-UTF-16 cases prepared; execution pending
+AtKeywordToken,405,css_tokenizer_test.cc,transcribed_escapes_ident_function_and_at_keyword_rows,executable mappings: 14 source calls; byte/forced-UTF-16 cases prepared; execution pending
+UrlToken,423,css_tokenizer_test.cc,transcribed_url_string_hash_and_comment_rows,executable mappings: 19 source calls; byte/forced-UTF-16 cases prepared; execution pending
+StringToken,447,css_tokenizer_test.cc,transcribed_url_string_hash_and_comment_rows,executable mappings: 20 source calls; byte/forced-UTF-16 cases prepared; execution pending
+HashToken,473,css_tokenizer_test.cc,transcribed_url_string_hash_and_comment_rows,executable mappings: 10 source calls; byte/forced-UTF-16 cases prepared; execution pending
+NumberToken,488,css_tokenizer_test.cc,transcribed_number_dimension_percentage_and_unicode_range_rows,executable mappings: 22 source calls; byte/forced-UTF-16 cases prepared; execution pending
+DimensionToken,518,css_tokenizer_test.cc,transcribed_number_dimension_percentage_and_unicode_range_rows,executable mappings: 16 source calls; byte/forced-UTF-16 cases prepared; execution pending
+PercentageToken,540,css_tokenizer_test.cc,transcribed_number_dimension_percentage_and_unicode_range_rows,executable mappings: 5 source calls; byte/forced-UTF-16 cases prepared; execution pending
+UnicodeRangeToken,548,css_tokenizer_test.cc,transcribed_number_dimension_percentage_and_unicode_range_rows,executable mappings: 22 source calls; byte/forced-UTF-16 cases prepared; execution pending
+CommentToken,584,css_tokenizer_test.cc,transcribed_url_string_hash_and_comment_rows,executable mappings: 7 source calls; byte/forced-UTF-16 cases prepared; execution pending

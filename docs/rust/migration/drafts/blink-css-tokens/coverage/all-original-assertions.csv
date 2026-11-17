@@ -1,282 +1,282 @@
 original_test,source_line,assertion_macro,rust_test_target,original_assertion_arguments,mapping_status
-unscoped,14,TEST_TOKENS,original_unscoped,"string, ...",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,23,ASSERT_EQ,original_unscoped,"expected.GetType(), actual.GetType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,26,ASSERT_EQ,original_unscoped,"expected.Delimiter(), actual.Delimiter()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,32,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,35,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,36,ASSERT_EQ,original_unscoped,"expected.GetNumericValueType(), actual.GetNumericValueType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,37,ASSERT_DOUBLE_EQ,original_unscoped,"expected.NumericValue(), actual.NumericValue()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,40,ASSERT_EQ,original_unscoped,"expected.GetNumericSign(), actual.GetNumericSign()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,43,ASSERT_EQ,original_unscoped,"expected.GetNumericValueType(), actual.GetNumericValueType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,44,ASSERT_DOUBLE_EQ,original_unscoped,"expected.NumericValue(), actual.NumericValue()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,47,ASSERT_EQ,original_unscoped,"expected.UnicodeRangeStart(), actual.UnicodeRangeStart()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,48,ASSERT_EQ,original_unscoped,"expected.UnicodeRangeEnd(), actual.UnicodeRangeEnd()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,51,ASSERT_EQ,original_unscoped,"expected.Value(), actual.Value()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,52,ASSERT_EQ,original_unscoped,"expected.GetHashTokenType(), actual.GetHashTokenType()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,97,TestUnicodeRangeTokens,original_unscoped,"const String& string, const CSSParserToken& token1, const CSSParserToken& token2 = CSSParserToken(kEOFToken), const CSSParserToken& token3 = CSSParserToken(kEOFToken)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-unscoped,102,TEST_TOKENS,original_unscoped,"string, token1, token2, token3, true",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,191,TEST_TOKENS,original_SingleCharacterTokens,"""("", LeftParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,192,TEST_TOKENS,original_SingleCharacterTokens,""")"", RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,193,TEST_TOKENS,original_SingleCharacterTokens,"""["", LeftBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,194,TEST_TOKENS,original_SingleCharacterTokens,"""]"", RightBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,195,TEST_TOKENS,original_SingleCharacterTokens,""","", Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,196,TEST_TOKENS,original_SingleCharacterTokens,""":"", Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,197,TEST_TOKENS,original_SingleCharacterTokens,""";"", Semicolon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,198,TEST_TOKENS,original_SingleCharacterTokens,""")["", RightParenthesis(), LeftBracket()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,199,TEST_TOKENS,original_SingleCharacterTokens,"""[)"", LeftBracket(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,200,TEST_TOKENS,original_SingleCharacterTokens,"""{}"", LeftBrace(), RightBrace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-SingleCharacterTokens,201,TEST_TOKENS,original_SingleCharacterTokens,""",,"", Comma(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,205,TEST_TOKENS,original_MultipleCharacterTokens,"""~="", IncludeMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,206,TEST_TOKENS,original_MultipleCharacterTokens,"""|="", DashMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,207,TEST_TOKENS,original_MultipleCharacterTokens,"""^="", PrefixMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,208,TEST_TOKENS,original_MultipleCharacterTokens,"""$="", SuffixMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,209,TEST_TOKENS,original_MultipleCharacterTokens,"""*="", SubstringMatch()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,210,TEST_TOKENS,original_MultipleCharacterTokens,"""||"", Column()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,211,TEST_TOKENS,original_MultipleCharacterTokens,"""|||"", Column(), Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,212,TEST_TOKENS,original_MultipleCharacterTokens,"""<!--"", Cdo()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,213,TEST_TOKENS,original_MultipleCharacterTokens,"""<!---"", Cdo(), Delim('-')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-MultipleCharacterTokens,214,TEST_TOKENS,original_MultipleCharacterTokens,"""-->"", Cdc()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,218,TEST_TOKENS,original_DelimiterToken,"""^"", Delim('^')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,219,TEST_TOKENS,original_DelimiterToken,"""*"", Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,220,TEST_TOKENS,original_DelimiterToken,"""%"", Delim('%')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,221,TEST_TOKENS,original_DelimiterToken,"""~"", Delim('~')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,222,TEST_TOKENS,original_DelimiterToken,"""|"", Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,223,TEST_TOKENS,original_DelimiterToken,"""&"", Delim('&')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,224,TEST_TOKENS,original_DelimiterToken,"""\x7f"", Delim('\x7f')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,225,TEST_TOKENS,original_DelimiterToken,"""\1"", Delim('\x1')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,226,TEST_TOKENS,original_DelimiterToken,"""~-"", Delim('~'), Delim('-')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,227,TEST_TOKENS,original_DelimiterToken,"""^|"", Delim('^'), Delim('|')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,228,TEST_TOKENS,original_DelimiterToken,"""$~"", Delim('$'), Delim('~')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DelimiterToken,229,TEST_TOKENS,original_DelimiterToken,"""*^"", Delim('*'), Delim('^')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-WhitespaceTokens,233,TEST_TOKENS,original_WhitespaceTokens,""" "", Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-WhitespaceTokens,234,TEST_TOKENS,original_WhitespaceTokens,"""\n\rS"", Whitespace(), Ident(""S"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-WhitespaceTokens,235,TEST_TOKENS,original_WhitespaceTokens,""" *"", Whitespace(), Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-WhitespaceTokens,236,TEST_TOKENS,original_WhitespaceTokens,"""\r\n\f\t2"", Whitespace(), Number(kIntegerValueType, 2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,240,TEST_TOKENS,original_Escapes,"""hel\\6Co"", Ident(""hello"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,241,TEST_TOKENS,original_Escapes,"""\\26 B"", Ident(""&B"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,242,TEST_TOKENS,original_Escapes,"""'hel\\6c o'"", GetString(""hello"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,243,TEST_TOKENS,original_Escapes,"""'spac\\65\r\ns'"", GetString(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,244,TEST_TOKENS,original_Escapes,"""spac\\65\r\ns"", Ident(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,245,TEST_TOKENS,original_Escapes,"""spac\\65\n\rs"", Ident(""space""), Whitespace(), Ident(""s"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,246,TEST_TOKENS,original_Escapes,"""sp\\61\tc\\65\fs"", Ident(""spaces"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,247,TEST_TOKENS,original_Escapes,"""hel\\6c o"", Ident(""hell""), Whitespace(), Ident(""o"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,248,TEST_TOKENS,original_Escapes,"""test\\\n"", Ident(""test""), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,249,TEST_TOKENS,original_Escapes,"""test\\D799"", Ident(""test"" + FromUChar32(0xD799))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,250,TEST_TOKENS,original_Escapes,"""\\E000"", Ident(FromUChar32(0xE000))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,251,TEST_TOKENS,original_Escapes,"""te\\s\\t"", Ident(""test"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,252,TEST_TOKENS,original_Escapes,"""spaces\\ in\\\tident"", Ident(""spaces in\tident"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,253,TEST_TOKENS,original_Escapes,"""\\.\\,\\:\\!"", Ident("".,:!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,254,TEST_TOKENS,original_Escapes,"""\\\r"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,255,TEST_TOKENS,original_Escapes,"""\\\f"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,256,TEST_TOKENS,original_Escapes,"""\\\r\n"", Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,258,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""null\\\0"")), Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,260,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""null\\\0\0"")), Ident(""null"" + replacement + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,262,TEST_TOKENS,original_Escapes,"""null\\0"", Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,263,TEST_TOKENS,original_Escapes,"""null\\0000"", Ident(""null"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,264,TEST_TOKENS,original_Escapes,"""large\\110000"", Ident(""large"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,265,TEST_TOKENS,original_Escapes,"""large\\23456a"", Ident(""large"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,266,TEST_TOKENS,original_Escapes,"""surrogate\\D800"", Ident(""surrogate"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,267,TEST_TOKENS,original_Escapes,"""surrogate\\0DABC"", Ident(""surrogate"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,268,TEST_TOKENS,original_Escapes,"""\\00DFFFsurrogate"", Ident(replacement + ""surrogate"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,269,TEST_TOKENS,original_Escapes,"""\\10fFfF"", Ident(FromUChar32(0x10ffff))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,270,TEST_TOKENS,original_Escapes,"""\\10fFfF0"", Ident(FromUChar32(0x10ffff) + ""0"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,271,TEST_TOKENS,original_Escapes,"""\\10000000"", Ident(FromUChar32(0x100000) + ""00"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,272,TEST_TOKENS,original_Escapes,"""eof\\"", Ident(""eof"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,281,TEST_TOKENS,original_Escapes,"long_escaped.ToString(), Ident(long_expected.ToString())",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,288,TEST_TOKENS,original_Escapes,"huge_escaped.ToString(), Ident(huge_expected.ToString())",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,300,EXPECT_EQ,original_Escapes,"token.Value(), ""w-[24px]""",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,304,EXPECT_EQ,original_Escapes,"count, 3000",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,308,TEST_TOKENS,original_Escapes,"""abcdefghijklmnop\\:x"", Ident(""abcdefghijklmnop:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,309,TEST_TOKENS,original_Escapes,"""abcdefghijklmno\\:x"", Ident(""abcdefghijklmno:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,310,TEST_TOKENS,original_Escapes,"""abcdefghijklmnopq\\:x"", Ident(""abcdefghijklmnopq:x"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,311,TEST_TOKENS,original_Escapes,"""\\:abcdefghijklmnopqrstuvwxyz"", Ident("":abcdefghijklmnopqrstuvwxyz"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,314,TEST_TOKENS,original_Escapes,"String::FromUtf8(""caf\u00e9\\:x""), Ident(String::FromUtf8(""caf\u00e9:x""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,316,TEST_TOKENS,original_Escapes,"String::FromUtf8(""na\\:\u00efve""), Ident(String::FromUtf8(""na:\u00efve""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,318,TEST_TOKENS,original_Escapes,"String::FromUtf8(""a\\:\u2026b""), Ident(String::FromUtf8(""a:\u2026b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,320,TEST_TOKENS,original_Escapes,"String::FromUtf8(""a\\:\U0001F600b""), Ident(String::FromUtf8(""a:\U0001F600b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,322,TEST_TOKENS,original_Escapes,"String::FromUtf8(""\u2026\\:a""), Ident(String::FromUtf8(""\u2026:a""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,324,TEST_TOKENS,original_Escapes,"""a\\e9 b"", Ident(String::FromUtf8(""a\u00e9b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,325,TEST_TOKENS,original_Escapes,"""a\\2026 b"", Ident(String::FromUtf8(""a\u2026b""))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,326,TEST_TOKENS,original_Escapes,"""a\\:\\"", Ident(""a:"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,327,TEST_TOKENS,original_Escapes,"""a\\:\\\n"", Ident(""a:""), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,328,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""a\\:\0b"")), Ident(""a:"" + replacement + ""b"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-Escapes,330,TEST_TOKENS,original_Escapes,"String(base::span_from_cstring(""a\\:b\\\0"")), Ident(""a:b"" + replacement)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,335,TEST_TOKENS,original_IdentToken,"""simple-ident"", Ident(""simple-ident"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,336,TEST_TOKENS,original_IdentToken,"""testing123"", Ident(""testing123"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,337,TEST_TOKENS,original_IdentToken,"""hello!"", Ident(""hello""), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,338,TEST_TOKENS,original_IdentToken,"""world\5"", Ident(""world""), Delim('\5')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,339,TEST_TOKENS,original_IdentToken,"""_under score"", Ident(""_under""), Whitespace(), Ident(""score"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,340,TEST_TOKENS,original_IdentToken,"""-_underscore"", Ident(""-_underscore"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,341,TEST_TOKENS,original_IdentToken,"""-text"", Ident(""-text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,342,TEST_TOKENS,original_IdentToken,"""-\\6d"", Ident(""-m"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,343,TEST_TOKENS,original_IdentToken,"""--abc"", Ident(""--abc"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,344,TEST_TOKENS,original_IdentToken,"""--"", Ident(""--"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,345,TEST_TOKENS,original_IdentToken,"""--11"", Ident(""--11"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,346,TEST_TOKENS,original_IdentToken,"""---"", Ident(""---"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,347,TEST_TOKENS,original_IdentToken,"FromUChar32(0x2003), Ident(FromUChar32(0x2003))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,348,TEST_TOKENS,original_IdentToken,"FromUChar32(0xA0), Ident(FromUChar32(0xA0))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,350,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1234), Ident(FromUChar32(0x1234))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,351,TEST_TOKENS,original_IdentToken,"FromUChar32(0x12345), Ident(FromUChar32(0x12345))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,352,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""\0"")), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,354,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""-\0"")), Ident(""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,356,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,358,TEST_TOKENS,original_IdentToken,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,361,TEST_TOKENS,original_IdentToken,"FromUChar32(0xD800), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,362,TEST_TOKENS,original_IdentToken,"""foo"" + FromUChar32(0xD800), Ident(""foo"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,363,TEST_TOKENS,original_IdentToken,"FromUChar32(0xD800) + ""foo"", Ident(FromUChar32(0xFFFD) + ""foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,364,TEST_TOKENS,original_IdentToken,"""f"" + FromUChar32(0xD800) + ""oo"", Ident(""f"" + FromUChar32(0xFFFD) + ""oo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,366,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDBFF), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,367,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDC00), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,368,TEST_TOKENS,original_IdentToken,"FromUChar32(0xDFFF), Ident(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,370,TEST_TOKENS,original_IdentToken,"FromUChar32(0x10000), Ident(FromUChar32(0x10000))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,371,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1F600), Ident(FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,372,TEST_TOKENS,original_IdentToken,"""foo"" + FromUChar32(0x1F600), Ident(""foo"" + FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,374,TEST_TOKENS,original_IdentToken,"FromUChar32(0x1F600) + ""foo"", Ident(FromUChar32(0x1F600) + ""foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,376,TEST_TOKENS,original_IdentToken,"FromUChar32(0x10FFFF), Ident(FromUChar32(0x10FFFF))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,378,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xD800), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,380,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xDC00), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,382,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0xD800) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD) + ""suffix"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,385,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600), Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-IdentToken,387,TEST_TOKENS,original_IdentToken,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,392,TEST_TOKENS,original_FunctionToken,"""scale(2)"", Func(""scale""), Number(kIntegerValueType, 2, kNoSign), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,394,TEST_TOKENS,original_FunctionToken,"""foo-bar\\ baz("", Func(""foo-bar baz"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,395,TEST_TOKENS,original_FunctionToken,"""fun\\(ction("", Func(""fun(ction"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,396,TEST_TOKENS,original_FunctionToken,"""-foo("", Func(""-foo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,397,TEST_TOKENS,original_FunctionToken,"""url(\""foo.gif\"""", Func(""url""), GetString(""foo.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,398,TEST_TOKENS,original_FunctionToken,"""foo( \'bar.gif\'"", Func(""foo""), Whitespace(), GetString(""bar.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-FunctionToken,402,TEST_TOKENS,original_FunctionToken,"""url( \'bar.gif\'"", Func(""url""), GetString(""bar.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,406,TEST_TOKENS,original_AtKeywordToken,"""@at-keyword"", AtKeyword(""at-keyword"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,407,TEST_TOKENS,original_AtKeywordToken,"""@testing123"", AtKeyword(""testing123"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,408,TEST_TOKENS,original_AtKeywordToken,"""@hello!"", AtKeyword(""hello""), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,409,TEST_TOKENS,original_AtKeywordToken,"""@-text"", AtKeyword(""-text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,410,TEST_TOKENS,original_AtKeywordToken,"""@--abc"", AtKeyword(""--abc"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,411,TEST_TOKENS,original_AtKeywordToken,"""@--"", AtKeyword(""--"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,412,TEST_TOKENS,original_AtKeywordToken,"""@--11"", AtKeyword(""--11"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,413,TEST_TOKENS,original_AtKeywordToken,"""@---"", AtKeyword(""---"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,414,TEST_TOKENS,original_AtKeywordToken,"""@\\ "", AtKeyword("" "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,415,TEST_TOKENS,original_AtKeywordToken,"""@-\\ "", AtKeyword(""- "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,416,TEST_TOKENS,original_AtKeywordToken,"String(base::span_from_cstring(""@-\0"")), AtKeyword(""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,418,TEST_TOKENS,original_AtKeywordToken,"""@@"", Delim('@'), Delim('@')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,419,TEST_TOKENS,original_AtKeywordToken,"""@2"", Delim('@'), Number(kIntegerValueType, 2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-AtKeywordToken,420,TEST_TOKENS,original_AtKeywordToken,"""@-1"", Delim('@'), Number(kIntegerValueType, -1, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,424,TEST_TOKENS,original_UrlToken,"""url(foo.gif)"", Url(""foo.gif"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,425,TEST_TOKENS,original_UrlToken,"""urL(https://example.com/cats.png)"", Url(""https://example.com/cats.png"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,427,TEST_TOKENS,original_UrlToken,"""uRl(what-a.crazy^URL~this\\ is!)"", Url(""what-a.crazy^URL~this is!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,429,TEST_TOKENS,original_UrlToken,"""uRL(123#test)"", Url(""123#test"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,430,TEST_TOKENS,original_UrlToken,"""Url(escapes\\ \\\""\\'\\)\\()"", Url(""escapes \""')("")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,431,TEST_TOKENS,original_UrlToken,"""UrL( whitespace )"", Url(""whitespace"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,432,TEST_TOKENS,original_UrlToken,"""URl( whitespace-eof "", Url(""whitespace-eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,433,TEST_TOKENS,original_UrlToken,"""URL(eof"", Url(""eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,434,TEST_TOKENS,original_UrlToken,"""url(not/*a*/comment)"", Url(""not/*a*/comment"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,435,TEST_TOKENS,original_UrlToken,"""urL()"", Url("""")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,436,TEST_TOKENS,original_UrlToken,"""uRl(white space),"", BadUrl(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,437,TEST_TOKENS,original_UrlToken,"""Url(b(ad),"", BadUrl(), Comma()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,438,TEST_TOKENS,original_UrlToken,"""uRl(ba'd):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,439,TEST_TOKENS,original_UrlToken,"""urL(b\""ad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,440,TEST_TOKENS,original_UrlToken,"""uRl(b\""ad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,441,TEST_TOKENS,original_UrlToken,"""Url(b\\\rad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,442,TEST_TOKENS,original_UrlToken,"""url(b\\\nad):"", BadUrl(), Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,443,TEST_TOKENS,original_UrlToken,"""url(/*'bad')*/"", BadUrl(), Delim('*'), Delim('/')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UrlToken,444,TEST_TOKENS,original_UrlToken,"""url(ba'd\\\\))"", BadUrl(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,448,TEST_TOKENS,original_StringToken,"""'text'"", GetString(""text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,449,TEST_TOKENS,original_StringToken,"""\""text\"""", GetString(""text"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,450,TEST_TOKENS,original_StringToken,"""'testing, 123!'"", GetString(""testing, 123!"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,451,TEST_TOKENS,original_StringToken,"""'es\\'ca\\\""pe'"", GetString(""es'ca\""pe"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,452,TEST_TOKENS,original_StringToken,"""'\""quotes\""'"", GetString(""\""quotes\"""")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,453,TEST_TOKENS,original_StringToken,"""\""'quotes'\"""", GetString(""'quotes'"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,454,TEST_TOKENS,original_StringToken,"""\""mismatch'"", GetString(""mismatch'"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,455,TEST_TOKENS,original_StringToken,"""'text\5\t\13'"", GetString(""text\5\t\13"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,456,TEST_TOKENS,original_StringToken,"""\""end on eof"", GetString(""end on eof"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,457,TEST_TOKENS,original_StringToken,"""'esca\\\nped'"", GetString(""escaped"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,458,TEST_TOKENS,original_StringToken,"""\""esc\\\faped\"""", GetString(""escaped"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,459,TEST_TOKENS,original_StringToken,"""'new\\\rline'"", GetString(""newline"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,460,TEST_TOKENS,original_StringToken,"""\""new\\\r\nline\"""", GetString(""newline"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,461,TEST_TOKENS,original_StringToken,"""'bad\nstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,462,TEST_TOKENS,original_StringToken,"""'bad\rstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,463,TEST_TOKENS,original_StringToken,"""'bad\r\nstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,464,TEST_TOKENS,original_StringToken,"""'bad\fstring"", BadString(), Whitespace(), Ident(""string"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,465,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'\0'"")), GetString(FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,467,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'hel\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-StringToken,469,TEST_TOKENS,original_StringToken,"String(base::span_from_cstring(""'h\\65l\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,474,TEST_TOKENS,original_HashToken,"""#id-selector"", GetHash(""id-selector"", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,475,TEST_TOKENS,original_HashToken,"""#FF7700"", GetHash(""FF7700"", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,476,TEST_TOKENS,original_HashToken,"""#3377FF"", GetHash(""3377FF"", kHashTokenUnrestricted)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,477,TEST_TOKENS,original_HashToken,"""#\\ "", GetHash("" "", kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,478,TEST_TOKENS,original_HashToken,"String(base::span_from_cstring(""#\0"")), GetHash(FromUChar32(0xFFFD), kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,480,TEST_TOKENS,original_HashToken,"String(base::span_from_cstring(""#-\0"")), GetHash(""-"" + FromUChar32(0xFFFD), kHashTokenId)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,482,TEST_TOKENS,original_HashToken,"""# "", Delim('#'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,483,TEST_TOKENS,original_HashToken,"""#\\\n"", Delim('#'), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,484,TEST_TOKENS,original_HashToken,"""#\\\r\n"", Delim('#'), Delim('\\'), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-HashToken,485,TEST_TOKENS,original_HashToken,"""#!"", Delim('#'), Delim('!')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,489,TEST_TOKENS,original_NumberToken,"""10"", Number(kIntegerValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,490,TEST_TOKENS,original_NumberToken,"""12.0"", Number(kNumberValueType, 12, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,491,TEST_TOKENS,original_NumberToken,"""+45.6"", Number(kNumberValueType, 45.6, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,492,TEST_TOKENS,original_NumberToken,"""-7"", Number(kIntegerValueType, -7, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,493,TEST_TOKENS,original_NumberToken,"""010"", Number(kIntegerValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,494,TEST_TOKENS,original_NumberToken,"""10e0"", Number(kNumberValueType, 10, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,495,TEST_TOKENS,original_NumberToken,"""12e3"", Number(kNumberValueType, 12000, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,496,TEST_TOKENS,original_NumberToken,"""3e+1"", Number(kNumberValueType, 30, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,497,TEST_TOKENS,original_NumberToken,"""12E-1"", Number(kNumberValueType, 1.2, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,498,TEST_TOKENS,original_NumberToken,""".7"", Number(kNumberValueType, 0.7, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,499,TEST_TOKENS,original_NumberToken,"""-.3"", Number(kNumberValueType, -0.3, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,500,TEST_TOKENS,original_NumberToken,"""+637.54e-2"", Number(kNumberValueType, 6.3754, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,501,TEST_TOKENS,original_NumberToken,"""-12.34E+2"", Number(kNumberValueType, -1234, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,503,TEST_TOKENS,original_NumberToken,"""+ 5"", Delim('+'), Whitespace(), Number(kIntegerValueType, 5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,505,TEST_TOKENS,original_NumberToken,"""-+12"", Delim('-'), Number(kIntegerValueType, 12, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,506,TEST_TOKENS,original_NumberToken,"""+-21"", Delim('+'), Number(kIntegerValueType, -21, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,507,TEST_TOKENS,original_NumberToken,"""++22"", Delim('+'), Number(kIntegerValueType, 22, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,508,TEST_TOKENS,original_NumberToken,"""13."", Number(kIntegerValueType, 13, kNoSign), Delim('.')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,509,TEST_TOKENS,original_NumberToken,"""1.e2"", Number(kIntegerValueType, 1, kNoSign), Delim('.'), Ident(""e2"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,511,TEST_TOKENS,original_NumberToken,"""2e3.5"", Number(kNumberValueType, 2000, kNoSign), Number(kNumberValueType, 0.5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,513,TEST_TOKENS,original_NumberToken,"""2e3."", Number(kNumberValueType, 2000, kNoSign), Delim('.')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-NumberToken,514,TEST_TOKENS,original_NumberToken,"""1000000000000000000000000"", Number(kIntegerValueType, 1e24, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,519,TEST_TOKENS,original_DimensionToken,"""10px"", Dimension(kIntegerValueType, 10, ""px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,520,TEST_TOKENS,original_DimensionToken,"""12.0em"", Dimension(kNumberValueType, 12, ""em"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,521,TEST_TOKENS,original_DimensionToken,"""-12.0em"", Dimension(kNumberValueType, -12, ""em"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,522,TEST_TOKENS,original_DimensionToken,"""+45.6__qem"", Dimension(kNumberValueType, 45.6, ""__qem"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,523,TEST_TOKENS,original_DimensionToken,"""5e"", Dimension(kIntegerValueType, 5, ""e"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,524,TEST_TOKENS,original_DimensionToken,"""5px-2px"", Dimension(kIntegerValueType, 5, ""px-2px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,525,TEST_TOKENS,original_DimensionToken,"""5e-"", Dimension(kIntegerValueType, 5, ""e-"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,526,TEST_TOKENS,original_DimensionToken,"""5\\ "", Dimension(kIntegerValueType, 5, "" "")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,527,TEST_TOKENS,original_DimensionToken,"""40\\70\\78"", Dimension(kIntegerValueType, 40, ""px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,528,TEST_TOKENS,original_DimensionToken,"""4e3e2"", Dimension(kNumberValueType, 4000, ""e2"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,529,TEST_TOKENS,original_DimensionToken,"""0x10px"", Dimension(kIntegerValueType, 0, ""x10px"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,530,TEST_TOKENS,original_DimensionToken,"""4unit "", Dimension(kIntegerValueType, 4, ""unit""), Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,531,TEST_TOKENS,original_DimensionToken,"String(base::span_from_cstring(""1-\0"")), Dimension(kIntegerValueType, 1, ""-"" + FromUChar32(0xFFFD))",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,533,TEST_TOKENS,original_DimensionToken,"""5e+"", Dimension(kIntegerValueType, 5, ""e""), Delim('+')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,534,TEST_TOKENS,original_DimensionToken,"""2e.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-DimensionToken,536,TEST_TOKENS,original_DimensionToken,"""2e+.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-PercentageToken,541,TEST_TOKENS,original_PercentageToken,"""10%"", Percentage(kIntegerValueType, 10)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-PercentageToken,542,TEST_TOKENS,original_PercentageToken,"""+12.0%"", Percentage(kNumberValueType, 12)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-PercentageToken,543,TEST_TOKENS,original_PercentageToken,"""-48.99%"", Percentage(kNumberValueType, -48.99)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-PercentageToken,544,TEST_TOKENS,original_PercentageToken,"""6e-1%"", Percentage(kNumberValueType, 0.6)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-PercentageToken,545,TEST_TOKENS,original_PercentageToken,"""5%%"", Percentage(kIntegerValueType, 5), Delim('%')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,549,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+012345-123456"", UnicodeRng(0x012345, 0x123456)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,550,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+1234-2345"", UnicodeRng(0x1234, 0x2345)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,551,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+222-111"", UnicodeRng(0x222, 0x111)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,552,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+CafE-d00D"", UnicodeRng(0xcafe, 0xd00d)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,553,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+2??"", UnicodeRng(0x200, 0x2ff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,554,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+ab12??"", UnicodeRng(0xab1200, 0xab12ff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,555,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+??????"", UnicodeRng(0x000000, 0xffffff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,556,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+??"", UnicodeRng(0x00, 0xff)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,558,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+222+111"", UnicodeRng(0x222, 0x222), Number(kIntegerValueType, 111, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,560,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+12345678"", UnicodeRng(0x123456, 0x123456), Number(kIntegerValueType, 78, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,562,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+123-12345678"", UnicodeRng(0x123, 0x123456), Number(kIntegerValueType, 78, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,564,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+cake"", UnicodeRng(0xca, 0xca), Ident(""ke"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,565,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+1234-gggg"", UnicodeRng(0x1234, 0x1234), Ident(""-gggg"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,567,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""U+ab12???"", UnicodeRng(0xab1200, 0xab12ff), Delim('?')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,569,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+a1?-123"", UnicodeRng(0xa10, 0xa1f), Number(kIntegerValueType, -123, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,571,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+1??4"", UnicodeRng(0x100, 0x1ff), Number(kIntegerValueType, 4, kNoSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,573,TEST_TOKENS,original_UnicodeRangeToken,"""u+z"", Ident(""u""), Delim('+'), Ident(""z"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,574,TEST_TOKENS,original_UnicodeRangeToken,"""u+"", Ident(""u""), Delim('+')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,575,TEST_TOKENS,original_UnicodeRangeToken,"""u+-543"", Ident(""u""), Delim('+'), Number(kIntegerValueType, -543, kMinusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,578,TEST_TOKENS,original_UnicodeRangeToken,"""u+012345"", Ident(""u""), Number(kIntegerValueType, 12345, kPlusSign)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,580,TEST_TOKENS,original_UnicodeRangeToken,"""u+a"", Ident(""u""), Delim('+'), Ident(""a"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-UnicodeRangeToken,581,TestUnicodeRangeTokens,original_UnicodeRangeToken,"""u+a"", UnicodeRng(0xa, 0xa)",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,585,TEST_TOKENS,original_CommentToken,"""/*comment*/a"", Ident(""a"")",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,586,TEST_TOKENS,original_CommentToken,"""/**\\2f**//"", Delim('/')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,587,TEST_TOKENS,original_CommentToken,"""/**y*a*y**/ "", Whitespace()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,588,TEST_TOKENS,original_CommentToken,""",/* \n :) \n */)"", Comma(), RightParenthesis()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,589,TEST_TOKENS,original_CommentToken,""":/*/*/"", Colon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,590,TEST_TOKENS,original_CommentToken,"""/**/*"", Delim('*')",partial: mapped to row test; Rust expected-value assertion not yet transcribed
-CommentToken,591,TEST_TOKENS,original_CommentToken,""";/******"", Semicolon()",partial: mapped to row test; Rust expected-value assertion not yet transcribed
+unscoped,14,TEST_TOKENS,all four row-case test functions (TEST_TOKENS source expansion),"string, ...",executable assertion mapping prepared; execution pending
+unscoped,23,ASSERT_EQ,"compare_original_token, compare_extended, compare_next, compare_numeric_unicode","expected.GetType(), actual.GetType()",executable assertion mapping prepared; execution pending
+unscoped,26,ASSERT_EQ,"compare_original_token, compare_extended, compare_next, compare_numeric_unicode delimiter arms","expected.Delimiter(), actual.Delimiter()",executable assertion mapping prepared; execution pending
+unscoped,32,ASSERT_EQ,"compare_original_token, compare_extended, compare_next, compare_numeric_unicode payload arms","expected.Value(), actual.Value()",executable assertion mapping prepared; execution pending
+unscoped,35,ASSERT_EQ,compare_numeric_unicode dimension payload arm,"expected.Value(), actual.Value()",executable assertion mapping prepared; execution pending
+unscoped,36,ASSERT_EQ,compare_numeric_unicode numeric type arm,"expected.GetNumericValueType(), actual.GetNumericValueType()",executable assertion mapping prepared; execution pending
+unscoped,37,ASSERT_DOUBLE_EQ,compare_numeric_unicode binary64-bit arm,"expected.NumericValue(), actual.NumericValue()",executable assertion mapping prepared; execution pending
+unscoped,40,ASSERT_EQ,compare_numeric_unicode numeric sign arm,"expected.GetNumericSign(), actual.GetNumericSign()",executable assertion mapping prepared; execution pending
+unscoped,43,ASSERT_EQ,compare_numeric_unicode percentage type arm,"expected.GetNumericValueType(), actual.GetNumericValueType()",executable assertion mapping prepared; execution pending
+unscoped,44,ASSERT_DOUBLE_EQ,compare_numeric_unicode binary64-bit arm,"expected.NumericValue(), actual.NumericValue()",executable assertion mapping prepared; execution pending
+unscoped,47,ASSERT_EQ,compare_numeric_unicode Unicode lower-bound arm,"expected.UnicodeRangeStart(), actual.UnicodeRangeStart()",executable assertion mapping prepared; execution pending
+unscoped,48,ASSERT_EQ,compare_numeric_unicode Unicode upper-bound arm,"expected.UnicodeRangeEnd(), actual.UnicodeRangeEnd()",executable assertion mapping prepared; execution pending
+unscoped,51,ASSERT_EQ,compare_next hash payload arm,"expected.Value(), actual.Value()",executable assertion mapping prepared; execution pending
+unscoped,52,ASSERT_EQ,compare_next hash classification arm,"expected.GetHashTokenType(), actual.GetHashTokenType()",executable assertion mapping prepared; execution pending
+unscoped,97,TestUnicodeRangeTokens,NumericCase.unicode_ranges_allowed maps TestUnicodeRangeTokens source invocations,"const String& string, const CSSParserToken& token1, const CSSParserToken& token2 = CSSParserToken(kEOFToken), const CSSParserToken& token3 = CSSParserToken(kEOFToken)",executable assertion mapping prepared; execution pending
+unscoped,102,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows Unicode-mode cases,"string, token1, token2, token3, true",executable assertion mapping prepared; execution pending
+SingleCharacterTokens,191,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""("", LeftParenthesis()",executable case SingleCharacterTokens:191 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,192,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""")"", RightParenthesis()",executable case SingleCharacterTokens:192 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,193,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""["", LeftBracket()",executable case SingleCharacterTokens:193 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,194,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""]"", RightBracket()",executable case SingleCharacterTokens:194 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,195,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""","", Comma()",executable case SingleCharacterTokens:195 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,196,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""":"", Colon()",executable case SingleCharacterTokens:196 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,197,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""";"", Semicolon()",executable case SingleCharacterTokens:197 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,198,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""")["", RightParenthesis(), LeftBracket()",executable case SingleCharacterTokens:198 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,199,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""[)"", LeftBracket(), RightParenthesis()",executable case SingleCharacterTokens:199 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,200,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""{}"", LeftBrace(), RightBrace()",executable case SingleCharacterTokens:200 in basic-four-rows.csv; execution pending
+SingleCharacterTokens,201,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""",,"", Comma(), Comma()",executable case SingleCharacterTokens:201 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,205,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""~="", IncludeMatch()",executable case MultipleCharacterTokens:205 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,206,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""|="", DashMatch()",executable case MultipleCharacterTokens:206 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,207,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""^="", PrefixMatch()",executable case MultipleCharacterTokens:207 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,208,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""$="", SuffixMatch()",executable case MultipleCharacterTokens:208 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,209,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""*="", SubstringMatch()",executable case MultipleCharacterTokens:209 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,210,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""||"", Column()",executable case MultipleCharacterTokens:210 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,211,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""|||"", Column(), Delim('|')",executable case MultipleCharacterTokens:211 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,212,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""<!--"", Cdo()",executable case MultipleCharacterTokens:212 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,213,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""<!---"", Cdo(), Delim('-')",executable case MultipleCharacterTokens:213 in basic-four-rows.csv; execution pending
+MultipleCharacterTokens,214,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""-->"", Cdc()",executable case MultipleCharacterTokens:214 in basic-four-rows.csv; execution pending
+DelimiterToken,218,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""^"", Delim('^')",executable case DelimiterToken:218 in basic-four-rows.csv; execution pending
+DelimiterToken,219,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""*"", Delim('*')",executable case DelimiterToken:219 in basic-four-rows.csv; execution pending
+DelimiterToken,220,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""%"", Delim('%')",executable case DelimiterToken:220 in basic-four-rows.csv; execution pending
+DelimiterToken,221,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""~"", Delim('~')",executable case DelimiterToken:221 in basic-four-rows.csv; execution pending
+DelimiterToken,222,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""|"", Delim('|')",executable case DelimiterToken:222 in basic-four-rows.csv; execution pending
+DelimiterToken,223,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""&"", Delim('&')",executable case DelimiterToken:223 in basic-four-rows.csv; execution pending
+DelimiterToken,224,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""\x7f"", Delim('\x7f')",executable case DelimiterToken:224 in basic-four-rows.csv; execution pending
+DelimiterToken,225,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""\1"", Delim('\x1')",executable case DelimiterToken:225 in basic-four-rows.csv; execution pending
+DelimiterToken,226,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""~-"", Delim('~'), Delim('-')",executable case DelimiterToken:226 in basic-four-rows.csv; execution pending
+DelimiterToken,227,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""^|"", Delim('^'), Delim('|')",executable case DelimiterToken:227 in basic-four-rows.csv; execution pending
+DelimiterToken,228,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""$~"", Delim('$'), Delim('~')",executable case DelimiterToken:228 in basic-four-rows.csv; execution pending
+DelimiterToken,229,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""*^"", Delim('*'), Delim('^')",executable case DelimiterToken:229 in basic-four-rows.csv; execution pending
+WhitespaceTokens,233,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""" "", Whitespace()",executable case WhitespaceTokens:233 in basic-four-rows.csv; execution pending
+WhitespaceTokens,234,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""\n\rS"", Whitespace(), Ident(""S"")",executable case WhitespaceTokens:234 in basic-four-rows.csv; execution pending
+WhitespaceTokens,235,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,""" *"", Whitespace(), Delim('*')",executable case WhitespaceTokens:235 in basic-four-rows.csv; execution pending
+WhitespaceTokens,236,TEST_TOKENS,transcribed_single_character_multiple_character_delimiter_and_whitespace_rows,"""\r\n\f\t2"", Whitespace(), Number(kIntegerValueType, 2, kNoSign)",executable case WhitespaceTokens:236 in basic-four-rows.csv; execution pending
+Escapes,240,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""hel\\6Co"", Ident(""hello"")",executable case Escapes:240 in next-four-rows.csv; execution pending
+Escapes,241,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\26 B"", Ident(""&B"")",executable case Escapes:241 in next-four-rows.csv; execution pending
+Escapes,242,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""'hel\\6c o'"", GetString(""hello"")",executable case Escapes:242 in next-four-rows.csv; execution pending
+Escapes,243,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""'spac\\65\r\ns'"", GetString(""spaces"")",executable case Escapes:243 in next-four-rows.csv; execution pending
+Escapes,244,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""spac\\65\r\ns"", Ident(""spaces"")",executable case Escapes:244 in next-four-rows.csv; execution pending
+Escapes,245,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""spac\\65\n\rs"", Ident(""space""), Whitespace(), Ident(""s"")",executable case Escapes:245 in next-four-rows.csv; execution pending
+Escapes,246,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""sp\\61\tc\\65\fs"", Ident(""spaces"")",executable case Escapes:246 in next-four-rows.csv; execution pending
+Escapes,247,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""hel\\6c o"", Ident(""hell""), Whitespace(), Ident(""o"")",executable case Escapes:247 in next-four-rows.csv; execution pending
+Escapes,248,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""test\\\n"", Ident(""test""), Delim('\\'), Whitespace()",executable case Escapes:248 in next-four-rows.csv; execution pending
+Escapes,249,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""test\\D799"", Ident(""test"" + FromUChar32(0xD799))",executable case Escapes:249 in next-four-rows.csv; execution pending
+Escapes,250,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\E000"", Ident(FromUChar32(0xE000))",executable case Escapes:250 in next-four-rows.csv; execution pending
+Escapes,251,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""te\\s\\t"", Ident(""test"")",executable case Escapes:251 in next-four-rows.csv; execution pending
+Escapes,252,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""spaces\\ in\\\tident"", Ident(""spaces in\tident"")",executable case Escapes:252 in next-four-rows.csv; execution pending
+Escapes,253,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\.\\,\\:\\!"", Ident("".,:!"")",executable case Escapes:253 in next-four-rows.csv; execution pending
+Escapes,254,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\\r"", Delim('\\'), Whitespace()",executable case Escapes:254 in next-four-rows.csv; execution pending
+Escapes,255,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\\f"", Delim('\\'), Whitespace()",executable case Escapes:255 in next-four-rows.csv; execution pending
+Escapes,256,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\\r\n"", Delim('\\'), Whitespace()",executable case Escapes:256 in next-four-rows.csv; execution pending
+Escapes,258,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""null\\\0"")), Ident(""null"" + replacement)",executable case Escapes:258 in next-four-rows.csv; execution pending
+Escapes,260,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""null\\\0\0"")), Ident(""null"" + replacement + replacement)",executable case Escapes:260 in next-four-rows.csv; execution pending
+Escapes,262,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""null\\0"", Ident(""null"" + replacement)",executable case Escapes:262 in next-four-rows.csv; execution pending
+Escapes,263,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""null\\0000"", Ident(""null"" + replacement)",executable case Escapes:263 in next-four-rows.csv; execution pending
+Escapes,264,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""large\\110000"", Ident(""large"" + replacement)",executable case Escapes:264 in next-four-rows.csv; execution pending
+Escapes,265,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""large\\23456a"", Ident(""large"" + replacement)",executable case Escapes:265 in next-four-rows.csv; execution pending
+Escapes,266,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""surrogate\\D800"", Ident(""surrogate"" + replacement)",executable case Escapes:266 in next-four-rows.csv; execution pending
+Escapes,267,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""surrogate\\0DABC"", Ident(""surrogate"" + replacement)",executable case Escapes:267 in next-four-rows.csv; execution pending
+Escapes,268,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\00DFFFsurrogate"", Ident(replacement + ""surrogate"")",executable case Escapes:268 in next-four-rows.csv; execution pending
+Escapes,269,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\10fFfF"", Ident(FromUChar32(0x10ffff))",executable case Escapes:269 in next-four-rows.csv; execution pending
+Escapes,270,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\10fFfF0"", Ident(FromUChar32(0x10ffff) + ""0"")",executable case Escapes:270 in next-four-rows.csv; execution pending
+Escapes,271,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\10000000"", Ident(FromUChar32(0x100000) + ""00"")",executable case Escapes:271 in next-four-rows.csv; execution pending
+Escapes,272,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""eof\\"", Ident(""eof"" + replacement)",executable case Escapes:272 in next-four-rows.csv; execution pending
+Escapes,281,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"long_escaped.ToString(), Ident(long_expected.ToString())",executable case Escapes:281 in next-four-rows.csv; execution pending
+Escapes,288,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"huge_escaped.ToString(), Ident(huge_expected.ToString())",executable case Escapes:288 in next-four-rows.csv; execution pending
+Escapes,300,EXPECT_EQ,escaped_name_stream_assertions_match_original_expected_values_and_count,"token.Value(), ""w-[24px]""",executable per-identifier value/count assertion; execution pending
+Escapes,304,EXPECT_EQ,escaped_name_stream_assertions_match_original_expected_values_and_count,"count, 3000",executable per-identifier value/count assertion; execution pending
+Escapes,308,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnop\\:x"", Ident(""abcdefghijklmnop:x"")",executable case Escapes:308 in next-four-rows.csv; execution pending
+Escapes,309,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmno\\:x"", Ident(""abcdefghijklmno:x"")",executable case Escapes:309 in next-four-rows.csv; execution pending
+Escapes,310,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopq\\:x"", Ident(""abcdefghijklmnopq:x"")",executable case Escapes:310 in next-four-rows.csv; execution pending
+Escapes,311,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""\\:abcdefghijklmnopqrstuvwxyz"", Ident("":abcdefghijklmnopqrstuvwxyz"")",executable case Escapes:311 in next-four-rows.csv; execution pending
+Escapes,314,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String::FromUtf8(""caf\u00e9\\:x""), Ident(String::FromUtf8(""caf\u00e9:x""))",executable case Escapes:314 in next-four-rows.csv; execution pending
+Escapes,316,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String::FromUtf8(""na\\:\u00efve""), Ident(String::FromUtf8(""na:\u00efve""))",executable case Escapes:316 in next-four-rows.csv; execution pending
+Escapes,318,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String::FromUtf8(""a\\:\u2026b""), Ident(String::FromUtf8(""a:\u2026b""))",executable case Escapes:318 in next-four-rows.csv; execution pending
+Escapes,320,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String::FromUtf8(""a\\:\U0001F600b""), Ident(String::FromUtf8(""a:\U0001F600b""))",executable case Escapes:320 in next-four-rows.csv; execution pending
+Escapes,322,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String::FromUtf8(""\u2026\\:a""), Ident(String::FromUtf8(""\u2026:a""))",executable case Escapes:322 in next-four-rows.csv; execution pending
+Escapes,324,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""a\\e9 b"", Ident(String::FromUtf8(""a\u00e9b""))",executable case Escapes:324 in next-four-rows.csv; execution pending
+Escapes,325,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""a\\2026 b"", Ident(String::FromUtf8(""a\u2026b""))",executable case Escapes:325 in next-four-rows.csv; execution pending
+Escapes,326,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""a\\:\\"", Ident(""a:"" + replacement)",executable case Escapes:326 in next-four-rows.csv; execution pending
+Escapes,327,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""a\\:\\\n"", Ident(""a:""), Delim('\\'), Whitespace()",executable case Escapes:327 in next-four-rows.csv; execution pending
+Escapes,328,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""a\\:\0b"")), Ident(""a:"" + replacement + ""b"")",executable case Escapes:328 in next-four-rows.csv; execution pending
+Escapes,330,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""a\\:b\\\0"")), Ident(""a:b"" + replacement)",executable case Escapes:330 in next-four-rows.csv; execution pending
+IdentToken,335,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""simple-ident"", Ident(""simple-ident"")",executable case IdentToken:335 in next-four-rows.csv; execution pending
+IdentToken,336,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""testing123"", Ident(""testing123"")",executable case IdentToken:336 in next-four-rows.csv; execution pending
+IdentToken,337,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""hello!"", Ident(""hello""), Delim('!')",executable case IdentToken:337 in next-four-rows.csv; execution pending
+IdentToken,338,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""world\5"", Ident(""world""), Delim('\5')",executable case IdentToken:338 in next-four-rows.csv; execution pending
+IdentToken,339,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""_under score"", Ident(""_under""), Whitespace(), Ident(""score"")",executable case IdentToken:339 in next-four-rows.csv; execution pending
+IdentToken,340,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""-_underscore"", Ident(""-_underscore"")",executable case IdentToken:340 in next-four-rows.csv; execution pending
+IdentToken,341,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""-text"", Ident(""-text"")",executable case IdentToken:341 in next-four-rows.csv; execution pending
+IdentToken,342,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""-\\6d"", Ident(""-m"")",executable case IdentToken:342 in next-four-rows.csv; execution pending
+IdentToken,343,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""--abc"", Ident(""--abc"")",executable case IdentToken:343 in next-four-rows.csv; execution pending
+IdentToken,344,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""--"", Ident(""--"")",executable case IdentToken:344 in next-four-rows.csv; execution pending
+IdentToken,345,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""--11"", Ident(""--11"")",executable case IdentToken:345 in next-four-rows.csv; execution pending
+IdentToken,346,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""---"", Ident(""---"")",executable case IdentToken:346 in next-four-rows.csv; execution pending
+IdentToken,347,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x2003), Ident(FromUChar32(0x2003))",executable case IdentToken:347 in next-four-rows.csv; execution pending
+IdentToken,348,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xA0), Ident(FromUChar32(0xA0))",executable case IdentToken:348 in next-four-rows.csv; execution pending
+IdentToken,350,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x1234), Ident(FromUChar32(0x1234))",executable case IdentToken:350 in next-four-rows.csv; execution pending
+IdentToken,351,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x12345), Ident(FromUChar32(0x12345))",executable case IdentToken:351 in next-four-rows.csv; execution pending
+IdentToken,352,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""\0"")), Ident(FromUChar32(0xFFFD))",executable case IdentToken:352 in next-four-rows.csv; execution pending
+IdentToken,354,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""-\0"")), Ident(""-"" + FromUChar32(0xFFFD))",executable case IdentToken:354 in next-four-rows.csv; execution pending
+IdentToken,356,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",executable case IdentToken:356 in next-four-rows.csv; execution pending
+IdentToken,358,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""ab\0c"")), Ident(""ab"" + FromUChar32(0xFFFD) + ""c"")",executable case IdentToken:358 in next-four-rows.csv; execution pending
+IdentToken,361,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xD800), Ident(FromUChar32(0xFFFD))",executable case IdentToken:361 in next-four-rows.csv; execution pending
+IdentToken,362,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""foo"" + FromUChar32(0xD800), Ident(""foo"" + FromUChar32(0xFFFD))",executable case IdentToken:362 in next-four-rows.csv; execution pending
+IdentToken,363,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xD800) + ""foo"", Ident(FromUChar32(0xFFFD) + ""foo"")",executable case IdentToken:363 in next-four-rows.csv; execution pending
+IdentToken,364,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""f"" + FromUChar32(0xD800) + ""oo"", Ident(""f"" + FromUChar32(0xFFFD) + ""oo"")",executable case IdentToken:364 in next-four-rows.csv; execution pending
+IdentToken,366,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xDBFF), Ident(FromUChar32(0xFFFD))",executable case IdentToken:366 in next-four-rows.csv; execution pending
+IdentToken,367,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xDC00), Ident(FromUChar32(0xFFFD))",executable case IdentToken:367 in next-four-rows.csv; execution pending
+IdentToken,368,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0xDFFF), Ident(FromUChar32(0xFFFD))",executable case IdentToken:368 in next-four-rows.csv; execution pending
+IdentToken,370,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x10000), Ident(FromUChar32(0x10000))",executable case IdentToken:370 in next-four-rows.csv; execution pending
+IdentToken,371,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x1F600), Ident(FromUChar32(0x1F600))",executable case IdentToken:371 in next-four-rows.csv; execution pending
+IdentToken,372,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""foo"" + FromUChar32(0x1F600), Ident(""foo"" + FromUChar32(0x1F600))",executable case IdentToken:372 in next-four-rows.csv; execution pending
+IdentToken,374,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x1F600) + ""foo"", Ident(FromUChar32(0x1F600) + ""foo"")",executable case IdentToken:374 in next-four-rows.csv; execution pending
+IdentToken,376,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"FromUChar32(0x10FFFF), Ident(FromUChar32(0x10FFFF))",executable case IdentToken:376 in next-four-rows.csv; execution pending
+IdentToken,378,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopqr"" + FromUChar32(0xD800), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",executable case IdentToken:378 in next-four-rows.csv; execution pending
+IdentToken,380,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopqr"" + FromUChar32(0xDC00), Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD))",executable case IdentToken:380 in next-four-rows.csv; execution pending
+IdentToken,382,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopqr"" + FromUChar32(0xD800) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0xFFFD) + ""suffix"")",executable case IdentToken:382 in next-four-rows.csv; execution pending
+IdentToken,385,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600), Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600))",executable case IdentToken:385 in next-four-rows.csv; execution pending
+IdentToken,387,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"", Ident(""abcdefghijklmnopqr"" + FromUChar32(0x1F600) + ""suffix"")",executable case IdentToken:387 in next-four-rows.csv; execution pending
+FunctionToken,392,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""scale(2)"", Func(""scale""), Number(kIntegerValueType, 2, kNoSign), RightParenthesis()",executable case FunctionToken:392 in next-four-rows.csv; execution pending
+FunctionToken,394,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""foo-bar\\ baz("", Func(""foo-bar baz"")",executable case FunctionToken:394 in next-four-rows.csv; execution pending
+FunctionToken,395,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""fun\\(ction("", Func(""fun(ction"")",executable case FunctionToken:395 in next-four-rows.csv; execution pending
+FunctionToken,396,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""-foo("", Func(""-foo"")",executable case FunctionToken:396 in next-four-rows.csv; execution pending
+FunctionToken,397,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""url(\""foo.gif\"""", Func(""url""), GetString(""foo.gif"")",executable case FunctionToken:397 in next-four-rows.csv; execution pending
+FunctionToken,398,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""foo( \'bar.gif\'"", Func(""foo""), Whitespace(), GetString(""bar.gif"")",executable case FunctionToken:398 in next-four-rows.csv; execution pending
+FunctionToken,402,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""url( \'bar.gif\'"", Func(""url""), GetString(""bar.gif"")",executable case FunctionToken:402 in next-four-rows.csv; execution pending
+AtKeywordToken,406,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@at-keyword"", AtKeyword(""at-keyword"")",executable case AtKeywordToken:406 in next-four-rows.csv; execution pending
+AtKeywordToken,407,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@testing123"", AtKeyword(""testing123"")",executable case AtKeywordToken:407 in next-four-rows.csv; execution pending
+AtKeywordToken,408,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@hello!"", AtKeyword(""hello""), Delim('!')",executable case AtKeywordToken:408 in next-four-rows.csv; execution pending
+AtKeywordToken,409,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@-text"", AtKeyword(""-text"")",executable case AtKeywordToken:409 in next-four-rows.csv; execution pending
+AtKeywordToken,410,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@--abc"", AtKeyword(""--abc"")",executable case AtKeywordToken:410 in next-four-rows.csv; execution pending
+AtKeywordToken,411,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@--"", AtKeyword(""--"")",executable case AtKeywordToken:411 in next-four-rows.csv; execution pending
+AtKeywordToken,412,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@--11"", AtKeyword(""--11"")",executable case AtKeywordToken:412 in next-four-rows.csv; execution pending
+AtKeywordToken,413,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@---"", AtKeyword(""---"")",executable case AtKeywordToken:413 in next-four-rows.csv; execution pending
+AtKeywordToken,414,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@\\ "", AtKeyword("" "")",executable case AtKeywordToken:414 in next-four-rows.csv; execution pending
+AtKeywordToken,415,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@-\\ "", AtKeyword(""- "")",executable case AtKeywordToken:415 in next-four-rows.csv; execution pending
+AtKeywordToken,416,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"String(base::span_from_cstring(""@-\0"")), AtKeyword(""-"" + FromUChar32(0xFFFD))",executable case AtKeywordToken:416 in next-four-rows.csv; execution pending
+AtKeywordToken,418,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@@"", Delim('@'), Delim('@')",executable case AtKeywordToken:418 in next-four-rows.csv; execution pending
+AtKeywordToken,419,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@2"", Delim('@'), Number(kIntegerValueType, 2, kNoSign)",executable case AtKeywordToken:419 in next-four-rows.csv; execution pending
+AtKeywordToken,420,TEST_TOKENS,transcribed_escapes_ident_function_and_at_keyword_rows,"""@-1"", Delim('@'), Number(kIntegerValueType, -1, kMinusSign)",executable case AtKeywordToken:420 in next-four-rows.csv; execution pending
+UrlToken,424,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""url(foo.gif)"", Url(""foo.gif"")",executable case UrlToken:424 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,425,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""urL(https://example.com/cats.png)"", Url(""https://example.com/cats.png"")",executable case UrlToken:425 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,427,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""uRl(what-a.crazy^URL~this\\ is!)"", Url(""what-a.crazy^URL~this is!"")",executable case UrlToken:427 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,429,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""uRL(123#test)"", Url(""123#test"")",executable case UrlToken:429 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,430,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""Url(escapes\\ \\\""\\'\\)\\()"", Url(""escapes \""')("")",executable case UrlToken:430 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,431,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""UrL( whitespace )"", Url(""whitespace"")",executable case UrlToken:431 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,432,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""URl( whitespace-eof "", Url(""whitespace-eof"")",executable case UrlToken:432 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,433,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""URL(eof"", Url(""eof"")",executable case UrlToken:433 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,434,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""url(not/*a*/comment)"", Url(""not/*a*/comment"")",executable case UrlToken:434 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,435,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""urL()"", Url("""")",executable case UrlToken:435 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,436,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""uRl(white space),"", BadUrl(), Comma()",executable case UrlToken:436 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,437,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""Url(b(ad),"", BadUrl(), Comma()",executable case UrlToken:437 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,438,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""uRl(ba'd):"", BadUrl(), Colon()",executable case UrlToken:438 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,439,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""urL(b\""ad):"", BadUrl(), Colon()",executable case UrlToken:439 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,440,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""uRl(b\""ad):"", BadUrl(), Colon()",executable case UrlToken:440 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,441,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""Url(b\\\rad):"", BadUrl(), Colon()",executable case UrlToken:441 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,442,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""url(b\\\nad):"", BadUrl(), Colon()",executable case UrlToken:442 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,443,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""url(/*'bad')*/"", BadUrl(), Delim('*'), Delim('/')",executable case UrlToken:443 in url-string-hash-comment-rows.csv; execution pending
+UrlToken,444,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""url(ba'd\\\\))"", BadUrl(), RightParenthesis()",executable case UrlToken:444 in url-string-hash-comment-rows.csv; execution pending
+StringToken,448,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'text'"", GetString(""text"")",executable case StringToken:448 in url-string-hash-comment-rows.csv; execution pending
+StringToken,449,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""text\"""", GetString(""text"")",executable case StringToken:449 in url-string-hash-comment-rows.csv; execution pending
+StringToken,450,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'testing, 123!'"", GetString(""testing, 123!"")",executable case StringToken:450 in url-string-hash-comment-rows.csv; execution pending
+StringToken,451,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'es\\'ca\\\""pe'"", GetString(""es'ca\""pe"")",executable case StringToken:451 in url-string-hash-comment-rows.csv; execution pending
+StringToken,452,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'\""quotes\""'"", GetString(""\""quotes\"""")",executable case StringToken:452 in url-string-hash-comment-rows.csv; execution pending
+StringToken,453,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""'quotes'\"""", GetString(""'quotes'"")",executable case StringToken:453 in url-string-hash-comment-rows.csv; execution pending
+StringToken,454,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""mismatch'"", GetString(""mismatch'"")",executable case StringToken:454 in url-string-hash-comment-rows.csv; execution pending
+StringToken,455,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'text\5\t\13'"", GetString(""text\5\t\13"")",executable case StringToken:455 in url-string-hash-comment-rows.csv; execution pending
+StringToken,456,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""end on eof"", GetString(""end on eof"")",executable case StringToken:456 in url-string-hash-comment-rows.csv; execution pending
+StringToken,457,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'esca\\\nped'"", GetString(""escaped"")",executable case StringToken:457 in url-string-hash-comment-rows.csv; execution pending
+StringToken,458,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""esc\\\faped\"""", GetString(""escaped"")",executable case StringToken:458 in url-string-hash-comment-rows.csv; execution pending
+StringToken,459,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'new\\\rline'"", GetString(""newline"")",executable case StringToken:459 in url-string-hash-comment-rows.csv; execution pending
+StringToken,460,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""\""new\\\r\nline\"""", GetString(""newline"")",executable case StringToken:460 in url-string-hash-comment-rows.csv; execution pending
+StringToken,461,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'bad\nstring"", BadString(), Whitespace(), Ident(""string"")",executable case StringToken:461 in url-string-hash-comment-rows.csv; execution pending
+StringToken,462,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'bad\rstring"", BadString(), Whitespace(), Ident(""string"")",executable case StringToken:462 in url-string-hash-comment-rows.csv; execution pending
+StringToken,463,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'bad\r\nstring"", BadString(), Whitespace(), Ident(""string"")",executable case StringToken:463 in url-string-hash-comment-rows.csv; execution pending
+StringToken,464,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""'bad\fstring"", BadString(), Whitespace(), Ident(""string"")",executable case StringToken:464 in url-string-hash-comment-rows.csv; execution pending
+StringToken,465,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"String(base::span_from_cstring(""'\0'"")), GetString(FromUChar32(0xFFFD))",executable case StringToken:465 in url-string-hash-comment-rows.csv; execution pending
+StringToken,467,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"String(base::span_from_cstring(""'hel\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",executable case StringToken:467 in url-string-hash-comment-rows.csv; execution pending
+StringToken,469,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"String(base::span_from_cstring(""'h\\65l\0lo'"")), GetString(""hel"" + FromUChar32(0xFFFD) + ""lo"")",executable case StringToken:469 in url-string-hash-comment-rows.csv; execution pending
+HashToken,474,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#id-selector"", GetHash(""id-selector"", kHashTokenId)",executable case HashToken:474 in url-string-hash-comment-rows.csv; execution pending
+HashToken,475,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#FF7700"", GetHash(""FF7700"", kHashTokenId)",executable case HashToken:475 in url-string-hash-comment-rows.csv; execution pending
+HashToken,476,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#3377FF"", GetHash(""3377FF"", kHashTokenUnrestricted)",executable case HashToken:476 in url-string-hash-comment-rows.csv; execution pending
+HashToken,477,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#\\ "", GetHash("" "", kHashTokenId)",executable case HashToken:477 in url-string-hash-comment-rows.csv; execution pending
+HashToken,478,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"String(base::span_from_cstring(""#\0"")), GetHash(FromUChar32(0xFFFD), kHashTokenId)",executable case HashToken:478 in url-string-hash-comment-rows.csv; execution pending
+HashToken,480,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"String(base::span_from_cstring(""#-\0"")), GetHash(""-"" + FromUChar32(0xFFFD), kHashTokenId)",executable case HashToken:480 in url-string-hash-comment-rows.csv; execution pending
+HashToken,482,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""# "", Delim('#'), Whitespace()",executable case HashToken:482 in url-string-hash-comment-rows.csv; execution pending
+HashToken,483,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#\\\n"", Delim('#'), Delim('\\'), Whitespace()",executable case HashToken:483 in url-string-hash-comment-rows.csv; execution pending
+HashToken,484,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#\\\r\n"", Delim('#'), Delim('\\'), Whitespace()",executable case HashToken:484 in url-string-hash-comment-rows.csv; execution pending
+HashToken,485,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""#!"", Delim('#'), Delim('!')",executable case HashToken:485 in url-string-hash-comment-rows.csv; execution pending
+NumberToken,489,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""10"", Number(kIntegerValueType, 10, kNoSign)",executable case NumberToken:489 in numeric-unicode-rows.csv; execution pending
+NumberToken,490,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""12.0"", Number(kNumberValueType, 12, kNoSign)",executable case NumberToken:490 in numeric-unicode-rows.csv; execution pending
+NumberToken,491,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+45.6"", Number(kNumberValueType, 45.6, kPlusSign)",executable case NumberToken:491 in numeric-unicode-rows.csv; execution pending
+NumberToken,492,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-7"", Number(kIntegerValueType, -7, kMinusSign)",executable case NumberToken:492 in numeric-unicode-rows.csv; execution pending
+NumberToken,493,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""010"", Number(kIntegerValueType, 10, kNoSign)",executable case NumberToken:493 in numeric-unicode-rows.csv; execution pending
+NumberToken,494,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""10e0"", Number(kNumberValueType, 10, kNoSign)",executable case NumberToken:494 in numeric-unicode-rows.csv; execution pending
+NumberToken,495,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""12e3"", Number(kNumberValueType, 12000, kNoSign)",executable case NumberToken:495 in numeric-unicode-rows.csv; execution pending
+NumberToken,496,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""3e+1"", Number(kNumberValueType, 30, kNoSign)",executable case NumberToken:496 in numeric-unicode-rows.csv; execution pending
+NumberToken,497,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""12E-1"", Number(kNumberValueType, 1.2, kNoSign)",executable case NumberToken:497 in numeric-unicode-rows.csv; execution pending
+NumberToken,498,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,""".7"", Number(kNumberValueType, 0.7, kNoSign)",executable case NumberToken:498 in numeric-unicode-rows.csv; execution pending
+NumberToken,499,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-.3"", Number(kNumberValueType, -0.3, kMinusSign)",executable case NumberToken:499 in numeric-unicode-rows.csv; execution pending
+NumberToken,500,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+637.54e-2"", Number(kNumberValueType, 6.3754, kPlusSign)",executable case NumberToken:500 in numeric-unicode-rows.csv; execution pending
+NumberToken,501,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-12.34E+2"", Number(kNumberValueType, -1234, kMinusSign)",executable case NumberToken:501 in numeric-unicode-rows.csv; execution pending
+NumberToken,503,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+ 5"", Delim('+'), Whitespace(), Number(kIntegerValueType, 5, kNoSign)",executable case NumberToken:503 in numeric-unicode-rows.csv; execution pending
+NumberToken,505,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-+12"", Delim('-'), Number(kIntegerValueType, 12, kPlusSign)",executable case NumberToken:505 in numeric-unicode-rows.csv; execution pending
+NumberToken,506,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+-21"", Delim('+'), Number(kIntegerValueType, -21, kMinusSign)",executable case NumberToken:506 in numeric-unicode-rows.csv; execution pending
+NumberToken,507,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""++22"", Delim('+'), Number(kIntegerValueType, 22, kPlusSign)",executable case NumberToken:507 in numeric-unicode-rows.csv; execution pending
+NumberToken,508,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""13."", Number(kIntegerValueType, 13, kNoSign), Delim('.')",executable case NumberToken:508 in numeric-unicode-rows.csv; execution pending
+NumberToken,509,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""1.e2"", Number(kIntegerValueType, 1, kNoSign), Delim('.'), Ident(""e2"")",executable case NumberToken:509 in numeric-unicode-rows.csv; execution pending
+NumberToken,511,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""2e3.5"", Number(kNumberValueType, 2000, kNoSign), Number(kNumberValueType, 0.5, kNoSign)",executable case NumberToken:511 in numeric-unicode-rows.csv; execution pending
+NumberToken,513,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""2e3."", Number(kNumberValueType, 2000, kNoSign), Delim('.')",executable case NumberToken:513 in numeric-unicode-rows.csv; execution pending
+NumberToken,514,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""1000000000000000000000000"", Number(kIntegerValueType, 1e24, kNoSign)",executable case NumberToken:514 in numeric-unicode-rows.csv; execution pending
+DimensionToken,519,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""10px"", Dimension(kIntegerValueType, 10, ""px"")",executable case DimensionToken:519 in numeric-unicode-rows.csv; execution pending
+DimensionToken,520,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""12.0em"", Dimension(kNumberValueType, 12, ""em"")",executable case DimensionToken:520 in numeric-unicode-rows.csv; execution pending
+DimensionToken,521,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-12.0em"", Dimension(kNumberValueType, -12, ""em"")",executable case DimensionToken:521 in numeric-unicode-rows.csv; execution pending
+DimensionToken,522,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+45.6__qem"", Dimension(kNumberValueType, 45.6, ""__qem"")",executable case DimensionToken:522 in numeric-unicode-rows.csv; execution pending
+DimensionToken,523,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5e"", Dimension(kIntegerValueType, 5, ""e"")",executable case DimensionToken:523 in numeric-unicode-rows.csv; execution pending
+DimensionToken,524,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5px-2px"", Dimension(kIntegerValueType, 5, ""px-2px"")",executable case DimensionToken:524 in numeric-unicode-rows.csv; execution pending
+DimensionToken,525,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5e-"", Dimension(kIntegerValueType, 5, ""e-"")",executable case DimensionToken:525 in numeric-unicode-rows.csv; execution pending
+DimensionToken,526,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5\\ "", Dimension(kIntegerValueType, 5, "" "")",executable case DimensionToken:526 in numeric-unicode-rows.csv; execution pending
+DimensionToken,527,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""40\\70\\78"", Dimension(kIntegerValueType, 40, ""px"")",executable case DimensionToken:527 in numeric-unicode-rows.csv; execution pending
+DimensionToken,528,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""4e3e2"", Dimension(kNumberValueType, 4000, ""e2"")",executable case DimensionToken:528 in numeric-unicode-rows.csv; execution pending
+DimensionToken,529,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""0x10px"", Dimension(kIntegerValueType, 0, ""x10px"")",executable case DimensionToken:529 in numeric-unicode-rows.csv; execution pending
+DimensionToken,530,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""4unit "", Dimension(kIntegerValueType, 4, ""unit""), Whitespace()",executable case DimensionToken:530 in numeric-unicode-rows.csv; execution pending
+DimensionToken,531,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"String(base::span_from_cstring(""1-\0"")), Dimension(kIntegerValueType, 1, ""-"" + FromUChar32(0xFFFD))",executable case DimensionToken:531 in numeric-unicode-rows.csv; execution pending
+DimensionToken,533,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5e+"", Dimension(kIntegerValueType, 5, ""e""), Delim('+')",executable case DimensionToken:533 in numeric-unicode-rows.csv; execution pending
+DimensionToken,534,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""2e.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kNoSign)",executable case DimensionToken:534 in numeric-unicode-rows.csv; execution pending
+DimensionToken,536,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""2e+.5"", Dimension(kIntegerValueType, 2, ""e""), Number(kNumberValueType, 0.5, kPlusSign)",executable case DimensionToken:536 in numeric-unicode-rows.csv; execution pending
+PercentageToken,541,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""10%"", Percentage(kIntegerValueType, 10)",executable case PercentageToken:541 in numeric-unicode-rows.csv; execution pending
+PercentageToken,542,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""+12.0%"", Percentage(kNumberValueType, 12)",executable case PercentageToken:542 in numeric-unicode-rows.csv; execution pending
+PercentageToken,543,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""-48.99%"", Percentage(kNumberValueType, -48.99)",executable case PercentageToken:543 in numeric-unicode-rows.csv; execution pending
+PercentageToken,544,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""6e-1%"", Percentage(kNumberValueType, 0.6)",executable case PercentageToken:544 in numeric-unicode-rows.csv; execution pending
+PercentageToken,545,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""5%%"", Percentage(kIntegerValueType, 5), Delim('%')",executable case PercentageToken:545 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,549,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+012345-123456"", UnicodeRng(0x012345, 0x123456)",executable case UnicodeRangeToken:549 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,550,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""U+1234-2345"", UnicodeRng(0x1234, 0x2345)",executable case UnicodeRangeToken:550 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,551,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+222-111"", UnicodeRng(0x222, 0x111)",executable case UnicodeRangeToken:551 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,552,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""U+CafE-d00D"", UnicodeRng(0xcafe, 0xd00d)",executable case UnicodeRangeToken:552 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,553,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""U+2??"", UnicodeRng(0x200, 0x2ff)",executable case UnicodeRangeToken:553 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,554,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""U+ab12??"", UnicodeRng(0xab1200, 0xab12ff)",executable case UnicodeRangeToken:554 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,555,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+??????"", UnicodeRng(0x000000, 0xffffff)",executable case UnicodeRangeToken:555 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,556,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+??"", UnicodeRng(0x00, 0xff)",executable case UnicodeRangeToken:556 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,558,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+222+111"", UnicodeRng(0x222, 0x222), Number(kIntegerValueType, 111, kPlusSign)",executable case UnicodeRangeToken:558 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,560,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+12345678"", UnicodeRng(0x123456, 0x123456), Number(kIntegerValueType, 78, kNoSign)",executable case UnicodeRangeToken:560 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,562,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+123-12345678"", UnicodeRng(0x123, 0x123456), Number(kIntegerValueType, 78, kNoSign)",executable case UnicodeRangeToken:562 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,564,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+cake"", UnicodeRng(0xca, 0xca), Ident(""ke"")",executable case UnicodeRangeToken:564 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,565,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+1234-gggg"", UnicodeRng(0x1234, 0x1234), Ident(""-gggg"")",executable case UnicodeRangeToken:565 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,567,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""U+ab12???"", UnicodeRng(0xab1200, 0xab12ff), Delim('?')",executable case UnicodeRangeToken:567 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,569,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+a1?-123"", UnicodeRng(0xa10, 0xa1f), Number(kIntegerValueType, -123, kMinusSign)",executable case UnicodeRangeToken:569 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,571,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+1??4"", UnicodeRng(0x100, 0x1ff), Number(kIntegerValueType, 4, kNoSign)",executable case UnicodeRangeToken:571 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,573,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+z"", Ident(""u""), Delim('+'), Ident(""z"")",executable case UnicodeRangeToken:573 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,574,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+"", Ident(""u""), Delim('+')",executable case UnicodeRangeToken:574 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,575,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+-543"", Ident(""u""), Delim('+'), Number(kIntegerValueType, -543, kMinusSign)",executable case UnicodeRangeToken:575 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,578,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+012345"", Ident(""u""), Number(kIntegerValueType, 12345, kPlusSign)",executable case UnicodeRangeToken:578 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,580,TEST_TOKENS,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+a"", Ident(""u""), Delim('+'), Ident(""a"")",executable case UnicodeRangeToken:580 in numeric-unicode-rows.csv; execution pending
+UnicodeRangeToken,581,TestUnicodeRangeTokens,transcribed_number_dimension_percentage_and_unicode_range_rows,"""u+a"", UnicodeRng(0xa, 0xa)",executable case UnicodeRangeToken:581 in numeric-unicode-rows.csv; execution pending
+CommentToken,585,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""/*comment*/a"", Ident(""a"")",executable case CommentToken:585 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,586,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""/**\\2f**//"", Delim('/')",executable case CommentToken:586 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,587,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""/**y*a*y**/ "", Whitespace()",executable case CommentToken:587 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,588,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,""",/* \n :) \n */)"", Comma(), RightParenthesis()",executable case CommentToken:588 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,589,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,""":/*/*/"", Colon()",executable case CommentToken:589 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,590,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,"""/**/*"", Delim('*')",executable case CommentToken:590 in url-string-hash-comment-rows.csv; execution pending
+CommentToken,591,TEST_TOKENS,transcribed_url_string_hash_and_comment_rows,""";/******"", Semicolon()",executable case CommentToken:591 in url-string-hash-comment-rows.csv; execution pending
