@@ -1,0 +1,22 @@
+test_absent_truncated_duplicate_or_contradictory_native_output_fails (test_ordinary_base_v2.MembershipTests.test_absent_truncated_duplicate_or_contradictory_native_output_fails) ... ok
+test_explicit_xml_skip_and_nonrun_contradictions_fail (test_ordinary_base_v2.MembershipTests.test_explicit_xml_skip_and_nonrun_contradictions_fail) ... ok
+test_missing_extra_and_repeated_attempts_fail (test_ordinary_base_v2.MembershipTests.test_missing_extra_and_repeated_attempts_fail) ... ok
+test_missing_or_disabled_bridge_case_fails (test_ordinary_base_v2.MembershipTests.test_missing_or_disabled_bridge_case_fails) ... ok
+test_native_skip_cannot_validate_diagnostic_contract (test_ordinary_base_v2.MembershipTests.test_native_skip_cannot_validate_diagnostic_contract) ... ok
+test_retains_original_patterns_and_all_named_bridge_cases (test_ordinary_base_v2.MembershipTests.test_retains_original_patterns_and_all_named_bridge_cases) ... ok
+test_terminal_before_run_and_overlapping_attempts_fail (test_ordinary_base_v2.MembershipTests.test_terminal_before_run_and_overlapping_attempts_fail) ... ok
+test_changed_helper_or_unexpected_snapshot_member_fails (test_ordinary_base_v2.SnapshotAndFailureTests.test_changed_helper_or_unexpected_snapshot_member_fails) ... ok
+test_empty_directory_membership_is_independent_of_file_inventory (test_ordinary_base_v2.SnapshotAndFailureTests.test_empty_directory_membership_is_independent_of_file_inventory) ... ok
+test_execution_rejection_retains_failed_identity_and_artifacts (test_ordinary_base_v2.SnapshotAndFailureTests.test_execution_rejection_retains_failed_identity_and_artifacts) ... ok
+test_exited_root_with_pipe_holding_descendant_is_owned_and_killed (test_ordinary_base_v2.SnapshotAndFailureTests.test_exited_root_with_pipe_holding_descendant_is_owned_and_killed) ... ok
+test_failed_job_termination_is_never_inferred_from_root_exit (test_ordinary_base_v2.SnapshotAndFailureTests.test_failed_job_termination_is_never_inferred_from_root_exit) ... ok
+test_failed_probe_preserves_raw_output_bytes (test_ordinary_base_v2.SnapshotAndFailureTests.test_failed_probe_preserves_raw_output_bytes) ... ok
+test_gate_must_bind_exact_invocation_destination_bytes_and_interval (test_ordinary_base_v2.SnapshotAndFailureTests.test_gate_must_bind_exact_invocation_destination_bytes_and_interval) ... ok
+test_preparation_rejection_retains_durable_failed_result (test_ordinary_base_v2.SnapshotAndFailureTests.test_preparation_rejection_retains_durable_failed_result) ... ok
+test_receipt_output_config_additions_and_wrong_destination_fail (test_ordinary_base_v2.SnapshotAndFailureTests.test_receipt_output_config_additions_and_wrong_destination_fail) ... ok
+test_timeout_and_cleanup_failure_are_structured (test_ordinary_base_v2.SnapshotAndFailureTests.test_timeout_and_cleanup_failure_are_structured) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 1.130s
+
+OK

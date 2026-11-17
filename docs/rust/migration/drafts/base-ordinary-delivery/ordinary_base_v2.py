@@ -13,6 +13,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import windows_job
 
 sys.dont_write_bytecode = True
 ROOT = Path('D:/Rustium')
@@ -81,12 +82,19 @@ def native_outcome(summary, parsed, output):
     require(parsed['passed']+parsed['skipped']==len(expected) and not parsed['unexpected_statuses'],'Unreconciled native statuses')
     skips=set(parsed['native_skip_names']);require(skips<=expected,'Unexpected native skip')
     output=re.sub(r'\x1b\[[0-9;]*m','',output)
-    runs={name:0 for name in expected};terminal={name:[] for name in expected}
-    for name in re.findall(r'(?m)^\[\s*RUN\s*\]\s+(\S+)\s*$',output):
-        require(name in expected,'Unselected native run');runs[name]+=1
-    for status,name in re.findall(r'(?m)^\[\s*(OK|SKIPPED|FAILED)\s*\]\s+(\S+)\s+\(\d+ ms\)\s*$',output):
-        require(name in expected,'Unselected native terminal');terminal[name].append(status)
-    require(all(runs[name]==1 and len(terminal[name])==1 for name in expected),'Missing/truncated/duplicate native run or terminal')
+    terminal={};active=None
+    for line in output.splitlines():
+        start=re.fullmatch(r'\[\s*RUN\s*\]\s+(\S+)\s*',line)
+        end=re.fullmatch(r'\[\s*(OK|SKIPPED|FAILED)\s*\]\s+(\S+)\s+\(\d+ ms\)\s*',line)
+        if start:
+            name=start.group(1)
+            require(name in expected and name not in terminal and active is None,'Unselected/duplicate/overlapping native run')
+            active=name
+        elif end:
+            event,name=end.groups()
+            require(name in expected and active==name and name not in terminal,'Orphaned/reordered/mismatched native terminal')
+            terminal[name]=[event];active=None
+    require(active is None and set(terminal)==expected,'Missing/truncated native attempt')
     native_skips=set()
     for name,events in terminal.items():
         status=summary['per_iteration_data'][0][name][0]['status'];event=events[0]
@@ -94,7 +102,18 @@ def native_outcome(summary, parsed, output):
         if event=='SKIPPED':native_skips.add(name)
     require(native_skips==skips,'Native skip parser disagreement')
     diagnostic=terminal[DIAGNOSTIC]==['OK']
-    return {'expected_enabled':len(expected),'disabled':disabled,'diagnostic_contract_passed':diagnostic}
+    return {'expected_enabled':len(expected),'disabled':disabled,'diagnostic_contract_passed':diagnostic,'native_skip_names':sorted(native_skips)}
+
+
+def xml_outcome(nodes, expected, native_skips):
+    names=[node.attrib['classname']+'.'+node.attrib['name'] for node in nodes]
+    require(len(names)==len(set(names)) and set(names)==expected,'XML membership mismatch')
+    for node,name in zip(nodes,names):
+        require(node.find('failure') is None and node.find('error') is None,'XML failure/error contradicts success')
+        status=node.attrib.get('status','run');result=node.attrib.get('result','completed')
+        skipped=node.find('skipped') is not None or result=='skipped'
+        require(status=='run' and result in ['completed','skipped'],'Explicit XML non-execution')
+        require(not skipped or name in native_skips,'XML skip contradicts native OK')
 
 def source_check(info):
     manifest=Path(info['source_manifest']);require(sha(manifest)==info['source_manifest_sha256'],'Authority manifest drift')
@@ -136,6 +155,25 @@ def attestation_binding(receipt, authority, current_configuration, current_runti
     require(len(receipt['exit_codes'])==len(expected_build_commands()),'Incomplete attested command results')
     require(receipt['configuration']==current_configuration and receipt['runtime']==current_runtime,'Receipt output/graph membership differs')
 
+
+def attestation_gate_binding(job, receipt, receipt_path, intake, authority, receipt_sha):
+    script=Path(__file__).with_name('attest_build.py').resolve()
+    command=['python','-B',str(script),'-j1','--intake',str(intake.resolve()),
+        '--output',str(receipt_path.resolve().parent),'--expected-source-sha256',authority,
+        '--invocation',receipt['invocation']]
+    require(job['command']==command and job['cwd']==str(ROOT),'Attestation gate command/output mismatch')
+    require(job['build_configuration']['invocation']==receipt['invocation'],'Unrelated attestation invocation')
+    require(job['build_configuration']['receipt']==str(receipt_path.resolve()),'Attestation gate receipt destination mismatch')
+    require(job['status']=='passed' and job['exit_code']==0 and job['kind']=='build' and job['task_id']=='FOUNDATION-STRINGS-BRIDGE','Completed attestation gate required')
+    require(job['source_identity']['source_manifest_sha256']==authority==receipt['source_manifest_sha256'],'Attestation authority mismatch')
+    require(receipt['invocation'] and re.fullmatch('[0-9a-f]{32}',receipt['invocation']),'Unique invocation required')
+    times=[datetime.datetime.fromisoformat(v) for v in [job['started_utc'],receipt['started_utc'],receipt['finished_utc'],job['finished_utc']]]
+    require(all(t.utcoffset() is not None for t in times) and times==sorted(times),'Receipt outside gate execution interval')
+    # Coordinator stdout is retained in the same unique job directory. Its
+    # completion line binds the final receipt bytes to this actual invocation.
+    proof=job['completion']
+    require(proof=={'invocation':receipt['invocation'],'receipt':str(receipt_path.resolve()),'receipt_sha256':receipt_sha,'passed':True},'Gate completion receipt bytes mismatch')
+
 def host_identity():
     require(os.name=='nt','Native delivery is Windows-only')
     dll=ctypes.create_unicode_buffer(32768)
@@ -148,12 +186,7 @@ def host_identity():
         'limits':'Installed stdlib and system/nonadjacent DLL providers are not a frozen standalone runtime; dynamically loaded plugins remain outside the closure'}
 
 def terminate(process):
-    if process.poll() is not None:return {'required':False,'reaped':True}
-    require(os.name=='nt','Whole-tree cleanup requires the supported Windows host')
-    result=subprocess.run(['taskkill','/F','/T','/PID',str(process.pid)],capture_output=True,timeout=15)
-    require(result.returncode==0 or process.poll() is not None,'Cleanup failed; reconcile live descendants before another job')
-    process.wait(timeout=15)
-    return {'required':True,'tree_termination_succeeded':True,'reaped':True}
+    return process.terminate_tree(timeout=15)
 
 class CommandFailure(RuntimeError):
     def __init__(self, command, error, cleanup):
@@ -170,13 +203,15 @@ def command_failure(process,command,error):
 
 def capture(command,timeout=60):
     require(os.name=='nt','Native probes are Windows-only')
-    process=subprocess.Popen([str(x) for x in command],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    process=windows_job.ProcessTree(command,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
     try:
         output=process.communicate(timeout=timeout)[0]
         if process.returncode!=0:raise subprocess.CalledProcessError(process.returncode,command,output=output)
         return output.decode(errors='replace')
     except BaseException as error:
         raise command_failure(process,command,error) from error
+    finally:
+        process.close()
 
 def bounded_dll_dependencies(executable,inspector):
     pending=[executable];visited=set();hashes={};external=set()
@@ -206,11 +241,13 @@ def verify(snapshot, digest):
 def run_command(command,cwd,env,log,timeout=600):
     require(os.name=='nt','Native process-tree protocol is Windows-only')
     with log.open('wb') as stream:
-        process=subprocess.Popen([str(x) for x in command],cwd=cwd,env=env,stdout=stream,stderr=subprocess.STDOUT)
+        process=windows_job.ProcessTree(command,cwd=cwd,env=env,stdout=stream,stderr=subprocess.STDOUT)
         try:
             return process.wait(timeout=timeout)
         except BaseException as error:
             raise command_failure(process,command,error) from error
+        finally:
+            process.close()
 
 def execute(args):
     snapshot=args.snapshot.resolve();output=args.execution.resolve()
@@ -234,11 +271,9 @@ def execute(args):
         expected,disabled=membership(load(output/'summary.json'))
         parser=module('frozen_unit_parser',snapshot/'context/unit_parser.py')
         xml=list(parser.ET.parse(output/'gtest.xml').getroot().iter('testcase'))
-        xml_names=[node.attrib['classname']+'.'+node.attrib['name'] for node in xml]
-        require(len(xml_names)==len(set(xml_names)) and set(xml_names)==expected,'XML membership mismatch')
-        require(not any(node.find('failure') is not None or node.find('error') is not None for node in xml),'XML failure/error contradicts success')
         parsed=parser.unit_results(output);result['native_results']=parsed
         result.update(native_outcome(load(output/'summary.json'),parsed,(output/'output.log').read_text(errors='replace')))
+        xml_outcome(xml,expected,set(result['native_skip_names']))
         result['passed']=result['exit_code']==0 and result['diagnostic_contract_passed']
     except BaseException as error:
         result['exception']=type(error).__name__+': '+str(error)
@@ -274,10 +309,12 @@ def prepare(args):
         native,registry,inspector=runtime_modules();collector=(native,registry,inspector);observed=runtime(*collector)
         configuration=configuration_identity(native);host=host_identity()
         attestation=load(args.attestation);attest_job=load(args.attestation_job_result)
-        require(attest_job['status']=='passed' and attest_job['exit_code']==0 and attest_job['task_id']=='FOUNDATION-STRINGS-BRIDGE' and attest_job['kind']=='build','Completed attestation gate required')
-        require(attest_job['source_identity']['source_manifest_sha256']==info['source_manifest_sha256']==attestation['source_manifest_sha256'],'Attestation authority mismatch')
+        lines=(args.attestation_job_result.parent/'output.log').read_text(errors='strict').splitlines()
+        require(lines,'Missing gate completion output');attest_job['completion']=json.loads(lines[-1])
+        attestation_gate_binding(attest_job,attestation,args.attestation,args.intake,info['source_manifest_sha256'],sha(args.attestation))
         attestation_binding(attestation,info['source_manifest_sha256'],configuration,runtime(*collector,targets=('base_unittests','net_unittests')))
         require(sha(Path(__file__).with_name('attest_build.py'))==attest_job['toolchain']['script_sha256'],'Attestation driver drift')
+        require(sha(__file__)==attest_job['toolchain']['controller_sha256'] and sha(windows_job.__file__)==attest_job['toolchain']['windows_job_sha256'],'Attestation protocol source drift')
         require(all(sha(path)==h for path,h in attestation['scripts'].items()),'Attested helper/environment source drift')
         require(all(sha(path)==h for path,h in attestation['tool_sha256'].items()),'Attested compiler/linker drift')
         require(sha(OUT/'args.gn')==attestation['args_sha256'],'Attested build args mismatch')
@@ -289,7 +326,7 @@ def prepare(args):
         parser_rows=[row for row in load(qualified)['files'] if row['copy']=='context/unit_parser.py']
         require(len(parser_rows)==1 and parser_rows[0]['sha256']=='d4e53f9f409206f83404c2cc2dbb2fede667bb1d1a30d1b948e101d7deaeb677','Qualified parser authority mismatch')
         snapshot.mkdir();context=snapshot/'context';context.mkdir()
-        helper_files=[(Path(__file__).resolve(),'controller.py'),(Path(native.__file__),'context/native_delivery.py'),(Path(registry.__file__),'context/dll_registry.py'),
+        helper_files=[(Path(__file__).resolve(),'controller.py'),(Path(windows_job.__file__).resolve(),'windows_job.py'),(Path(native.__file__),'context/native_delivery.py'),(Path(registry.__file__),'context/dll_registry.py'),
             (ROOT/'.scratch/net-wave4/regular-net-suite-prep/regular_suite.py','context/reused_regular_suite.py'),
             (ROOT/'.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/n17a/s/context/unit_parser.py','context/unit_parser.py'),
             (inspector,'context/inspector/dumpbin.exe'),(build_driver,'context/build_driver.py'),

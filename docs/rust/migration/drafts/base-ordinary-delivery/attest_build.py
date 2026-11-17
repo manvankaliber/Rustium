@@ -15,7 +15,8 @@ def main(args):
     root=delivery.ROOT;build=delivery.BUILD;output=args.output.resolve()
     delivery.require(output.is_relative_to((root/'.scratch/base-attested-build').resolve()) and not output.exists(),'Unique attestation output required')
     delivery.require(not any(delivery.linked(p) for p in [output,*output.parents]),'Linked attestation ancestor')
-    output.mkdir(parents=True);result={'passed':False,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'cwd':str(build),'commands':delivery.expected_build_commands(),'exit_codes':[]}
+    delivery.require(args.invocation and delivery.re.fullmatch('[0-9a-f]{32}',args.invocation),'Unique invocation required')
+    output.mkdir(parents=True);result={'passed':False,'invocation':args.invocation,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'cwd':str(build),'commands':delivery.expected_build_commands(),'exit_codes':[]}
     delivery.write(output/'receipt.json',result);info=None;host=None;observed=None;collector=None;configuration=None
     try:
         info=delivery.load(args.intake);delivery.require(args.intake.resolve()==(root/'.rustium-runtime/shared-strings-connection-latest.json').resolve(),'Current applied intake required')
@@ -37,7 +38,7 @@ def main(args):
         delivery.source_check(info);delivery.require(all(delivery.sha(p)==h for p,h in tools.items()),'Toolchain drift')
         result.update(passed=True,source_manifest_sha256=info['source_manifest_sha256'],source_inputs_stable=True,
             runtime=observed,configuration=configuration,tool_sha256=tools,args_sha256=delivery.sha(build/'out/Default/args.gn'),
-            scripts={str(Path(__file__).resolve()):delivery.sha(__file__),str(Path(delivery.__file__).resolve()):delivery.sha(delivery.__file__),str(Path(envmod.__file__).resolve()):delivery.sha(envmod.__file__)},
+            scripts={str(p.resolve()):delivery.sha(p) for p in [Path(__file__),Path(delivery.__file__),Path(delivery.windows_job.__file__),Path(envmod.__file__)]},
             host_identity=host,scope='Exact commands/configuration/graph/consumer outputs at successful serial build completion; no native test, ABI/platform/performance acceptance')
     except BaseException as error:
         result['exception']=type(error).__name__+': '+str(error)
@@ -51,9 +52,9 @@ def main(args):
             try:check();checks[name]=True
             except BaseException as error:checks[name]=type(error).__name__+': '+str(error)
         result['postchecks']=checks;result['passed'] &= all(v is True for v in checks.values());result['finished_utc']=datetime.datetime.now(datetime.timezone.utc).isoformat()
-        delivery.write(output/'receipt.json',result);print(json.dumps({'passed':result['passed'],'receipt':str(output/'receipt.json')}))
+        delivery.write(output/'receipt.json',result);print(json.dumps({'invocation':args.invocation,'passed':result['passed'],'receipt':str(output/'receipt.json'),'receipt_sha256':delivery.sha(output/'receipt.json')}))
     return 0 if result['passed'] else 1
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--intake',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--expected-source-sha256',required=True);parser.add_argument('-j1',action='store_true')
+    parser=argparse.ArgumentParser();parser.add_argument('--intake',type=Path,required=True);parser.add_argument('--output',type=Path,required=True);parser.add_argument('--expected-source-sha256',required=True);parser.add_argument('--invocation',required=True);parser.add_argument('-j1',action='store_true')
     sys.exit(main(parser.parse_args()))

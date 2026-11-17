@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import sys
+import xml.etree.ElementTree as ET
 from unittest import mock
 import ordinary_base_v2 as delivery
 
@@ -64,6 +66,24 @@ class MembershipTests(unittest.TestCase):
             complete.replace('[  OK ] '+delivery.DIAGNOSTIC,'[  FAILED ] '+delivery.DIAGNOSTIC)]
         for output in invalid:
             with self.assertRaises(ValueError):delivery.native_outcome(data,parsed,output)
+
+    def test_terminal_before_run_and_overlapping_attempts_fail(self):
+        data=summary();parsed={'passed':8,'skipped':0,'native_skip_names':[],'unexpected_statuses':{}}
+        lines=transcript(data).splitlines(keepends=True)
+        for indices in [[1,0,2,3],[0,2,1,3],[0,3,1,2]]:
+            output=''.join(lines[i] for i in indices)+''.join(lines[4:])
+            with self.assertRaises(ValueError):delivery.native_outcome(data,parsed,output)
+
+    def test_explicit_xml_skip_and_nonrun_contradictions_fail(self):
+        nodes=[ET.Element('testcase',classname=name.split('.',1)[0],name=name.split('.',1)[1]) for name in delivery.membership(summary())[0]]
+        expected=delivery.membership(summary())[0]
+        delivery.xml_outcome(nodes,expected,set())
+        ET.SubElement(nodes[0],'skipped')
+        with self.assertRaises(ValueError):delivery.xml_outcome(nodes,expected,set())
+        name=nodes[0].attrib['classname']+'.'+nodes[0].attrib['name']
+        delivery.xml_outcome(nodes,expected,{name})
+        nodes[0].remove(nodes[0][0]);nodes[0].set('status','notrun')
+        with self.assertRaises(ValueError):delivery.xml_outcome(nodes,expected,{name})
 
 class SnapshotAndFailureTests(unittest.TestCase):
     def setUp(self):
@@ -129,7 +149,7 @@ class SnapshotAndFailureTests(unittest.TestCase):
     def test_timeout_and_cleanup_failure_are_structured(self):
         process=mock.Mock();process.wait.side_effect=delivery.subprocess.TimeoutExpired(['fixture'],1)
         for cleanup in [{'required':True,'reaped':True},RuntimeError('cleanup failed')]:
-            with mock.patch.object(delivery.subprocess,'Popen',return_value=process),mock.patch.object(delivery,'terminate') as terminate:
+            with mock.patch.object(delivery.windows_job,'ProcessTree',return_value=process),mock.patch.object(delivery,'terminate') as terminate:
                 if isinstance(cleanup,Exception):terminate.side_effect=cleanup
                 else:terminate.return_value=cleanup
                 with self.assertRaises(delivery.CommandFailure) as caught:
@@ -137,6 +157,50 @@ class SnapshotAndFailureTests(unittest.TestCase):
                 self.assertTrue(caught.exception.details['timed_out']);terminate.assert_called_once_with(process)
                 self.assertIn('cleanup',caught.exception.details)
                 if isinstance(cleanup,Exception):self.assertTrue(caught.exception.details['cleanup']['live_descendants_require_reconciliation'])
+
+    def test_gate_must_bind_exact_invocation_destination_bytes_and_interval(self):
+        intake=delivery.ROOT/'.rustium-runtime/shared-strings-connection-latest.json'
+        receipt_path=self.root/'receipt.json';invocation='a'*32
+        receipt={'invocation':invocation,'source_manifest_sha256':'authority','started_utc':'2026-11-17T10:00:01+00:00','finished_utc':'2026-11-17T10:00:02+00:00'}
+        command=['python','-B',str(Path(delivery.__file__).with_name('attest_build.py').resolve()),'-j1','--intake',str(intake.resolve()),'--output',str(receipt_path.resolve().parent),'--expected-source-sha256','authority','--invocation',invocation]
+        job={'command':command,'cwd':str(delivery.ROOT),'build_configuration':{'invocation':invocation,'receipt':str(receipt_path.resolve())},
+            'status':'passed','exit_code':0,'kind':'build','task_id':'FOUNDATION-STRINGS-BRIDGE',
+            'source_identity':{'source_manifest_sha256':'authority'},'started_utc':'2026-11-17T10:00:00+00:00','finished_utc':'2026-11-17T10:00:03+00:00',
+            'completion':{'invocation':invocation,'receipt':str(receipt_path.resolve()),'receipt_sha256':'receipt-bytes','passed':True}}
+        delivery.attestation_gate_binding(job,receipt,receipt_path,intake,'authority','receipt-bytes')
+        for mode in ['destination','stale','other-invocation','bytes','command','no-timezone']:
+            bad=copy.deepcopy(job)
+            if mode=='destination':bad['build_configuration']['receipt']=str(self.root/'other.json')
+            elif mode=='stale':bad['started_utc']='2026-11-17T10:00:03+00:00'
+            elif mode=='other-invocation':bad['build_configuration']['invocation']='b'*32
+            elif mode=='bytes':bad['completion']['receipt_sha256']='different'
+            elif mode=='command':bad['command'][bad['command'].index('--output')+1]=str(self.root/'other')
+            else:bad['started_utc']='2026-11-17T10:00:00'
+            with self.assertRaises(ValueError):delivery.attestation_gate_binding(bad,receipt,receipt_path,intake,'authority','receipt-bytes')
+
+    def test_exited_root_with_pipe_holding_descendant_is_owned_and_killed(self):
+        child='import time;time.sleep(30)'
+        parent='import subprocess,sys;subprocess.Popen([sys.executable,"-c",'+repr(child)+'])'
+        tree=delivery.windows_job.ProcessTree([sys.executable,'-c',parent],stdout=delivery.subprocess.PIPE,stderr=delivery.subprocess.STDOUT)
+        try:
+            with self.assertRaises(delivery.subprocess.TimeoutExpired):tree.communicate(timeout=1)
+            self.assertEqual(tree.process.poll(),0)
+            self.assertGreater(tree.active(),0)
+            result=tree.terminate_tree(timeout=15)
+            self.assertTrue(result['owned_job_empty']);self.assertEqual(tree.active(),0)
+            tree.process.communicate(timeout=5)
+        finally:
+            try:tree.terminate_tree(timeout=15)
+            finally:tree.close()
+
+    def test_failed_job_termination_is_never_inferred_from_root_exit(self):
+        tree=object.__new__(delivery.windows_job.ProcessTree)
+        tree.kernel=mock.Mock();tree.kernel.TerminateJobObject.return_value=0
+        tree.job=1;tree.process=mock.Mock();tree.process.poll.return_value=0
+        with mock.patch.object(tree,'active',return_value=1):
+            failure=delivery.command_failure(tree,['fixture'],RuntimeError('probe failed'))
+        self.assertTrue(failure.details['cleanup']['live_descendants_require_reconciliation'])
+        tree.process.wait.assert_not_called()
 
     def test_failed_probe_preserves_raw_output_bytes(self):
         error=delivery.subprocess.CalledProcessError(1,['fixture'],output=b'\xff\x00raw')

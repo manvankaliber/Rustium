@@ -1,0 +1,24 @@
+{
+  "passed": true,
+  "exit_code": 0,
+  "source_files": {
+    "ordinary_base_v2.py": "1f6d72327143483a82628608c79fcb75de9a091e44f173c00d0c6a5aa23478ab",
+    "attest_build.py": "87fabad1cb0296955df40a071b1fced623a36e007891f3d912965ad70ed99187",
+    "windows_job.py": "ff93495afd285532cc1184111c0b40ea9df9be7c446f5b89207ad521e23f4efe",
+    "test_ordinary_base_v2.py": "23e5abdf48a91645be708ea24caaab2b558bb5871ddb101669617c8d1cb88ae7"
+  },
+  "python": "C:\\Python315\\python.exe",
+  "python_sha256": "d4e19e9a33268fb0ce575a24ab2d4b85972524f1933df008a6befc14dce19fbd",
+  "command": [
+    "C:\\Python315\\python.exe",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_ordinary_base_v2"
+  ],
+  "tests": 17,
+  "inputs_before_after_matched": true,
+  "scope": "Synthetic membership, native-output, receipt, copy/identity and failure-record regressions only; no native ABI/test/binary acceptance",
+  "finished_utc": "2026-11-17T10:56:10.032380+00:00"
+}
