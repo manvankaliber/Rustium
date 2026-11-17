@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 10,
-  "updated_utc": "2026-11-17T03:35:14.238494+00:00",
+  "revision": 12,
+  "updated_utc": "2026-11-17T03:42:14.207132+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -71,10 +71,12 @@
       "blockers": [],
       "role": "specialist",
       "assignment": {
-        "active": false,
-        "session": null,
+        "active": true,
+        "session": "net-recover-intake-20261117",
         "worktree": null,
-        "branch": null
+        "branch": null,
+        "model": "gpt-6.1-sol",
+        "effort": "high"
       },
       "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
@@ -93,7 +95,7 @@
         "required_cases": "Preserve frozen identity 1221, later tooling identity 1222, fixed publication membership and all four drafts. Reconcile per-program outcomes without restarting campaigns.",
         "status": "unmeasured"
       },
-      "state": "ready",
+      "state": "assigned",
       "next_action": "Inspect failed conductor and per-program results; return source-bound repair/validation requests. No campaigns.",
       "evidence": [
         {
@@ -113,6 +115,11 @@
           "utc": "2026-11-17T03:35:13.656633+00:00",
           "action": "amended",
           "note": "base_revision, original_cpp_reference"
+        },
+        {
+          "utc": "2026-11-17T03:42:14.043996+00:00",
+          "action": "assigned",
+          "note": "net-recover-intake-20261117"
         }
       ],
       "context_directories": [
@@ -228,10 +235,12 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": false,
-        "session": null,
+        "active": true,
+        "session": "foundation-version-prep-20261117",
         "worktree": null,
-        "branch": null
+        "branch": null,
+        "model": "gpt-6-luna",
+        "effort": "high"
       },
       "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
@@ -250,7 +259,7 @@
         "required_cases": "Unsigned component bounds, leading zeros, invalid states, wildcard validity, unequal lengths, copy/move boundary and exact serialization.",
         "status": "unmeasured"
       },
-      "state": "ready",
+      "state": "assigned",
       "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
       "evidence": [],
       "stages": {
@@ -265,6 +274,11 @@
           "utc": "2026-11-17T03:35:13.794906+00:00",
           "action": "amended",
           "note": "base_revision, original_cpp_reference"
+        },
+        {
+          "utc": "2026-11-17T03:42:14.206916+00:00",
+          "action": "assigned",
+          "note": "foundation-version-prep-20261117"
         }
       ],
       "context_directories": [
