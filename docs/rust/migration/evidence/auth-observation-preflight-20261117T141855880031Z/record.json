@@ -1,0 +1,44 @@
+{
+  "candidate_commit": "c36d1aafb00e413feff07907844c0555a21cd021",
+  "passed": true,
+  "run": "D:\\Rustium\\.scratch\\net-wave5\\auth-observation-preflight-20261117T141855880031Z",
+  "archive_sha256": "4f161f238d9b97a221ab4484ce88c68a0052b123aba9bd42cf9eed274b51acf9",
+  "raw_files": 216,
+  "variants": [
+    {
+      "variant": "windows-kerberos",
+      "exit_code": 0,
+      "test_registration_matches": true,
+      "observed_tests": [
+        "EachInstrumentedFamilyHasPositiveControl",
+        "FrozenBase64EncodingDoesNotEnterRust",
+        "DisabledCaptureDoesNotEvaluatePayload",
+        "BasicWireTokenAvoidsRustBase64",
+        "DigestNativeCaseUsesOriginalHandlerPath",
+        "NtlmWireTokenAndLaterRoundAvoidRust",
+        "DefaultProviderLaterRoundAndMalformed",
+        "DefaultSspiCancellationDropsReply",
+        "DefaultSspiCallbackMayDeleteHandler",
+        "InjectedReferenceCancellationAndReentrantDelete",
+        "InjectedReferenceLaterRoundAndMalformed",
+        "CapturePayloadOrderMatchesProduction",
+        "DefaultProviderCapturedContextMatchesProduction"
+      ]
+    },
+    {
+      "variant": "synthetic-no-kerberos",
+      "exit_code": 0,
+      "test_registration_matches": true,
+      "observed_tests": [
+        "EachInstrumentedFamilyHasPositiveControl",
+        "FrozenBase64EncodingDoesNotEnterRust",
+        "DisabledCaptureDoesNotEvaluatePayload",
+        "BasicWireTokenAvoidsRustBase64",
+        "DigestNativeCaseUsesOriginalHandlerPath",
+        "NtlmWireTokenAndLaterRoundAvoidRust"
+      ]
+    }
+  ],
+  "scope": "Test-source standalone compilation/object test registration only. Synthetic no-Kerberos is not an evaluated GN configuration; no linked/native/provider/ABI acceptance",
+  "source_and_tool_pins_stable": true
+}

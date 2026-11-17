@@ -15,12 +15,29 @@
     "remaining": "OS memory/disk observations are point-in-time; no retained peak resource trace, avoid causal claims beyond logs"
   },
   "tests": {
-    "status": "not_applicable_read_only",
-    "observed": "Source binding hashes verified unchanged; expert performed no compiler/test/benchmark execution"
+    "status": "passed",
+    "validation_type": "Source-bound research artifact and adopted feedback/error-collection workflow only",
+    "checks": {
+      "candidate_subtree_matches_root": true,
+      "all5immutable_bound_inputs_match": true,
+      "integration_is_ancestor": true,
+      "focused_object_preflight_passed": {
+        "path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T133603174485Z\\connection-fixture-preflight\\result.json",
+        "sha256": "66700fcb576438ccfe9fbae6b795aaa037ac187642a68b0d2e5f45c8847f96d2"
+      },
+      "independent_error_collection_retains_failure": {
+        "path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z\\network-selected-consumer-build-v2\\result.json",
+        "sha256": "fecd0c45b9ce5b2845e33bf464e1fba9382e78b38ec15eb6ac2b975011055000",
+        "observed_successful_edges": 93,
+        "planned_edges": 105
+      }
+    },
+    "not_claimed": "No comparative compilation throughput gain, new native correctness, platform or cutover acceptance"
   },
   "review": {
-    "status": "director_intake",
-    "scope": "Source-bound diagnosis and proposed validation steps; actual acceleration remains to be validated"
+    "status": "accepted",
+    "reviewer": "Director Sol/xhigh, independently checking delivered Sol/high expert artifact and actual gated workflow results",
+    "scope": "Read-only report and limited orchestration adoption: preflight changed objects, retain dirty-edge reasons, compile independent required edges with-k0 while preserving nonzero failure status. Does not approve-j2 or modify compiler/ABI/test acceptance."
   },
   "platform_limits": [
     "Windows local retained build observations only",
@@ -28,5 +45,6 @@
     "No native correctness, performance acceptance or cutover credit"
   ],
   "remaining_native_ownership": "Director owns all configured/GN/toolchain/resource changes",
-  "next_action": "Changed-object preflight and dirty-edge capture adopted as separate gated phase; complete consumer build and ordinary checks still required. Trial-j2 only with demonstrated memory headroom; do not alter current jobs."
+  "next_action": "Report/process adoption complete; use current Network repair/integration tasks for remaining native build and ordinary runtime gates. Any future-j2 trial needs resource qualification; throughput improvement remains unmeasured.",
+  "integration_commit": "7e106bf924baa509d54ce1c339138744a2cb1b01"
 }

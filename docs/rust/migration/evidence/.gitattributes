@@ -7,3 +7,4 @@ base-protocol-fixtures-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-e
 network-base-ordinary-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
 network-build-attestation-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
 network-consumer-progress-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
+auth-observation-preflight-*/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof

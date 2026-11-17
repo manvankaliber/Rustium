@@ -1,0 +1,39 @@
+{
+  "task_id": "NET-COMPILE-INTEGRATION-REVIEW",
+  "candidate_commit": "c3c2e63afdf579205184e0edd5f82805a90c8af2",
+  "integration_commit": "750bc5a1f0eb2347b553b51f3f7d0f1985e75431",
+  "observed_utc": "2026-11-17T14:58:18.627369+00:00",
+  "source_identity": {
+    "reviewed_base": "98652a65b0fd519e15e85ce92e62668df5f4b290",
+    "current_source_authority": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+    "review_artifact": [
+      {
+        "path": "docs/rust/migration/drafts/net-compile-integration-review/REVIEW.md",
+        "git_blob_sha256": "3504154fe767f7359d345e78b18bd6eae33548b3b42d9a7f79f53e6389c4755b"
+      },
+      {
+        "path": "docs/rust/migration/drafts/net-compile-integration-review/disposition.json",
+        "git_blob_sha256": "9159af626e0e6a655d0d058021259cae895890dd3912259777bc42ce38239b89"
+      },
+      {
+        "path": "docs/rust/migration/drafts/net-compile-integration-review/input-bindings.json",
+        "git_blob_sha256": "bf3bc09aec9972e12f8d691b08b439f75f1d1068261484b550e388dcc262935a"
+      }
+    ]
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Clean scoped review artifact and exact Git subtree intake only",
+    "native_compilation_and_runtime": "Not run by reviewer; full current build still fails"
+  },
+  "review": {
+    "status": "needs-repair",
+    "findings": [
+      "P1: reconcile single proxy reference implementation ownership across SPDY DLL and executables",
+      "P2: strict comparator must reject empty, malformed or incomplete records"
+    ],
+    "other_changes": "Conditional source acceptance; build, ABI, link, runtime and output schema evidence required"
+  },
+  "next_action": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified.",
+  "platform_limits": "Source review only; no subsystem cutover, provider independence or platform-wide ABI acceptance"
+}

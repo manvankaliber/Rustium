@@ -1,0 +1,29 @@
+{
+  "task_id": "NET-ORDINARY-COMPILE-REPAIR",
+  "candidate_commit": "f00b0d0c0667a634436f7c75fff11ea3ae25441e",
+  "source_identity": {
+    "artifact_intake_commit": "e70c4fbe094e73024f7c1301ba40c3543949e2a3",
+    "frozen_source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+    "current_source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+    "all_proposal_before_images_match_current_root_and_configured": true,
+    "frozen_originals_verified": 31,
+    "proposed_after_images_verified": 19
+  },
+  "tests": {
+    "status": "pending",
+    "checks": "Clean exact scoped worker, frozen/current inputs, all19after images and patch bytes verified; worker patch application to frozen copies passed",
+    "not_run": "Compiler, GN/link, runtime, harness output compatibility and platform/ABI validation"
+  },
+  "review": {
+    "status": "pending",
+    "required_model": "gpt-6.1-terra",
+    "required_effort": "xhigh"
+  },
+  "platform_limits": [
+    "Windows failures captured; supported-platform qualification pending",
+    "Captured compiler error limits can hide further failures",
+    "Shared URL/GN/exports require director review and guarded application"
+  ],
+  "remaining_cpp_bridge_ownership": "All production/native providers retained; no algorithm fallback into migrated Rust proposed; auth missing8symbols remain separate director action",
+  "next_action": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch"
+}

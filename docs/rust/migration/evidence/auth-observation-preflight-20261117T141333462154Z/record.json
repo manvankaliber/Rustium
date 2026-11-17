@@ -1,0 +1,23 @@
+{
+  "candidate_commit": "89021f54f4b5ac762513fb8114901e6dd6a4754c",
+  "passed": false,
+  "run": "D:\\Rustium\\.scratch\\net-wave5\\auth-observation-preflight-20261117T141333462154Z",
+  "archive_sha256": "177fa5c09b2d9d9cfa526566643421c975af22d9fc24c07c5f268b70e42b4a98",
+  "raw_files": 142,
+  "variants": [
+    {
+      "variant": "windows-kerberos",
+      "exit_code": 1,
+      "test_registration_matches": null,
+      "observed_tests": null
+    },
+    {
+      "variant": "synthetic-no-kerberos",
+      "exit_code": 1,
+      "test_registration_matches": null,
+      "observed_tests": null
+    }
+  ],
+  "scope": "Test-source standalone compilation/object test registration only. Synthetic no-Kerberos is not an evaluated GN configuration; no linked/native/provider/ABI acceptance",
+  "source_and_tool_pins_stable": true
+}

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 441,
-  "updated_utc": "2026-11-17T13:41:42.544262+00:00",
+  "revision": 455,
+  "updated_utc": "2026-11-17T14:58:19.335480+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -2954,7 +2954,7 @@
       },
       "base_revision": "41e9d3e1d2afde92d3a9b2c5da5fb0ccc9014fc6",
       "delivery_commit": "0709518c3eed136d338f0a61728d008c442d9e68",
-      "integration_commit": null,
+      "integration_commit": "7e106bf924baa509d54ce1c339138744a2cb1b01",
       "acceptance_tests": [
         "Trace recommendations to retained actual build edges/configuration and local resources",
         "Review semantics/resource limits and validate concrete scoped improvement through the single gate"
@@ -2967,8 +2967,8 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Use preflight on necessary builds; any -j2 trial needs memory telemetry and existing max2/link-pool constraints",
+      "state": "integrated",
+      "next_action": "Report/process adoption complete; use current Network repair/integration tasks for remaining native build and ordinary runtime gates. Any future-j2 trial needs resource qualification; throughput improvement remains unmeasured.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-native-build-throughput-sha256-0959c14555f9fab9163409b78d5f3ad9583ee8f31d07fc5d082dfebbc16d1a96.json",
@@ -2989,6 +2989,14 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
           "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-native-build-throughput-sha256-93f648459f5068d763cd668d5a93f69cff51b1622c9f5ad29ea0e3c9e820e48a.json",
+          "sha256": "93f648459f5068d763cd668d5a93f69cff51b1622c9f5ad29ea0e3c9e820e48a"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-native-build-throughput-sha256-93f648459f5068d763cd668d5a93f69cff51b1622c9f5ad29ea0e3c9e820e48a.json",
+          "sha256": "93f648459f5068d763cd668d5a93f69cff51b1622c9f5ad29ea0e3c9e820e48a"
         }
       ],
       "stages": {
@@ -3048,6 +3056,16 @@
           "utc": "2026-11-17T13:41:42.351999+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T14:28:15.153884+00:00",
+          "action": "merge-ready",
+          "note": "Report/process adoption complete; use current Network repair/integration tasks for remaining native build and ordinary runtime gates. Any future-j2 trial needs resource qualification; throughput improvement remains unmeasured."
+        },
+        {
+          "utc": "2026-11-17T14:28:15.368737+00:00",
+          "action": "integrated",
+          "note": "Report/process adoption complete; use current Network repair/integration tasks for remaining native build and ordinary runtime gates. Any future-j2 trial needs resource qualification; throughput improvement remains unmeasured."
         }
       ],
       "context_directories": [
@@ -3563,15 +3581,15 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "terra-network-ordinary-compile-repair-20261117",
-        "worktree": null,
-        "branch": null,
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8f16eba3-4cafc62ed99ba76d",
+        "branch": "rust/net-ordinary-compile-repair-20261117",
         "model": "gpt-6.1-terra",
         "effort": "xhigh"
       },
       "base_revision": "006c94bba4f4658b74c8f527455703228f6ae39c",
-      "delivery_commit": null,
+      "delivery_commit": "f00b0d0c0667a634436f7c75fff11ea3ae25441e",
       "integration_commit": null,
       "acceptance_tests": [
         "All remaining diagnostics outside5director-owned connection fixtures mapped to exact unchanged source/assertions",
@@ -3591,12 +3609,16 @@
         "status": "unmeasured",
         "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
       },
-      "state": "assigned",
-      "next_action": "Await current Terra preparation completion automatically; verify exact clean base/sparse checkout, bind through helper, then source-only repair proposals outside5director-owned files",
+      "state": "validating",
+      "next_action": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch",
       "evidence": [
         {
           "path": "docs/rust/migration/evidence/network-preparation-wait-20261117.json",
           "sha256": "1c2d33d221ea4534e94209cb22033b5e14a7588aacfd8d1b1c2989157de78867"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-ordinary-compile-repair-sha256-59e8373c52e1a659b60c09c8df0cb2568297a5416a8e7504f79164dac0efa7ef.json",
+          "sha256": "59e8373c52e1a659b60c09c8df0cb2568297a5416a8e7504f79164dac0efa7ef"
         }
       ],
       "stages": {
@@ -3621,12 +3643,131 @@
           "utc": "2026-11-17T13:41:23.433172+00:00",
           "action": "amended",
           "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T13:43:24.267804+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-8f16eba3-4cafc62ed99ba76d"
+        },
+        {
+          "utc": "2026-11-17T13:43:24.284491+00:00",
+          "action": "implementing",
+          "note": "Terra checkout exact clean base/sparse bound; remaining Network compiler proposals only, frozen source authoritycd80 and full terminal diagnostics; Root5connection repairs excluded"
+        },
+        {
+          "utc": "2026-11-17T14:22:55.986990+00:00",
+          "action": "submitted",
+          "note": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch"
+        },
+        {
+          "utc": "2026-11-17T14:22:56.150374+00:00",
+          "action": "validating",
+          "note": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch"
         }
       ],
       "context_directories": [
         "docs/rust",
         "net/spdy",
         "net/http"
+      ]
+    },
+    {
+      "id": "NET-COMPILE-INTEGRATION-REVIEW",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Independently qualify the19remaining Network compiler repairs and8auth-symbol additive export proposal before guarded integration",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "docs/rust/migration/drafts/net-ordinary-compile-repairs",
+          "docs/rust/migration/drafts/net-auth-link-qualification"
+        ],
+        "revision": "98652a65b0fd519e15e85ce92e62668df5f4b290",
+        "source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+        "freeze_status": "Exact source proposals,31frozen originals plus5auth headers/5definition bodies and retained complete compiler log/graph"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-compile-integration-review"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns all GN/toolchain/configured changes; expert read-only until a source-bound proposal is reviewed"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "reviewer",
+      "assignment": {
+        "active": false,
+        "session": "terra-network-compile-integration-review-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-compile-integration-review-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "98652a65b0fd519e15e85ce92e62668df5f4b290",
+      "delivery_commit": "c3c2e63afdf579205184e0edd5f82805a90c8af2",
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Verify frozen/current before hashes and no excluded connection overlap or test/loop/schema weakening",
+        "Review private URL friendship,3DNS and8auth component symbols using actual producer flags/ownership and relevant ABI/consumer boundary",
+        "Check callback adapters, moved key functions, timers/clocks and harness output compatibility; concrete preservation-aware findings or source-scope acceptance only"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No extra native build or benchmark permitted during investigation"
+      },
+      "performance": {
+        "status": "investigating build throughput only",
+        "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
+      },
+      "state": "validating",
+      "next_action": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified.",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-compile-integration-review-sha256-fcfcd781a28c1a9cc2605c80ef7eaf93c05e69beb9cf64dc3196e2901e2f47d8.json",
+          "sha256": "fcfcd781a28c1a9cc2605c80ef7eaf93c05e69beb9cf64dc3196e2901e2f47d8"
+        }
+      ],
+      "stages": {
+        "implementation": "Independent review requested",
+        "configured_validation": "Full build failed; focused connection6objects and auth test2variant source preflight passed at stated narrow scopes",
+        "production_integration": "No19-file orauth-export proposals applied",
+        "rust_ownership": "Existing Rust policy retained; no original fallback into migrated policy allowed",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T14:32:10.188511+00:00",
+          "action": "enqueued",
+          "note": "Independently qualify the19remaining Network compiler repairs and8auth-symbol additive export proposal before guarded integration"
+        },
+        {
+          "utc": "2026-11-17T14:32:10.213528+00:00",
+          "action": "assigned",
+          "note": "terra-network-compile-integration-review-20261117"
+        },
+        {
+          "utc": "2026-11-17T14:32:10.606788+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T14:32:10.627308+00:00",
+          "action": "implementing",
+          "note": "Review exact19-file repair and5-header export packets using captured producer graph, callbacks/lifetimes, output schemas and independent references; no builds or configured writes"
+        },
+        {
+          "utc": "2026-11-17T14:58:19.165244+00:00",
+          "action": "submitted",
+          "note": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified."
+        },
+        {
+          "utc": "2026-11-17T14:58:19.335170+00:00",
+          "action": "validating",
+          "note": "Director repairs proxy component ownership and comparator, pins classic output locale, then applies guarded reviewed changes, regenerates GN, preflights affected objects and completes required consumer links. Auth probe wiring remains separately unqualified."
+        }
+      ],
+      "context_directories": [
+        "base/strings"
       ]
     }
   ],
