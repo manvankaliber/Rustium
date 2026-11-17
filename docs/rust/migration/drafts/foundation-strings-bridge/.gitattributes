@@ -1,3 +1,5 @@
 source-before/** -text whitespace=cr-at-eol
 accepted-policy/** -text whitespace=cr-at-eol
 source-manifest.json -text whitespace=cr-at-eol
+application-*.json -text whitespace=cr-at-eol
+connection-application-*.json -text whitespace=cr-at-eol

@@ -4,7 +4,7 @@ The accepted Rust policy is copied byte-for-byte beside a director-owned CXX typ
 
 The native/GN beforeimages bind current primary bytes, including the preexisting dirty base/BUILD.gn that matches the configured checkout. The independent original algorithm/helper/test archive remains in accepted-policy. Hashes and Git blob identities are recorded separately.
 
-The C++ adapter and GN proposal remain to be written and independently reviewed. Their required contracts are:
+The phase-A C++ adapter, GN wiring and native tests are now prepared and remain uncompiled/unapplied pending independent review. Phase A routes the eight existing out-of-line byte once/key-value entrypoints through Rust. Header-inline any/substr/UTF-16/wide public paths retain C++ ownership until a separate complete affected-consumer milestone; typed UTF-16 wire entrypoints are proposed and native ABI tests are prepared. The contracts are:
 
 - Preserve all public signatures and native vector/string ownership. Runtime split policy executes in Rust. Preserve the existing C++ constant-evaluation path until those callers migrate; that is explicit remaining C++ policy ownership.
 - Translate null native empty inputs to a stable nonnull empty CXX slice, and reconstruct default-empty versus input-borrowed empty views separately. Return the original input view directly for a whole-input result, preserving a null empty input without null pointer arithmetic. Validate offsets with subtraction before taking native substrings.
@@ -13,5 +13,7 @@ The C++ adapter and GN proposal remain to be written and independently reviewed.
 - Generated CXX FFI requires the existing audited-provider unsafe allowance; authored policy/glue is safe. GN/export/component/ABI, allocator/exception/OOM, supported-platform, constexpr and callback-free lifetime contracts need ordinary independent review and configured tests.
 
 Before production intake, audit existing frozen networking originals for calls to base split APIs. Any such baseline must bind its frozen C++ splitting helper before the production API starts routing to Rust. Reuse existing independent references, preserve benchmark membership and raw evidence, and schedule measurement only under the established batch gate. No original baseline may silently inherit migrated Rust policy.
+
+The connection audit found the original SSL test's trust-anchor string split. `connection-application-v5.json` now stages its independent C++ helper binding: four namespaced original headers, the existing SSL test call and GN source ownership, preserving all other v4 sources and cases. The v4 package is unchanged. This is required before phase-B inline routing; dropping the test from acceptance is not an alternative. The new binding remains uncompiled and unapplied.
 
 Validation is pending: typed-bridge compiler/tests, native null/default-empty/offset/code-unit/lifetime cases, all original C++ string split fixtures including constant evaluation and Windows wide surfaces, GN/dependency consumers, and whole production-path checks. No performance, production ownership or cutover acceptance is claimed.

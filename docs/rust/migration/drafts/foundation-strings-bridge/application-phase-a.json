@@ -1,0 +1,39 @@
+{
+  "bindings": [
+    {
+      "path": "base/BUILD.gn",
+      "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\BUILD.gn",
+      "before_sha256": "b9a58423b54935a730b5fc85bbfa2f6d7929a78258c18bb4c7ffa849ddf89a14",
+      "after_sha256": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split.cc",
+      "before_sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "after_sha256": "8139469c1dcb56b7d11d7f29ffe2728ebe251a848f6d62df7ca1d0167fece53c"
+    },
+    {
+      "path": "base/strings/string_split_rust.rs",
+      "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split_rust.rs",
+      "before_sha256": null,
+      "after_sha256": "c19dc1a1084509d2dcc22c6041a50e476c870690d5363771994c9e45ca2773fc"
+    },
+    {
+      "path": "base/strings/string_split_rust_bridge_unittest.cc",
+      "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split_rust_bridge_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "13afe81cdf4a9de182c45a483f333bb413c85dc35c0d94445344819dd6fa0ac3"
+    },
+    {
+      "path": "base/strings/string_split_rust_policy.rs",
+      "source": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\foundation-strings-bridge\\proposal\\base\\strings\\string_split_rust_policy.rs",
+      "before_sha256": null,
+      "after_sha256": "84dbcdd6cebf07bd5ab4e0835210adecc9ddc2c79abea6414d7698d27a1b04ec"
+    }
+  ],
+  "scope": "PhaseA:8 out-of-line byte once/keyvalue entrypoints route to Rust; constexpr/header any/substr/wide public paths remain original C++ until separate affected-consumer phaseB",
+  "applied": false,
+  "compiler_or_native_execution": false,
+  "remaining_phase_b": "Header runtime any/substr/16bit/wide dispatch requires independent baseline helper binding and complete consumer rebuild; typed Rust entrypoints are proposed and native ABI tests prepared, not production coverage",
+  "qualification": "Source/hash-bound proposal only; GN formatting and Rust glue formatting done, no source install/compiler/native test/performance acceptance"
+}

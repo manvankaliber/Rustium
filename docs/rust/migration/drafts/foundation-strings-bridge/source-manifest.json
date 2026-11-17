@@ -66,6 +66,20 @@
       "git_blob": "6905d466fec69953183a0b9bf520a7e5b4f0e8e2",
       "git_blob_is_not_raw_hash": true,
       "configured_same_bytes": true
+    },
+    {
+      "path": "base/containers/span_rust.h",
+      "source_workspace": "D:\\Rustium",
+      "sha256": "f60a895a70b2081c6b143f303286154a15c47e7cfaa3548195e87351b3021b96",
+      "git_blob": "b8e01ad6aa9ca783630818fea252fe7d2443d360",
+      "configured_same_bytes": true
+    },
+    {
+      "path": "base/containers/span.h",
+      "source_workspace": "D:\\Rustium",
+      "sha256": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+      "git_blob": "184b8c3574aac88043ed351590e807ba2a69e036",
+      "configured_same_bytes": true
     }
   ],
   "production_or_configured_changes": false,
