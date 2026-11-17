@@ -1,0 +1,37 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-REVIEW",
+  "candidate_commit": "1fd755aa78d20d08e724283f77a6a025d2853338",
+  "source_identity": {
+    "reviewed_candidate": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+    "artifact_intake_commit": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+    "review_files": {
+      "docs/rust/migration/drafts/net-auth-reference-review/REVIEW.md": "1d89eb6a284fd2814b98cd9eefb397fdef311cdeb649cfc03c371575a3d78e22",
+      "docs/rust/migration/drafts/net-auth-reference-review/disposition.json": "b8169814004da896884cd21400a6523e186131bb65a4b913edda9abcfeffd581",
+      "docs/rust/migration/drafts/net-auth-reference-review/input-bindings.json": "0c556e0327157291542c1177c09e7c49cdf3d15661f5f1366770e3969fe61198"
+    },
+    "current_source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0"
+  },
+  "tests": {
+    "status": "pending",
+    "checks": "Terra verified125Gitblobs,71frozen inputs,40proposal hashes and7source-preserving instrumented Rust copies; git diff--check and clean scoped review commit",
+    "not_run": "All compiler, GN/link/probe and Windows/POSIX runtime qualification"
+  },
+  "review": {
+    "status": "needs-repair",
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "findings": [
+      "Windows counter observation windows may end before SequenceBound cleanup/provider release",
+      "Isolated GN/CXX probe source selection and unique symbol ownership need concrete wiring/link/isolation verification",
+      "Common auth tests and positive controls incorrectly omitted when Kerberos disabled"
+    ],
+    "algorithm_defect_established": false,
+    "report": "D:\\RustiumReview\\docs\\rust\\migration\\drafts\\net-auth-reference-review\\REVIEW.md"
+  },
+  "platform_limits": [
+    "No compiled or executed platform evidence",
+    "Non-auth reference closure remains open"
+  ],
+  "remaining_cpp_bridge_ownership": "Director retains shared URL/ABI/GN/exports and isolated qualification integration; no proposal applied",
+  "next_action": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application"
+}

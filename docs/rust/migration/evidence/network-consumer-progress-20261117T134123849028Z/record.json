@@ -1,0 +1,368 @@
+{
+  "observed_utc": "2026-11-17T13:41:23.849028+00:00",
+  "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/raw-evidence.zip",
+  "archive_sha256": "8a789aee6de318ac5f2c7fb122d0d4b33f074d23aa4dfe65809c865e42e43bf6",
+  "raw_files": 35,
+  "raw_bytes": 3824036,
+  "archive_bytes": 907421,
+  "source_identity": {
+    "candidate_commit": "ccb6abc3188c6ef8af599836772c6ca6cf89bd51",
+    "artifact_integration_commit": "a76217becc640ea8be643a2a732bbaf7ad702068",
+    "applied_bindings": 67,
+    "source_manifest": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T133603174485Z\\source-manifest.json",
+    "source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+    "source_count": 1261,
+    "both_checkouts_matched": true,
+    "prior_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "run_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T133603174485Z",
+    "status": "Batched flow/provider helper compiler repairs applied; original expected cases retained; current consumer rebuild/native pending",
+    "preexisting_dirty_inputs_preserved_in_before_images": true,
+    "v4_package_unchanged": true,
+    "prior_intake_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z",
+    "director_integration_overlays": [
+      {
+        "path": "net/BUILD.gn",
+        "before_sha256": "566304c8408940e4a75df700fe94e0b96623fa2bc84a680df6d4174edde647dd",
+        "after_sha256": "df93d48dbce18b153dc2557aa41c22da7d203280ce22803da2d035f655c9cff8",
+        "reason": "Actual GN header check requires independent net_error_rust_reference dependency",
+        "effect": "Build dependency only; no source policy/test assertions changed"
+      },
+      {
+        "path": "base/strings/string_split.cc",
+        "before_sha256": "5262309c26f9c5df853bf2e1f393609db35feb2f5c669b59e0a305d179849398",
+        "after_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+        "reason": "Configured compiler requires check_op.h for CHECK_EQ/CHECK_LE; no authored policy change"
+      },
+      {
+        "path": "base/strings/string_split_rust.rs",
+        "before_sha256": "f55201ef98d945f085016246939e9d6ba1c2577a3ec9864bcfa5e80e93c72932",
+        "after_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+        "reason": "Private module contains complete accepted policy;12 not-yet-routed APIs trigger deny(dead_code). Local module-only allowance; no policy/test/lint acceptance weakened."
+      },
+      {
+        "path": "base/strings/string_split_rust_bridge_unittest.cc",
+        "before_sha256": "08c6b7462353e8a2bbab7ee2a185a44c4562ae987c40a92871c40a753c19c457",
+        "after_sha256": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+        "reason": "Two test-only offsets now use bounded string_view substr; identical offset/identity expectations, no unsafe-buffer suppression or policy changes"
+      },
+      {
+        "path": "base/test/run_all_unittests.cc",
+        "before_sha256": "242f989895fbc7b91228e761aa11d62c2ffea36f8da21bc2158ee15f9496e901",
+        "after_sha256": "3d24c43411342948c4cb19195b489b88b1c6bdfcc3032eb9070cfc1ac6eea601",
+        "reason": "Native62test run completed but parent debug.log changed sealed membership; early Windows stderr initialization mirrors reviewed Net launcher repair, no expected cases or compiler checks changed"
+      },
+      {
+        "path": "net/socket/connect_job_rust_test_support.h",
+        "source": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T122036702206Z\\after-connect_job_rust_test_support.h",
+        "before_sha256": "183cf36534c87b0eff4207db7244f79490a526951b03af3e5291d601714e2e05",
+        "after_sha256": "bcd0f5cf536d0abf01d44b44a5992ddedefa62c78af40682a6b44768a292de82",
+        "kind": "Director compiler-policy repair of nonowning test helper fields"
+      },
+      {
+        "path": "net/socket/connect_job_rust_test_support.cc",
+        "source": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T122036702206Z\\after-connect_job_rust_test_support.cc",
+        "before_sha256": "d56ec021cda690839ac03483413d197d692bd7d9c9596f7d2c8b7c8649bb465c",
+        "after_sha256": "9dd2887932fb8035b7868beabe6ce3e813dffec8a1c94f85687c3319a34c2550",
+        "kind": "Director compiler-policy repair of nonowning test helper fields"
+      },
+      {
+        "path": "net/http/connection_auth_baseline_unittest.cc",
+        "before_sha256": "f40cf2d0b69ce0b8f9fa5c7e019a6814e5bebab0c5eb240b7a16adb2fc43fdde",
+        "after_sha256": "e97ddce6f2fc2e9f5ee84e14018f2e6b9d08b5cd395274a64acd2a0303a0d0e6",
+        "reason": "Compiler fixture adaptation, same values/cases/ownership/callback deletion semantics"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+        "before_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+        "after_sha256": "1c5f88c4f1598520aba5d7bde7be11c326ad13986df0b04e97fa1ce7528daee2",
+        "reason": "Compiler fixture adaptation, same values/cases/ownership/callback deletion semantics"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+        "before_sha256": "1c5f88c4f1598520aba5d7bde7be11c326ad13986df0b04e97fa1ce7528daee2",
+        "after_sha256": "da9d911100c52d7b9e55598e7affa82bf43e01d6c65c6f6ebb7866d979d1246e",
+        "reason": "Exact include correction after overbroad member-access replacement; all case values/assertions unchanged"
+      },
+      {
+        "path": "net/http/http_proxy_connect_job_rust_original_unittest.cc",
+        "before_sha256": "a9f890327e3d45fccae3d1a004acb9967c3fcb5985ca84f0d0d79fadcde0ccd8",
+        "after_sha256": "7e6eededda642af168e6e5003d83fb08d935aeee49ea94aaaf9b60a7e431689b",
+        "reason": "Immutable fixture-owned constants and five explicit borrowed controller.get() calls; original assertions unchanged"
+      },
+      {
+        "path": "net/http/http_proxy_connect_job_unittest.cc",
+        "before_sha256": "2cd01aaf7e7fb831f9b0acb0062949c2050d74829a5f1c8ad8216435196381f1",
+        "after_sha256": "0ef1f60a092afa43b90e7656fc26b9b1c3d94335821abefae62a5dbc3be5bc55",
+        "reason": "Fixture-owned immutable proxy constants; original production-test assertions and wire values preserved"
+      },
+      {
+        "path": "net/socket/connection_jobs_http2_baseline_unittest.cc",
+        "before_sha256": "c8d16f50ad09b49000a77752ad4d677972e0ffa32c1f277735840af668f0871d",
+        "after_sha256": "3d849e81f727ccb54ac945ee36f7c75771af1f7db3fc258ebcf94a864132c18a",
+        "reason": "Preserve callback reentrant deletion using explicit nonowning raw_ref wrappers; same original expectations"
+      },
+      {
+        "path": "net/socket/ssl_connect_job_rust_original_unittest.cc",
+        "before_sha256": "f7f9682092b8181c6e79630a50496be4ae97ea61a6f41e7f28bfad2dcd59f453",
+        "after_sha256": "e9f246f9da271e9d6bef8480359ad4f4c988b822364af5641c4d479e906eb0ac",
+        "reason": "Fixture-owned immutable SSL test constants and three explicit borrowed controller.get() calls; original assertions preserved"
+      },
+      {
+        "path": "net/socket/ssl_connect_job_unittest.cc",
+        "before_sha256": "aa2897fa120ae4c836b2f9fd608554041cb7cd7d584c478e28164ebff88f59be",
+        "after_sha256": "bac4fe7b8cdea8efe70bc8fcfdca4ef3f9c1b29c8e9698c43716fec757968786",
+        "reason": "Fixture-owned immutable native SSL test constants; original assertions preserved"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_test_support.h",
+        "before_sha256": "501dc46fc6567c0609a5ada747c693cf53818c65584ad3cc298d2abbb12d61f0",
+        "after_sha256": "9422ca3e981e431b610620c5b2bd8c33139901591312b7e32455277564afe391",
+        "reason": "Nonowning upper test helper Trace and pending handle fields use raw_ref/raw_ptr; callback lifetime and expectations preserved"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_test_support.cc",
+        "before_sha256": "55849d6abc98e1d8e93431c7ca9411740e56370ee50d6c0ec435ddf197756d17",
+        "after_sha256": "b8792828a43eb10cdd7ced430a7d03736de0b8ca353b64f9f2033138b0c01f36",
+        "reason": "Upper fake socket accesses its borrowed raw_ref Trace; same events and sequence"
+      },
+      {
+        "path": "net/socket/connection_jobs_upper_rust_test_support.h",
+        "before_sha256": "9422ca3e981e431b610620c5b2bd8c33139901591312b7e32455277564afe391",
+        "after_sha256": "ff8f7e2261e54bd16a5a05d9ec91024a5fa7b86891928aac75c365b44bcef6dd",
+        "reason": "Retain fake provider pending handle only during an asynchronous request; synchronous/error paths do not retain an unused dangling borrow. Original events and case expectations preserved"
+      },
+      {
+        "path": "net/socket/connection_jobs_family_flow_fixture.h",
+        "before": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\before\\net\\socket\\connection_jobs_family_flow_fixture.h",
+        "before_sha256": "4442228e789f30a028f89ecb6022edabe35b26733e7e7dec89d79c34660e0b63",
+        "source": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\after\\net\\socket\\connection_jobs_family_flow_fixture.h",
+        "after_sha256": "bfc6a9d20a846558ad6acc75df2833a2ee693068531959352886d3a6cbe6d914",
+        "reason": "Nonowning flow provider trace/handle wrappers; preserve exchange-before-publication ordering"
+      },
+      {
+        "path": "net/socket/connection_jobs_family_flow_unittest.cc",
+        "before": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\before\\net\\socket\\connection_jobs_family_flow_unittest.cc",
+        "before_sha256": "9e1864cb9b8a2f11d0f2d72fdc589bce711fe19739235596fb5ba20a5d2daf8f",
+        "source": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\after\\net\\socket\\connection_jobs_family_flow_unittest.cc",
+        "after_sha256": "668244573ab67b0b85df70b53a3435b2c2788d20eec41a92661bf778228d52da",
+        "reason": "Resolve free fixture Run template explicitly instead of inherited private testing::Test::Run; same8expected comparisons"
+      },
+      {
+        "path": "net/socket/connection_jobs_family_rust_unittest.cc",
+        "before": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\before\\net\\socket\\connection_jobs_family_rust_unittest.cc",
+        "before_sha256": "043d7b7c54ffe16872e08db7779f524b8502edcd349401633fd438f3e27f9dce",
+        "source": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\after\\net\\socket\\connection_jobs_family_rust_unittest.cc",
+        "after_sha256": "77eb6cb57593e2f5ad111dc8c919623ff43699a6873507882f994fcddf6643d3",
+        "reason": "Resolve free family Run explicitly instead of inherited private testing::Test::Run; same2expected comparisons"
+      },
+      {
+        "path": "net/socket/connection_jobs_provider_wiring_unittest.cc",
+        "before": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\before\\net\\socket\\connection_jobs_provider_wiring_unittest.cc",
+        "before_sha256": "0198a83c2140cad49bb0bcadd8d70b1a2ee3af8601cfab935c4360c1dfbe0cfe",
+        "source": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\after\\net\\socket\\connection_jobs_provider_wiring_unittest.cc",
+        "after_sha256": "93bf1f96af4659b0d0a54476b39e8ddb568b45950c72d20eaf01971b392abf68",
+        "reason": "Observed native provider borrowed pointers use raw_ptr; same identities/ownership assertions"
+      },
+      {
+        "path": "net/socket/socket_pool_additional_capacity_rust_original_unittest.cc",
+        "before": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\before\\net\\socket\\socket_pool_additional_capacity_rust_original_unittest.cc",
+        "before_sha256": "09104497702088497917a20424757a25c155802a5a9a478f2fb757b1165bf4fb",
+        "source": "D:\\Rustium\\.scratch\\net-wave5\\prepared-network-compiler-fixtures-20261117T132648846422Z\\after\\net\\socket\\socket_pool_additional_capacity_rust_original_unittest.cc",
+        "after_sha256": "65c9d4b81adabedd1ba9e1ccd7b47378adff521292aaeb2013b3ffb5f140f29d",
+        "reason": "Adapt independent original enum callbacks to native statistical test helper with explicit conversion and compile-time equality of both enumerators; all100iterations and expected bounds unchanged"
+      }
+    ]
+  },
+  "terminal_jobs": [
+    {
+      "job_id": "062af6e14c3d46a2b9f320b96c689862",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+      "record": "job-062af6e14c3d46a2b9f320b96c689862.json"
+    },
+    {
+      "job_id": "082c344920dc4b8dafd135670ca93800",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+      "record": "job-082c344920dc4b8dafd135670ca93800.json"
+    },
+    {
+      "job_id": "0ca5c1aa93a2459aba572fa22c153f33",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
+      "record": "job-0ca5c1aa93a2459aba572fa22c153f33.json"
+    },
+    {
+      "job_id": "0ceb177731554cd58d323114e65f48c0",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+      "record": "job-0ceb177731554cd58d323114e65f48c0.json"
+    },
+    {
+      "job_id": "1370a5766d244c529c659188a36b468e",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "dc6d179c3182c54889065b8e235f12ab5271672b3c03492814a58adb65fe8507",
+      "record": "job-1370a5766d244c529c659188a36b468e.json"
+    },
+    {
+      "job_id": "1a8ab445fc3f4825a8f80e433cc8d7b9",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "caa975a2d6c17e8a015579c7d3e4ef92d78f306248138e38f8d5916ecb2d679d",
+      "record": "job-1a8ab445fc3f4825a8f80e433cc8d7b9.json"
+    },
+    {
+      "job_id": "1b3429bf1ba945bb90267b36d4da6db0",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "7f7c740de50a68a9bb5e50b724a6f6d8a2a59d7caa886347b3bfecf4bf585544",
+      "record": "job-1b3429bf1ba945bb90267b36d4da6db0.json"
+    },
+    {
+      "job_id": "23877fedbd304a9394e23d569dc73960",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "18b7f5db159a365eddb87d4a0be1a2b1ec7029a244cb6fb658bc252db2d6c152",
+      "record": "job-23877fedbd304a9394e23d569dc73960.json"
+    },
+    {
+      "job_id": "23ce8dc6cfc4403c9a5b2defbfc453ac",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+      "record": "job-23ce8dc6cfc4403c9a5b2defbfc453ac.json"
+    },
+    {
+      "job_id": "5b759493eaf04afe9912fafac410ad17",
+      "status": "failed",
+      "kind": "test",
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+      "record": "job-5b759493eaf04afe9912fafac410ad17.json"
+    },
+    {
+      "job_id": "6139a805237f4f6bacc7723d7fac336c",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "47453b88f70d02febc31d22c2bc562c426ec851d89ca376b6a203743b365f4ad",
+      "record": "job-6139a805237f4f6bacc7723d7fac336c.json"
+    },
+    {
+      "job_id": "641c9306c1c548c692b034a36d1209fe",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+      "record": "job-641c9306c1c548c692b034a36d1209fe.json"
+    },
+    {
+      "job_id": "64acae260e6d45e9a855963be19031e6",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "47453b88f70d02febc31d22c2bc562c426ec851d89ca376b6a203743b365f4ad",
+      "record": "job-64acae260e6d45e9a855963be19031e6.json"
+    },
+    {
+      "job_id": "6828f3dcb2a04b968d2ae7fda2b47db0",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+      "record": "job-6828f3dcb2a04b968d2ae7fda2b47db0.json"
+    },
+    {
+      "job_id": "735a7c46967c43dcbc853f05e8f7a598",
+      "status": "passed",
+      "kind": "test",
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+      "record": "job-735a7c46967c43dcbc853f05e8f7a598.json"
+    },
+    {
+      "job_id": "7b2f9017fa0d4d6ca22fc6c03973cbc0",
+      "status": "passed",
+      "kind": "test",
+      "source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+      "record": "job-7b2f9017fa0d4d6ca22fc6c03973cbc0.json"
+    },
+    {
+      "job_id": "80ab74cd81644390a6a9af917382fe27",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "e508c7541a4a65a99382fab725e47d686007168ba6dc366347a76813bf1f85c4",
+      "record": "job-80ab74cd81644390a6a9af917382fe27.json"
+    },
+    {
+      "job_id": "81ad1f5236244d048be7cfcf53800929",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "47453b88f70d02febc31d22c2bc562c426ec851d89ca376b6a203743b365f4ad",
+      "record": "job-81ad1f5236244d048be7cfcf53800929.json"
+    },
+    {
+      "job_id": "a6013600f49441f1bb3ebeea5ba58f05",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "dc6d179c3182c54889065b8e235f12ab5271672b3c03492814a58adb65fe8507",
+      "record": "job-a6013600f49441f1bb3ebeea5ba58f05.json"
+    },
+    {
+      "job_id": "b3c1bd327d964b8da971904d15ccd6e7",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "774df90a3f27bf0433babf0cd31606703ed2edb962481b51f1dc58cb613d929e",
+      "record": "job-b3c1bd327d964b8da971904d15ccd6e7.json"
+    },
+    {
+      "job_id": "c75219f2cd8c4fb3b9619d1788d201f6",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+      "record": "job-c75219f2cd8c4fb3b9619d1788d201f6.json"
+    },
+    {
+      "job_id": "de2793f9c2644a09bcbf9c664ab86b4a",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "18b7f5db159a365eddb87d4a0be1a2b1ec7029a244cb6fb658bc252db2d6c152",
+      "record": "job-de2793f9c2644a09bcbf9c664ab86b4a.json"
+    },
+    {
+      "job_id": "e0672056bd1c49d283fd09e454255e32",
+      "status": "failed",
+      "kind": "build",
+      "source_manifest_sha256": "83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5",
+      "record": "job-e0672056bd1c49d283fd09e454255e32.json"
+    },
+    {
+      "job_id": "e4da9710b50d44d2ac07d1f3959cbcb7",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "e75d2f9aabd9504bf67b8d2c44aeaa768397fa2898e1490e872fec060d9b3139",
+      "record": "job-e4da9710b50d44d2ac07d1f3959cbcb7.json"
+    },
+    {
+      "job_id": "f8876a23cbaf4c438beed3ce6f0c11b4",
+      "status": "passed",
+      "kind": "build",
+      "source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0",
+      "record": "job-f8876a23cbaf4c438beed3ce6f0c11b4.json"
+    },
+    {
+      "job_id": "ff50280928e14ac6a9c73589b8b928fd",
+      "status": "passed",
+      "kind": "sync",
+      "source_manifest_sha256": "83075f105ebbc29f0fb1b01b031667a6448a7bcc4ec381f774b2d950679ad2f5",
+      "record": "job-ff50280928e14ac6a9c73589b8b928fd.json"
+    }
+  ],
+  "current_build_directory": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T132029890711Z\\network-selected-consumer-build-v2",
+  "scope": "Raw discovery, failed compiler/preflight runs, exact source repairs and controller provenance. No complete consumer/ABI, native four-family, performance, platform or cutover acceptance.",
+  "prior_progress_archive": {
+    "record": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-consumer-progress-20261117T132801769872Z\\record.json",
+    "record_sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5",
+    "archive": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/raw-evidence.zip",
+    "archive_sha256": "033276cefc22456d754e12568477ab090967a5b59ff95bcf24a97184b3677140"
+  }
+}

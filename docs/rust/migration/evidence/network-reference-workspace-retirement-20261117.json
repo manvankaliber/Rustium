@@ -1,0 +1,17 @@
+{
+  "observed_utc": "2026-11-17T13:34:08.719319+00:00",
+  "removed_clean_worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-b9522825-1c2d775265c524e6",
+  "retained_branch": "rust/net-connection-reference-independence-20261117",
+  "retained_candidate_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "artifact_subtree": "docs/rust/migration/drafts/net-connection-reference-independence",
+  "candidate_and_root_tree": "8f90308770e93c68cfeeb9a27ff0cb81d7532b48",
+  "checks": [
+    "Latest worker task completed; assignment inactive",
+    "Exact candidate HEAD; clean including ignored/untracked files",
+    "Resolved absolute target within named T3 worker root",
+    "Exact candidate subtree already committed in Root; branch retained"
+  ],
+  "scope": "Retire clean delivered sparse workspace to reuse bounded8worker pool; no configured cache, frozen run, source candidate or branch deleted",
+  "empty_directory_retained": true,
+  "windows_cleanup_limitation": "Git unregistered and removed all checkout content; exit255reported permission denied removing final empty directory. Empty directory retained; no forced deletion or branch/source loss."
+}

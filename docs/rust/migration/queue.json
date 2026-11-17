@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 430,
-  "updated_utc": "2026-11-17T13:28:19.207414+00:00",
+  "revision": 441,
+  "updated_utc": "2026-11-17T13:41:42.544262+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -2985,6 +2985,10 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
           "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
+          "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
         }
       ],
       "stages": {
@@ -3037,6 +3041,11 @@
         },
         {
           "utc": "2026-11-17T13:28:19.032695+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:41:42.351999+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -3110,6 +3119,14 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
           "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-preparation-wait-20261117.json",
+          "sha256": "1c2d33d221ea4534e94209cb22033b5e14a7588aacfd8d1b1c2989157de78867"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
+          "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
         }
       ],
       "stages": {
@@ -3162,6 +3179,16 @@
         },
         {
           "utc": "2026-11-17T13:28:18.846308+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:41:23.416152+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-17T13:41:42.159337+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -3243,6 +3270,10 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T132801769872Z/record.json",
           "sha256": "adefbf0f1ea33c1e5104ad5d1521a1e2082327b325bc3ea6f3f68f3b106398f5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
+          "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
         }
       ],
       "stages": {
@@ -3295,6 +3326,11 @@
         },
         {
           "utc": "2026-11-17T13:28:19.207102+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T13:41:42.543939+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -3429,7 +3465,7 @@
       "blockers": [],
       "role": "reviewer",
       "assignment": {
-        "active": true,
+        "active": false,
         "session": "terra-auth-reference-review-20261117",
         "worktree": "D:\\RustiumReview",
         "branch": "rust/net-auth-reference-review-20261117",
@@ -3437,7 +3473,7 @@
         "effort": "xhigh"
       },
       "base_revision": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
-      "delivery_commit": null,
+      "delivery_commit": "1fd755aa78d20d08e724283f77a6a025d2853338",
       "integration_commit": null,
       "acceptance_tests": [
         "Compare proposed named provider algorithms/OS handles/callback paths to71frozen inputs",
@@ -3452,9 +3488,14 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "implementing",
-      "next_action": "Independent Terra exactauth provider/test/probe review; no builds/tests or configured writes",
-      "evidence": [],
+      "state": "validating",
+      "next_action": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-connection-reference-review-sha256-1c11ca3d69805c4879c7be3ffdc17093f07a364589c642e3beb6fee15742b761.json",
+          "sha256": "1c11ca3d69805c4879c7be3ffdc17093f07a364589c642e3beb6fee15742b761"
+        }
+      ],
       "stages": {
         "implementation": "Independent Terra review requested",
         "configured_validation": "Provider/probe proposal uncompiled and unrun",
@@ -3482,10 +3523,110 @@
           "utc": "2026-11-17T13:16:45.707520+00:00",
           "action": "implementing",
           "note": "Independent Terra exactauth provider/test/probe review; no builds/tests or configured writes"
+        },
+        {
+          "utc": "2026-11-17T13:41:23.346474+00:00",
+          "action": "submitted",
+          "note": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application"
+        },
+        {
+          "utc": "2026-11-17T13:41:23.365173+00:00",
+          "action": "validating",
+          "note": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application"
         }
       ],
       "context_directories": [
         "base/strings"
+      ]
+    },
+    {
+      "id": "NET-ORDINARY-COMPILE-REPAIR",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Repair remaining current Network ordinary compiler failures in cookie/DNS/HTTP2 reference adapters and test fixtures without weakening algorithms or assertions",
+      "behavioral_contract": "Reuse existing correctedv4/v5 baseline and preserve original assertions, errors, ownership, callbacks and lifecycle. Reference policy/helper paths must not silently resolve to migrated Rust algorithms; named native primitive providers remain explicit.",
+      "original_cpp_reference": {
+        "paths": [
+          "D:\\Rustium\\.scratch\\net-wave5\\remaining-network-compile-inputs-20261117T133408720410Z\\source-snapshot"
+        ],
+        "revision": "006c94bba4f4658b74c8f527455703228f6ae39c",
+        "source_manifest_sha256": "cd80fb5a2ccd1d09ed12d5f77faa14580643ddd9115d509b317a3c5a5966b67b",
+        "freeze_status": "Independent copied exact1261current inputs plus complete terminal compiler diagnostics; freeze any supplemental helpers before adaptation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-ordinary-compile-repairs"
+      ],
+      "shared_interfaces": {
+        "policy": "Worker submits frozen references, bounded source/test repairs and integration proposals only; director owns GN/exports/shared headers/configured writes"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": true,
+        "session": "terra-network-ordinary-compile-repair-20261117",
+        "worktree": null,
+        "branch": null,
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "006c94bba4f4658b74c8f527455703228f6ae39c",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "All remaining diagnostics outside5director-owned connection fixtures mapped to exact unchanged source/assertions",
+        "Minimal reference-safe namespace/type/callback/borrow adapter proposals with supplemental helper closure and before/after hashes",
+        "No warning suppression, test removal, fallback to migrated policy or configured writes; director owns shared URL/GN/bridge application"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:connection_jobs_rust_reference",
+          "//net:connection_jobs_family_rust_unittests",
+          "//net:connection_jobs_upper_rust_perftests",
+          "//net:connection_jobs_upper_rust_jobs_perftests"
+        ],
+        "qualification": "Current selected consumer build active; worker must not run compilers/tests or mutate live inputs"
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
+      },
+      "state": "assigned",
+      "next_action": "Await current Terra preparation completion automatically; verify exact clean base/sparse checkout, bind through helper, then source-only repair proposals outside5director-owned files",
+      "evidence": [
+        {
+          "path": "docs/rust/migration/evidence/network-preparation-wait-20261117.json",
+          "sha256": "1c2d33d221ea4534e94209cb22033b5e14a7588aacfd8d1b1c2989157de78867"
+        }
+      ],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "Compiler failures captured; no runtime validation",
+        "production_integration": "not applied",
+        "rust_ownership": "Existing Rust policy retained; independent original adapter compile debt under repair",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T13:34:15.949149+00:00",
+          "action": "enqueued",
+          "note": "Repair remaining current Network ordinary compiler failures in cookie/DNS/HTTP2 reference adapters and test fixtures without weakening algorithms or assertions"
+        },
+        {
+          "utc": "2026-11-17T13:34:15.973114+00:00",
+          "action": "assigned",
+          "note": "terra-network-ordinary-compile-repair-20261117"
+        },
+        {
+          "utc": "2026-11-17T13:41:23.433172+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        }
+      ],
+      "context_directories": [
+        "docs/rust",
+        "net/spdy",
+        "net/http"
       ]
     }
   ],
