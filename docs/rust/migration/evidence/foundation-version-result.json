@@ -1,0 +1,25 @@
+{
+  "candidate_commit": "6d81943827c60e65b7a60472f0ed9a3bd654aff1",
+  "source_sha256": "6eeab3f5d0186061b64433c26e68cbc5061feb2490607924d40675daa4f98e91",
+  "compiler": "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+  "compiler_sha256": "fc40f1c8b65095a22a48c111aadc279c26a049b7e4161e8b99ffe3eb23873e86",
+  "version": "rustc 1.99.0 (b940084d7 2026-09-28)\nbinary: rustc\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\ncommit-date: 2026-09-28\nhost: x86_64-pc-windows-msvc\nrelease: 1.99.0\nLLVM version: 23.1.1\n",
+  "compile_command": [
+    "C:\\Users\\jackv\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin\\rustc.exe",
+    "--edition=2021",
+    "--test",
+    "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-e12ddf5f-e3152e5128c99c06\\docs\\rust\\migration\\drafts\\foundation-version\\rust\\src\\lib.rs",
+    "-o",
+    "D:\\Rustium\\.rustium-runtime\\foundation-version-tests-20261117\\version_tests.exe"
+  ],
+  "compile_exit_code": 0,
+  "scope": "Host Windows ordinary unit tests of the exact std-only Rust candidate; no production/native/platform/performance acceptance.",
+  "test_command": [
+    "D:\\Rustium\\.rustium-runtime\\foundation-version-tests-20261117\\version_tests.exe",
+    "--test-threads=1"
+  ],
+  "test_exit_code": 0,
+  "binary_sha256": "be84047f545d12f3b1e27c7951851a753ce4f79e55eab7c453945ff62cdc36ff",
+  "source_unchanged": true,
+  "passed": true
+}

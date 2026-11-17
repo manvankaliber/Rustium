@@ -1,9 +1,9 @@
 {
   "task_id": "NET-RUNTIME-HARNESS",
-  "candidate_commit": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
+  "candidate_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
   "source_identity": {
-    "source_manifest_sha256": "c4e1884216e0c67fe6eccb6ba25adb6c76f09cfa4f431b97d7e42b3d4b2a4812",
-    "source_count": 5
+    "source_manifest_sha256": "07cfb001e626e1503a9b08202a254a9058eefbcf8d3f5a16e882b21cf720f30d",
+    "source_count": 8
   },
   "tests": {
     "status": "passed",
@@ -11,13 +11,14 @@
     "commands": [
       "python validate_proposals.py -v"
     ],
-    "outcome": "4 synthetic tests; 5 source bindings and 2 exact patch checks passed",
-    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests.log"
+    "outcome": "9 synthetic tests; 8 source bindings and 2 exact patch checks passed",
+    "log": "docs/rust/migration/drafts/net-runtime-harness/synthetic-tests-repaired.log"
   },
   "review": {
     "status": "pending",
-    "required_model": "gpt-6.1-terra",
-    "required_effort": "xhigh"
+    "prior_candidate": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
+    "prior_report": "docs/rust/migration/evidence/net-runtime-harness-review-20261117.md",
+    "repairs": "Windows-only after-construction logging; original owned-output TMP with short bound; strict complete gtest membership. General external-parent allocation removed."
   },
   "platform_limits": [
     "Native launcher smoke/rebuild/complete ordinary execution still pending",
@@ -25,5 +26,6 @@
     "Sanitizer/fuzz campaigns OFF"
   ],
   "remaining_ownership": "Validation infrastructure proposal only; no production migration or cutover credit",
-  "next_action": "Independent review, guarded native/runner installation, affected launcher rebuild and new frozen runtime qualification"
+  "next_action": "Independent review of changed membership/owned-output contract, then current ABI/GN/freshness and complete sealed ordinary family",
+  "native_focused_evidence": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json"
 }

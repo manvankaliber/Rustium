@@ -1,0 +1,12 @@
+{
+  "exit_code": 0,
+  "selected_programs": 17,
+  "compiler_jobs": 1,
+  "source_inputs_stable": true,
+  "source_count": 1222,
+  "source_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+  "raw_build_result": "D:\\Rustium\\.scratch\\net-wave5\\migration-recovery-20261117T041914330876Z\\build-result.json",
+  "raw_build_log": "D:\\Rustium\\.scratch\\net-wave5\\migration-recovery-20261117T041914330876Z\\build-output.log",
+  "source_snapshot": "D:\\Rustium\\.scratch\\net-wave5\\migration-recovery-20261117T041914330876Z\\source-snapshot",
+  "scope": "Configured Windows compilation/link only. No native execution, performance or cutover acceptance."
+}

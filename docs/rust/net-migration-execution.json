@@ -421,7 +421,7 @@
       }
     ],
     "source_identity_count": 1222,
-    "stage": "Frozen1221 ordinary conductor completed with exit code 1 on 2026-11-14; per-program recovery intake in progress. Historical configured compilation and Rust policy checks remain exact-snapshot evidence only. No native/performance acceptance.",
+    "stage": "Historical frozen1221 conductor failed and remains unaccepted. New hash-bound repair cohort compiled17 selected targets and passed14 exact historical regressions plus parent-logging check. Forty-consumer build, fresh sealed complete ordinary family and native/performance/platform acceptance remain pending.",
     "prior_native_attempt": {
       "evidence": ".scratch/net-wave5/subsystem-native-build-20261113T214654593700Z",
       "elapsed_seconds": 3244.8350326000073,
@@ -534,7 +534,17 @@
       "acceptance": false,
       "new_execution": false,
       "publication": "Held",
-      "deferred_campaigns": "Sanitizer/fuzz/security side campaigns OFF"
+      "deferred_campaigns": "Sanitizer/fuzz/security side campaigns OFF",
+      "repair_cohort": {
+        "native_policy_commit": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+        "logging_commit": "7882adca98",
+        "source_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+        "source_count": 1222,
+        "configured_build": "docs/rust/migration/evidence/net-recovery-native-20261117/build-summary.json",
+        "focused_native": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
+        "acceptance_scope": "17 targets built and14 historical regressions passed on Windows; full consumer/frozen-family/performance/platform acceptance still pending"
+      },
+      "current_phase": "40-consumer build and fresh ordinary qualification in progress"
     }
   }
 }

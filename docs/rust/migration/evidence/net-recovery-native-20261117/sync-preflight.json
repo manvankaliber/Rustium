@@ -1,0 +1,28 @@
+{
+  "recorded_utc": "2026-11-17T04:17:40.260900+00:00",
+  "prior_manifest_sha256": "768bf8f97f23d517269fca450285f9dd73e3fb323a31705da2f3360e8d3c3fd0",
+  "prior_source_count": 1222,
+  "intended_delta": [
+    {
+      "path": "net/spdy/spdy_session.cc",
+      "recorded_before_sha256": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb",
+      "root_sha256": "ebbcf915ff4dcf72dbf8dd947610d98de50215a7205a088a5640aed746c681e9",
+      "configured_sha256": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb"
+    },
+    {
+      "path": "net/cookies/cookie_family_monster_native.cc",
+      "recorded_before_sha256": "61115ff4cbddb96d6a5069f44deb9ebc12a5958ffcd544157f5546a4dfa1ea6b",
+      "root_sha256": "47f5b120f2a2274fc421d3aa7c474497c699967ea014b2988b39be3c7cc0c025",
+      "configured_sha256": "61115ff4cbddb96d6a5069f44deb9ebc12a5958ffcd544157f5546a4dfa1ea6b"
+    },
+    {
+      "path": "net/test/run_all_unittests.cc",
+      "recorded_before_sha256": "87e4e905f4463857acf129d1f3533b219608f0a354f044645ebea5d9b77f91d7",
+      "root_sha256": "5db772c1bcd95fa7187c6bb6045d2f174931f2d05ca3bbf7fbc255b743a940b1",
+      "configured_sha256": "87e4e905f4463857acf129d1f3533b219608f0a354f044645ebea5d9b77f91d7"
+    }
+  ],
+  "unexpected_delta": [],
+  "source_commit": "7882adca98ebffb6c59e08fe1671a4ef34761918",
+  "scope": "Preflight only; no configured synchronization or build executed"
+}

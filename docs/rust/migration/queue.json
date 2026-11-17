@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 27,
-  "updated_utc": "2026-11-17T04:02:33.069452+00:00",
+  "revision": 49,
+  "updated_utc": "2026-11-17T04:45:28.693745+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -80,7 +80,7 @@
       },
       "base_revision": "9b1fd65baa954814770fa93231a16d3f86712637",
       "delivery_commit": "b9e3ad35969831f2886e63e62715ad799cd2a042",
-      "integration_commit": null,
+      "integration_commit": "9a6381bce48c770f4bfa0612f9abfb46d31d5aaa",
       "acceptance_tests": [
         "Inspect ordinary-execution per-target results, hashes and live sessions; identify owner and preserve outcomes"
       ],
@@ -95,8 +95,8 @@
         "required_cases": "Preserve frozen identity 1221, later tooling identity 1222, fixed publication membership and all four drafts. Reconcile per-program outcomes without restarting campaigns.",
         "status": "unmeasured"
       },
-      "state": "validating",
-      "next_action": "Preserve raw manifest bytes on artifact intake, integrate reviewed proposals locally, then guarded configured sync/rebuild/ordinary validation; no performance acceptance.",
+      "state": "integrated",
+      "next_action": "Reviewed recovery artifact integrated locally; two native repairs await guarded configured intake/build/tests; no native or cutover acceptance",
       "evidence": [
         {
           "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-conductor-result.json",
@@ -105,13 +105,21 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-recover-delivery-20261117.json",
           "sha256": "2bffee1194f9d05e32cfce2705c529d4350c9f5185bdecac8d25f8fc536bc9c1"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-recover-delivery-20261117.json",
+          "sha256": "a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-recover-delivery-20261117.json",
+          "sha256": "a8f9a98361752ff70f6ca52d6bfa63893f25f70144b53bd8591954fe1da37ff0"
         }
       ],
       "stages": {
-        "implementation": "Recovery report and two guarded proposals delivered; independent source review accepted for intake",
-        "configured_validation": "Historical ordinary runtime failed; fresh repaired native validation pending",
-        "production_integration": "Proposal artifacts not integrated; no native repair installed",
-        "rust_ownership": "C++ native state/providers remain",
+        "implementation": "Recovered exact failures; reviewed bridge repairs installed in primary/configured inputs",
+        "configured_validation": "17 selected targets built and14 exact historical failures passed;40-consumer/full frozen ordinary family pending",
+        "production_integration": "Local reviewed repair source commits recorded; not a new Rust ownership cutover",
+        "rust_ownership": "C++ native session/cookie state and providers remain",
         "subsystem_cutover": "incomplete"
       },
       "history": [
@@ -164,6 +172,21 @@
           "utc": "2026-11-17T04:02:33.069227+00:00",
           "action": "amended",
           "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T04:03:40.019381+00:00",
+          "action": "merge-ready",
+          "note": "Recovery artifact integrity and independent source review accepted; fresh native validation remains separate"
+        },
+        {
+          "utc": "2026-11-17T04:03:40.221019+00:00",
+          "action": "integrated",
+          "note": "Reviewed recovery artifact integrated locally; two native repairs await guarded configured intake/build/tests; no native or cutover acceptance"
+        },
+        {
+          "utc": "2026-11-17T04:45:28.693494+00:00",
+          "action": "amended",
+          "note": "stages"
         }
       ],
       "context_directories": [
@@ -286,15 +309,15 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": true,
-        "session": "foundation-version-prep-20261117",
-        "worktree": null,
-        "branch": null,
+        "active": false,
+        "session": "foundation-version-implementation-20261117",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-e12ddf5f-e3152e5128c99c06",
+        "branch": "rust/foundation-version-20261117",
         "model": "gpt-6-luna",
         "effort": "high"
       },
-      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
-      "delivery_commit": null,
+      "base_revision": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+      "delivery_commit": "6d81943827c60e65b7a60472f0ed9a3bd654aff1",
       "integration_commit": null,
       "acceptance_tests": [
         "VersionTest cases; overflow, invalid wildcard, malformed versions and length/comparison edges"
@@ -310,9 +333,14 @@
         "required_cases": "Unsigned component bounds, leading zeros, invalid states, wildcard validity, unequal lengths, copy/move boundary and exact serialization.",
         "status": "unmeasured"
       },
-      "state": "assigned",
-      "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
-      "evidence": [],
+      "state": "validating",
+      "next_action": "Awaiting independent semantic/reference review and queued ordinary Rust tests after current configured build",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\foundation-version-delivery-20261117.json",
+          "sha256": "68781fed53bd4694483aaa08ab993434452108589e56495bc2a9d6af6b4b12f3"
+        }
+      ],
       "stages": {
         "implementation": "not started",
         "configured_validation": "not run",
@@ -330,6 +358,41 @@
           "utc": "2026-11-17T03:42:14.206916+00:00",
           "action": "assigned",
           "note": "foundation-version-prep-20261117"
+        },
+        {
+          "utc": "2026-11-17T04:21:53.342718+00:00",
+          "action": "ready",
+          "note": "Cancelled original host setup is terminal; replacement host checkout verified clean and sparse with no active sparse process or lock"
+        },
+        {
+          "utc": "2026-11-17T04:21:53.550536+00:00",
+          "action": "amended",
+          "note": "base_revision"
+        },
+        {
+          "utc": "2026-11-17T04:21:53.720620+00:00",
+          "action": "assigned",
+          "note": "foundation-version-implementation-20261117"
+        },
+        {
+          "utc": "2026-11-17T04:21:54.231648+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-e12ddf5f-e3152e5128c99c06"
+        },
+        {
+          "utc": "2026-11-17T04:21:54.405001+00:00",
+          "action": "implementing",
+          "note": "Verified host checkout bound; owned Version candidate implementation authorized, compiler/test execution waits for director gate"
+        },
+        {
+          "utc": "2026-11-17T04:26:58.377102+00:00",
+          "action": "submitted",
+          "note": "Worker completed clean scoped Version candidate; compiler/tests deferred for director gate, independent review pending"
+        },
+        {
+          "utc": "2026-11-17T04:26:58.541131+00:00",
+          "action": "validating",
+          "note": "Awaiting independent semantic/reference review and queued ordinary Rust tests after current configured build"
         }
       ],
       "context_directories": [
@@ -369,10 +432,12 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": false,
-        "session": null,
+        "active": true,
+        "session": "storage-usage-prep-20261117",
         "worktree": null,
-        "branch": null
+        "branch": null,
+        "model": "gpt-6-luna",
+        "effort": "high"
       },
       "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
@@ -391,7 +456,7 @@
         "required_cases": "Exact .usage format, signed usage and dirty count, truncation, incognito isolation, sequence affinity and filesystem errors. Native file/timer services remain documented adapters.",
         "status": "unmeasured"
       },
-      "state": "ready",
+      "state": "assigned",
       "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
       "evidence": [],
       "stages": {
@@ -406,6 +471,11 @@
           "utc": "2026-11-17T03:35:13.859336+00:00",
           "action": "amended",
           "note": "base_revision, original_cpp_reference"
+        },
+        {
+          "utc": "2026-11-17T04:40:20.308321+00:00",
+          "action": "assigned",
+          "note": "storage-usage-prep-20261117"
         }
       ],
       "context_directories": [
@@ -905,14 +975,14 @@
       "role": "director",
       "assignment": {
         "active": false,
-        "session": "director-runtime-harness-20261117",
+        "session": "director-runtime-harness-review-repair",
         "worktree": "D:\\RustiumReview",
         "branch": "rust/net-recover-report-20261117",
         "model": "gpt-6.1-sol",
         "effort": "xhigh"
       },
       "base_revision": "b9e3ad35969831f2886e63e62715ad799cd2a042",
-      "delivery_commit": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
+      "delivery_commit": "2a63edbd5036ba658e895f4d7d0b357280190375",
       "integration_commit": null,
       "acceptance_tests": [
         "Artifact/source integrity; Python synthetic external temporary-root checks; independent source review; rebuilt launcher failure-path smoke; complete ordinary family with successful snapshot before/after identity"
@@ -929,11 +999,15 @@
         "policy": "No timing; fixed batch membership and publication hold unchanged"
       },
       "state": "validating",
-      "next_action": "Awaiting independent review of launcher logging and short external temporary directory isolation",
+      "next_action": "Changed ordinary membership/output contract requires independent review; focused native 14/14 passed but full sealed family remains pending",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-runtime-harness-delivery-20261117.json",
           "sha256": "ebe6db10e8ee31b449a850b26bb64c3ffed18ef8d69b98bf54cc8af1c253da2a"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-runtime-harness-delivery-20261117.json",
+          "sha256": "6964d790e4dca6a0f763987097b31016ba8cdf13a9c9a653208d94433dad9e2a"
         }
       ],
       "stages": {
@@ -973,6 +1047,36 @@
           "utc": "2026-11-17T04:00:47.315222+00:00",
           "action": "validating",
           "note": "Awaiting independent review of launcher logging and short external temporary directory isolation"
+        },
+        {
+          "utc": "2026-11-17T04:15:44.322281+00:00",
+          "action": "needs-repair",
+          "note": "Terra accepted draft artifact but blocked installation on Windows-only logging scope, stable temporary paths and complete gtest membership"
+        },
+        {
+          "utc": "2026-11-17T04:15:44.626712+00:00",
+          "action": "assigned",
+          "note": "director-runtime-harness-review-repair"
+        },
+        {
+          "utc": "2026-11-17T04:15:45.974419+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T04:15:46.239261+00:00",
+          "action": "implementing",
+          "note": "Repair rebound to exact submitted delivery using tested coordinator support; preserve all unrelated work"
+        },
+        {
+          "utc": "2026-11-17T04:41:20.860374+00:00",
+          "action": "submitted",
+          "note": "Repaired candidate delivered: 9 synthetic tests, 8 input bindings, strict native membership and owned short evidence layout"
+        },
+        {
+          "utc": "2026-11-17T04:41:21.021982+00:00",
+          "action": "validating",
+          "note": "Changed ordinary membership/output contract requires independent review; focused native 14/14 passed but full sealed family remains pending"
         }
       ],
       "context_directories": [

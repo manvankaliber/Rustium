@@ -41,6 +41,19 @@
     "git_blob_sha256": "4120ae525dbe0e9e404214f01ab3aad054b7f57d89ddf95b3904ae89201ec607",
     "worktree_sha256": "a933976b30daeeb90fe8e25984600f4b0d93208fc039fd2e3c121398de8d2d3f",
     "exact_bytes_match": false,
-    "next_action": "Preserve exact reviewed manifest bytes under -text during local artifact intake; source/proposal byte pins remain unchanged."
+    "next_action": "Preserve exact reviewed manifest bytes under -text during local artifact intake; source/proposal byte pins remain unchanged.",
+    "resolution": "Added -text and restored exact reviewed worktree manifest bytes; imported Git blob and all 22 archived/proposal hashes verified.",
+    "integrated_exact_bytes_match": true
+  },
+  "integration_commit": "9a6381bce48c770f4bfa0612f9abfb46d31d5aaa",
+  "integration_scope": "Recovery artifact and proposals locally integrated; production native repair not installed or validated.",
+  "native_repair_intake": {
+    "native_policy_commit": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+    "logging_commit": "7882adca98",
+    "source_manifest_sha256": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "source_count": 1222,
+    "configured_build": "docs/rust/migration/evidence/net-recovery-native-20261117/build-summary.json",
+    "focused_native": "docs/rust/migration/evidence/net-recovery-native-20261117/focused-result.json",
+    "acceptance_scope": "17 targets built and14 historical regressions passed on Windows; full consumer/frozen-family/performance/platform acceptance still pending"
   }
 }

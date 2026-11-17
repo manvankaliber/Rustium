@@ -1,0 +1,7 @@
+{
+  "source": "python tools/rustium_coord_unittest.py -v",
+  "passed": 13,
+  "elapsed_seconds": 35.366,
+  "helper_commit": "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+  "scope": "Miniature Git fixture coordination tests only; no browser acceptance"
+}
