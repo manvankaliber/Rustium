@@ -467,7 +467,7 @@ fn every_original_rect_scaling_assertion_row() {
         ), // S08 :462/474/486
     ];
     for (name, f, slot) in [
-        ("ScaleToEnclosedRect", scale_enclosed_rect, 0usize),
+        ("ScaleToEnclosedRect", scale_enclosed_rect as fn(Rect, f32, f32) -> Rect, 0usize),
         ("ScaleToEnclosingRect", scale_enclosing_rect, 1usize),
         ("ScaleToRoundedRect", scale_rounded_rect, 2usize),
     ] {
