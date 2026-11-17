@@ -1,0 +1,33 @@
+{
+  "task": "NET-COMPILE-INTEGRATION-REVIEW",
+  "reviewed_base": "98652a65b0fd519e15e85ce92e62668df5f4b290",
+  "disposition": "needs_repair_and_qualification",
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P1",
+      "subject": "direct proxy edge creates a cross-component ownership issue",
+      "status": "open"
+    },
+    {
+      "id": "R2",
+      "priority": "P2",
+      "subject": "record comparator accepts empty or invalid evidence",
+      "status": "open"
+    }
+  ],
+  "source_level_assessment": "remaining named packet changes conditionally acceptable pending actual current build, link, ABI and runtime checks",
+  "not_run": [
+    "compiler",
+    "Cargo",
+    "GN",
+    "Ninja",
+    "native tests",
+    "benchmarks",
+    "sanitizer and fuzz campaigns"
+  ],
+  "configured_tree_written": false,
+  "auth_reference_R1_R2_R3": "separate pending review, not fixed or requalified",
+  "review": "REVIEW.md",
+  "input_bindings": "input-bindings.json"
+}
