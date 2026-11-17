@@ -470,7 +470,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
     fn consume_escape(&mut self) -> u32 {
-        let mut c = self.consume();
+        let c = self.consume();
         if let Some(mut n) = Self::hex(c) {
             for _ in 1..6 {
                 if let Some(v) = Self::hex(self.peek(0)) {
@@ -493,7 +493,7 @@ impl<'a> Tokenizer<'a> {
         if c == 0 {
             0xfffd
         } else {
-            c
+            u32::from(c)
         }
     }
     fn consume_name(&mut self, start: usize) -> (Cow<'a, [u16]>, bool) {
@@ -1004,7 +1004,7 @@ mod tests {
     struct FixedNumbers;
     impl NumberProvider for FixedNumbers {
         fn parse_ascii_decimal(&self, s: &[u8]) -> DecimalResult {
-            let value = match s {
+            let value: f64 = match s {
                 b"2" => 2.0,
                 b"2.0" | b"2e0" => 2.0,
                 b"1.5" => 1.5,
@@ -1323,13 +1323,9 @@ mod tests {
                 assert_eq!(actual.numeric_is_integer, e.integer, "{label} numeric kind {index}");
                 assert_eq!(actual.number_bits, e.number_bits, "{label} numeric value {index}");
             }
-            Kind::UnicodeRange => {
-                assert_eq!(actual.unicode_range, e.range, "{label} range {index}")
-            }
-            Kind::Hash => {
-                assert_eq!(actual.value.as_deref(), e.value, "{label} hash value {index}");
-                assert_eq!(actual.hash_is_id, e.hash_id, "{label} hash kind {index}");
-            }
+            // BasicExpected covers the first four non-hash/non-range rows.
+            // Dedicated NextExpected/NumericExpected records test these kinds.
+            Kind::UnicodeRange | Kind::Hash => panic!("{label}: wrong expected-record family"),
             _ => {}
         }
     }
