@@ -96,17 +96,67 @@ pub fn round_size(s: SizeF) -> Size {
 }
 
 #[inline]
-fn width_between(left: i32, right: i32) -> i32 {
-    // Mirrors base::ClampSub(right, left), then Rect's nonnegative size rule.
-    (right as i64 - left as i64).clamp(0, i32::MAX as i64) as i32
+fn clamp_i32(v: i64) -> i32 {
+    v.clamp(i32::MIN as i64, i32::MAX as i64) as i32
 }
+
+#[inline]
+fn clamp_add(a: i32, b: i32) -> i32 {
+    clamp_i32(a as i64 + b as i64)
+}
+
+#[inline]
+fn clamp_sub(a: i32, b: i32) -> i32 {
+    clamp_i32(a as i64 - b as i64)
+}
+
+// Exact safe-integer equivalent of Rect's SaturatedClampRange in rect.cc.
+// abs is widened first, so i32::MIN is representable.
+fn saturated_clamp_range(min: i32, max: i32) -> (i32, i32) {
+    if max < min {
+        return (min, 0);
+    }
+    let span = clamp_sub(max, min);
+    let span_loss = clamp_sub(max, clamp_add(min, span));
+    if span_loss == 0 {
+        return (min, span);
+    }
+    let threshold = (i32::MAX / 2) as u64;
+    if (max as i64).unsigned_abs() < threshold {
+        (clamp_sub(max, span), span)
+    } else if (min as i64).unsigned_abs() < threshold {
+        (min, span)
+    } else {
+        // C++ signed division truncates toward zero; span_loss is nonnegative.
+        (clamp_add(min, span_loss / 2), span)
+    }
+}
+
+fn rect_axis_bounds(min: i32, max: i32) -> (i32, i32) {
+    let mut origin = min;
+    let mut span = clamp_sub(max, min).max(0);
+    // Rect::set_width clamps the dimension so origin + span stays in i32.
+    span = span.min(clamp_add(origin, span) - origin);
+    if clamp_add(origin, span) != max {
+        (origin, span) = saturated_clamp_range(origin, max);
+        span = span.min(clamp_add(origin, span) - origin);
+    }
+    (origin, span)
+}
+
 pub fn rect_by_bounds(left: i32, top: i32, right: i32, bottom: i32) -> Rect {
-    // Rect::SetByBounds may move the origin when a positive extent overflows.
-    let width = width_between(left, right);
-    let height = width_between(top, bottom);
-    let x = (right as i64 - width as i64).max(i32::MIN as i64) as i32;
-    let y = (bottom as i64 - height as i64).max(i32::MIN as i64) as i32;
+    // Mirrors SetHorizontalBounds/SetVerticalBounds and their saturation repair.
+    let (x, width) = rect_axis_bounds(left, right);
+    let (y, height) = rect_axis_bounds(top, bottom);
     Rect { x, y, width, height }
+}
+
+/// Mirrors Rect(x, y, width, height), including Size's nonnegative dimensions
+/// and Rect::ClampWidthOrHeight's representable right/bottom constraint.
+pub fn rect_from_xywh(x: i32, y: i32, width: i32, height: i32) -> Rect {
+    let width = clamp_add(x, width) - x;
+    let height = clamp_add(y, height) - y;
+    Rect { x, y, width: width.max(0), height: height.max(0) }
 }
 
 #[inline]

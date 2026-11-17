@@ -6,7 +6,7 @@ This is a candidate implementation only. Nothing here is wired to the public C++
 
 `source-before/` contains byte-for-byte copies taken from the clean task checkout at `c46d3f4975af8785d3fc1d733cf25360914ef884`. Git blob IDs identify repository objects; SHA-256 identifies copied raw bytes. They are distinct identity schemes. The three original conversion `.cc` raw hashes exactly match the canonical queue observations. `source-manifest.tsv` records every frozen file's repository blob and copied-byte hash.
 
-The frozen algorithm/helper closure includes point/size/rect conversion sources and declarations, point/size/rect floating and integer value types, `base/numerics/safe_conversions.h` and its implementation helper, and all directly relevant original conversion/scaling assertion suites. `Rect::SetByBounds` and its overflow adjustment are behavior-bearing and must be checked against the copied `rect.h` before integration; no compiler run was made.
+The frozen algorithm/helper closure includes point/size/rect conversion sources and declarations, point/size/rect floating and integer value types, `rect.cc` (including `SaturatedClampRange` and both saturated-edge adjustments), `base/numerics/safe_conversions.h` and its generic/ARM helpers, `clamped_math.h` and its implementation helper, and all directly relevant original conversion/scaling assertion suites. `Rect::SetByBounds` was audited in the frozen `rect.h`/`rect.cc`: each axis first uses saturating subtraction, clamps the extent to the representable `origin + extent`, and calls `SaturatedClampRange` if the requested far edge still differs. That helper keeps the requested span if representable; otherwise it uses the far edge when close to zero, the near edge when close to zero, or centers the maximal span. The Rust `rect_axis_bounds` implements that order with widened intermediates, saturating i32 operations, unsigned widened absolute values, and truncating nonnegative division, and the exact large-range outputs are asserted below. No compiler run was made.
 
 ## Original assertion inventory
 
@@ -16,10 +16,10 @@ The exact source rows are retained in `source-before/`; the executable Rust case
 | --- | --- |
 | `PointFTest.ToRoundedPoint`: all 15 EXPECT_EQ rows | `point_rounded_original_assertion_rows` |
 | `SizeFTest.ToFlooredSize`, `ToCeiledSize`, `ToRoundedSize`: all 30 EXPECT_EQ rows | `size_conversion_original_assertion_rows` |
-| `RectConversionsTest.ToEnclosedRect`, `ToEnclosedRectHugeRectF`, `ToEnclosingRect`, `ToEnclosingRectHugeRectF`, `ToEnclosingRectIgnoringError`, `ToNearestRect`, `ToFlooredRect` | edge matrix covers representative rows only; remaining assertion-by-assertion mapping is pending |
-| `RectTest.ScaleToEnclosedRect`, `ScaleToEnclosingRect`, `ScaleToRoundedRect`, shared `TestScaleRectOverflowClamp` rows | edge matrix covers ordinary/empty cases only; overflow matrix translation is pending |
+| `RectConversionsTest.ToEnclosedRect` (10), `ToEnclosedRectHugeRectF` (6), `ToEnclosingRect` (14), `ToEnclosingRectHugeRectF` (6), `ToEnclosingRectIgnoringError` (14), `ToNearestRect` (3), `ToFlooredRect` (4) | `every_original_rect_conversion_assertion_row`, `every_original_enclosing_rect_assertion_row`, `every_original_enclosing_ignoring_error_assertion_row`; RC-E/RC-EH/RC-C/RC-CH/RC-I/RC-N/RC-F comments map each row to exact frozen `rect_conversions_unittest.cc` lines. Huge-range relational checks are strengthened to exact origin, far edge, and dimensions. |
+| `RectTest` constructor clamp (1), `ScaleToEnclosedRect` (8), `ScaleToEnclosingRect` (8), `ScaleToRoundedRect` (8), shared `TestScaleRectOverflowClamp` (13 per function) | `every_original_rect_scaling_assertion_row`; S01-S08 and O01-O13 comments map source lines; all three scale functions assert each ordinary and overflow case with exact edges, dimensions and emptiness. |
 
-The remaining rect assertion translation is an acceptance gap and must be completed before asking for validation or claiming parity. The source suites contain unrelated PointF/SizeF operations; they are preserved for attribution but outside this conversion family.
+The point conversion suite contributes all 15 `ToRoundedPoint` rows, and the size conversion suite contributes all 30 floor/ceil/round rows. Other PointF/SizeF operations in those files are unrelated to this conversion family and are frozen for context, not claimed as candidate coverage.
 
 ## Semantics and known gaps
 
@@ -29,4 +29,4 @@ The source audit found callers in canvas sizing/bounds, DIP conversion, text lay
 
 ## Validation
 
-`tests.rs` is an executable `rustc --test` harness candidate, but has **not** been compiled or run. Compiler, tests, benchmarks, configured build, sanitizer, and fuzz validation remain pending. Sanitizer/fuzz campaigns remain off. No production migration or cutover claim is made.
+`tests.rs` is an executable `rustc --test` harness candidate containing assertion-level translations of all original rows in the named conversion and scale suites, with exact expected rectangles and source line/case labels. It has **not** been compiled or run. Compiler, tests, benchmarks, configured build, sanitizer, and fuzz validation remain pending. Sanitizer/fuzz campaigns remain off. No production migration or cutover claim is made.
