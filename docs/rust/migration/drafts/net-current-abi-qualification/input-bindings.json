@@ -1,0 +1,99 @@
+{
+  "qualification": "source/graph review only; no build, runtime, or cutover acceptance",
+  "qualified_source_manifest_sha256": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+  "graph_source_manifest_sha256": "2c59b861aa9f0287067a8f12c60d8ad3dd0c992e52701f728ba1f11d212dc7a2",
+  "inputs": {
+    "D:\\Rustium\\docs\\rust\\migration\\drafts\\net-current-consumer-closure\\REVIEW.md": "5bf59964446e55d619b83afcdb330cc2d0ea4ff4b6a0c6507e310886e1293710",
+    "D:\\Rustium\\docs\\rust\\migration\\drafts\\net-current-consumer-closure\\input-bindings.json": "5b86f3aca2c1f3026a1796398a7c6f5b754ac2e0e181f9f016796e2032ebb49a",
+    "D:\\Rustium\\.rustium-runtime\\shared-strings-connection-latest.json": "9860c3c8c2e487e95edff5bb362ab125a5109ba929d162ff8e43dac3ce380590",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130121157950Z\\application.json": "d69ee503974c6494d0f3dc0389196189f4748fbb0d062484a175fcc4c83580e7",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130121157950Z\\source-manifest.json": "921243e19d5079b5f0d737adaafc26d68f8375b503e6eb967deda685d9885d49",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130121157950Z\\graph-discovery-rebind.json": "e0fc11baf10ad41baeca9597a2c0c4e36c25b5d705e65394a9c323b988512f15",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\result.json": "7a879787ca8a71117e56356d3dad8d218dc2bccd9c90db5ea7b0c7b769123b3c",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\gn-deps.log": "5ae4a3cc5932bd3e5f476839e59257dc945ebcb833fe8356a716d11dc109d326",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\gn-sources.log": "7bc2306834c193773799ca43b7531fab20299c9fcaf59f38be9311824fdf25cc",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\gn-outputs.log": "7f1f439eda5ccfc26d4dc29e3c192c73c287cd4ccd440d7827a9e0ab0f86c1b2",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\ninja-query.log": "a719d64f7c8a483347a5da4a08ab81c3efdfeffd2f0f4d66fa9da08aeaa54cb1",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\ninja-commands.log": "aec34c694ed681f83d08680762ae46ea3b4e3f226bfa865b790c62ce502714ad",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\ninja-explain.log": "dbbbf868e71352e1554ed468f76d4c6e129ba0abd5a5a165fee3c811a4ce4d95",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\selected-consumer-build\\manifest.json": "f9ca9aece3722438913ebab8c54a99f6b04561561b620abfc373a3ffe15691d0",
+    "D:\\Rustium\\.scratch\\net-wave5\\network-graph-catalogue-20261117T115905192295Z\\selected-consumer-build\\result.json": "8db263e51fd8903745399a662a433ab77702d4a5dd0a7ab526e3ce63ec217aa9",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130121157950Z\\network-selected-consumer-build-v2\\manifest.json": "5703d7176492d9eb70e2de43c650039df8a15e8f9b892c485a1379f539b230b6",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T130121157950Z\\network-selected-consumer-build-v2\\result.json": "715b53b54b41bb4af56a749abe313716a32d30c58b7d387f6799ab48f919fbc4",
+    "D:\\Rustium\\.scratch\\net-wave5\\resumed-integration\\connection-baseline-parent-fixes-v4\\application.json": "5405cc7c5994ff26aa0b2cc9ade42acfb128277faea2c17544fe74e87e3f32fc",
+    "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\prior-source-manifest.json": "0b2375820f5ce42c0371308cc98e2a808a9cc2928510d9feb7156967bfd41883",
+    "D:\\Rustium\\base\\strings\\string_split.h": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+    "D:\\Rustium\\base\\strings\\string_split_internal.h": "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+    "D:\\Rustium\\base\\strings\\string_split_rust.rs": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+    "D:\\Rustium\\base\\strings\\string_split_rust_policy.rs": "84dbcdd6cebf07bd5ab4e0835210adecc9ddc2c79abea6414d7698d27a1b04ec",
+    "D:\\Rustium\\base\\strings\\string_split_rust_bridge_unittest.cc": "46d137a5282e3fcd00f6703580b1f9eb8d21c5516e4901ab0c97ea0fef463968",
+    "D:\\Rustium\\net\\http\\connection_auth_original_factory.cc": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+    "D:\\RustiumBuild\\src\\out\\Default\\obj\\net\\connection_jobs_rust_reference.ninja": "781e448752a6b8587824d8e2d909aca5805e3c659e720dd5b893d31bf0bc5995",
+    "D:\\RustiumBuild\\src\\out\\Default\\obj\\net\\connection_jobs_family_rust_unittests.ninja": "e9883464e45e7f71c59270564f7480d446cc910bac6d71115a79d9093d6031f2"
+  },
+  "exact_before_after": [
+    {
+      "path": "base/BUILD.gn",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\base\\BUILD.gn",
+      "before_sha256": "b9a58423b54935a730b5fc85bbfa2f6d7929a78258c18bb4c7ffa849ddf89a14",
+      "after_path": "D:\\Rustium\\base\\BUILD.gn",
+      "after_sha256": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9"
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\base\\strings\\string_split.cc",
+      "before_sha256": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+      "after_path": "D:\\Rustium\\base\\strings\\string_split.cc",
+      "after_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063"
+    },
+    {
+      "path": "net/http/http_proxy_connect_job_rust_original.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_proxy_connect_job_rust_original.h",
+      "before_sha256": "1c1fd9133ccefd7b807435677f8104220e2bdd489f335302bc26b6390f5a2f6a",
+      "after_path": "D:\\Rustium\\net\\http\\http_proxy_connect_job_rust_original.h",
+      "after_sha256": "47c792f73efef3eb5eeb01b1c864e56b496a386725b88775577b0a6f5bf3768d"
+    },
+    {
+      "path": "net/http/http_auth_cache.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_auth_cache.h",
+      "before_sha256": "63214f5c18e2fdbab1829fb174eb5635b8f445c794bbac4ecb002463de5fa7a1",
+      "after_path": "D:\\Rustium\\net\\http\\http_auth_cache.h",
+      "after_sha256": "38bdf3a7fd95c49f79d3bba2cc05f7530325004017a896c894f8e5c1d69a4b71"
+    },
+    {
+      "path": "net/http/http_auth_challenge_tokenizer.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_auth_challenge_tokenizer.h",
+      "before_sha256": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f",
+      "after_path": "D:\\Rustium\\net\\http\\http_auth_challenge_tokenizer.h",
+      "after_sha256": "bfcb6e6ce724c7a254f0e080e1ed914c818259c4156face82801799abf722f63"
+    },
+    {
+      "path": "net/http/http_auth_controller.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_auth_controller.h",
+      "before_sha256": "eecaaec713628f5fd0f172765666ea25b8155bae0c2408800e8fe118e05b52d4",
+      "after_path": "D:\\Rustium\\net\\http\\http_auth_controller.h",
+      "after_sha256": "5f9284201d6c2c5d93b15c05b9a38819a545ec066b528c2918a3dba3a1abab8e"
+    },
+    {
+      "path": "net/http/http_auth_handler.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_auth_handler.h",
+      "before_sha256": "578c0eeec3ef991c137543410fe1433eaeb07ab6aeb6b16ef4c5521c8287cfa0",
+      "after_path": "D:\\Rustium\\net\\http\\http_auth_handler.h",
+      "after_sha256": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38"
+    },
+    {
+      "path": "net/http/http_auth_handler_factory.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_auth_handler_factory.h",
+      "before_sha256": "85aa86ff8140567e0e3713fa05b9355f4da157d479af88524daabf6ea409145a",
+      "after_path": "D:\\Rustium\\net\\http\\http_auth_handler_factory.h",
+      "after_sha256": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050"
+    },
+    {
+      "path": "net/http/http_request_headers.h",
+      "before_path": "D:\\Rustium\\.scratch\\shared-strings-connection\\20261117T085053173182Z\\before\\primary\\net\\http\\http_request_headers.h",
+      "before_sha256": "7e742db2596edafb388fda0614bb7bc3592f2d437763031fceb60bdaf838cbcc",
+      "after_path": "D:\\Rustium\\net\\http\\http_request_headers.h",
+      "after_sha256": "d752b4ad445c6e51468f255128b4576f765c43417bc6d5ab1ee0f3fa8ebdc1f9"
+    }
+  ]
+}
