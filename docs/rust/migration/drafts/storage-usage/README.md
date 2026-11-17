@@ -2,10 +2,10 @@
 
 This directory holds a Rust behavior candidate and byte-frozen references. It
 does not replace the production C++ class. `src/lib.rs` specifies the 24-byte
-FSU5 Pickle codec, signed usage and unsigned dirty count, checked arithmetic,
-validity transitions, private in-memory isolation, and a file-provider seam.
-The production adapter still owns sequence checking, native file handles,
-two-handle eviction, five-second close timer, and Chromium error translation.
+FSU5 Pickle codec, dirty/validity/update policy, private records, and a
+primitive provider seam. Rust owns the logical two-handle cache and close-timer
+restart/expiry/stop decisions; the native facade owns sequence checking and
+must call `close_for_destruction` before dropping the cache.
 
 ## Original test mapping
 
@@ -24,19 +24,18 @@ two-handle eviction, five-second close timer, and Chromium error translation.
 | IncrementDirtyWithoutCacheFileTest | missing-provider read maps to false/miss |
 | DecrementDirtyWithoutCacheFileTest | source test calls IncrementDirty (preserved as source quirk) |
 
-Codec tests cover exact header bytes, signed values, truncation, bad length,
-bad magic, and invalid boolean. Still required before integration: provider
-fake tests for every table row; malformed existing-file behavior; write,
-flush, open, delete, reopen, and close-timer failures; dirty `u32::MAX` and
-usage overflow; independent incognito instances; and sequence-affinity tests.
-No compiler or test command has been run per validation hold.
+Codec and fake-provider test sources cover Pickle bool/padding behavior,
+trailing reads, short reads/writes, failed open/write cleanup, capacity eviction
+on a cached-key request, timer stop, and state transitions. Test sources have
+not been run. Remaining ordinary coverage includes keyed fake handles, flush
+condition matrix/failure, delete/reopen failures, timer restart/expiry and
+destruction event sequences, all non-incognito original cases, and facade
+first-use sequence binding. Signed usage overflow wrapping remains provisional
+until a configured C++ oracle is run.
 
 ## Integration request
 
-Director review is required for a shared Rust/C++ bridge contract covering
-path/key ownership, `Result`/native error mapping, task sequence affinity,
-timer/handle lifecycle, and atomic delta semantics. Keep the Rust codec/state
-policy as the behavior owner; native services may implement only the named
-provider/sequence/timer adapters. Existing C++ callers in quota backend,
+Director review remains required for shared Rust/C++ ABI, path/key ownership,
+and native error translation. Existing C++ callers in quota backend,
 sandbox quota observer, and sandbox backend remain production owners until
 the bridge is reviewed, wired, and validated.
