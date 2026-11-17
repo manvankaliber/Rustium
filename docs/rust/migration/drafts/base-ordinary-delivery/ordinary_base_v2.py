@@ -28,6 +28,7 @@ BRIDGE = {'StringSplitRustBridgeTest.'+name for name in [
 DIAGNOSTIC = 'StringSplitRustBridgeTest.DiagnosticsAndCallbacksKeepNativeSegmentOrder'
 REQUIRED = {'base/BUILD.gn','base/strings/string_split.cc','base/strings/string_split_rust.rs',
     'base/strings/string_split_rust_policy.rs','base/strings/string_split_rust_bridge_unittest.cc',
+    'base/test/run_all_unittests.cc',
     'net/BUILD.gn','net/socket/connection_baseline_original_string_split.h'}
 
 def require(ok, message):
@@ -118,7 +119,7 @@ def xml_outcome(nodes, expected, native_skips):
 def source_check(info):
     manifest=Path(info['source_manifest']);require(sha(manifest)==info['source_manifest_sha256'],'Authority manifest drift')
     require(sha(ROOT/'.scratch/net-wave2/parent/last-synced.json')==sha(manifest),'Synchronized authority drift')
-    pins=load(manifest);require(len(pins)==1260 and REQUIRED<=set(pins),'Incomplete applied source membership')
+    pins=load(manifest);require(len(pins)==1261 and REQUIRED<=set(pins),'Incomplete applied source membership')
     for rel,digest in pins.items():
         require(sha(ROOT/rel)==digest==sha(BUILD/rel),'Source drift: '+rel)
     return pins
@@ -297,7 +298,7 @@ def prepare(args):
         info=load(args.intake);require(info['source_manifest_sha256']==args.expected_source_sha256,'Explicit director authority mismatch');pins=source_check(info)
         run=Path(info['run_directory']);built=load(run/'build-result.json');job=load(args.build_job_result)
         require(job['task_id']=='FOUNDATION-STRINGS-BRIDGE' and job['kind']=='build' and job['status']=='passed' and job['exit_code']==0 and job['finished_utc'],'Completed serial build gate required')
-        require(job['source_identity']['source_manifest_sha256']==info['source_manifest_sha256']==built['source_manifest_sha256'] and built['source_count']==1260 and built['passed'] and built['input_identity_before_after_matched'],'Successful exact applied build required')
+        require(job['source_identity']['source_manifest_sha256']==info['source_manifest_sha256']==built['source_manifest_sha256'] and built['source_count']==1261 and built['passed'] and built['input_identity_before_after_matched'],'Successful exact applied build required')
         require(job['build_configuration']['targets']==['base_unittests','net_unittests'] and job['build_configuration']['compiler_jobs']==1,'Wrong consumer/configuration gate')
         require((run/'args.gn').read_bytes()==(OUT/'args.gn').read_bytes(),'Build args drift')
         require(all(c['exit_code']==0 for c in built['commands']) and {c['phase'] for c in built['commands']}=={'gn-gen','gn-check-base','gn-check-net','consumer-build'},'Missing GN/build evidence')
