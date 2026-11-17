@@ -1,0 +1,50 @@
+﻿[
+    {
+        "path":  "media/base/ranges.h",
+        "git_blob":  "d40d82372a9b27ff3a1da89c29c5e2b2ac7b4809",
+        "sha256":  "CABACF5697CFD1987FA592BA9B62201F87D038B1E3BE130392A8CBBC18EB3099",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\media\\base\\ranges.h",
+        "archived_sha256":  "CABACF5697CFD1987FA592BA9B62201F87D038B1E3BE130392A8CBBC18EB3099",
+        "readonly":  true
+    },
+    {
+        "path":  "media/base/ranges.cc",
+        "git_blob":  "11bf870687ba092904c40a90482e24600fe68596",
+        "sha256":  "207581EBB026B86B92E976A4ECD9A772DEF060AF21A5BA6AC41A1941903A63FF",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\media\\base\\ranges.cc",
+        "archived_sha256":  "207581EBB026B86B92E976A4ECD9A772DEF060AF21A5BA6AC41A1941903A63FF",
+        "readonly":  true
+    },
+    {
+        "path":  "media/base/ranges_unittest.cc",
+        "git_blob":  "0ed156b81d400348bee89aec003d6bef8f40efc3",
+        "sha256":  "89A2980B4A000067702D97DCD24B17A932B9AA10E3260E28577A21890508AB36",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\media\\base\\ranges_unittest.cc",
+        "archived_sha256":  "89A2980B4A000067702D97DCD24B17A932B9AA10E3260E28577A21890508AB36",
+        "readonly":  true
+    },
+    {
+        "path":  "base/time/time.h",
+        "git_blob":  "d1d5a00e8201d63494d9e1e9559f3c2a182552a0",
+        "sha256":  "9611314B1D0952E28FD8DACE035128AE158591B5AA68C5CE20227505DBE3F93B",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\base\\time\\time.h",
+        "archived_sha256":  "9611314B1D0952E28FD8DACE035128AE158591B5AA68C5CE20227505DBE3F93B",
+        "readonly":  true
+    },
+    {
+        "path":  "base/check_op.h",
+        "git_blob":  "88fe3d9357d400e8beae3f3ea3825bfa219ecb0f",
+        "sha256":  "024D6EDBA6D60995F7AD6B0F27C4FF4A9883782D06939EF29EBB9DE40EA31FE9",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\base\\check_op.h",
+        "archived_sha256":  "024D6EDBA6D60995F7AD6B0F27C4FF4A9883782D06939EF29EBB9DE40EA31FE9",
+        "readonly":  true
+    },
+    {
+        "path":  "base/check.h",
+        "git_blob":  "f73e8252e7967db424f98029859c8a258ad28d29",
+        "sha256":  "1E5C47E439A3FCFD7F40B8C7ED117B6974602E3C61BED3EA078DB4E047DF0860",
+        "archive_path":  "docs\\rust\\migration\\drafts\\media-ranges\\reference\\source\\base\\check.h",
+        "archived_sha256":  "1E5C47E439A3FCFD7F40B8C7ED117B6974602E3C61BED3EA078DB4E047DF0860",
+        "readonly":  true
+    }
+]
