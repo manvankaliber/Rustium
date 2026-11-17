@@ -9,6 +9,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "base/functional/bind.h"
@@ -21,7 +22,13 @@
 #include "base/test/task_environment.h"
 #include "build/build_config.h"
 #if BUILDFLAG(IS_WIN)
+#include "base/synchronization/waitable_event.h"
+#include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool/thread_pool_instance.h"
+#include "base/test/scoped_run_loop_timeout.h"
+#include "base/test/test_future.h"
+#include "base/test/test_timeouts.h"
+#include "base/threading/thread_restrictions.h"
 #endif
 #include "net/base/net_errors.h"
 #include "net/base/auth.h"
@@ -44,16 +51,80 @@
 #include "url/scheme_host_port.h"
 #if BUILDFLAG(IS_WIN)
 #include "net/http/mock_sspi_library_win.h"
-#elif BUILDFLAG(IS_POSIX)
+#elif BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 #include "net/http/mock_gssapi_library_posix.h"
 #endif
 
-#if BUILDFLAG(USE_KERBEROS)
 namespace net {
 namespace {
 using Factory = ConnectionAuthOriginalFactoryPolicy;
 using Handler = ConnectionAuthOriginalHandlerPolicy;
 namespace probe = rustium_reference_probe;
+
+#if BUILDFLAG(IS_WIN)
+struct BlockingSspiCall : base::RefCountedThreadSafe<BlockingSspiCall> {
+  base::WaitableEvent entered{base::WaitableEvent::ResetPolicy::MANUAL,
+                              base::WaitableEvent::InitialState::NOT_SIGNALED};
+  base::WaitableEvent release{base::WaitableEvent::ResetPolicy::MANUAL,
+                              base::WaitableEvent::InitialState::NOT_SIGNALED};
+  base::WaitableEvent returned{base::WaitableEvent::ResetPolicy::MANUAL,
+                               base::WaitableEvent::InitialState::NOT_SIGNALED};
+
+ private:
+  friend class base::RefCountedThreadSafe<BlockingSspiCall>;
+  ~BlockingSspiCall() = default;
+};
+
+// Its release notification runs AFTER the full derived/base destructor on the
+// destruction sequence, then replies to the test sequence. A derived destructor
+// signal alone would precede MockSSPILibrary's live-handle assertions.
+class ObservedSspiLibrary final : public MockSSPILibrary {
+ public:
+  ObservedSspiLibrary(const wchar_t* package,
+                      scoped_refptr<base::SequencedTaskRunner> reply_runner,
+                      base::OnceClosure released,
+                      scoped_refptr<BlockingSspiCall> blocking = nullptr)
+      : MockSSPILibrary(package),
+        reply_runner_(std::move(reply_runner)),
+        released_(std::move(released)),
+        blocking_(std::move(blocking)) {}
+
+  SECURITY_STATUS InitializeSecurityContext(
+      PCredHandle credentials, PCtxtHandle context, SEC_WCHAR* target,
+      unsigned long requested, unsigned long reserved1, unsigned long data_rep,
+      PSecBufferDesc input, unsigned long reserved2, PCtxtHandle new_context,
+      PSecBufferDesc output, unsigned long* attributes, PTimeStamp expiry) override {
+    if (blocking_) {
+      blocking_->entered.Signal();
+      base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
+      blocking_->release.Wait();
+    }
+    const auto result = MockSSPILibrary::InitializeSecurityContext(
+        credentials, context, target, requested, reserved1, data_rep, input,
+        reserved2, new_context, output, attributes, expiry);
+    if (blocking_) blocking_->returned.Signal();
+    return result;
+  }
+
+ protected:
+  ~ObservedSspiLibrary() override {
+    CHECK(base::SequencedTaskRunner::HasCurrentDefault());
+    CHECK(base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
+        FROM_HERE,
+        base::BindOnce(
+            [](scoped_refptr<base::SequencedTaskRunner> reply,
+               base::OnceClosure released) {
+              CHECK(reply->PostTask(FROM_HERE, std::move(released)));
+            },
+            std::move(reply_runner_), std::move(released_))));
+  }
+
+ private:
+  scoped_refptr<base::SequencedTaskRunner> reply_runner_;
+  base::OnceClosure released_;
+  scoped_refptr<BlockingSspiCall> blocking_;
+};
+#endif
 
 class ProbePreferences : public MockAllowHttpAuthPreferences {
  public:
@@ -69,17 +140,42 @@ class AuthReferenceQualificationTest : public testing::Test {
     prefs.set_negotiate_disable_cname_lookup(true);
     registry = ConnectionAuthOriginalRegistry::Create(&prefs);
   }
-  void Register(HttpAuthMechanismFactory injection = HttpAuthMechanismFactory()) {
+  void TearDown() override { EXPECT_TRUE(ReleaseProvidersAndDrain()); }
+#if BUILDFLAG(IS_WIN)
+  scoped_refptr<MockSSPILibrary> ObserveSspi(
+      const wchar_t* package, scoped_refptr<BlockingSspiCall> blocking = nullptr) {
+    auto released = std::make_unique<base::test::TestFuture<void>>();
+    auto result = base::MakeRefCounted<ObservedSspiLibrary>(
+        package, base::SequencedTaskRunner::GetCurrentDefault(),
+        released->GetCallback(), std::move(blocking));
+    releases.push_back(std::move(released));
+    return result;
+  }
+  void CancelBlockedAndRelease(scoped_refptr<BlockingSspiCall> blocked,
+                               std::unique_ptr<HttpAuthHandler>* handler) {
+    handler->reset();
+    blocked->release.Signal();
+    EXPECT_TRUE(ReleaseProvidersAndDrain());
+  }
+#endif
+#if BUILDFLAG(USE_KERBEROS)
+  void Register(HttpAuthMechanismFactory injection = HttpAuthMechanismFactory()
+#if BUILDFLAG(IS_WIN)
+                , scoped_refptr<BlockingSspiCall> blocking = nullptr
+#endif
+  ) {
+    if (!registry) registry = ConnectionAuthOriginalRegistry::Create(&prefs);
     auto f = std::make_unique<ConnectionAuthOriginalNegotiateFactory>(injection);
     f->set_http_auth_preferences(&prefs);
 #if BUILDFLAG(IS_WIN)
-    library = base::MakeRefCounted<MockSSPILibrary>(NEGOSSP_NAME);
+    library = ObserveSspi(NEGOSSP_NAME, std::move(blocking));
 #elif BUILDFLAG(IS_POSIX)
     library = base::MakeRefCounted<test::MockGSSAPILibrary>();
 #endif
     f->set_library(library);
     registry->RegisterSchemeFactory("negotiate", std::move(f));
   }
+#endif
   int Create(std::string_view value, const NetLogWithSource& log,
              std::unique_ptr<HttpAuthHandler>* out) {
     return Factory::CreateAuthHandlerFromString(registry.get(), value,
@@ -96,8 +192,30 @@ class AuthReferenceQualificationTest : public testing::Test {
                                              {}, &used);
   }
   void NoObservedRust(const probe::Snapshot& before) {
-    environment.RunUntilIdle();
+    ASSERT_TRUE(ReleaseProvidersAndDrain());
     EXPECT_EQ((probe::Snapshot{0, 0, 0, 0, 0, 0, 0}), probe::Delta(before, probe::Read()));
+  }
+  bool ReleaseProvidersAndDrain() {
+    // Every caller retires its handlers and any local provider references first.
+    // The registry owns factories (including borrowed Digest nonce generators).
+    registry.reset();
+#if BUILDFLAG(IS_WIN) || (BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX))
+    library.reset();
+#endif
+    environment.RunUntilIdle();
+#if BUILDFLAG(IS_WIN)
+    base::test::ScopedRunLoopTimeout timeout(FROM_HERE,
+                                              TestTimeouts::action_timeout());
+    for (const auto& released : releases) {
+      if (!released->Wait()) {
+        ADD_FAILURE() << "SSPI provider destruction did not settle";
+        return false;
+      }
+    }
+    base::ThreadPoolInstance::Get()->FlushForTesting();
+#endif
+    environment.RunUntilIdle();
+    return true;
   }
   base::test::TaskEnvironment environment;
   base::test::ScopedFeatureList features;
@@ -105,13 +223,14 @@ class AuthReferenceQualificationTest : public testing::Test {
   std::unique_ptr<ConnectionAuthOriginalRegistry> registry;
 #if BUILDFLAG(IS_WIN)
   scoped_refptr<MockSSPILibrary> library;
-#elif BUILDFLAG(IS_POSIX)
+  std::vector<std::unique_ptr<base::test::TestFuture<void>>> releases;
+#elif BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
   scoped_refptr<test::MockGSSAPILibrary> library;
 #endif
   const url::SchemeHostPort origin{GURL("http://proxy.test/")};
 };
 
-// Every probe must respond to a known live entry; six zeros without these
+// Every probe must respond to a known live entry; seven zeros without these
 // controls would be inconclusive. Setup occurs before the measured snapshot.
 TEST_F(AuthReferenceQualificationTest, EachInstrumentedFamilyHasPositiveControl) {
   HttpAuthCache cache(true);
@@ -194,7 +313,7 @@ TEST_F(AuthReferenceQualificationTest, DigestNativeCaseUsesOriginalHandlerPath) 
 TEST_F(AuthReferenceQualificationTest, NtlmWireTokenAndLaterRoundAvoidRust) {
 #if BUILDFLAG(IS_WIN)
   auto factory = std::make_unique<ConnectionAuthOriginalNtlmFactory>();
-  factory->set_sspi_library(base::MakeRefCounted<MockSSPILibrary>(NTLMSP_NAME));
+  factory->set_sspi_library(ObserveSspi(NTLMSP_NAME));
   registry->RegisterSchemeFactory("ntlm", std::move(factory));
 #endif
   HttpRequestInfo request;
@@ -219,6 +338,7 @@ TEST_F(AuthReferenceQualificationTest, NtlmWireTokenAndLaterRoundAvoidRust) {
   NoObservedRust(before);
 }
 
+#if BUILDFLAG(USE_KERBEROS)
 TEST_F(AuthReferenceQualificationTest, DefaultProviderLaterRoundAndMalformed) {
   Register();
 #if BUILDFLAG(IS_POSIX)
@@ -257,22 +377,33 @@ TEST_F(AuthReferenceQualificationTest, DefaultProviderLaterRoundAndMalformed) {
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(AuthReferenceQualificationTest, DefaultSspiCancellationDropsReply) {
-  Register();
+  auto blocked = base::MakeRefCounted<BlockingSspiCall>();
   HttpRequestInfo request;
   request.method = "CONNECT";
   request.url = GURL("https://endpoint.test/");
   std::unique_ptr<HttpAuthHandler> handler;
-  auto before = probe::Read();
-  ASSERT_EQ(OK, Create("Negotiate", NetLogWithSource(), &handler));
   bool called = false;
   std::string token = "unchanged";
+  // Runs before any state above dies, including on a fatal assertion. Destroy
+  // the handler, release the blocked OS mock, and await the provider proof.
+  base::ScopedClosureRunner cleanup(base::BindOnce(
+      &AuthReferenceQualificationTest::CancelBlockedAndRelease,
+      base::Unretained(this), blocked,
+      base::Unretained(&handler)));
+  Register(HttpAuthMechanismFactory(), blocked);
+  auto before = probe::Read();
+  ASSERT_EQ(OK, Create("Negotiate", NetLogWithSource(), &handler));
   int rv = Handler::GenerateAuthToken(handler.get(), nullptr, &request,
       base::BindOnce([](bool* called, int) { *called = true; },
                      base::Unretained(&called)), &token);
   ASSERT_EQ(ERR_IO_PENDING, rv);
-  handler.reset();
-  base::ThreadPoolInstance::Get()->FlushForTesting();
-  environment.RunUntilIdle();
+  {
+    base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
+    ASSERT_TRUE(blocked->entered.TimedWait(TestTimeouts::action_timeout()));
+  }
+  EXPECT_FALSE(blocked->returned.IsSignaled());
+  cleanup.RunAndReset();
+  EXPECT_TRUE(blocked->returned.IsSignaled());
   EXPECT_FALSE(called);
   EXPECT_EQ("unchanged", token);
   NoObservedRust(before);
@@ -334,7 +465,6 @@ TEST_F(AuthReferenceQualificationTest, InjectedReferenceCancellationAndReentrant
     EXPECT_EQ(cancel ? 0u : 1u, state.completed);
     EXPECT_EQ(cancel ? 0u : 1u, callbacks);
     NoObservedRust(before);
-    registry->RegisterSchemeFactory("negotiate", nullptr);
   }
 }
 
@@ -366,7 +496,6 @@ TEST_F(AuthReferenceQualificationTest, InjectedReferenceLaterRoundAndMalformed) 
   handler.reset();
   NoObservedRust(before);
   EXPECT_EQ(1u, state.destroyed);
-  registry->RegisterSchemeFactory("negotiate", nullptr);
 }
 
 TEST_F(AuthReferenceQualificationTest, CapturePayloadOrderMatchesProduction) {
@@ -385,7 +514,7 @@ TEST_F(AuthReferenceQualificationTest, CapturePayloadOrderMatchesProduction) {
         auto f = std::make_unique<HttpAuthHandlerNegotiate::Factory>(make_mechanism);
         f->set_http_auth_preferences(&prefs);
 #if BUILDFLAG(IS_WIN)
-        f->set_library(base::MakeRefCounted<MockSSPILibrary>(NEGOSSP_NAME));
+        f->set_library(ObserveSspi(NEGOSSP_NAME));
 #elif BUILDFLAG(IS_POSIX)
         f->set_library(base::MakeRefCounted<test::MockGSSAPILibrary>());
 #endif
@@ -412,7 +541,8 @@ TEST_F(AuthReferenceQualificationTest, CapturePayloadOrderMatchesProduction) {
       EXPECT_EQ(OK, callback.GetResult(rv));
       EXPECT_EQ("Negotiate cmVmZXJlbmNl", token);
       handler.reset();
-      environment.RunUntilIdle();  // Include async work and materialized log callbacks.
+      production.reset();
+      if (!ReleaseProvidersAndDrain()) return {};
       EXPECT_EQ(1u, state.created);
       EXPECT_EQ(1u, state.posted);
       EXPECT_EQ(1u, state.completed);
@@ -420,7 +550,6 @@ TEST_F(AuthReferenceQualificationTest, CapturePayloadOrderMatchesProduction) {
       auto delta = probe::Delta(before, probe::Read());
       if (original) {
         EXPECT_EQ((probe::Snapshot{0, 0, 0, 0, 0, 0, 0}), delta);
-        registry->RegisterSchemeFactory("negotiate", nullptr);
       } else {
         EXPECT_GT(delta[0], 0u);  // Native tokenizer is the live auth control.
         EXPECT_GT(delta[4], 0u);  // Native create-result log is the live value control.
@@ -464,7 +593,7 @@ TEST_F(AuthReferenceQualificationTest, DefaultProviderCapturedContextMatchesProd
         auto f = std::make_unique<HttpAuthHandlerNegotiate::Factory>(HttpAuthMechanismFactory());
         f->set_http_auth_preferences(&prefs);
 #if BUILDFLAG(IS_WIN)
-        mock = base::MakeRefCounted<MockSSPILibrary>(NEGOSSP_NAME);
+        mock = ObserveSspi(NEGOSSP_NAME);
 #else
         mock = base::MakeRefCounted<test::MockGSSAPILibrary>();
 #endif
@@ -499,14 +628,12 @@ TEST_F(AuthReferenceQualificationTest, DefaultProviderCapturedContextMatchesProd
       EXPECT_EQ(OK, callback.GetResult(rv));
       EXPECT_FALSE(token.empty());
       handler.reset();
-#if BUILDFLAG(IS_WIN)
-      base::ThreadPoolInstance::Get()->FlushForTesting();
-#endif
-      environment.RunUntilIdle();
+      production.reset();
+      mock.reset();
+      if (!ReleaseProvidersAndDrain()) return {};
       auto delta = probe::Delta(before, probe::Read());
       if (original) {
         EXPECT_EQ((probe::Snapshot{0, 0, 0, 0, 0, 0, 0}), delta);
-        registry->RegisterSchemeFactory("negotiate", nullptr);
       } else {
         EXPECT_GT(delta[0], 0u);
         EXPECT_GT(delta[4], 0u);
@@ -529,6 +656,6 @@ TEST_F(AuthReferenceQualificationTest, DefaultProviderCapturedContextMatchesProd
     EXPECT_TRUE(saw_context);
   }
 }
+#endif  // BUILDFLAG(USE_KERBEROS)
 }  // namespace
 }  // namespace net
-#endif  // BUILDFLAG(USE_KERBEROS)

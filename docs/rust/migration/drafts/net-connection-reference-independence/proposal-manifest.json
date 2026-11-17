@@ -39,7 +39,7 @@
     },
     {
       "path": "proposal/instrumentation/BUILD.instructions.gn",
-      "sha256": "b041ad66a69b10b67f3920352a1bed7dd320f3a6da0e0a39eb416a6657bbd6ae"
+      "sha256": "5a9898f2a247164808b0a6f316bb942b806aff19b03ac497407a666fd5bf0e87"
     },
     {
       "path": "proposal/instrumentation/net/base/net_error_rust_ffi.rs",
@@ -159,7 +159,7 @@
     },
     {
       "path": "proposal/net/http/connection_auth_reference_qualification_unittest.cc",
-      "sha256": "3908dfe42517f23ca5c6d0519956589b8901b5eea5dac11c09be2c987ad2532a"
+      "sha256": "586e6a00f22d745800e21577c8e07101e59078055fcce2f9f1ceb4b9c2f835ee"
     },
     {
       "path": "proposal/net/http/connection_auth_reference_test_mechanism.cc",
@@ -173,5 +173,25 @@
       "path": "proposal/reference-decoder-export.patch",
       "sha256": "52b7748d451486dcf04ebfe81567115d516c9dcd55011aed7b22fef794349180"
     }
-  ]
+  ],
+  "director_parent_candidate": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "director_review_repaired": "1fd755aa78d20d08e724283f77a6a025d2853338",
+  "director_repair_scope": "R1 teardown-proof and blocked-cancellation sources;R3common test guards. R2actual probe wiring/evaluation remains pending",
+  "director_repair_inputs_sha256": "9139ba7e588e88db47242a2b4cbd18ee91842732ba6bfcc61622ad67de0662a2",
+  "original_test_names_preserved": [
+    "EachInstrumentedFamilyHasPositiveControl",
+    "FrozenBase64EncodingDoesNotEnterRust",
+    "DisabledCaptureDoesNotEvaluatePayload",
+    "BasicWireTokenAvoidsRustBase64",
+    "DigestNativeCaseUsesOriginalHandlerPath",
+    "NtlmWireTokenAndLaterRoundAvoidRust",
+    "DefaultProviderLaterRoundAndMalformed",
+    "DefaultSspiCancellationDropsReply",
+    "DefaultSspiCallbackMayDeleteHandler",
+    "InjectedReferenceCancellationAndReentrantDelete",
+    "InjectedReferenceLaterRoundAndMalformed",
+    "CapturePayloadOrderMatchesProduction",
+    "DefaultProviderCapturedContextMatchesProduction"
+  ],
+  "director_source_manifest_sha256": "dc6d9efb3f6c482021ded90edee78b2172e57e6e9443ecc2d45a54a5f245a3f0"
 }

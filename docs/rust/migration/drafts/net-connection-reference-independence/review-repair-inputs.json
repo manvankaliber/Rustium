@@ -1,0 +1,61 @@
+{
+  "scope": "Test-only task/lifetime APIs supporting R1/R3 source repairs; no runtime or complete helper closure claim",
+  "inputs": [
+    {
+      "path": "base/task/sequenced_task_runner.h",
+      "sha256": "21b3aa514f44880c6317ab4340aa1d9d72f8fb4f16440dcd9598bf9fcfea0438",
+      "copy": "reference/review-repair/base/task/sequenced_task_runner.h",
+      "root_and_configured_match": true,
+      "git_blob": "f1af71939152eb2ba3126afa007342750d4ea0a4"
+    },
+    {
+      "path": "base/synchronization/waitable_event.h",
+      "sha256": "14d45cb1090d1b33027f0b35ed4accea23c3f6efeaed7e7f53bb8ba637f13104",
+      "copy": "reference/review-repair/base/synchronization/waitable_event.h",
+      "root_and_configured_match": true,
+      "git_blob": "a5061e3cffda6253eb780f3cda94d6750b90c1fb"
+    },
+    {
+      "path": "base/test/scoped_run_loop_timeout.h",
+      "sha256": "bc9b26af1cb2ddca01c06d6f4a04059041f34865428b85b48ba98742cdcb4684",
+      "copy": "reference/review-repair/base/test/scoped_run_loop_timeout.h",
+      "root_and_configured_match": true,
+      "git_blob": "977fa9641f605066b935c6f04effe74396808198"
+    },
+    {
+      "path": "base/test/test_future.h",
+      "sha256": "caa4feefb10d3bad346d74f229a5f8c4b019c4d1888b5ace3c3c396abda1b759",
+      "copy": "reference/review-repair/base/test/test_future.h",
+      "root_and_configured_match": true,
+      "git_blob": "bb98b0ba2395d40494b18e783db7266f4525de44"
+    },
+    {
+      "path": "base/test/test_timeouts.h",
+      "sha256": "72deea3ec08dfd62185ecf943d9e06b0bde512e5e9d2d9939172f7865ce9113b",
+      "copy": "reference/review-repair/base/test/test_timeouts.h",
+      "root_and_configured_match": true,
+      "git_blob": "9abf84e984431e9241e4f752cdc0739aa519c285"
+    },
+    {
+      "path": "base/threading/thread_restrictions.h",
+      "sha256": "911091412c78d77022408ab750129e54f9975c43f64edd62fd9803d48703fd95",
+      "copy": "reference/review-repair/base/threading/thread_restrictions.h",
+      "root_and_configured_match": true,
+      "git_blob": "7f65d2c9d1d9d21cf7a22493e56feea0258a1512"
+    },
+    {
+      "path": "base/memory/ref_counted.h",
+      "sha256": "83b08b3316a4d19cc0b500fc4216b9a6010c2b3f2b545e86de2f87551637bb27",
+      "copy": "reference/review-repair/base/memory/ref_counted.h",
+      "root_and_configured_match": true,
+      "git_blob": "e95b8d25daec5d6a0c6e0c14f0fb38a367b107f7"
+    },
+    {
+      "path": "base/task/thread_pool/thread_pool_instance.h",
+      "sha256": "bdb6889a3877f15fb700dc001bbee7977a0cca7458dbb7f3745903ae3ace89be",
+      "copy": "reference/review-repair/base/task/thread_pool/thread_pool_instance.h",
+      "root_and_configured_match": true,
+      "git_blob": "61835aefc2016a8bfe3dcdf4a2128ccfafcd0194"
+    }
+  ]
+}
