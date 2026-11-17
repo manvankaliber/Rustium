@@ -1005,6 +1005,7 @@ mod tests {
     impl NumberProvider for FixedNumbers {
         fn parse_ascii_decimal(&self, s: &[u8]) -> DecimalResult {
             let value = match s {
+                b"2" => 2.0,
                 b"2.0" | b"2e0" => 2.0,
                 b"1.5" => 1.5,
                 b"-0.0" => -0.0,
@@ -1253,5 +1254,81 @@ mod tests {
             block: 0,
         };
         assert!(needs_inserted_comment(&a, &b));
+    }
+
+    include!("basic_original_cases.rs");
+
+    fn compare_original_token(
+        label: &str,
+        index: usize,
+        actual: &Token<'_>,
+        expected: Option<&BasicExpected>,
+    ) {
+        let expected_kind = expected.map_or(Kind::Eof, |e| e.kind);
+        assert_eq!(actual.kind, expected_kind, "{label} token {index}");
+        let Some(e) = expected else { return };
+        match e.kind {
+            Kind::Delimiter => {
+                assert_eq!(actual.delimiter, e.delimiter, "{label} delimiter {index}")
+            }
+            Kind::Ident | Kind::Function | Kind::String | Kind::Url => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} value {index}")
+            }
+            Kind::Dimension => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} dimension unit {index}");
+                assert_eq!(actual.numeric_is_integer, e.integer, "{label} numeric kind {index}");
+                assert_eq!(actual.number_bits, e.number_bits, "{label} numeric value {index}");
+            }
+            Kind::Number => {
+                assert_eq!(actual.numeric_sign, e.sign, "{label} numeric sign {index}");
+                assert_eq!(actual.numeric_is_integer, e.integer, "{label} numeric kind {index}");
+                assert_eq!(actual.number_bits, e.number_bits, "{label} numeric value {index}");
+            }
+            Kind::Percentage => {
+                assert_eq!(actual.numeric_is_integer, e.integer, "{label} numeric kind {index}");
+                assert_eq!(actual.number_bits, e.number_bits, "{label} numeric value {index}");
+            }
+            Kind::UnicodeRange => {
+                assert_eq!(actual.unicode_range, e.range, "{label} range {index}")
+            }
+            Kind::Hash => {
+                assert_eq!(actual.value.as_deref(), e.value, "{label} hash value {index}");
+                assert_eq!(actual.hash_is_id, e.hash_id, "{label} hash kind {index}");
+            }
+            _ => {}
+        }
+    }
+
+    fn run_original_case(case: &BasicCase, wide: bool) {
+        let bytes: Vec<u8> = case.input.iter().map(|u| *u as u8).collect();
+        let mut tokenizer = if wide {
+            Tokenizer::new(Input::Utf16(case.input), 0)
+        } else {
+            Tokenizer::new(Input::Bytes(&bytes), 0)
+        };
+        for index in 0..3 {
+            if index > 0 && tokenizer.pos >= tokenizer.units.len() {
+                break;
+            }
+            let actual = tokenizer.next_token(&FixedNumbers);
+            compare_original_token(case.label, index, &actual, case.expected.get(index));
+            if actual.kind == Kind::Eof {
+                break;
+            }
+        }
+    }
+
+    #[test]
+    fn transcribed_single_character_multiple_character_delimiter_and_whitespace_rows() {
+        assert_eq!(BASIC_ORIGINAL_CASES.len(), 37);
+        for case in BASIC_ORIGINAL_CASES {
+            assert!(
+                case.input.iter().all(|u| *u <= 255),
+                "{} expected byte-representable fixture",
+                case.label
+            );
+            run_original_case(case, false);
+            run_original_case(case, true);
+        }
     }
 }
