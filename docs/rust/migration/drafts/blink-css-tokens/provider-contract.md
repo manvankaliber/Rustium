@@ -1,6 +1,6 @@
-# Internal decimal provider boundary
+# Candidate decimal provider API
 
-This is a candidate-internal Rust trait contract, not a bridge, shared export, or ABI. It has no default implementation.
+This trait is public within the standalone candidate Rust API so its public tokenizer and serialization methods have a usable provider bound. It is not a bridge, shared export, or ABI/FFI contract. It has no default implementation.
 
 1. `parse_ascii_decimal(source)` accepts exactly the already grammar-selected ASCII slice and returns binary64 bits, consumed byte count, and status. Rust owns grammar selection and requires full consumption. The provider owns WTF/double-conversion decimal-to-binary behavior, including ties-to-even, overflow infinity, signed underflow zero, invalid status, and raw precision retention.
 2. `format_ecmascript_shortest(bits)` returns the exact ASCII from Blink's configured shortest `DoubleToStringConverter`, including unique-zero behavior, notation thresholds, exponent sign/case, and shortest tie behavior.

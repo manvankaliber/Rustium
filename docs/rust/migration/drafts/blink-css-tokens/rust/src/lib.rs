@@ -306,14 +306,15 @@ fn append_scalar(o: &mut Vec<u16>, cp: u32) {
     }
 }
 
-pub(crate) trait NumberProvider {
+/// Candidate-only Rust provider API; this is not a shared ABI or FFI contract.
+pub trait NumberProvider {
     fn parse_ascii_decimal(&self, source: &[u8]) -> DecimalResult;
     fn format_ecmascript_shortest(&self, binary64_bits: u64) -> Vec<u8>;
     fn format_wtf_six_significant(&self, binary64_bits: u64) -> Vec<u8>;
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) enum DecimalStatus {
+pub enum DecimalStatus {
     Ok,
     Invalid,
     Overflow,
@@ -321,7 +322,7 @@ pub(crate) enum DecimalStatus {
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub(crate) struct DecimalResult {
+pub struct DecimalResult {
     pub binary64_bits: u64,
     pub consumed: usize,
     pub status: DecimalStatus,
@@ -382,9 +383,6 @@ impl<'a> Tokenizer<'a> {
         }
         c
     }
-    fn raw(&self, n: usize) -> u16 {
-        self.peek(n)
-    }
     fn source_value(&self, range: Range<usize>) -> Cow<'a, [u16]> {
         match &self.input {
             Input::Utf16(source) => Cow::Borrowed(&source[range]),
@@ -432,14 +430,16 @@ impl<'a> Tokenizer<'a> {
     fn valid_escape(a: u16, b: u16) -> bool {
         a == 92 && !Self::newline(b)
     }
-    fn starts_ident(&self, first: u16) -> bool {
-        let second = self.effective(self.pos);
+    /// CSS would-start-an-identifier lookahead at an unconsumed source position.
+    fn starts_ident_at(&self, pos: usize) -> bool {
+        let first = self.effective(pos);
+        let second = self.effective(pos + 1);
         Self::name_start(first)
             || Self::valid_escape(first, second)
             || (first == 45
                 && (Self::name_start(second)
                     || second == 45
-                    || Self::valid_escape(second, self.effective(self.pos + 1))))
+                    || Self::valid_escape(second, self.effective(pos + 2))))
     }
     fn token(&self, kind: Kind, start: usize) -> Token<'a> {
         Token {
@@ -609,6 +609,11 @@ impl<'a> Tokenizer<'a> {
                 self.pos = start;
                 return self.number(start, numbers);
             }
+            // HyphenMinus handles CDC before identifier consumption in Blink.
+            if c == 45 && self.peek(0) == 45 && self.peek(1) == 62 {
+                self.pos += 2;
+                return self.token(Kind::Cdc, start);
+            }
             let one = match c {
                 40 => Some(Kind::LParen),
                 41 => Some(Kind::RParen),
@@ -657,11 +662,11 @@ impl<'a> Tokenizer<'a> {
                 self.pos = start;
                 return self.ident_like(start);
             }
-            if self.starts_ident(c) {
+            if self.starts_ident_at(start) {
                 self.pos = start;
                 return self.ident_like(start);
             }
-            if c == 64 && self.starts_ident(self.effective(self.pos)) {
+            if c == 64 && self.starts_ident_at(self.pos) {
                 let s = self.pos;
                 let (v, _) = self.consume_name(s);
                 return self.text_token(Kind::AtKeyword, start, v);
@@ -670,7 +675,7 @@ impl<'a> Tokenizer<'a> {
                 && (Self::name(self.effective(self.pos))
                     || Self::valid_escape(self.effective(self.pos), self.effective(self.pos + 1)))
             {
-                let is_id = self.starts_ident(self.peek(0));
+                let is_id = self.starts_ident_at(self.pos);
                 let s = self.pos;
                 let (v, _) = self.consume_name(s);
                 let mut t = self.text_token(Kind::Hash, start, v);
@@ -704,10 +709,6 @@ impl<'a> Tokenizer<'a> {
             if c == 60 && self.peek(0) == 33 && self.peek(1) == 45 && self.peek(2) == 45 {
                 self.pos += 3;
                 return self.token(Kind::Cdo, start);
-            }
-            if c == 45 && self.peek(0) == 45 && self.peek(1) == 62 {
-                self.pos += 2;
-                return self.token(Kind::Cdc, start);
             }
             let mut t = self.token(Kind::Delimiter, start);
             t.delimiter = Some(c);
@@ -776,7 +777,7 @@ impl<'a> Tokenizer<'a> {
         t.number = Some(value);
         t.unit_id = Some(1); // CSSPrimitiveValue::UnitType::kNumber
         t.numeric_source = Some(self.source_value(start..end));
-        if self.starts_ident(self.effective(self.pos)) {
+        if self.starts_ident_at(self.pos) {
             let s = self.pos;
             let (v, _) = self.consume_name(s);
             t.kind = Kind::Dimension;
@@ -1010,6 +1011,7 @@ mod tests {
                 b"1.5" => 1.5,
                 b"-0.0" => -0.0,
                 b"2e3" => 2000.0,
+                b"4e3" => 4000.0,
                 b"5" => 5.0,
                 b"-1" => -1.0,
                 _ => panic!("missing explicit numeric fixture: {:?}", s),
@@ -1025,11 +1027,18 @@ mod tests {
                 2.0 => b"2".to_vec(),
                 1.5 => b"1.5".to_vec(),
                 2000.0 => b"2000".to_vec(),
+                4000.0 => b"4000".to_vec(),
                 _ => panic!("missing explicit numeric formatting fixture: {b}"),
             }
         }
         fn format_wtf_six_significant(&self, b: u64) -> Vec<u8> {
-            self.format_ecmascript_shortest(b)
+            match f64::from_bits(b) {
+                2.0 => b"2".to_vec(),
+                1.5 => b"1.5".to_vec(),
+                2000.0 => b"2000".to_vec(),
+                4000.0 => b"4000".to_vec(),
+                _ => panic!("missing explicit WTF6 formatting fixture: {b}"),
+            }
         }
     }
 
@@ -1212,6 +1221,14 @@ mod tests {
         let mut t = Tokenizer::new(Input::Bytes(b"4e3e2"), 0);
         let x = t.next_token(&FixedNumbers);
         assert_eq!(x.kind, Kind::Dimension);
+        assert_eq!(x.number_bits, Some(4000.0f64.to_bits()));
+        assert_eq!(x.value.as_deref(), Some(&[101, 50][..]));
+        assert_eq!(x.serialize(&FixedNumbers).unwrap(), vec![52, 48, 48, 48, 101, 50]);
+
+        let mut t = Tokenizer::new(Input::Bytes(b"4e3%"), 0);
+        let percentage = t.next_token(&FixedNumbers);
+        assert_eq!(percentage.kind, Kind::Percentage);
+        assert_eq!(percentage.serialize(&FixedNumbers).unwrap(), vec![52, 48, 48, 48, 37]);
     }
 
     #[test]
@@ -1612,8 +1629,7 @@ mod tests {
     fn numeric_construction_clamps_to_f32_max_without_provider_fallback() {
         const TWO_POW_128_BITS: u64 = 0x47f0000000000000;
         let input = b"340282366920938463463374607431768211456";
-        let mut byte_provider =
-            OriginalDecimalFixtures::new(&[(input.as_slice(), TWO_POW_128_BITS)]);
+        let byte_provider = OriginalDecimalFixtures::new(&[(input.as_slice(), TWO_POW_128_BITS)]);
         let mut byte_tokenizer = Tokenizer::new(Input::Bytes(input), 0);
         assert_clamp_token(byte_tokenizer.next_token(&byte_provider));
         byte_provider.assert_consumed("byte f32 clamp boundary");
