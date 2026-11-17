@@ -437,11 +437,15 @@ mod tests {
             assert_eq!(split_once(b"a:b=c", d, true), Some((&b"a:b"[..], &b"c"[..])));
             assert_eq!(split_once(b"a=b:c", d, true), Some((&b"a=b"[..], &b"c"[..])));
         }
-        assert_eq!(split_once(b"", b"", false), None);
-        assert_eq!(split_once(b"a", b"", false), None);
-        assert_eq!(split_once(b"ab", b"", true), None);
-        assert_eq!(split_once(b"a:", b":", false), Some((&b"a"[..], &b""[..])));
-        assert_eq!(split_once(b":b", b":", false), Some((&b""[..], &b"b"[..])));
+        for reverse in [false, true] {
+            for input in [b"".as_slice(), b"a", b"ab"] {
+                assert_eq!(split_once(input, b"", reverse), None);
+            }
+            for delimiters in [b":".as_slice(), b":=", b"=:"] {
+                assert_eq!(split_once(b"a:", delimiters, reverse), Some((&b"a"[..], &b""[..])));
+                assert_eq!(split_once(b":b", delimiters, reverse), Some((&b""[..], &b"b"[..])));
+            }
+        }
     }
     #[test]
     fn original_key_value_cases_both_typed_variants() {
@@ -450,6 +454,15 @@ mod tests {
         kv(b"key1:value1,,key3:value3", b':', b",,,", true, &[(b"key1", b"value1,,key3:value3")]);
         kv(b"key1 : value1", b':', b",", true, &[(b"key1 ", b" value1")]);
         let a = b"a ?!@#$%^&*()_+:/{}\\\t\nb";
+        // Original character-delimiter OnlySplitAtGivenSeparator (line272).
+        let mut char_case = a.to_vec();
+        char_case.push(b'X');
+        char_case.extend_from_slice(a);
+        char_case.push(b'Y');
+        char_case.extend_from_slice(a);
+        char_case.push(b'X');
+        char_case.extend_from_slice(a);
+        kv(&char_case, b'X', b"Y", true, &[(a, a), (a, a)]);
         let mut s = a.to_vec();
         s.push(b'X');
         s.extend_from_slice(a);
@@ -499,22 +512,33 @@ mod tests {
     }
     #[test]
     fn malformed_default_empty_differs_from_borrowed_empty() {
-        let input = b":value,key:,tail:v";
+        let input = b":value,key:,tail:v,broken";
         let (ok, p) = key_value_views(input, b':', b",");
         assert!(!ok);
         assert_eq!(p[0].key.origin, ViewOrigin::Input);
         assert_eq!(p[0].key.offset, 0);
         assert!(p[0].key.bytes.is_empty());
         assert_eq!(p[1].value.origin, ViewOrigin::DefaultEmpty);
-        assert_eq!(p[2].key.origin, ViewOrigin::DefaultEmpty);
-        assert_eq!(p[2].value.origin, ViewOrigin::DefaultEmpty);
+        assert_eq!(p[2].key.origin, ViewOrigin::Input);
+        assert_eq!(p[2].key.offset, 12);
+        assert_eq!(p[2].key.bytes, b"tail");
+        assert_eq!(p[2].value.origin, ViewOrigin::Input);
+        assert_eq!(p[2].value.offset, 17);
+        assert_eq!(p[2].value.bytes, b"v");
+        assert_eq!(p[3].key.origin, ViewOrigin::DefaultEmpty);
+        assert_eq!(p[3].value.origin, ViewOrigin::DefaultEmpty);
         assert_eq!(&input[p[0].key.offset..p[0].key.offset + p[0].key.bytes.len()], p[0].key.bytes);
         let mut reused = vec![Pair { key: b"stale".to_vec(), value: b"stale".to_vec() }];
         let mut views = vec![ViewPair { key: p[0].key, value: p[0].value }];
         assert!(!key_value_views_into(input, b':', b",", &mut views));
         assert_eq!(views, p);
         assert!(!key_value_pairs_into(input, b':', b",", &mut reused));
-        assert_eq!(reused.len(), 3);
+        assert_eq!(reused, vec![
+            Pair { key: vec![], value: b"value".to_vec() },
+            Pair { key: b"key".to_vec(), value: vec![] },
+            Pair { key: b"tail".to_vec(), value: b"v".to_vec() },
+            Pair { key: vec![], value: vec![] },
+        ]);
     }
     #[test]
     fn utf16_bytes_and_owned_variants() {
