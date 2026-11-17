@@ -116,5 +116,4 @@ def main(args):
     (output/'result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result));return 0 if result['passed'] else 1
 
 if __name__ == '__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--intake',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
-    sys.exit(main(parser.parse_args()))
+    raise SystemExit('Superseded unqualified proposal: ordinary_base_v2.py requires source review and gated qualification before execution.')
