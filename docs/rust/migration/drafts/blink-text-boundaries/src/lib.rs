@@ -562,6 +562,8 @@ mod policy_trace_source {
         boundaries: Vec<i32>,
         property_error: bool,
         next_id: usize,
+        character_boundary: Option<i32>,
+        character_error: bool,
     }
     impl BoundaryProvider for Trace {
         type Session = FakeSession;
@@ -607,7 +609,10 @@ mod policy_trace_source {
             q: i32,
         ) -> Result<Following, BoundaryError> {
             self.events.push(format!("character-following({}:{q})", session.id));
-            Ok(Following::Done)
+            if self.character_error {
+                return Err(BoundaryError::Provider);
+            }
+            Ok(self.character_boundary.map_or(Following::Done, Following::Boundary))
         }
         fn release_character(&mut self, session: Self::Session) {
             self.events.push(format!(
@@ -752,5 +757,71 @@ mod policy_trace_source {
         policy.set_start(0).unwrap();
         assert!(p.borrow().events.iter().any(|e| e == "release-line(1)-retained1"));
         assert_eq!(input[0], b'a' as u16);
+    }
+
+    // Source map: frozen text_break_iterator.{h,cc}, IsBreakable and
+    // NextBreakOpportunity overloads (h:174-191, cc:467-478).
+    #[test]
+    fn forward_is_inclusive_and_enumeration_advances_by_returned_boundary() {
+        let text = [b'a' as u16, 0x4e2d, b'b' as u16];
+        let p = Rc::new(RefCell::new(Trace { boundaries: vec![1, 2], ..Default::default() }));
+        let mut x = LocalLinePolicy::new(&text, p.clone()).unwrap();
+        assert_eq!(x.next_opportunity(1), Ok(1));
+        assert_eq!(x.next_opportunity(2), Ok(2));
+        assert_eq!(x.next_opportunity(3), Ok(3));
+        assert_eq!(x.is_breakable(3), Ok(true));
+        assert!(p.borrow().events.iter().any(|e| e == "following(1:0)"));
+    }
+    #[test]
+    fn empty_end_and_is_breakable_match_limited_native_wrapper() {
+        let empty: [u16; 0] = [];
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let mut x = LocalLinePolicy::new(&empty[..], p.clone()).unwrap();
+        assert_eq!(x.next_opportunity(0), Ok(0));
+        assert_eq!(x.is_breakable(0), Ok(true));
+        let text = [b'a' as u16];
+        let mut y = LocalLinePolicy::new(&text, p).unwrap();
+        assert_eq!(y.next_opportunity(1), Ok(1));
+        assert_eq!(y.is_breakable(1), Ok(true));
+    }
+    #[test]
+    fn character_uses_suffix_offsets_and_ignores_limited_scan_end() {
+        let text = [b'x' as u16, b'a' as u16, b'b' as u16];
+        let p = Rc::new(RefCell::new(Trace { character_boundary: Some(2), ..Default::default() }));
+        let mut x = LocalLinePolicy::new(&text, p.clone()).unwrap();
+        x.set_start(1).unwrap();
+        x.set_type(BreakType::BreakCharacter);
+        assert_eq!(x.next_opportunity_limited(2, 2), Ok(3));
+        assert!(p.borrow().events.iter().any(|e| e == "character-following(1:0)"));
+        assert!(p.borrow().events.iter().any(|e| e == "release-character(1)-retained2"));
+    }
+    #[test]
+    fn reverse_steps_over_supplementary_pair_and_honors_minimum() {
+        let text = [b'a' as u16, 0xd83d, 0xde00, b'b' as u16];
+        let p = Rc::new(RefCell::new(Trace::default()));
+        let mut x = LocalLinePolicy::new(&text, p).unwrap();
+        assert_eq!(x.previous_opportunity(4, 3), Ok(3));
+        assert_eq!(x.previous_opportunity(3, 2), Ok(2));
+        assert_eq!(x.previous_opportunity(2, 2), Ok(2));
+    }
+    #[test]
+    fn character_error_and_bad_offset_release_only_its_handle() {
+        for (error, boundary, expected) in [
+            (true, None, Err(BoundaryError::Provider)),
+            (false, Some(9), Err(BoundaryError::InvalidOffset)),
+        ] {
+            let text = [b'a' as u16, b'b' as u16];
+            let p = Rc::new(RefCell::new(Trace {
+                character_error: error,
+                character_boundary: boundary,
+                ..Default::default()
+            }));
+            let mut x = LocalLinePolicy::new(&text, p.clone()).unwrap();
+            x.set_type(BreakType::BreakCharacter);
+            assert_eq!(x.next_opportunity_limited(0, 1), expected);
+            let events = p.borrow().events.join("|");
+            assert!(events.contains("release-character(1)-retained2"));
+            assert!(!events.contains("release-line"));
+        }
     }
 }
