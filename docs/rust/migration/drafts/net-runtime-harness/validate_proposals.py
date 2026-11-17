@@ -118,6 +118,13 @@ class TestMembership(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.check(data)
 
+    def test_rejects_unqualified_PRE_execution_contract(self):
+        data = {'all_tests': ['Example.PRE_Pass', 'Example.Pass'], 'disabled_tests': [],
+                'per_iteration_data': [{'Example.PRE_Pass': [{'status': 'SUCCESS'}],
+                                       'Example.Pass': [{'status': 'SUCCESS'}]}]}
+        with self.assertRaisesRegex(ValueError, 'PRE suites'):
+            self.check(data)
+
 
 def verify_patches():
     parent = Path('D:/Rustium/.rustium-runtime')

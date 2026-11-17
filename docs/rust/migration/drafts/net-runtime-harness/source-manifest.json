@@ -42,7 +42,7 @@
       "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
       "before_sha256": "b8af6cdb17a949fc2abf55f281f7976d829644a515cf089133efa87be6faf451",
       "source_snapshot": "source-before/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py",
-      "proposed_sha256": "51e72fb46a75d32b437f9f7268243c23dfefda4484482476b4c68ef803561dfa",
+      "proposed_sha256": "64dfc74299d436aad710b1c102e7943885d7e24c1e1d3109531a7cdf2d69ada6",
       "proposal": "integration-proposal/.scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py"
     }
   ],
