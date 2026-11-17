@@ -1,0 +1,21 @@
+--- a/net/http/http_auth_gssapi_posix.h
++++ b/net/http/http_auth_gssapi_posix.h
+@@ -246,6 +246,8 @@
+   void SetDelegation(HttpAuth::DelegationType delegation_type) override;
+ 
+  private:
++  friend class ConnectionAuthOriginalProviders;
++  friend class ConnectionAuthOriginalGSSAPI;
+   int GetNextSecurityToken(const std::string& spn,
+                            const std::string& channel_bindings,
+                            gss_buffer_t in_token,
+--- a/net/http/http_auth_handler_digest.h
++++ b/net/http/http_auth_handler_digest.h
+@@ -96,6 +96,7 @@
+   ~HttpAuthHandlerDigest() override;
+ 
+  private:
++  friend class ConnectionAuthOriginalDigestFactory;
+   // HttpAuthHandler
+   bool Init(HttpAuthChallengeTokenizer* challenge,
+             const SSLInfo& ssl_info,

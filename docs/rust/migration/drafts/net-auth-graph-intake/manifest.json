@@ -1,0 +1,797 @@
+{
+  "parent_candidate": "c36d1aafb00e413feff07907844c0555a21cd021",
+  "wiring_candidate": "ee1739128e28d664266b57a8b604cb266fe7a322",
+  "current_source_authority": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e",
+  "parent_proposals_verified": 40,
+  "historical_input_bindings": [
+    {
+      "path": "net/http/auth_challenge_reference.cc",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference.cc",
+      "historical_sha256": "965d5ed02c3a4db8a06ab895cc9eaef0c643e47289e008f8a1fd022dfc07fc08",
+      "current_sha256": "965d5ed02c3a4db8a06ab895cc9eaef0c643e47289e008f8a1fd022dfc07fc08",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference.h",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference.h",
+      "historical_sha256": "231971cef53846cde4fe83b061dc12f75cbd15e17f24f6dcf9bed8da877a4657",
+      "current_sha256": "231971cef53846cde4fe83b061dc12f75cbd15e17f24f6dcf9bed8da877a4657",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp.h",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference_modp.h",
+      "historical_sha256": "4802f1c4eca14f7d14f54119aaa5ce6e3c5ba0383a3666265dd4ca7547784073",
+      "current_sha256": "4802f1c4eca14f7d14f54119aaa5ce6e3c5ba0383a3666265dd4ca7547784073",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp.cc",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference_modp.cc",
+      "historical_sha256": "0ba0e240abeeb9333b7e34d906c96a6f1f79889566f7d1c09896dd7a359963cf",
+      "current_sha256": "0ba0e240abeeb9333b7e34d906c96a6f1f79889566f7d1c09896dd7a359963cf",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference_tokenizer.h",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference_tokenizer.h",
+      "historical_sha256": "8cd8bf4d34095dcc6550b5938671c902322b58774c709b9a5a3c04bf4b5690f8",
+      "current_sha256": "8cd8bf4d34095dcc6550b5938671c902322b58774c709b9a5a3c04bf4b5690f8",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_multi_round_parse.cc",
+      "parent_copy": "reference/current/net/http/http_auth_multi_round_parse.cc",
+      "historical_sha256": "b7995277f5989b139338f28b1601555a89770e34924618f0147a0b9867bdba6d",
+      "current_sha256": "b7995277f5989b139338f28b1601555a89770e34924618f0147a0b9867bdba6d",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_challenge_tokenizer.cc",
+      "parent_copy": "reference/current/net/http/http_auth_challenge_tokenizer.cc",
+      "historical_sha256": "7a5a92845526269feac062c5fd6f0a8720bfddb7ac85e8c405c3f84694a66f7e",
+      "current_sha256": "7a5a92845526269feac062c5fd6f0a8720bfddb7ac85e8c405c3f84694a66f7e",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/connection_auth_original_factory.cc",
+      "parent_copy": "reference/current/net/http/connection_auth_original_factory.cc",
+      "historical_sha256": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "current_sha256": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_ntlm_mechanism.cc",
+      "parent_copy": "reference/current/net/http/http_auth_ntlm_mechanism.cc",
+      "historical_sha256": "719153b45bc8e700e1aa62b4be653395140c54b79c7cfe6d9b29387e7f62ca39",
+      "current_sha256": "719153b45bc8e700e1aa62b4be653395140c54b79c7cfe6d9b29387e7f62ca39",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.cc",
+      "parent_copy": "reference/current/net/http/http_auth_sspi_win.cc",
+      "historical_sha256": "c6b5c2a3052450e6af2e9f1903f1dc230b94f6bd4cb3e0624a6f9a004897391a",
+      "current_sha256": "c6b5c2a3052450e6af2e9f1903f1dc230b94f6bd4cb3e0624a6f9a004897391a",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_gssapi_posix.cc",
+      "parent_copy": "reference/current/net/http/http_auth_gssapi_posix.cc",
+      "historical_sha256": "92814193c41e7f5204d86bd49b838699faffdb2179797b98edd5488a18e6354a",
+      "current_sha256": "92814193c41e7f5204d86bd49b838699faffdb2179797b98edd5488a18e6354a",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler_negotiate.cc",
+      "historical_sha256": "5ae15d72c2f707573b5b3356edf3d1c77a3321e7448be401254fccca9c4652ee",
+      "current_sha256": "5ae15d72c2f707573b5b3356edf3d1c77a3321e7448be401254fccca9c4652ee",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler_ntlm.cc",
+      "historical_sha256": "a9f7fd4c501287a93e9a039c7fa8357aa5d971ddaf2a3e865575d4ecd55a857e",
+      "current_sha256": "a9f7fd4c501287a93e9a039c7fa8357aa5d971ddaf2a3e865575d4ecd55a857e",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.h",
+      "parent_copy": "reference/current/net/socket/connection_jobs_upper_rust_job_workloads.h",
+      "historical_sha256": "b0cdef02345c4b0ba8a94295b924ba0d0831e5a5f9fd7b9309a2cda92952012d",
+      "current_sha256": "da9d911100c52d7b9e55598e7affa82bf43e01d6c65c6f6ebb7866d979d1246e",
+      "changed_by_recorded_director_application": true
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_job_workloads.cc",
+      "parent_copy": "reference/current/net/socket/connection_jobs_upper_rust_job_workloads.cc",
+      "historical_sha256": "8c44c43ce51306b70a0ba581dadc72e08fa5adc511f983e6d3248e9180362635",
+      "current_sha256": "8c44c43ce51306b70a0ba581dadc72e08fa5adc511f983e6d3248e9180362635",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "parent_copy": "reference/current/net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "historical_sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "current_sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_stream_parser_rust_original.cc",
+      "parent_copy": "reference/current/net/http/http_stream_parser_rust_original.cc",
+      "historical_sha256": "1a120551911848e2c0e9de3c47ec7c9106fb15b8d5e9958d18318d2c179fbb56",
+      "current_sha256": "1a120551911848e2c0e9de3c47ec7c9106fb15b8d5e9958d18318d2c179fbb56",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_response_headers.cc",
+      "parent_copy": "reference/current/net/http/http_response_headers.cc",
+      "historical_sha256": "3251ff9c70130d85f4ffa95732c6816f2a8224b0441bab5bb5b82a58781e0232",
+      "current_sha256": "3251ff9c70130d85f4ffa95732c6816f2a8224b0441bab5bb5b82a58781e0232",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_util.cc",
+      "parent_copy": "reference/current/net/http/http_util.cc",
+      "historical_sha256": "29456bdf22926fe3f62567acaf5f7cee49120357b29b9ecbbbb68483e732185f",
+      "current_sha256": "29456bdf22926fe3f62567acaf5f7cee49120357b29b9ecbbbb68483e732185f",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "parent_copy": "reference/current/base/strings/string_split.cc",
+      "historical_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "current_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/socket/connect_job_rust_test_support.h",
+      "parent_copy": "reference/current/net/socket/connect_job_rust_test_support.h",
+      "historical_sha256": "bcd0f5cf536d0abf01d44b44a5992ddedefa62c78af40682a6b44768a292de82",
+      "current_sha256": "bcd0f5cf536d0abf01d44b44a5992ddedefa62c78af40682a6b44768a292de82",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/socket/connect_job_rust_test_support.cc",
+      "parent_copy": "reference/current/net/socket/connect_job_rust_test_support.cc",
+      "historical_sha256": "9dd2887932fb8035b7868beabe6ce3e813dffec8a1c94f85687c3319a34c2550",
+      "current_sha256": "9dd2887932fb8035b7868beabe6ce3e813dffec8a1c94f85687c3319a34c2550",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm.h",
+      "parent_copy": "reference/current/net/http/http_auth_handler_ntlm.h",
+      "historical_sha256": "d25e1b5098bc0579ffbcf0f809ae9c34db542c7f4118c0afc8fec10233235fde",
+      "current_sha256": "256a3624b711297f3faa62db1c410569d6432d013db58d57fd9a052496d2be4a",
+      "changed_by_recorded_director_application": true
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm_portable.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler_ntlm_portable.cc",
+      "historical_sha256": "8f014f8c670a269f517b9e62c0b26b4f1e02fe60cdd0ba4cce51dd335d72f208",
+      "current_sha256": "8f014f8c670a269f517b9e62c0b26b4f1e02fe60cdd0ba4cce51dd335d72f208",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_ntlm_win.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler_ntlm_win.cc",
+      "historical_sha256": "f379d4cca75194de116f9679311b5af01a0bf57e483fa7a9efb531675a6cbe7d",
+      "current_sha256": "f379d4cca75194de116f9679311b5af01a0bf57e483fa7a9efb531675a6cbe7d",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_ntlm_mechanism.h",
+      "parent_copy": "reference/current/net/http/http_auth_ntlm_mechanism.h",
+      "historical_sha256": "22e9662748acb947a3194502cf1c264b86a92579a3a7b973219a825ccfc8cc63",
+      "current_sha256": "22e9662748acb947a3194502cf1c264b86a92579a3a7b973219a825ccfc8cc63",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_sspi_win.h",
+      "parent_copy": "reference/current/net/http/http_auth_sspi_win.h",
+      "historical_sha256": "1c99c446734c85014482a00b6e9c257902d4cee8bafaa91b0e9c5311d48dee40",
+      "current_sha256": "7f66bd096c904df60b64da90b64406e51433c8ef4273ed351e75e4f97aa878f2",
+      "changed_by_recorded_director_application": true
+    },
+    {
+      "path": "net/http/http_auth_gssapi_posix.h",
+      "parent_copy": "reference/current/net/http/http_auth_gssapi_posix.h",
+      "historical_sha256": "e0a73fc0a032c942ae5e37457f90bff200af50bb19a1b97377373c61b50c8a03",
+      "current_sha256": "e0a73fc0a032c942ae5e37457f90bff200af50bb19a1b97377373c61b50c8a03",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate.h",
+      "parent_copy": "reference/current/net/http/http_auth_handler_negotiate.h",
+      "historical_sha256": "6c9849dc58b9d95a673b696590843ec2017366fab17b49001f0612d49ececceb",
+      "current_sha256": "6c9849dc58b9d95a673b696590843ec2017366fab17b49001f0612d49ececceb",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_digest.h",
+      "parent_copy": "reference/current/net/http/http_auth_handler_digest.h",
+      "historical_sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962",
+      "current_sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_digest.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler_digest.cc",
+      "historical_sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369",
+      "current_sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler.cc",
+      "parent_copy": "reference/current/net/http/http_auth_handler.cc",
+      "historical_sha256": "55cdce44340bf73ed15f34c0bbb012f835662a66d1a1eba8d8c3ce385dd41de8",
+      "current_sha256": "55cdce44340bf73ed15f34c0bbb012f835662a66d1a1eba8d8c3ce385dd41de8",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler.h",
+      "parent_copy": "reference/current/net/http/http_auth_handler.h",
+      "historical_sha256": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38",
+      "current_sha256": "4ae80046a89d604699c8ab36b7c46a5ea70140f1ee862e3b68499194e678ba38",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_mechanism.h",
+      "parent_copy": "reference/current/net/http/http_auth_mechanism.h",
+      "historical_sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "current_sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/connection_auth_original_handler.cc",
+      "parent_copy": "reference/current/net/http/connection_auth_original_handler.cc",
+      "historical_sha256": "7923466b1ed1ff95f1d8a10f1c493b89cffb7d4ee9e4f6573d52cafb1c6469fc",
+      "current_sha256": "7923466b1ed1ff95f1d8a10f1c493b89cffb7d4ee9e4f6573d52cafb1c6469fc",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/connection_auth_original_policy.h",
+      "parent_copy": "reference/current/net/http/connection_auth_original_policy.h",
+      "historical_sha256": "e78115ca73b2faed5304ccc8d60399075f039c788d154b8759b05339dd40e9a6",
+      "current_sha256": "e78115ca73b2faed5304ccc8d60399075f039c788d154b8759b05339dd40e9a6",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/connection_original_log.h",
+      "parent_copy": "reference/current/net/log/connection_original_log.h",
+      "historical_sha256": "34158e244bbbdcb32d11a2cee5048d995e3f9b0a05d922d538329991eaebfdb5",
+      "current_sha256": "34158e244bbbdcb32d11a2cee5048d995e3f9b0a05d922d538329991eaebfdb5",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/base/net_error_rust_reference.h",
+      "parent_copy": "reference/current/net/base/net_error_rust_reference.h",
+      "historical_sha256": "bc624d638ea81f1d46f82af96e56753c94d58b11350221a82a0797fe667e355e",
+      "current_sha256": "bc624d638ea81f1d46f82af96e56753c94d58b11350221a82a0797fe667e355e",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_values.cc",
+      "parent_copy": "reference/current/net/log/net_log_values.cc",
+      "historical_sha256": "6e2b1cf9b544d7642a07c797efe98724cd7351f8c0c83fe60d103b0b8525855b",
+      "current_sha256": "6e2b1cf9b544d7642a07c797efe98724cd7351f8c0c83fe60d103b0b8525855b",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_factory.h",
+      "parent_copy": "reference/current/net/http/http_auth_handler_factory.h",
+      "historical_sha256": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050",
+      "current_sha256": "4d364d1e342bd555f3775942b2635e3d3a7c99af3e5d96569d7353bba98c0050",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference_modp_data.h",
+      "parent_copy": "reference/current/net/http/auth_challenge_reference_modp_data.h",
+      "historical_sha256": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+      "current_sha256": "d171041a1ba466210f3c9d430661b835ac1c4cc010f81c6cb25674812770b2f7",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_values_rust_reference.cc",
+      "parent_copy": "reference/current/net/log/net_log_values_rust_reference.cc",
+      "historical_sha256": "51259ec857526eeee85dde2d677c63b03abd9295e1eef733ae0913c17daaaa25",
+      "current_sha256": "51259ec857526eeee85dde2d677c63b03abd9295e1eef733ae0913c17daaaa25",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_values_rust_reference.h",
+      "parent_copy": "reference/current/net/log/net_log_values_rust_reference.h",
+      "historical_sha256": "cb839c36c3946986cf51af08c7e0acf9ce4a0f0016aebe3b5737e6e59e8f5025",
+      "current_sha256": "cb839c36c3946986cf51af08c7e0acf9ce4a0f0016aebe3b5737e6e59e8f5025",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth.cc",
+      "parent_copy": "reference/current/net/http/http_auth.cc",
+      "historical_sha256": "069a5f5f6e46eb9726cfddf8a55975d75e8df5a4b06c529d8ac39ed15802830f",
+      "current_sha256": "069a5f5f6e46eb9726cfddf8a55975d75e8df5a4b06c529d8ac39ed15802830f",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_preferences.cc",
+      "parent_copy": "reference/current/net/http/http_auth_preferences.cc",
+      "historical_sha256": "2ae17f15448e0fb0cd77889abd668b25f4ed8946f451a85c28bf3df5cc207dbf",
+      "current_sha256": "2ae17f15448e0fb0cd77889abd668b25f4ed8946f451a85c28bf3df5cc207dbf",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_preferences.h",
+      "parent_copy": "reference/current/net/http/http_auth_preferences.h",
+      "historical_sha256": "ae0d851c28e90e4b2c6e21e7465ddb5779ea82c7369da591b8314bc4b466c512",
+      "current_sha256": "ae0d851c28e90e4b2c6e21e7465ddb5779ea82c7369da591b8314bc4b466c512",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_ffi.rs",
+      "parent_copy": "reference/observation/net/http/auth_challenge_ffi.rs",
+      "historical_sha256": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+      "current_sha256": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/base/net_error_rust_ffi.rs",
+      "parent_copy": "reference/observation/net/base/net_error_rust_ffi.rs",
+      "historical_sha256": "b97078cf70ca2d12318568fd82b3b215930986a97e4668eaaf859ff2b32a36ff",
+      "current_sha256": "b97078cf70ca2d12318568fd82b3b215930986a97e4668eaaf859ff2b32a36ff",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_values_rust_ffi.rs",
+      "parent_copy": "reference/observation/net/log/net_log_values_rust_ffi.rs",
+      "historical_sha256": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa",
+      "current_sha256": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "base/strings/string_split_rust.rs",
+      "parent_copy": "reference/observation/base/strings/string_split_rust.rs",
+      "historical_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+      "current_sha256": "8261a39918604db23d1f4bc5a768fc0469385753ac7d5b13fae19d1a2247fe3e",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/auth_challenge_ffi.h",
+      "parent_copy": "reference/observation/net/http/auth_challenge_ffi.h",
+      "historical_sha256": "6b37d86cbd36bd85808ee17edfb02c0e23e11156d290d66d75c34d5bcf0745bb",
+      "current_sha256": "6b37d86cbd36bd85808ee17edfb02c0e23e11156d290d66d75c34d5bcf0745bb",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/base/net_error_rust_ffi.h",
+      "parent_copy": "reference/observation/net/base/net_error_rust_ffi.h",
+      "historical_sha256": "65accd02b5ad53783ded512ce842b02b48945faeb6dfb39580f1c3e501a2c3b6",
+      "current_sha256": "65accd02b5ad53783ded512ce842b02b48945faeb6dfb39580f1c3e501a2c3b6",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_values_rust_ffi.h",
+      "parent_copy": "reference/observation/net/log/net_log_values_rust_ffi.h",
+      "historical_sha256": "f91ba574fb2c44f2fa4969669780276543fedaae23f13ee8ed0c24cc00fd541f",
+      "current_sha256": "f91ba574fb2c44f2fa4969669780276543fedaae23f13ee8ed0c24cc00fd541f",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "base/strings/string_split.cc",
+      "parent_copy": "reference/observation/base/strings/string_split.cc",
+      "historical_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "current_sha256": "8f22ae39602689cb738848f64ce7de09d70a6eb0358ef019d3e350c229934063",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_negotiate_unittest.cc",
+      "parent_copy": "reference/observation/net/http/http_auth_handler_negotiate_unittest.cc",
+      "historical_sha256": "9b2e947e8ce276e9294888a0b12e153ebc0068cc9f828a2006adf4be8549df30",
+      "current_sha256": "9b2e947e8ce276e9294888a0b12e153ebc0068cc9f828a2006adf4be8549df30",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/mock_gssapi_library_posix.h",
+      "parent_copy": "reference/observation/net/http/mock_gssapi_library_posix.h",
+      "historical_sha256": "a205319852fc4349eb3b8acd78ca66d4b0fd9f6c84fd50387482ce709ec60b16",
+      "current_sha256": "a205319852fc4349eb3b8acd78ca66d4b0fd9f6c84fd50387482ce709ec60b16",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/mock_gssapi_library_posix.cc",
+      "parent_copy": "reference/observation/net/http/mock_gssapi_library_posix.cc",
+      "historical_sha256": "98986785e3a1977b4d47bfc9e67f245bc15c93049679e70caee505343f7d737f",
+      "current_sha256": "98986785e3a1977b4d47bfc9e67f245bc15c93049679e70caee505343f7d737f",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/mock_sspi_library_win.h",
+      "parent_copy": "reference/observation/net/http/mock_sspi_library_win.h",
+      "historical_sha256": "318d3b0b8ca19bec3eb2843f06af080df988a00e558fbf607e558c7698694fa1",
+      "current_sha256": "318d3b0b8ca19bec3eb2843f06af080df988a00e558fbf607e558c7698694fa1",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/mock_sspi_library_win.cc",
+      "parent_copy": "reference/observation/net/http/mock_sspi_library_win.cc",
+      "historical_sha256": "d1bbc691b9c8f09d0b132cd325d3135c5780335bb564ca3a2b9d687d8c5b9f42",
+      "current_sha256": "d1bbc691b9c8f09d0b132cd325d3135c5780335bb564ca3a2b9d687d8c5b9f42",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/mock_allow_http_auth_preferences.h",
+      "parent_copy": "reference/observation/net/http/mock_allow_http_auth_preferences.h",
+      "historical_sha256": "cf2e3571dda3405c06711b734cd7ee5d1e0f064a2ff4bc06a4d471b234d89977",
+      "current_sha256": "cf2e3571dda3405c06711b734cd7ee5d1e0f064a2ff4bc06a4d471b234d89977",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/test_net_log.h",
+      "parent_copy": "reference/observation/net/log/test_net_log.h",
+      "historical_sha256": "b8287b6bfc41b8df0070dca6e8aeb262301b89c590d75e282524f3f7acf89776",
+      "current_sha256": "b8287b6bfc41b8df0070dca6e8aeb262301b89c590d75e282524f3f7acf89776",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_with_source.h",
+      "parent_copy": "reference/observation/net/log/net_log_with_source.h",
+      "historical_sha256": "82bebb24f20d6f62b1ff9c17db8f246103d29d1a0beb922e9ea70656eb97eeea",
+      "current_sha256": "82bebb24f20d6f62b1ff9c17db8f246103d29d1a0beb922e9ea70656eb97eeea",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/log/net_log_entry.h",
+      "parent_copy": "reference/observation/net/log/net_log_entry.h",
+      "historical_sha256": "8afe5b5b02590c475cbb1d4d422a6c738b67c669ebdf08a342ea9788f4d8f0da",
+      "current_sha256": "8afe5b5b02590c475cbb1d4d422a6c738b67c669ebdf08a342ea9788f4d8f0da",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_mechanism.h",
+      "parent_copy": "reference/observation/net/http/http_auth_mechanism.h",
+      "historical_sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "current_sha256": "cddcde73ea3463fc86e92d0e120dafcccd8ae65ce489a58caca3f31d909dfff3",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_cache_rust_ffi.rs",
+      "parent_copy": "reference/observation/net/http/http_auth_cache_rust_ffi.rs",
+      "historical_sha256": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+      "current_sha256": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_request_headers_rust_ffi.rs",
+      "parent_copy": "reference/observation/net/http/http_request_headers_rust_ffi.rs",
+      "historical_sha256": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+      "current_sha256": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "base/base64.cc",
+      "parent_copy": "reference/observation/base/base64.cc",
+      "historical_sha256": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+      "current_sha256": "295631c24ee95e502d38b7bbfd457f30a9bfe18311ab64742dc158bb6a2a09a5",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "base/base64_rust_shim.rs",
+      "parent_copy": "reference/observation/base/base64_rust_shim.rs",
+      "historical_sha256": "c829f4bd470c5828885be4f11e341c7003a30c70392e4dd918aded104d097c10",
+      "current_sha256": "c829f4bd470c5828885be4f11e341c7003a30c70392e4dd918aded104d097c10",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/connection_auth_original_basic.cc",
+      "parent_copy": "reference/observation/net/http/connection_auth_original_basic.cc",
+      "historical_sha256": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "current_sha256": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_sspi_win_unittest.cc",
+      "parent_copy": "reference/observation/net/http/http_auth_sspi_win_unittest.cc",
+      "historical_sha256": "0ba175f03c75c9dece4260f53bdf67c64a4ce06151d98527046a6ca9f841d586",
+      "current_sha256": "0ba175f03c75c9dece4260f53bdf67c64a4ce06151d98527046a6ca9f841d586",
+      "changed_by_recorded_director_application": false
+    },
+    {
+      "path": "net/http/http_auth_handler_digest_unittest.cc",
+      "parent_copy": "reference/observation/net/http/http_auth_handler_digest_unittest.cc",
+      "historical_sha256": "c2b856fd3bdb77838fef9951d18dcb3754e36c2b5f74c090bb6899d973fb840f",
+      "current_sha256": "c2b856fd3bdb77838fef9951d18dcb3754e36c2b5f74c090bb6899d973fb840f",
+      "changed_by_recorded_director_application": false
+    }
+  ],
+  "shared_patches": [
+    {
+      "name": "friend-declarations.patch",
+      "sha256": "9495ef1c1d563b91ef1c504abce87e17c3edfa748e1f301177da4f6c13aa2199",
+      "applied_to_isolated_copies_only": true
+    },
+    {
+      "name": "reference-decoder-export.patch",
+      "sha256": "52b7748d451486dcf04ebfe81567115d516c9dcd55011aed7b22fef794349180",
+      "applied_to_isolated_copies_only": true
+    }
+  ],
+  "changes": [
+    {
+      "path": "base/BUILD.gn",
+      "before_sha256": "089c9f83c08395b455937bfc62fe750a7d23db9ae862494c22a2829351c5c4b9",
+      "after_sha256": "4fa9d5a7cec6e4cf79817802f7066c90de13e5a90f578be1ad80b0505507f262",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/base64_reference_probe.cc",
+      "before_sha256": null,
+      "after_sha256": "e120854eb234639aa41e2a4c8cb0ab158f79cc9e60f3b64fa13bcc12fb3abe43",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/base64_rust_shim_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "95339df42c3f4c3df359f61f98c5cc4a902d9d635576132e4faeb7eca7869342",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/strings/rustium_reference_probe.cc",
+      "before_sha256": null,
+      "after_sha256": "913e646e4755ac39a25b51cbe931eb6eb71c01472fc9e124f5b339e78f9de77b",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/strings/rustium_reference_probe.h",
+      "before_sha256": null,
+      "after_sha256": "91f8282c57f9a2290e706b38f60a8fc75a17d13b55eb4fa27d211801dc6f57cf",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/strings/string_split_reference_probe.cc",
+      "before_sha256": null,
+      "after_sha256": "21a1349760277427d743f21996a07c5876947f5f8ddfdbca68d0a999331efe79",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/strings/string_split_rust_bridge_reference_probe_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "bfd10e76df306d2c83ce35e2a92d9771fb203be1503a5ccaf1cfc1ca6a8fd0db",
+      "unchanged_destination": false
+    },
+    {
+      "path": "base/strings/string_split_rust_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "e763ab2612afb7018a75d9ca391eb572d4b285e70ca6956bd7c99441004337d7",
+      "unchanged_destination": false
+    },
+    {
+      "path": "build/rust/rustium_reference_probe.gni",
+      "before_sha256": null,
+      "after_sha256": "bdbca25e4fb93f343a6318bc854acc21c97493077beb9608f470786d5a6fdfe2",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/BUILD.gn",
+      "before_sha256": "9dcf568b2cae90fce3fe23daa7cd7eb2ed744ed88d8ef542e880ab8f0c17c980",
+      "after_sha256": "4f0673603bf29f2e8a28f551e32855b0ab756d3e1bf237bcbf137f66aa9bc335",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/base/net_error_rust_ffi_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "9020f49915bbfacfd67013f56b23c89c7a52db4ee2a381b7f42c44acfca33d1d",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/auth_challenge_ffi_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "9eea082877c3a68b65d2b50afa46e845937924790eb2b8a561385564a165e693",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference.cc",
+      "before_sha256": "965d5ed02c3a4db8a06ab895cc9eaef0c643e47289e008f8a1fd022dfc07fc08",
+      "after_sha256": "04151ba918e964a400a24bcfed6ea43d2241e55358ec33a6158e69d13faaa550",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/auth_challenge_reference.h",
+      "before_sha256": "231971cef53846cde4fe83b061dc12f75cbd15e17f24f6dcf9bed8da877a4657",
+      "after_sha256": "e907646ba5bddcb6f7a0a9e63008e0ab950c09b4e341d37221e71ad2a21949d8",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_basic.cc",
+      "before_sha256": "51d28676c48c3b7595f8d2d25fa61c2b8a3a66ee4726b62834a0f2451fe76daf",
+      "after_sha256": "601bc0b197fa0c64d9ee35fd800b91d6f5b8c21eb46915f213a8d3c847b8b7c3",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_digest_factory.cc",
+      "before_sha256": null,
+      "after_sha256": "46fa41f9c8a3b2b9a11c4c0088e0df1cf59dd230e717e2da37e6bb7fbed3c4b0",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_digest_factory.h",
+      "before_sha256": null,
+      "after_sha256": "45dc0f13df9f2cb6e5a9fa8ac54a14075fb19040817d7f8557fabc6f63826ffb",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_factory.cc",
+      "before_sha256": "2e15a1000262b43e6fec3cecfc8d6a48b4e54945d676dbc1cff2e3815fd15454",
+      "after_sha256": "c9bf6bf07e9daee311d10c6b1799bd991448e5c474783affcae302760ef71739",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_gssapi.cc",
+      "before_sha256": null,
+      "after_sha256": "bd7a031551104e1dbdfc44d8700d431d35a68969d7911854e462fabcba7ff2c5",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_negotiate_factory.cc",
+      "before_sha256": null,
+      "after_sha256": "50c93e81879fe09271c37aef75d1c30d5348a5a33aef0efd2a9e1747a6b7f89e",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_negotiate_factory.h",
+      "before_sha256": null,
+      "after_sha256": "54583e05c26d28df9357be749eeeb668a0e8a3e4a1b87584224ef0f573aeeafb",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_negotiate_handler.cc",
+      "before_sha256": null,
+      "after_sha256": "d98a39432e0feea1f22279e4ed4b1506adfa04bc1c4110776ea6f167361c6a72",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_negotiate_handler.h",
+      "before_sha256": null,
+      "after_sha256": "2f3d7ca1ae6d3f0ada1b257bdf46603ff4a43d5579efd241a554bd112ba8ea1d",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_ntlm_handler.cc",
+      "before_sha256": null,
+      "after_sha256": "db39689d629e40d09efa2e9628464eaf8fdc6bd3c8a180495691fcc16af76d32",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_ntlm_handler.h",
+      "before_sha256": null,
+      "after_sha256": "bbb42cb304477f96e2278012b1429f72beeed4fa4ddf052cbe609e86a7793b70",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_ntlm_mechanism.cc",
+      "before_sha256": null,
+      "after_sha256": "a75b9a82aa28a3f50820796e3514dd103f9b305597b7e3d8461f802aff569679",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_ntlm_mechanism.h",
+      "before_sha256": null,
+      "after_sha256": "4e314e2752ff77502572f425cabc4ee043ebfdef4f4f0e3019a89f25e18459b6",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_provider_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "1a8c45ee137a27e3798d8ef4badc9cfc49ea6aa02c6b2813732692ba0e75790a",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_providers.cc",
+      "before_sha256": null,
+      "after_sha256": "18f70f07ccc7d8632ef763437e21ab223425e83c86444aa7221a4b409f265349",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_providers.h",
+      "before_sha256": null,
+      "after_sha256": "b93045a75eabf9c313853c05c80fadb49eadf76d8d78e35e67043a355d43a0e9",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_rounds.cc",
+      "before_sha256": null,
+      "after_sha256": "521c237c1a372a4c5d4d717f3d99d1973479e970f340f1ec284870504bb5eed5",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_rounds.h",
+      "before_sha256": null,
+      "after_sha256": "20a2d66752792452b156fc0f42856ebdd9f833b3ab4f9ee4ef6b0fb1f60d2c84",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_rounds_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "3ed57f250cbb68088be54961679ef7bb4d26cfd070084d6fec62cfa823890da5",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_sspi.cc",
+      "before_sha256": null,
+      "after_sha256": "53636df10753fca6f047cfdc234127928382065d3748eda50153dea7fed438ca",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_original_sspi.h",
+      "before_sha256": null,
+      "after_sha256": "53e3844ab1106152b8814aab167f370166ba6e69a0cd095355b2988e81432e60",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_reference_qualification_unittest.cc",
+      "before_sha256": null,
+      "after_sha256": "e98e014c23e116b6eb6efe65db34e65abf27ad17a7c8c17ec45291c3def71e06",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_reference_test_mechanism.cc",
+      "before_sha256": null,
+      "after_sha256": "13281e31be616eaf0be213d3699a25e6b23530ccee9f2990ac739d7172db9619",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/connection_auth_reference_test_mechanism.h",
+      "before_sha256": null,
+      "after_sha256": "c55a1c35dab95e09933a96ed26e990a0cd6cd234f3fbeb3f0c385aabd63d3b0c",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/http_auth_cache_rust_ffi_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "7adb82292783b969b10dab840a729687741669d430ff7db4d0fc4424acb3c4d2",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/http_auth_gssapi_posix.h",
+      "before_sha256": "e0a73fc0a032c942ae5e37457f90bff200af50bb19a1b97377373c61b50c8a03",
+      "after_sha256": "48284b0225a21a2f3d84fbe71c6be690380e167bb6847c7db52fb6e25462bf17",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/http_auth_handler_digest.h",
+      "before_sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962",
+      "after_sha256": "4a8de8edb94e055b0b1c3569b94428c9f118ef8194f4ab6e94b7ea03586237f0",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/http_request_headers_rust_ffi_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "832576e6395966c7840c06940cff6d7ba5bd2b584af6134b4caf28a024da76a1",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/rustium_reference_probe.cc",
+      "before_sha256": null,
+      "after_sha256": "efa40be1bf4028e69a6a90d3c966b23ed12e0625fc947637dfb12f5e9b7be4d1",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/rustium_reference_probe.h",
+      "before_sha256": null,
+      "after_sha256": "35fa80f28b7392195f5f57bb0ca5da0cbe06986c1570b8fd03990a9e74e317b5",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/http/rustium_reference_probe_test_support.h",
+      "before_sha256": null,
+      "after_sha256": "4de2b714fee7a4e1fe96424c15453f062c3af5533e56927a4d1e825ba5fce455",
+      "unchanged_destination": false
+    },
+    {
+      "path": "net/log/net_log_values_rust_ffi_reference_probe.rs",
+      "before_sha256": null,
+      "after_sha256": "e87587694d87c2dfb1c66b1ec25ed64fa498a45d6675849c0a7de0590bd147d7",
+      "unchanged_destination": false
+    }
+  ],
+  "configured_application": false,
+  "qualification": "Pending normal/probe GN evaluation, affected compilation, unique observed-process counter link/symbol evidence, seven positive controls and complete ordinary runtime"
+}
