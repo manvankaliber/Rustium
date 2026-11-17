@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 12,
-  "updated_utc": "2026-11-17T03:42:14.207132+00:00",
+  "revision": 27,
+  "updated_utc": "2026-11-17T04:02:33.069452+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -71,15 +71,15 @@
       "blockers": [],
       "role": "specialist",
       "assignment": {
-        "active": true,
-        "session": "net-recover-intake-20261117",
-        "worktree": null,
-        "branch": null,
+        "active": false,
+        "session": "net-recover-director-artifact-integration",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-recover-report-20261117",
         "model": "gpt-6.1-sol",
         "effort": "high"
       },
-      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
-      "delivery_commit": null,
+      "base_revision": "9b1fd65baa954814770fa93231a16d3f86712637",
+      "delivery_commit": "b9e3ad35969831f2886e63e62715ad799cd2a042",
       "integration_commit": null,
       "acceptance_tests": [
         "Inspect ordinary-execution per-target results, hashes and live sessions; identify owner and preserve outcomes"
@@ -95,19 +95,23 @@
         "required_cases": "Preserve frozen identity 1221, later tooling identity 1222, fixed publication membership and all four drafts. Reconcile per-program outcomes without restarting campaigns.",
         "status": "unmeasured"
       },
-      "state": "assigned",
-      "next_action": "Inspect failed conductor and per-program results; return source-bound repair/validation requests. No campaigns.",
+      "state": "validating",
+      "next_action": "Preserve raw manifest bytes on artifact intake, integrate reviewed proposals locally, then guarded configured sync/rebuild/ordinary validation; no performance acceptance.",
       "evidence": [
         {
           "path": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-conductor-result.json",
           "observed": "exit_code=1; finished_utc=2026-11-14T01:28:29.557774+00:00; not accepted"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-recover-delivery-20261117.json",
+          "sha256": "2bffee1194f9d05e32cfce2705c529d4350c9f5185bdecac8d25f8fc536bc9c1"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
-        "rust_ownership": "not established",
+        "implementation": "Recovery report and two guarded proposals delivered; independent source review accepted for intake",
+        "configured_validation": "Historical ordinary runtime failed; fresh repaired native validation pending",
+        "production_integration": "Proposal artifacts not integrated; no native repair installed",
+        "rust_ownership": "C++ native state/providers remain",
         "subsystem_cutover": "incomplete"
       },
       "history": [
@@ -120,6 +124,46 @@
           "utc": "2026-11-17T03:42:14.043996+00:00",
           "action": "assigned",
           "note": "net-recover-intake-20261117"
+        },
+        {
+          "utc": "2026-11-17T03:50:10.128841+00:00",
+          "action": "ready",
+          "note": "Read-only specialist completed; director preserving report and repair proposals in integration workspace"
+        },
+        {
+          "utc": "2026-11-17T03:50:10.622576+00:00",
+          "action": "amended",
+          "note": "base_revision"
+        },
+        {
+          "utc": "2026-11-17T03:50:10.823385+00:00",
+          "action": "assigned",
+          "note": "net-recover-director-artifact-integration"
+        },
+        {
+          "utc": "2026-11-17T03:50:15.018441+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T03:50:15.507394+00:00",
+          "action": "implementing",
+          "note": "Specialist ended; director bound sole integration/review workspace for source-bound recovery artifact"
+        },
+        {
+          "utc": "2026-11-17T03:54:13.227885+00:00",
+          "action": "submitted",
+          "note": "Recovery artifact and two guarded repair proposals delivered; native validation explicitly pending"
+        },
+        {
+          "utc": "2026-11-17T03:54:13.407867+00:00",
+          "action": "validating",
+          "note": "Artifact integrity passed; awaiting independent Terra ownership/threading review before production intake"
+        },
+        {
+          "utc": "2026-11-17T04:02:33.069227+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
         }
       ],
       "context_directories": [
@@ -159,10 +203,12 @@
       "blockers": [],
       "role": "coding_worker",
       "assignment": {
-        "active": false,
-        "session": null,
+        "active": true,
+        "session": "foundation-strings-prep-20261117",
         "worktree": null,
-        "branch": null
+        "branch": null,
+        "model": "gpt-6-luna",
+        "effort": "high"
       },
       "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
@@ -181,7 +227,7 @@
         "required_cases": "8/16-bit text; character/substrings separators; KEEP/TRIM whitespace; empty/nonempty output; views/owned results; key-value splitting; invalid-input behavior and borrowed lifetimes.",
         "status": "unmeasured"
       },
-      "state": "ready",
+      "state": "assigned",
       "next_action": "Director reconciles inputs and pins setup commit. Worker freezes reference/helpers, implements complete candidate and ordinary tests in owned draft directory, and submits production integration proposal. No production migration credit.",
       "evidence": [],
       "stages": {
@@ -196,6 +242,11 @@
           "utc": "2026-11-17T03:35:13.730296+00:00",
           "action": "amended",
           "note": "base_revision, original_cpp_reference"
+        },
+        {
+          "utc": "2026-11-17T03:48:44.876142+00:00",
+          "action": "assigned",
+          "note": "foundation-strings-prep-20261117"
         }
       ],
       "context_directories": [
@@ -815,6 +866,118 @@
         "docs/rust",
         "net/spdy",
         "net/http"
+      ]
+    },
+    {
+      "id": "NET-RUNTIME-HARNESS",
+      "subsystem": "network-services",
+      "priority": 1,
+      "objective": "Repair ordinary frozen-runtime logging and temporary-path isolation without weakening sealed identity.",
+      "behavioral_contract": "Initialize the Net launcher to stderr before parent launcher logging; preserve test selection and assertions. Allocate an explicit unique short external TMP/TEMP; record it. Leave historical failed snapshots immutable; new sources need new bindings/builds/snapshot.",
+      "original_cpp_reference": {
+        "paths": [
+          "net/test/run_all_unittests.cc",
+          "base/logging/logging_settings.h",
+          "base/logging.cc",
+          "base/test/launcher/unit_test_launcher.cc",
+          ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py"
+        ],
+        "revision": "current exact source snapshot",
+        "freeze_status": "Freeze these exact source/provider dependencies before proposals",
+        "observed_input_sha256": {
+          "net/test/run_all_unittests.cc": "87e4e905f4463857acf129d1f3533b219608f0a354f044645ebea5d9b77f91d7",
+          "base/logging/logging_settings.h": "1ab325e74fa5c8b39c812f5011041e06850bd8db8e77ec88ce0197c5cae724ec",
+          "base/logging.cc": "03d7e06c48c297b2beb27bbf66ccbdb728279851df221c6c2a31ed53585338dc",
+          "base/test/launcher/unit_test_launcher.cc": "3d69367fe0ad564839ae7a2a2e594bc16fdcc176f1aaff0cd4e2a75abef6397d",
+          ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/native_delivery.py": "b8af6cdb17a949fc2abf55f281f7976d829644a515cf089133efa87be6faf451"
+        },
+        "reference_workspace": "D:/Rustium"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-runtime-harness"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns native launcher and ordinary delivery infrastructure; proposals require review before installation",
+        "proposals": "docs/rust/migration/drafts/net-runtime-harness/integration-proposal"
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "director",
+      "assignment": {
+        "active": false,
+        "session": "director-runtime-harness-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-recover-report-20261117",
+        "model": "gpt-6.1-sol",
+        "effort": "xhigh"
+      },
+      "base_revision": "b9e3ad35969831f2886e63e62715ad799cd2a042",
+      "delivery_commit": "82bca00c1c382eb7ac70f12d887d85ca74d819a5",
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Artifact/source integrity; Python synthetic external temporary-root checks; independent source review; rebuilt launcher failure-path smoke; complete ordinary family with successful snapshot before/after identity"
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net_unittests",
+          "seven selected HTTP2 native unit-test targets"
+        ],
+        "qualification": "Actual target/consumer closure must be checked before configured build"
+      },
+      "performance": {
+        "status": "not measured",
+        "policy": "No timing; fixed batch membership and publication hold unchanged"
+      },
+      "state": "validating",
+      "next_action": "Awaiting independent review of launcher logging and short external temporary directory isolation",
+      "evidence": [
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-runtime-harness-delivery-20261117.json",
+          "sha256": "ebe6db10e8ee31b449a850b26bb64c3ffed18ef8d69b98bf54cc8af1c253da2a"
+        }
+      ],
+      "stages": {
+        "implementation": "not started",
+        "configured_validation": "not run",
+        "production_integration": "not integrated",
+        "rust_ownership": "not applicable: validation infrastructure",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T03:56:57.014139+00:00",
+          "action": "enqueued",
+          "note": "Repair ordinary frozen-runtime logging and temporary-path isolation without weakening sealed identity."
+        },
+        {
+          "utc": "2026-11-17T03:56:57.213134+00:00",
+          "action": "assigned",
+          "note": "director-runtime-harness-20261117"
+        },
+        {
+          "utc": "2026-11-17T03:56:57.743184+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T03:56:57.949372+00:00",
+          "action": "implementing",
+          "note": "Director owns independent launcher/runner proposal; NET-RECOVER review paths remain unchanged"
+        },
+        {
+          "utc": "2026-11-17T04:00:47.133710+00:00",
+          "action": "submitted",
+          "note": "Harness proposals delivered with four focused synthetic tests; native execution pending"
+        },
+        {
+          "utc": "2026-11-17T04:00:47.315222+00:00",
+          "action": "validating",
+          "note": "Awaiting independent review of launcher logging and short external temporary directory isolation"
+        }
+      ],
+      "context_directories": [
+        "net/test",
+        "docs/rust"
       ]
     }
   ]

@@ -12,6 +12,16 @@ Next: reconcile these results, then continue implementation, independent Terra/x
 
 ## Historical setup checkpoint (superseded by active state above)
 
+### Latest delivery checkpoint
+
+`NET-RECOVER` is now validating. Specialist intake is archived in `evidence/net-recover-specialist-20261117.md`; Terra/xhigh accepted the recovery artifact and two native proposals for guarded intake, with fresh native evidence still required (`evidence/net-recover-review-20261117.md`). Candidate `b9e3ad35969831f2886e63e62715ad799cd2a042` is retained on `rust/net-recover-report-20261117` in director-owned `D:/RustiumReview`. It freezes 22 exact affected inputs and stages cookie null-owner string handling plus enclosing-method HTTP2 task location capture. Exact source/patch checks passed. Audit/preserve the raw source-manifest JSON bytes under `-text` during intake; do not normalize a hash-bound manifest silently. No native repair has been installed yet.
+
+`NET-RUNTIME-HARNESS` was enqueued and delivered by the director in the same integration workspace, without modifying the pinned NET-RECOVER paths. Candidate `82bca00c1c382eb7ac70f12d887d85ca74d819a5` follows `17b1503f2d10bd4bda41bef089bccab819d8a779`. It proposes early captured-stderr launcher initialization and a short unique external TMP/TEMP, with 4 ordinary synthetic tests and 5-source/2-patch integrity checks passed. It is validating under a separate Terra/xhigh review. Its delegation call is pending in functions cell `g9:41`; capture the returned task/result. No native acceptance.
+
+FOUNDATION-STRINGS preparation delegate is `node:delegated-task:command%3Amcp%3A7e764c95-8fb7-4a68-b32f-412dabcf2522%3Adelegate-task%3Ac9bbb1ed-5deb-4193-868c-a0bc0209f511`. Its initial wait timed out and T3 requires this turn to end, without polling it. FOUNDATION-VERSION preparation also remains reserved under the earlier delegate. Do not release either reservation or change initializing worktree inputs. Resume from completion notifications, verify/sparsify/bind and dispatch actual implementation in the prepared checkout. C: had about 12.5 GB free with two host worktrees initializing; allocate no more until they are bounded. D: had about 27.3 GB free. Weekly telemetry still read 33% used (67% remaining).
+
+Immediate next work: capture the harness review; correct small findings, integrate only reviewed artifacts/proposals with before/after hashes, record production repair identity, use the validation gate for configured sync/rebuild at -j1/-j2 and a fresh complete ordinary run. Reuse the staged 46-binding connection baseline fixes v4 after guards and review. Existing frozen runtime remains unchanged, all prior failure/skip/omission results remain archived, and publication is held. Continue ready repository-wide tasks after checkout binding. Keep this director lease live.
+
 Setup only. **No migration campaign launched.** Read AGENTS.md and OPERATING.md, then run:
 
 ```powershell
