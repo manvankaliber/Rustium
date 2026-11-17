@@ -41,3 +41,23 @@ Additional explicit fixtures required by assignment: malformed UTF-16 (isolated 
 ## Remaining ownership/debt
 
 Native ICU line/word/sentence/character implementations and all provider data remain native. Callers, `CharacterBreakIterator`, `character.h`, `layout_locale.*`, generated line-break tables, Unicode property helpers and `TextBreakIterator` ICU tests require closure mapping and pinned identities before further porting. Native ABI, platform contracts and configured compilation are director-owned. No build, Cargo, test, benchmark, sanitizer or fuzz campaign was run per assignment.
+## Follow-on source closure and implementation
+
+Read-only caller search in the bounded checkout found direct `LazyLineBreakIterator` API behavior asserted in `text_break_iterator_test.cc`; in this checked-out sparse workspace no additional consumers were present. This is not an exhaustive whole-tree caller census.
+
+Additional exact helper identities in the canonical checkout at this inspection:
+
+| Helper | SHA-256 |
+|---|---|
+| `character_break_iterator.cc` | `7fd64af1972334b362e63df42ab3a579383d50b7a93191605b62070f13311fae` |
+| `character_break_iterator.h` | `84d0adbc149b7f1ccb5fc6d38394d0e4e17923841ac4c39de4883c2fe677fd5d` |
+| `character.h` | `f11445bf82f002cf027992bac6acf8e6972536f5bf8f533f27495dd369d40ef7` |
+| `layout_locale.cc` | `96b911c51bc271b574eefc56937e218d6e31c315f9940f171faa1347b0b8ceb4` |
+| `layout_locale.h` | `f516605e61062501a2c94f0012fb74a0faf585d5a7a424341c6056c1585eda04` |
+| `character_property_data_generator.cc` | `24de6bddd1f5cca528a491344e2e6654c5a16e1ed80a1244278c6a4d1f2cbe27` |
+
+The UTF-16 local-policy candidate is `src/lib.rs`. It owns the borrowed-slice lifetime, UTF-16 range validation, start-offset adjustment, provider cache invalidation, soft-hyphen filtering, space-run policy and surrogate-safe `break-all` boundary filtering. ICU character/line decisions remain behind `BoundaryProvider`; provider failures remain errors. Six executable Rust fixtures cover source expectations for Basic, Newline/Tab, malformed UTF-16, surrogate boundaries, cache/reset and provider failure. Fixtures have not been run.
+
+Provider identity is not yet fully pinned: the exact Blink ICU adapter source is frozen above, but selected ICU revision/build config/data package hash are absent from this bounded checkout and must be read-only pinned from the configured canonical build by the director. The generated Blink fast-line-break table and all downstream test assertions remain outside this local milestone. This candidate deliberately doesn't implement word/sentence, ICU line algorithms, full break-all/keep-all/strictness/phrase policy, grapheme algorithm, locale fallback resolution, thread-local pool reuse/cancellation, or U+2019 generated fast path. No caller/API/GN/ABI edit is proposed as installed integration.
+
+Validation status: source/hash inspection only. No rustfmt, compiler, Cargo, tests, native build, benchmark, sanitizer or fuzz was run.
