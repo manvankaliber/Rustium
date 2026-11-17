@@ -35,7 +35,9 @@ class CoordinationTest(unittest.TestCase):
         seed["limits"]["minimum_free_disk_bytes"] = 0
         for i in range(10):
             t = copy.deepcopy(sample)
-            t.update(id=f"T{i}", base_revision=self.head, owned_files=[f"drafts/t{i}"], context_directories=["source"])
+            t.update(id=f"T{i}", base_revision=self.head, owned_files=[f"drafts/t{i}"], context_directories=["source"],
+                     state="ready", assignment={"active": False, "session": None, "worktree": None, "branch": None},
+                     delivery_commit=None, integration_commit=None, dependencies=[], blockers=[], evidence=[], history=[])
             seed["tasks"].append(t)
         rc.atomic(self.c.state, seed)
         self.token = self.c.acquire("test-director")["token"]
@@ -122,6 +124,31 @@ class CoordinationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "backlog full"):
             self.claim(8)
         self.claim(9)
+
+    def test_repair_rebinds_exact_delivery_and_rejects_other_head(self):
+        self.claim()
+        workspace = self.workspace()
+        self.c.transition(self.token, "T0", "implementing", "bound")
+        draft = workspace / "drafts/t0"
+        draft.mkdir(parents=True)
+        (draft / "core.rs").write_text("// submitted candidate\n")
+        rc.git(workspace, "add", "--sparse", "drafts/t0/core.rs")
+        rc.git(workspace, "commit", "-qm", "candidate")
+        candidate = rc.git(workspace, "rev-parse", "HEAD")
+        evidence = self.root / "evidence.json"
+        rc.atomic(evidence, {"task_id": "T0", "candidate_commit": candidate})
+        self.c.transition(self.token, "T0", "submitted", "ended", evidence, candidate)
+        self.c.transition(self.token, "T0", "needs-repair", "review finding")
+        self.claim()
+        (workspace / "source/a.cc").write_text("unrelated subsequent change\n")
+        rc.git(workspace, "add", "source/a.cc")
+        rc.git(workspace, "commit", "-qm", "unrelated")
+        with self.assertRaisesRegex(ValueError, "exact repair delivery"):
+            self.c.bind(self.token, "T0", workspace)
+        rc.git(workspace, "checkout", "-b", "rust/repair", candidate)
+        self.c.bind(self.token, "T0", workspace)
+        self.c.transition(self.token, "T0", "implementing", "repair bound")
+        self.assertEqual(self.c.task(rc.read(self.c.state), "T0")["assignment"]["worktree"], str(workspace.resolve()))
 
     def test_real_cross_process_lock(self):
         path = self.c.runtime / "validation.lock"

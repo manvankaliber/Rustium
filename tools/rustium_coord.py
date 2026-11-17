@@ -191,8 +191,9 @@ class Coordinator:
             branch = git(workspace, "branch", "--show-current")
             if not branch.startswith("rust/") or git(workspace, "status", "--porcelain"):
                 raise ValueError("Require a clean rust/* task branch")
-            if git(workspace, "rev-parse", "HEAD") != t["base_revision"]:
-                raise ValueError("Workspace HEAD differs from task base; reconcile/pin first")
+            expected = t.get("delivery_commit") or t["base_revision"]
+            if git(workspace, "rev-parse", "HEAD") != expected:
+                raise ValueError("Workspace HEAD differs from task base or exact repair delivery; reconcile first")
             for x in q["tasks"]:
                 other = x["assignment"].get("worktree")
                 if x["id"] != task_id and x["assignment"].get("active") and other and Path(other).resolve() == workspace:
