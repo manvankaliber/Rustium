@@ -769,12 +769,20 @@ impl<'a> Tokenizer<'a> {
                     n as f64
                 }
             } else {
-                let ascii: Vec<u8> = raw.iter().map(|c| *c as u8).collect();
+                // Blink parses the magnitude slice and applies a leading minus
+                // after conversion, including for decimal/exponent forms.
+                let magnitude = &raw[usize::from(sign != 0)..];
+                let ascii: Vec<u8> = magnitude.iter().map(|c| *c as u8).collect();
                 let parsed = numbers.parse_ascii_decimal(&ascii);
                 if parsed.consumed != ascii.len() || parsed.status == DecimalStatus::Invalid {
                     0.0
                 } else {
-                    f64::from_bits(parsed.binary64_bits)
+                    let magnitude = f64::from_bits(parsed.binary64_bits);
+                    if sign < 0 {
+                        -magnitude
+                    } else {
+                        magnitude
+                    }
                 }
             };
         let limit = f32::MAX as f64;
@@ -854,6 +862,23 @@ impl<'a> Tokenizer<'a> {
         }
     }
     fn url(&mut self, start: usize) -> Token<'a> {
+        // Blink's no-escape URL path scans original code units and returns a
+        // source view, preserving lone surrogates and avoiding replacement.
+        let content_start = self.pos;
+        for offset in 0.. {
+            let c = self.units.get(content_start + offset).copied().unwrap_or(0xffff);
+            if c == 41 {
+                self.pos = content_start + offset + 1;
+                return self.text_token(
+                    Kind::Url,
+                    start,
+                    self.source_value(content_start..content_start + offset),
+                );
+            }
+            if c <= 32 || c == 92 || c == 34 || c == 39 || c == 40 || c == 127 || c == 0xffff {
+                break;
+            }
+        }
         let mut out = Vec::new();
         loop {
             if self.eof() || self.peek(0) == 41 {
@@ -1022,11 +1047,11 @@ mod tests {
                 b"2" => 2.0,
                 b"2.0" | b"2e0" => 2.0,
                 b"1.5" => 1.5,
-                b"-0.0" => -0.0,
+                b"0.0" => 0.0,
                 b"2e3" => 2000.0,
                 b"4e3" => 4000.0,
                 b"5" => 5.0,
-                b"-1" => -1.0,
+                b"1" => 1.0,
                 _ => panic!("missing explicit numeric fixture: {:?}", s),
             };
             DecimalResult {
@@ -1283,6 +1308,58 @@ mod tests {
             kinds(b"'bad\nnext", false),
             vec![Kind::BadString, Kind::Whitespace, Kind::Ident, Kind::Eof]
         );
+    }
+
+    #[test]
+    fn review_utf16_fast_and_slow_paths_preserve_blink_code_units() {
+        let lone = [34, 0xd800, 34];
+        let mut t = Tokenizer::new(Input::Utf16(&lone), 0);
+        let token = t.next_token(&FixedNumbers);
+        assert_eq!(token.kind, Kind::String);
+        assert_eq!(token.value.as_deref(), Some(&[0xd800][..]));
+        assert_eq!(token.span, 0..3);
+
+        let escaped_pair = [34, 92, 0xd83d, 0xde00, 34];
+        let mut t = Tokenizer::new(Input::Utf16(&escaped_pair), 0);
+        let token = t.next_token(&FixedNumbers);
+        assert_eq!(token.value.as_deref(), Some(&[0xd83d, 0xde00][..]));
+        assert_eq!(token.span, 0..5);
+
+        let raw_url = [117, 114, 108, 40, 0xd800, 41];
+        let mut t = Tokenizer::new(Input::Utf16(&raw_url), 0);
+        let token = t.next_token(&FixedNumbers);
+        assert_eq!(token.kind, Kind::Url);
+        assert_eq!(token.value.as_deref(), Some(&[0xd800][..]));
+        assert_eq!(token.span, 0..6);
+
+        let escaped_url = [117, 114, 108, 40, 92, 0xd800, 41];
+        let mut t = Tokenizer::new(Input::Utf16(&escaped_url), 0);
+        let token = t.next_token(&FixedNumbers);
+        assert_eq!(token.value.as_deref(), Some(&[0xd800][..]));
+        assert_eq!(token.span, 0..7);
+    }
+
+    #[test]
+    fn review_hyphen_numeric_spans_and_numeric_accessor() {
+        let mut t = Tokenizer::new(Input::Bytes(b"\\- 12px 12%"), 0);
+        let ident = t.next_token(&FixedNumbers);
+        let spelling = ident.serialize(&FixedNumbers).unwrap();
+        assert_eq!(spelling, vec![92, 45]);
+        let mut roundtrip = Tokenizer::new(Input::Utf16(&spelling), 0);
+        assert_eq!(roundtrip.next_token(&FixedNumbers).kind, Kind::Ident);
+
+        let _space = t.next_token(&FixedNumbers);
+        let dimension = t.next_token(&FixedNumbers);
+        assert_eq!(dimension.span, 3..7);
+        assert_eq!(dimension.numeric_value(), Some(12.0));
+        let _space = t.next_token(&FixedNumbers);
+        let percentage = t.next_token(&FixedNumbers);
+        assert_eq!(percentage.span, 8..11);
+        assert_eq!(percentage.numeric_value(), Some(12.0));
+
+        let wide_input = [49, 50, 92, 112, 120];
+        let mut wide = Tokenizer::new(Input::Utf16(&wide_input), 0);
+        assert_eq!(wide.next_token(&FixedNumbers).span, 0..5);
     }
     #[test]
     fn comment_insertion_policy() {
@@ -1580,7 +1657,19 @@ mod tests {
         };
         tokenizer.unicode_ranges_allowed = case.unicode_ranges_allowed;
         let byte_fixtures: Vec<(&[u8], u64)> = if wide {
-            case.parse_fixtures.to_vec()
+            case.parse_fixtures
+                .iter()
+                .map(|(source, bits)| {
+                    let (source, bits) = if source.first() == Some(&b'-') {
+                        (&source[1..], f64::from_bits(*bits).abs().to_bits())
+                    } else if source.first() == Some(&b'+') {
+                        (&source[1..], *bits)
+                    } else {
+                        (*source, *bits)
+                    };
+                    (source, bits)
+                })
+                .collect()
         } else {
             case.parse_fixtures
                 .iter()
@@ -1589,7 +1678,18 @@ mod tests {
                 }))
                 .filter_map(|(fixture, expected)| {
                     let digits = fixture.0.iter().filter(|b| b.is_ascii_digit()).count();
-                    (!expected.integer || digits > 14).then_some(*fixture)
+                    if !expected.integer || digits > 14 {
+                        let (source, bits) = if fixture.0.first() == Some(&b'-') {
+                            (&fixture.0[1..], f64::from_bits(fixture.1).abs().to_bits())
+                        } else if fixture.0.first() == Some(&b'+') {
+                            (&fixture.0[1..], fixture.1)
+                        } else {
+                            (fixture.0, fixture.1)
+                        };
+                        Some((source, bits))
+                    } else {
+                        None
+                    }
                 })
                 .collect()
         };
