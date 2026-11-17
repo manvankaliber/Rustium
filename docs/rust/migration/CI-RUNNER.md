@@ -22,9 +22,9 @@ separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
    branch. The handoff names the exact commit, affected targets and tests, and
    any remaining dependencies or review questions.
 2. The director reviews the handoff, assembles the reviewed commits on the
-   Network integration branch, and records the exact PR head. When a GitHub
-   update is authorized, the director assigns who pushes. An assigned Terra
-   worker may push its own task branch within that authorization. The director
+   Network integration branch, and records the exact PR head. The user allows
+   ongoing pushes to the public Rustium repository. The director assigns who
+   pushes, and a Terra worker may push its own assigned branch. The director
    owns updates to the shared integration PR. For first qualification, a
    maintainer dispatches the reviewed commit and its approved input record
    explicitly. Each new head or probe run gets its own dispatch.
