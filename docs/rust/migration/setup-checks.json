@@ -44,6 +44,10 @@
     {
       "command": "Compare captured before/after git status excluding setup-owned AGENTS.md and .gitignore",
       "outcome": "unrelated tracked statuses unchanged in editing and configured trees; content not independently rehashed for every unrelated file"
+    },
+    {
+      "command": "Acquire setup director lease, pin ten task bases using atomic amend, release lease",
+      "outcome": "passed; no worker reservations or jobs started"
     }
   ],
   "inputs_sha256": {
@@ -56,10 +60,10 @@
     ".codex/agents/subsystem-manager.toml": "0f44318d6ebe090b08004086862fba9539df01d95e397fb45010db0aaec6b064",
     "docs/rust/migration/benchmark-policy.md": "69f97ba56e8343d501241b84a92c312adf3238cb7a20038fc0346a6c0e581912",
     "docs/rust/migration/DECISIONS.md": "66ef52eff92d134a9f2d08830895901f19cc6b08ddd37b92a909723e7127eb29",
-    "docs/rust/migration/HANDOFF.md": "43270a8e89a04b9d58309ff67dc8e8e8899812d8b37593acefc2ecf53177f9da",
-    "docs/rust/migration/OPERATING.md": "07e26edca124f1851a7d862a2558bf07145bd8c0475f299a32322c55d56f5703",
+    "docs/rust/migration/HANDOFF.md": "8333c044325bcb77096da4238224851071e49412affb2a7d986b6be04a1d9f26",
+    "docs/rust/migration/OPERATING.md": "4de5dc40732473e2a78b54dc3cc4029fb1b47cb30913f67925d84ec3f1c91854",
     "docs/rust/migration/prior-network-instructions.md": "3fd1668cf220f9bf0c327aea9726fe07d68dcea12eeaf3a53582960b64eb1099",
-    "docs/rust/migration/queue.json": "bc587ad09ca4449fa8fb536b9110064cf99c8617afd7de9e5af84b8f6f1fe85e",
+    "docs/rust/migration/queue.json": "0869bce2d46f6e3558f273c050129de0c568e57e414ace692f90cf851cfb1709",
     "docs/rust/migration/ownership.json": "73a1c8493ed5913a4d43539b4d7af796c7407d6b930dee95ec474cfe0581f240",
     "tools/rustium_coord.py": "c39945ec175a953c8892fbd17c61528ba268717f8bef556117eac390ef2c2981",
     "tools/rustium_coord_unittest.py": "2f216e57e6d6adf46f81e72d1592cb72b90bd0cef057f06a7e3f4298db254fac"
@@ -72,5 +76,6 @@
     "Networking runtime conductor has an existing exit-code-1 outcome needing recovery",
     "No existing copies or historical evidence deleted"
   ],
-  "unit_test_output": "test_atomic_failure_does_not_change_queue (__main__.CoordinationTest.test_atomic_failure_does_not_change_queue) ... ok\ntest_backlog_bound_and_repair_priority (__main__.CoordinationTest.test_backlog_bound_and_repair_priority) ... ok\ntest_bind_rejects_subdirectory_alias (__main__.CoordinationTest.test_bind_rejects_subdirectory_alias) ... Preparing worktree (new branch 'rust/t0-2cfb52e5')\nAlready on 'rust/t0-2cfb52e5'\nok\ntest_build_ceiling_and_workspace_ceiling (__main__.CoordinationTest.test_build_ceiling_and_workspace_ceiling) ... Preparing worktree (new branch 'rust/t0-64a50bfb')\nAlready on 'rust/t0-64a50bfb'\nok\ntest_job_failure_and_interrupted_marker (__main__.CoordinationTest.test_job_failure_and_interrupted_marker) ... ok\ntest_new_task_and_cycle_rejection (__main__.CoordinationTest.test_new_task_and_cycle_rejection) ... ok\ntest_overlap_and_dependencies (__main__.CoordinationTest.test_overlap_and_dependencies) ... ok\ntest_real_cross_process_lock (__main__.CoordinationTest.test_real_cross_process_lock) ... ok\ntest_single_director_and_explicit_recovery (__main__.CoordinationTest.test_single_director_and_explicit_recovery) ... ok\ntest_sparse_isolation_and_shared_queue (__main__.CoordinationTest.test_sparse_isolation_and_shared_queue) ... Preparing worktree (new branch 'rust/t0-df65ecaf')\nAlready on 'rust/t0-df65ecaf'\nPreparing worktree (new branch 'rust/t1-afb1b619')\nAlready on 'rust/t1-afb1b619'\nok\ntest_startup_and_eight_global_slots (__main__.CoordinationTest.test_startup_and_eight_global_slots) ... ok\ntest_submission_guards_and_slot_release (__main__.CoordinationTest.test_submission_guards_and_slot_release) ... Preparing worktree (new branch 'rust/t0-a2f5f17b')\nAlready on 'rust/t0-a2f5f17b'\nok\n\n----------------------------------------------------------------------\nRan 12 tests in 6.908s\n\nOK\n"
+  "unit_test_output": "test_atomic_failure_does_not_change_queue (__main__.CoordinationTest.test_atomic_failure_does_not_change_queue) ... ok\ntest_backlog_bound_and_repair_priority (__main__.CoordinationTest.test_backlog_bound_and_repair_priority) ... ok\ntest_bind_rejects_subdirectory_alias (__main__.CoordinationTest.test_bind_rejects_subdirectory_alias) ... Preparing worktree (new branch 'rust/t0-2cfb52e5')\nAlready on 'rust/t0-2cfb52e5'\nok\ntest_build_ceiling_and_workspace_ceiling (__main__.CoordinationTest.test_build_ceiling_and_workspace_ceiling) ... Preparing worktree (new branch 'rust/t0-64a50bfb')\nAlready on 'rust/t0-64a50bfb'\nok\ntest_job_failure_and_interrupted_marker (__main__.CoordinationTest.test_job_failure_and_interrupted_marker) ... ok\ntest_new_task_and_cycle_rejection (__main__.CoordinationTest.test_new_task_and_cycle_rejection) ... ok\ntest_overlap_and_dependencies (__main__.CoordinationTest.test_overlap_and_dependencies) ... ok\ntest_real_cross_process_lock (__main__.CoordinationTest.test_real_cross_process_lock) ... ok\ntest_single_director_and_explicit_recovery (__main__.CoordinationTest.test_single_director_and_explicit_recovery) ... ok\ntest_sparse_isolation_and_shared_queue (__main__.CoordinationTest.test_sparse_isolation_and_shared_queue) ... Preparing worktree (new branch 'rust/t0-df65ecaf')\nAlready on 'rust/t0-df65ecaf'\nPreparing worktree (new branch 'rust/t1-afb1b619')\nAlready on 'rust/t1-afb1b619'\nok\ntest_startup_and_eight_global_slots (__main__.CoordinationTest.test_startup_and_eight_global_slots) ... ok\ntest_submission_guards_and_slot_release (__main__.CoordinationTest.test_submission_guards_and_slot_release) ... Preparing worktree (new branch 'rust/t0-a2f5f17b')\nAlready on 'rust/t0-a2f5f17b'\nok\n\n----------------------------------------------------------------------\nRan 12 tests in 6.908s\n\nOK\n",
+  "setup_commit": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8"
 }

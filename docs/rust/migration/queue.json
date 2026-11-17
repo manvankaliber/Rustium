@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 0,
-  "updated_utc": "2026-11-17",
+  "revision": 10,
+  "updated_utc": "2026-11-17T03:35:14.238494+00:00",
   "mode": "prepared; campaign not started",
   "roles": {
     "director": {
@@ -51,7 +51,14 @@
           "docs/rust/net-followon-ownership.json"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "docs/rust/net-migration-execution.json": "243946a9a6877f508d6aa5a092145ef7519d5f9d017efe053c66876bb8fb9460",
+          "docs/rust/net-subsystem-batches.json": "e77189680dab49acd40ce03d010729b82d44be2993a82a2dfbdbd5320d54deca",
+          "docs/rust/net-followon-ownership.json": "1d59267aed2d2edbb35f78b72c2ca63f1f856bdfbe96beb671de6498e8a79570"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/net-recover"
@@ -69,7 +76,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -101,7 +108,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.656633+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "docs/rust"
       ]
@@ -119,7 +132,14 @@
           "base/strings/string_split_unittest.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "base/strings/string_split.cc": "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+          "base/strings/string_split.h": "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+          "base/strings/string_split_unittest.cc": "3701ebc136f59aeed2c9cf57d671fbd79d951425652077ddd2e4b12f44a93ee4"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/foundation-strings"
@@ -137,7 +157,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -164,7 +184,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.730296+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "base/strings"
       ]
@@ -182,7 +208,14 @@
           "base/version_unittest.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "base/version.cc": "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+          "base/version.h": "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+          "base/version_unittest.cc": "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/foundation-version"
@@ -200,7 +233,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -227,7 +260,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.794906+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "base"
       ]
@@ -245,7 +284,14 @@
           "storage/browser/file_system/file_system_usage_cache_unittest.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "storage/browser/file_system/file_system_usage_cache.cc": "53fc437f9da13c3d594ea11e99f694dcec1a3d0f59d6a761193f4b54b2e20478",
+          "storage/browser/file_system/file_system_usage_cache.h": "4a91dfde3d2277808e938a9a66dadfc78147a60453a54b9daa708e52ff6ac051",
+          "storage/browser/file_system/file_system_usage_cache_unittest.cc": "b2d65b4a4418b5eaab8edb9044cca126df15373409b534ba30571563dec0c34b"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/storage-usage"
@@ -263,7 +309,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -290,7 +336,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.859336+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "storage/browser/file_system"
       ]
@@ -308,7 +360,14 @@
           "third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "third_party/blink/renderer/core/css/parser/css_tokenizer.cc": "a1b22b1ae8ccdee2435c1e1602f5100bf6068cff8610324d9e2c96a5afeecc71",
+          "third_party/blink/renderer/core/css/parser/css_parser_token.cc": "6cda12fd0160be8d41b19f00622b98bc6a082fe78cbe72884cf950811998644c",
+          "third_party/blink/renderer/core/css/parser/css_tokenizer_test.cc": "9d8e489f3925d033d141b139e3d8c56fb9e63d819290101bdde881e538debac2"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/blink-css-tokens"
@@ -326,7 +385,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -353,7 +412,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.928756+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "third_party/blink/renderer/core/css/parser"
       ]
@@ -371,7 +436,14 @@
           "ui/gfx/geometry/rect_conversions.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "ui/gfx/geometry/point_conversions.cc": "9c44669caea726950abbfd99937d7b191deafbec79c4b9ed9743642aa02a9200",
+          "ui/gfx/geometry/size_conversions.cc": "8e5d3ea621096d94df9e389018fe1205ed0e22f1b6f624d9550e98656d6266fd",
+          "ui/gfx/geometry/rect_conversions.cc": "078e60a756a86df7ef9fdd26d7f675b7b6d1b65ec0369ee98a92abbba40f1d3b"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/ui-geometry"
@@ -389,7 +461,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -416,7 +488,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:13.991993+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "ui/gfx/geometry"
       ]
@@ -434,7 +512,14 @@
           "media/base/ranges_unittest.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "media/base/ranges.h": "cabacf5697cfd1987fa592ba9b62201f87d038b1e3be130392a8cbbc18eb3099",
+          "media/base/ranges.cc": "207581ebb026b86b92e976a4ecd9a772def060af21a5ba6ac41a1941903a63ff",
+          "media/base/ranges_unittest.cc": "89a2980b4a000067702d97dcd24b17a932b9aa10e3260e28577a21890508ab36"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/media-ranges"
@@ -452,7 +537,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -479,7 +564,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:14.058309+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "media/base"
       ]
@@ -498,7 +589,13 @@
         "revision": "a1175dcfe49146bd7165715a9919eb4e94be0e77",
         "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
         "repository": "D:/RustiumBuild/src/v8",
-        "note": "Editing v8/ empty. Configured V8 is separate Git repo with dirty BUILD.gn and gni/v8.gni. Read-only source; inspect and pin helper hashes."
+        "note": "Editing v8/ empty. Configured V8 is separate Git repo with dirty BUILD.gn and gni/v8.gni. Read-only source; inspect and pin helper hashes.",
+        "observed_input_sha256": {
+          "D:/RustiumBuild/src/v8/src/wasm/leb-helper.h": "3d5c76f326179591d944d3e111316dfbeffd66d6d32ce32a0560c9413ea264d3",
+          "D:/RustiumBuild/src/v8/src/wasm/decoder.h": "146c550f91f5bf480290e34746456534ea79ea0b4925956bc3f2640a884a8827"
+        },
+        "reference_workspace": "D:/RustiumBuild/src/v8",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/v8-wasm-leb"
@@ -516,7 +613,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -543,7 +640,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:14.115504+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": []
     },
     {
@@ -558,7 +661,13 @@
           "third_party/blink/renderer/platform/text/text_break_iterator.h"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "third_party/blink/renderer/platform/text/text_break_iterator.cc": "1bf73e8a30d14c71dbd041f23a949ca01188812411c9bad845973854fbf5af0b",
+          "third_party/blink/renderer/platform/text/text_break_iterator.h": "ec36a5e58a3780ced7314a3a5ef07df2b8d2889ecebb8bc54e0b112e86024593"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/blink-text-boundaries"
@@ -576,7 +685,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -603,7 +712,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:14.175245+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "third_party/blink/renderer/platform/text"
       ]
@@ -621,7 +736,14 @@
           "net/http/http_proxy_connect_job.cc"
         ],
         "revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
-        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation"
+        "freeze_status": "Not frozen: inspect callers and freeze independent helper closure before implementation",
+        "observed_input_sha256": {
+          "docs/rust/net-migration-execution.json": "243946a9a6877f508d6aa5a092145ef7519d5f9d017efe053c66876bb8fb9460",
+          "net/spdy/spdy_session.cc": "dd66dcd55d7040442fd0f816a683bde21d4ee84b222cf2a842b9e88782ff68fb",
+          "net/http/http_proxy_connect_job.cc": "ce5d959bc29f527b6701c000b58de162955f26d67b9b3f596e7bd29b499c0da2"
+        },
+        "reference_workspace": "D:/Rustium",
+        "observation_note": "Exact inspected files only, not a complete frozen helper closure. Dirty primary inputs are not automatically part of task base; read primary references and preserve them before changing algorithms."
       },
       "owned_files": [
         "docs/rust/migration/drafts/net-http2-baseline"
@@ -641,7 +763,7 @@
         "worktree": null,
         "branch": null
       },
-      "base_revision": "4f246b50e3f64f7c3880973ae986dadedfc43adf",
+      "base_revision": "3d4363dd423e5e9bf52d6e4eeae8e7fd47d259f8",
       "delivery_commit": null,
       "integration_commit": null,
       "acceptance_tests": [
@@ -668,7 +790,13 @@
         "rust_ownership": "not established",
         "subsystem_cutover": "incomplete"
       },
-      "history": [],
+      "history": [
+        {
+          "utc": "2026-11-17T03:35:14.238291+00:00",
+          "action": "amended",
+          "note": "base_revision, original_cpp_reference"
+        }
+      ],
       "context_directories": [
         "docs/rust",
         "net/spdy",
