@@ -1,2 +1,2 @@
-archive-v4/** -text whitespace=cr-at-eol
+archive-v4/** -text whitespace=cr-at-eol,-blank-at-eol,-blank-at-eof
 INTAKE.md -text whitespace=cr-at-eol
