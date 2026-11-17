@@ -548,6 +548,8 @@ mod tests {
                 "timer:5",
                 "open:a",
                 "write:3:0",
+                // FlushFile calls GetFile again, restarting the timer.
+                "timer:5",
                 "flush:3"
             ]
         );
