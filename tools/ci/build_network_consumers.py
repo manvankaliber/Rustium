@@ -4,13 +4,16 @@ This records selected-consumer build evidence. It does not run or accept the
 ordinary test batch, ABI qualification, performance, or subsystem cutover.
 """
 import argparse
+import contextlib
 import ctypes
 import datetime
 import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
+import re
 import shutil
+import stat
 import subprocess
 import sys
 
@@ -21,11 +24,108 @@ def require(condition, message):
 
 
 def sha(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    with Path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
 def write(path, value):
     path.write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8')
+
+
+OUTPUTS = {'out/NetworkCI', 'out/NetworkProbeCI'}
+
+
+def require_ordinary_path(path):
+    info = path.lstat()
+    is_link = (bool(info.st_file_attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT)
+               if os.name == 'nt' else path.is_symlink())
+    require(not is_link,
+            'Reparse point or symlink in builder inputs: ' + str(path))
+    return info
+
+
+def checkout_inputs(root):
+    """Record every actual checkout file, including ignored tool inputs."""
+    repositories = []
+    files = {}
+
+    def visit(directory):
+        for path in sorted(directory.iterdir()):
+            relative = path.relative_to(root).as_posix()
+            if path.name == '.git':
+                require_ordinary_path(path)
+                repositories.append(directory)
+                continue
+            info = require_ordinary_path(path)
+            if relative in OUTPUTS:
+                require(stat.S_ISDIR(info.st_mode), 'Build output is not a directory: ' + relative)
+                continue
+            if stat.S_ISDIR(info.st_mode):
+                visit(path)
+            else:
+                require(stat.S_ISREG(info.st_mode), 'Unexpected input type: ' + relative)
+                files[relative] = sha(path)
+
+    require_ordinary_path(root)
+    visit(root)
+    require(root in repositories, 'Primary Git checkout not found')
+    git_revisions = {}
+    for repo in sorted(repositories):
+        name = repo.relative_to(root).as_posix()
+        top = subprocess.check_output(['git', 'rev-parse', '--show-toplevel'],
+                                      cwd=repo, text=True).strip()
+        require(Path(top).resolve() == repo.resolve(), 'Git root differs: ' + name)
+        dirty = subprocess.check_output(
+            ['git', 'status', '--porcelain=v1', '--untracked-files=normal'], cwd=repo)
+        require(not dirty, 'Uncommitted inputs in ' + name + ': ' +
+                dirty.decode('utf-8', errors='replace')[:4096])
+        git_revisions[name] = subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+                                                       cwd=repo, text=True).strip()
+    configuration = root.parent / '.gclient'
+    require_ordinary_path(configuration)
+    return {'git_revisions': git_revisions, 'files': files,
+            'gclient_sha256': sha(configuration)}
+
+
+def compare_inputs(expected, actual):
+    previous = expected['files']
+    current = actual['files']
+    changed = sorted(name for name in previous.keys() | current.keys()
+                     if previous.get(name) != current.get(name))
+    require(not changed, f'{len(changed)} input files differ: {changed[:20]}')
+    require(expected['git_revisions'] == actual['git_revisions'],
+            'Git repository membership or revisions changed')
+    require(expected['gclient_sha256'] == actual['gclient_sha256'],
+            '.gclient changed')
+
+
+@contextlib.contextmanager
+def native_window(root):
+    import msvcrt
+    path = root.parent / '.rustium-native.lock'
+    with path.open('a+b') as lock:
+        # Windows supports locking beyond EOF. No lock-file content is needed.
+        lock.seek(0)
+        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        try:
+            yield
+        finally:
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+
+
+def native_processes():
+    script = r'''
+        $ErrorActionPreference = 'Stop'
+        $owners = @(Get-CimInstance Win32_Process | Where-Object {
+            $_.Name -match '^(gn|ninja|siso|autoninja|cl|clang|clang-cl|lld-link|link|rustc|cargo|msbuild|.*_(unittests?|perftests?))(\.exe)?$' -or
+            ($_.Name -match '^(pythonw?|vpython3?|cmd)(\.exe)?$' -and
+             $_.CommandLine -match '\bgclient(?:\.py|\.bat)?\b')
+        } | Select-Object ProcessId,Name)
+        ConvertTo-Json -InputObject $owners -Compress
+    '''
+    raw = subprocess.check_output(['powershell.exe', '-NoProfile', '-Command', script])
+    return json.loads(raw)
 
 
 def resolve_targets(profile, catalogue, output_relative):
@@ -90,6 +190,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--revision', required=True)
     parser.add_argument('--evidence', required=True, type=Path)
+    parser.add_argument('--source', type=Path,
+                        default=Path(os.environ.get('USERPROFILE', '.')) / 'rb/src')
+    input_mode = parser.add_mutually_exclusive_group(required=True)
+    input_mode.add_argument('--record-inputs', action='store_true')
+    input_mode.add_argument('--approved-inputs-sha256')
     parser.add_argument('--jobs', choices=(1, 2), type=int, default=1)
     parser.add_argument('--reference-probe', action='store_true')
     args = parser.parse_args()
@@ -98,7 +203,10 @@ def main():
     require(len(args.revision) == 40 and
             all(c in '0123456789abcdef' for c in args.revision),
             'Use an exact reviewed Git revision')
-    root = Path(__file__).resolve().parents[2]
+    root = args.source.absolute()
+    require(root == Path(os.environ['USERPROFILE']) / 'rb/src',
+            'Use the dedicated builder checkout')
+    require_ordinary_path(root.parent)
     relative = PurePosixPath('out/NetworkProbeCI' if args.reference_probe
                              else 'out/NetworkCI')
     output = root / relative
@@ -112,6 +220,8 @@ def main():
               'subsystem_acceptance': False, 'commands': [],
               'scope': 'Recorded selected-consumer build only; complete affected-'
                        'consumer, ABI, runtime and platform qualification pending'}
+    write(evidence / 'progress.json', result)
+    os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
     def command(phase, argv):
         log = evidence / (phase + '.log')
@@ -129,23 +239,13 @@ def main():
         return subprocess.check_output(['git', *argv], cwd=root,
                                        text=True).strip()
 
-    lock = None
-    try:
-        import msvcrt
-        lock = (root.parent / '.rustium-native.lock').open('a+b')
-        lock.seek(0)
-        if not lock.read(1):
-            lock.write(b'0'); lock.flush()
-        lock.seek(0)
-        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+    def execute():
         require(git('rev-parse', 'HEAD') == args.revision, 'Checkout revision drift')
-        require(not git('status', '--porcelain=v1', '--untracked-files=no'),
-                'Preserve dirty source; do not compile it as the reviewed commit')
-        command('processes', ['powershell.exe', '-NoProfile', '-Command',
-                "@(Get-CimInstance Win32_Process | Where-Object { $_.Name -match "
-                "'^(ninja|clang-cl|lld-link|rustc|cargo|.*_unittests|.*_perftests)"
-                "(\\.exe)?$' } | Select-Object ProcessId,Name) | ConvertTo-Json"])
-        require(not (evidence / 'processes.log').read_text(encoding='utf-8-sig').strip(),
+        require(git('config', '--local', '--get', 'core.autocrlf') == 'false',
+                'Qualify the dedicated checkout with core.autocrlf=false')
+        competing = native_processes()
+        write(evidence / 'processes.json', competing)
+        require(not competing,
                 'A compiler/test process already owns the substantial window')
         require(shutil.disk_usage(root).free >= 8 * 1024**3, 'Low builder disk space')
         result['memory_before'] = available_memory()
@@ -173,7 +273,49 @@ def main():
         result.update(toolchain=tools, inventory_sha256=sha(profile_path),
                       deps_sha256=sha(root / 'DEPS'), compiler_jobs=args.jobs,
                       reference_probe=args.reference_probe)
-        command('dependency-revisions', ['gclient.bat', 'revinfo', '--actual'])
+        def dependency_revisions(phase):
+            record = evidence / (phase + '.json')
+            command(phase, ['gclient.bat', 'revinfo', '--actual', '--output-json',
+                            str(record)])
+            revisions = json.loads(record.read_bytes())
+            require(isinstance(revisions, dict) and 'src' in revisions,
+                    'Missing dependency revision inventory')
+            return revisions
+
+        inputs = checkout_inputs(root)
+        inputs['toolchain'] = tools
+        require(inputs['git_revisions']['.'] == args.revision,
+                'Unexpected checkout revision in source snapshot')
+        manifests = root.parent / 'qualified-inputs'
+        if args.record_inputs:
+            inputs['dependency_revisions'] = dependency_revisions('dependency-revisions')
+            before = evidence / 'inputs-before.json'
+            write(before, inputs)
+            manifests.mkdir(exist_ok=True)
+            require_ordinary_path(manifests)
+            digest = sha(before)
+            approved_copy = manifests / (digest + '.json')
+            if approved_copy.exists():
+                require_ordinary_path(approved_copy)
+                require(sha(approved_copy) == digest, 'Existing input record differs')
+            else:
+                with approved_copy.open('xb') as stream:
+                    stream.write(before.read_bytes())
+            result['input_record_sha256'] = digest
+            return
+        digest = args.approved_inputs_sha256
+        require(re.fullmatch('[0-9a-f]{64}', digest), 'Use the approved input record SHA-256')
+        require_ordinary_path(manifests)
+        approved = manifests / (digest + '.json')
+        require_ordinary_path(approved)
+        require(sha(approved) == digest, 'Approved input record digest differs')
+        expected = json.loads(approved.read_bytes())
+        compare_inputs(expected, inputs)
+        require(expected['toolchain'] == tools, 'Toolchain identity differs from approval')
+        inputs['dependency_revisions'] = dependency_revisions('dependency-revisions')
+        write(evidence / 'inputs-before.json', inputs)
+        require(expected == inputs, 'Dependency identity differs from approval')
+        result['approved_inputs_sha256'] = digest
         output.mkdir(parents=True, exist_ok=True)
         configuration = ('is_debug=false\nis_component_build=true\nsymbol_level=0\n'
                          'blink_symbol_level=0\nv8_symbol_level=0\ntarget_os="win"\n'
@@ -207,30 +349,41 @@ def main():
         graph_after = graph_identity()
         write(evidence / 'graph-after.json', graph_after)
         require(graph_before == graph_after, 'Generated graph changed during build')
-        require(git('rev-parse', 'HEAD') == args.revision and not git(
-                'status', '--porcelain=v1', '--untracked-files=no'),
-                'Source changed during build')
         require(sha(profile_path) == result['inventory_sha256'] and
                 sha(root / 'DEPS') == result['deps_sha256'] and
                 sha(output / 'args.gn') == result['args_sha256'],
                 'Source or configuration identity changed')
         require(all(sha(tool_paths[key]) == row['sha256']
                     for key, row in tools.items()), 'Toolchain changed during build')
-        command('dependency-revisions-after', ['gclient.bat', 'revinfo', '--actual'])
-        require((evidence / 'dependency-revisions.log').read_bytes() ==
-                (evidence / 'dependency-revisions-after.log').read_bytes(),
-                'Dependency revisions changed during build')
+        after = checkout_inputs(root)
+        write(evidence / 'inputs-after.json', after)
+        compare_inputs(inputs, after)
+        after['dependency_revisions'] = dependency_revisions('dependency-revisions-after')
+        after['toolchain'] = tools
+        write(evidence / 'inputs-after.json', after)
+        require(inputs == after, 'Dependency revisions changed during build')
         result.update(build_passed=True, resolved_outputs=len(targets))
-    except Exception as error:
-        result['error'] = type(error).__name__ + ': ' + str(error)
-    finally:
-        if lock is not None:
-            lock.close()
+
+    def finish():
         result['finished_utc'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         write(evidence / 'result.json', result)
+
+    try:
+        with native_window(root):
+            try:
+                execute()
+            except Exception as error:
+                result['error'] = type(error).__name__ + ': ' + str(error)
+            finally:
+                finish()
+    except Exception as error:
+        result.update(build_passed=False, error=type(error).__name__ + ': ' + str(error))
+        finish()
     print(json.dumps({'build_passed': result['build_passed'],
+                      'input_record_sha256': result.get('input_record_sha256'),
                       'ordinary_tests': 'not run', 'evidence': str(evidence)}))
-    return 0 if result['build_passed'] else 1
+    return 0 if not result.get('error') and (result['build_passed'] or
+                                            args.record_inputs) else 1
 
 
 if __name__ == '__main__':

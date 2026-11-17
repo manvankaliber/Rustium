@@ -5,6 +5,8 @@ edit and run targeted checks that do not invoke a compiler. The GitHub runner
 label is `rustium-build`; see
 [the runner runbook](../../docs/rust/migration/CI-RUNNER.md) for installation and
 the distinction between runner connectivity and Network acceptance.
+The runbook also defines [who pushes, where the PR reports results, and what
+Terra workers do while CI runs](../../docs/rust/migration/CI-RUNNER.md#worker-handoff-and-ci-feedback).
 
 `Install-WindowsRunner.ps1` prepares the pinned official runner package and
 registers it using a short-lived token file. `-PrepareOnly` performs no
@@ -29,11 +31,13 @@ identities are recorded, and the cookie-store clock contract still needs a
 reviewed successor. No measurement or gallery import occurred.
 
 The prepared `network-consumer-build.yml` builds the recorded roots on the
-dedicated runner. It accepts a reviewed same-repository PR with maintainer label
-`rustium-build-approved`, or a manually dispatched full commit. Repository policy
-requires approval for all external contributors; a workflow's job condition alone
-is not the public-fork trust boundary. The optional label
-`rustium-probe-build-approved` adds a sequential probe configuration build.
+dedicated runner. First qualification uses manual dispatch with the reviewed
+commit as its workflow ref and the SHA-256 of the approved laptop input record.
+The runner builds the already prepared checkout. Checkout, dependency sync and
+hooks are performed beforehand under the same laptop reservation. A probe build
+uses a separate dispatch. Repository policy requires approval for all external
+contributors. Automatic PR builds await a mechanism that approves the exact
+head and its inputs.
 
 `build_network_consumers.py` checks source/entrypoint/tool/config/dependency and
 graph identity, runs fresh GN generation and header checks, resolves current GN

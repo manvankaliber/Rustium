@@ -16,6 +16,34 @@ Retain the distinctions between build/test acceptance, Rust ownership and final
 C++ retirement. Keep the complete36-program232-workload ordinary batch and
 separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
 
+## Worker handoff and CI feedback
+
+1. Each Terra worker commits the change and its tests on the assigned task
+   branch. The handoff names the exact commit, affected targets and tests, and
+   any remaining dependencies or review questions.
+2. The director reviews the handoff, assembles the reviewed commits on the
+   Network integration branch, and records the exact PR head. When a GitHub
+   update is authorized, the director assigns who pushes. An assigned Terra
+   worker may push its own task branch within that authorization. The director
+   owns updates to the shared integration PR. For first qualification, a
+   maintainer dispatches the reviewed commit and its approved input record
+   explicitly. Each new head or probe run gets its own dispatch.
+3. GitHub Actions builds that revision on the Windows laptop. The run contains
+   compiler and linker output and build artifacts. Link the run from the PR
+   delivery record with the tested commit, outcome and actionable failures,
+   then assign each failure to its owner. Push reviewed fixes to the same PR
+   and use the new head's result for the next decision. Automatic PR checks
+   await a trigger that approves a specific head and qualified inputs.
+4. While the laptop builds, the rest of the Terra team continues independent
+   Network implementation, review or test preparation in separate worktrees.
+   Keep at most eight coding workers and eight deliveries awaiting validation.
+   At that limit, prioritize repairs and integration. Work on unrelated
+   subsystems remains on hold until the active focus changes.
+
+The prepared workflow provides selected consumer build feedback. Ordinary
+Network test feedback and required check configuration are still pending, and
+the workflow has yet to run on GitHub.
+
 ## Initial builder connection
 
 Repository: https://github.com/manvankaliber/Rustium . Initial inspection found no
@@ -71,8 +99,8 @@ Rust provider configuration; it is not a Network acceptance check.
 ## PR validation to enable after inventory
 
 Provision one runner-owned Chromium checkout and persistent output/cache tree.
-Each job binds the exact PR revision, dependencies, build args and toolchain;
-update only the controlled CI checkout, preserving its incremental build cache.
+Each job binds the exact PR revision, dependencies, build args and toolchain.
+Prepare only the controlled CI checkout, preserving its incremental build cache.
 Do not copy an uncommitted editor snapshot or let machine-local scratch paths be
 required PR inputs. Stage all necessary Network sources and independent helper
 closure into the actual integration branch before requesting compilation.
@@ -89,12 +117,26 @@ This repository is public. Initially accept only maintainer-approved code on the
 dedicated runner; do not automatically execute public fork PR code on a persistent
 host. Repository fork-PR approval was changed from first-time contributors to
 **all external contributors** as the dedicated public runner's trust boundary.
-The prepared consumer-build workflow additionally requires a same-repository PR
-and the `rustium-build-approved` maintainer label. Optional sequential probe build
-uses `rustium-probe-build-approved`; the ordinary build runs first. Manual dispatch
-accepts an exact reviewed commit. These triggers are prepared locally, unpublished
-and unexecuted. Do not approve public-fork execution on this persistent personal
-host. The inventory workflow cannot stand in for a compile/test check.
+The first consumer-build workflow uses manual dispatch only. Select the workflow
+ref at the exact reviewed commit and pass that commit plus the SHA-256 of its
+approved input record. Use a separate dispatch for the reference probe after
+the ordinary build. PR labels cannot grant approval across revisions. This
+workflow is prepared locally and awaits publication and first execution.
+Do not approve public-fork execution on this persistent personal host. The
+inventory workflow cannot stand in for a compile/test check.
+
+Keep checkout, dependency sync and hooks in the preparation window. Any operator
+or script that mutates the checkout or runs native work must hold the same
+exclusive byte-range lock on the first byte of `rb/.rustium-native.lock`. Finish
+preparation before recording inputs. On the laptop, run the reviewed
+`tools/ci/build_network_consumers.py` with `--record-inputs --revision <commit>`
+and `--evidence <new-directory-outside-src>` using the qualified depot_tools
+Python and environment. It locks the native window, checks each Git worktree,
+and records actual file contents by hash, including ignored package inputs.
+Only Git metadata and the two named CI output trees are excluded. Review the
+record and approve its digest for dispatch. Preparation changes invalidate
+that approval. The Actions job verifies the pinned record against the checkout
+before building and verifies the inputs again before releasing the lock.
 No paid hosted runners, API billing or purchased execution service is configured.
 
 Runner registration/connectivity and the observed executable/component checks

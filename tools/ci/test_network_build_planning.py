@@ -1,8 +1,10 @@
 """Data-only checks: no GN, compiler, source checkout or native programs."""
+from pathlib import Path, PurePosixPath
+import subprocess
+import tempfile
 import unittest
-from pathlib import PurePosixPath
 
-from build_network_consumers import resolve_targets
+from build_network_consumers import checkout_inputs, compare_inputs, resolve_targets
 
 
 class BuildPlanningTest(unittest.TestCase):
@@ -37,6 +39,57 @@ class BuildPlanningTest(unittest.TestCase):
                          {'//net:test_support': {'outputs': []}},
                          PurePosixPath('out/NetworkCI')),
                          {'//net:test_support': ['net:test_support']})
+
+
+class CheckoutIdentityTest(unittest.TestCase):
+    def git(self, root, *args):
+        subprocess.run(['git', '-c', 'user.name=Fixture', '-c',
+                        'user.email=fixture@example.invalid', *args],
+                       cwd=root, check=True, capture_output=True)
+
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        parent = Path(temporary.name).resolve()
+        (parent / '.gclient').write_text('fixture configuration', encoding='utf-8')
+        self.root = parent / 'src'
+        self.root.mkdir()
+        self.git(self.root, 'init', '-q')
+        (self.root / '.gitignore').write_text('/deps/\n/tool-cache/\n/out/\n', encoding='utf-8')
+        self.git(self.root, 'add', '.gitignore')
+        self.git(self.root, 'commit', '-qm', 'Fixture root')
+        self.dep = self.root / 'deps/nested'
+        self.dep.mkdir(parents=True)
+        self.git(self.dep, 'init', '-q')
+        (self.dep / 'input.cc').write_text('int x;\n', encoding='utf-8')
+        self.git(self.dep, 'add', 'input.cc')
+        self.git(self.dep, 'commit', '-qm', 'Fixture dependency')
+
+    def test_same_revision_dirty_nested_checkout_is_rejected(self):
+        before = checkout_inputs(self.root)
+        self.assertIn('deps/nested', before['git_revisions'])
+        (self.dep / 'input.cc').write_text('int different;\n', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'Uncommitted inputs in deps/nested'):
+            checkout_inputs(self.root)
+
+    def test_new_untracked_source_is_rejected(self):
+        (self.root / 'unexpected.gni').write_text('unexpected', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'unexpected.gni'):
+            checkout_inputs(self.root)
+
+    def test_ignored_tool_input_is_hashed_but_native_output_is_excluded(self):
+        tool = self.root / 'tool-cache/tool.exe'
+        tool.parent.mkdir()
+        tool.write_bytes(b'one')
+        output = self.root / 'out/NetworkCI/object.obj'
+        output.parent.mkdir(parents=True)
+        output.write_bytes(b'old build')
+        before = checkout_inputs(self.root)
+        output.write_bytes(b'new build')
+        compare_inputs(before, checkout_inputs(self.root))
+        tool.write_bytes(b'two')
+        with self.assertRaisesRegex(ValueError, 'tool-cache/tool.exe'):
+            compare_inputs(before, checkout_inputs(self.root))
 
 
 if __name__ == '__main__':
