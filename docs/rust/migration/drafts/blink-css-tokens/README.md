@@ -1,24 +1,23 @@
-# Blink CSS tokens: source freeze and implementation boundary
+# Blink CSS tokens
 
-This draft is a candidate workspace for `BLINK-CSS-TOKENS`; it is not production integration or a cutover. The canonical queue pins the three original files at revision `4f246b50e3f64f7c3880973ae986dadedfc43adf`. Their archived byte hashes match the queue. `reference-cpp/manifest.json` records hashes for the additional directly relevant C++ sources copied from `D:/Rustium`.
+Candidate workspace for `BLINK-CSS-TOKENS`; this is not production integration or a cutover. The queue-pinned tokenizer, token, and test sources at `4f246b50e3f64f7c3880973ae986dadedfc43adf` match their recorded SHA-256 values. The additional direct behavior sources are archived under `reference-cpp/` and hashed in `reference-cpp/manifest.json`.
 
-## Observed contracts to carry into the Rust family
+## Observed contracts
 
-- The input is a WTF `StringView` with 8-bit or UTF-16 backing. Token source ranges/offsets are code units in that backing, not UTF-8 byte indices. The stream's replacement-aware reads map NUL and lone UTF-16 surrogates to U+FFFD while non-replacing lookahead still distinguishes the source units.
-- CSS tokenizer whitespace follows the implementation's HTML-space predicate (`TAB`, LF, FF, CR, space). Newline handling for escaped strings consumes CRLF as one whitespace sequence. Comments are either skipped or emitted by the two public single-token entry points.
-- Escape consumption handles at most six ASCII hex digits, consumes one following HTML whitespace (or CRLF pair), and replaces zero, surrogate scalar values, and values above U+10FFFF. A backslash at EOF also yields U+FFFD.
-- Numeric token boundaries are selected lexically before conversion: optional sign; decimal point only when followed by an ASCII digit; exponent only when its required digits exist. Integer tokens retain integer-vs-number metadata and sign. The original conversion uses `StringToDouble` and a <=14-digit 8-bit integer fast path; Rust float parsing must not be substituted without differential fixtures.
-- URL parsing has a fast path and an escape-aware path; malformed quoted/parenthesized/non-printable URL input becomes a bad-URL token after consuming remnants. Bad strings stop before newline and reconsume that newline.
-- Token equality, serialization, numeric formatting, unit IDs, keyword IDs, inline values, and block matching are part of `css_parser_token.cc/.h`; preserving only lexical token kinds is insufficient.
+- Inputs use WTF 8-bit or UTF-16 storage. Token spans/offsets count input storage units: bytes for 8-bit input and UTF-16 code units for 16-bit input. NUL and lone surrogates are replacement-aware; valid surrogate pairs remain paired.
+- Whitespace uses HTML space (TAB, LF, FF, CR, space). Escaped string newlines consume CRLF as one sequence. `TokenizeSingle` skips comments; `TokenizeSingleWithComments` returns them.
+- Escapes accept at most six ASCII hex digits and one following HTML whitespace/CRLF; zero, surrogate scalar values and values above U+10FFFF become U+FFFD. Backslash at EOF also becomes U+FFFD.
+- Numeric lexical boundaries are independent of conversion: optional sign, decimal point only before a digit, exponent only with required digits. Blink converts with WTF `StringToDouble`, uses a <=14-digit 8-bit integer fast path, and clamps token values to float max. A Rust float parser is not assumed equivalent.
+- URL parsing distinguishes URL/bad-URL, consumes bad remnants, and preserves the comment/string newline rules. Token value serialization, equality, keyword/unit mapping and inserted-comment policy are part of this family.
 
-## Provider closure still required
+## Source and provider closure
 
-The archive contains tokenizer, input stream, parser idioms, HTML-space helper, token representation/serialization source, test source, and direct WTF numeric conversion source. It does **not yet** constitute a reproducible complete helper build closure. Specifically inspect/archive the implementations behind WTF `StringToDouble` / `CharactersToDouble` and formatting/dtoa; WTF `StringView` / `String` width and visitor semantics; CSS markup escaping; unit formatting and generated CSS keyword/property tables. The direct source/provider hashes and current gaps are enumerated in `reference-cpp/manifest.json`; no Rust implementation may claim numeric, equality, or serialization equivalence until corresponding fixtures or exact provider behavior support it.
+Archived sources cover tokenizer/input/idioms, token representation and serialization, original tests, HTML-space behavior, WTF StringView/String/character visitor, numeric conversion, dtoa/format, CSS markup and primitive-value sources. The closure is still incomplete: generated CSS keyword/unit tables and transitive numeric conversion dependencies must be located and pinned. Numeric behavior remains a provider boundary until the director's requested numeric analysis provides a reviewed contract. No copied or pinned provider is modified.
 
-## Original test inventory
+## Candidate status
 
-`reference-cpp/.../css_tokenizer_test.cc` contains 16 `CSSTokenizerTest` rows: `SingleCharacterTokens`, `MultipleCharacterTokens`, `DelimiterToken`, `WhitespaceTokens`, `Escapes`, `IdentToken`, `FunctionToken`, `AtKeywordToken`, `UrlToken`, `StringToken`, `HashToken`, `NumberToken`, `DimensionToken`, `PercentageToken`, `UnicodeRangeToken`, and `CommentToken`. This row list is an inventory only; assertion-level mapping to executable Rust tests has not been prepared and no coverage claim is made. Implementation work must map every assertion, not just these row names.
+`rust/src/lib.rs` is an early safe Rust lexer candidate with explicit 8-bit/UTF-16 input, source spans, token records, lexical paths for whitespace, names/escapes, strings, numeric boundaries, comments, URL/bad-URL, delimiters, blocks and match operators. Numeric conversion is injected through `NumberProvider`.
 
-## Status
+This is not yet a complete connected token family. Token serialization/equality, Unicode-range handling, IDs/unit mapping and complete parity for replacement-aware names, string fast paths, blocks and malformed cases remain unimplemented or unverified. `coverage/original-tests.csv` inventories all 16 original test rows; individual assertions are not yet mapped into executable Rust tests. Rust tests, native tests and configured validation remain pending. No production integration or cutover is claimed.
 
-Reference files are frozen and hash-verified. The connected Rust tokenizer/token-value implementation, executable assertion-level coverage map, deterministic malformed/byte/UTF-16 tests, and integration proposal remain outstanding. In particular, the complete token serializer/equality and character-width/lifetime contracts cannot be represented as complete by this source-freeze artifact alone.
+Caller inspection found the tokenizer is consumed by `CSSParserTokenStream`, token-stream tests, parser tests and token serialization tests. A later director proposal must define value lifetime and source-span ownership across these consumers; this draft does not add a production bridge or ABI.
