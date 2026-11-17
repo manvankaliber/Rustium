@@ -11,6 +11,9 @@
 #include "net/http/http_auth_preferences.h"
 
 namespace net {
+ConnectionAuthOriginalNegotiateFactory::ConnectionAuthOriginalNegotiateFactory(
+    HttpAuthMechanismFactory factory) : mechanism_factory_(factory) {}
+ConnectionAuthOriginalNegotiateFactory::~ConnectionAuthOriginalNegotiateFactory() = default;
 int ConnectionAuthOriginalNegotiateFactory::CreateAuthHandler(
     HttpAuthChallengeTokenizer* challenge, HttpAuth::Target target,
     const SSLInfo& ssl_info, const NetworkAnonymizationKey& key,

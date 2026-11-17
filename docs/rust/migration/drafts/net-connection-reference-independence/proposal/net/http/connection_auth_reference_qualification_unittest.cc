@@ -157,6 +157,13 @@ class AuthReferenceQualificationTest : public testing::Test {
     blocked->release.Signal();
     EXPECT_TRUE(ReleaseProvidersAndDrain());
   }
+  base::ScopedClosureRunner MakeBlockedCleanup(
+      scoped_refptr<BlockingSspiCall> blocked,
+      std::unique_ptr<HttpAuthHandler>* handler) {
+    return base::ScopedClosureRunner(base::BindOnce(
+        &AuthReferenceQualificationTest::CancelBlockedAndRelease,
+        base::Unretained(this), std::move(blocked), base::Unretained(handler)));
+  }
 #endif
 #if BUILDFLAG(USE_KERBEROS)
   void Register(HttpAuthMechanismFactory injection = HttpAuthMechanismFactory()
@@ -386,10 +393,7 @@ TEST_F(AuthReferenceQualificationTest, DefaultSspiCancellationDropsReply) {
   std::string token = "unchanged";
   // Runs before any state above dies, including on a fatal assertion. Destroy
   // the handler, release the blocked OS mock, and await the provider proof.
-  base::ScopedClosureRunner cleanup(base::BindOnce(
-      &AuthReferenceQualificationTest::CancelBlockedAndRelease,
-      base::Unretained(this), blocked,
-      base::Unretained(&handler)));
+  auto cleanup = MakeBlockedCleanup(blocked, &handler);
   Register(HttpAuthMechanismFactory(), blocked);
   auto before = probe::Read();
   ASSERT_EQ(OK, Create("Negotiate", NetLogWithSource(), &handler));

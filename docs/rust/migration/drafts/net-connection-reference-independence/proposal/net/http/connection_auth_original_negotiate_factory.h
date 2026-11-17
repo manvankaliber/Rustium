@@ -10,8 +10,8 @@ namespace net {
 class ConnectionAuthOriginalNegotiateFactory : public HttpAuthHandlerFactory {
  public:
   using AuthLibrary = HttpAuthHandlerNegotiate::AuthLibrary;
-  explicit ConnectionAuthOriginalNegotiateFactory(HttpAuthMechanismFactory factory)
-      : mechanism_factory_(factory) {}
+  explicit ConnectionAuthOriginalNegotiateFactory(HttpAuthMechanismFactory factory);
+  ~ConnectionAuthOriginalNegotiateFactory() override;
   void set_library(scoped_refptr<AuthLibrary> library) { library_ = std::move(library); }
   int CreateAuthHandler(HttpAuthChallengeTokenizer*, HttpAuth::Target,
                         const SSLInfo&, const NetworkAnonymizationKey&,

@@ -26,6 +26,8 @@ class ConnectionAuthOriginalProviders {
 
 class ConnectionAuthOriginalNtlmFactory : public HttpAuthHandlerFactory {
  public:
+  ConnectionAuthOriginalNtlmFactory();
+  ~ConnectionAuthOriginalNtlmFactory() override;
 #if BUILDFLAG(IS_WIN)
   void set_sspi_library(scoped_refptr<SSPILibrary> library) {
     library_ = std::move(library);

@@ -79,11 +79,11 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_digest_factory.cc",
-      "sha256": "7e56f483e30e02487a3eee322f38dfe07e94e66b9d66c5ddf4ea070fce3db0d7"
+      "sha256": "46fa41f9c8a3b2b9a11c4c0088e0df1cf59dd230e717e2da37e6bb7fbed3c4b0"
     },
     {
       "path": "proposal/net/http/connection_auth_original_digest_factory.h",
-      "sha256": "46beb41dfdd7230ae3089c3f6316717dc4a42ecfc8f78e34b10ca60570a02921"
+      "sha256": "45dc0f13df9f2cb6e5a9fa8ac54a14075fb19040817d7f8557fabc6f63826ffb"
     },
     {
       "path": "proposal/net/http/connection_auth_original_factory.cc",
@@ -95,11 +95,11 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_factory.cc",
-      "sha256": "af8c02e24863f95e0e9b9ee4493e6acf47da7c889c14662b2167a27fadf0aaad"
+      "sha256": "50c93e81879fe09271c37aef75d1c30d5348a5a33aef0efd2a9e1747a6b7f89e"
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_factory.h",
-      "sha256": "7ac12bcae81d2aa6b2a68636bc3449af783bcaac97304bd629f31ec79eaf784c"
+      "sha256": "54583e05c26d28df9357be749eeeb668a0e8a3e4a1b87584224ef0f573aeeafb"
     },
     {
       "path": "proposal/net/http/connection_auth_original_negotiate_handler.cc",
@@ -131,11 +131,11 @@
     },
     {
       "path": "proposal/net/http/connection_auth_original_providers.cc",
-      "sha256": "e1bcece751d57a30d8848d33ef18cc3bccd1e886d646224fef68ae122753698d"
+      "sha256": "18f70f07ccc7d8632ef763437e21ab223425e83c86444aa7221a4b409f265349"
     },
     {
       "path": "proposal/net/http/connection_auth_original_providers.h",
-      "sha256": "3e587ee56da3a16da0b049039c86cb8112066082410ae74b2b157e5f85b8f608"
+      "sha256": "b93045a75eabf9c313853c05c80fadb49eadf76d8d78e35e67043a355d43a0e9"
     },
     {
       "path": "proposal/net/http/connection_auth_original_rounds.cc",
@@ -159,7 +159,7 @@
     },
     {
       "path": "proposal/net/http/connection_auth_reference_qualification_unittest.cc",
-      "sha256": "586e6a00f22d745800e21577c8e07101e59078055fcce2f9f1ceb4b9c2f835ee"
+      "sha256": "64ad537e14732d67b28c1016ea98afa201eccc2e356dc6527c93d70ec2c197b6"
     },
     {
       "path": "proposal/net/http/connection_auth_reference_test_mechanism.cc",

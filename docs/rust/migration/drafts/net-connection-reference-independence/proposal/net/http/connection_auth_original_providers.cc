@@ -12,6 +12,8 @@
 #include "net/ssl/ssl_info.h"
 
 namespace net {
+ConnectionAuthOriginalNtlmFactory::ConnectionAuthOriginalNtlmFactory() = default;
+ConnectionAuthOriginalNtlmFactory::~ConnectionAuthOriginalNtlmFactory() = default;
 namespace rounds = connection_auth_original_rounds;
 #if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
 HttpAuth::AuthorizationResult ConnectionAuthOriginalProviders::Parse(

@@ -10,6 +10,7 @@
 namespace net {
 ConnectionAuthOriginalDigestFactory::ConnectionAuthOriginalDigestFactory()
     : nonce_generator_(std::make_unique<HttpAuthHandlerDigest::DynamicNonceGenerator>()) {}
+ConnectionAuthOriginalDigestFactory::~ConnectionAuthOriginalDigestFactory() = default;
 
 int ConnectionAuthOriginalDigestFactory::CreateAuthHandler(
     HttpAuthChallengeTokenizer* challenge, HttpAuth::Target target,

@@ -12,6 +12,7 @@ namespace net {
 class ConnectionAuthOriginalDigestFactory : public HttpAuthHandlerFactory {
  public:
   ConnectionAuthOriginalDigestFactory();
+  ~ConnectionAuthOriginalDigestFactory() override;
   int CreateAuthHandler(HttpAuthChallengeTokenizer*, HttpAuth::Target,
                         const SSLInfo&, const NetworkAnonymizationKey&,
                         const url::SchemeHostPort&, CreateReason, int,
