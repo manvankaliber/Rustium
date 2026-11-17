@@ -1,0 +1,17 @@
+﻿# Original VersionTest fixture transcription
+# Source: reference-cpp/base/version_unittest.cc, SHA-256 recorded in ../reference-cpp/manifest.json
+input,valid,serialized
+, false, invalid
+" ", false, invalid
+., false, invalid
+0, true, 0
+0., false, invalid
+0.0, true, 0.0
+4294967295.0, true, 4294967295.0
+4294967296.0, false, invalid
+-1.0, false, invalid
++1.0, false, invalid
+1.0a, false, invalid
+02.1, false, invalid
+0.01, true, 0.1
+15.007.20011, true, 15.7.20011

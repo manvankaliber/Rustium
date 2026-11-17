@@ -1,0 +1,79 @@
+﻿{
+    "schema_version":  1,
+    "task_id":  "FOUNDATION-VERSION",
+    "source_workspace":  "D:/Rustium",
+    "observed_git_head":  "e2f0a5e07ebf97115ab84e90356181c1ded93b49",
+    "freeze_status":  "byte-exact copies of Version implementation/API/tests and direct parsing, splitting, numeric conversion, whitespace and string helper implementation closure; broader build headers/toolchain are not frozen",
+    "files":  [
+                  {
+                      "path":  "base/version.cc",
+                      "sha256":  "4cecfafb183409ebad6d029ae4f1e30a4e8b06aa4e27d57a0808ebcfd3ffa170",
+                      "bytes":  6189
+                  },
+                  {
+                      "path":  "base/version.h",
+                      "sha256":  "fe050e9b11620e79c89c435b44cf99a8c0873c1632a24153774c01b611feab06",
+                      "bytes":  2748
+                  },
+                  {
+                      "path":  "base/version_unittest.cc",
+                      "sha256":  "7e93daa5ce2674620aacb98991ea6aff53eb596bdf66672913fe1fe7cf53b4ab",
+                      "bytes":  6401
+                  },
+                  {
+                      "path":  "base/strings/string_number_conversions.cc",
+                      "sha256":  "2197d2c7874be6ebd98420eace7d5cd62f69ba06076d7c1fa6722a9d664cf812",
+                      "bytes":  5971
+                  },
+                  {
+                      "path":  "base/strings/string_number_conversions.h",
+                      "sha256":  "dcecf9161bb1e2bd2ee0482e68c199263289bf0a60874cd50d2cc426de6b3b2c",
+                      "bytes":  9517
+                  },
+                  {
+                      "path":  "base/strings/string_number_conversions_internal.h",
+                      "sha256":  "c60c3610dd1bb9e355af3e66f04ec96e11f282f7e8e9c9c2e6cff79cd362ae6d",
+                      "bytes":  9191
+                  },
+                  {
+                      "path":  "base/strings/string_split.cc",
+                      "sha256":  "84e1b041d22080a8d5f4ec8aa66e609fc673e1a0fdd75307e100811c0c210155",
+                      "bytes":  5072
+                  },
+                  {
+                      "path":  "base/strings/string_split.h",
+                      "sha256":  "1aeae886c809a3c6a6e4077e7185c5f9ff05c42bdd9bbcd9fe6cf0d22ccd4a6a",
+                      "bytes":  9464
+                  },
+                  {
+                      "path":  "base/strings/string_split_internal.h",
+                      "sha256":  "907e9c68b93b785a04e8b16c075a642ec16d1d90cb03751a7bc31c8394f98f21",
+                      "bytes":  3093
+                  },
+                  {
+                      "path":  "base/strings/string_util.cc",
+                      "sha256":  "531feeb7195d5cecb13706d22c7e59bdf8e8bac30b5fc3d54b8f7e337706b6f2",
+                      "bytes":  17195
+                  },
+                  {
+                      "path":  "base/strings/string_util.h",
+                      "sha256":  "906bc418460282d3d7741543a1cbb86a6b6aa1f914587bba8b4f6ca1fcaf306a",
+                      "bytes":  29665
+                  },
+                  {
+                      "path":  "base/strings/string_util_internal.h",
+                      "sha256":  "6b52b18ccfe7ae1dcd5d6f488902ce7dd0e49061a15b3c8ce478ab845963638c",
+                      "bytes":  2066
+                  },
+                  {
+                      "path":  "base/strings/trim_string_internal.h",
+                      "sha256":  "b34b968c3df3b9eec471cda2b28ae1ea3174a6b056c64cb8b078b766935a5fda",
+                      "bytes":  914
+                  },
+                  {
+                      "path":  "base/strings/whitespace_constants.h",
+                      "sha256":  "564b8baf3e2109c768b5efabe20053dd1ccde3077e31aa38df0625b0e1bac2c3",
+                      "bytes":  2633
+                  }
+              ]
+}

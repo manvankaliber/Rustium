@@ -1,0 +1,164 @@
+{
+  "source_commit": "d74d9794fda7efc1d6d33cdc2339aa44703540bb",
+  "records": [
+    {
+      "path": "base/bit_cast.h",
+      "git_blob": "a3fe20995f855a499bf6ceed0394df079413d751",
+      "sha256": "0cd10ccc2b5fe82c1a50fc8f4342e818dfb9335f05452ba308dfb90ad92e004c",
+      "bytes": 1726
+    },
+    {
+      "path": "base/bits.h",
+      "git_blob": "70152abe1f1b6a92214346da1a79cbf7d998a22e",
+      "sha256": "b49197d5803105d7256d043c61334f6853a85d5bdfba0fd44a182c15f61a3c2e",
+      "bytes": 5487
+    },
+    {
+      "path": "base/containers/checked_iterators.h",
+      "git_blob": "0dec8321fadb667c6cf28bf903a17116ef4ac750",
+      "sha256": "25d51088e004cb60a229de29c278f8fa1115962816da2a161f313b72c91ba2c1",
+      "bytes": 9804
+    },
+    {
+      "path": "base/containers/span.h",
+      "git_blob": "184b8c3574aac88043ed351590e807ba2a69e036",
+      "sha256": "770846255b270b28179412593f49719ecf26afad35d6c284ef33202e44678684",
+      "bytes": 83537
+    },
+    {
+      "path": "base/containers/span_forward_internal.h",
+      "git_blob": "96ffc346d97f01a1ce349a3fbd498931b4f9dcb4",
+      "sha256": "9a918beca275e4bff3ffc094d9cf92f2a3f4f3c5e6eb3a3ed758a0a330f5d4f9",
+      "bytes": 901
+    },
+    {
+      "path": "base/numerics/checked_math.h",
+      "git_blob": "48b5388dba0d377c498df27c5e6f31f7808e6a4b",
+      "sha256": "3f4d1fd2d6d9cab2cbc94d9612e466dfa021c1a8abe1afc7dc550def84f5177d",
+      "bytes": 15524
+    },
+    {
+      "path": "base/numerics/checked_math_impl.h",
+      "git_blob": "9f1487e1227aef204f5d6fc32df21c36aad65e76",
+      "sha256": "49d2bb59788b43f5b161727a9fca7e4d9548b4a0794dba44045ae3f3d31c9d57",
+      "bytes": 21665
+    },
+    {
+      "path": "base/numerics/clamped_math.h",
+      "git_blob": "76222a9269cf56300563206d9509381f9c4e546f",
+      "sha256": "1b3208a6f26d2b78508b94b940a17eb33c252a549bb0927cbcff2eeba41c3fad",
+      "bytes": 8626
+    },
+    {
+      "path": "base/numerics/clamped_math_impl.h",
+      "git_blob": "d3213da785fbfbb11621eb03778390cdfbc3821d",
+      "sha256": "f6aea00b13a7b8dae6301e293704725c13ef9520df895ce69563901b8fadeb79",
+      "bytes": 9869
+    },
+    {
+      "path": "base/numerics/integral_constant_like.h",
+      "git_blob": "e9d01b0b77723074c9ffab8638cd7b4d8d84e34c",
+      "sha256": "c2dba40dffed08c47bc054fcca4e0cacdc55fb09eca089e7e9f5cb07c01b5ecd",
+      "bytes": 830
+    },
+    {
+      "path": "base/numerics/safe_conversions.h",
+      "git_blob": "ea2a3457e1bad73dfa79fe2bcf22dd2d50ba1edd",
+      "sha256": "d730a0709abd5426b6c89a4961451a45397cc4ee13c88176d9250b80723fd614",
+      "bytes": 16189
+    },
+    {
+      "path": "base/numerics/safe_conversions_arm_impl.h",
+      "git_blob": "55d92355c73bf242c2c6c65e0816ec5f6690f1d9",
+      "sha256": "5cffba9b8468868a7cfab7ad5295fd7ebab8db1807b45c466f3554ef4cf8c473",
+      "bytes": 1671
+    },
+    {
+      "path": "base/numerics/safe_conversions_impl.h",
+      "git_blob": "0a49213eed7676b561d788b5ad688da7f68db85e",
+      "sha256": "b4d7df7bc8f9501ea7b01fa7e3a2c460b8c91c990ed95a54e55ad659f6e60511",
+      "bytes": 29033
+    },
+    {
+      "path": "base/numerics/safe_math.h",
+      "git_blob": "abe5eb7f08d21e28ddba0224486c3d5f68ffaf1e",
+      "sha256": "dd0611ccd543f8a697212d94b357feb4626490ca49355372d1e36797c4abb735",
+      "bytes": 458
+    },
+    {
+      "path": "base/numerics/safe_math_arm_impl.h",
+      "git_blob": "b56da6a3a454ff6b6dd4d046245cceffc05a2f7a",
+      "sha256": "af9ff8b00fa3105f89f0bece42d9c529c32bda1d4a9f4ea192bc31de94314349",
+      "bytes": 4394
+    },
+    {
+      "path": "base/numerics/safe_math_clang_gcc_impl.h",
+      "git_blob": "3203ae09a625f87feece798a204695a336019cf4",
+      "sha256": "2c17dea7483a7f1e0941af093d0404ed0f98fb4ed3922992a2623b845eef1201",
+      "bytes": 4861
+    },
+    {
+      "path": "base/numerics/safe_math_shared_impl.h",
+      "git_blob": "a3702319f612a82b62b9c87e22b5855692e76e6d",
+      "sha256": "ae86304e978ec15452f6e84876f5d86123f7452475de0319a71205b0fe4c2ad2",
+      "bytes": 7011
+    },
+    {
+      "path": "base/strings/string_util_impl_helpers.h",
+      "git_blob": "9b284611d17f5ce3306c5649366652cb84308148",
+      "sha256": "c2fdb48b59d55836c735a2007c1251df017c5e88cbd0250090e77eeb3408a2ac",
+      "bytes": 24274
+    }
+  ],
+  "direct_provider_boundaries": {
+    "base/check.h": {
+      "git_blob": "f73e8252e7967db424f98029859c8a258ad28d29",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/compiler_specific.h": {
+      "git_blob": "9da9f1113d611d6745faa9fab82dd33b37ed63f9",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/dcheck_is_on.h": {
+      "git_blob": "1c094410a516f4658021b9581189d43fa21f9c50",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/types/to_address.h": {
+      "git_blob": "ac71b0103dcbe7771071c399586943963c9f4c59",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "partition_alloc/buildflags.h": {
+      "git_blob": null,
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "partition_alloc/bounds_checks.h": {
+      "git_blob": null,
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/memory/raw_ptr_exclusion.h": {
+      "git_blob": "e5d3fb8f79d85f2fcb55eb49efccd06b69c3b61a",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "build/build_config.h": {
+      "git_blob": "5bb7049a35c6119722f575180372399988c2650d",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/check_op.h": {
+      "git_blob": "88fe3d9357d400e8beae3f3ea3825bfa219ecb0f",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/logging.h": {
+      "git_blob": "686130e6b91426251f73ef148a30246d45d03eec",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/notreached.h": {
+      "git_blob": "c6b94654efea8e98b0459296185d24464db1ce19",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    },
+    "base/third_party/icu/icu_utf.h": {
+      "git_blob": "0b50b710058a1cf6065563a8961c522a4c5078a9",
+      "scope": "Direct provider/build dependency identified, not standalone build closure or native validation"
+    }
+  },
+  "scope": "Behavior-bearing starts/ends helper plus checked arithmetic/conversion and span/iterator headers recursively archived. Generated configuration, logging/check failure ABI, standard library/toolchain and broad string helper build providers remain explicitly outside standalone build closure."
+}
