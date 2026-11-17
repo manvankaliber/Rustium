@@ -1,0 +1,156 @@
+﻿[
+    {
+        "path":  "third_party/blink/renderer/platform/text/character_break_iterator.cc",
+        "sha256":  "7fd64af1972334b362e63df42ab3a579383d50b7a93191605b62070f13311fae",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/character_break_iterator.h",
+        "sha256":  "84d0adbc149b7f1ccb5fc6d38394d0e4e17923841ac4c39de4883c2fe677fd5d",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/character_break_iterator_test.cc",
+        "sha256":  "7233e83057ef1c00aa319e357a50045ddfdf4200ce6965bc9feafbb5b8e7dbba",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/layout_locale.cc",
+        "sha256":  "96b911c51bc271b574eefc56937e218d6e31c315f9940f171faa1347b0b8ceb4",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/layout_locale.h",
+        "sha256":  "f516605e61062501a2c94f0012fb74a0faf585d5a7a424341c6056c1585eda04",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/layout_locale_test.cc",
+        "sha256":  "5bfa38b65a159d4d95cb795d2706dd894fcc3807ad36a1190ca0d110a24f1ecb",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/text_break_iterator_internal_icu.cc",
+        "sha256":  "a4d747f4d168dfb5e670ff2f40959838fdd0c80cafe9df9787ba96c187c94ca2",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/text_break_iterator_internal_icu.h",
+        "sha256":  "cafd27452e8caa8cb977e85fc36eb80779eae429e72f857d5276cebd04ddb8b2",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/icu_error.h",
+        "sha256":  "13497efc923b65d9fef3bb009bf588f94942c1e01a75b4458d42050cf1a3dfd0",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/character.h",
+        "sha256":  "f11445bf82f002cf027992bac6acf8e6972536f5bf8f533f27495dd369d40ef7",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/wtf/text/unicode.h",
+        "sha256":  "1147904eb0b67de2b041cdd5d9da090c69faabb16cdda8cac86ed9700487b89c",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/wtf/text/ascii_ctype.h",
+        "sha256":  "fea2278f2f956831b070f282a9ab9daffc1137353b91f8b2425a0312ea4b21b1",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/wtf/text/character_names.h",
+        "sha256":  "db5a7cff907ffc73b89c478fe2835f71767e5dd2b3c920c2f58abb7ebcaeb35d",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/text_break_iterator_test.cc",
+        "sha256":  "a40641a52be68727b80c7d9785fc1397659b96c075027663cdd119e1ed6f1b3e",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/runtime_enabled_features.json5",
+        "sha256":  "5cc800673d8e77251b307f719cf2a11e9e6a134fe48d2d1a7a1d64c950514b1c",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/runtime_enabled_features.override.json5",
+        "sha256":  "636a78b67a5f2b5cff11e85e06f5728f323840ef4c7d8ec6e9e7c8c1a6925d14",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/core/layout/inline/line_breaker.cc",
+        "sha256":  "961bdc5f96857c81fd7eb2f44ab99abf7e543b9c1778debaae5c671078c81ca3",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/core/layout/inline/line_breaker.h",
+        "sha256":  "42b5b7bb1cfcabca6e133e0f07a6630e2c677181476a30285d2e3507489dcccd",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/fonts/shaping/shaping_line_breaker.cc",
+        "sha256":  "66d9ea5db8966991face8bb10956ce658a17026e8878eacd2dfc199eba139092",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/fonts/shaping/shaping_line_breaker.h",
+        "sha256":  "8c4af38a97da0caedbd134e0d810230e5639ccc9a69d02c82b49515860ede0d6",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "third_party/blink/renderer/platform/text/character_property_data_generator.cc",
+        "sha256":  "24de6bddd1f5cca528a491344e2e6654c5a16e1ed80a1244278c6a4d1f2cbe27",
+        "source_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e",
+        "source_worktree":  "D:/Rustium",
+        "dirty_worktree_observation":  "dirty; copied bytes hashed independently"
+    },
+    {
+        "path":  "configured/gen/third_party/blink/renderer/platform/text/break_iterator_data_inline_header.h",
+        "sha256":  "a32fc28f5ffcca51e0aad5d586df4361b321906f5428b0fd0e75e391724e540b",
+        "configured_tree":  "D:/RustiumBuild/src/out/Default",
+        "configured_table_expected_sha256":  "a32fc28f5ffcca51e0aad5d586df4361b321906f5428b0fd0e75e391724e540b",
+        "source_git_commit":  "12e4562c9fdc7f9e76fd2d42cddf3c4349962c7e"
+    }
+]
