@@ -1,7 +1,12 @@
 # Explicit qualification configuration only. Normal source roots remain intact.
+import("//build/toolchain/toolchain.gni")
+
 declare_args() {
   rustium_reference_probe = false
 }
+# Cargo build scripts and proc macros run in a separate static host toolchain.
+rustium_reference_probe_enabled =
+    rustium_reference_probe && !toolchain_for_rust_host_build_tools
 assert(
-    !rustium_reference_probe || is_component_build,
+    !rustium_reference_probe_enabled || is_component_build,
     "Reference probes require component-owned accessors in this qualification")

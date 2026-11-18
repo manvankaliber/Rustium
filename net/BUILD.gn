@@ -2425,7 +2425,7 @@ component("net") {
 
   deps += [ ":chrome_root_store_data" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     sources += [
       "http/rustium_reference_probe.cc",
       "http/rustium_reference_probe.h",
@@ -5411,7 +5411,7 @@ rust_static_library("auth_challenge_rust") {
   allow_unsafe = true  # Narrow pointer adapter; core forbids unsafe.
   visibility = [ ":*" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "http/auth_challenge_ffi_reference_probe.rs"
     sources -= [ "http/auth_challenge_ffi.rs" ]
     sources += [ "http/auth_challenge_ffi_reference_probe.rs" ]
@@ -6126,7 +6126,7 @@ rust_static_library("net_log_values_rust") {
   ]
   allow_unsafe = true  # Only the documented synchronous pointer ABI.
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "log/net_log_values_rust_ffi_reference_probe.rs"
     sources -= [ "log/net_log_values_rust_ffi.rs" ]
     sources += [ "log/net_log_values_rust_ffi_reference_probe.rs" ]
@@ -6208,7 +6208,7 @@ rust_static_library("http_request_headers_rust") {
   allow_unsafe = true  # Narrow documented ABI; core has forbid(unsafe_code).
   visibility = [ ":*" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "http/http_request_headers_rust_ffi_reference_probe.rs"
     sources -= [ "http/http_request_headers_rust_ffi.rs" ]
     sources += [ "http/http_request_headers_rust_ffi_reference_probe.rs" ]
@@ -6970,7 +6970,7 @@ rust_static_library("http_auth_cache_rust") {
       true  # Only synchronous documented pointer ABI; safe core forbids unsafe.
   visibility = [ ":*" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "http/http_auth_cache_rust_ffi_reference_probe.rs"
     sources -= [ "http/http_auth_cache_rust_ffi.rs" ]
     sources += [ "http/http_auth_cache_rust_ffi_reference_probe.rs" ]
@@ -7878,7 +7878,7 @@ rust_static_library("net_error_rust") {
     deps = [ "//third_party/rust/windows_sys/v0_52:lib" ]
   }
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "base/net_error_rust_ffi_reference_probe.rs"
     sources -= [ "base/net_error_rust_ffi.rs" ]
     sources += [ "base/net_error_rust_ffi_reference_probe.rs" ]
@@ -8720,7 +8720,7 @@ test("connection_jobs_family_rust_unittests") {
     "http/connection_auth_original_provider_unittest.cc",
     "http/connection_auth_original_rounds_unittest.cc",
   ]
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     sources += [
       "http/connection_auth_reference_qualification_unittest.cc",
       "http/rustium_reference_probe_test_support.h",

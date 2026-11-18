@@ -2048,7 +2048,7 @@ component("base") {
     configs += [ "//build/config/compiler:optimize_max" ]
   }
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     sources -= [
       "base64.cc",
       "strings/string_split.cc",
@@ -2139,7 +2139,7 @@ rust_static_library("base64_rust_shim") {
   sources = [ "base64_rust_shim.rs" ]
   deps = [ "//third_party/rust/base64/v0_23:lib" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "base64_rust_shim_reference_probe.rs"
     sources -= [ "base64_rust_shim.rs" ]
     sources += [ "base64_rust_shim_reference_probe.rs" ]
@@ -2168,7 +2168,7 @@ rust_static_library("string_split_rust") {
       true  # Generated CXX FFI only; authored policy/glue is safe Rust.
   deps = [ "//third_party/rust/cxx/v1:lib" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     crate_root = "strings/string_split_rust_reference_probe.rs"
     sources -= [ "strings/string_split_rust.rs" ]
     sources += [ "strings/string_split_rust_reference_probe.rs" ]
@@ -3906,7 +3906,7 @@ test("base_unittests") {
   # enable the diagnostic by removing this line.
   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
 
-  if (rustium_reference_probe) {
+  if (rustium_reference_probe_enabled) {
     sources -= [ "strings/string_split_rust_bridge_unittest.cc" ]
     sources +=
         [ "strings/string_split_rust_bridge_reference_probe_unittest.cc" ]
