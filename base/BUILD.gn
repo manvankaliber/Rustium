@@ -2178,6 +2178,7 @@ rust_static_library("string_split_rust") {
     rustflags += [
       "--cfg=rustium_reference_probe",
       "--check-cfg=cfg(rustium_reference_probe)",
+      "--check-cfg=cfg(test)",
     ]
   }
   cxx_bindings = [ crate_root ]

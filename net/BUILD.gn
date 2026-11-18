@@ -5421,6 +5421,7 @@ rust_static_library("auth_challenge_rust") {
     rustflags += [
       "--cfg=rustium_reference_probe",
       "--check-cfg=cfg(rustium_reference_probe)",
+      "--check-cfg=cfg(test)",
     ]
   }
 }
@@ -7888,6 +7889,7 @@ rust_static_library("net_error_rust") {
     rustflags += [
       "--cfg=rustium_reference_probe",
       "--check-cfg=cfg(rustium_reference_probe)",
+      "--check-cfg=cfg(test)",
     ]
   }
 }
