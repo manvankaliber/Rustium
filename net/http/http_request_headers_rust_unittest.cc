@@ -8,7 +8,27 @@
 #include "net/http/http_request_headers_rust_test_support.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
+#if defined(RUSTIUM_COMPONENT_REQUEST_HEADERS_TEST)
+#include "net/http/rustium_reference_probe.h"
+#endif
+
 namespace net::http_request_headers_rust_test {
+#if defined(RUSTIUM_COMPONENT_REQUEST_HEADERS_TEST)
+namespace abi = rustium_reference_probe::request_headers;
+
+TEST(HttpRequestHeadersRust, DirectAbiUsesComponentCounter) {
+  const auto before = rustium_reference_probe::RequestHeadersCount();
+  EXPECT_TRUE(abi::Validate("X", 1, 0));
+  EXPECT_EQ(before + 1, rustium_reference_probe::RequestHeadersCount());
+}
+#else
+namespace abi {
+constexpr auto Validate = &::rustium_request_headers_validate;
+constexpr auto Crlf = &::rustium_request_headers_crlf;
+constexpr auto Parse = &::rustium_request_headers_parse;
+}  // namespace abi
+#endif
+
 TEST(HttpRequestHeadersRust, Sequences) {
   for (uint64_t i = 0; i < 2000; ++i) {
     Sequence(i + 1);
@@ -41,8 +61,8 @@ TEST(HttpRequestHeadersRust, AllBytesAndMalformedPartialMutation) {
       Compare(a, b);
     }
   }
-  EXPECT_TRUE(rustium_request_headers_validate("\r\n", 2, 2));
-  EXPECT_EQ(0u, rustium_request_headers_crlf("\r\n", 2));
+  EXPECT_TRUE(abi::Validate("\r\n", 2, 2));
+  EXPECT_EQ(0u, abi::Crlf("\r\n", 2));
   logging::SetLogMessageHandler(nullptr);
 }
 
@@ -248,10 +268,10 @@ TEST(HttpRequestHeadersRust, NullEmptyAbiAndLayout) {
   b.RemoveHeader(std::string_view());
   EXPECT_FALSE(a.GetHeader(std::string_view()));
   EXPECT_FALSE(a.GetHeaderView(std::string_view()));
-  EXPECT_FALSE(rustium_request_headers_validate(nullptr, 0, 0));
-  EXPECT_TRUE(rustium_request_headers_validate(nullptr, 0, 1));
-  EXPECT_FALSE(rustium_request_headers_validate(nullptr, 0, 2));
-  EXPECT_EQ(1u, rustium_request_headers_parse(nullptr, 0).error);
+  EXPECT_FALSE(abi::Validate(nullptr, 0, 0));
+  EXPECT_TRUE(abi::Validate(nullptr, 0, 1));
+  EXPECT_FALSE(abi::Validate(nullptr, 0, 2));
+  EXPECT_EQ(1u, abi::Parse(nullptr, 0).error);
   Compare(a, b);
 }
 }  // namespace net::http_request_headers_rust_test

@@ -6249,7 +6249,6 @@ test("http_request_headers_rust_unittests") {
     "test/run_all_unittests.cc",
   ]
   deps = [
-    ":http_request_headers_rust",
     ":http_request_headers_rust_reference",
     ":net",
     ":test_support",
@@ -6260,6 +6259,11 @@ test("http_request_headers_rust_unittests") {
     "//url",
     "//url:buildflags",
   ]
+  if (rustium_reference_probe_enabled) {
+    defines = [ "RUSTIUM_COMPONENT_REQUEST_HEADERS_TEST" ]
+  } else {
+    deps += [ ":http_request_headers_rust" ]
+  }
 }
 
 # Also add http/http_request_headers_rust_unittest.cc to net_unittests and
