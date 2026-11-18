@@ -1,12 +1,12 @@
 # Explicit qualification configuration only. Normal source roots remain intact.
-import("//build/toolchain/toolchain.gni")
-
 declare_args() {
   rustium_reference_probe = false
 }
-# Cargo build scripts and proc macros run in a separate static host toolchain.
+
+# The observed executable and its component DLLs use the default toolchain.
+# Helper executables run in separate processes and keep their ordinary sources.
 rustium_reference_probe_enabled =
-    rustium_reference_probe && !toolchain_for_rust_host_build_tools
+    rustium_reference_probe && current_toolchain == default_toolchain
 assert(
     !rustium_reference_probe_enabled || is_component_build,
     "Reference probes require component-owned accessors in this qualification")
