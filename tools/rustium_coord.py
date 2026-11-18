@@ -368,8 +368,8 @@ class Coordinator:
             raise ValueError("Invalid job kind/command")
         if spec["kind"] == "build":
             jobs = [int(m.group(1)) for arg in command if (m := re.fullmatch(r"-j(\d+)", arg))]
-            if not jobs or any(n < 1 or n > 2 for n in jobs) or "-j" in command:
-                raise ValueError("Substantial build must explicitly use -j1 or -j2")
+            if not jobs or any(n < 4 or n > 8 for n in jobs) or "-j" in command:
+                raise ValueError("Substantial build must explicitly use -j4 through -j8")
             if any("siso" in arg.lower() or "reclient" in arg.lower() for arg in command):
                 raise ValueError("Use verified local Ninja; remote execution is not configured")
         with lock(self.runtime / "validation.lock"):

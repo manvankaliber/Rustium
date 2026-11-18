@@ -214,8 +214,12 @@ class CoordinationTest(unittest.TestCase):
 
     def test_build_ceiling_and_workspace_ceiling(self):
         rc.git(self.root, "branch", "-m", "rust/director")
-        with self.assertRaisesRegex(ValueError, "-j1 or -j2"):
-            self.c.job(self.token, self.spec("build"), ["ninja", "-j3"])
+        for jobs in (1, 2, 3, 9):
+            with self.assertRaisesRegex(ValueError, "-j4 through -j8"):
+                self.c.job(self.token, self.spec("build"), ["ninja", f"-j{jobs}"])
+        for jobs in range(4, 9):
+            command = [sys.executable, "-c", "pass", f"-j{jobs}"]
+            self.assertEqual(self.c.job(self.token, self.spec("build"), command)["exit_code"], 0)
         self.claim()
         self.workspace()
         q = rc.read(self.c.state)
