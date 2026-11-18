@@ -115,6 +115,9 @@ Compiler parallelism is a recorded builder configuration; the abandoned local
 experiment is not an instruction to change the running job. Serialize substantial
 validation through the builder concurrency group and explicit director handoff;
 do not run competing local native jobs while CI owns that validation window.
+Set `CR_SOURCE_ROOT` to the verified source checkout for ordinary tests.
+Windows derives the default test-data root from two parents of the executable
+directory, and the CI output directory has an additional level.
 
 This repository is public. Initially accept only maintainer-approved code on the
 dedicated runner; do not automatically execute public fork PR code on a persistent

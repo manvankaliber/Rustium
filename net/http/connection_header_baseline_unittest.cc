@@ -244,8 +244,9 @@ DelegateResult DelayedTunnel(base::test::TaskEnvironment& environment,
       "Host: www.endpoint.test:443\r\nProxy-Connection: keep-alive\r\n"
       "User-Agent: test-ua\r\nX-Delegate: borrowed-native-storage\r\n\r\n";
   SpdyTestUtil wire;
-  const std::string_view fields[] = {"user-agent", "test-ua",
-                                    "x-delegate", "borrowed-native-storage"};
+  // The delegate header is merged before the user agent is added.
+  const std::string_view fields[] = {"x-delegate", "borrowed-native-storage",
+                                    "user-agent", "test-ua"};
   auto connect = wire.ConstructSpdyConnect(fields, 1, DEFAULT_PRIORITY,
                                           HostPortPair("www.endpoint.test", 443));
   auto reset = wire.ConstructSpdyRstStream(1, spdy::ERROR_CODE_CANCEL);
@@ -256,7 +257,7 @@ DelegateResult DelayedTunnel(base::test::TaskEnvironment& environment,
   if (!fail && !cancel) {
     if (h2) {
       script->writes.push_back(CreateMockWrite(connect, 0));
-      script->reads.emplace_back(ASYNC, ERR_IO_PENDING, 1);
+      script->reads.emplace_back(SYNCHRONOUS, ERR_IO_PENDING, 1);
       script->writes.push_back(CreateMockWrite(reset, 2));
     } else {
       // Split request write and response read across separate async completions.

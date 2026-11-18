@@ -140,8 +140,8 @@ class HttpProxyConnectJobTestBaseRustOriginal : public WithTaskEnvironment {
   }
 
   virtual ~HttpProxyConnectJobTestBaseRustOriginal() {
-    http2_context_->pool()->CloseAllSessions();
-    RunUntilIdle();
+    // Destroy the pool without running queued socket I/O after case-local
+    // mock reads, writes and frames have gone out of scope.
     common_connect_job_params_.reset();
     http2_context_.reset();
     // Reset global field trial parameters to defaults values.
@@ -1385,7 +1385,7 @@ TEST_P(HttpProxyConnectJobTestRustOriginal, NeedAuth) {
     // Close the H2 session to prevent reuse.
     if (GetParam() == SPDY) {
       session_->CloseAllConnections(ERR_FAILED, "Very good reason");
-      http2_context_->pool()->CloseCurrentSessions(ERR_FAILED);
+      http2_context_->pool()->CloseAllSessions();
       RunUntilIdle();
     }
     // Also need to clear the auth cache before re-running the test.
@@ -1532,7 +1532,7 @@ TEST_P(HttpProxyConnectJobTestRustOriginal, NeedAuthTwice) {
     // Close the H2 session to prevent reuse.
     if (GetParam() == SPDY) {
       session_->CloseAllConnections(ERR_FAILED, "Very good reason");
-      http2_context_->pool()->CloseCurrentSessions(ERR_FAILED);
+      http2_context_->pool()->CloseAllSessions();
       RunUntilIdle();
     }
     // Also need to clear the auth cache before re-running the test.
@@ -1606,7 +1606,7 @@ TEST_P(HttpProxyConnectJobTestRustOriginal, HaveAuth) {
     // Close the H2 session to prevent reuse.
     if (GetParam() == SPDY) {
       session_->CloseAllConnections(ERR_FAILED, "Very good reason");
-      http2_context_->pool()->CloseCurrentSessions(ERR_FAILED);
+      http2_context_->pool()->CloseAllSessions();
       RunUntilIdle();
     }
   }

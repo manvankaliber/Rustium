@@ -80,7 +80,7 @@ CallbackResult ReplyAndDelete(base::test::TaskEnvironment& environment,
   script->h2_reset.emplace(wire.ConstructSpdyRstStream(1, spdy::ERROR_CODE_CANCEL));
   script->writes.push_back(CreateMockWrite(*script->h2_request, 0));
   script->reads.push_back(CreateMockRead(reply, 1));
-  script->reads.emplace_back(ASYNC, ERR_IO_PENDING, 2);
+  script->reads.emplace_back(SYNCHRONOUS, ERR_IO_PENDING, 2);
   script->writes.push_back(CreateMockWrite(*script->h2_reset, 3));
   script->data = std::make_unique<SequencedSocketData>(script->reads, script->writes);
   script->data->set_connect_data(MockConnect(SYNCHRONOUS, OK));
