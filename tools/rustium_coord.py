@@ -159,13 +159,24 @@ class Coordinator:
     def event(t, action, note):
         t["history"].append({"utc": now(), "action": action, "note": note})
 
+    def dispatch_hold(self, focus, task):
+        if not focus:
+            return None
+        if (task["subsystem"] != focus["subsystem"]
+                and task["id"] not in focus.get("allowed_dependency_tasks", [])):
+            return "Task outside active subsystem focus; preserve it as held work"
+        if focus.get("single_network_family"):
+            family = read(self.root / "tools/ci/network-focus.json")["family"]
+            if task.get("network_family") != family:
+                return f"Dispatch is limited to the active Network family: {family}"
+        return None
+
     def claim(self, token, task_id, session):
         with self.transaction(token) as q:
             t = self.task(q, task_id)
-            focus = q.get("active_focus")
-            if (focus and t["subsystem"] != focus["subsystem"]
-                    and task_id not in focus.get("allowed_dependency_tasks", [])):
-                raise ValueError("Task outside active subsystem focus; preserve it as held work")
+            hold = self.dispatch_hold(q.get("active_focus"), t)
+            if hold:
+                raise ValueError(hold)
             if t["state"] not in {"ready", "needs-repair"} or t["assignment"].get("active"):
                 raise ValueError("Task is not available")
             if t["blockers"] or any(self.task(q, d)["state"] != "integrated" for d in t["dependencies"]):
@@ -287,7 +298,8 @@ class Coordinator:
 
     def amend(self, token, task_id, patch):
         allowed = {"base_revision", "dependencies", "blockers", "next_action", "acceptance_tests",
-                   "build_targets", "performance", "stages", "evidence", "original_cpp_reference"}
+                   "build_targets", "performance", "stages", "evidence", "original_cpp_reference",
+                   "network_family"}
         if set(patch) - allowed:
             raise ValueError("Patch may only amend planning/evidence fields; use state commands for lifecycle")
         with self.transaction(token) as q:
@@ -305,7 +317,7 @@ class Coordinator:
         with self.transaction(token) as q:
             if task["id"] in {t["id"] for t in q["tasks"]}:
                 raise ValueError("Task ID already exists")
-            required = set(q["tasks"][0]) - {"integration_commit", "context_directories"}
+            required = set(q["tasks"][0]) - {"integration_commit", "context_directories", "network_family"}
             if required - task.keys() or task["state"] not in {"ready", "blocked"} or task["assignment"].get("active"):
                 raise ValueError("New task needs complete schema and inactive ready/blocked state")
             if task["role"] not in q["roles"] or any(d not in {t["id"] for t in q["tasks"]} for d in task["dependencies"]):
@@ -338,7 +350,9 @@ class Coordinator:
         if len(active) > worker_limit(q):
             raise ValueError("Global coding worker budget exceeded")
         return {"valid": True, "root": str(self.root), "tasks": len(ids), "active_workers": len(active),
-                "ready": [t["id"] for t in q["tasks"] if t["state"] == "ready" and not t["blockers"] and all(self.task(q, d)["state"] == "integrated" for d in t["dependencies"])]}
+                "ready": [t["id"] for t in q["tasks"] if t["state"] == "ready" and not t["blockers"]
+                          and not self.dispatch_hold(q.get("active_focus"), t)
+                          and all(self.task(q, d)["state"] == "integrated" for d in t["dependencies"])]}
 
     def job(self, token, manifest, command):
         """One gate for configured sync, build, substantial test and quiet timing.

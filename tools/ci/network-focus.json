@@ -1,0 +1,6 @@
+{
+  "family": "connection-jobs",
+  "separate_configuration": {
+    "connection_jobs_upper_rust_jobs_perftests": "requires the optimized QUIC-enabled output"
+  }
+}

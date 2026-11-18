@@ -78,6 +78,20 @@ class CoordinationTest(unittest.TestCase):
             q["active_focus"]["allowed_dependency_tasks"].append("T0")
         self.claim(0)
 
+    def test_family_focus_controls_ready_list_and_claims(self):
+        rc.atomic(self.root / "tools/ci/network-focus.json", {"family": "connection-jobs"})
+        with self.c.transaction(self.token) as q:
+            q["active_focus"] = {"subsystem": "network-services", "single_network_family": True}
+            for task in q["tasks"]:
+                task["subsystem"] = "network-services"
+            q["tasks"][0]["network_family"] = "dns-resolution"
+            q["tasks"][1]["network_family"] = "connection-jobs"
+        self.assertEqual(self.c.check()["ready"], ["T1"])
+        for i in (0, 2):
+            with self.assertRaisesRegex(ValueError, "active Network family"):
+                self.claim(i)
+        self.claim(1)
+
     def test_single_director_and_explicit_recovery(self):
         with self.assertRaisesRegex(ValueError, "lease exists"):
             self.c.acquire("second")
