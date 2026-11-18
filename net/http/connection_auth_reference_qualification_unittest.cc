@@ -238,23 +238,47 @@ class AuthReferenceQualificationTest : public testing::Test {
   const url::SchemeHostPort origin{GURL("http://proxy.test/")};
 };
 
-// Every probe must respond to a known live entry; seven zeros without these
-// controls would be inconclusive. Setup occurs before the measured snapshot.
+// Read each process-wide counter immediately around its own synchronous call.
 TEST_F(AuthReferenceQualificationTest, EachInstrumentedFamilyHasPositiveControl) {
   HttpAuthCache cache(true);
   HttpRequestHeaders headers;
-  auto before = probe::Read();
+  const NetworkAnonymizationKey network_anonymization_key;
+
+  const auto auth_before = probe::AuthCount();
   HttpAuthChallengeTokenizer tokenizer("Basic realm=x");
+  EXPECT_GT(probe::AuthCount(), auth_before);
   EXPECT_EQ("basic", tokenizer.auth_scheme());
-  EXPECT_FALSE(cache.Lookup(origin, HttpAuth::AUTH_PROXY, "r",
-                            HttpAuth::AUTH_SCHEME_BASIC, NetworkAnonymizationKey()));
+
+  const auto cache_before = probe::AuthCacheCount();
+  const auto* entry = cache.Lookup(origin, HttpAuth::AUTH_PROXY, "r",
+                                   HttpAuth::AUTH_SCHEME_BASIC,
+                                   network_anonymization_key);
+  EXPECT_GT(probe::AuthCacheCount(), cache_before);
+  EXPECT_EQ(nullptr, entry);
+
+  const auto headers_before = probe::RequestHeadersCount();
   headers.SetHeader("X-Test", "value");
-  EXPECT_TRUE(IsCertificateError(ERR_CERT_DATE_INVALID));
-  EXPECT_TRUE(NetLogStringValue("test").is_string());
-  EXPECT_TRUE(base::SplitStringOnce("a:b", ':').has_value());
-  EXPECT_EQ("Zm9v", base::Base64Encode("foo"));
-  auto delta = probe::Delta(before, probe::Read());
-  for (uint64_t count : delta) EXPECT_GT(count, 0u);
+  EXPECT_GT(probe::RequestHeadersCount(), headers_before);
+
+  const auto error_before = probe::NetErrorCount();
+  const bool is_cert_error = IsCertificateError(ERR_CERT_DATE_INVALID);
+  EXPECT_GT(probe::NetErrorCount(), error_before);
+  EXPECT_TRUE(is_cert_error);
+
+  const auto log_before = probe::NetLogCount();
+  const auto log_value = NetLogStringValue("test");
+  EXPECT_GT(probe::NetLogCount(), log_before);
+  EXPECT_TRUE(log_value.is_string());
+
+  const auto strings_before = base::rustium_reference_probe::StringsCount();
+  const auto split = base::SplitStringOnce("a:b", ':');
+  EXPECT_GT(base::rustium_reference_probe::StringsCount(), strings_before);
+  EXPECT_TRUE(split.has_value());
+
+  const auto base64_before = base::rustium_reference_probe::Base64Count();
+  const auto encoded = base::Base64Encode("foo");
+  EXPECT_GT(base::rustium_reference_probe::Base64Count(), base64_before);
+  EXPECT_EQ("Zm9v", encoded);
 }
 
 TEST_F(AuthReferenceQualificationTest, FrozenBase64EncodingDoesNotEnterRust) {
