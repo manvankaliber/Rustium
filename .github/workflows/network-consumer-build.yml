@@ -15,8 +15,15 @@ on:
         description: Warm feedback targets from the active family, comma-separated, first failure first
         type: string
       gtest_filter:
-        description: Optional exact gtest names separated by colons for a single focused target
+        description: Exact gtest names separated by colons for a single focused target
         type: string
+      rust_test:
+        description: Exact libtest case for one focused Rust target
+        type: string
+      full_suite:
+        description: Run all tests in the explicitly named feedback targets
+        type: boolean
+        default: false
       reference_probe:
         description: Build the separate reference-probe configuration
         type: boolean
@@ -48,6 +55,8 @@ jobs:
       RUSTIUM_APPROVED_INPUTS: ${{ inputs.approved_inputs_sha256 }}
       RUSTIUM_FEEDBACK_TARGETS: ${{ inputs.feedback_targets }}
       RUSTIUM_GTEST_FILTER: ${{ inputs.gtest_filter }}
+      RUSTIUM_RUST_TEST: ${{ inputs.rust_test }}
+      RUSTIUM_FULL_SUITE: ${{ inputs.full_suite }}
       RUSTIUM_REFERENCE_PROBE: ${{ inputs.reference_probe }}
       RUSTIUM_COMPILER_JOBS: ${{ inputs.compiler_jobs }}
       DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
@@ -77,7 +86,7 @@ jobs:
             $focused = -not [string]::IsNullOrWhiteSpace($env:RUSTIUM_FEEDBACK_TARGETS)
             if ($focused) {
               if ($env:RUSTIUM_APPROVED_INPUTS -or $env:RUSTIUM_REFERENCE_PROBE -eq 'true') { throw 'Choose focused feedback or fresh qualification.' }
-            } elseif ($env:RUSTIUM_APPROVED_INPUTS -cnotmatch '^[0-9a-f]{64}$' -or $env:RUSTIUM_GTEST_FILTER) { throw 'Fresh qualification requires an approved input SHA-256 and the complete scope.' }
+            } elseif ($env:RUSTIUM_APPROVED_INPUTS -cnotmatch '^[0-9a-f]{64}$' -or $env:RUSTIUM_GTEST_FILTER -or $env:RUSTIUM_RUST_TEST -or $env:RUSTIUM_FULL_SUITE -eq 'true') { throw 'Fresh qualification requires an approved input SHA-256 and the complete scope.' }
             $source = Join-Path $builder 'src'
             $depot = Join-Path $env:USERPROFILE 'chromium-tools\depot_tools'
             $checkoutDriver = Join-Path $source 'tools\ci\build_network_consumers.py'
@@ -103,6 +112,8 @@ jobs:
             if ($focused) {
               $arguments += @('--feedback-targets', $env:RUSTIUM_FEEDBACK_TARGETS)
               if ($env:RUSTIUM_GTEST_FILTER) { $arguments += @('--gtest-filter', $env:RUSTIUM_GTEST_FILTER) }
+              if ($env:RUSTIUM_RUST_TEST) { $arguments += @('--rust-test', $env:RUSTIUM_RUST_TEST) }
+              if ($env:RUSTIUM_FULL_SUITE -eq 'true') { $arguments += '--full-suite' }
             } else {
               $arguments += @('--approved-inputs-sha256', $env:RUSTIUM_APPROVED_INPUTS, '--run-id', $runId)
             }

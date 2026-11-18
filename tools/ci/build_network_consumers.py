@@ -13,6 +13,7 @@ import stat
 import subprocess
 import sys
 import time
+import tomllib
 
 
 def require(condition, message):
@@ -211,6 +212,77 @@ def host_inputs(configuration):
             'environment': {key: os.environ.get(key) for key in environment_keys}}
 
 
+def builder_python_cache(root, depot, prepare=False):
+    """Only explicit provisioning may ask vpython to create an environment."""
+    cache = root.parent / 'vpython-cache'
+    marker = cache / 'network-environments.json'
+    launcher = depot / '.cipd_bin/vpython3.exe'
+    specs = {'depot': depot / 'vpython.toml', 'chromium': root / 'vpython.toml'}
+    pins = {'launcher': sha(launcher), 'specs': {
+        name: {'toml': sha(spec), 'lock': sha(spec.with_suffix('.toml.uv.lock'))}
+        for name, spec in specs.items()}}
+    if prepare:
+        cache.mkdir(exist_ok=True)
+    else:
+        require(marker.is_file(), 'Python cache is unprepared; run --prepare-python-cache on the laptop')
+    require_ordinary_path(cache)
+    os.environ['VPYTHON_VIRTUALENV_ROOT'] = str(cache)
+    os.environ.pop('VPYTHON_BYPASS', None)
+    if not prepare:
+        os.environ['UV_OFFLINE'] = '1'
+        require_ordinary_path(marker)
+        saved = json.loads(marker.read_bytes())
+        require(saved['pins'] == pins, 'Python launcher or spec changed; run --prepare-python-cache')
+    environments = {}
+    smoke = """
+import importlib.metadata
+import json
+import sys
+from packaging.specifiers import SpecifierSet
+
+version = sys.version.split()[0]
+if version not in SpecifierSet(sys.argv[1]):
+    sys.exit(f'Python {version} does not satisfy {sys.argv[1]}')
+packages = {name: importlib.metadata.version(name) for name in sys.argv[2:]}
+print(json.dumps([sys.executable, sys.prefix, version, packages]))
+"""
+    for name, spec in specs.items():
+        # Check the unconditional exact distribution pins, including the different
+        # six and requests versions requested by depot_tools and Chromium.
+        config = tomllib.loads(spec.read_text(encoding='utf-8'))
+        packages = dict(m.groups() for dep in config['dependencies']
+                        if (m := re.fullmatch(r'([\w.-]+)==([^;\s]+)', dep)))
+        require(packages, f'No package pins to verify for {name}')
+        if prepare:
+            command = [launcher, '-vpython-root', cache, '-vpython-spec', spec]
+        else:
+            exe = Path(saved['environments'][name]['executable'])
+            require(exe.is_absolute() and exe.is_relative_to(cache) and '..' not in exe.parts and
+                    exe.is_file() and sha(exe) == saved['environments'][name]['sha256'],
+                    f'Cached {name} interpreter is missing or changed; run --prepare-python-cache')
+            command = [exe]
+        probe = subprocess.run([*command, '-I', '-B', '-c', smoke, config['requires-python'], *packages],
+                               cwd=spec.parent, capture_output=True, text=True,
+                               timeout=1200 if prepare else 15)
+        require(probe.returncode == 0,
+                f'{name} Python cache check failed: {probe.stderr[-1500:]}')
+        executable, prefix, version, installed = json.loads(probe.stdout)
+        exe = Path(executable)
+        require(Path(prefix).resolve().is_relative_to(cache.resolve()) and
+                exe.is_absolute() and exe.is_relative_to(cache) and '..' not in exe.parts and
+                installed == packages, f'{name} resolved outside the cache or has different packages')
+        environments[name] = {'executable': str(exe), 'prefix': prefix,
+                              'version': version, 'sha256': sha(exe)}
+    record = {'pins': pins, 'environments': environments}
+    if prepare:
+        temporary = marker.with_suffix('.tmp')
+        write(temporary, record)
+        temporary.replace(marker)
+    else:
+        require(record == saved, 'Prepared Python environment changed; run --prepare-python-cache')
+    return record
+
+
 @contextlib.contextmanager
 def native_window(root):
     import msvcrt
@@ -301,7 +373,7 @@ def available_memory():
             'commit_headroom_bytes': value.page_available}
 
 
-def feedback_cases(profile, focus, requested, gtest_filter):
+def feedback_cases(profile, focus, requested, gtest_filter, rust_test=None, full_suite=False):
     """Select only named ordinary programs of the active family, in repair order."""
     family = {c['target']: c for c in profile['cases'] if c['family'] == focus['family']}
     names = [name.strip() for name in requested.split(',')]
@@ -310,11 +382,20 @@ def feedback_cases(profile, focus, requested, gtest_filter):
         require(name in family, f'{name!r} is outside active family {focus["family"]}')
         require(name not in focus['separate_configuration'],
                 f'{name} needs its separately qualified configuration')
+    require(sum(map(bool, (gtest_filter, rust_test, full_suite))) <= 1,
+            'Select exact test names or explicitly request complete suites')
     if gtest_filter:
         require(len(names) == 1 and family[names[0]]['kind'] == 'gtest' and
                 all(re.fullmatch(r'[A-Za-z0-9_/]+\.[A-Za-z0-9_/]+', name)
                     for name in gtest_filter.split(':')),
                 'Use exact colon-separated test names with one gtest target')
+    elif rust_test:
+        require(len(names) == 1 and family[names[0]]['kind'] == 'rust' and
+                re.fullmatch(r'[A-Za-z0-9_]+(?:::[A-Za-z0-9_]+)*', rust_test),
+                'Use one exact libtest name with one Rust test target')
+    elif any(family[name]['kind'] in {'gtest', 'rust'} for name in names):
+        require(full_suite, 'Name the failing case with --gtest-filter or --rust-test, '
+                'or use --full-suite for all tests in the named targets')
     return [family[name] for name in names]
 
 
@@ -346,9 +427,7 @@ def check_feedback_gtest(summary, gtest_filter, log_bytes=b''):
     return {'passed': len(expected - skipped), 'skipped': len(skipped)}
 
 
-def warm_feedback(root, evidence, args, host, profile, result, command):
-    focus = json.loads((root / 'tools/ci/network-focus.json').read_bytes())
-    cases = feedback_cases(profile, focus, args.feedback_targets, args.gtest_filter)
+def warm_feedback(root, evidence, args, host, cases, result, command):
     # Reuse the laptop's established ordinary component output. Signoff allocates
     # a separate fresh output; an incompatible or missing cache needs preparation.
     relative = Path('out/NetworkCI/pr1-ad617-20261118a')
@@ -369,9 +448,16 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
     headroom = min(result['memory_before']['available_bytes'],
                    result['memory_before']['commit_headroom_bytes'])
     require(headroom >= 2 * 1024**3, 'Insufficient memory or commit headroom for warm feedback')
-    result.update(active_family=focus['family'], warm_output=relative.as_posix(),
-                  args_sha256=sha(args_file), compiler_jobs=args.jobs, targets={})
-    command('gn-gen', [root / 'buildtools/win/gn.exe', 'gen', relative.as_posix()])
+    for marker in ('build.ninja', '.ninja_log', '.ninja_deps'):
+        path = output / marker
+        require(path.is_file() and path.stat().st_size > 0,
+                f'Warm output is missing {marker}; restore or prepare the component cache')
+    result.update(warm_output=relative.as_posix(), args_sha256=sha(args_file),
+                  compiler_jobs=args.jobs, targets={})
+    ninja = root / 'third_party/ninja/ninja.exe'
+    # Ninja consults GN's recorded generator dependencies, including BUILD.gn
+    # and args.gn. Regenerate only a stale manifest before checking its link pool.
+    command('refresh-graph', [ninja, '-C', output, f'-j{args.jobs}', 'build.ninja'])
     with (output / 'build.ninja').open(encoding='utf-8') as graph:
         for line in graph:
             if line.rstrip() == 'pool build_toolchain_link_pool':
@@ -380,11 +466,12 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
                 break
         else:
             raise ValueError('Missing generated link pool')
-    ninja = root / 'third_party/ninja/ninja.exe'
     for case in cases:
         name = case['target']
         row = result['targets'][name] = {'built': False, 'passed': False}
-        command('build-' + name, [ninja, '-C', output, f'-j{args.jobs}', case['label'][2:]])
+        build_log = command('build-' + name, [ninja, '-C', output, f'-j{args.jobs}', case['label'][2:]])
+        with build_log.open('rb') as stream:
+            row['ninja_no_work'] = any(line.strip() == b'ninja: no work to do.' for line in stream)
         exe = output / (name + '.exe')
         row.update(built=True, executable_sha256=sha(exe))
         arguments = list(case['arguments'])
@@ -395,12 +482,18 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
                           '--test-launcher-summary-output=' + str(summary)]
             if args.gtest_filter:
                 arguments.append('--gtest_filter=' + args.gtest_filter)
+        elif case['kind'] == 'rust' and args.rust_test:
+            arguments.extend(['--exact', args.rust_test])
         log = command('test-' + name, [exe, *arguments])
         if case['kind'] == 'gtest':
             row['cases'] = check_feedback_gtest(json.loads(summary.read_bytes()),
                                                args.gtest_filter, log.read_bytes())
         elif case['kind'] == 'rust':
-            expected = case['expected_tests']
+            expected = 1 if args.rust_test else case['expected_tests']
+            if args.rust_test:
+                require(re.search(rb'^test ' + re.escape(args.rust_test.encode()) +
+                                  rb' \.\.\. ok\r?$', log.read_bytes(), re.M),
+                        'The exact Rust case did not pass')
             require(re.search(fr'^test result: ok\. {expected} passed; 0 failed; 0 ignored;'.encode(),
                               log.read_bytes(), re.M), 'Rust suite differs from its recorded count')
             row['cases'] = {'passed': expected, 'skipped': 0}
@@ -422,10 +515,15 @@ def parse_args(argv=None):
     parser.add_argument('--source', type=Path,
                         default=Path(os.environ.get('USERPROFILE', '.')) / 'rb/src')
     input_mode = parser.add_mutually_exclusive_group(required=True)
+    input_mode.add_argument('--prepare-python-cache', action='store_true',
+                            help='Provision the two pinned Python environments on the laptop')
     input_mode.add_argument('--record-inputs', action='store_true')
     input_mode.add_argument('--approved-inputs-sha256')
     input_mode.add_argument('--feedback-targets', help='Comma-separated active-family targets, failure first')
-    parser.add_argument('--gtest-filter', default='', help='Exact gtest case names separated by colons')
+    selection = parser.add_mutually_exclusive_group()
+    selection.add_argument('--gtest-filter', default='', help='Exact gtest case names separated by colons')
+    selection.add_argument('--rust-test', help='One exact Rust libtest case')
+    selection.add_argument('--full-suite', action='store_true', help='Run all tests in the named targets')
     parser.add_argument('--jobs', choices=range(4, 9), type=int, default=4,
                         help='Concurrent Ninja jobs for any build (default: 4)')
     parser.add_argument('--reference-probe', action='store_true')
@@ -444,10 +542,14 @@ def main():
     require(root == Path(os.environ['USERPROFILE']) / 'rb/src',
             'Use the dedicated builder checkout')
     require_ordinary_path(root.parent)
-    require(args.feedback_targets or not args.gtest_filter, 'Filters require focused feedback')
+    require(args.feedback_targets or not (args.gtest_filter or args.rust_test or args.full_suite),
+            'Test selectors require focused feedback')
+    require(not args.prepare_python_cache or not (args.run_id or args.reference_probe),
+            'Prepare the shared Python cache separately from a qualification build')
     require(not args.feedback_targets or not (args.reference_probe or args.run_id),
             'Warm feedback uses the ordinary output only')
-    require(args.record_inputs or args.feedback_targets or args.run_id, 'A fresh build requires a unique run ID')
+    require(args.prepare_python_cache or args.record_inputs or args.feedback_targets or args.run_id,
+            'A fresh build requires a unique run ID')
     evidence = args.evidence.resolve()
     require(not evidence.is_relative_to(root), 'Keep logs outside source/output')
     require(not evidence.exists(), 'Retain previous runs; use new evidence path')
@@ -500,6 +602,18 @@ def main():
         write(evidence / 'processes.json', competing)
         require(not competing,
                 'A compiler/test process already owns the substantial window')
+        result['phase'] = 'python-cache'
+        write(evidence / 'progress.json', result)
+        cache_start = time.monotonic()
+        if args.prepare_python_cache:
+            builder_python_cache(root, host[2]['depot_tools'], prepare=True)
+        result['python_cache'] = builder_python_cache(root, host[2]['depot_tools'])
+        result['python_cache_seconds'] = round(time.monotonic() - cache_start, 2)
+        result['phase'] = 'cache-ready'
+        write(evidence / 'progress.json', result)
+        if args.prepare_python_cache:
+            result['scope'] = 'Prepared and checked pinned Python environments'
+            return
         require(shutil.disk_usage(root).free >= 8 * 1024**3, 'Low builder disk space')
         result['memory_before'] = available_memory()
         require(result['memory_before']['available_bytes'] >= 2 * 1024**3,
@@ -508,6 +622,13 @@ def main():
         profile = json.loads(profile_path.read_text(encoding='utf-8-sig'))
         validate_inventory(profile)
         if args.feedback_targets:
+            focus = json.loads((root / 'tools/ci/network-focus.json').read_bytes())
+            cases = feedback_cases(profile, focus, args.feedback_targets, args.gtest_filter,
+                                   args.rust_test, args.full_suite)
+            result['active_family'] = focus['family']
+            result['test_selection'] = {'targets': [case['target'] for case in cases],
+                                        'gtest_filter': args.gtest_filter, 'rust_test': args.rust_test,
+                                        'full_suite': args.full_suite}
             def focused_inputs():
                 require(git('rev-parse', 'HEAD') == args.revision and
                         not git('status', '--porcelain=v1', '--untracked-files=normal'),
@@ -521,7 +642,7 @@ def main():
                 require(git('hash-object', '--no-filters', '--', str(path.resolve())) ==
                         git('rev-parse', args.revision + ':' + tracked),
                         'Runner input differs from reviewed commit: ' + tracked)
-            warm_feedback(root, evidence, args, host, profile, result, command)
+            warm_feedback(root, evidence, args, host, cases, result, command)
             require(focused_inputs() == result['focused_inputs'],
                     'Source or builder configuration changed during focused feedback')
             return
@@ -543,14 +664,18 @@ def main():
                       reference_probe=args.reference_probe)
         def dependency_revisions(phase):
             record = evidence / (phase + '.json')
-            command(phase, ['gclient.bat', 'revinfo', '--actual', '--output-json',
-                            str(record)])
+            # gclient.bat normally bootstraps vpython before invoking gclient.py.
+            # Use that script with its verified environment directly.
+            python = result['python_cache']['environments']['depot']['executable']
+            command(phase, [python, '-B', host[2]['depot_tools'] / 'gclient.py',
+                            'revinfo', '--actual', '--output-json', str(record)])
             revisions = json.loads(record.read_bytes())
             require(isinstance(revisions, dict) and 'src' in revisions,
                     'Missing dependency revision inventory')
             return revisions
 
         inputs = checkout_inputs(root)
+        inputs['python_cache'] = result['python_cache']
         inputs['toolchain'] = tools
         inputs['host'] = host_inputs(host)
         require(inputs['git_revisions']['.'] == args.revision,
@@ -624,6 +749,7 @@ def main():
         require(all(sha(tool_paths[key]) == row['sha256']
                     for key, row in tools.items()), 'Toolchain changed during build')
         after = checkout_inputs(root)
+        after['python_cache'] = builder_python_cache(root, host[2]['depot_tools'])
         write(evidence / 'inputs-after.json', after)
         compare_inputs(inputs, after)
         after['dependency_revisions'] = dependency_revisions('dependency-revisions-after')
@@ -656,7 +782,8 @@ def main():
                       'ordinary_tests': result['ordinary_tests'], 'error': result.get('error'),
                       'evidence': str(evidence)}))
     return 0 if not result.get('error') and (result['build_passed'] or
-                                            args.record_inputs or result.get('feedback_passed')) else 1
+                                            args.prepare_python_cache or args.record_inputs or
+                                            result.get('feedback_passed')) else 1
 
 
 if __name__ == '__main__':

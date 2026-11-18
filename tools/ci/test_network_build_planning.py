@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 from build_network_consumers import (
-    check_feedback_gtest, checkout_inputs, choose_output, compare_inputs, feedback_cases,
+    builder_python_cache, check_feedback_gtest, checkout_inputs, choose_output, compare_inputs, feedback_cases,
     native_processes, normal_configuration, parse_args, resolve_targets, warm_feedback,
 )
 
@@ -69,6 +69,54 @@ class BuildPlanningTest(unittest.TestCase):
                          {'//net:test_support': ['net:test_support']})
 
 
+class PythonCacheTest(unittest.TestCase):
+    def test_only_provisioning_runs_launcher_and_stale_bindings_fail_early(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ):
+            parent = Path(tmp).resolve()
+            root, depot = parent / 'src', parent / 'depot'
+            root.mkdir()
+            launcher = depot / '.cipd_bin/vpython3.exe'
+            launcher.parent.mkdir(parents=True)
+            launcher.write_bytes(b'launcher')
+            for directory, version in ((depot, '1.10.0'), (root, '1.17.0')):
+                (directory / 'vpython.toml').write_text(
+                    f'requires-python=">=3.11,<3.12"\ndependencies=["six=={version}"]')
+                (directory / 'vpython.toml.uv.lock').write_text('fixture lock')
+            def smoke(argv, cwd, **options):
+                folder = parent / 'vpython-cache' / cwd.name
+                exe = folder / 'Scripts/python.exe'
+                if argv[0] == launcher:
+                    exe.parent.mkdir(parents=True)
+                    exe.write_bytes(b'cached python')
+                else:
+                    self.assertEqual(argv[0], exe)
+                self.assertIn('-B', argv)
+                version = '1.10.0' if cwd == depot else '1.17.0'
+                output = json.dumps([str(exe), str(folder), '3.11.8', {'six': version}])
+                return subprocess.CompletedProcess(argv, 0, stdout=output, stderr='')
+            with patch('build_network_consumers.subprocess.run', side_effect=smoke) as run:
+                with self.assertRaisesRegex(ValueError, 'unprepared'):
+                    builder_python_cache(root, depot)
+                run.assert_not_called()
+                record = builder_python_cache(root, depot, prepare=True)
+                run.reset_mock()
+                self.assertEqual(builder_python_cache(root, depot), record)
+                self.assertEqual(run.call_count, 2)
+                self.assertTrue(all(call.args[0][0] != launcher for call in run.call_args_list))
+                self.assertEqual(os.environ['UV_OFFLINE'], '1')
+                self.assertEqual(os.environ['VPYTHON_VIRTUALENV_ROOT'], str(parent / 'vpython-cache'))
+                run.reset_mock()
+                (depot / 'vpython.toml.uv.lock').write_text('new tool configuration')
+                with self.assertRaisesRegex(ValueError, 'spec changed'):
+                    builder_python_cache(root, depot)
+                run.assert_not_called()
+                (depot / 'vpython.toml.uv.lock').write_text('fixture lock')
+                Path(record['environments']['depot']['executable']).unlink()
+                with self.assertRaisesRegex(ValueError, 'interpreter is missing'):
+                    builder_python_cache(root, depot)
+                run.assert_not_called()
+
+
 class FamilyFeedbackTest(unittest.TestCase):
     target = 'connection_jobs_family_rust_unittests'
     first = 'connect_job_rust_perftests'
@@ -78,14 +126,24 @@ class FamilyFeedbackTest(unittest.TestCase):
 
     def test_feedback_uses_only_requested_active_family_and_configuration(self):
         names = self.first + ',' + self.target
-        self.assertEqual([c['target'] for c in feedback_cases(self.profile, self.focus, names, '')],
+        self.assertEqual([c['target'] for c in feedback_cases(self.profile, self.focus, names, '', full_suite=True)],
                          names.split(','))
         for requested, selector in [('dns_resolution_family_rust_unittests', ''),
                                     ('connection_jobs_upper_rust_jobs_perftests', ''),
                                     (self.first, 'Fixture.One'), (names, 'Fixture.One'),
-                                    (self.target, '*'), (self.target + ',' + self.target, '')]:
+                                    (self.target, ''), (self.target, '*'), (self.target + ',' + self.target, '')]:
             with self.subTest(requested=requested, selector=selector), self.assertRaises(ValueError):
                 feedback_cases(self.profile, self.focus, requested, selector)
+
+    def test_rust_selection_is_exact_and_whole_suites_are_deliberate(self):
+        target = 'connection_jobs_rust_core_unittests'
+        select = lambda name, **options: feedback_cases(self.profile, self.focus, name, '', **options)
+        self.assertEqual(select(target, rust_test='tests::cancel')[0]['target'], target)
+        for name, options in [(target, {}), (target, {'rust_test': '*'}),
+                              (target, {'rust_test': 'tests::cancel', 'full_suite': True}),
+                              (self.target, {'rust_test': 'tests::cancel'})]:
+            with self.subTest(name=name, options=options), self.assertRaises(ValueError):
+                select(name, **options)
 
     def test_filtered_gtest_requires_each_requested_case_to_pass_once(self):
         summary = {'per_iteration_data': [{'Fixture.One': [{'status': 'SUCCESS'}]}]}
@@ -116,6 +174,8 @@ class FamilyFeedbackTest(unittest.TestCase):
             output.mkdir(parents=True)
             (output / 'args.gn').write_text(normal_configuration())
             (output / 'build.ninja').write_text('pool build_toolchain_link_pool\n  depth = 1\n')
+            (output / '.ninja_log').write_text('# ninja log v5\n')
+            (output / '.ninja_deps').write_bytes(b'# ninjadeps\n')
             calls = []
             def command(phase, argv):
                 calls.append((phase, argv))
@@ -123,6 +183,7 @@ class FamilyFeedbackTest(unittest.TestCase):
                 log.touch()
                 if phase.startswith('build-'):
                     (output / (phase[6:] + '.exe')).touch()
+                    log.write_text('ninja: no work to do.\n')
                 if phase == 'test-' + self.first:
                     case = next(c for c in self.profile['cases'] if c['target'] == self.first)
                     log.write_text(case['completion']['message'])
@@ -131,22 +192,31 @@ class FamilyFeedbackTest(unittest.TestCase):
                                'per_iteration_data': [{'Fixture.One': [{'status': 'SUCCESS'}]}]}
                     (evidence / (self.target + '-summary.json')).write_text(json.dumps(summary))
                 return log
-            args = argparse.Namespace(feedback_targets=self.first + ',' + self.target,
-                                      gtest_filter='', jobs=4, revision='a' * 40)
+            args = argparse.Namespace(gtest_filter='', rust_test=None, jobs=4, revision='a' * 40)
+            selected = feedback_cases(self.profile, self.focus, self.first + ',' + self.target, '',
+                                      full_suite=True)
             for headroom, expected_jobs in [(3, 4), (6, 4), (6, 8)]:
                 args.jobs = expected_jobs
                 result = {'memory_before': {'available_bytes': 6 * 1024**3,
                                             'commit_headroom_bytes': headroom * 1024**3}}
                 calls.clear()
                 warm_feedback(root, evidence, args, (None, None, {'depot_tools': parent / 'depot'}),
-                              self.profile, result, command)
-                self.assertEqual([p for p, _ in calls], ['gn-gen', 'build-' + self.first,
+                              selected, result, command)
+                self.assertEqual([p for p, _ in calls], ['refresh-graph', 'build-' + self.first,
                                  'test-' + self.first, 'build-' + self.target, 'test-' + self.target])
+                self.assertEqual(calls[0][1][-1], 'build.ninja')
+                self.assertTrue(result['targets'][self.first]['ninja_no_work'])
                 self.assertIn(f'-j{expected_jobs}', calls[1][1])
                 self.assertEqual(calls[2][1][1:], ['--verify-only'])
                 self.assertIn('--test-launcher-print-test-stdio=always', calls[4][1])
                 self.assertTrue(result['feedback_passed'])
                 self.assertEqual(result['targets'][self.target]['cases'], {'passed': 1, 'skipped': 0})
+            (output / '.ninja_deps').unlink()
+            calls.clear()
+            with self.assertRaisesRegex(ValueError, 'Warm output is missing .ninja_deps'):
+                warm_feedback(root, evidence, args, (None, None, {'depot_tools': parent / 'depot'}),
+                              selected, result, command)
+            self.assertEqual(calls, [])
 
 
 class CheckoutIdentityTest(unittest.TestCase):
