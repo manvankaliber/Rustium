@@ -25,7 +25,7 @@ separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
    Network integration branch, and records the exact PR head. The user allows
    ongoing pushes to the public Rustium repository. The director assigns who
    pushes, and a Terra worker may push its own assigned branch. The director
-   owns updates to the shared integration PR. For first qualification, a
+   owns updates to the shared integration PR. For fresh build qualification, a
    maintainer dispatches the reviewed commit and its approved input record
    explicitly. Each new head or probe run gets its own dispatch.
 3. GitHub Actions builds that revision on the Windows laptop. The run contains
@@ -34,15 +34,29 @@ separate16-lifecycle/optimized-QUIC obligations; campaigns remain off.
    then assign each failure to its owner. Push reviewed fixes to the same PR
    and use the new head's result for the next decision. Automatic PR checks
    await a trigger that approves a specific head and qualified inputs.
-4. While the laptop builds, the rest of the Terra team continues independent
-   Network implementation, review or test preparation in separate worktrees.
+4. While the laptop builds, Terra workers continue independent implementation,
+   review or test preparation in the active Network family.
    Keep at most eight coding workers and eight deliveries awaiting validation.
    At that limit, prioritize repairs and integration. Work on unrelated
    subsystems remains on hold until the active focus changes.
 
-The prepared workflow provides selected consumer build feedback. Ordinary
-Network test feedback and required check configuration are still pending, and
-the workflow has yet to run on GitHub.
+## Fast repair feedback
+
+Connection Jobs is first. The maintenance operator or GitHub Actions uses the same checked-in driver. Use the existing prepared laptop checkout, ordinary component output, and cached Python environment. Keep one native job under `rb/.rustium-native.lock`. Let an active run finish at its recorded SHA before preparing the next head. Collect waiting fixes for the latest reviewed SHA into one dispatch, with the original failure first.
+
+For a reviewed revision prepared under the laptop reservation, dispatch `network-consumer-build.yml` on its exact ref with `revision` and `feedback_targets`. For example, send `connection_jobs_family_rust_unittests` and the optional `gtest_filter` of `ConnectionJobsHttp2BaselineTest.SessionCloseCompletesPendingJobExactlyOnce`. A comma-separated target list runs each build and test in order and stops at the first failure. Leave `approved_inputs_sha256` empty for this diagnostic. The workflow can be used through GitHub once it is registered on the default branch. Until then the linked laptop can use the identical entrypoint directly:
+
+```powershell
+# Run on HQC-VAN_KALIBER in the prepared, reviewed checkout.
+$revision = '<full reviewed PR head>'
+$receipt = Join-Path "$env:USERPROFILE/rb/evidence" ("feedback-" + [guid]::NewGuid().ToString("N"))
+$python = Join-Path "$env:USERPROFILE/chromium-tools/depot_tools" 'python3.bat'
+& $python -I -B tools/ci/build_network_consumers.py --revision $revision --evidence $receipt --feedback-targets connection_jobs_family_rust_unittests --gtest-filter ConnectionJobsHttp2BaselineTest.SessionCloseCompletesPendingJobExactlyOnce
+```
+
+Prepare the exact reviewed commit and revision metadata using the instructions below. Once per builder configuration, provision the cached vpython environment, generated `testing/location_tags.json`, and ordinary output. The driver sets the vpython search path, short temporary directory, external Chromium log path, and `CR_SOURCE_ROOT` for every focused run. It checks the reviewed head, driver, family selection, clean checkout, and ordinary GN arguments, and regenerates the graph in the existing output. Automatic parallelism is four Ninja jobs with a one-link pool if both available RAM and commit headroom are at least 4 GiB, otherwise one job (minimum available RAM 2 GiB). The operator may lower the ceiling. QUIC-enabled or probe targets use their separate outputs.
+
+The run prints compilation and test outcomes separately as each completes. Read the first failed phase in `progress.json` and its raw log. The terminal `result.json` records the commit, target, elapsed times, and focused outcome. Return those to the repair owner immediately. After a successful reproduction, omit the filter for the whole family suite. Use fresh approved inputs and the complete acceptance inventory for family signoff. Track time from dispatch to first result and from first result to signoff separately.
 
 ## Initial builder connection
 
@@ -99,7 +113,7 @@ inventory and explicitly runs no compilation or subsystem test. It is preparatio
 for choosing the exact repository-compatible MSVC/SDK, depot_tools, GN/Ninja and
 Rust provider configuration; it is not a Network acceptance check.
 
-## PR validation to enable after inventory
+## Fresh build qualification
 
 Provision one runner-owned Chromium checkout and persistent output/cache tree.
 Each job binds the exact PR revision, dependencies, build args and toolchain.
@@ -185,18 +199,19 @@ the native process has stopped before taking the laptop reservation again.
 No paid hosted runners, API billing or purchased execution service is configured.
 
 Runner registration/connectivity and the observed executable/component checks
-passed. Checkout/dependency/hook provisioning, first GN/build, actual ordinary
-execution and required-check configuration remain pending.
+passed. The laptop has completed GN generation, an incremental build of 96
+selected roots, and ordinary unit execution on `d88308a2`. Fresh-output
+qualification, the remaining workload gates, and Actions rollout are separate.
 
 The repository now contains `tools/ci/network-validation-inventory.json`, with
 the exact ordered 36-program / 232-workload membership and 96 logical GN roots.
 Its data conversion checks passed without invoking GN or a compiler. It is an
-inventory only. The prepared `network-consumer-build.yml` and
-`tools/ci/build_network_consumers.py` perform fresh GN checks, resolve the96roots
+inventory only. In fresh qualification mode, `network-consumer-build.yml` and
+`tools/ci/build_network_consumers.py` perform fresh GN checks, resolve all 96 roots
 on the laptop and build them together with bounded Ninja parallelism. They retain
 raw build logs and before/after source/tool/config/dependency/graph identities.
-They do not execute or accept the ordinary tests, complete affected-consumer
-closure, ABI/runtime or other platforms. The auth union is present in the clean
+The focused mode builds and executes the selected family programs. Full ordinary
+coverage, affected consumers, ABI/runtime and other platforms have separate gates. The auth union is present in the clean
 integration candidate and remains unqualified by a fresh graph/build.
 See `tools/ci/README.md` and the inventory's explicit prerequisites. Do not run
 the historical desktop conductor against a new laptop checkout unchanged.

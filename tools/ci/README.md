@@ -8,6 +8,11 @@ the distinction between runner connectivity and Network acceptance.
 The runbook also defines [who pushes, where the PR reports results, and what
 Terra workers do while CI runs](../../docs/rust/migration/CI-RUNNER.md#worker-handoff-and-ci-feedback).
 
+For the first result on a repair, use the checked-in driver with
+`--feedback-targets` on the laptop's warm ordinary output. It builds and tests
+each requested program in order. The [fast feedback instructions](../../docs/rust/migration/CI-RUNNER.md#fast-repair-feedback)
+include an exact-case example and the handoff to full family qualification.
+
 `Install-WindowsRunner.ps1` prepares the pinned official runner package and
 registers it using a short-lived token file. `-PrepareOnly` performs no
 registration. The initial execution mode is per-user interactive; a Windows

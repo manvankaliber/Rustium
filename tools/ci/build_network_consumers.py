@@ -1,8 +1,4 @@
-"""Build the recorded Network consumers on the dedicated Windows builder.
-
-This records selected-consumer build evidence. It does not run or accept the
-ordinary test batch, ABI qualification, performance, or subsystem cutover.
-"""
+"""Run focused family tests on the warm laptop or qualify a fresh consumer build."""
 import argparse
 import contextlib
 import ctypes
@@ -16,6 +12,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import time
 
 
 def require(condition, message):
@@ -300,7 +297,124 @@ def available_memory():
     value.length = ctypes.sizeof(value)
     require(ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(value)),
             'Cannot measure builder memory')
-    return {'total_bytes': value.total, 'available_bytes': value.available}
+    return {'total_bytes': value.total, 'available_bytes': value.available,
+            'commit_headroom_bytes': value.page_available}
+
+
+def feedback_cases(profile, focus, requested, gtest_filter):
+    """Select only named ordinary programs of the active family, in repair order."""
+    family = {c['target']: c for c in profile['cases'] if c['family'] == focus['family']}
+    names = [name.strip() for name in requested.split(',')]
+    require(names and len(set(names)) == len(names), 'Supply distinct target names')
+    for name in names:
+        require(name in family, f'{name!r} is outside active family {focus["family"]}')
+        require(name not in focus['separate_configuration'],
+                f'{name} needs its separately qualified configuration')
+    if gtest_filter:
+        require(len(names) == 1 and family[names[0]]['kind'] == 'gtest' and
+                all(re.fullmatch(r'[A-Za-z0-9_/]+\.[A-Za-z0-9_/]+', name)
+                    for name in gtest_filter.split(':')),
+                'Use exact colon-separated test names with one gtest target')
+    return [family[name] for name in names]
+
+
+def normal_configuration(reference_probe=False):
+    return ('is_debug=false\nis_component_build=true\nsymbol_level=0\n'
+            'blink_symbol_level=0\nv8_symbol_level=0\ntarget_os="win"\n'
+            'target_cpu="x64"\nuse_remoteexec=false\nuse_siso=false\n'
+            'rustium_reference_probe=' + ('true' if reference_probe else 'false') + '\n')
+
+
+def check_feedback_gtest(summary, gtest_filter, log_bytes=b''):
+    iterations = summary['per_iteration_data']
+    require(len(iterations) == 1 and iterations[0], 'gtest executed no cases')
+    cases = iterations[0]
+    expected = (set(gtest_filter.split(':')) if gtest_filter else
+                set(summary['all_tests']) - set(summary['disabled_tests']))
+    require(set(cases) == expected, 'Requested or discovered cases did not all run')
+    # Some native GTEST_SKIP results appear as SUCCESS in the launcher JSON.
+    skipped = {name.decode() for name in re.findall(
+        rb'^\[\s*SKIPPED\s*\]\s+([\w/]+\.[\w/]+)', log_bytes, re.M)}
+    for name, runs in cases.items():
+        require(len(runs) == 1 and runs[0]['status'] in {'SUCCESS', 'SKIPPED'},
+                f'gtest did not pass: {name}')
+        if runs[0]['status'] == 'SKIPPED':
+            skipped.add(name)
+    skipped &= expected
+    require(expected - skipped, 'No requested gtest actually passed')
+    require(not gtest_filter or not skipped, 'A requested gtest was skipped')
+    return {'passed': len(expected - skipped), 'skipped': len(skipped)}
+
+
+def warm_feedback(root, evidence, args, host, profile, result, command):
+    focus = json.loads((root / 'tools/ci/network-focus.json').read_bytes())
+    cases = feedback_cases(profile, focus, args.feedback_targets, args.gtest_filter)
+    # Reuse the laptop's established ordinary component output. Signoff allocates
+    # a separate fresh output; an incompatible or missing cache needs preparation.
+    relative = Path('out/NetworkCI/pr1-ad617-20261118a')
+    output = root / relative
+    for directory in (output.parent.parent, output.parent, output):
+        require_ordinary_path(directory)
+    args_file = output / 'args.gn'
+    require(args_file.read_text(encoding='utf-8') == normal_configuration(),
+            'Prepare the normal component cache with the recorded GN arguments')
+    vpython = host[2]['depot_tools'] / '.cipd_bin/vpython3.exe'
+    require(vpython.is_file(), 'Prepare the laptop vpython3 installation')
+    temp = root.parent / 'tmp'
+    temp.mkdir(exist_ok=True)
+    require_ordinary_path(temp)
+    os.environ.update(CR_SOURCE_ROOT=str(root), TMP=str(temp), TEMP=str(temp),
+                      CHROME_LOG_FILE=str(evidence / 'chrome.log'),
+                      PATH=str(vpython.parent) + os.pathsep + os.environ['PATH'])
+    ceiling = args.jobs or 4
+    headroom = min(result['memory_before']['available_bytes'],
+                   result['memory_before']['commit_headroom_bytes'])
+    require(headroom >= 2 * 1024**3, 'Insufficient memory or commit headroom for warm feedback')
+    jobs = ceiling if headroom >= 4 * 1024**3 else 1
+    result.update(active_family=focus['family'], warm_output=relative.as_posix(),
+                  args_sha256=sha(args_file), compiler_jobs=jobs, targets={})
+    command('gn-gen', [root / 'buildtools/win/gn.exe', 'gen', relative.as_posix()])
+    with (output / 'build.ninja').open(encoding='utf-8') as graph:
+        for line in graph:
+            if line.rstrip() == 'pool build_toolchain_link_pool':
+                require(next(graph, '').strip() == 'depth = 1',
+                        'Warm feedback requires one concurrent link')
+                break
+        else:
+            raise ValueError('Missing generated link pool')
+    ninja = root / 'third_party/ninja/ninja.exe'
+    for case in cases:
+        name = case['target']
+        row = result['targets'][name] = {'built': False, 'passed': False}
+        command('build-' + name, [ninja, '-C', output, f'-j{jobs}', case['label'][2:]])
+        exe = output / (name + '.exe')
+        row.update(built=True, executable_sha256=sha(exe))
+        arguments = list(case['arguments'])
+        if case['kind'] == 'gtest':
+            summary = evidence / (name + '-summary.json')
+            arguments += ['--test-launcher-jobs=1', '--test-launcher-retry-limit=0',
+                          '--test-launcher-print-test-stdio=always',
+                          '--test-launcher-summary-output=' + str(summary)]
+            if args.gtest_filter:
+                arguments.append('--gtest_filter=' + args.gtest_filter)
+        log = command('test-' + name, [exe, *arguments])
+        if case['kind'] == 'gtest':
+            row['cases'] = check_feedback_gtest(json.loads(summary.read_bytes()),
+                                               args.gtest_filter, log.read_bytes())
+        elif case['kind'] == 'rust':
+            expected = case['expected_tests']
+            require(re.search(fr'^test result: ok\. {expected} passed; 0 failed; 0 ignored;'.encode(),
+                              log.read_bytes(), re.M), 'Rust suite differs from its recorded count')
+            row['cases'] = {'passed': expected, 'skipped': 0}
+        else:
+            require(case['completion']['method'] == 'exact-completion-message',
+                    'This workload needs a focused verifier for its completion contract')
+            require(case['completion']['message'] in log.read_text(encoding='utf-8', errors='replace'),
+                    'Missing workload completion message')
+        row['passed'] = True
+        write(evidence / 'progress.json', result)
+        print(f'PASS {name} at {args.revision[:12]}', flush=True)
+    result['feedback_passed'] = True
 
 
 def main():
@@ -312,7 +426,9 @@ def main():
     input_mode = parser.add_mutually_exclusive_group(required=True)
     input_mode.add_argument('--record-inputs', action='store_true')
     input_mode.add_argument('--approved-inputs-sha256')
-    parser.add_argument('--jobs', choices=(1, 2), type=int, default=1)
+    input_mode.add_argument('--feedback-targets', help='Comma-separated active-family targets, failure first')
+    parser.add_argument('--gtest-filter', default='', help='Exact gtest case names separated by colons')
+    parser.add_argument('--jobs', choices=(1, 2, 4), type=int)
     parser.add_argument('--reference-probe', action='store_true')
     parser.add_argument('--run-id', help='Unique ID for an empty qualification output')
     args = parser.parse_args()
@@ -325,7 +441,13 @@ def main():
     require(root == Path(os.environ['USERPROFILE']) / 'rb/src',
             'Use the dedicated builder checkout')
     require_ordinary_path(root.parent)
-    require(args.record_inputs or args.run_id, 'A build requires a unique run ID')
+    require(args.feedback_targets or not args.gtest_filter, 'Filters require focused feedback')
+    require(not args.feedback_targets or not (args.reference_probe or args.run_id),
+            'Warm feedback uses the ordinary output only')
+    require(args.feedback_targets or args.jobs != 4, 'Four jobs apply only to incremental feedback')
+    if not args.feedback_targets:
+        args.jobs = args.jobs or 1
+    require(args.record_inputs or args.feedback_targets or args.run_id, 'A fresh build requires a unique run ID')
     evidence = args.evidence.resolve()
     require(not evidence.is_relative_to(root), 'Keep logs outside source/output')
     require(not evidence.exists(), 'Retain previous runs; use new evidence path')
@@ -338,16 +460,30 @@ def main():
                        'consumer, ABI, runtime and platform qualification pending'}
     write(evidence / 'progress.json', result)
     os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+    os.environ['GIT_NO_LAZY_FETCH'] = '1'
+    if args.feedback_targets:
+        result.update(scope='Focused incremental feedback only; cached objects, nested dependencies '
+                      'and external toolchain contents have not been independently qualified', feedback_passed=False,
+                      ordinary_tests='Focused selection only; see per-target results')
+    started = time.monotonic()
 
     def command(phase, argv):
         log = evidence / (phase + '.log')
+        begin = time.monotonic()
+        print(f'START {phase}', flush=True)
         with log.open('wb') as stream:
             code = subprocess.call(argv, cwd=root, stdout=stream,
                                    stderr=subprocess.STDOUT)
         result['commands'].append({'phase': phase, 'argv': [str(x) for x in argv],
-                                   'exit_code': code, 'log': log.name,
+                                   'exit_code': code, 'elapsed_seconds': round(time.monotonic() - begin, 2),
+                                   'seconds_since_start': round(time.monotonic() - started, 2), 'log': log.name,
                                    'log_sha256': sha(log)})
         write(evidence / 'progress.json', result)
+        print(f'{phase} exited {code} after {time.monotonic() - begin:.1f}s', flush=True)
+        if code:
+            with log.open('rb') as stream:
+                stream.seek(max(0, log.stat().st_size - 6000))
+                print(stream.read().decode('utf-8', errors='replace'), flush=True)
         require(code == 0, phase + ' failed; see retained raw log')
         return log
 
@@ -368,12 +504,30 @@ def main():
         result['memory_before'] = available_memory()
         require(result['memory_before']['available_bytes'] >= 2 * 1024**3,
                 'Low available builder memory')
-        if args.jobs == 2:
+        if args.jobs == 2 and not args.feedback_targets:
             require(result['memory_before']['available_bytes'] >= 8 * 1024**3,
                     'Two compiler jobs require8GiB available; use one')
         profile_path = root / 'tools/ci/network-validation-inventory.json'
         profile = json.loads(profile_path.read_text(encoding='utf-8-sig'))
         validate_inventory(profile)
+        if args.feedback_targets:
+            def focused_inputs():
+                require(git('rev-parse', 'HEAD') == args.revision and
+                        not git('status', '--porcelain=v1', '--untracked-files=normal'),
+                        'Prepare a clean checkout of the reviewed head')
+                paths = [root / 'DEPS', root.parent / '.gclient', host[0],
+                         root / 'testing/location_tags.json', root / 'build/util/LASTCHANGE.committime']
+                return {str(path): sha(path) for path in paths}
+            result['focused_inputs'] = focused_inputs()
+            for path in (Path(__file__), profile_path, root / 'tools/ci/network-focus.json'):
+                tracked = 'tools/ci/' + path.name
+                require(git('hash-object', '--no-filters', '--', str(path.resolve())) ==
+                        git('rev-parse', args.revision + ':' + tracked),
+                        'Runner input differs from reviewed commit: ' + tracked)
+            warm_feedback(root, evidence, args, host, profile, result, command)
+            require(focused_inputs() == result['focused_inputs'],
+                    'Source or builder configuration changed during focused feedback')
+            return
         for case in profile['cases']:
             if 'entrypoint' in case:
                 pin = case['entrypoint']
@@ -438,11 +592,7 @@ def main():
         relative = choose_output(root, args.run_id, args.reference_probe)
         output = root / relative
         result['fresh_output'] = relative.as_posix()
-        configuration = ('is_debug=false\nis_component_build=true\nsymbol_level=0\n'
-                         'blink_symbol_level=0\nv8_symbol_level=0\ntarget_os="win"\n'
-                         'target_cpu="x64"\nuse_remoteexec=false\nuse_siso=false\n'
-                         'rustium_reference_probe=' +
-                         ('true' if args.reference_probe else 'false') + '\n')
+        configuration = normal_configuration(args.reference_probe)
         (output / 'args.gn').write_text(configuration, encoding='utf-8')
         result['args_sha256'] = sha(output / 'args.gn')
         gn = str(tool_paths['gn'])
@@ -487,6 +637,8 @@ def main():
         result.update(build_passed=True, resolved_outputs=len(targets))
 
     def finish():
+        if result.get('error') and args.feedback_targets:
+            result['feedback_passed'] = False
         result['finished_utc'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         write(evidence / 'result.json', result)
 
@@ -502,10 +654,12 @@ def main():
         result.update(build_passed=False, error=type(error).__name__ + ': ' + str(error))
         finish()
     print(json.dumps({'build_passed': result['build_passed'],
+                      'feedback_passed': result.get('feedback_passed'),
                       'input_record_sha256': result.get('input_record_sha256'),
-                      'ordinary_tests': 'not run', 'evidence': str(evidence)}))
+                      'ordinary_tests': result['ordinary_tests'], 'error': result.get('error'),
+                      'evidence': str(evidence)}))
     return 0 if not result.get('error') and (result['build_passed'] or
-                                            args.record_inputs) else 1
+                                            args.record_inputs or result.get('feedback_passed')) else 1
 
 
 if __name__ == '__main__':

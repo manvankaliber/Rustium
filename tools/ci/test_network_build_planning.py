@@ -1,4 +1,6 @@
 """Data-only checks: no GN, compiler, source checkout or native programs."""
+import argparse
+import json
 import os
 from pathlib import Path, PurePosixPath
 import subprocess
@@ -7,7 +9,8 @@ import unittest
 from unittest.mock import patch
 
 from build_network_consumers import (
-    checkout_inputs, choose_output, compare_inputs, native_processes, resolve_targets,
+    check_feedback_gtest, checkout_inputs, choose_output, compare_inputs, feedback_cases,
+    native_processes, normal_configuration, resolve_targets, warm_feedback,
 )
 
 
@@ -53,6 +56,85 @@ class BuildPlanningTest(unittest.TestCase):
                          {'//net:test_support': {'outputs': []}},
                          PurePosixPath('out/NetworkCI')),
                          {'//net:test_support': ['net:test_support']})
+
+
+class FamilyFeedbackTest(unittest.TestCase):
+    target = 'connection_jobs_family_rust_unittests'
+    first = 'connect_job_rust_perftests'
+    profile = json.loads(Path(__file__).with_name('network-validation-inventory.json').read_bytes())
+    focus = {'family': 'connection-jobs', 'separate_configuration':
+             {'connection_jobs_upper_rust_jobs_perftests': 'QUIC'}}
+
+    def test_feedback_uses_only_requested_active_family_and_configuration(self):
+        names = self.first + ',' + self.target
+        self.assertEqual([c['target'] for c in feedback_cases(self.profile, self.focus, names, '')],
+                         names.split(','))
+        for requested, selector in [('dns_resolution_family_rust_unittests', ''),
+                                    ('connection_jobs_upper_rust_jobs_perftests', ''),
+                                    (self.first, 'Fixture.One'), (names, 'Fixture.One'),
+                                    (self.target, '*'), (self.target + ',' + self.target, '')]:
+            with self.subTest(requested=requested, selector=selector), self.assertRaises(ValueError):
+                feedback_cases(self.profile, self.focus, requested, selector)
+
+    def test_filtered_gtest_requires_each_requested_case_to_pass_once(self):
+        summary = {'per_iteration_data': [{'Fixture.One': [{'status': 'SUCCESS'}]}]}
+        self.assertEqual(check_feedback_gtest(summary, 'Fixture.One'), {'passed': 1, 'skipped': 0})
+        summary.update(all_tests=['Fixture.One'], disabled_tests=[])
+        with self.assertRaisesRegex(ValueError, 'actually passed'):
+            check_feedback_gtest(summary, '', b'[  SKIPPED ] Fixture.One (0 ms)')
+        with self.assertRaises(ValueError):
+            check_feedback_gtest(summary, 'Fixture.One:Fixture.Missing')
+        for statuses in ([], ['SKIPPED'], ['NOTRUN'], ['FAILURE', 'SUCCESS']):
+            summary['per_iteration_data'][0]['Fixture.One'] = [{'status': s} for s in statuses]
+            with self.assertRaises(ValueError):
+                check_feedback_gtest(summary, 'Fixture.One')
+
+    def test_warm_run_builds_and_executes_in_order_with_separate_logs(self):
+        with tempfile.TemporaryDirectory() as tempdir, patch.dict(os.environ):
+            parent = Path(tempdir)
+            root = parent / 'src'
+            cfg = root / 'tools/ci/network-focus.json'
+            cfg.parent.mkdir(parents=True)
+            cfg.write_text(json.dumps(self.focus))
+            vpython = parent / 'depot/.cipd_bin/vpython3.exe'
+            vpython.parent.mkdir(parents=True)
+            vpython.touch()
+            evidence = parent / 'evidence'
+            evidence.mkdir()
+            output = root / 'out/NetworkCI/pr1-ad617-20261118a'
+            output.mkdir(parents=True)
+            (output / 'args.gn').write_text(normal_configuration())
+            (output / 'build.ninja').write_text('pool build_toolchain_link_pool\n  depth = 1\n')
+            calls = []
+            def command(phase, argv):
+                calls.append((phase, argv))
+                log = evidence / (phase + '.log')
+                log.touch()
+                if phase.startswith('build-'):
+                    (output / (phase[6:] + '.exe')).touch()
+                if phase == 'test-' + self.first:
+                    case = next(c for c in self.profile['cases'] if c['target'] == self.first)
+                    log.write_text(case['completion']['message'])
+                if phase == 'test-' + self.target:
+                    summary = {'all_tests': ['Fixture.One', 'Fixture.Disabled'], 'disabled_tests': ['Fixture.Disabled'],
+                               'per_iteration_data': [{'Fixture.One': [{'status': 'SUCCESS'}]}]}
+                    (evidence / (self.target + '-summary.json')).write_text(json.dumps(summary))
+                return log
+            args = argparse.Namespace(feedback_targets=self.first + ',' + self.target,
+                                      gtest_filter='', jobs=None, revision='a' * 40)
+            for headroom, expected_jobs in [(3, 1), (6, 4)]:
+                result = {'memory_before': {'available_bytes': 6 * 1024**3,
+                                            'commit_headroom_bytes': headroom * 1024**3}}
+                calls.clear()
+                warm_feedback(root, evidence, args, (None, None, {'depot_tools': parent / 'depot'}),
+                              self.profile, result, command)
+                self.assertEqual([p for p, _ in calls], ['gn-gen', 'build-' + self.first,
+                                 'test-' + self.first, 'build-' + self.target, 'test-' + self.target])
+                self.assertIn(f'-j{expected_jobs}', calls[1][1])
+                self.assertEqual(calls[2][1][1:], ['--verify-only'])
+                self.assertIn('--test-launcher-print-test-stdio=always', calls[4][1])
+                self.assertTrue(result['feedback_passed'])
+                self.assertEqual(result['targets'][self.target]['cases'], {'passed': 1, 'skipped': 0})
 
 
 class CheckoutIdentityTest(unittest.TestCase):
