@@ -256,8 +256,9 @@ DelegateResult DelayedTunnel(base::test::TaskEnvironment& environment,
   auto script = std::make_unique<Script>();
   if (!fail && !cancel) {
     if (h2) {
-      script->writes.push_back(CreateMockWrite(connect, 0));
-      script->reads.emplace_back(SYNCHRONOUS, ERR_IO_PENDING, 1);
+      // The H2 session starts reading before its CONNECT write completes.
+      script->reads.emplace_back(SYNCHRONOUS, ERR_IO_PENDING, 0);
+      script->writes.push_back(CreateMockWrite(connect, 1));
       script->writes.push_back(CreateMockWrite(reset, 2));
     } else {
       // Split request write and response read across separate async completions.

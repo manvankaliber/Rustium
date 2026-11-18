@@ -220,9 +220,10 @@ template<class Types>class Fixture{
         SpdyTestUtil util;const std::string_view headers[]={"user-agent","test-ua"};
         script->h2_request.emplace(util.ConstructSpdyConnect(headers,1,DEFAULT_PRIORITY,HostPortPair("www.endpoint.test",443)));
         script->h2_reset.emplace(util.ConstructSpdyRstStream(1,spdy::ERROR_CODE_CANCEL));
-        script->writes.push_back(CreateMockWrite(*script->h2_request,0));
-        // Leave the read pending without pausing the reset write's sequence.
-        script->reads.emplace_back(SYNCHRONOUS,ERR_IO_PENDING,1);
+        // H2 starts reading immediately. Keep the read pending without
+        // pausing the subsequent CONNECT and reset writes.
+        script->reads.emplace_back(SYNCHRONOUS,ERR_IO_PENDING,0);
+        script->writes.push_back(CreateMockWrite(*script->h2_request,1));
         script->writes.push_back(CreateMockWrite(*script->h2_reset,2));
       }
       script->data=std::make_unique<SequencedSocketData>(script->reads,script->writes);
