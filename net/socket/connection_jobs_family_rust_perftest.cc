@@ -2,6 +2,9 @@
 #include <chrono>
 #include "base/at_exit.h"
 #include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/compiler_specific.h"
 #include <cstdio>
 #include <random>
@@ -19,8 +22,12 @@ std::pair<double,uint64_t> Measure(Fixture<Traits>& f,size_t kind,size_t iterati
 }
 }
 int main(int argc,char** argv) {
- base::AtExitManager at_exit;
- base::CommandLine::Init(argc,argv);
+  base::AtExitManager at_exit;
+  base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
  using namespace net;using namespace net::connection_jobs_family_test;
  const bool verify=argc==2&&UNSAFE_BUFFERS(std::string_view(argv[1]))=="--verify-only";
  const bool timing=argc==2&&UNSAFE_BUFFERS(std::string_view(argv[1]))=="--timing";

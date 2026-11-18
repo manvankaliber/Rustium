@@ -9,6 +9,9 @@
 
 #include "base/at_exit.h"
 #include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/check_op.h"
 #include "base/compiler_specific.h"
 
@@ -44,6 +47,10 @@ std::pair<double, uint64_t> Measure(
 int main(int argc, char** argv) {
   base::AtExitManager at_exit;
   base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
   const auto* command = base::CommandLine::ForCurrentProcess();
   const bool timing = command->HasSwitch("timing");
   const bool verify = command->HasSwitch("verify-only");

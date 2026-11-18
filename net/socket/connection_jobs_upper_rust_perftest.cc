@@ -7,6 +7,9 @@
 #include <random>
 #include "base/at_exit.h"
 #include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/compiler_specific.h"
 #include "base/test/scoped_feature_list.h"
 #include "net/base/features.h"
@@ -24,7 +27,12 @@ template<class Types>std::pair<double,uint64_t> Measure(Case kind){
 }
 }
 int main(int argc,char**argv){
-  base::AtExitManager at_exit;base::CommandLine::Init(argc,argv);
+  base::AtExitManager at_exit;
+  base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
   const auto*command=base::CommandLine::ForCurrentProcess();
   const bool timing=command->HasSwitch("timing"),verify=command->HasSwitch("verify-only");
   CHECK(timing!=verify)<<"Use exactly one of --verify-only or --timing";

@@ -507,7 +507,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/socket/connect_job_rust_perftest.cc",
-        "sha256": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96"
+        "sha256": "88c939d3121acb4ce68b40c21eb908e11c045f213f9ee3136ac1dd2e72ee303c"
       }
     },
     {
@@ -546,7 +546,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/socket/connection_jobs_family_rust_perftest.cc",
-        "sha256": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1"
+        "sha256": "7ec2866809c4472475775af6c605576673130b3729483623c99802a5aa77478f"
       }
     },
     {
@@ -590,7 +590,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/socket/connection_jobs_upper_rust_perftest.cc",
-        "sha256": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd"
+        "sha256": "f59bb020dab28686a29a0b7033fc717064c2ebf5ca0f97e3594d16abf7db15f7"
       }
     },
     {
@@ -629,7 +629,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
-        "sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18"
+        "sha256": "67216e249582f18fd78ed563991e0b04e90699b08654534fd30226e9037ed896"
       }
     },
     {
@@ -730,7 +730,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/dns/dns_resolution_family_rust_perftest.cc",
-        "sha256": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7"
+        "sha256": "6702006e43b5c45d573a7d67a81401cb62ab805e009b8cc1a607d19a2ac40d89"
       }
     },
     {
@@ -778,7 +778,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/dns/dns_request_family_async_perftest.cc",
-        "sha256": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4"
+        "sha256": "4fa13223b38e0e84e8d34edb75ab20ee3fd0ccc49f6a3dd7186d2cca39e0e34d"
       }
     },
     {
@@ -874,7 +874,7 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/cookies/cookie_family_store_perftest.cc",
-        "sha256": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6"
+        "sha256": "8153dcf6daa9c8bdf15d26ecbb94fb369b314e9eb641f7473186f82165a266a1"
       }
     },
     {
@@ -950,8 +950,44 @@
     {
       "path": "net/cookies/cookie_family_store_perftest.cc",
       "original_plan_sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
-      "current_sha256": "4224674b5c95cbfe07e82373a9e04c618b15f47878b22985f5f6d6d29df681b6",
-      "disposition": "Source changed since original plan; fresh controller/source/clock qualification required"
+      "current_sha256": "8153dcf6daa9c8bdf15d26ecbb94fb369b314e9eb641f7473186f82165a266a1",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connect_job_rust_perftest.cc",
+      "original_plan_sha256": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96",
+      "current_sha256": "88c939d3121acb4ce68b40c21eb908e11c045f213f9ee3136ac1dd2e72ee303c",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_family_rust_perftest.cc",
+      "original_plan_sha256": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1",
+      "current_sha256": "7ec2866809c4472475775af6c605576673130b3729483623c99802a5aa77478f",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_perftest.cc",
+      "original_plan_sha256": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd",
+      "current_sha256": "f59bb020dab28686a29a0b7033fc717064c2ebf5ca0f97e3594d16abf7db15f7",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "original_plan_sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "current_sha256": "67216e249582f18fd78ed563991e0b04e90699b08654534fd30226e9037ed896",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/dns/dns_resolution_family_rust_perftest.cc",
+      "original_plan_sha256": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7",
+      "current_sha256": "6702006e43b5c45d573a7d67a81401cb62ab805e009b8cc1a607d19a2ac40d89",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/dns/dns_request_family_async_perftest.cc",
+      "original_plan_sha256": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4",
+      "current_sha256": "4fa13223b38e0e84e8d34edb75ab20ee3fd0ccc49f6a3dd7186d2cca39e0e34d",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
     }
   ],
   "campaigns": {

@@ -9,6 +9,10 @@
 #include <string_view>
 #include "base/compiler_specific.h"
 #include "base/at_exit.h"
+#include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/test/task_environment.h"
 #include "net/test/test_with_task_environment.h"
 namespace {
@@ -19,6 +23,11 @@ int main(int argc,char** argv){
   const std::string_view argument=UNSAFE_BUFFERS(argv[1]);
   if(argument!="--verify-only"&&argument!="--benchmark"){return 2;}
   base::AtExitManager at_exit;
+  base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
   net::NetTaskEnvironment environment(base::test::TaskEnvironment::MainThreadType::IO, base::test::TaskEnvironment::TimeSource::MOCK_TIME);
   using namespace net::dns_request_family_test;
   std::mt19937 random(20261113);

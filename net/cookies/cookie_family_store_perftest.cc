@@ -8,6 +8,9 @@
 #include <string_view>
 #include "base/at_exit.h"
 #include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/test/allow_check_is_test_for_testing.h"
 namespace {
 using namespace net::cookie_family_store_test;
@@ -23,7 +26,13 @@ template<class Family> double Sample(const Case& scenario,const Inputs& input,ba
 int main(int argc,char** argv) {
   std::cout.imbue(std::locale::classic());
   std::cerr.imbue(std::locale::classic());
-  base::AtExitManager at_exit;base::CommandLine::Init(argc,argv);base::test::AllowCheckIsTestForTesting();
+  base::AtExitManager at_exit;
+  base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
+  base::test::AllowCheckIsTestForTesting();
   bool timing=false,verify_only=false;
   for(int i=1;i<argc;++i){if(std::string_view(argv[i])=="--timing")timing=true;
     else{CHECK(std::string_view(argv[i])=="--verify-only");verify_only=true;}}

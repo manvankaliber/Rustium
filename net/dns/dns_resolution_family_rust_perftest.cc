@@ -5,6 +5,11 @@
 #include <cstdio>
 #include <random>
 #include <string_view>
+#include "base/at_exit.h"
+#include "base/command_line.h"
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#include "base/test/test_timeouts.h"
 #include "base/compiler_specific.h"
 #include "base/test/task_environment.h"
 #include "net/test/test_with_task_environment.h"
@@ -38,6 +43,12 @@ void Run(bool timing){
 }
 }
 int main(int argc,char** argv){
+  base::AtExitManager at_exit;
+  base::CommandLine::Init(argc, argv);
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+  TestTimeouts::Initialize();
   if(argc!=2)return 2;const std::string_view mode=UNSAFE_BUFFERS(argv[1]);
   if(mode!="--verify-only"&&mode!="--benchmark")return 2;
   net::dns_resolution_family_test::Run(mode=="--benchmark");return 0;
