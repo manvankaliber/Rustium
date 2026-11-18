@@ -119,7 +119,15 @@ TEST(DnsResolutionFamilyRust, NativeEndpointCancellationClearsDelegate){
 }
 template<class Api>std::vector<int> ManagerDeletedByCallback(){
   Attached<Api> f;int first_calls=0,second_calls=0;
-  auto first=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int){++first_calls;f.manager.reset();}));
+  auto first = Peer::MakeRequest<Api>(
+      *f.manager, *f.context, &f.tick, *f.job, LOW,
+      base::BindLambdaForTesting([&](int) {
+        ++first_calls;
+        // ContextHostResolver deregisters its context before destroying its
+        // owned manager. The fixture owns the attached job separately.
+        f.manager->DeregisterResolveContext(f.context.get());
+        f.manager.reset();
+      }));
   auto second=Peer::MakeRequest<Api>(*f.manager,*f.context,&f.tick,*f.job,LOW,base::BindLambdaForTesting([&](int){++second_calls;}));
   f.job->Abort();f.job.reset();return {first_calls,second_calls,second->HasJob()};
 }
