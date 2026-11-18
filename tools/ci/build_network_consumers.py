@@ -366,13 +366,11 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
     os.environ.update(CR_SOURCE_ROOT=str(root), TMP=str(temp), TEMP=str(temp),
                       CHROME_LOG_FILE=str(evidence / 'chrome.log'),
                       PATH=str(vpython.parent) + os.pathsep + os.environ['PATH'])
-    ceiling = args.jobs or 4
     headroom = min(result['memory_before']['available_bytes'],
                    result['memory_before']['commit_headroom_bytes'])
     require(headroom >= 2 * 1024**3, 'Insufficient memory or commit headroom for warm feedback')
-    jobs = ceiling if headroom >= 4 * 1024**3 else 1
     result.update(active_family=focus['family'], warm_output=relative.as_posix(),
-                  args_sha256=sha(args_file), compiler_jobs=jobs, targets={})
+                  args_sha256=sha(args_file), compiler_jobs=args.jobs, targets={})
     command('gn-gen', [root / 'buildtools/win/gn.exe', 'gen', relative.as_posix()])
     with (output / 'build.ninja').open(encoding='utf-8') as graph:
         for line in graph:
@@ -386,7 +384,7 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
     for case in cases:
         name = case['target']
         row = result['targets'][name] = {'built': False, 'passed': False}
-        command('build-' + name, [ninja, '-C', output, f'-j{jobs}', case['label'][2:]])
+        command('build-' + name, [ninja, '-C', output, f'-j{args.jobs}', case['label'][2:]])
         exe = output / (name + '.exe')
         row.update(built=True, executable_sha256=sha(exe))
         arguments = list(case['arguments'])
@@ -417,7 +415,7 @@ def warm_feedback(root, evidence, args, host, profile, result, command):
     result['feedback_passed'] = True
 
 
-def main():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--revision', required=True)
     parser.add_argument('--evidence', required=True, type=Path)
@@ -428,10 +426,15 @@ def main():
     input_mode.add_argument('--approved-inputs-sha256')
     input_mode.add_argument('--feedback-targets', help='Comma-separated active-family targets, failure first')
     parser.add_argument('--gtest-filter', default='', help='Exact gtest case names separated by colons')
-    parser.add_argument('--jobs', choices=(1, 2, 4), type=int)
+    parser.add_argument('--jobs', choices=range(4, 9), type=int, default=4,
+                        help='Concurrent Ninja jobs for any build (default: 4)')
     parser.add_argument('--reference-probe', action='store_true')
     parser.add_argument('--run-id', help='Unique ID for an empty qualification output')
-    args = parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main():
+    args = parse_args()
     require(os.name == 'nt' and os.environ.get('COMPUTERNAME', '').upper() ==
             'HQC-VAN_KALIBER', 'Compilation is assigned to the linked laptop')
     require(len(args.revision) == 40 and
@@ -444,9 +447,6 @@ def main():
     require(args.feedback_targets or not args.gtest_filter, 'Filters require focused feedback')
     require(not args.feedback_targets or not (args.reference_probe or args.run_id),
             'Warm feedback uses the ordinary output only')
-    require(args.feedback_targets or args.jobs != 4, 'Four jobs apply only to incremental feedback')
-    if not args.feedback_targets:
-        args.jobs = args.jobs or 1
     require(args.record_inputs or args.feedback_targets or args.run_id, 'A fresh build requires a unique run ID')
     evidence = args.evidence.resolve()
     require(not evidence.is_relative_to(root), 'Keep logs outside source/output')
@@ -504,9 +504,6 @@ def main():
         result['memory_before'] = available_memory()
         require(result['memory_before']['available_bytes'] >= 2 * 1024**3,
                 'Low available builder memory')
-        if args.jobs == 2 and not args.feedback_targets:
-            require(result['memory_before']['available_bytes'] >= 8 * 1024**3,
-                    'Two compiler jobs require8GiB available; use one')
         profile_path = root / 'tools/ci/network-validation-inventory.json'
         profile = json.loads(profile_path.read_text(encoding='utf-8-sig'))
         validate_inventory(profile)
@@ -592,7 +589,7 @@ def main():
         relative = choose_output(root, args.run_id, args.reference_probe)
         output = root / relative
         result['fresh_output'] = relative.as_posix()
-        configuration = normal_configuration(args.reference_probe)
+        configuration = normal_configuration(args.reference_probe) + 'concurrent_links=1\n'
         (output / 'args.gn').write_text(configuration, encoding='utf-8')
         result['args_sha256'] = sha(output / 'args.gn')
         gn = str(tool_paths['gn'])

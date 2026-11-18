@@ -10,11 +10,22 @@ from unittest.mock import patch
 
 from build_network_consumers import (
     check_feedback_gtest, checkout_inputs, choose_output, compare_inputs, feedback_cases,
-    native_processes, normal_configuration, resolve_targets, warm_feedback,
+    native_processes, normal_configuration, parse_args, resolve_targets, warm_feedback,
 )
 
 
 class BuildPlanningTest(unittest.TestCase):
+    def test_ninja_jobs_for_all_build_modes(self):
+        for mode in (['--feedback-targets', 'target'], ['--approved-inputs-sha256', 'digest'],
+                     ['--approved-inputs-sha256', 'digest', '--reference-probe']):
+            arguments = ['--revision', 'a' * 40, '--evidence', 'receipt', *mode]
+            self.assertEqual(parse_args(arguments).jobs, 4)
+            for jobs in range(4, 9):
+                self.assertEqual(parse_args([*arguments, '--jobs', str(jobs)]).jobs, jobs)
+            for jobs in (1, 2, 3, 9):
+                with patch('sys.stderr'), self.assertRaises(SystemExit):
+                    parse_args([*arguments, '--jobs', str(jobs)])
+
     def test_native_process_check_does_not_need_powershell_on_path(self):
         windows = Path('C:/Windows')
         process = {'ProcessId': 42, 'Name': 'ninja.exe'}
@@ -121,8 +132,9 @@ class FamilyFeedbackTest(unittest.TestCase):
                     (evidence / (self.target + '-summary.json')).write_text(json.dumps(summary))
                 return log
             args = argparse.Namespace(feedback_targets=self.first + ',' + self.target,
-                                      gtest_filter='', jobs=None, revision='a' * 40)
-            for headroom, expected_jobs in [(3, 1), (6, 4)]:
+                                      gtest_filter='', jobs=4, revision='a' * 40)
+            for headroom, expected_jobs in [(3, 4), (6, 4), (6, 8)]:
+                args.jobs = expected_jobs
                 result = {'memory_before': {'available_bytes': 6 * 1024**3,
                                             'commit_headroom_bytes': headroom * 1024**3}}
                 calls.clear()

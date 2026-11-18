@@ -48,7 +48,7 @@ head and its inputs.
 graph identity, runs fresh GN generation and header checks, resolves current GN
 outputs (including nondefault toolchains), and builds all recorded roots in one
 Ninja batch with `-k0`. It records failures and never reports ordinary or cutover
-acceptance. Default parallelism is1;2 requires an observed8GiB available memory.
+acceptance. All laptop builds use 4 to 8 Ninja jobs with four by default and one simultaneous link. Set `compiler_jobs` on dispatch or pass `--jobs N` to the driver.
 Qualification uses a run-specific empty output tree and hashes the selected
 external tool installations before and after execution. The [runner runbook](../../docs/rust/migration/CI-RUNNER.md)
 defines the laptop host record and interruption recovery.

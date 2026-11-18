@@ -22,10 +22,10 @@ on:
         type: boolean
         default: false
       compiler_jobs:
-        description: Upper bound. Auto allows four warm jobs or one fresh job.
+        description: Ninja jobs for this build (4 through 8).
         type: choice
-        options: ['auto', '1', '2', '4']
-        default: 'auto'
+        options: ['4', '5', '6', '7', '8']
+        default: '4'
 
 permissions:
   contents: read
@@ -106,7 +106,7 @@ jobs:
             } else {
               $arguments += @('--approved-inputs-sha256', $env:RUSTIUM_APPROVED_INPUTS, '--run-id', $runId)
             }
-            if ($env:RUSTIUM_COMPILER_JOBS -and $env:RUSTIUM_COMPILER_JOBS -ne 'auto') { $arguments += @('--jobs', $env:RUSTIUM_COMPILER_JOBS) }
+            if ($env:RUSTIUM_COMPILER_JOBS) { $arguments += @('--jobs', $env:RUSTIUM_COMPILER_JOBS) }
             if ($env:RUSTIUM_REFERENCE_PROBE -eq 'true') { $arguments += '--reference-probe' }
             & (Join-Path $depot 'python3.bat') @arguments
             if ($LASTEXITCODE -ne 0) { throw "$($receipt.phase) failed. See the first failing phase and its retained log." }
