@@ -8871,6 +8871,7 @@ test("dns_resolution_family_rust_unittests") {
     "//base",
     "//base:build_time",
     "//base/test:test_support",
+    "//net/dns:dns_request_family_ffi",
     "//net/dns:dns_resolution_original",
     "//testing/gmock",
     "//testing/gtest",

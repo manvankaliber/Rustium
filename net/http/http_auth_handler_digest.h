@@ -45,7 +45,7 @@ class NET_EXPORT_PRIVATE HttpAuthHandlerDigest : public HttpAuthHandler {
   // characters to generate a client nonce.
   class DynamicNonceGenerator : public NonceGenerator {
    public:
-    DynamicNonceGenerator();
+    NET_EXPORT_PRIVATE DynamicNonceGenerator();
 
     DynamicNonceGenerator(const DynamicNonceGenerator&) = delete;
     DynamicNonceGenerator& operator=(const DynamicNonceGenerator&) = delete;

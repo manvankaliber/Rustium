@@ -40,6 +40,7 @@ class DnsAttempt {
 
   static const net::NetworkTrafficAnnotationTag kTrafficAnnotation;
 
+  COMPONENT_EXPORT(DNS_RESOLUTION_ORIGINAL)
   explicit DnsAttempt(size_t server_index);
 
   DnsAttempt(const DnsAttempt&) = delete;
@@ -66,6 +67,7 @@ class DnsAttempt {
   // TODO(crbug.com/485672648): This method is specific to DnsHttpAttempt and
   // breaks the DnsAttempt abstraction. Remove this once we gather enough data
   // for the DoH performance.
+  COMPONENT_EXPORT(DNS_RESOLUTION_ORIGINAL)
   virtual std::optional<DohResolutionDetails> GetDohResolutionDetails() const;
 
   // Returns the net log bound to the source of the socket.
