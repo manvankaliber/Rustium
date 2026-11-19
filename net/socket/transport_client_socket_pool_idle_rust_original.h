@@ -23,7 +23,9 @@ struct Socket {
   bool connected_and_idle = false;
   bool connected = false;
   int64_t elapsed = 0;
-  std::string observations;
+  std::string observations = {};
+  std::vector<bool> used_results = {};
+  size_t used_index = 0;
 
   bool WasEverUsed();
   bool IsConnectedAndIdle();

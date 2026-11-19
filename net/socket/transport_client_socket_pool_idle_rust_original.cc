@@ -8,6 +8,9 @@ namespace net::transport_idle_original {
 
 bool Socket::WasEverUsed() {
   observations += 'W';
+  if (used_index < used_results.size()) {
+    return used_results[used_index++];
+  }
   return used;
 }
 bool Socket::IsConnectedAndIdle() {
