@@ -36,11 +36,6 @@ pub extern "C" fn rust_transport_idle_release_step(state: i32, value: bool) -> i
     }
 }
 
-#[unsafe(no_mangle)]
-pub extern "C" fn rust_transport_idle_use_used_timeout(was_used: bool) -> bool {
-    was_used
-}
-
 // TimeDelta's pinned InMicroseconds() is its exact signed internal value,
 // including Min/Max sentinels; native code still performs TimeTicks subtraction.
 #[unsafe(no_mangle)]
@@ -61,12 +56,22 @@ pub extern "C" fn rust_transport_idle_cleanup(force: bool, expired: bool, usabil
     }
 }
 
+// Selection: phase 0 consumes usability and asks for the used observation
+// (1) or discards the socket (2); phase 1 consumes used and replaces (3) or
+// keeps (4) the candidate; phase 2 asks whether the list is nonempty (5)
+// only if there is no candidate; phase 3 picks the oldest (6) or keeps (4).
+// List iteration and destruction remain synchronous with the native owner.
 #[unsafe(no_mangle)]
-pub extern "C" fn rust_transport_idle_replace_candidate(was_used: bool) -> bool {
-    was_used
-}
-
-#[unsafe(no_mangle)]
-pub extern "C" fn rust_transport_idle_use_oldest(has_used: bool, has_any: bool) -> bool {
-    !has_used && has_any
+pub extern "C" fn rust_transport_idle_selection_step(phase: i32, value: bool) -> i32 {
+    match (phase, value) {
+        (0, true) => 1,
+        (0, false) => 2,
+        (1, true) => 3,
+        (1, false) => 4,
+        (2, false) => 5,
+        (2, true) => 4,
+        (3, true) => 6,
+        (3, false) => 4,
+        _ => -1,
+    }
 }

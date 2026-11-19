@@ -69,16 +69,6 @@
 #include "url/scheme_host_port.h"
 #include "url/url_constants.h"
 
-extern "C" {
-int32_t rust_transport_idle_usable_step(int32_t state, bool value);
-int32_t rust_transport_idle_release_step(int32_t state, bool value);
-bool rust_transport_idle_use_used_timeout(bool was_used);
-bool rust_transport_idle_expired(int64_t elapsed, int64_t timeout);
-int32_t rust_transport_idle_cleanup(bool force, bool expired, int32_t usability);
-bool rust_transport_idle_replace_candidate(bool was_used);
-bool rust_transport_idle_use_oldest(bool has_used, bool has_any);
-}
-
 using net::test::IsError;
 using net::test::IsOk;
 
@@ -93,16 +83,16 @@ using transport_idle_original::Socket;
 // oracle. The observation transcript checks short-circuiting as well as the
 // final disposition; the production pool retains the actual native objects.
 int32_t RustUsability(Socket& socket) {
-  int32_t state = rust_transport_idle_usable_step(0, socket.WasEverUsed());
+  int32_t state = TransportIdlePolicy::UsabilityStep(0, socket.WasEverUsed());
   for (;;) {
     switch (state) {
       case 1:
-        state =
-            rust_transport_idle_usable_step(state, socket.IsConnectedAndIdle());
+        state = TransportIdlePolicy::UsabilityStep(
+            state, socket.IsConnectedAndIdle());
         break;
       case 2:
       case 4:
-        state = rust_transport_idle_usable_step(state, socket.IsConnected());
+        state = TransportIdlePolicy::UsabilityStep(state, socket.IsConnected());
         break;
       default:
         return state;
@@ -126,12 +116,10 @@ Reason RustUsabilityReason(int32_t state) {
 
 Reason RustCleanup(Socket& socket, bool force, int64_t used_timeout,
                    int64_t unused_timeout) {
-  const int64_t timeout =
-      rust_transport_idle_use_used_timeout(socket.WasEverUsed()) ? used_timeout
-                                                               : unused_timeout;
-  const bool expired = rust_transport_idle_expired(socket.elapsed, timeout);
+  const int64_t timeout = socket.WasEverUsed() ? used_timeout : unused_timeout;
+  const bool expired = TransportIdlePolicy::IsExpired(socket.elapsed, timeout);
   const int32_t usability = RustUsability(socket);
-  switch (rust_transport_idle_cleanup(force, expired, usability)) {
+  switch (TransportIdlePolicy::Cleanup(force, expired, usability)) {
     case 0:
       return Reason::kNone;
     case 1:
@@ -151,11 +139,11 @@ Reason RustCleanup(Socket& socket, bool force, int64_t used_timeout,
 Reason RustRelease(Socket& socket, int64_t socket_generation,
                    int64_t group_generation) {
   int32_t state =
-      rust_transport_idle_release_step(0, socket.IsConnectedAndIdle());
+      TransportIdlePolicy::ReleaseStep(0, socket.IsConnectedAndIdle());
   if (state == 1) {
-    state = rust_transport_idle_release_step(state, socket.IsConnected());
+    state = TransportIdlePolicy::ReleaseStep(state, socket.IsConnected());
   } else if (state == 2) {
-    state = rust_transport_idle_release_step(
+    state = TransportIdlePolicy::ReleaseStep(
         state, socket_generation == group_generation);
   }
   switch (state) {
@@ -180,19 +168,26 @@ size_t RustAssign(std::vector<Socket>& sockets, std::vector<Reason>& closed) {
   for (size_t i = 0; i < sockets.size(); ++i) {
     Reason reason = RustUsabilityReason(RustUsability(sockets[i]));
     closed.push_back(reason);
-    if (reason != Reason::kNone) {
+    const int32_t selection = TransportIdlePolicy::SelectionStep(
+        0, reason == Reason::kNone);
+    if (selection == 2) {
       continue;
     }
+    EXPECT_EQ(selection, 1);
     if (oldest == sockets.size()) {
       oldest = i;
     }
-    if (rust_transport_idle_replace_candidate(sockets[i].WasEverUsed())) {
+    if (TransportIdlePolicy::SelectionStep(1, sockets[i].WasEverUsed()) ==
+        3) {
       candidate = i;
     }
   }
-  if (rust_transport_idle_use_oldest(candidate != sockets.size(),
-                                     oldest != sockets.size())) {
-    candidate = oldest;
+  if (TransportIdlePolicy::SelectionStep(2, candidate != sockets.size()) ==
+      5) {
+    if (TransportIdlePolicy::SelectionStep(3, oldest != sockets.size()) ==
+        6) {
+      candidate = oldest;
+    }
   }
   if (candidate != sockets.size()) {
     sockets[candidate].WasEverUsed();

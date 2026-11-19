@@ -37,14 +37,29 @@
 extern "C" {
 int32_t rust_transport_idle_usable_step(int32_t state, bool value);
 int32_t rust_transport_idle_release_step(int32_t state, bool value);
-bool rust_transport_idle_use_used_timeout(bool was_used);
 bool rust_transport_idle_expired(int64_t elapsed, int64_t timeout);
 int32_t rust_transport_idle_cleanup(bool force, bool expired, int32_t usability);
-bool rust_transport_idle_replace_candidate(bool was_used);
-bool rust_transport_idle_use_oldest(bool has_used, bool has_any);
+int32_t rust_transport_idle_selection_step(int32_t phase, bool value);
 }
 
 namespace net {
+
+int32_t TransportIdlePolicy::UsabilityStep(int32_t state, bool value) {
+  return rust_transport_idle_usable_step(state, value);
+}
+int32_t TransportIdlePolicy::ReleaseStep(int32_t state, bool value) {
+  return rust_transport_idle_release_step(state, value);
+}
+bool TransportIdlePolicy::IsExpired(int64_t elapsed, int64_t timeout) {
+  return rust_transport_idle_expired(elapsed, timeout);
+}
+int32_t TransportIdlePolicy::Cleanup(bool force, bool expired,
+                                     int32_t usability) {
+  return rust_transport_idle_cleanup(force, expired, usability);
+}
+int32_t TransportIdlePolicy::SelectionStep(int32_t phase, bool value) {
+  return rust_transport_idle_selection_step(phase, value);
+}
 
 namespace {
 
@@ -60,16 +75,16 @@ constexpr int32_t kUnexpectedData = 6;
 
 int32_t ObserveIdleUsability(StreamSocket* socket) {
   int32_t state =
-      rust_transport_idle_usable_step(kObserveUsed, socket->WasEverUsed());
+      TransportIdlePolicy::UsabilityStep(kObserveUsed, socket->WasEverUsed());
   for (;;) {
     switch (state) {
       case kObserveIdle:
-        state =
-            rust_transport_idle_usable_step(state, socket->IsConnectedAndIdle());
+        state = TransportIdlePolicy::UsabilityStep(
+            state, socket->IsConnectedAndIdle());
         break;
       case kObserveUnusedConnected:
       case kObserveUsedConnected:
-        state = rust_transport_idle_usable_step(state, socket->IsConnected());
+        state = TransportIdlePolicy::UsabilityStep(state, socket->IsConnected());
         break;
       case kUsable:
       case kRemoteClosed:
@@ -585,7 +600,9 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
     // is not usable because this function is always invoked after a
     // reusability check, but in theory socket can be closed asynchronously.
     const char* net_log_reason_utf8;
-    if (!it->IsUsable(&net_log_reason_utf8)) {
+    const bool usable = it->IsUsable(&net_log_reason_utf8);
+    const int32_t selection = TransportIdlePolicy::SelectionStep(0, usable);
+    if (selection == 2) {
       it->socket->NetLog().AddEventWithStringParams(
           NetLogEventType::SOCKET_POOL_CLOSING_SOCKET, "reason",
           net_log_reason_utf8);
@@ -595,9 +612,14 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
       continue;
     }
 
-    if (rust_transport_idle_replace_candidate(it->socket->WasEverUsed())) {
+    CHECK_EQ(selection, 1);
+    const int32_t candidate =
+        TransportIdlePolicy::SelectionStep(1, it->socket->WasEverUsed());
+    if (candidate == 3) {
       // We found one we can reuse!
       idle_socket_it = it;
+    } else {
+      CHECK_EQ(candidate, 4);
     }
 
     ++it;
@@ -606,9 +628,18 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
   // If we haven't found an idle socket, that means there are no used idle
   // sockets.  Pick the oldest (first) idle socket (FIFO).
 
-  if (rust_transport_idle_use_oldest(idle_socket_it != idle_sockets->end(),
-                                    !idle_sockets->empty())) {
-    idle_socket_it = idle_sockets->begin();
+  const int32_t fallback = TransportIdlePolicy::SelectionStep(
+      2, idle_socket_it != idle_sockets->end());
+  if (fallback == 5) {
+    const int32_t oldest =
+        TransportIdlePolicy::SelectionStep(3, !idle_sockets->empty());
+    if (oldest == 6) {
+      idle_socket_it = idle_sockets->begin();
+    } else {
+      CHECK_EQ(oldest, 4);
+    }
+  } else {
+    CHECK_EQ(fallback, 4);
   }
 
   if (idle_socket_it != idle_sockets->end()) {
@@ -1019,17 +1050,16 @@ void TransportClientSocketPool::CleanupIdleSocketsInGroup(
   auto idle_socket_it = group->mutable_idle_sockets()->begin();
   while (idle_socket_it != group->idle_sockets().end()) {
     const char* reason_for_closing_socket = net_log_reason_utf8;
-    base::TimeDelta timeout = rust_transport_idle_use_used_timeout(
-                                  idle_socket_it->socket->WasEverUsed())
+    base::TimeDelta timeout = idle_socket_it->socket->WasEverUsed()
                                   ? used_idle_socket_timeout_
                                   : unused_idle_socket_timeout_;
-    const bool expired = rust_transport_idle_expired(
+    const bool expired = TransportIdlePolicy::IsExpired(
         (now - idle_socket_it->start_time).InMicroseconds(),
         timeout.InMicroseconds());
     const int32_t usability =
         ObserveIdleUsability(idle_socket_it->socket.get());
     const int32_t decision =
-        rust_transport_idle_cleanup(force, expired, usability);
+        TransportIdlePolicy::Cleanup(force, expired, usability);
     switch (decision) {
       case 0:  // Keep.
       case 1:  // Forced flush retains the supplied reason.
@@ -1107,14 +1137,14 @@ void TransportClientSocketPool::ReleaseSocket(
   UpdateExpandabilityAfterRelease();
 
   int32_t decision =
-      rust_transport_idle_release_step(0, socket->IsConnectedAndIdle());
+      TransportIdlePolicy::ReleaseStep(0, socket->IsConnectedAndIdle());
   switch (decision) {
     case 1:
       decision =
-          rust_transport_idle_release_step(decision, socket->IsConnected());
+          TransportIdlePolicy::ReleaseStep(decision, socket->IsConnected());
       break;
     case 2:
-      decision = rust_transport_idle_release_step(
+      decision = TransportIdlePolicy::ReleaseStep(
           decision, group_generation == group->generation());
       break;
     default:
