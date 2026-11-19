@@ -164,30 +164,26 @@ Reason RustRelease(Socket& socket, int64_t socket_generation,
 size_t RustAssign(std::vector<Socket>& sockets, std::vector<Reason>& closed) {
   size_t candidate = sockets.size();
   size_t oldest = sockets.size();
+  using Selection = TransportIdlePolicy::Selection;
+  Selection selection = Selection::kOldestRemaining;
   closed.clear();
   for (size_t i = 0; i < sockets.size(); ++i) {
     Reason reason = RustUsabilityReason(RustUsability(sockets[i]));
     closed.push_back(reason);
-    const int32_t selection = TransportIdlePolicy::SelectionStep(
-        0, reason == Reason::kNone);
-    if (selection == 2) {
+    if (reason != Reason::kNone) {
       continue;
     }
-    EXPECT_EQ(selection, 1);
     if (oldest == sockets.size()) {
       oldest = i;
     }
-    if (TransportIdlePolicy::SelectionStep(1, sockets[i].WasEverUsed()) ==
-        3) {
+    selection = TransportIdlePolicy::SelectCandidate(
+        selection, sockets[i].WasEverUsed());
+    if (selection == Selection::kUseCurrent) {
       candidate = i;
     }
   }
-  if (TransportIdlePolicy::SelectionStep(2, candidate != sockets.size()) ==
-      5) {
-    if (TransportIdlePolicy::SelectionStep(3, oldest != sockets.size()) ==
-        6) {
-      candidate = oldest;
-    }
+  if (selection == Selection::kOldestRemaining) {
+    candidate = oldest;
   }
   if (candidate != sockets.size()) {
     sockets[candidate].WasEverUsed();

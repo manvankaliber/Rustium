@@ -39,7 +39,7 @@ int32_t rust_transport_idle_usable_step(int32_t state, bool value);
 int32_t rust_transport_idle_release_step(int32_t state, bool value);
 bool rust_transport_idle_expired(int64_t elapsed, int64_t timeout);
 int32_t rust_transport_idle_cleanup(bool force, bool expired, int32_t usability);
-int32_t rust_transport_idle_selection_step(int32_t phase, bool value);
+int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
 }
 
 namespace net {
@@ -57,8 +57,12 @@ int32_t TransportIdlePolicy::Cleanup(bool force, bool expired,
                                      int32_t usability) {
   return rust_transport_idle_cleanup(force, expired, usability);
 }
-int32_t TransportIdlePolicy::SelectionStep(int32_t phase, bool value) {
-  return rust_transport_idle_selection_step(phase, value);
+TransportIdlePolicy::Selection TransportIdlePolicy::SelectCandidate(
+    Selection previous,
+    bool was_used) {
+  return static_cast<Selection>(
+      rust_transport_idle_select_candidate(static_cast<int32_t>(previous),
+                                           was_used));
 }
 
 namespace {
@@ -590,6 +594,8 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
     Group* group) {
   std::list<IdleSocket>* idle_sockets = group->mutable_idle_sockets();
   auto idle_socket_it = idle_sockets->end();
+  using Selection = TransportIdlePolicy::Selection;
+  Selection selection = Selection::kOldestRemaining;
 
   // Iterate through the idle sockets forwards (oldest to newest)
   //   * Delete any disconnected ones.
@@ -600,9 +606,7 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
     // is not usable because this function is always invoked after a
     // reusability check, but in theory socket can be closed asynchronously.
     const char* net_log_reason_utf8;
-    const bool usable = it->IsUsable(&net_log_reason_utf8);
-    const int32_t selection = TransportIdlePolicy::SelectionStep(0, usable);
-    if (selection == 2) {
+    if (!it->IsUsable(&net_log_reason_utf8)) {
       it->socket->NetLog().AddEventWithStringParams(
           NetLogEventType::SOCKET_POOL_CLOSING_SOCKET, "reason",
           net_log_reason_utf8);
@@ -612,14 +616,10 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
       continue;
     }
 
-    CHECK_EQ(selection, 1);
-    const int32_t candidate =
-        TransportIdlePolicy::SelectionStep(1, it->socket->WasEverUsed());
-    if (candidate == 3) {
-      // We found one we can reuse!
+    selection = TransportIdlePolicy::SelectCandidate(
+        selection, it->socket->WasEverUsed());
+    if (selection == Selection::kUseCurrent) {
       idle_socket_it = it;
-    } else {
-      CHECK_EQ(candidate, 4);
     }
 
     ++it;
@@ -628,18 +628,9 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
   // If we haven't found an idle socket, that means there are no used idle
   // sockets.  Pick the oldest (first) idle socket (FIFO).
 
-  const int32_t fallback = TransportIdlePolicy::SelectionStep(
-      2, idle_socket_it != idle_sockets->end());
-  if (fallback == 5) {
-    const int32_t oldest =
-        TransportIdlePolicy::SelectionStep(3, !idle_sockets->empty());
-    if (oldest == 6) {
-      idle_socket_it = idle_sockets->begin();
-    } else {
-      CHECK_EQ(oldest, 4);
-    }
-  } else {
-    CHECK_EQ(fallback, 4);
+  if (selection == Selection::kOldestRemaining) {
+    // Resolve the oldest remaining item after all unusable sockets are removed.
+    idle_socket_it = idle_sockets->begin();
   }
 
   if (idle_socket_it != idle_sockets->end()) {

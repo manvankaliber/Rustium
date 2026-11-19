@@ -56,22 +56,26 @@ pub extern "C" fn rust_transport_idle_cleanup(force: bool, expired: bool, usabil
     }
 }
 
-// Selection: phase 0 consumes usability and asks for the used observation
-// (1) or discards the socket (2); phase 1 consumes used and replaces (3) or
-// keeps (4) the candidate; phase 2 asks whether the list is nonempty (5)
-// only if there is no candidate; phase 3 picks the oldest (6) or keeps (4).
-// List iteration and destruction remain synchronous with the native owner.
+// Scan visits usable sockets from oldest to newest. A used socket replaces
+// any prior selection. An unused socket preserves a used choice; otherwise
+// the native list resolves its oldest remaining socket after cleanup.
+#[repr(i32)]
+enum CandidateSelection {
+    OldestRemaining = 0,
+    UseCurrent = 1,
+    KeepSelected = 2,
+}
+
 #[unsafe(no_mangle)]
-pub extern "C" fn rust_transport_idle_selection_step(phase: i32, value: bool) -> i32 {
-    match (phase, value) {
-        (0, true) => 1,
-        (0, false) => 2,
-        (1, true) => 3,
-        (1, false) => 4,
-        (2, false) => 5,
-        (2, true) => 4,
-        (3, true) => 6,
-        (3, false) => 4,
-        _ => -1,
-    }
+pub extern "C" fn rust_transport_idle_select_candidate(previous: i32, was_used: bool) -> i32 {
+    use CandidateSelection::{KeepSelected, OldestRemaining, UseCurrent};
+
+    let selection = if was_used {
+        UseCurrent
+    } else if previous == OldestRemaining as i32 {
+        OldestRemaining
+    } else {
+        KeepSelected
+    };
+    selection as i32
 }

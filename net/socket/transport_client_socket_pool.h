@@ -59,7 +59,14 @@ class NET_EXPORT_PRIVATE TransportIdlePolicy {
   static int32_t ReleaseStep(int32_t state, bool value);
   static bool IsExpired(int64_t elapsed, int64_t timeout);
   static int32_t Cleanup(bool force, bool expired, int32_t usability);
-  static int32_t SelectionStep(int32_t phase, bool value);
+  // Matches CandidateSelection in the Rust policy. Only kUseCurrent replaces
+  // the native iterator. Both used states take priority over the oldest socket.
+  enum class Selection : int32_t {
+    kOldestRemaining = 0,
+    kUseCurrent = 1,
+    kKeepSelected = 2,
+  };
+  static Selection SelectCandidate(Selection previous, bool was_used);
 };
 
 // TransportClientSocketPool establishes network connections through using
