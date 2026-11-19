@@ -255,6 +255,13 @@ rust_static_library("gzip_header_parser") {
   ]
 }
 
+rust_static_library("transport_client_socket_pool_idle_rust") {
+  crate_root = "socket/transport_client_socket_pool_idle_rust_core.rs"
+  sources = [ "socket/transport_client_socket_pool_idle_rust_core.rs" ]
+  allow_unsafe = true  # Exported scalar ABI attributes.
+  visibility = [ ":*" ]
+}
+
 rust_static_library("parse_number_core") {
   configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "base/parse_number_parser.rs"
@@ -1776,6 +1783,7 @@ component("net") {
     ":referrer_policy_parser",
     ":tcp_client_socket_rust",
     ":tls_session_cache_rust",
+    ":transport_client_socket_pool_idle_rust",
     ":websocket_extension_rust",
     ":websocket_frame_rust",
     "//components/network_time/time_tracker",
@@ -3608,6 +3616,8 @@ target(_test_target_type, "net_unittests") {
     "socket/tcp_socket_unittest.cc",
     "socket/tcp_stream_attempt_unittest.cc",
     "socket/tls_stream_attempt_unittest.cc",
+    "socket/transport_client_socket_pool_idle_rust_original.cc",
+    "socket/transport_client_socket_pool_idle_rust_original.h",
     "socket/transport_client_socket_pool_test_util.cc",
     "socket/transport_client_socket_pool_test_util.h",
     "socket/transport_client_socket_pool_unittest.cc",
