@@ -32,7 +32,12 @@ TEST(ConnectionJobsFamilyRustTest, WholeLifecycleMatchesIndependentOriginal) {
 
 namespace {
 
-enum class ResolverCase { kSuccess, kFailure, kCancelled };
+enum class ResolverCase {
+  kSuccess,
+  kTimeout,
+  kCancelled,
+  kCancelledAfterQueue,
+};
 
 struct ResolverTrace {
   int connect_result = ERR_UNEXPECTED;
@@ -63,10 +68,12 @@ HostResolverEndpointResult ResolverEndpoint() {
 template <class Traits, class CallbackResult>
 ResolverTrace RunResolverCase(ResolverCase test_case,
                               base::test::TaskEnvironment& tasks) {
+  // Both jobs consume the same scripted provider behavior. The mock
+  // shares DNS name validation and transport primitives with production.
   MockHostResolver resolver;
   resolver.set_ondemand_mode(true);
-  if (test_case == ResolverCase::kFailure) {
-    resolver.rules()->AddSimulatedFailure("family.example");
+  if (test_case == ResolverCase::kTimeout) {
+    resolver.rules()->AddSimulatedTimeoutFailure("family.example");
   } else {
     resolver.rules()->AddRule(
         "family.example",
@@ -74,11 +81,11 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
             {ResolverEndpoint()}, {"alias.example", "family.example"}));
   }
 
-  Fixture<Traits> fixture;
-  fixture.common.host_resolver = &resolver;
   const MockTransportClientSocketFactory::Rule rule(
       MockTransportClientSocketFactory::Type::kSynchronous,
       std::vector{Ip("2001:db8::1", 8443)});
+  Fixture<Traits> fixture;
+  fixture.common.host_resolver = &resolver;
   fixture.socket_factory.SetRules(base::span_from_ref(rule));
 
   ResolverTrace trace;
@@ -112,10 +119,12 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
   trace.connect_result = job->Connect();
   trace.pending_after_connect = resolver.has_pending_requests();
 
-  if (test_case == ResolverCase::kCancelled) {
-    job.reset();
-  } else {
+  if (test_case != ResolverCase::kCancelled) {
     resolver.ResolveAllPending();
+  }
+  if (test_case == ResolverCase::kCancelled ||
+      test_case == ResolverCase::kCancelledAfterQueue) {
+    job.reset();
   }
   tasks.RunUntilIdle();
   trace.completion_result = delegate.result;
@@ -141,8 +150,9 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
   base::test::TaskEnvironment tasks;
   base::test::ScopedFeatureList features;
   features.InitAndDisableFeature(features::kHappyEyeballsV2);
-  for (ResolverCase test_case : {ResolverCase::kSuccess, ResolverCase::kFailure,
-                                 ResolverCase::kCancelled}) {
+  for (ResolverCase test_case :
+       {ResolverCase::kSuccess, ResolverCase::kTimeout,
+        ResolverCase::kCancelled, ResolverCase::kCancelledAfterQueue}) {
     SCOPED_TRACE(static_cast<int>(test_case));
     const auto original = RunResolverCase<
         Original, ConnectJobRustOriginalHostResolutionCallbackResult>(test_case,
@@ -161,8 +171,9 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
         EXPECT_EQ(production.error_info.error, OK);
         EXPECT_EQ(production.host_callbacks, 1);
         EXPECT_TRUE(production.callback_before_completion);
-        EXPECT_EQ(production.callback_results,
-                  std::vector{ResolverEndpoint()});
+        EXPECT_EQ(production.callback_results, std::vector{ResolverEndpoint()});
+        EXPECT_EQ(production.callback_aliases,
+                  (base::flat_set<std::string>{"alias.example", "family.example"}));
         EXPECT_EQ(production.socket_allocations, 1);
         EXPECT_TRUE(production.socket_present);
         EXPECT_EQ(production.peer, Ip("2001:db8::1", 8443));
@@ -170,9 +181,9 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
                   (base::flat_set<std::string>{"alias.example", "family.example"}));
         EXPECT_TRUE(production.attempts.empty());
         break;
-      case ResolverCase::kFailure:
+      case ResolverCase::kTimeout:
         EXPECT_EQ(production.completion_result, ERR_NAME_NOT_RESOLVED);
-        EXPECT_EQ(production.error_info.error, ERR_NAME_NOT_RESOLVED);
+        EXPECT_EQ(production.error_info.error, ERR_DNS_TIMED_OUT);
         EXPECT_EQ(production.host_callbacks, 0);
         EXPECT_EQ(production.socket_allocations, 0);
         EXPECT_FALSE(production.socket_present);
@@ -180,6 +191,7 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
                   ConnectionAttempts({{IPEndPoint(), ERR_NAME_NOT_RESOLVED}}));
         break;
       case ResolverCase::kCancelled:
+      case ResolverCase::kCancelledAfterQueue:
         EXPECT_EQ(production.completion_result, ERR_IO_PENDING);
         EXPECT_EQ(production.host_callbacks, 0);
         EXPECT_EQ(production.socket_allocations, 0);
