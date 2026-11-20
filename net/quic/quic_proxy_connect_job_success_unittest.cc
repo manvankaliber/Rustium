@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "net/cert/cert_verifier.h"
+#include "net/quic/quic_http_utils.h"
 #include "net/quic/quic_proxy_client_socket_test_fixture.h"
 #include "net/socket/connection_jobs_upper_rust_job_workloads.h"
 
@@ -88,6 +89,11 @@ class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
     int packet_number = 1;
     mock_quic_data_.AddWrite(SYNCHRONOUS,
                             ConstructSettingsPacket(packet_number++));
+    mock_quic_data_.AddWrite(
+        SYNCHRONOUS,
+        client_maker_.MakePriorityPacket(
+            packet_number++, client_data_stream_id1_,
+            ConvertRequestPriorityToQuicPriority(DEFAULT_PRIORITY)));
     mock_quic_data_.AddWrite(
         SYNCHRONOUS,
         ConstructConnectRequestPacket(packet_number++, std::nullopt,
