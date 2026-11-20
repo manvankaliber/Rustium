@@ -3560,6 +3560,7 @@ target(_test_target_type, "net_unittests") {
     "quic/quic_network_transaction_unittest.cc",
     "quic/quic_proxy_client_socket_test_base.cc",
     "quic/quic_proxy_client_socket_test_base.h",
+    "quic/quic_proxy_client_socket_test_fixture.h",
     "quic/quic_proxy_client_socket_unittest.cc",
     "quic/quic_proxy_datagram_client_socket_unittest.cc",
     "quic/quic_session_attempt_manager_unittest.cc",
@@ -3816,6 +3817,10 @@ target(_test_target_type, "net_unittests") {
   ]
 
   if (enable_quic_proxy_support) {
+    sources += [
+      "quic/quic_proxy_connect_job_success_unittest.cc",
+      "socket/connection_jobs_upper_rust_job_workloads.h",
+    ]
     deps += [ ":connection_jobs_rust_reference" ]
   }
 

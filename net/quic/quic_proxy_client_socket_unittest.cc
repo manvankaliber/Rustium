@@ -24,10 +24,9 @@
 #include "net/log/net_log.h"
 #include "net/log/test_net_log.h"
 #include "net/log/test_net_log_util.h"
-#include "net/net_buildflags.h"
 #include "net/quic/quic_chromium_client_session.h"
 #include "net/quic/quic_http_utils.h"
-#include "net/quic/quic_proxy_client_socket_test_base.h"
+#include "net/quic/quic_proxy_client_socket_test_fixture.h"
 #include "net/quic/test_quic_crypto_client_config_handle.h"
 #include "net/quic/test_task_runner.h"
 #include "net/ssl/ssl_config_service_defaults.h"
@@ -43,11 +42,6 @@
 #include "url/gurl.h"
 #include "url/scheme_host_port.h"
 
-#if BUILDFLAG(ENABLE_QUIC_PROXY_SUPPORT)
-#include "net/cert/cert_verifier.h"
-#include "net/socket/connection_jobs_upper_rust_job_workloads.h"
-#endif
-
 using testing::_;
 using testing::AnyNumber;
 using testing::Return;
@@ -62,113 +56,6 @@ std::string ConcatenateHeaderAndBody(std::string_view header,
 }
 
 }  // namespace
-
-class QuicProxyClientSocketTest : public QuicProxyClientSocketTestBase {
- public:
-  void TearDown() override {
-    sock_.reset();
-    EXPECT_TRUE(mock_quic_data_.AllReadDataConsumed());
-    EXPECT_TRUE(mock_quic_data_.AllWriteDataConsumed());
-  }
-
-  void InitializeClientSocket() override {
-    sock_ = std::make_unique<QuicProxyClientSocket>(
-        std::move(stream_handle_), std::move(session_handle_),
-        // TODO(crbug.com/40181080) Construct `ProxyChain` with plain
-        // `proxy_endpoint_` once it supports `url::SchemeHostPort`.
-        ProxyChain(ProxyServer::SCHEME_HTTPS,
-                   HostPortPair::FromSchemeHostPort(proxy_endpoint_)),
-        /*proxy_chain_index=*/0, user_agent_,
-        // TODO(crbug.com/40181080) Construct `QuicProxyClientSocket` with plain
-        // `proxy_endpoint_` once it supports `url::SchemeHostPort`.
-        HostPortPair::FromSchemeHostPort(destination_endpoint_),
-        NetLogWithSource::Make(NetLogSourceType::NONE),
-        base::MakeRefCounted<HttpAuthController>(
-            HttpAuth::AUTH_PROXY, proxy_endpoint_.GetURL(),
-            NetworkAnonymizationKey(), &http_auth_cache_,
-            http_auth_handler_factory_.get(), host_resolver_.get()),
-        proxy_delegate_.get());
-
-    session_->StartReading();
-  }
-
-  void PopulateConnectRequestIR(
-      quiche::HttpHeaderBlock* block,
-      std::optional<const HttpRequestHeaders> extra_headers) override {
-    (*block)[":method"] = "CONNECT";
-    (*block)[":authority"] =
-        HostPortPair::FromSchemeHostPort(destination_endpoint_).ToString();
-    (*block)["user-agent"] = kUserAgent;
-    if (extra_headers) {
-      HttpRequestHeaders::Iterator it(*extra_headers);
-      while (it.GetNext()) {
-        std::string name = base::ToLowerASCII(it.name());
-        (*block)[name] = it.value();
-      }
-    }
-  }
-
-  void AssertConnectSucceeds() override {
-    TestCompletionCallback callback;
-    ASSERT_THAT(sock_->Connect(callback.callback()),
-                test::IsError(ERR_IO_PENDING));
-    ASSERT_THAT(callback.WaitForResult(), test::IsOk());
-  }
-
-  void AssertConnectFails(int result) override {
-    TestCompletionCallback callback;
-    ASSERT_THAT(sock_->Connect(callback.callback()),
-                test::IsError(ERR_IO_PENDING));
-    EXPECT_EQ(result, callback.WaitForResult());
-  }
-
-  void AssertWriteReturns(base::span<const char> data, int rv) override {
-    auto buf = base::MakeRefCounted<IOBufferWithSize>(data.size());
-    buf->span().copy_from(base::as_bytes(data));
-    EXPECT_EQ(rv,
-              sock_->Write(buf.get(), buf->size(), write_callback_.callback(),
-                           TRAFFIC_ANNOTATION_FOR_TESTS));
-  }
-
-  void AssertSyncWriteSucceeds(base::span<const char> data) override {
-    AssertWriteReturns(data, base::checked_cast<int>(data.size()));
-  }
-
-  void AssertSyncReadEquals(base::span<const char> data) override {
-    auto buf = base::MakeRefCounted<IOBufferWithSize>(data.size());
-    EXPECT_EQ(data.size(),
-              sock_->Read(buf.get(), data.size(), CompletionOnceCallback()));
-    EXPECT_EQ(data, base::as_chars(buf->span()));
-    ASSERT_TRUE(sock_->IsConnected());
-  }
-
-  void AssertAsyncReadEquals(base::span<const char> data) override {
-    AssertReadStarts(data);
-
-    ResumeAndRun();
-
-    AssertReadReturns(data);
-  }
-
-  void AssertReadStarts(base::span<const char> data) override {
-    // Issue the read, which will be completed asynchronously.
-    read_buf_ = base::MakeRefCounted<IOBufferWithSize>(data.size());
-    ASSERT_EQ(ERR_IO_PENDING, sock_->Read(read_buf_.get(), data.size(),
-                                          read_callback_.callback()));
-    EXPECT_TRUE(sock_->IsConnected());
-  }
-
-  void AssertReadReturns(base::span<const char> data) override {
-    EXPECT_TRUE(sock_->IsConnected());
-
-    // Now the read will return.
-    EXPECT_EQ(data.size(), read_callback_.WaitForResult());
-    EXPECT_EQ(data, base::as_chars(read_buf_->span()));
-  }
-
- protected:
-  std::unique_ptr<QuicProxyClientSocket> sock_;
-};
 
 TEST_P(QuicProxyClientSocketTest, ConnectSendsCorrectRequest) {
   int packet_number = 1;
@@ -200,158 +87,6 @@ TEST_P(QuicProxyClientSocketTest, ConnectSendsCorrectRequest) {
   EXPECT_FALSE(sock_->GetSSLInfo(&ssl_info));
   EXPECT_EQ(sock_->GetNegotiatedProtocol(), NextProto::kProtoUnknown);
 }
-
-#if BUILDFLAG(ENABLE_QUIC_PROXY_SUPPORT)
-namespace {
-
-class ReadyProxySessionPool : public QuicSessionPool {
- public:
-  ReadyProxySessionPool(
-      HttpNetworkSession& dependencies,
-      url::SchemeHostPort proxy,
-      std::unique_ptr<QuicChromiumClientSession::Handle> handle)
-      : QuicSessionPool(nullptr,
-                        nullptr,
-                        dependencies.ssl_config_service(),
-                        nullptr,
-                        dependencies.http_server_properties(),
-                        dependencies.cert_verifier(),
-                        dependencies.context().transport_security_state,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        dependencies.context().quic_context),
-        proxy_(std::move(proxy)),
-        handle_(std::move(handle)) {}
-
-  int RequestSession(
-      const QuicSessionKey& key,
-      url::SchemeHostPort destination,
-      quic::ParsedQuicVersion version,
-      const std::optional<NetworkTrafficAnnotationTag>,
-      MultiplexedSessionCreationInitiator,
-      std::optional<ConnectionManagementConfig>,
-      const HttpUserAgentSettings*,
-      RequestPriority priority,
-      bool use_dns_aliases,
-      int cert_verify_flags,
-      const GURL& url,
-      const NetLogWithSource&,
-      QuicSessionRequest* request) override {
-    ++requests_;
-    EXPECT_EQ(destination, proxy_);
-    EXPECT_EQ(url, proxy_.GetURL());
-    EXPECT_EQ(version, quic::ParsedQuicVersion::RFCv1());
-    EXPECT_EQ(key.proxy_chain(), ProxyChain::Direct());
-    EXPECT_EQ(priority, DEFAULT_PRIORITY);
-    EXPECT_FALSE(use_dns_aliases);
-    EXPECT_NE(cert_verify_flags & CertVerifier::VERIFY_DISABLE_NETWORK_FETCHES,
-              0);
-    if (!handle_) {
-      ADD_FAILURE() << "Unexpected additional QUIC session request";
-      return ERR_UNEXPECTED;
-    }
-    request->SetSession(std::move(handle_));
-    return OK;
-  }
-
-  void CancelRequest(QuicSessionRequest*) override {
-    ADD_FAILURE() << "The session was already acquired";
-  }
-
-  int requests() const { return requests_; }
-
- private:
-  const url::SchemeHostPort proxy_;
-  std::unique_ptr<QuicChromiumClientSession::Handle> handle_;
-};
-
-class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
- protected:
-  template <class Types>
-  void AssertSuccessfulJob() {
-    // Fresh native session and packet script for each implementation. The job
-    // must acquire the session handle and open its own tunnel stream.
-    int packet_number = 1;
-    mock_quic_data_.AddWrite(SYNCHRONOUS,
-                            ConstructSettingsPacket(packet_number++));
-    mock_quic_data_.AddWrite(
-        SYNCHRONOUS,
-        ConstructConnectRequestPacket(packet_number++, std::nullopt,
-                                      DEFAULT_PRIORITY));
-    mock_quic_data_.AddRead(ASYNC,
-                           ConstructServerConnectReplyPacket(1, !kFin));
-    mock_quic_data_.AddReadPauseForever();
-    mock_quic_data_.AddWrite(
-        SYNCHRONOUS, ConstructAckAndRstPacket(packet_number++,
-                                             quic::QUIC_STREAM_CANCELLED, 1, 1));
-    InitializeSession(/*create_stream=*/false);
-    ASSERT_TRUE(session_handle_);
-    ASSERT_FALSE(stream_handle_);
-    session_->StartReading();
-
-    SpdySessionDependencies dependencies;
-    dependencies.host_resolver = std::make_unique<MockHostResolver>(
-        MockHostResolverBase::RuleResolver::GetLocalhostResult());
-    dependencies.http_user_agent_settings =
-        std::make_unique<StaticHttpUserAgentSettings>("*", user_agent_);
-    Types::PrepareAuth(dependencies);
-    auto context_session =
-        SpdySessionDependencies::SpdyCreateSession(&dependencies);
-    auto http2_context = Types::CreateHttp2Context(*context_session);
-    const quic::ParsedQuicVersionVector supported_versions{version_};
-    ReadyProxySessionPool pool(*context_session, proxy_endpoint_,
-                               std::move(session_handle_));
-    auto common = Types::CommonFrom(
-        context_session->CreateCommonConnectJobParams(), http2_context);
-    common.quic_session_pool = &pool;
-    common.quic_supported_versions = &supported_versions;
-
-    const ProxyChain chain(ProxyServer::SCHEME_QUIC,
-                           HostPortPair::FromSchemeHostPort(proxy_endpoint_));
-    SSLConfig ssl;
-    ssl.disable_cert_verification_network_fetches = true;
-    auto params = base::MakeRefCounted<typename Types::ProxyParams>(
-        ssl, HostPortPair::FromSchemeHostPort(destination_endpoint_), chain,
-        /*proxy_chain_index=*/0, /*tunnel=*/true, TRAFFIC_ANNOTATION_FOR_TESTS,
-        NetworkAnonymizationKey(), SecureDnsPolicy::kAllow,
-        handles::kInvalidNetworkHandle);
-
-    connection_jobs_job_workloads::Delegate<Types> delegate;
-    typename Types::Proxy job(DEFAULT_PRIORITY, SocketTag(), &common,
-                              std::move(params), &delegate, nullptr);
-    ASSERT_THAT(job.Connect(), test::IsError(ERR_IO_PENDING));
-    RunUntilIdle();
-    ASSERT_EQ(delegate.result, OK);
-    EXPECT_EQ(delegate.completions, 1u);
-    EXPECT_EQ(delegate.auth_challenges, 0u);
-    EXPECT_EQ(pool.requests(), 1);
-    auto tunnel = job.PassSocket();
-    ASSERT_TRUE(tunnel);
-    EXPECT_TRUE(tunnel->IsConnected());
-    EXPECT_EQ(tunnel->GetNegotiatedProtocol(), NextProto::kProtoUnknown);
-    tunnel.reset();
-    RunUntilIdle();
-    EXPECT_EQ(delegate.completions, 1u);
-  }
-};
-
-TEST_P(QuicProxyConnectJobSuccessTest, OriginalOpensTunnel) {
-  AssertSuccessfulJob<connection_jobs_job_workloads::Original>();
-}
-
-TEST_P(QuicProxyConnectJobSuccessTest, ProductionOpensTunnel) {
-  AssertSuccessfulJob<connection_jobs_job_workloads::Production>();
-}
-
-INSTANTIATE_TEST_SUITE_P(RfcV1,
-                         QuicProxyConnectJobSuccessTest,
-                         ::testing::Values(quic::ParsedQuicVersion::RFCv1()));
-
-}  // namespace
-#endif  // BUILDFLAG(ENABLE_QUIC_PROXY_SUPPORT)
 
 TEST_P(QuicProxyClientSocketTest, ProxyDelegateExtraHeaders) {
   // TODO(crbug.com/40284947): Add a version of this test for multi-hop.
