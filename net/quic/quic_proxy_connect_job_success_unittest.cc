@@ -9,6 +9,7 @@
 #include "net/cert/cert_verifier.h"
 #include "net/quic/quic_http_utils.h"
 #include "net/quic/quic_proxy_client_socket_test_fixture.h"
+#include "net/quic/quic_test_packet_maker.h"
 #include "net/socket/connection_jobs_upper_rust_job_workloads.h"
 
 namespace net::test {
@@ -86,24 +87,40 @@ class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
   void AssertSuccessfulJob() {
     // Fresh native session and packet script for each implementation. The job
     // must acquire the session handle and open its own tunnel stream.
+    QuicTestPacketMaker client_maker(
+        version_, connection_id_, &clock_, kProxyHost,
+        quic::Perspective::IS_CLIENT,
+        /*client_priority_uses_incremental=*/true,
+        /*use_priority_header=*/false);
+
+    const auto priority = ConvertRequestPriorityToQuicPriority(DEFAULT_PRIORITY);
     int packet_number = 1;
-    mock_quic_data_.AddWrite(SYNCHRONOUS,
-                            ConstructSettingsPacket(packet_number++));
+    mock_quic_data_.AddWrite(
+        SYNCHRONOUS, client_maker.MakeInitialSettingsPacket(packet_number++));
+    mock_quic_data_.AddWrite(
+        SYNCHRONOUS, client_maker.MakePriorityPacket(
+                         packet_number++, client_data_stream_id1_, priority));
+    quiche::HttpHeaderBlock headers;
+    PopulateConnectRequestIR(&headers, std::nullopt);
     mock_quic_data_.AddWrite(
         SYNCHRONOUS,
-        client_maker_.MakePriorityPacket(
-            packet_number++, client_data_stream_id1_,
-            ConvertRequestPriorityToQuicPriority(DEFAULT_PRIORITY)));
-    mock_quic_data_.AddWrite(
-        SYNCHRONOUS,
-        ConstructConnectRequestPacket(packet_number++, std::nullopt,
-                                      DEFAULT_PRIORITY));
+        client_maker.MakeRequestHeadersPacket(
+            packet_number++, client_data_stream_id1_, /*fin=*/false, priority,
+            std::move(headers), /*spdy_headers_frame_length=*/nullptr,
+            /*should_include_priority_frame=*/false));
     mock_quic_data_.AddRead(ASYNC,
                            ConstructServerConnectReplyPacket(1, !kFin));
     mock_quic_data_.AddReadPauseForever();
     mock_quic_data_.AddWrite(
-        SYNCHRONOUS, ConstructAckAndRstPacket(packet_number++,
-                                             quic::QUIC_STREAM_CANCELLED, 1, 1));
+        SYNCHRONOUS,
+        client_maker.Packet(packet_number++)
+            .AddAckFrame(/*first_received=*/1, /*largest_received=*/1,
+                         /*smallest_received=*/1)
+            .AddStopSendingFrame(client_data_stream_id1_,
+                                 quic::QUIC_STREAM_CANCELLED)
+            .AddRstStreamFrame(client_data_stream_id1_,
+                               quic::QUIC_STREAM_CANCELLED)
+            .Build());
     InitializeSession(/*create_stream=*/false);
     ASSERT_TRUE(session_handle_);
     ASSERT_FALSE(stream_handle_);
