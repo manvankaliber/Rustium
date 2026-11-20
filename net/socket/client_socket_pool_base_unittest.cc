@@ -942,7 +942,7 @@ TEST_F(ClientSocketPoolBaseTest, IdleSelectionYoungestUsedAndOldestUnused) {
   CreatePool(4, 4);
   const auto group = TestGroupId("idle-choice");
   TestCompletionCallback callback;
-  ClientSocketHandle handles[3];
+  std::array<ClientSocketHandle, 3> handles;
   for (auto& handle : handles) {
     ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
                             ClientSocketPool::RespectLimits::ENABLED,
