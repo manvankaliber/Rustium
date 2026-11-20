@@ -76,6 +76,7 @@ class ReadyProxySessionPool : public QuicSessionPool {
  private:
   const url::SchemeHostPort proxy_;
   std::unique_ptr<QuicChromiumClientSession::Handle> handle_;
+  int requests_ = 0;
 };
 
 class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
@@ -132,7 +133,7 @@ class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
     connection_jobs_job_workloads::Delegate<Types> delegate;
     typename Types::Proxy job(DEFAULT_PRIORITY, SocketTag(), &common,
                               std::move(params), &delegate, nullptr);
-    ASSERT_THAT(job.Connect(), test::IsError(ERR_IO_PENDING));
+    ASSERT_EQ(job.Connect(), ERR_IO_PENDING);
     RunUntilIdle();
     ASSERT_EQ(delegate.result, OK);
     EXPECT_EQ(delegate.completions, 1u);
