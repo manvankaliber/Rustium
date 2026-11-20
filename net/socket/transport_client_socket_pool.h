@@ -50,6 +50,25 @@ struct NetLogSource;
 struct NetworkTrafficAnnotationTag;
 class ProxyChain;
 
+// Internal policy projection shared by the pool and its differential tests.
+// The Rust ABI stays private to the net component; no socket ownership crosses
+// this boundary. Protocol values are defined by the implementation.
+class NET_EXPORT_PRIVATE TransportIdlePolicy {
+ public:
+  static int32_t UsabilityStep(int32_t state, bool value);
+  static int32_t ReleaseStep(int32_t state, bool value);
+  static bool IsExpired(int64_t elapsed, int64_t timeout);
+  static int32_t Cleanup(bool force, bool expired, int32_t usability);
+  // Matches CandidateSelection in the Rust policy. Only kUseCurrent replaces
+  // the native iterator. Both used states take priority over the oldest socket.
+  enum class Selection : int32_t {
+    kOldestRemaining = 0,
+    kUseCurrent = 1,
+    kKeepSelected = 2,
+  };
+  static Selection SelectCandidate(Selection previous, bool was_used);
+};
+
 // TransportClientSocketPool establishes network connections through using
 // ConnectJobs, and maintains a list of idle persistent sockets available for
 // reuse. It restricts the number of sockets open at a time, both globally, and

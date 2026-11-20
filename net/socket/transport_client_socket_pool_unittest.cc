@@ -4,10 +4,12 @@
 
 #include "net/socket/transport_client_socket_pool.h"
 
+#include <cstdint>
 #include <limits>
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
@@ -52,6 +54,7 @@
 #include "net/socket/ssl_connect_job.h"
 #include "net/socket/stream_socket.h"
 #include "net/socket/transport_client_socket_pool.h"
+#include "net/socket/transport_client_socket_pool_idle_rust_original.h"
 #include "net/socket/transport_client_socket_pool_test_util.h"
 #include "net/socket/transport_connect_job.h"
 #include "net/spdy/spdy_test_util_common.h"
@@ -72,6 +75,202 @@ using net::test::IsOk;
 namespace net {
 
 namespace {
+
+using transport_idle_original::Reason;
+using transport_idle_original::Socket;
+
+// Drive the Rust protocol with the same scripted provider as the frozen C++
+// oracle. The observation transcript checks short-circuiting as well as the
+// final disposition; the production pool retains the actual native objects.
+int32_t RustUsability(Socket& socket) {
+  int32_t state = TransportIdlePolicy::UsabilityStep(0, socket.WasEverUsed());
+  for (;;) {
+    switch (state) {
+      case 1:
+        state = TransportIdlePolicy::UsabilityStep(
+            state, socket.IsConnectedAndIdle());
+        break;
+      case 2:
+      case 4:
+        state = TransportIdlePolicy::UsabilityStep(state, socket.IsConnected());
+        break;
+      default:
+        return state;
+    }
+  }
+}
+
+Reason RustUsabilityReason(int32_t state) {
+  switch (state) {
+    case 3:
+      return Reason::kNone;
+    case 5:
+      return Reason::kRemoteClosed;
+    case 6:
+      return Reason::kUnexpectedData;
+    default:
+      ADD_FAILURE() << "Invalid usability state " << state;
+      return Reason::kFlush;
+  }
+}
+
+Reason RustCleanup(Socket& socket, bool force, int64_t used_timeout,
+                   int64_t unused_timeout) {
+  const int64_t timeout = socket.WasEverUsed() ? used_timeout : unused_timeout;
+  const bool expired = TransportIdlePolicy::IsExpired(socket.elapsed, timeout);
+  const int32_t usability = RustUsability(socket);
+  switch (TransportIdlePolicy::Cleanup(force, expired, usability)) {
+    case 0:
+      return Reason::kNone;
+    case 1:
+      return Reason::kFlush;
+    case 2:
+      return Reason::kExpired;
+    case 3:
+      return Reason::kRemoteClosed;
+    case 4:
+      return Reason::kUnexpectedData;
+    default:
+      ADD_FAILURE() << "Invalid cleanup state";
+      return Reason::kStaleGeneration;
+  }
+}
+
+Reason RustRelease(Socket& socket, int64_t socket_generation,
+                   int64_t group_generation) {
+  int32_t state =
+      TransportIdlePolicy::ReleaseStep(0, socket.IsConnectedAndIdle());
+  if (state == 1) {
+    state = TransportIdlePolicy::ReleaseStep(state, socket.IsConnected());
+  } else if (state == 2) {
+    state = TransportIdlePolicy::ReleaseStep(
+        state, socket_generation == group_generation);
+  }
+  switch (state) {
+    case 10:
+      return Reason::kNone;
+    case 11:
+      return Reason::kReturnedClosed;
+    case 12:
+      return Reason::kUnexpectedData;
+    case 13:
+      return Reason::kStaleGeneration;
+    default:
+      ADD_FAILURE() << "Invalid release state " << state;
+      return Reason::kFlush;
+  }
+}
+
+size_t RustAssign(std::vector<Socket>& sockets, std::vector<Reason>& closed) {
+  size_t candidate = sockets.size();
+  size_t oldest = sockets.size();
+  using Selection = TransportIdlePolicy::Selection;
+  Selection selection = Selection::kOldestRemaining;
+  closed.clear();
+  for (size_t i = 0; i < sockets.size(); ++i) {
+    Reason reason = RustUsabilityReason(RustUsability(sockets[i]));
+    closed.push_back(reason);
+    if (reason != Reason::kNone) {
+      continue;
+    }
+    if (oldest == sockets.size()) {
+      oldest = i;
+    }
+    selection = TransportIdlePolicy::SelectCandidate(
+        selection, sockets[i].WasEverUsed());
+    if (selection == Selection::kUseCurrent) {
+      candidate = i;
+    }
+  }
+  if (selection == Selection::kOldestRemaining) {
+    candidate = oldest;
+  }
+  if (candidate != sockets.size()) {
+    sockets[candidate].WasEverUsed();
+  }
+  return candidate;
+}
+
+TEST(TransportIdleRustDifferentialTest, UsabilityCleanupAndRelease) {
+  for (bool used : {false, true}) {
+    for (bool idle : {false, true}) {
+      for (bool connected : {false, true}) {
+        for (int64_t elapsed : {std::numeric_limits<int64_t>::min(), int64_t{-1},
+                                int64_t{0}, int64_t{9}, int64_t{10}, int64_t{19},
+                                int64_t{20}, std::numeric_limits<int64_t>::max()}) {
+          for (bool force : {false, true}) {
+            SCOPED_TRACE(testing::Message()
+                         << "used=" << used << " idle=" << idle
+                         << " connected=" << connected << " elapsed=" << elapsed
+                         << " force=" << force);
+            Socket original{used, idle, connected, elapsed};
+            Socket rust = original;
+            EXPECT_EQ(transport_idle_original::IsUsable(original),
+                      RustUsabilityReason(RustUsability(rust)));
+            EXPECT_EQ(original.observations, rust.observations);
+            original.observations.clear();
+            rust.observations.clear();
+            EXPECT_EQ(transport_idle_original::Cleanup(original, force, 10, 20),
+                      RustCleanup(rust, force, 10, 20));
+            EXPECT_EQ(original.observations, rust.observations);
+            for (int64_t generation : {int64_t{4}, int64_t{5}}) {
+              original.observations.clear();
+              rust.observations.clear();
+              EXPECT_EQ(transport_idle_original::Release(original, generation, 5),
+                        RustRelease(rust, generation, 5));
+              EXPECT_EQ(original.observations, rust.observations);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST(TransportIdleRustDifferentialTest, RepeatedObservationsStayLazy) {
+  Socket original{false, false, true, 10};
+  original.used_results = {true, false};
+  Socket rust = original;
+  EXPECT_EQ(transport_idle_original::Cleanup(original, false, 10, 20),
+            RustCleanup(rust, false, 10, 20));
+  EXPECT_EQ(original.observations, "WWC");
+  EXPECT_EQ(original.observations, rust.observations);
+
+  Socket changing{true, true, true, 0};
+  changing.used_results = {true, false, true};
+  std::vector<Socket> original_sockets{changing};
+  std::vector<Socket> rust_sockets = original_sockets;
+  std::vector<Reason> original_closed;
+  std::vector<Reason> rust_closed;
+  EXPECT_EQ(transport_idle_original::Assign(original_sockets, original_closed),
+            RustAssign(rust_sockets, rust_closed));
+  EXPECT_EQ(original_closed, rust_closed);
+  EXPECT_EQ(original_sockets[0].observations, "WIWW");
+  EXPECT_EQ(original_sockets[0].observations, rust_sockets[0].observations);
+}
+
+TEST(TransportIdleRustDifferentialTest, AssignmentOrderingAndRejections) {
+  const Socket unused{false, false, true, 0};
+  const Socket used{true, true, true, 0};
+  const Socket closed{true, false, false, 0};
+  const Socket pending{true, false, true, 0};
+  const std::vector<std::vector<Socket>> cases = {
+      {}, {closed}, {pending, closed}, {unused}, {unused, unused},
+      {unused, used, unused, used}, {used, closed, used},
+      {closed, unused, pending, unused}, {pending, used, closed}};
+  for (const auto& sockets : cases) {
+    std::vector<Socket> original = sockets;
+    std::vector<Socket> rust = sockets;
+    std::vector<Reason> original_closed;
+    std::vector<Reason> rust_closed;
+    EXPECT_EQ(transport_idle_original::Assign(original, original_closed),
+              RustAssign(rust, rust_closed));
+    EXPECT_EQ(original_closed, rust_closed);
+    for (size_t i = 0; i < sockets.size(); ++i) {
+      EXPECT_EQ(original[i].observations, rust[i].observations) << i;
+    }
+  }
+}
 
 const int kMaxSockets = 32;
 const int kMaxSocketsPerGroup = 6;
