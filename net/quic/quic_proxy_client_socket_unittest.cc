@@ -10,18 +10,23 @@
 #include "base/functional/bind.h"
 #include "base/memory/ptr_util.h"
 #include "base/memory/raw_ptr.h"
+#include "base/numerics/safe_conversions.h"
 #include "base/run_loop.h"
 #include "base/strings/string_util.h"
 #include "base/strings/string_view_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/single_thread_task_runner.h"
+#include "net/base/host_port_pair.h"
+#include "net/base/io_buffer.h"
 #include "net/base/network_anonymization_key.h"
 #include "net/base/proxy_chain.h"
 #include "net/base/proxy_server.h"
 #include "net/base/proxy_string_util.h"
 #include "net/base/test_proxy_delegate.h"
+#include "net/http/http_auth_controller.h"
 #include "net/http/http_response_headers.h"
 #include "net/log/net_log.h"
+#include "net/log/net_log_with_source.h"
 #include "net/log/test_net_log.h"
 #include "net/log/test_net_log_util.h"
 #include "net/quic/quic_chromium_client_session.h"
@@ -56,6 +61,115 @@ std::string ConcatenateHeaderAndBody(std::string_view header,
 }
 
 }  // namespace
+
+QuicProxyClientSocketTest::QuicProxyClientSocketTest() = default;
+
+QuicProxyClientSocketTest::~QuicProxyClientSocketTest() = default;
+
+void QuicProxyClientSocketTest::TearDown() {
+  sock_.reset();
+  EXPECT_TRUE(mock_quic_data_.AllReadDataConsumed());
+  EXPECT_TRUE(mock_quic_data_.AllWriteDataConsumed());
+}
+
+void QuicProxyClientSocketTest::InitializeClientSocket() {
+  sock_ = std::make_unique<QuicProxyClientSocket>(
+      std::move(stream_handle_), std::move(session_handle_),
+      // TODO(crbug.com/40181080) Construct `ProxyChain` with plain
+      // `proxy_endpoint_` once it supports `url::SchemeHostPort`.
+      ProxyChain(ProxyServer::SCHEME_HTTPS,
+                 HostPortPair::FromSchemeHostPort(proxy_endpoint_)),
+      /*proxy_chain_index=*/0, user_agent_,
+      // TODO(crbug.com/40181080) Construct `QuicProxyClientSocket` with plain
+      // `proxy_endpoint_` once it supports `url::SchemeHostPort`.
+      HostPortPair::FromSchemeHostPort(destination_endpoint_),
+      NetLogWithSource::Make(NetLogSourceType::NONE),
+      base::MakeRefCounted<HttpAuthController>(
+          HttpAuth::AUTH_PROXY, proxy_endpoint_.GetURL(),
+          NetworkAnonymizationKey(), &http_auth_cache_,
+          http_auth_handler_factory_.get(), host_resolver_.get()),
+      proxy_delegate_.get());
+
+  session_->StartReading();
+}
+
+void QuicProxyClientSocketTest::PopulateConnectRequestIR(
+    quiche::HttpHeaderBlock* block,
+    std::optional<const HttpRequestHeaders> extra_headers) {
+  (*block)[":method"] = "CONNECT";
+  (*block)[":authority"] =
+      HostPortPair::FromSchemeHostPort(destination_endpoint_).ToString();
+  (*block)["user-agent"] = kUserAgent;
+  if (extra_headers) {
+    HttpRequestHeaders::Iterator it(*extra_headers);
+    while (it.GetNext()) {
+      std::string name = base::ToLowerASCII(it.name());
+      (*block)[name] = it.value();
+    }
+  }
+}
+
+void QuicProxyClientSocketTest::AssertConnectSucceeds() {
+  TestCompletionCallback callback;
+  ASSERT_THAT(sock_->Connect(callback.callback()),
+              test::IsError(ERR_IO_PENDING));
+  ASSERT_THAT(callback.WaitForResult(), test::IsOk());
+}
+
+void QuicProxyClientSocketTest::AssertConnectFails(int result) {
+  TestCompletionCallback callback;
+  ASSERT_THAT(sock_->Connect(callback.callback()),
+              test::IsError(ERR_IO_PENDING));
+  EXPECT_EQ(result, callback.WaitForResult());
+}
+
+void QuicProxyClientSocketTest::AssertWriteReturns(
+    base::span<const char> data, int rv) {
+  auto buf = base::MakeRefCounted<IOBufferWithSize>(data.size());
+  buf->span().copy_from(base::as_bytes(data));
+  EXPECT_EQ(rv,
+            sock_->Write(buf.get(), buf->size(), write_callback_.callback(),
+                         TRAFFIC_ANNOTATION_FOR_TESTS));
+}
+
+void QuicProxyClientSocketTest::AssertSyncWriteSucceeds(
+    base::span<const char> data) {
+  AssertWriteReturns(data, base::checked_cast<int>(data.size()));
+}
+
+void QuicProxyClientSocketTest::AssertSyncReadEquals(
+    base::span<const char> data) {
+  auto buf = base::MakeRefCounted<IOBufferWithSize>(data.size());
+  EXPECT_EQ(data.size(),
+            sock_->Read(buf.get(), data.size(), CompletionOnceCallback()));
+  EXPECT_EQ(data, base::as_chars(buf->span()));
+  ASSERT_TRUE(sock_->IsConnected());
+}
+
+void QuicProxyClientSocketTest::AssertAsyncReadEquals(
+    base::span<const char> data) {
+  AssertReadStarts(data);
+
+  ResumeAndRun();
+
+  AssertReadReturns(data);
+}
+
+void QuicProxyClientSocketTest::AssertReadStarts(base::span<const char> data) {
+  // Issue the read, which will be completed asynchronously.
+  read_buf_ = base::MakeRefCounted<IOBufferWithSize>(data.size());
+  ASSERT_EQ(ERR_IO_PENDING, sock_->Read(read_buf_.get(), data.size(),
+                                        read_callback_.callback()));
+  EXPECT_TRUE(sock_->IsConnected());
+}
+
+void QuicProxyClientSocketTest::AssertReadReturns(base::span<const char> data) {
+  EXPECT_TRUE(sock_->IsConnected());
+
+  // Now the read will return.
+  EXPECT_EQ(data.size(), read_callback_.WaitForResult());
+  EXPECT_EQ(data, base::as_chars(read_buf_->span()));
+}
 
 TEST_P(QuicProxyClientSocketTest, ConnectSendsCorrectRequest) {
   int packet_number = 1;
