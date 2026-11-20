@@ -34,9 +34,71 @@
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "url/gurl.h"
 
+extern "C" {
+int32_t rust_transport_idle_usable_step(int32_t state, bool value);
+int32_t rust_transport_idle_release_step(int32_t state, bool value);
+bool rust_transport_idle_expired(int64_t elapsed, int64_t timeout);
+int32_t rust_transport_idle_cleanup(bool force, bool expired, int32_t usability);
+int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
+}
+
 namespace net {
 
+int32_t TransportIdlePolicy::UsabilityStep(int32_t state, bool value) {
+  return rust_transport_idle_usable_step(state, value);
+}
+int32_t TransportIdlePolicy::ReleaseStep(int32_t state, bool value) {
+  return rust_transport_idle_release_step(state, value);
+}
+bool TransportIdlePolicy::IsExpired(int64_t elapsed, int64_t timeout) {
+  return rust_transport_idle_expired(elapsed, timeout);
+}
+int32_t TransportIdlePolicy::Cleanup(bool force, bool expired,
+                                     int32_t usability) {
+  return rust_transport_idle_cleanup(force, expired, usability);
+}
+TransportIdlePolicy::Selection TransportIdlePolicy::SelectCandidate(
+    Selection previous,
+    bool was_used) {
+  return static_cast<Selection>(
+      rust_transport_idle_select_candidate(static_cast<int32_t>(previous),
+                                           was_used));
+}
+
 namespace {
+
+// These values are the Rust state-machine protocol. Socket calls are kept here
+// so that each provider observation occurs only when Rust requests it.
+constexpr int32_t kObserveUsed = 0;
+constexpr int32_t kObserveIdle = 1;
+constexpr int32_t kObserveUnusedConnected = 2;
+constexpr int32_t kUsable = 3;
+constexpr int32_t kObserveUsedConnected = 4;
+constexpr int32_t kRemoteClosed = 5;
+constexpr int32_t kUnexpectedData = 6;
+
+int32_t ObserveIdleUsability(StreamSocket* socket) {
+  int32_t state =
+      TransportIdlePolicy::UsabilityStep(kObserveUsed, socket->WasEverUsed());
+  for (;;) {
+    switch (state) {
+      case kObserveIdle:
+        state = TransportIdlePolicy::UsabilityStep(
+            state, socket->IsConnectedAndIdle());
+        break;
+      case kObserveUnusedConnected:
+      case kObserveUsedConnected:
+        state = TransportIdlePolicy::UsabilityStep(state, socket->IsConnected());
+        break;
+      case kUsable:
+      case kRemoteClosed:
+      case kUnexpectedData:
+        return state;
+      default:
+        NOTREACHED();
+    }
+  }
+}
 
 base::DictValue NetLogCreateConnectJobParams(
     bool backup_job,
@@ -532,6 +594,8 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
     Group* group) {
   std::list<IdleSocket>* idle_sockets = group->mutable_idle_sockets();
   auto idle_socket_it = idle_sockets->end();
+  using Selection = TransportIdlePolicy::Selection;
+  Selection selection = Selection::kOldestRemaining;
 
   // Iterate through the idle sockets forwards (oldest to newest)
   //   * Delete any disconnected ones.
@@ -552,8 +616,9 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
       continue;
     }
 
-    if (it->socket->WasEverUsed()) {
-      // We found one we can reuse!
+    selection = TransportIdlePolicy::SelectCandidate(
+        selection, it->socket->WasEverUsed());
+    if (selection == Selection::kUseCurrent) {
       idle_socket_it = it;
     }
 
@@ -563,8 +628,10 @@ bool TransportClientSocketPool::AssignIdleSocketToRequest(
   // If we haven't found an idle socket, that means there are no used idle
   // sockets.  Pick the oldest (first) idle socket (FIFO).
 
-  if (idle_socket_it == idle_sockets->end() && !idle_sockets->empty())
+  if (selection == Selection::kOldestRemaining) {
+    // Resolve the oldest remaining item after all unusable sockets are removed.
     idle_socket_it = idle_sockets->begin();
+  }
 
   if (idle_socket_it != idle_sockets->end()) {
     DecrementIdleCount();
@@ -806,23 +873,18 @@ size_t TransportClientSocketPool::SocketsInUse() const {
 bool TransportClientSocketPool::IdleSocket::IsUsable(
     const char** net_log_reason_utf8) const {
   DCHECK(net_log_reason_utf8);
-  if (socket->WasEverUsed()) {
-    if (!socket->IsConnectedAndIdle()) {
-      if (!socket->IsConnected()) {
-        *net_log_reason_utf8 = kRemoteSideClosedConnection;
-      } else {
-        *net_log_reason_utf8 = kDataReceivedUnexpectedly;
-      }
+  switch (ObserveIdleUsability(socket.get())) {
+    case kUsable:
+      return true;
+    case kRemoteClosed:
+      *net_log_reason_utf8 = kRemoteSideClosedConnection;
       return false;
-    }
-    return true;
+    case kUnexpectedData:
+      *net_log_reason_utf8 = kDataReceivedUnexpectedly;
+      return false;
+    default:
+      NOTREACHED();
   }
-
-  if (!socket->IsConnected()) {
-    *net_log_reason_utf8 = kRemoteSideClosedConnection;
-    return false;
-  }
-  return true;
 }
 
 TransportClientSocketPool::TransportClientSocketPool(
@@ -978,22 +1040,34 @@ void TransportClientSocketPool::CleanupIdleSocketsInGroup(
 
   auto idle_socket_it = group->mutable_idle_sockets()->begin();
   while (idle_socket_it != group->idle_sockets().end()) {
-    bool should_clean_up = force;
     const char* reason_for_closing_socket = net_log_reason_utf8;
     base::TimeDelta timeout = idle_socket_it->socket->WasEverUsed()
                                   ? used_idle_socket_timeout_
                                   : unused_idle_socket_timeout_;
-
-    // Timeout errors take precedence over the reason for flushing sockets in
-    // the group, if applicable.
-    if (now - idle_socket_it->start_time >= timeout) {
-      should_clean_up = true;
-      reason_for_closing_socket = kIdleTimeLimitExpired;
+    const bool expired = TransportIdlePolicy::IsExpired(
+        (now - idle_socket_it->start_time).InMicroseconds(),
+        timeout.InMicroseconds());
+    const int32_t usability =
+        ObserveIdleUsability(idle_socket_it->socket.get());
+    const int32_t decision =
+        TransportIdlePolicy::Cleanup(force, expired, usability);
+    switch (decision) {
+      case 0:  // Keep.
+      case 1:  // Forced flush retains the supplied reason.
+        break;
+      case 2:
+        reason_for_closing_socket = kIdleTimeLimitExpired;
+        break;
+      case 3:
+        reason_for_closing_socket = kRemoteSideClosedConnection;
+        break;
+      case 4:
+        reason_for_closing_socket = kDataReceivedUnexpectedly;
+        break;
+      default:
+        NOTREACHED();
     }
-
-    // Usability errors take precedence over other errors.
-    if (!idle_socket_it->IsUsable(&reason_for_closing_socket))
-      should_clean_up = true;
+    const bool should_clean_up = decision != 0;
 
     if (should_clean_up) {
       DCHECK(reason_for_closing_socket);
@@ -1053,19 +1127,37 @@ void TransportClientSocketPool::ReleaseSocket(
 
   UpdateExpandabilityAfterRelease();
 
-  bool can_resuse_socket = false;
-  std::string_view not_reusable_reason;
-  if (!socket->IsConnectedAndIdle()) {
-    if (!socket->IsConnected()) {
-      not_reusable_reason = kClosedConnectionReturnedToPool;
-    } else {
-      not_reusable_reason = kDataReceivedUnexpectedly;
-    }
-  } else if (group_generation != group->generation()) {
-    not_reusable_reason = kSocketGenerationOutOfDate;
-  } else {
-    can_resuse_socket = true;
+  int32_t decision =
+      TransportIdlePolicy::ReleaseStep(0, socket->IsConnectedAndIdle());
+  switch (decision) {
+    case 1:
+      decision =
+          TransportIdlePolicy::ReleaseStep(decision, socket->IsConnected());
+      break;
+    case 2:
+      decision = TransportIdlePolicy::ReleaseStep(
+          decision, group_generation == group->generation());
+      break;
+    default:
+      NOTREACHED();
   }
+  std::string_view not_reusable_reason;
+  switch (decision) {
+    case 10:
+      break;
+    case 11:
+      not_reusable_reason = kClosedConnectionReturnedToPool;
+      break;
+    case 12:
+      not_reusable_reason = kDataReceivedUnexpectedly;
+      break;
+    case 13:
+      not_reusable_reason = kSocketGenerationOutOfDate;
+      break;
+    default:
+      NOTREACHED();
+  }
+  const bool can_resuse_socket = decision == 10;
 
   if (can_resuse_socket) {
     DCHECK(not_reusable_reason.empty());
