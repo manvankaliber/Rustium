@@ -296,8 +296,10 @@ ConnectorRaceTrace RunConnectorRace(bool ipv4_wins,
     tasks.RunUntilIdle();
   }
 
+  trace.loser_detached = losing_data.socket() == nullptr;
   if (delegate.result == OK) {
     trace.resolved_endpoint = job->PassServiceEndpoint();
+    EXPECT_EQ(trace.resolved_endpoint, endpoint);
     auto socket = job->PassSocket();
     EXPECT_NE(socket, nullptr);
     if (socket) {
@@ -305,8 +307,8 @@ ConnectorRaceTrace RunConnectorRace(bool ipv4_wins,
     }
   }
   trace.attempts = job->GetConnectionAttempts();
+  EXPECT_TRUE(trace.attempts.empty());
   job.reset();
-  trace.loser_detached = losing_data.socket() == nullptr;
   tasks.RunUntilIdle();
   trace.completion_count = delegate.completion_count;
   trace.result = delegate.result;
@@ -319,7 +321,9 @@ TEST(ConnectionJobsFamilyRustTest, HappyEyeballsFallbackMatchesOriginal) {
   base::test::TaskEnvironment tasks(
       base::test::TaskEnvironment::TimeSource::MOCK_TIME);
   base::test::ScopedFeatureList features;
-  features.InitAndEnableFeature(features::kHappyEyeballsV2);
+  features.InitWithFeatures({features::kHappyEyeballsV2},
+                            {features::kAdjustIPv6FallbackTime,
+                             features::kIPv6FallbackBasedOnRTT});
   for (bool ipv4_wins : {false, true}) {
     SCOPED_TRACE(ipv4_wins);
     const auto original = RunConnectorRace<Original>(ipv4_wins, tasks);
