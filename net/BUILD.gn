@@ -3815,6 +3815,10 @@ target(_test_target_type, "net_unittests") {
     "//url:buildflags",
   ]
 
+  if (enable_quic_proxy_support) {
+    deps += [ ":connection_jobs_rust_reference" ]
+  }
+
   if (is_linux) {
     deps += [ "//build/config/linux/dbus:buildflags" ]
     if (use_dbus && !is_cronet_build) {
