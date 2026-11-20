@@ -9,6 +9,8 @@
 
 #include "base/test/bind.h"
 #include "net/dns/mock_host_resolver.h"
+#include "net/http/http_stream_pool_test_util.h"
+#include "net/socket/socket_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 namespace net::connection_jobs_family_test {
 static_assert(sizeof(Production::Base)==sizeof(Original::Base));
@@ -198,6 +200,140 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
         EXPECT_FALSE(production.socket_present);
         break;
     }
+  }
+}
+
+namespace {
+
+struct ConnectorRaceTrace {
+  int initial_result = ERR_UNEXPECTED;
+  bool ipv6_started_immediately = false;
+  bool ipv4_started_early = false;
+  bool ipv4_started_at_fallback = false;
+  int completion_count = 0;
+  int result = ERR_IO_PENDING;
+  bool loser_detached = false;
+  IPEndPoint peer;
+  ServiceEndpoint resolved_endpoint;
+  ConnectionAttempts attempts;
+
+  bool operator==(const ConnectorRaceTrace&) const = default;
+};
+
+template <class Traits>
+struct ConnectorRaceDelegate final : Traits::Base::Delegate {
+  int completion_count = 0;
+  int result = ERR_IO_PENDING;
+
+  void OnConnectJobComplete(int value, typename Traits::Base*) override {
+    ++completion_count;
+    result = value;
+  }
+
+  void OnNeedsProxyAuth(const HttpResponseInfo&,
+                       HttpAuthController*,
+                       base::OnceClosure,
+                       typename Traits::Base*) override {
+    ADD_FAILURE() << "Unexpected proxy auth for a direct TCP connection";
+  }
+};
+
+template <class Traits>
+ConnectorRaceTrace RunConnectorRace(bool ipv4_wins,
+                                    base::test::TaskEnvironment& tasks) {
+  const IPEndPoint ipv6 = Ip("2001:db8::1", 80);
+  const IPEndPoint ipv4 = Ip("192.0.2.1", 80);
+  ServiceEndpoint endpoint;
+  endpoint.ipv6_endpoints = {ipv6};
+  endpoint.ipv4_endpoints = {ipv4};
+  FakeServiceEndpointResolver resolver;
+  resolver.ConfigureDefaultResolution()
+      .add_endpoint(endpoint)
+      .CompleteStartSynchronously(OK);
+
+  MockConnectCompleter ipv6_connect;
+  MockConnectCompleter ipv4_connect;
+  SequencedSocketData ipv6_data;
+  SequencedSocketData ipv4_data;
+  MockConnect ipv6_completion(&ipv6_connect);
+  MockConnect ipv4_completion(&ipv4_connect);
+  ipv6_completion.peer_addr = ipv6;
+  ipv4_completion.peer_addr = ipv4;
+  ipv6_data.set_connect_data(ipv6_completion);
+  ipv4_data.set_connect_data(ipv4_completion);
+  ipv6_data.set_expected_addresses(AddressList(ipv6));
+  ipv4_data.set_expected_addresses(AddressList(ipv4));
+
+  MockClientSocketFactory sockets;
+  sockets.AddSocketDataProvider(&ipv6_data);
+  sockets.AddSocketDataProvider(&ipv4_data);
+  Fixture<Traits> fixture;
+  fixture.common.client_socket_factory = &sockets;
+  fixture.common.host_resolver = &resolver;
+  ConnectorRaceDelegate<Traits> delegate;
+  auto job = std::make_unique<typename Traits::Tcp>(
+      DEFAULT_PRIORITY, SocketTag(), &fixture.common, fixture.params,
+      &delegate, nullptr);
+  ConnectorRaceTrace trace;
+  trace.initial_result = job->Connect();
+  tasks.RunUntilIdle();
+  trace.ipv6_started_immediately = ipv6_connect.is_connecting();
+
+  // Test the pre-migration contract against mock time, including the boundary
+  // immediately before the second connector is permitted to start.
+  constexpr auto fallback = TcpConnectJobRustOriginal::kIPv6FallbackTime;
+  tasks.FastForwardBy(fallback - base::Milliseconds(1));
+  trace.ipv4_started_early = ipv4_connect.is_connecting();
+  tasks.FastForwardBy(base::Milliseconds(1));
+  trace.ipv4_started_at_fallback = ipv4_connect.is_connecting();
+  EXPECT_TRUE(sockets.AllDataProvidersUsed());
+  EXPECT_EQ(delegate.completion_count, 0);
+
+  auto& winner = ipv4_wins ? ipv4_connect : ipv6_connect;
+  auto& losing_data = ipv4_wins ? ipv6_data : ipv4_data;
+  if (winner.is_connecting()) {
+    winner.Complete(OK);
+    tasks.RunUntilIdle();
+  }
+
+  if (delegate.result == OK) {
+    trace.resolved_endpoint = job->PassServiceEndpoint();
+    auto socket = job->PassSocket();
+    EXPECT_NE(socket, nullptr);
+    if (socket) {
+      EXPECT_EQ(socket->GetPeerAddress(&trace.peer), OK);
+    }
+  }
+  trace.attempts = job->GetConnectionAttempts();
+  job.reset();
+  trace.loser_detached = losing_data.socket() == nullptr;
+  tasks.RunUntilIdle();
+  trace.completion_count = delegate.completion_count;
+  trace.result = delegate.result;
+  return trace;
+}
+
+}  // namespace
+
+TEST(ConnectionJobsFamilyRustTest, HappyEyeballsFallbackMatchesOriginal) {
+  base::test::TaskEnvironment tasks(
+      base::test::TaskEnvironment::TimeSource::MOCK_TIME);
+  base::test::ScopedFeatureList features;
+  features.InitAndEnableFeature(features::kHappyEyeballsV2);
+  for (bool ipv4_wins : {false, true}) {
+    SCOPED_TRACE(ipv4_wins);
+    const auto original = RunConnectorRace<Original>(ipv4_wins, tasks);
+    const auto production = RunConnectorRace<Production>(ipv4_wins, tasks);
+    EXPECT_EQ(production, original);
+    EXPECT_EQ(production.initial_result, ERR_IO_PENDING);
+    EXPECT_TRUE(production.ipv6_started_immediately);
+    EXPECT_FALSE(production.ipv4_started_early);
+    EXPECT_TRUE(production.ipv4_started_at_fallback);
+    EXPECT_TRUE(production.loser_detached);
+    EXPECT_EQ(production.completion_count, 1);
+    EXPECT_EQ(production.result, OK);
+    EXPECT_EQ(production.peer,
+              ipv4_wins ? Ip("192.0.2.1", 80) : Ip("2001:db8::1", 80));
   }
 }
 
