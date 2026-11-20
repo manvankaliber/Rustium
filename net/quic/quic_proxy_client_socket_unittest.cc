@@ -298,13 +298,14 @@ class QuicProxyConnectJobSuccessTest : public QuicProxyClientSocketTest {
     dependencies.http_user_agent_settings =
         std::make_unique<StaticHttpUserAgentSettings>("*", user_agent_);
     Types::PrepareAuth(dependencies);
-    auto context_session = SpdySessionDependencies::SpdyCreateSession(&dependencies);
+    auto context_session =
+        SpdySessionDependencies::SpdyCreateSession(&dependencies);
     auto http2_context = Types::CreateHttp2Context(*context_session);
-    auto common = Types::CommonFrom(
-        context_session->CreateCommonConnectJobParams(), http2_context);
     const quic::ParsedQuicVersionVector supported_versions{version_};
     ReadyProxySessionPool pool(*context_session, proxy_endpoint_,
                                std::move(session_handle_));
+    auto common = Types::CommonFrom(
+        context_session->CreateCommonConnectJobParams(), http2_context);
     common.quic_session_pool = &pool;
     common.quic_supported_versions = &supported_versions;
 
