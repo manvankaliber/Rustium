@@ -330,6 +330,8 @@ class MockClientSocketFactory : public ClientSocketFactory {
 
   void SetJobLoadState(size_t job, LoadState load_state);
 
+  void ExpectJobPriority(size_t job, RequestPriority priority);
+
   // Sets the HasConnectionEstablished value of the specified job to true,
   // without invoking the callback.
   void SetJobHasEstablishedConnection(size_t job);
@@ -693,6 +695,12 @@ void MockClientSocketFactory::SetJobLoadState(size_t job,
                                               LoadState load_state) {
   ASSERT_LT(job, waiting_jobs_.size());
   waiting_jobs_[job]->set_load_state(load_state);
+}
+
+void MockClientSocketFactory::ExpectJobPriority(size_t job,
+                                                RequestPriority priority) {
+  ASSERT_LT(job, waiting_jobs_.size());
+  EXPECT_EQ(priority, waiting_jobs_[job]->priority());
 }
 
 void MockClientSocketFactory::SetJobHasEstablishedConnection(size_t job) {
@@ -4929,6 +4937,40 @@ TEST_F(ClientSocketPoolBaseTest, PreconnectJobGetsAssignedToRequest) {
 
   EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
                                                               &handle1));
+}
+
+TEST_F(ClientSocketPoolBaseTest, PreconnectClaimsOldestUnassignedJob) {
+  CreatePool(2, 2);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  const auto group = TestGroupId("a");
+  TestPreconnectCompletionCallback preconnect_callback;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 2,
+                                   preconnect_callback.callback(),
+                                   NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  ASSERT_EQ(2u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.SetJobLoadState(0, LOAD_STATE_RESOLVING_HOST);
+  client_socket_factory_.SetJobLoadState(1, LOAD_STATE_SSL_HANDSHAKE);
+  client_socket_factory_.ExpectJobPriority(0, IDLE);
+  client_socket_factory_.ExpectJobPriority(1, IDLE);
+
+  ASSERT_THAT(StartRequest(group, HIGHEST), IsError(ERR_IO_PENDING));
+  EXPECT_EQ(LOAD_STATE_RESOLVING_HOST, request(0)->handle()->GetLoadState());
+  EXPECT_EQ(1u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.ExpectJobPriority(0, HIGHEST);
+  client_socket_factory_.ExpectJobPriority(1, IDLE);
+
+  ASSERT_THAT(StartRequest(group, MEDIUM), IsError(ERR_IO_PENDING));
+  EXPECT_EQ(LOAD_STATE_SSL_HANDSHAKE, request(1)->handle()->GetLoadState());
+  EXPECT_EQ(0u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.ExpectJobPriority(0, HIGHEST);
+  client_socket_factory_.ExpectJobPriority(1, MEDIUM);
+
+  client_socket_factory_.SignalJobs();
+  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
+  EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  EXPECT_TRUE(preconnect_callback.WaitForResult());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
 }
 
 TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
