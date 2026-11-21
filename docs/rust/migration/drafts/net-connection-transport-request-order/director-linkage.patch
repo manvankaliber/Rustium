@@ -1,0 +1,96 @@
+diff --git a/net/BUILD.gn b/net/BUILD.gn
+index 5a95e9524a1d56f6bab20c3d206534fb35bbbd40..5ea6620ca0ca3856e4a184b7a5ae59fda3f48f6a 100644
+--- a/net/BUILD.gn
++++ b/net/BUILD.gn
+@@ -255,6 +255,13 @@ rust_static_library("gzip_header_parser") {
+   ]
+ }
+ 
++rust_static_library("transport_request_order_rust") {
++  crate_root = "socket/transport_request_order_rust.rs"
++  sources = [ "socket/transport_request_order_rust.rs" ]
++  allow_unsafe = true  # Scalar ABI export attributes only.
++  visibility = [ ":*" ]
++}
++
+ rust_static_library("transport_assignment_rust") {
+   crate_root = "socket/transport_assignment_rust.rs"
+   sources = [ "socket/transport_assignment_rust.rs" ]
+@@ -1577,6 +1584,7 @@ component("net") {
+     "socket/transport_client_socket_pool.cc",
+     "socket/transport_client_socket_pool.h",
+     "socket/transport_assignment_ffi.h",
++    "socket/transport_request_order_ffi.h",
+     "socket/transport_client_socket_pool_scheduling_ffi.h",
+     "socket/transport_connect_job.cc",
+     "socket/transport_connect_job.h",
+@@ -1801,6 +1809,7 @@ component("net") {
+     ":tls_session_cache_rust",
+     ":transport_client_socket_pool_idle_rust",
+     ":transport_assignment_rust",
++    ":transport_request_order_rust",
+     ":transport_client_socket_pool_scheduling_rust",
+     ":websocket_extension_rust",
+     ":websocket_frame_rust",
+@@ -3639,6 +3648,8 @@ target(_test_target_type, "net_unittests") {
+     "socket/transport_client_socket_pool_idle_rust_original.h",
+     "socket/transport_assignment_original_actions.h",
+     "socket/transport_assignment_unittest.cc",
++    "socket/transport_request_order_original.h",
++    "socket/transport_request_order_unittest.cc",
+     "socket/transport_client_socket_pool_scheduling_original.h",
+     "socket/transport_client_socket_pool_scheduling_unittest.cc",
+     "socket/transport_client_socket_pool_test_util.cc",
+diff --git a/net/base/priority_queue.h b/net/base/priority_queue.h
+index 262a1dca5c2615c656f42bbe916bbd66f7e20fa2..6545ae2142a46cd4844b8a660faf80fc4bdee993 100644
+--- a/net/base/priority_queue.h
++++ b/net/base/priority_queue.h
+@@ -357,6 +357,16 @@ class PriorityQueue {
+     return size_ == 0;
+   }
+ 
++  // Counts entries above and at `priority` without visiting queue values.
++  std::pair<size_t, size_t> InsertionBucketCounts(Priority priority) const {
++    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
++    DCHECK_LT(priority, lists_.size());
++    size_t higher = 0;
++    for (size_t i = static_cast<size_t>(priority) + 1; i < lists_.size(); ++i)
++      higher += lists_[i].size();
++    return {higher, lists_[priority].size()};
++  }
++
+   // Returns the zero-based rank where the next Insert/InsertAtFront would
+   // place an element, without traversing the lists or changing the queue.
+   size_t InsertionRank(Priority priority, bool at_front) const {
+diff --git a/net/socket/transport_request_order_ffi.h b/net/socket/transport_request_order_ffi.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..3c2d2469da1e476ca2a6125ce775a7b53aa7b30d
+--- /dev/null
++++ b/net/socket/transport_request_order_ffi.h
+@@ -0,0 +1,26 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#ifndef NET_SOCKET_TRANSPORT_REQUEST_ORDER_FFI_H_
++#define NET_SOCKET_TRANSPORT_REQUEST_ORDER_FFI_H_
++
++#include <stddef.h>
++#include <stdint.h>
++
++#include "net/base/net_export.h"
++
++namespace net {
++
++// Low bit denotes front placement; remaining bits give the insertion rank.
++// SIZE_MAX indicates an unrepresentable rank.
++NET_EXPORT_PRIVATE size_t TransportRequestInsertPlan(int32_t respect_limits,
++                                                     size_t higher_count,
++                                                     size_t same_count);
++// 0 retains position; 1 removes and reinserts at the requested priority.
++NET_EXPORT_PRIVATE int32_t TransportRequestReprioritize(int32_t current,
++                                                       int32_t requested);
++
++}  // namespace net
++
++#endif  // NET_SOCKET_TRANSPORT_REQUEST_ORDER_FFI_H_
