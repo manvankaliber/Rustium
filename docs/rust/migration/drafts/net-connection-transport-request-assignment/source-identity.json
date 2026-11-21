@@ -1,0 +1,43 @@
+{
+  "reference_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "production_base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "reuse_original_packet_commit": "fc2d429f3493ade4272d3b1e2ade96a81ba03d41",
+  "baseline_blobs_verified": 19,
+  "files": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "original_sha256": "51b9f3f2dde801aaed696ec6b7c492f2e30349650933a903aaf6ea8fff117f49",
+      "candidate_sha256": "8515980f0f1e9c46419c4768dec010542771bb6ed39dc9edadb8ba8650b7e383",
+      "candidate_blob": "44570fd97dece85aa4db572b0ab7e1bce9b91788"
+    },
+    "unchanged_regions": [
+      {
+        "begin": "TransportClientSocketPool::Group::Group(",
+        "end_excluded": "void TransportClientSocketPool::Group::OnBackupJobTimerFired(",
+        "bytes": 3696,
+        "sha256": "920afaf68376bcd6eb1e93e1a4b8796d9696764b15498e9e1223783e138d9604"
+      },
+      {
+        "begin": "void TransportClientSocketPool::Group::SanityCheck()",
+        "end_excluded": "void TransportClientSocketPool::Group::RemoveAllUnboundJobs()",
+        "bytes": 2563,
+        "sha256": "8e915a006ed04abd24f31bbe08903a699f081358e673325bff34bdfe9ecfd22a"
+      },
+      {
+        "begin": "void TransportClientSocketPool::Group::InsertUnboundRequest(",
+        "end_excluded": "}  // namespace net",
+        "bytes": 9848,
+        "sha256": "d7b0d7ba3b2bf7bcec085be84158318884a77f3009dc83e948ef7f0940741f54"
+      }
+    ],
+    "net/socket/transport_client_socket_pool.h": {
+      "original_sha256": "db18e40922f21b463edcd99284e473637cf3d4ba01d9857ae8c1abeb4d6d7b25",
+      "candidate_sha256": "a2db5e889434280256a45b07711e28f0859b4b68b7e278f8ee00e02b2f31810b",
+      "candidate_blob": "f8eaa85c5b90c78cad3b7b21402b64fedf1a0d4f"
+    },
+    "net/base/priority_queue.h": {
+      "original_sha256": "5bc3eccd79ca6bef4dddffa8f95067f01d9cd19af4fc089eead11b77571af1f1",
+      "candidate_sha256": "5bc3eccd79ca6bef4dddffa8f95067f01d9cd19af4fc089eead11b77571af1f1",
+      "candidate_blob": "96f54e66422b23e21d6bef0b17fbc6a9943cb8de"
+    }
+  }
+}

@@ -1,0 +1,272 @@
+diff --git a/net/socket/client_socket_pool_base_unittest.cc b/net/socket/client_socket_pool_base_unittest.cc
+index 5e857ea1f66f4a00ae84accc5a38e9b615b3b803..c5d07979b9921d7e3d8d44e3fc6e0025ca8d46f5 100644
+--- a/net/socket/client_socket_pool_base_unittest.cc
++++ b/net/socket/client_socket_pool_base_unittest.cc
+@@ -4979,6 +4979,32 @@ TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
+                                                                &handle1));
+ }
+ 
++
++TEST_F(ClientSocketPoolBaseTest, AssignmentStealsLastAndReturnsReleasedJob) {
++  CreatePool(2, 2);
++  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
++  ClientSocketHandle first, second, high;
++  TestCompletionCallback first_callback, second_callback, high_callback;
++  auto start = [&](ClientSocketHandle& handle, RequestPriority priority,
++                   TestCompletionCallback& callback) {
++    return handle.Init(TestGroupId("a"), params_, std::nullopt, priority,
++                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
++                       callback.callback(), ClientSocketPool::ProxyAuthCallback(),
++                       pool_.get(), NetLogWithSource());
++  };
++  ASSERT_EQ(ERR_IO_PENDING, start(first, DEFAULT_PRIORITY, first_callback));
++  ASSERT_EQ(ERR_IO_PENDING, start(second, DEFAULT_PRIORITY, second_callback));
++  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &first));
++  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &second));
++  ASSERT_EQ(ERR_IO_PENDING, start(high, HIGHEST, high_callback));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &first));
++  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &second));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &high));
++  high.Reset();
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &first));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"), &second));
++}
++
+ TEST_F(ClientSocketPoolBaseTest, RequestStealsJobFromLowestRequestWithJob) {
+   CreatePool(3, 3);
+   connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+diff --git a/net/socket/transport_assignment_original.h b/net/socket/transport_assignment_original.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..83c4585922f70c93cd8be997a96c7c47b0cec6c0
+--- /dev/null
++++ b/net/socket/transport_assignment_original.h
+@@ -0,0 +1,17 @@
++// Independent transcription of Group::GetFirstRequestWithoutJob and the
++// contiguous assigned walk in TryToAssignJobToRequest. Original Git blobs and
++// region identities are referenced by source-identity.json.
++#ifndef TRANSPORT_ASSIGNMENT_PREFIX_ORIGINAL_H_
++#define TRANSPORT_ASSIGNMENT_PREFIX_ORIGINAL_H_
++#include <cstdint>
++namespace transport_assignment_original {
++// Call on up to 16 observations in native queue order. Return the first
++// unassigned index, or count when the observed run is entirely assigned.
++inline int FirstWithoutJob(uint64_t assigned, unsigned count) {
++  unsigned i = 0;
++  for (; i < count && ((assigned >> i) & 1u); ++i) {}
++  return static_cast<int>(i);
++}
++inline bool UseFront(bool has_unassigned) { return has_unassigned; }
++}  // namespace transport_assignment_original
++#endif
+diff --git a/net/socket/transport_assignment_rust.rs b/net/socket/transport_assignment_rust.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..f00a40d4b334994e5a929041fa58cbb5145c0e33
+--- /dev/null
++++ b/net/socket/transport_assignment_rust.rs
+@@ -0,0 +1,23 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// One bit per observed request, in native order. Only the contiguous prefix
++// before the first zero is relevant. The caller supplies at most 16 bits.
++#[unsafe(no_mangle)]
++pub extern "C" fn rust_transport_assignment_prefix(bits: u32, count: u32) -> i32 {
++    if count > 16 {
++        return -1;
++    }
++    let mut i = 0;
++    while i < count && bits & (1 << i) != 0 {
++        i += 1;
++    }
++    i as i32
++}
++
++// An available unassigned job is always consumed from the native deque front.
++#[unsafe(no_mangle)]
++pub extern "C" fn rust_transport_assignment_use_front(has_unassigned: bool) -> bool {
++    has_unassigned
++}
+diff --git a/net/socket/transport_assignment_unittest.cc b/net/socket/transport_assignment_unittest.cc
+new file mode 100644
+index 0000000000000000000000000000000000000000..8f2dd8057bda4a2a2d1746d60b0b501bc7ca028f
+--- /dev/null
++++ b/net/socket/transport_assignment_unittest.cc
+@@ -0,0 +1,49 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++#include "net/socket/transport_assignment_ffi.h"
++#include "net/socket/transport_assignment_original.h"
++#include <cstdint>
++#include <vector>
++#include "testing/gtest/include/gtest/gtest.h"
++namespace net {
++namespace {
++TEST(TransportAssignmentPolicyTest, ExhaustiveChunksMatchOriginalPrefix) {
++  for (uint32_t count = 0; count <= 16; ++count) {
++    for (uint32_t bits = 0; bits < (1u << count); ++bits) {
++      ASSERT_EQ(transport_assignment_original::FirstWithoutJob(bits, count),
++                TransportAssignmentPrefix(bits, count))
++          << "count=" << count << " bits=" << bits;
++    }
++  }
++  EXPECT_EQ(-1, TransportAssignmentPrefix(0, 17));
++  EXPECT_EQ(transport_assignment_original::UseFront(false), TransportAssignmentUseFront(false));
++  EXPECT_EQ(transport_assignment_original::UseFront(true), TransportAssignmentUseFront(true));
++}
++// Mimic batch consumption over a queue snapshot. Both release (first missing)
++// and steal (immediately preceding it) use the same original prefix boundary.
++TEST(TransportAssignmentPolicyTest, PrefixAcrossBatchBoundaries) {
++  for (unsigned total = 0; total <= 50; ++total) {
++    for (unsigned assigned = 0; assigned <= total; ++assigned) {
++      std::vector<bool> jobs(total, false);
++      for (unsigned i = 0; i < assigned; ++i) jobs[i] = true;
++      unsigned at = 0;
++      while (at < total) {
++        uint32_t bits = 0;
++        unsigned count = 0;
++        for (; count < 16 && at + count < total; ++count)
++          if (jobs[at + count]) bits |= 1u << count;
++        int n = TransportAssignmentPrefix(bits, count);
++        ASSERT_GE(n, 0);
++        ASSERT_LE(n, static_cast<int>(count));
++        at += n;
++        if (n < static_cast<int>(count)) break;
++      }
++      EXPECT_EQ(assigned, at) << "total=" << total;
++      if (at) EXPECT_TRUE(jobs[at - 1]);
++      if (at < total) EXPECT_FALSE(jobs[at]);
++    }
++  }
++}
++}  // namespace
++}  // namespace net
+diff --git a/net/socket/transport_client_socket_pool.cc b/net/socket/transport_client_socket_pool.cc
+index 44570fd97dece85aa4db572b0ab7e1bce9b91788..2db6f8e460749f79dd881d97f21c750f4a0e56f5 100644
+--- a/net/socket/transport_client_socket_pool.cc
++++ b/net/socket/transport_client_socket_pool.cc
+@@ -32,11 +32,14 @@
+ #include "net/log/net_log_event_type.h"
+ #include "net/log/net_log_source.h"
+ #include "net/socket/connect_job_factory.h"
++#include "net/socket/transport_assignment_ffi.h"
+ #include "net/socket/transport_client_socket_pool_scheduling_ffi.h"
+ #include "net/traffic_annotation/network_traffic_annotation.h"
+ #include "url/gurl.h"
+ 
+ extern "C" {
++int32_t rust_transport_assignment_prefix(uint32_t bits, uint32_t count);
++bool rust_transport_assignment_use_front(bool has_unassigned);
+ int32_t rust_transport_stalled_select(uint64_t packed, uint32_t count,
+                                       int32_t previous);
+ int32_t rust_transport_idle_usable_step(int32_t state, bool value);
+@@ -48,6 +51,13 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
+ 
+ namespace net {
+ 
++int32_t TransportAssignmentPrefix(uint32_t bits, uint32_t count) {
++  return rust_transport_assignment_prefix(bits, count);
++}
++bool TransportAssignmentUseFront(bool has_unassigned) {
++  return rust_transport_assignment_use_front(has_unassigned);
++}
++
+ int32_t SelectStalledGroupBatch(uint64_t packed,
+                                 uint32_t count,
+                                 int32_t previous) {
+@@ -2204,15 +2214,32 @@ TransportClientSocketPool::Group::FindUnboundRequestWithJob(
+ 
+ TransportClientSocketPool::RequestQueue::Pointer
+ TransportClientSocketPool::Group::GetFirstRequestWithoutJob() const {
+-  RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
+-  size_t i = 0;
+-  for (; !pointer.is_null() && pointer.value()->job();
+-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
+-    ++i;
++  constexpr size_t kBatch = 16;
++  RequestQueue::Pointer cursor = unbound_requests_.FirstMax();
++  size_t assigned = 0;
++  while (!cursor.is_null()) {
++    std::array<RequestQueue::Pointer, kBatch> pointers;
++    uint32_t bits = 0;
++    uint32_t count = 0;
++    while (count < kBatch && !cursor.is_null()) {
++      pointers[count] = cursor;
++      if (cursor.value()->job())
++        bits |= uint32_t{1} << count;
++      ++count;
++      cursor = unbound_requests_.GetNextTowardsLastMin(cursor);
++    }
++    const int32_t prefix = TransportAssignmentPrefix(bits, count);
++    CHECK_GE(prefix, 0);
++    CHECK_LE(prefix, static_cast<int32_t>(count));
++    assigned += prefix;
++    if (prefix < static_cast<int32_t>(count)) {
++      DCHECK_EQ(assigned, jobs_.size() - unassigned_jobs_.size());
++      DCHECK(!pointers[prefix].value()->job());
++      return pointers[prefix];
++    }
+   }
+-  DCHECK_EQ(i, jobs_.size() - unassigned_jobs_.size());
+-  DCHECK(pointer.is_null() || !pointer.value()->job());
+-  return pointer;
++  DCHECK_EQ(assigned, jobs_.size() - unassigned_jobs_.size());
++  return RequestQueue::Pointer();
+ }
+ 
+ void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
+@@ -2228,28 +2255,38 @@ void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
+ void TransportClientSocketPool::Group::TryToAssignJobToRequest(
+     TransportClientSocketPool::RequestQueue::Pointer request_pointer) {
+   DCHECK(!request_pointer.value()->job());
+-  if (!unassigned_jobs_.empty()) {
++  if (TransportAssignmentUseFront(!unassigned_jobs_.empty())) {
+     request_pointer.value()->AssignJob(unassigned_jobs_.front());
+     unassigned_jobs_.pop_front();
+     return;
+   }
+ 
+-  // If the next request in the queue does not have a job, then there are no
+-  // requests with a job after |request_pointer| from which we can steal.
+-  RequestQueue::Pointer next_request =
++  constexpr size_t kBatch = 16;
++  RequestQueue::Pointer cursor =
+       unbound_requests_.GetNextTowardsLastMin(request_pointer);
+-  if (next_request.is_null() || !next_request.value()->job())
+-    return;
+-
+-  // Walk down the queue to find the last request with a job.
+-  RequestQueue::Pointer cur = next_request;
+-  RequestQueue::Pointer next = unbound_requests_.GetNextTowardsLastMin(cur);
+-  while (!next.is_null() && next.value()->job()) {
+-    cur = next;
+-    next = unbound_requests_.GetNextTowardsLastMin(next);
++  RequestQueue::Pointer last_assigned;
++  while (!cursor.is_null()) {
++    std::array<RequestQueue::Pointer, kBatch> pointers;
++    uint32_t bits = 0;
++    uint32_t count = 0;
++    while (count < kBatch && !cursor.is_null()) {
++      pointers[count] = cursor;
++      if (cursor.value()->job())
++        bits |= uint32_t{1} << count;
++      ++count;
++      cursor = unbound_requests_.GetNextTowardsLastMin(cursor);
++    }
++    const int32_t prefix = TransportAssignmentPrefix(bits, count);
++    CHECK_GE(prefix, 0);
++    CHECK_LE(prefix, static_cast<int32_t>(count));
++    if (prefix > 0)
++      last_assigned = pointers[prefix - 1];
++    if (prefix < static_cast<int32_t>(count))
++      break;
+   }
+-  // Steal the job from the last request with a job.
+-  TransferJobBetweenRequests(cur.value().get(), request_pointer.value().get());
++  if (!last_assigned.is_null())
++    TransferJobBetweenRequests(last_assigned.value().get(),
++                               request_pointer.value().get());
+ }
+ 
+ void TransportClientSocketPool::Group::TransferJobBetweenRequests(

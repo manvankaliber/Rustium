@@ -1,0 +1,45 @@
+{
+  "production_base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "files": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "before_sha256": "8515980f0f1e9c46419c4768dec010542771bb6ed39dc9edadb8ba8650b7e383",
+      "after_sha256": "5086efb0ca779dba640fc563d8af1c0ab1332b3f38b61aacbfd71a7abb56409a",
+      "after_git_blob": "2db6f8e460749f79dd881d97f21c750f4a0e56f5"
+    },
+    "net/socket/client_socket_pool_base_unittest.cc": {
+      "before_sha256": "e4088d122982ae9c0220c6861a6ab09ee90671e855233a91f91d006688bb6bdf",
+      "after_sha256": "2c4836c9f833201b06c454d16addd0ce38105e489da98a7e8f443d6729c65233",
+      "after_git_blob": "c5d07979b9921d7e3d8d44e3fc6e0025ca8d46f5"
+    },
+    "net/socket/transport_assignment_rust.rs": {
+      "before_sha256": null,
+      "after_sha256": "328fcf78da50b13b8d48f8314c51a41f56d79fe874d043d4554ae42537decc9a",
+      "after_git_blob": "f00a40d4b334994e5a929041fa58cbb5145c0e33"
+    },
+    "net/socket/transport_assignment_original.h": {
+      "before_sha256": null,
+      "after_sha256": "b5ddb3ef7ed5338b4e7890bc46a0e86d0612705f2ca9acf66811d9b5b299c638",
+      "after_git_blob": "83c4585922f70c93cd8be997a96c7c47b0cec6c0"
+    },
+    "net/socket/transport_assignment_unittest.cc": {
+      "before_sha256": null,
+      "after_sha256": "61873a45000f42aa7e9c7282bc349a79205084e398fcd2b14ac241650fee20eb",
+      "after_git_blob": "8f2dd8057bda4a2a2d1746d60b0b501bc7ca028f"
+    },
+    "net/BUILD.gn": {
+      "before_sha256": "91847b87a6b56f63cb5e80294427804d411f59a22a5bc888b75a485094e0b15a",
+      "after_sha256": "2fd3774cd3ff3f3a405cf48d18b721265a4e5fa76b2cc40271118fa83abe1774",
+      "after_git_blob": "09c3a7b27ce04868db60dc1e4ffb212d4635b488"
+    },
+    "net/socket/transport_assignment_ffi.h": {
+      "before_sha256": null,
+      "after_sha256": "623d2f77031854a0b017f92b6bcff7db03bf3058fd541d1a765d43a3b81c902f",
+      "after_git_blob": "1db4ea068bd5959becad9e8d8c935ead48e0491a"
+    }
+  },
+  "patches": {
+    "production.patch": "0a23ba4af2226edec17c2ecf237c440fb1a7f654c533f701ee4fb17c96e95ac4",
+    "director-linkage.patch": "7388ed1e909ecd76a7edff2dc8e3cbf1356ec838758794cdc28592ce6a3e6655"
+  },
+  "validation": "Applied in sequence to isolated Git index at pinned base; no build or test."
+}
