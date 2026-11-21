@@ -255,6 +255,16 @@ rust_static_library("gzip_header_parser") {
   ]
 }
 
+rust_static_library("retained_request_order_rust") {
+  crate_root = "socket/retained_request_queue_ffi.rs"
+  sources = [
+    "socket/retained_queue.rs",
+    "socket/retained_request_queue_ffi.rs",
+  ]
+  allow_unsafe = true  # Private opaque queue and caller-owned output ABI.
+  visibility = [ ":*" ]
+}
+
 rust_static_library("transport_assignment_rust") {
   crate_root = "socket/transport_assignment_rust.rs"
   sources = [ "socket/transport_assignment_rust.rs" ]
@@ -1577,6 +1587,8 @@ component("net") {
     "socket/transport_client_socket_pool.cc",
     "socket/transport_client_socket_pool.h",
     "socket/transport_assignment_ffi.h",
+    "socket/native_owner_adapter.h",
+    "socket/retained_queue_ffi.h",
     "socket/transport_client_socket_pool_scheduling_ffi.h",
     "socket/transport_connect_job.cc",
     "socket/transport_connect_job.h",
@@ -1801,6 +1813,7 @@ component("net") {
     ":tls_session_cache_rust",
     ":transport_client_socket_pool_idle_rust",
     ":transport_assignment_rust",
+    ":retained_request_order_rust",
     ":transport_client_socket_pool_scheduling_rust",
     ":websocket_extension_rust",
     ":websocket_frame_rust",

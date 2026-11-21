@@ -56,6 +56,8 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
 
 namespace net {
 
+static_assert(MINIMUM_PRIORITY == 0 && MAXIMUM_PRIORITY == 5);
+
 size_t TransportAssignmentHole(size_t rank,
                                size_t request_count,
                                size_t assigned,
@@ -1735,9 +1737,7 @@ void TransportClientSocketPool::OnPreconnectConnectJobComplete(
 TransportClientSocketPool::Group::Group(
     const GroupId& group_id,
     TransportClientSocketPool* client_socket_pool)
-    : group_id_(group_id),
-      client_socket_pool_(client_socket_pool),
-      unbound_requests_(NUM_PRIORITIES) {}
+    : group_id_(group_id), client_socket_pool_(client_socket_pool) {}
 
 TransportClientSocketPool::Group::~Group() {
   DCHECK_EQ(0u, never_assigned_job_count());
@@ -1819,15 +1819,15 @@ std::unique_ptr<ConnectJob> TransportClientSocketPool::Group::RemoveUnboundJob(
     // try to replace it with another job if possible (either by taking an
     // unassigned job or stealing from another request, if any requests after it
     // have a job).
-    size_t request_rank = 0;
-    RequestQueue::Pointer request_with_job =
-        FindUnboundRequestWithJob(job, &request_rank);
-    DCHECK(!request_with_job.is_null());
-    request_with_job.value()->ReleaseJob();
+    const uint64_t token = FindUnboundRequestWithJob(job);
+    DCHECK_NE(token, 0u);
+    Request* request = unbound_requests_.Lookup(token);
+    request->ReleaseJob();
     DCHECK_GT(jobs_.size(), unassigned_jobs_.size());
-    // The released job remains in jobs_ until after the reassignment.
-    TryToAssignJobToRequest(request_with_job, request_rank,
-                            jobs_.size() - unassigned_jobs_.size() - 1);
+    // The removed job remains in jobs_ until reassignment completes.
+    ApplyAssignment(token, unbound_requests_.Hole(
+                               token, jobs_.size() - unassigned_jobs_.size() - 1,
+                               unassigned_jobs_.size()));
   }
   std::unique_ptr<ConnectJob> owned_job = std::move(*it);
   jobs_.erase(it);
@@ -1882,7 +1882,7 @@ void TransportClientSocketPool::Group::OnBackupJobTimerFired(
   if (unbound_requests_.empty())
     return;
 
-  Request* request = unbound_requests_.FirstMax().value().get();
+  Request* request = unbound_requests_.Lookup(unbound_requests_.At(0));
   std::unique_ptr<ConnectJob> owned_backup_job =
       client_socket_pool_->CreateConnectJob(
           group_id, request->socket_params(), request->proxy_annotation_tag(),
@@ -1904,57 +1904,34 @@ void TransportClientSocketPool::Group::SanityCheck() const {
 #if DCHECK_IS_ON()
   DCHECK_LE(never_assigned_job_count(), jobs_.size());
   DCHECK_LE(unassigned_job_count(), jobs_.size());
-
-  // Check that |unassigned_jobs_| is empty iff there are at least as many
-  // requests as jobs.
   DCHECK_EQ(unassigned_jobs_.empty(), jobs_.size() <= unbound_requests_.size());
-
-  size_t num_assigned_jobs = jobs_.size() - unassigned_jobs_.size();
-
-  RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-  for (size_t i = 0; i < unbound_requests_.size();
-       ++i, pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-    DCHECK(!pointer.is_null());
-    DCHECK(pointer.value());
-    // Check that the first |num_assigned_jobs| requests have valid job
-    // assignments.
+  const size_t num_assigned_jobs = jobs_.size() - unassigned_jobs_.size();
+  const auto tokens = unbound_requests_.Snapshot();
+  DCHECK_EQ(tokens.size(), unbound_requests_.size());
+  DCHECK_LE(num_assigned_jobs, tokens.size());
+  for (size_t i = 0; i < tokens.size(); ++i) {
+    Request* request = unbound_requests_.Lookup(tokens[i]);
+    DCHECK(request);
     if (i < num_assigned_jobs) {
-      // The request has a job.
-      ConnectJob* job = pointer.value()->job();
+      ConnectJob* job = request->job();
       DCHECK(job);
-      // The request's job is not in |unassigned_jobs_|
       DCHECK(!std::ranges::contains(unassigned_jobs_, job));
-      // The request's job is in |jobs_|
-      DCHECK(
-          std::ranges::contains(jobs_, job, &std::unique_ptr<ConnectJob>::get));
-      // The same job is not assigned to any other request with a job.
-      RequestQueue::Pointer pointer2 =
-          unbound_requests_.GetNextTowardsLastMin(pointer);
-      for (size_t j = i + 1; j < num_assigned_jobs;
-           ++j, pointer2 = unbound_requests_.GetNextTowardsLastMin(pointer2)) {
-        DCHECK(!pointer2.is_null());
-        ConnectJob* job2 = pointer2.value()->job();
-        DCHECK(job2);
-        DCHECK_NE(job, job2);
+      DCHECK(std::ranges::contains(jobs_, job, &std::unique_ptr<ConnectJob>::get));
+      for (size_t j = i + 1; j < num_assigned_jobs; ++j) {
+        ConnectJob* other = unbound_requests_.Lookup(tokens[j])->job();
+        DCHECK(other);
+        DCHECK_NE(job, other);
       }
-      DCHECK_EQ(pointer.value()->priority(), job->priority());
+      DCHECK_EQ(request->priority(), job->priority());
     } else {
-      // Check that any subsequent requests do not have a job.
-      DCHECK(!pointer.value()->job());
+      DCHECK(!request->job());
     }
   }
-
   for (auto it = unassigned_jobs_.begin(); it != unassigned_jobs_.end(); ++it) {
-    // Check that all unassigned jobs are in |jobs_|
     ConnectJob* job = *it;
-    DCHECK(
-        std::ranges::contains(jobs_, job, &std::unique_ptr<ConnectJob>::get));
-    // Check that there are no duplicated entries in |unassigned_jobs_|
-    for (auto it2 = std::next(it); it2 != unassigned_jobs_.end(); ++it2) {
+    DCHECK(std::ranges::contains(jobs_, job, &std::unique_ptr<ConnectJob>::get));
+    for (auto it2 = std::next(it); it2 != unassigned_jobs_.end(); ++it2)
       DCHECK_NE(job, *it2);
-    }
-
-    // Check that no |unassigned_jobs_| are in |bound_requests_|.
     DCHECK(!std::ranges::contains(bound_requests_, job,
                                   [](const BoundRequest& bound_request) {
                                     return bound_request.connect_job.get();
@@ -1968,10 +1945,12 @@ void TransportClientSocketPool::Group::RemoveAllUnboundJobs() {
 
   // Remove jobs from any requests that have them.
   if (!unbound_requests_.empty()) {
-    for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-         !pointer.is_null() && pointer.value()->job();
-         pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-      pointer.value()->ReleaseJob();
+    for (uint64_t token : unbound_requests_.SnapshotPrefix(
+             jobs_.size() - unassigned_jobs_.size())) {
+      Request* request = unbound_requests_.Lookup(token);
+      if (!request->job())
+        break;
+      request->ReleaseJob();
     }
   }
   unassigned_jobs_.clear();
@@ -2004,75 +1983,51 @@ ConnectJob* TransportClientSocketPool::Group::GetConnectJobForHandle(
 
   // Search through the unbound requests that have corresponding jobs for a
   // request with |handle|.
-  for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-       !pointer.is_null() && pointer.value()->job();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-    if (pointer.value()->handle() == handle)
-      return pointer.value()->job();
-  }
-
-  return nullptr;
+  const uint64_t token = unbound_requests_.FindIf(
+      [handle](const Request& request) { return request.handle() == handle; });
+  return token ? unbound_requests_.Lookup(token)->job() : nullptr;
 }
 
 void TransportClientSocketPool::Group::InsertUnboundRequest(
     std::unique_ptr<Request> request) {
   SanityCheck();
-
-  // Should not have a job because it is not already in |unbound_requests_|
   DCHECK(!request->job());
-  // This value must be cached before we release |request|.
-  RequestPriority priority = request->priority();
-
-  const bool insert_at_front =
-      request->respect_limits() == RespectLimits::DISABLED;
-  const size_t request_rank =
-      unbound_requests_.InsertionRank(priority, insert_at_front);
-  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
-  RequestQueue::Pointer new_position;
-  if (insert_at_front) {
-    // Put requests with RespectLimits::DISABLED (which should have
-    // priority == MAXIMUM_PRIORITY) ahead of other requests with
-    // MAXIMUM_PRIORITY.
+  const RequestPriority priority = request->priority();
+  const bool respect = request->respect_limits() == RespectLimits::ENABLED;
+  if (!respect)
     DCHECK_EQ(priority, MAXIMUM_PRIORITY);
-    new_position =
-        unbound_requests_.InsertAtFront(std::move(request), priority);
-  } else {
-    new_position = unbound_requests_.Insert(std::move(request), priority);
-  }
+  const auto action = unbound_requests_.Insert(
+      std::move(request), static_cast<uint8_t>(priority), respect,
+      jobs_.size() - unassigned_jobs_.size(), unassigned_jobs_.size());
   DCHECK(!unbound_requests_.empty());
-
-  TryToAssignJobToRequest(new_position, request_rank, assigned_count);
-
+  ApplyAssignment(action.token, action);
   SanityCheck();
 }
 
 const TransportClientSocketPool::Request*
 TransportClientSocketPool::Group::GetNextUnboundRequest() const {
-  return unbound_requests_.empty() ? nullptr
-                                   : unbound_requests_.FirstMax().value().get();
+  return unbound_requests_.empty()
+             ? nullptr
+             : unbound_requests_.Lookup(unbound_requests_.At(0));
 }
 
 std::unique_ptr<TransportClientSocketPool::Request>
 TransportClientSocketPool::Group::PopNextUnboundRequest() {
   if (unbound_requests_.empty())
     return nullptr;
-  return RemoveUnboundRequest(unbound_requests_.FirstMax());
+  return RemoveUnboundRequest(unbound_requests_.At(0));
 }
 
 std::unique_ptr<TransportClientSocketPool::Request>
 TransportClientSocketPool::Group::FindAndRemoveUnboundRequest(
     ClientSocketHandle* handle) {
-  for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-       !pointer.is_null();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-    if (pointer.value()->handle() == handle) {
-      DCHECK_EQ(static_cast<RequestPriority>(pointer.priority()),
-                pointer.value()->priority());
-      std::unique_ptr<Request> request = RemoveUnboundRequest(pointer);
-      return request;
-    }
-  }
-  return nullptr;
+  const uint64_t token = unbound_requests_.FindIf(
+      [handle](const Request& request) { return request.handle() == handle; });
+  if (!token)
+    return nullptr;
+  DCHECK_EQ(static_cast<RequestPriority>(unbound_requests_.Priority(token)),
+            unbound_requests_.Lookup(token)->priority());
+  return RemoveUnboundRequest(token);
 }
 
 void TransportClientSocketPool::Group::SetPendingErrorForAllBoundRequests(
@@ -2140,27 +2095,37 @@ TransportClientSocketPool::Group::FindAndRemoveBoundRequest(
 
 void TransportClientSocketPool::Group::SetPriority(ClientSocketHandle* handle,
                                                    RequestPriority priority) {
-  for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-       !pointer.is_null();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-    if (pointer.value()->handle() == handle) {
-      if (pointer.value()->priority() == priority)
-        return;
-
-      std::unique_ptr<Request> request = RemoveUnboundRequest(pointer);
-
-      // Requests that ignore limits much be created and remain at the highest
-      // priority, and should not be reprioritized.
-      DCHECK_EQ(request->respect_limits(), RespectLimits::ENABLED);
-
-      request->set_priority(priority);
-      InsertUnboundRequest(std::move(request));
-      return;
-    }
+  const uint64_t token = unbound_requests_.FindIf(
+      [handle](const Request& request) { return request.handle() == handle; });
+  if (!token) {
+    NOTREACHED();
+    return;
   }
-
-  // This function must be called with a valid ClientSocketHandle.
-  NOTREACHED();
+#if DCHECK_IS_ON()
+  // RemoveUnboundRequest checked the original group only for a real change.
+  if (unbound_requests_.Lookup(token)->priority() != priority)
+    SanityCheck();
+#endif
+  auto node =
+      unbound_requests_.DetachForPriority(token, static_cast<uint8_t>(priority));
+  if (node.empty())
+    return;
+  Request* request = node.mapped().get();
+  if (request->job())
+    TryToAssignUnassignedJob(request->ReleaseJob());
+  if (unbound_requests_.empty())
+    backup_job_timer_.Stop();
+  SanityCheck();
+  DCHECK_EQ(request->respect_limits(), RespectLimits::ENABLED);
+  request->set_priority(priority);
+  // InsertUnboundRequest checked the group again before insertion.
+  SanityCheck();
+  const auto action = unbound_requests_.Finish(
+      std::move(node), jobs_.size() - unassigned_jobs_.size(),
+      unassigned_jobs_.size());
+  DCHECK(!unbound_requests_.empty());
+  ApplyAssignment(token, action);
+  SanityCheck();
 }
 
 bool TransportClientSocketPool::Group::RequestWithHandleHasJobForTesting(
@@ -2168,15 +2133,10 @@ bool TransportClientSocketPool::Group::RequestWithHandleHasJobForTesting(
   SanityCheck();
   if (GetConnectJobForHandle(handle))
     return true;
-
-  // There's no corresponding ConnectJob. Verify that the handle is at least
-  // owned by a request.
-  RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-  for (size_t i = 0; i < unbound_requests_.size(); ++i) {
-    if (pointer.value()->handle() == handle)
-      return false;
-    pointer = unbound_requests_.GetNextTowardsLastMin(pointer);
-  }
+  const uint64_t token = unbound_requests_.FindIf(
+      [handle](const Request& request) { return request.handle() == handle; });
+  if (token)
+    return false;
   NOTREACHED();
 }
 
@@ -2202,83 +2162,57 @@ TransportClientSocketPool::Group::BoundRequest::operator=(
 TransportClientSocketPool::Group::BoundRequest::~BoundRequest() = default;
 
 std::unique_ptr<TransportClientSocketPool::Request>
-TransportClientSocketPool::Group::RemoveUnboundRequest(
-    const RequestQueue::Pointer& pointer) {
+TransportClientSocketPool::Group::RemoveUnboundRequest(uint64_t token) {
   SanityCheck();
-
-  std::unique_ptr<Request> request = unbound_requests_.Erase(pointer);
-  if (request->job()) {
+  std::unique_ptr<Request> request = unbound_requests_.Remove(token);
+  if (request->job())
     TryToAssignUnassignedJob(request->ReleaseJob());
-  }
-  // If there are no more unbound requests, kill the backup timer.
   if (unbound_requests_.empty())
     backup_job_timer_.Stop();
-
   SanityCheck();
   return request;
 }
 
-TransportClientSocketPool::RequestQueue::Pointer
-TransportClientSocketPool::Group::FindUnboundRequestWithJob(
-    const ConnectJob* job,
-    size_t* request_rank) const {
+uint64_t TransportClientSocketPool::Group::FindUnboundRequestWithJob(
+    const ConnectJob* job) const {
   SanityCheck();
-  *request_rank = 0;
-
-  for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-       !pointer.is_null() && pointer.value()->job();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer),
-       ++(*request_rank)) {
-    if (pointer.value()->job() == job)
-      return pointer;
-  }
-  // If a request with the job was not found, it must be in |unassigned_jobs_|.
-  DCHECK(std::ranges::contains(unassigned_jobs_, job));
-  return RequestQueue::Pointer();
+  const uint64_t token = unbound_requests_.FindIf(
+      [job](const Request& request) { return request.job() == job; });
+  if (!token)
+    DCHECK(std::ranges::contains(unassigned_jobs_, job));
+  return token;
 }
 
 void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
     ConnectJob* job) {
   unassigned_jobs_.push_back(job);
-  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
-  const size_t rank = TransportAssignmentRelease(
-      unbound_requests_.size(), assigned_count, unassigned_jobs_.size());
-  CHECK_NE(rank, kTransportAssignmentInvalid);
-  if (rank == kTransportAssignmentNone)
+  const uint64_t token = unbound_requests_.Release(
+      jobs_.size() - unassigned_jobs_.size(), unassigned_jobs_.size());
+  if (!token)
     return;
-  CHECK_LT(rank, unbound_requests_.size());
-  RequestQueue::Pointer request = unbound_requests_.FirstMax();
-  for (size_t i = 0; i < rank; ++i)
-    request = unbound_requests_.GetNextTowardsLastMin(request);
-  DCHECK(!request.is_null());
-  DCHECK(!request.value()->job());
-  request.value()->AssignJob(unassigned_jobs_.back());
+  Request* request = unbound_requests_.Lookup(token);
+  DCHECK(request);
+  DCHECK(!request->job());
+  request->AssignJob(unassigned_jobs_.back());
   unassigned_jobs_.pop_back();
 }
 
-void TransportClientSocketPool::Group::TryToAssignJobToRequest(
-    TransportClientSocketPool::RequestQueue::Pointer request_pointer,
-    size_t request_rank,
-    size_t assigned_count) {
-  DCHECK(!request_pointer.value()->job());
-  const size_t action = TransportAssignmentHole(
-      request_rank, unbound_requests_.size(), assigned_count,
-      unassigned_jobs_.size());
-  CHECK_NE(action, kTransportAssignmentInvalid);
-  if (action == kTransportAssignmentFront) {
-    request_pointer.value()->AssignJob(unassigned_jobs_.front());
+void TransportClientSocketPool::Group::ApplyAssignment(
+    uint64_t token, const RustRequestOrderReply& action) {
+  Request* request = unbound_requests_.Lookup(token);
+  DCHECK(request);
+  DCHECK(!request->job());
+  if (action.action == 0)
+    return;
+  if (action.action == 1) {
+    request->AssignJob(unassigned_jobs_.front());
     unassigned_jobs_.pop_front();
     return;
   }
-  if (action == kTransportAssignmentNone)
-    return;
-  CHECK_GT(action, request_rank);
-  CHECK_LT(action, unbound_requests_.size());
-  RequestQueue::Pointer donor = request_pointer;
-  for (size_t rank = request_rank; rank < action; ++rank)
-    donor = unbound_requests_.GetNextTowardsLastMin(donor);
-  DCHECK(!donor.is_null());
-  TransferJobBetweenRequests(donor.value().get(), request_pointer.value().get());
+  CHECK_EQ(action.action, 2u);
+  Request* donor = unbound_requests_.Lookup(action.donor);
+  CHECK(donor);
+  TransferJobBetweenRequests(donor, request);
 }
 
 void TransportClientSocketPool::Group::TransferJobBetweenRequests(

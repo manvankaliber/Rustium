@@ -30,13 +30,13 @@
 #include "net/base/net_errors.h"
 #include "net/base/net_export.h"
 #include "net/base/network_change_notifier.h"
-#include "net/base/priority_queue.h"
 #include "net/base/request_priority.h"
 #include "net/dns/public/resolution_details.h"
 #include "net/log/net_log_with_source.h"
 #include "net/socket/client_socket_handle.h"
 #include "net/socket/client_socket_pool.h"
 #include "net/socket/connect_job.h"
+#include "net/socket/native_owner_adapter.h"
 #include "net/socket/connection_attempts.h"
 #include "net/socket/socket_tag.h"
 #include "net/socket/ssl_client_socket.h"
@@ -295,7 +295,7 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
   // Entry for a persistent socket which became idle at time |start_time|.
   struct IdleSocket;
 
-  using RequestQueue = PriorityQueue<std::unique_ptr<Request>>;
+  using RequestQueue = RetainedRequestOwners<Request>;
 
   // A Group is allocated per GroupId when there are idle sockets, unbound
   // request, or bound requests. Otherwise, the Group object is removed from the
@@ -393,9 +393,7 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     // queue, due to how we prioritize requests with |respect_limits|
     // DISABLED over others).
     RequestPriority TopPendingPriority() const {
-      // NOTE: FirstMax().value()->priority() is not the same as
-      // FirstMax().priority()!
-      return unbound_requests_.FirstMax().value()->priority();
+      return unbound_requests_.Lookup(unbound_requests_.At(0))->priority();
     }
 
     // Set a timer to create a backup job if it takes too long to
@@ -494,15 +492,10 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
    private:
     // Returns the iterator's unbound request after removing it from
     // the queue. Expects the Group to pass SanityCheck() when called.
-    std::unique_ptr<Request> RemoveUnboundRequest(
-        const RequestQueue::Pointer& pointer);
+    std::unique_ptr<Request> RemoveUnboundRequest(uint64_t token);
 
-    // Finds the Request which is associated with the given ConnectJob.
-    // Returns a null pointer if none is found; otherwise also reports the
-    // zero-based request rank. Expects the Group to pass SanityCheck().
-    RequestQueue::Pointer FindUnboundRequestWithJob(
-        const ConnectJob* job,
-        size_t* request_rank) const;
+    // Finds the token associated with a ConnectJob, or zero if unassigned.
+    uint64_t FindUnboundRequestWithJob(const ConnectJob* job) const;
 
     // Tries to assign an unassigned |job| to a request. If no requests need a
     // job, |job| is added to |unassigned_jobs_|.
@@ -511,22 +504,9 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     // either created or had the request it was assigned to removed.
     void TryToAssignUnassignedJob(ConnectJob* job);
 
-    // Tries to assign a job to the given request. If any unassigned jobs are
-    // available, the first unassigned job is assigned to the request.
-    // Otherwise, if the request is ahead of the last request with a job, the
-    // job is stolen from the last request with a job.
-    // When called, does not expect the Group to pass SanityCheck(), but does
-    // expect that:
-    //  - the request associated with |request_pointer| must not have
-    //    an assigned ConnectJob,
-    //  - the first min( jobs_.size(), unbound_requests_.size() - 1 ) Requests
-    //    other than the given request must have ConnectJobs, i.e. the group
-    //    must have passed SanityCheck() before the passed in Request was either
-    //    added or had its job unassigned.
-    // |assigned_count| excludes the job just released from the hole.
-    void TryToAssignJobToRequest(RequestQueue::Pointer request_pointer,
-                                 size_t request_rank,
-                                 size_t assigned_count);
+    // Applies the Rust queue's action without retaining any Rust borrow while
+    // native priority propagation runs.
+    void ApplyAssignment(uint64_t token, const RustRequestOrderReply& action);
 
     // Transfers the associated ConnectJob from one Request to another. Expects
     // the source request to have a job, and the destination request to not have

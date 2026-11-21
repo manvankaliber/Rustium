@@ -1532,6 +1532,41 @@ TEST_F(ClientSocketPoolBaseTest, ReprioritizeDownReorder) {
 
 // Reprioritize a request to the same level as another and confirm it is
 // put after the old request.
+TEST_F(ClientSocketPoolBaseTest, RetainedQueueSameAndChangedPriority) {
+  CreatePool(1, 1);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  TestCompletionCallback first_callback, second_callback, third_callback;
+  ClientSocketHandle first, second, third;
+  auto start = [&](ClientSocketHandle& handle, TestCompletionCallback& callback) {
+    return handle.Init(TestGroupId("a"), params_, std::nullopt, LOW,
+                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                       callback.callback(),
+                       ClientSocketPool::ProxyAuthCallback(), pool_.get(),
+                       NetLogWithSource());
+  };
+  ASSERT_EQ(ERR_IO_PENDING, start(first, first_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(second, second_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(third, third_callback));
+  second.SetPriority(LOW);  // Must preserve its position before third.
+  first.Reset();
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &third));
+  second.SetPriority(MEDIUM);
+  second.SetPriority(LOW);  // Reinsert after third at the same priority.
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &second));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &third));
+  third.Reset();
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+}
+
+// Reprioritize a request to the same level as another and confirm it is
+// put after the old request.
+
 TEST_F(ClientSocketPoolBaseTest, ReprioritizeResetFIFO) {
   CreatePool(kDefaultMaxSockets, 1);
 
