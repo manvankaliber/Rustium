@@ -347,6 +347,9 @@ class MockClientSocketFactory : public ClientSocketFactory {
 
   void SignalJob(size_t job);
 
+  size_t waiting_job_count() const { return waiting_jobs_.size(); }
+  void ForgetWaitingJobs() { waiting_jobs_.clear(); }
+
   void SetJobLoadState(size_t job, LoadState load_state);
 
   void ExpectJobPriority(size_t job, RequestPriority priority);
@@ -1619,12 +1622,25 @@ TEST_F(ClientSocketPoolBaseTest,
   testing::StrictMock<TestDispatchJob> blocker;
   testing::StrictMock<TestDispatchJob> promoted;
   EXPECT_CALL(blocker, Start());
-  EXPECT_TRUE(dispatcher.Add(&blocker, IDLE).is_null());
+  ASSERT_TRUE(dispatcher.Add(&blocker, IDLE).is_null());
   auto queued = dispatcher.Add(&promoted, IDLE);
   ASSERT_FALSE(queued.is_null());
+  base::ScopedClosureRunner finish_dispatch(base::BindLambdaForTesting([&] {
+    if (queued.is_null()) {
+      dispatcher.OnJobFinished();
+    } else {
+      dispatcher.Cancel(queued);
+    }
+    dispatcher.OnJobFinished();
+  }));
 
+  // The fixture pool can outlive local state after a fatal expectation.
+  base::ScopedClosureRunner forget_waiters(base::BindOnce(
+      &MockClientSocketFactory::ForgetWaitingJobs,
+      base::Unretained(&client_socket_factory_)));
   ASSERT_THAT(StartRequest(group, HIGHEST), IsError(ERR_IO_PENDING));
   ASSERT_THAT(StartRequest(group, LOW), IsError(ERR_IO_PENDING));
+  ASSERT_EQ(1u, client_socket_factory_.waiting_job_count());
 
   bool dispatched = false;
   EXPECT_CALL(promoted, Start()).WillOnce([&] {
@@ -1648,27 +1664,24 @@ TEST_F(ClientSocketPoolBaseTest,
       }));
 
   request(0)->handle()->SetPriority(MEDIUM);
+  client_socket_factory_.SetJobPriorityCallback(0, {});
   EXPECT_TRUE(dispatched);
   EXPECT_TRUE(queued.is_null());
   EXPECT_THAT(priorities, testing::ElementsAre(LOW, MEDIUM));
   EXPECT_FALSE(request(0)->have_result());
   EXPECT_FALSE(request(1)->have_result());
 
-  // Finish the job only after the synchronous priority propagation returns.
-  client_socket_factory_.SetJobPriorityCallback(0, {});
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+  // Drain a posted completion, then check the result without waiting on a
+  // request that may never receive the socket if the scheduler regresses.
+  ASSERT_EQ(1u, client_socket_factory_.waiting_job_count());
+  ASSERT_TRUE(base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::BindOnce(&MockClientSocketFactory::SignalJob,
                                base::Unretained(&client_socket_factory_),
-                               size_t{0}));
-  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
+                               size_t{0})));
+  base::RunLoop().RunUntilIdle();
   EXPECT_FALSE(request(1)->have_result());
-
-  if (queued.is_null()) {
-    dispatcher.OnJobFinished();
-  } else {
-    dispatcher.Cancel(queued);
-  }
-  dispatcher.OnJobFinished();
+  ASSERT_TRUE(request(0)->have_result());
+  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
 }
 
 // Reprioritize a request to the same level as another and confirm it is
