@@ -1,0 +1,50 @@
+{
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "scope": "standalone stateful queue; no production patch",
+  "files": {
+    ".gitattributes": {
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    "compare_trace.py": {
+      "bytes": 774,
+      "sha256": "496f996e0cda3d23499436d8866a416758318d0b7f5af17a62ed5db19c3415cd"
+    },
+    "oracle/frozen-connect-job.cc": {
+      "bytes": 10202,
+      "sha256": "c74cfc53703d17ffdae87554c1ac81ed376362db7cab16ac34a4bc560c274c53"
+    },
+    "oracle/original_trace.cc": {
+      "bytes": 4274,
+      "sha256": "7992628c1bfc8d65a91b2e253f525c22e0e31f51ff89fe4d20d5d1f3be7aaa7c"
+    },
+    "QUEUE-USES.md": {
+      "bytes": 1142,
+      "sha256": "fe7a6b1f78455a6544b05616f2486228fcfa05d8742677e7428aae724ddc64a2"
+    },
+    "README.md": {
+      "bytes": 3623,
+      "sha256": "536aebdbb331ac1efc1142ee9962ba7bb16655e0ce3f27317e13852071c15bec"
+    },
+    "source-identity.json": {
+      "bytes": 2373,
+      "sha256": "e45d5bb8db1d69937c0bc3c39c98e6773a535a3519e3659fc6b5bf8f2adefd74"
+    },
+    "src/request_queue.rs": {
+      "bytes": 7809,
+      "sha256": "e106a7e7fcba47a6677cccafb8129cac16ee119ee6d087e213ffdbddaee27472"
+    },
+    "src/request_queue_tests.rs": {
+      "bytes": 3222,
+      "sha256": "9208f3cb2d4c3c4b17f92b4c3d72bec442ce949296244716dc60ef4c67bc82de"
+    },
+    "src/trace.rs": {
+      "bytes": 3082,
+      "sha256": "ba5d37bee6bf57e4cda93c75be74d47563fa60421f5e7f8c49836d9039db22da"
+    },
+    "TRANSACTIONS.md": {
+      "bytes": 6155,
+      "sha256": "7573810abb1736547c78575b90dc8f3298f8c477fcc2aa55cdccaca713b95a62"
+    }
+  }
+}

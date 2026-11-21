@@ -1,0 +1,56 @@
+{
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "prior_freeze_commit": "bd8b1077791e6e3001bd4290ccde86fa1be0946e",
+  "held_packet_commit": "dd87e538a5fb00581b22c4d648767898c29417b1",
+  "reused_original_freeze_commit": "fc2d429f3493ade4272d3b1e2ade96a81ba03d41",
+  "candidate_sources": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "git_blob": "fa578f417d563a30961d59c0a53c2c52cf8cbfc2",
+      "bytes": 84891,
+      "sha256": "d209f6d8aa3b7b5d1f18a449d2ca5c53bf9a4adc3e9d604c933a792f25d6f39a"
+    },
+    "net/socket/transport_client_socket_pool.h": {
+      "git_blob": "bf25b90ce910d9051393c90fb4435b5a1c503d81",
+      "bytes": 36500,
+      "sha256": "e992564b26a57f02e9f400b053f5b6d158cadfe475280ef1ad13bff37c27e534"
+    },
+    "net/socket/client_socket_pool.h": {
+      "git_blob": "bf2615f67cbc2814fef161421d920401dedeaed0",
+      "bytes": 20565,
+      "sha256": "0064528d1aeec3cef9b658088b0419890caee60442203f56d2fd22e9d9bfc328"
+    },
+    "net/base/priority_queue.h": {
+      "git_blob": "262a1dca5c2615c656f42bbe916bbd66f7e20fa2",
+      "bytes": 12419,
+      "sha256": "9407728b7015f9928553528943dc40f7ef8014cce91cd873db198a9a65dc723c"
+    },
+    "net/base/priority_queue_unittest.cc": {
+      "git_blob": "ae77e5fbfd02222d26e19e449ecff28fc4ce8ecc",
+      "bytes": 9376,
+      "sha256": "b77763828ba2f9423f94530a76f545185853226e3786391b9a736ab6b57e35aa"
+    },
+    "net/socket/client_socket_pool_base_unittest.cc": {
+      "git_blob": "a073f2dc2f483baad62503eb2b134ca16925b504",
+      "bytes": 284729,
+      "sha256": "6ab91f7be9460a91abee9f216f1e4c27c900e85cca05acd40b37f821f4e4e088"
+    },
+    "net/socket/transport_assignment_rust.rs": {
+      "git_blob": "5d7d8694fcc7a7e5839fb9f6c713f57ddae3a7ce",
+      "bytes": 1243,
+      "sha256": "f151a44b8648018b2529700f692609a1442004cf7a4a7b884f85eb1d91d89441"
+    },
+    "net/BUILD.gn": {
+      "git_blob": "5a95e9524a1d56f6bab20c3d206534fb35bbbd40",
+      "bytes": 297947,
+      "sha256": "2d1701bdddd67dc142e1bd5181cd5e20319be56acdb7369309fbe02874c824f9"
+    }
+  },
+  "status": "standalone stateful core; no production patch or ABI",
+  "additional_candidate_sources": {
+    "net/socket/connect_job.cc": {
+      "sha256": "c74cfc53703d17ffdae87554c1ac81ed376362db7cab16ac34a4bc560c274c53",
+      "bytes": 10202,
+      "git_blob": "148e0bb3b71e73e82992262f8532b14780da6764"
+    }
+  }
+}
