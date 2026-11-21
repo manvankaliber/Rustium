@@ -121,3 +121,18 @@ fn preconnect_claims_are_consumed_capped_and_cleared() {
     q.trim_preconnect_claims(0);
     assert!(!q.claim_preconnect());
 }
+
+#[test]
+fn preconnect_selects_waiter_and_returned_job_does_not_restore_claim() {
+    let mut q = RequestQueue::new();
+    let token = q.create(1, true, 0, 0).unwrap().token;
+    assert_eq!(Ok(Some(token)), q.release_job(0, 1, true));
+    assert_eq!(1, q.preconnect_claims());
+    assert_eq!(Err(Error::InvalidState), q.release_job(0, 0, true));
+    assert_eq!(1, q.preconnect_claims());
+    assert!(q.claim_preconnect());
+
+    assert_eq!(Ok(()), q.remove(token));
+    assert_eq!(Ok(None), q.release_job(0, 1, false));
+    assert!(!q.claim_preconnect());
+}

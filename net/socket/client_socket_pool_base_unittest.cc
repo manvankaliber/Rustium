@@ -4684,6 +4684,97 @@ TEST_F(ClientSocketPoolBaseTest, PreconnectJobsTakenByNormalRequests) {
   EXPECT_EQ(1u, pool_->IdleSocketCountInGroup(TestGroupId("a")));
 }
 
+TEST_F(ClientSocketPoolBaseTest, CancelledPreconnectClaimIsNotRestored) {
+  CreatePool(4, 2);
+  AddScopedFeatureList().InitAndEnableFeature(
+      features::kEnableErrorCodePropagationForPreconnect);
+
+  for (bool remove_job : {false, true}) {
+    SCOPED_TRACE(remove_job);
+    const auto group = TestGroupId(remove_job ? "remove" : "retain");
+    connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
+    TestPreconnectCompletionCallback preconnect_callback;
+    ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 1,
+                                      preconnect_callback.callback(),
+                                      NetLogWithSource()),
+                IsError(ERR_IO_PENDING));
+    ASSERT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+    TestCompletionCallback callback;
+    ClientSocketHandle handle;
+    ASSERT_THAT(
+        handle.Init(group, params_, std::nullopt, DEFAULT_PRIORITY, SocketTag(),
+                    ClientSocketPool::RespectLimits::ENABLED,
+                    callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                    pool_.get(), NetLogWithSource()),
+        IsError(ERR_IO_PENDING));
+    EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+    ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(group, &handle));
+
+    if (remove_job) {
+      handle.ResetAndCloseSocket();
+      EXPECT_FALSE(pool_->HasGroupForTesting(group));
+    } else {
+      handle.Reset();
+      ASSERT_TRUE(pool_->HasGroupForTesting(group));
+      EXPECT_EQ(1u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+      EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+    }
+
+    // There is room for a fresh job and no claim to block that allocation.
+    connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+    const int allocations = client_socket_factory_.allocation_count();
+    EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+    EXPECT_EQ(allocations + 1, client_socket_factory_.allocation_count());
+
+    FastForwardBy(base::Milliseconds(TestConnectJob::kPendingConnectDelay));
+    EXPECT_FALSE(callback.have_result());
+    ASSERT_TRUE(preconnect_callback.have_result());
+    EXPECT_EQ(!remove_job, preconnect_callback.WaitForResult());
+  }
+
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
+TEST_F(ClientSocketPoolBaseTest, FailedAndFlushedPreconnectsClearClaims) {
+  CreatePool(3, 3);
+  AddScopedFeatureList().InitAndEnableFeature(
+      features::kEnableErrorCodePropagationForPreconnect);
+  const auto group = TestGroupId("a");
+  ASSERT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+
+  // An active socket preserves the group even after its preconnect fails.
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingFailingJob);
+  TestPreconnectCompletionCallback failed;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 2,
+                                    failed.callback(), NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+  FastForwardBy(base::Milliseconds(TestConnectJob::kPendingConnectDelay));
+  ASSERT_TRUE(failed.have_result());
+  EXPECT_FALSE(failed.WaitForResult());
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
+  TestPreconnectCompletionCallback flushed;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 3,
+                                    flushed.callback(), NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  pool_->FlushWithError(ERR_ABORTED, "test flush");
+  base::RunLoop().RunUntilIdle();
+  ASSERT_TRUE(flushed.have_result());
+  EXPECT_FALSE(flushed.WaitForResult());
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 // Checks that fully connected preconnect jobs have no connect times, and are
 // marked as reused.
 TEST_F(ClientSocketPoolBaseTest, ConnectedPreconnectJobsHaveNoConnectTimes) {
@@ -5987,6 +6078,36 @@ TEST_F(ClientSocketPoolBaseTest, StalledGroupExcludesAuthBoundSlot) {
 
   auth.handle()->Reset();
   EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
+TEST_F(ClientSocketPoolBaseTest, AuthBoundPreconnectDoesNotRestoreClaim) {
+  CreatePool(2, 2);
+  const auto group = TestGroupId("a");
+  connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
+  TestPreconnectCompletionCallback preconnect_callback;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 1,
+                                    preconnect_callback.callback(),
+                                    NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  TestAuthHelper auth;
+  auth.InitHandle(params_, pool_.get(), DEFAULT_PRIORITY);
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+  base::RunLoop().RunUntilIdle();
+  ASSERT_EQ(1, auth.auth_count());
+  EXPECT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(group));
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  auth.RestartWithAuth();
+  base::RunLoop().RunUntilIdle();
+  ASSERT_TRUE(auth.have_result());
+  EXPECT_THAT(auth.WaitForResult(), IsOk());
+  ASSERT_TRUE(preconnect_callback.have_result());
+  EXPECT_TRUE(preconnect_callback.WaitForResult());
   ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
 }
 
