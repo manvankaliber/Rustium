@@ -28,6 +28,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/task/single_thread_task_runner.h"
+#include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
@@ -39,6 +40,7 @@
 #include "net/base/load_timing_info_test_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/network_anonymization_key.h"
+#include "net/base/prioritized_dispatcher.h"
 #include "net/base/privacy_mode.h"
 #include "net/base/proxy_chain.h"
 #include "net/base/proxy_string_util.h"
@@ -348,6 +350,9 @@ class MockClientSocketFactory : public ClientSocketFactory {
   void SetJobLoadState(size_t job, LoadState load_state);
 
   void ExpectJobPriority(size_t job, RequestPriority priority);
+  void SetJobPriorityCallback(
+      size_t job,
+      base::RepeatingCallback<void(RequestPriority)> callback);
 
   // Sets the HasConnectionEstablished value of the specified job to true,
   // without invoking the callback.
@@ -412,6 +417,11 @@ class TestConnectJob : public ConnectJob {
 
   void Signal() {
     DoConnect(waiting_success_, true /* async */, false /* recoverable */);
+  }
+
+  void SetPriorityCallback(
+      base::RepeatingCallback<void(RequestPriority)> callback) {
+    priority_callback_ = std::move(callback);
   }
 
   void set_load_state(LoadState load_state) { load_state_ = load_state; }
@@ -545,7 +555,10 @@ class TestConnectJob : public ConnectJob {
     }
   }
 
-  void ChangePriorityInternal(RequestPriority priority) override {}
+  void ChangePriorityInternal(RequestPriority priority) override {
+    if (priority_callback_)
+      priority_callback_.Run(priority);
+  }
 
   int DoConnect(bool succeed, bool was_async, bool cert_error) {
     int result = OK;
@@ -597,6 +610,7 @@ class TestConnectJob : public ConnectJob {
                        succeed_after_last_challenge));
   }
 
+  base::RepeatingCallback<void(RequestPriority)> priority_callback_;
   bool waiting_success_;
   const JobType job_type_;
   const raw_ptr<MockClientSocketFactory> client_socket_factory_;
@@ -718,6 +732,13 @@ void MockClientSocketFactory::ExpectJobPriority(size_t job,
                                                 RequestPriority priority) {
   ASSERT_LT(job, waiting_jobs_.size());
   EXPECT_EQ(priority, waiting_jobs_[job]->priority());
+}
+
+void MockClientSocketFactory::SetJobPriorityCallback(
+    size_t job,
+    base::RepeatingCallback<void(RequestPriority)> callback) {
+  ASSERT_LT(job, waiting_jobs_.size());
+  waiting_jobs_[job]->SetPriorityCallback(std::move(callback));
 }
 
 void MockClientSocketFactory::SetJobHasEstablishedConnection(size_t job) {
@@ -1577,6 +1598,77 @@ TEST_F(ClientSocketPoolBaseTest, RetainedQueueSameAndChangedPriority) {
   third.Reset();
   EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
                                                               &second));
+}
+
+class TestDispatchJob : public PrioritizedDispatcher::Job {
+ public:
+  MOCK_METHOD(void, Start, (), (override));
+};
+
+TEST_F(ClientSocketPoolBaseTest,
+       RetainedQueueReprioritizeDuringSynchronousDispatch) {
+  CreatePool(1, 1);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  const auto group = TestGroupId("a");
+
+  // The resolver's dispatcher may start a promoted job before returning.
+  // Simulate that provider boundary and post, rather than inline, completion.
+  PrioritizedDispatcher::Limits limits(NUM_PRIORITIES, 2);
+  limits.reserved_slots[LOW] = 1;
+  PrioritizedDispatcher dispatcher(limits);
+  testing::StrictMock<TestDispatchJob> blocker;
+  testing::StrictMock<TestDispatchJob> promoted;
+  EXPECT_CALL(blocker, Start());
+  EXPECT_TRUE(dispatcher.Add(&blocker, IDLE).is_null());
+  auto queued = dispatcher.Add(&promoted, IDLE);
+  ASSERT_FALSE(queued.is_null());
+
+  ASSERT_THAT(StartRequest(group, HIGHEST), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(group, LOW), IsError(ERR_IO_PENDING));
+
+  bool dispatched = false;
+  EXPECT_CALL(promoted, Start()).WillOnce([&] {
+    dispatched = true;
+    const base::Value pool_info = pool_->GetInfoAsValue("pool", "test");
+    const auto* groups = pool_info.GetDict().FindDict("groups");
+    ASSERT_TRUE(groups);
+    const auto* group_info = groups->FindDict(group.ToString());
+    ASSERT_TRUE(group_info);
+    // While the old job is reassigned, the reprioritized request is detached.
+    EXPECT_EQ(1, group_info->FindInt("pending_request_count"));
+  });
+
+  std::vector<RequestPriority> priorities;
+  client_socket_factory_.SetJobPriorityCallback(
+      0, base::BindLambdaForTesting([&](RequestPriority priority) {
+        priorities.push_back(priority);
+        if (!queued.is_null()) {
+          queued = dispatcher.ChangePriority(queued, priority);
+        }
+      }));
+
+  request(0)->handle()->SetPriority(MEDIUM);
+  EXPECT_TRUE(dispatched);
+  EXPECT_TRUE(queued.is_null());
+  EXPECT_THAT(priorities, testing::ElementsAre(LOW, MEDIUM));
+  EXPECT_FALSE(request(0)->have_result());
+  EXPECT_FALSE(request(1)->have_result());
+
+  // Finish the job only after the synchronous priority propagation returns.
+  client_socket_factory_.SetJobPriorityCallback(0, {});
+  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+      FROM_HERE, base::BindOnce(&MockClientSocketFactory::SignalJob,
+                               base::Unretained(&client_socket_factory_),
+                               size_t{0}));
+  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
+  EXPECT_FALSE(request(1)->have_result());
+
+  if (queued.is_null()) {
+    dispatcher.OnJobFinished();
+  } else {
+    dispatcher.Cancel(queued);
+  }
+  dispatcher.OnJobFinished();
 }
 
 // Reprioritize a request to the same level as another and confirm it is
