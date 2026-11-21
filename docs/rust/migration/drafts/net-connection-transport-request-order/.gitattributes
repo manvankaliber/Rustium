@@ -1,0 +1,3 @@
+*.patch -text -whitespace
+frozen-candidate/** -text
+material/** -text
