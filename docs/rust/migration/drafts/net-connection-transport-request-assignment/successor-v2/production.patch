@@ -1,0 +1,491 @@
+diff --git a/net/base/priority_queue_unittest.cc b/net/base/priority_queue_unittest.cc
+index cef24bae795ab092ffcf213f25fd47e97129660f..ae77e5fbfd02222d26e19e449ecff28fc4ce8ecc 100644
+--- a/net/base/priority_queue_unittest.cc
++++ b/net/base/priority_queue_unittest.cc
+@@ -90,6 +90,33 @@ class PriorityQueueTest : public testing::TestWithParam<size_t> {
+   std::array<PriorityQueue<int>::Pointer, kNumElements> pointers_;
+ };
+ 
++TEST(PriorityQueueInsertionRankTest, MatchesNativeFrontAndBackInsertion) {
++  PriorityQueue<int> queue(kNumPriorities);
++  auto check = [&queue]() {
++    for (Priority priority = 0; priority < kNumPriorities; ++priority) {
++      for (int front_option = 0; front_option < 2; ++front_option) {
++        const bool front = front_option != 0;
++        const size_t expected = queue.InsertionRank(priority, front);
++        auto inserted = front ? queue.InsertAtFront(-1, priority)
++                              : queue.Insert(-1, priority);
++        size_t rank = 0;
++        auto cursor = queue.FirstMax();
++        while (!cursor.is_null() && !cursor.Equals(inserted)) {
++          ++rank;
++          cursor = queue.GetNextTowardsLastMin(cursor);
++        }
++        ASSERT_FALSE(cursor.is_null());
++        EXPECT_EQ(expected, rank);
++        queue.Erase(inserted);
++      }
++    }
++  };
++  check();
++  for (size_t i = 0; i < kNumElements; ++i)
++    queue.Insert(static_cast<int>(i), kPriorities[0][i]);
++  check();
++}
++
+ TEST_P(PriorityQueueTest, AddAndClear) {
+   for (size_t i = 0; i < kNumElements; ++i) {
+     EXPECT_EQ(kPriorities[GetParam()][i], pointers_[i].priority());
+diff --git a/net/socket/client_socket_pool_base_unittest.cc b/net/socket/client_socket_pool_base_unittest.cc
+index 5e857ea1f66f4a00ae84accc5a38e9b615b3b803..ebbeaf5486cf1f57226fc734ca03c941a1534564 100644
+--- a/net/socket/client_socket_pool_base_unittest.cc
++++ b/net/socket/client_socket_pool_base_unittest.cc
+@@ -4979,6 +4979,39 @@ TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
+                                                                &handle1));
+ }
+ 
++TEST_F(ClientSocketPoolBaseTest, AssignmentStealsLastAndReturnsReleasedJob) {
++  CreatePool(2, 2);
++  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
++  TestCompletionCallback first_callback, second_callback, high_callback;
++  ClientSocketHandle first, second, high;
++  auto start = [&](ClientSocketHandle& handle, RequestPriority priority,
++                   TestCompletionCallback& callback) {
++    return handle.Init(TestGroupId("a"), params_, std::nullopt, priority,
++                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
++                       callback.callback(),
++                       ClientSocketPool::ProxyAuthCallback(), pool_.get(),
++                       NetLogWithSource());
++  };
++  ASSERT_EQ(ERR_IO_PENDING, start(first, DEFAULT_PRIORITY, first_callback));
++  ASSERT_EQ(ERR_IO_PENDING, start(second, DEFAULT_PRIORITY, second_callback));
++  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &first));
++  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &second));
++  ASSERT_EQ(ERR_IO_PENDING, start(high, HIGHEST, high_callback));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &first));
++  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                               &second));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &high));
++  high.Reset();
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &first));
++  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
++                                                              &second));
++}
++
+ TEST_F(ClientSocketPoolBaseTest, RequestStealsJobFromLowestRequestWithJob) {
+   CreatePool(3, 3);
+   connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+diff --git a/net/socket/transport_assignment_original_actions.h b/net/socket/transport_assignment_original_actions.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b82ab052059fd429d52a1d9d92d101ec6cb3aa5
+--- /dev/null
++++ b/net/socket/transport_assignment_original_actions.h
+@@ -0,0 +1,39 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++// Independent original-loop oracle; see source-identity.json for source pins.
++#ifndef NET_SOCKET_TRANSPORT_ASSIGNMENT_ORIGINAL_ACTIONS_H_
++#define NET_SOCKET_TRANSPORT_ASSIGNMENT_ORIGINAL_ACTIONS_H_
++
++#include <stddef.h>
++
++#include <limits>
++#include <vector>
++
++namespace transport_assignment_original {
++inline constexpr size_t kNone = std::numeric_limits<size_t>::max();
++inline constexpr size_t kFront = kNone - 1;
++
++// The hole represents the just-inserted request or the request whose job was
++// released by RemoveUnboundJob. Other entries are in original queue order.
++inline size_t ChooseHole(const std::vector<bool>& jobs, size_t hole,
++                         size_t unassigned_jobs) {
++  if (unassigned_jobs)
++    return kFront;
++  size_t next = hole + 1;
++  if (next == jobs.size() || !jobs[next])
++    return kNone;
++  size_t current = next;
++  while (current + 1 < jobs.size() && jobs[current + 1])
++    ++current;
++  return current;
++}
++inline size_t ChooseRelease(const std::vector<bool>& jobs) {
++  size_t i = 0;
++  while (i < jobs.size() && jobs[i])
++    ++i;
++  return i == jobs.size() ? kNone : i;
++}
++}  // namespace transport_assignment_original
++#endif  // NET_SOCKET_TRANSPORT_ASSIGNMENT_ORIGINAL_ACTIONS_H_
+diff --git a/net/socket/transport_assignment_rust.rs b/net/socket/transport_assignment_rust.rs
+new file mode 100644
+index 0000000000000000000000000000000000000000..5d7d8694fcc7a7e5839fb9f6c713f57ddae3a7ce
+--- /dev/null
++++ b/net/socket/transport_assignment_rust.rs
+@@ -0,0 +1,45 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++const NONE: usize = usize::MAX;
++const FRONT: usize = usize::MAX - 1;
++const INVALID: usize = usize::MAX - 2;
++
++// The queue has exactly one unassigned hole. `assigned` excludes that hole,
++// even when the corresponding removed job is still temporarily in jobs_.
++#[unsafe(no_mangle)]
++pub extern "C" fn rust_transport_assignment_hole(
++    rank: usize,
++    request_count: usize,
++    assigned: usize,
++    unassigned: usize,
++) -> usize {
++    if request_count >= INVALID || rank >= request_count || assigned >= request_count {
++        return INVALID;
++    }
++    if unassigned != 0 {
++        FRONT
++    } else if rank < assigned {
++        assigned
++    } else {
++        NONE
++    }
++}
++
++// Called after the new/released job has been pushed to the native deque.
++#[unsafe(no_mangle)]
++pub extern "C" fn rust_transport_assignment_release(
++    request_count: usize,
++    assigned: usize,
++    unassigned: usize,
++) -> usize {
++    if request_count >= INVALID || assigned > request_count || unassigned == 0 {
++        return INVALID;
++    }
++    if assigned < request_count {
++        assigned
++    } else {
++        NONE
++    }
++}
+diff --git a/net/socket/transport_assignment_unittest.cc b/net/socket/transport_assignment_unittest.cc
+new file mode 100644
+index 0000000000000000000000000000000000000000..c6e8c35504eaab36629f3dc3f4dbb18611754000
+--- /dev/null
++++ b/net/socket/transport_assignment_unittest.cc
+@@ -0,0 +1,79 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++#include "net/socket/transport_assignment_ffi.h"
++
++#include <stddef.h>
++
++#include <vector>
++
++#include "net/socket/transport_assignment_original_actions.h"
++#include "testing/gtest/include/gtest/gtest.h"
++
++namespace net {
++namespace {
++
++using transport_assignment_original::ChooseHole;
++using transport_assignment_original::ChooseRelease;
++
++TEST(TransportAssignmentPolicyTest, InsertedHoleMatchesOriginalLoop) {
++  for (size_t count = 0; count <= 8; ++count) {
++    for (size_t assigned = 0; assigned <= count; ++assigned) {
++      for (size_t hole = 0; hole <= count; ++hole) {
++        std::vector<bool> jobs;
++        for (size_t i = 0; i < count; ++i)
++          jobs.push_back(i < assigned);
++        jobs.insert(jobs.begin() + hole, false);
++        for (size_t unassigned = 0; unassigned <= 2; ++unassigned) {
++          if (unassigned && assigned != count)
++            continue;
++          EXPECT_EQ(ChooseHole(jobs, hole, unassigned),
++                    TransportAssignmentHole(hole, jobs.size(), assigned,
++                                            unassigned));
++        }
++      }
++    }
++  }
++}
++
++TEST(TransportAssignmentPolicyTest, RemovedAssignedJobMatchesOriginalLoop) {
++  for (size_t count = 1; count <= 8; ++count) {
++    for (size_t old_assigned = 1; old_assigned <= count; ++old_assigned) {
++      for (size_t hole = 0; hole < old_assigned; ++hole) {
++        std::vector<bool> jobs(count, false);
++        for (size_t i = 0; i < old_assigned; ++i)
++          jobs[i] = true;
++        jobs[hole] = false;
++        for (size_t unassigned = 0; unassigned <= 2; ++unassigned) {
++          if (unassigned && old_assigned != count)
++            continue;
++          EXPECT_EQ(ChooseHole(jobs, hole, unassigned),
++                    TransportAssignmentHole(hole, count, old_assigned - 1,
++                                            unassigned));
++        }
++      }
++    }
++  }
++}
++
++TEST(TransportAssignmentPolicyTest, AddedOrReleasedJobMatchesOriginalLoop) {
++  for (size_t count = 0; count <= 8; ++count) {
++    for (size_t assigned = 0; assigned <= count; ++assigned) {
++      std::vector<bool> jobs(count, false);
++      for (size_t i = 0; i < assigned; ++i)
++        jobs[i] = true;
++      EXPECT_EQ(ChooseRelease(jobs),
++                TransportAssignmentRelease(count, assigned, 1));
++      if (assigned == count) {
++        EXPECT_EQ(ChooseRelease(jobs),
++                  TransportAssignmentRelease(count, assigned, 2));
++      }
++    }
++  }
++  EXPECT_EQ(kTransportAssignmentInvalid, TransportAssignmentHole(0, 0, 0, 0));
++  EXPECT_EQ(kTransportAssignmentInvalid, TransportAssignmentRelease(0, 0, 0));
++}
++
++}  // namespace
++}  // namespace net
+diff --git a/net/socket/transport_client_socket_pool.cc b/net/socket/transport_client_socket_pool.cc
+index 44570fd97dece85aa4db572b0ab7e1bce9b91788..fa578f417d563a30961d59c0a53c2c52cf8cbfc2 100644
+--- a/net/socket/transport_client_socket_pool.cc
++++ b/net/socket/transport_client_socket_pool.cc
+@@ -32,11 +32,19 @@
+ #include "net/log/net_log_event_type.h"
+ #include "net/log/net_log_source.h"
+ #include "net/socket/connect_job_factory.h"
++#include "net/socket/transport_assignment_ffi.h"
+ #include "net/socket/transport_client_socket_pool_scheduling_ffi.h"
+ #include "net/traffic_annotation/network_traffic_annotation.h"
+ #include "url/gurl.h"
+ 
+ extern "C" {
++size_t rust_transport_assignment_hole(size_t rank,
++                                      size_t request_count,
++                                      size_t assigned,
++                                      size_t unassigned);
++size_t rust_transport_assignment_release(size_t request_count,
++                                         size_t assigned,
++                                         size_t unassigned);
+ int32_t rust_transport_stalled_select(uint64_t packed, uint32_t count,
+                                       int32_t previous);
+ int32_t rust_transport_idle_usable_step(int32_t state, bool value);
+@@ -48,6 +56,20 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
+ 
+ namespace net {
+ 
++size_t TransportAssignmentHole(size_t rank,
++                               size_t request_count,
++                               size_t assigned,
++                               size_t unassigned) {
++  return rust_transport_assignment_hole(rank, request_count, assigned,
++                                        unassigned);
++}
++
++size_t TransportAssignmentRelease(size_t request_count,
++                                  size_t assigned,
++                                  size_t unassigned) {
++  return rust_transport_assignment_release(request_count, assigned, unassigned);
++}
++
+ int32_t SelectStalledGroupBatch(uint64_t packed,
+                                 uint32_t count,
+                                 int32_t previous) {
+@@ -1797,10 +1819,15 @@ std::unique_ptr<ConnectJob> TransportClientSocketPool::Group::RemoveUnboundJob(
+     // try to replace it with another job if possible (either by taking an
+     // unassigned job or stealing from another request, if any requests after it
+     // have a job).
+-    RequestQueue::Pointer request_with_job = FindUnboundRequestWithJob(job);
++    size_t request_rank = 0;
++    RequestQueue::Pointer request_with_job =
++        FindUnboundRequestWithJob(job, &request_rank);
+     DCHECK(!request_with_job.is_null());
+     request_with_job.value()->ReleaseJob();
+-    TryToAssignJobToRequest(request_with_job);
++    DCHECK_GT(jobs_.size(), unassigned_jobs_.size());
++    // The released job remains in jobs_ until after the reassignment.
++    TryToAssignJobToRequest(request_with_job, request_rank,
++                            jobs_.size() - unassigned_jobs_.size() - 1);
+   }
+   std::unique_ptr<ConnectJob> owned_job = std::move(*it);
+   jobs_.erase(it);
+@@ -1996,8 +2023,13 @@ void TransportClientSocketPool::Group::InsertUnboundRequest(
+   // This value must be cached before we release |request|.
+   RequestPriority priority = request->priority();
+ 
++  const bool insert_at_front =
++      request->respect_limits() == RespectLimits::DISABLED;
++  const size_t request_rank =
++      unbound_requests_.InsertionRank(priority, insert_at_front);
++  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
+   RequestQueue::Pointer new_position;
+-  if (request->respect_limits() == RespectLimits::DISABLED) {
++  if (insert_at_front) {
+     // Put requests with RespectLimits::DISABLED (which should have
+     // priority == MAXIMUM_PRIORITY) ahead of other requests with
+     // MAXIMUM_PRIORITY.
+@@ -2009,7 +2041,7 @@ void TransportClientSocketPool::Group::InsertUnboundRequest(
+   }
+   DCHECK(!unbound_requests_.empty());
+ 
+-  TryToAssignJobToRequest(new_position);
++  TryToAssignJobToRequest(new_position, request_rank, assigned_count);
+ 
+   SanityCheck();
+ }
+@@ -2188,12 +2220,15 @@ TransportClientSocketPool::Group::RemoveUnboundRequest(
+ 
+ TransportClientSocketPool::RequestQueue::Pointer
+ TransportClientSocketPool::Group::FindUnboundRequestWithJob(
+-    const ConnectJob* job) const {
++    const ConnectJob* job,
++    size_t* request_rank) const {
+   SanityCheck();
++  *request_rank = 0;
+ 
+   for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
+        !pointer.is_null() && pointer.value()->job();
+-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
++       pointer = unbound_requests_.GetNextTowardsLastMin(pointer),
++       ++(*request_rank)) {
+     if (pointer.value()->job() == job)
+       return pointer;
+   }
+@@ -2202,54 +2237,48 @@ TransportClientSocketPool::Group::FindUnboundRequestWithJob(
+   return RequestQueue::Pointer();
+ }
+ 
+-TransportClientSocketPool::RequestQueue::Pointer
+-TransportClientSocketPool::Group::GetFirstRequestWithoutJob() const {
+-  RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
+-  size_t i = 0;
+-  for (; !pointer.is_null() && pointer.value()->job();
+-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
+-    ++i;
+-  }
+-  DCHECK_EQ(i, jobs_.size() - unassigned_jobs_.size());
+-  DCHECK(pointer.is_null() || !pointer.value()->job());
+-  return pointer;
+-}
+-
+ void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
+     ConnectJob* job) {
+   unassigned_jobs_.push_back(job);
+-  RequestQueue::Pointer first_request_without_job = GetFirstRequestWithoutJob();
+-  if (!first_request_without_job.is_null()) {
+-    first_request_without_job.value()->AssignJob(unassigned_jobs_.back());
+-    unassigned_jobs_.pop_back();
+-  }
++  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
++  const size_t rank = TransportAssignmentRelease(
++      unbound_requests_.size(), assigned_count, unassigned_jobs_.size());
++  CHECK_NE(rank, kTransportAssignmentInvalid);
++  if (rank == kTransportAssignmentNone)
++    return;
++  CHECK_LT(rank, unbound_requests_.size());
++  RequestQueue::Pointer request = unbound_requests_.FirstMax();
++  for (size_t i = 0; i < rank; ++i)
++    request = unbound_requests_.GetNextTowardsLastMin(request);
++  DCHECK(!request.is_null());
++  DCHECK(!request.value()->job());
++  request.value()->AssignJob(unassigned_jobs_.back());
++  unassigned_jobs_.pop_back();
+ }
+ 
+ void TransportClientSocketPool::Group::TryToAssignJobToRequest(
+-    TransportClientSocketPool::RequestQueue::Pointer request_pointer) {
++    TransportClientSocketPool::RequestQueue::Pointer request_pointer,
++    size_t request_rank,
++    size_t assigned_count) {
+   DCHECK(!request_pointer.value()->job());
+-  if (!unassigned_jobs_.empty()) {
++  const size_t action = TransportAssignmentHole(
++      request_rank, unbound_requests_.size(), assigned_count,
++      unassigned_jobs_.size());
++  CHECK_NE(action, kTransportAssignmentInvalid);
++  if (action == kTransportAssignmentFront) {
+     request_pointer.value()->AssignJob(unassigned_jobs_.front());
+     unassigned_jobs_.pop_front();
+     return;
+   }
+-
+-  // If the next request in the queue does not have a job, then there are no
+-  // requests with a job after |request_pointer| from which we can steal.
+-  RequestQueue::Pointer next_request =
+-      unbound_requests_.GetNextTowardsLastMin(request_pointer);
+-  if (next_request.is_null() || !next_request.value()->job())
++  if (action == kTransportAssignmentNone)
+     return;
+-
+-  // Walk down the queue to find the last request with a job.
+-  RequestQueue::Pointer cur = next_request;
+-  RequestQueue::Pointer next = unbound_requests_.GetNextTowardsLastMin(cur);
+-  while (!next.is_null() && next.value()->job()) {
+-    cur = next;
+-    next = unbound_requests_.GetNextTowardsLastMin(next);
+-  }
+-  // Steal the job from the last request with a job.
+-  TransferJobBetweenRequests(cur.value().get(), request_pointer.value().get());
++  CHECK_GT(action, request_rank);
++  CHECK_LT(action, unbound_requests_.size());
++  RequestQueue::Pointer donor = request_pointer;
++  for (size_t rank = request_rank; rank < action; ++rank)
++    donor = unbound_requests_.GetNextTowardsLastMin(donor);
++  DCHECK(!donor.is_null());
++  TransferJobBetweenRequests(donor.value().get(), request_pointer.value().get());
+ }
+ 
+ void TransportClientSocketPool::Group::TransferJobBetweenRequests(
+diff --git a/net/socket/transport_client_socket_pool.h b/net/socket/transport_client_socket_pool.h
+index f8eaa85c5b90c78cad3b7b21402b64fedf1a0d4f..bf25b90ce910d9051393c90fb4435b5a1c503d81 100644
+--- a/net/socket/transport_client_socket_pool.h
++++ b/net/socket/transport_client_socket_pool.h
+@@ -498,17 +498,11 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
+         const RequestQueue::Pointer& pointer);
+ 
+     // Finds the Request which is associated with the given ConnectJob.
+-    // Returns nullptr if none is found. Expects the Group to pass SanityCheck()
+-    // when called.
++    // Returns a null pointer if none is found; otherwise also reports the
++    // zero-based request rank. Expects the Group to pass SanityCheck().
+     RequestQueue::Pointer FindUnboundRequestWithJob(
+-        const ConnectJob* job) const;
+-
+-    // Finds the Request in |unbound_requests_| which is the first request
+-    // without a job. Returns a null pointer if all requests have jobs. Does not
+-    // expect the Group to pass SanityCheck() when called, but does expect all
+-    // jobs to either be assigned to a request or in |unassigned_jobs_|. Expects
+-    // that no requests with jobs come after any requests without a job.
+-    RequestQueue::Pointer GetFirstRequestWithoutJob() const;
++        const ConnectJob* job,
++        size_t* request_rank) const;
+ 
+     // Tries to assign an unassigned |job| to a request. If no requests need a
+     // job, |job| is added to |unassigned_jobs_|.
+@@ -529,7 +523,10 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
+     //    other than the given request must have ConnectJobs, i.e. the group
+     //    must have passed SanityCheck() before the passed in Request was either
+     //    added or had its job unassigned.
+-    void TryToAssignJobToRequest(RequestQueue::Pointer request_pointer);
++    // |assigned_count| excludes the job just released from the hole.
++    void TryToAssignJobToRequest(RequestQueue::Pointer request_pointer,
++                                 size_t request_rank,
++                                 size_t assigned_count);
+ 
+     // Transfers the associated ConnectJob from one Request to another. Expects
+     // the source request to have a job, and the destination request to not have

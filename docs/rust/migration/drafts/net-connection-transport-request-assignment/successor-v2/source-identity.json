@@ -1,0 +1,34 @@
+{
+  "production_base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "reference": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "reused_freeze_commit": "fc2d429f3493ade4272d3b1e2ade96a81ba03d41",
+  "previous_packet_commit": "1315bb0872dda47a9919ed845173869c36066ce0",
+  "original_freeze_manifest": "../source-identity.json",
+  "candidate_inputs": {
+    "net/base/priority_queue.h": {
+      "git_blob": "96f54e66422b23e21d6bef0b17fbc6a9943cb8de",
+      "sha256": "5bc3eccd79ca6bef4dddffa8f95067f01d9cd19af4fc089eead11b77571af1f1",
+      "bytes": 11921
+    },
+    "net/socket/transport_client_socket_pool.h": {
+      "git_blob": "f8eaa85c5b90c78cad3b7b21402b64fedf1a0d4f",
+      "sha256": "a2db5e889434280256a45b07711e28f0859b4b68b7e278f8ee00e02b2f31810b",
+      "bytes": 36694
+    },
+    "net/socket/transport_client_socket_pool.cc": {
+      "git_blob": "44570fd97dece85aa4db572b0ab7e1bce9b91788",
+      "sha256": "8515980f0f1e9c46419c4768dec010542771bb6ed39dc9edadb8ba8650b7e383",
+      "bytes": 83442
+    },
+    "net/socket/client_socket_pool_base_unittest.cc": {
+      "git_blob": "5e857ea1f66f4a00ae84accc5a38e9b615b3b803",
+      "sha256": "e4088d122982ae9c0220c6861a6ab09ee90671e855233a91f91d006688bb6bdf",
+      "bytes": 279412
+    },
+    "net/base/priority_queue_unittest.cc": {
+      "git_blob": "cef24bae795ab092ffcf213f25fd47e97129660f",
+      "sha256": "457fb7ecd53f3e322414e8de48dac7b25437a74b21d3f8518608295e9228031c",
+      "bytes": 8380
+    }
+  }
+}
