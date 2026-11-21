@@ -103,3 +103,21 @@ fn prefix_snapshot_is_ordered_and_bounded() {
     assert_eq!(all, [b, c, a, 99]);
     assert_eq!(q.copy_prefix(&mut []), 0);
 }
+
+#[test]
+fn preconnect_claims_are_consumed_capped_and_cleared() {
+    let mut q = RequestQueue::new();
+    assert!(!q.claim_preconnect());
+    assert_eq!(Ok(None), q.release_job(0, 1, true));
+    assert_eq!(Ok(None), q.release_job(0, 2, true));
+    assert_eq!(Ok(None), q.release_job(0, 3, false));
+    assert_eq!(2, q.preconnect_claims());
+    q.trim_preconnect_claims(1);
+    assert!(q.claim_preconnect());
+    assert!(!q.claim_preconnect());
+    assert_eq!(Ok(None), q.release_job(0, 1, false));
+    assert_eq!(0, q.preconnect_claims());
+    assert_eq!(Ok(None), q.release_job(0, 2, true));
+    q.trim_preconnect_claims(0);
+    assert!(!q.claim_preconnect());
+}

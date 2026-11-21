@@ -172,11 +172,31 @@ class RetainedRequestOwners {
     return reply;
   }
 
-  Token Release(size_t assigned, size_t unassigned) const {
+  Token Release(size_t assigned, size_t unassigned, bool added_preconnect) {
     DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     Token token = 0;
-    CHECK_EQ(0, rust_request_queue_release(queue_.get(), assigned, unassigned, &token));
+    CHECK_EQ(0, rust_request_queue_release(queue_.get(), assigned, unassigned,
+                                          added_preconnect, &token));
     return token;
+  }
+
+  size_t PreconnectClaims() const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    size_t count = 0;
+    CHECK_EQ(0, rust_request_queue_preconnect_claims(queue_.get(), &count));
+    return count;
+  }
+
+  bool ClaimPreconnect() {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    uint8_t claimed = 0;
+    CHECK_EQ(0, rust_request_queue_claim_preconnect(queue_.get(), &claimed));
+    return claimed != 0;
+  }
+
+  void TrimPreconnectClaims(size_t job_count) {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    CHECK_EQ(0, rust_request_queue_trim_preconnect_claims(queue_.get(), job_count));
   }
 
  private:

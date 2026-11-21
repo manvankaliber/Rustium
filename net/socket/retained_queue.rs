@@ -53,6 +53,7 @@ pub struct RequestQueue {
     tails: [Option<Token>; PRIORITIES],
     sizes: [usize; PRIORITIES],
     scheduled: usize,
+    preconnect_claims: usize,
     next_token: Token,
 }
 
@@ -64,6 +65,7 @@ impl RequestQueue {
             tails: [None; PRIORITIES],
             sizes: [0; PRIORITIES],
             scheduled: 0,
+            preconnect_claims: 0,
             next_token: 1,
         }
     }
@@ -342,7 +344,40 @@ impl RequestQueue {
         Ok(self.selected_action(rank, assigned, unassigned))
     }
 
-    pub fn select_released(
+    pub fn preconnect_claims(&self) -> usize {
+        self.preconnect_claims
+    }
+
+    pub fn claim_preconnect(&mut self) -> bool {
+        if self.preconnect_claims == 0 {
+            return false;
+        }
+        self.preconnect_claims -= 1;
+        true
+    }
+
+    // A removed job need not be individually identified as a preconnect.
+    // The original capped the aggregate count at the remaining unbound jobs.
+    pub fn trim_preconnect_claims(&mut self, job_count: usize) {
+        self.preconnect_claims = self.preconnect_claims.min(job_count);
+    }
+
+    // A freshly created preconnect adds a claim. Returning a previously
+    // assigned job for reuse must never restore a claim.
+    pub fn release_job(
+        &mut self,
+        assigned: usize,
+        unassigned: usize,
+        added_preconnect: bool,
+    ) -> Result<Option<Token>, Error> {
+        let token = self.select_released(assigned, unassigned)?;
+        if added_preconnect {
+            self.preconnect_claims += 1;
+        }
+        Ok(token)
+    }
+
+    fn select_released(
         &self,
         assigned: usize,
         unassigned: usize,

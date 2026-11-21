@@ -210,18 +210,19 @@ pub unsafe extern "C" fn rust_request_queue_hole(
 /// request is selected; generated request tokens are always nonzero.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn rust_request_queue_release(
-    queue: *const RequestQueue,
+    queue: *mut RequestQueue,
     assigned: usize,
     unassigned: usize,
+    added_preconnect: u8,
     out: *mut u64,
 ) -> i32 {
-    if out.is_null() {
+    if out.is_null() || added_preconnect > 1 {
         return INVALID;
     }
-    let Some(queue) = (unsafe { queue.as_ref() }) else {
+    let Some(queue) = (unsafe { queue.as_mut() }) else {
         return INVALID;
     };
-    match queue.select_released(assigned, unassigned) {
+    match queue.release_job(assigned, unassigned, added_preconnect != 0) {
         Ok(token) => {
             unsafe {
                 out.write(token.unwrap_or(0));
@@ -230,6 +231,58 @@ pub unsafe extern "C" fn rust_request_queue_release(
         }
         Err(error) => status(error),
     }
+}
+
+/// # Safety
+/// Queue and output satisfy the module-level contract.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rust_request_queue_preconnect_claims(
+    queue: *const RequestQueue,
+    out: *mut usize,
+) -> i32 {
+    if out.is_null() {
+        return INVALID;
+    }
+    let Some(queue) = (unsafe { queue.as_ref() }) else {
+        return INVALID;
+    };
+    unsafe {
+        out.write(queue.preconnect_claims());
+    }
+    OK
+}
+
+/// # Safety
+/// Queue and output satisfy the module-level contract.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rust_request_queue_claim_preconnect(
+    queue: *mut RequestQueue,
+    out: *mut u8,
+) -> i32 {
+    if out.is_null() {
+        return INVALID;
+    }
+    let Some(queue) = (unsafe { queue.as_mut() }) else {
+        return INVALID;
+    };
+    unsafe {
+        out.write(u8::from(queue.claim_preconnect()));
+    }
+    OK
+}
+
+/// # Safety
+/// Queue satisfies the module-level contract.
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn rust_request_queue_trim_preconnect_claims(
+    queue: *mut RequestQueue,
+    job_count: usize,
+) -> i32 {
+    let Some(queue) = (unsafe { queue.as_mut() }) else {
+        return INVALID;
+    };
+    queue.trim_preconnect_claims(job_count);
+    OK
 }
 
 /// # Safety

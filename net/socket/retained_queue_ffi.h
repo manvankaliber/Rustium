@@ -48,10 +48,18 @@ int32_t rust_request_queue_hole(const RustRequestOrderQueue* queue,
                                 size_t assigned,
                                 size_t unassigned,
                                 RustRequestOrderReply* out);
-int32_t rust_request_queue_release(const RustRequestOrderQueue* queue,
+int32_t rust_request_queue_release(RustRequestOrderQueue* queue,
                                    size_t assigned,
                                    size_t unassigned,
+                                   uint8_t added_preconnect,
                                    uint64_t* out);
+int32_t rust_request_queue_preconnect_claims(
+    const RustRequestOrderQueue* queue,
+    size_t* out);
+int32_t rust_request_queue_claim_preconnect(RustRequestOrderQueue* queue,
+                                            uint8_t* out);
+int32_t rust_request_queue_trim_preconnect_claims(RustRequestOrderQueue* queue,
+                                                 size_t job_count);
 int32_t rust_request_queue_at(const RustRequestOrderQueue* queue,
                               size_t rank,
                               uint64_t* out);

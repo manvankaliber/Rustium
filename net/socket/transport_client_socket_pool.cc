@@ -1789,20 +1789,15 @@ bool TransportClientSocketPool::Group::BackupJobTimerIsRunning() const {
 bool TransportClientSocketPool::Group::TryToUseNeverAssignedConnectJob() {
   SanityCheck();
 
-  if (never_assigned_job_count_ == 0)
-    return false;
-  --never_assigned_job_count_;
-  return true;
+  return unbound_requests_.ClaimPreconnect();
 }
 
 void TransportClientSocketPool::Group::AddJob(std::unique_ptr<ConnectJob> job,
                                               bool is_preconnect) {
   SanityCheck();
 
-  if (is_preconnect)
-    ++never_assigned_job_count_;
   jobs_.push_back(std::move(job));
-  TryToAssignUnassignedJob(jobs_.back().get());
+  TryToAssignUnassignedJob(jobs_.back().get(), is_preconnect);
 
   SanityCheck();
 }
@@ -1837,9 +1832,7 @@ std::unique_ptr<ConnectJob> TransportClientSocketPool::Group::RemoveUnboundJob(
   std::unique_ptr<ConnectJob> owned_job = std::move(*it);
   jobs_.erase(it);
 
-  size_t job_count = jobs_.size();
-  if (job_count < never_assigned_job_count_)
-    never_assigned_job_count_ = job_count;
+  unbound_requests_.TrimPreconnectClaims(jobs_.size());
 
   // If we've got no more jobs for this group, then we no longer need a
   // backup job either.
@@ -1959,7 +1952,7 @@ void TransportClientSocketPool::Group::RemoveAllUnboundJobs() {
     }
   }
   unassigned_jobs_.clear();
-  never_assigned_job_count_ = 0;
+  unbound_requests_.TrimPreconnectClaims(0);
 
   // Diagnostics check for crbug.com/1231248. `Group`s are deleted only on
   // removal from `TransportClientSocketPool::group_map_`, so if this check
@@ -2188,10 +2181,12 @@ uint64_t TransportClientSocketPool::Group::FindUnboundRequestWithJob(
 }
 
 void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
-    ConnectJob* job) {
+    ConnectJob* job,
+    bool added_preconnect) {
   unassigned_jobs_.push_back(job);
   const uint64_t token = unbound_requests_.Release(
-      jobs_.size() - unassigned_jobs_.size(), unassigned_jobs_.size());
+      jobs_.size() - unassigned_jobs_.size(), unassigned_jobs_.size(),
+      added_preconnect);
   if (!token)
     return;
   Request* request = unbound_requests_.Lookup(token);

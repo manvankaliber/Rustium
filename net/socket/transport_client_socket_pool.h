@@ -403,7 +403,7 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     bool BackupJobTimerIsRunning() const;
 
     // If there's a ConnectJob that's never been assigned to Request,
-    // decrements |never_assigned_job_count_| and returns true.
+    // consumes one preconnect claim and returns true.
     // Otherwise, returns false.
     bool TryToUseNeverAssignedConnectJob();
 
@@ -485,7 +485,7 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     size_t active_socket_count() const { return active_socket_count_; }
     std::list<IdleSocket>* mutable_idle_sockets() { return &idle_sockets_; }
     size_t never_assigned_job_count() const {
-      return never_assigned_job_count_;
+      return unbound_requests_.PreconnectClaims();
     }
     int64_t generation() const { return generation_; }
 
@@ -502,7 +502,8 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     // When called, does not expect the Group to pass SanityCheck(), but does
     // expect it to have passed SanityCheck() before the given ConnectJob was
     // either created or had the request it was assigned to removed.
-    void TryToAssignUnassignedJob(ConnectJob* job);
+    void TryToAssignUnassignedJob(ConnectJob* job,
+                                  bool added_preconnect = false);
 
     // Applies the Rust queue's action without retaining any Rust borrow while
     // native priority propagation runs.
@@ -530,14 +531,6 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
 
     const GroupId group_id_;
     const raw_ptr<TransportClientSocketPool> client_socket_pool_;
-
-    // Total number of ConnectJobs that have never been assigned to a Request.
-    // Since jobs use late binding to requests, which ConnectJobs have or have
-    // not been assigned to a request are not tracked.  This is incremented on
-    // preconnect and decremented when a preconnect is assigned, or when there
-    // are fewer than |never_assigned_job_count_| ConnectJobs.  Not incremented
-    // when a request is cancelled.
-    size_t never_assigned_job_count_ = 0;
 
     std::list<IdleSocket> idle_sockets_;
     JobList jobs_;  // For bookkeeping purposes, there is a copy of the raw
