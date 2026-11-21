@@ -5732,6 +5732,35 @@ class TestAuthHelper {
   TestCompletionCallback callback_;
 };
 
+TEST_F(ClientSocketPoolBaseTest, StalledGroupExcludesAuthBoundSlot) {
+  CreatePool(2, 1);
+  const auto auth_group = TestGroupId("auth");
+  const auto eligible_group = TestGroupId("eligible");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
+  TestAuthHelper auth;
+  auth.InitHandle(params_, pool_.get(), LOW,
+                  ClientSocketPool::RespectLimits::ENABLED, auth_group);
+  auth.WaitForAuth();
+  ASSERT_EQ(1, auth.auth_count());
+  ASSERT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  ASSERT_THAT(StartRequest(auth_group, HIGHEST), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(eligible_group, MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(2)->handle()->socket());
+  EXPECT_FALSE(request(1)->have_result());
+  EXPECT_FALSE(auth.have_result());
+  EXPECT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  auth.handle()->Reset();
+  EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 TEST_F(ClientSocketPoolBaseTest, ProxyAuthOnce) {
   CreatePool(1, 1);
   connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
