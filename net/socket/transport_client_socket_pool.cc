@@ -2104,7 +2104,6 @@ void TransportClientSocketPool::Group::SetPriority(ClientSocketHandle* handle,
       [handle](const Request& request) { return request.handle() == handle; });
   if (!token) {
     NOTREACHED();
-    return;
   }
 #if DCHECK_IS_ON()
   // RemoveUnboundRequest checked the original group only for a real change.
