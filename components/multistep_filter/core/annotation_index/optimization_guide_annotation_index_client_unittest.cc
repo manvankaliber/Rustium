@@ -193,7 +193,7 @@ TEST_F(OptimizationGuideAnnotationIndexClientTest,
        ExtractFilterAnnotation_ValidMetadata_ReturnsAnnotation) {
   ExtractTaskAttributesResponse response_proto =
       CreateExtractTaskAttributesResponse(
-          kTestTaskTypeShopping, {{kTestAttributeKey, kTestAttributeValue}});
+          kTestTaskType1, {{kTestAttributeKey, kTestAttributeValue}});
   OptimizationMetadata metadata =
       CreateOptimizationMetadata(AnyWrapProto(response_proto));
   SetupOptimizationGuideDeciderResponse(
