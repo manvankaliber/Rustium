@@ -1,0 +1,184 @@
+{
+  "description": "Frozen independent original sources, extracted as raw Git blob bytes; model is an independent executable transcription, not a native build of Chromium.",
+  "baseline": {
+    "family": "connection-jobs",
+    "scope": "TransportClientSocketPool request-to-job assignment and stalled group ordering.",
+    "status": "Source pins for a possible successor to idle-socket validation. No candidate, compiled reference, test run or cutover credit.",
+    "source_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+    "recovery": "Extract Git blobs as raw bytes and verify their recorded identities before adapting the original scheduler or its dependencies. Check provider and fixture closure against the eventual implementation boundary.",
+    "contract": [
+      "Respect-limits requests preserve FIFO within each priority, except max-priority requests ignoring limits are put at the front. Reprioritizing removes and reinserts the request; setting the same priority preserves position.",
+      "Assigned jobs cover a contiguous highest-priority prefix. New eligible requests take the job at the front of the unassigned list or take the last lower-ranked assigned job. A released job can immediately serve the first eligible unassigned request.",
+      "Job priority follows the associated request. Preconnect jobs can be claimed later. Auth-bound request and job pairs leave the unbound queues and retain generation and first pending error.",
+      "Stalled groups are eligible only with an available group slot and more unbound requests than jobs. Equal top priority preserves the first group in native GroupId map order.",
+      "Preserve native request and job destruction, callback ordering, cancellation, preconnect completion, backup timer behavior and existing public errors. Keep native job / socket providers behind the existing ownership boundary."
+    ],
+    "initial_existing_cases": [
+      "ClientSocketPoolBaseTest.TotalLimitRespectsPriority",
+      "ClientSocketPoolBaseTest.ReprioritizeResetFIFO",
+      "ClientSocketPoolBaseTest.CancelRequestReassignsJob",
+      "ClientSocketPoolBaseTest.HigherPriorityRequestStealsJob",
+      "ClientSocketPoolBaseTest.PreconnectJobGetsAssignedToRequest",
+      "ClientSocketPoolBaseTest.PendingJobCompletionOrder",
+      "ClientSocketPoolBaseTest.StallAndThenCancelAndTriggerAvailableSocket",
+      "ClientSocketPoolBaseTest.IgnoreLimitsCancelOtherJob",
+      "ClientSocketPoolBaseTest.CancelBackupSocketAfterCancelingAllRequests"
+    ],
+    "files": {
+      "net/socket/transport_client_socket_pool.cc": {
+        "git_blob": "8ff92215ca088b9ce951cc70ef925942db46dd0e",
+        "sha256": "51b9f3f2dde801aaed696ec6b7c492f2e30349650933a903aaf6ea8fff117f49",
+        "bytes": 79198,
+        "use": "Original request scheduling, assignment, job transfer, group ranking, cancellation and callbacks."
+      },
+      "net/socket/transport_client_socket_pool.h": {
+        "git_blob": "28dec2162416075e52aff530235fb747ecc07972",
+        "sha256": "db18e40922f21b463edcd99284e473637cf3d4ba01d9857ae8c1abeb4d6d7b25",
+        "bytes": 35822,
+        "use": "Pool and Group invariants, ownership, container definitions and slot accounting."
+      },
+      "net/base/priority_queue.h": {
+        "git_blob": "96f54e66422b23e21d6bef0b17fbc6a9943cb8de",
+        "sha256": "5bc3eccd79ca6bef4dddffa8f95067f01d9cd19af4fc089eead11b77571af1f1",
+        "bytes": 11921,
+        "use": "PriorityQueue traversal, insertion order, ties and erase semantics."
+      },
+      "net/base/request_priority.h": {
+        "git_blob": "f0ba5e6f004fe0bd5b16a1a5280b60bf4e8f0670",
+        "sha256": "355e4d31be9bb8173fc3747f106e889cc766c14e82a120a196c81e77c05dcf57",
+        "bytes": 2418,
+        "use": "Priority values, bounds and maximum priority."
+      },
+      "net/base/request_priority.cc": {
+        "git_blob": "92c7a7e8a07f6d7b22f4a6b5d03aa9e5cb6888a8",
+        "sha256": "de2b2d7b7cd89490e0b6a8d34a232c39a1d749ed901a0566a04925b1ab694d7f",
+        "bytes": 735,
+        "use": "Priority diagnostics."
+      },
+      "net/socket/connect_job.cc": {
+        "git_blob": "148e0bb3b71e73e82992262f8532b14780da6764",
+        "sha256": "c74cfc53703d17ffdae87554c1ac81ed376362db7cab16ac34a4bc560c274c53",
+        "bytes": 10202,
+        "use": "Priority propagation, completion, timer and registration behavior."
+      },
+      "net/socket/connect_job.h": {
+        "git_blob": "c1b7054294027c7b6855ca4afa8b3ee844289ca3",
+        "sha256": "4af79e0e4e3df3922277718c644f3524c8758389191c99c3901a9620cbdea40e",
+        "bytes": 15993,
+        "use": "Native job ownership and delegate contract."
+      },
+      "net/socket/client_socket_pool.cc": {
+        "git_blob": "3da97d8843d3f69d5604a3f1fa99b6ccaaff4570",
+        "sha256": "16167c08c338dbc18bf43a81bcf12b20518221374674466c742059a276180a5f",
+        "bytes": 17662,
+        "use": "GroupId ordering and socket capacity projection."
+      },
+      "net/socket/client_socket_pool.h": {
+        "git_blob": "bf2615f67cbc2814fef161421d920401dedeaed0",
+        "sha256": "0064528d1aeec3cef9b658088b0419890caee60442203f56d2fd22e9d9bfc328",
+        "bytes": 20565,
+        "use": "GroupId and public virtual pool contract."
+      },
+      "net/socket/socket_pool_additional_capacity.cc": {
+        "git_blob": "13dc2a6862d0ad2309ee78de306a9cca3e757848",
+        "sha256": "15ed4e85be603864b153d1615bbd724a02341804ad18f0da58a2162464a678cb",
+        "bytes": 11510,
+        "use": "Capacity transitions used by stall and release paths."
+      },
+      "net/socket/socket_pool_additional_capacity.h": {
+        "git_blob": "a1c51a97efd3155d911319862e6f3f228d30c6f4",
+        "sha256": "126526f73df2bf47f9856c873bb12330e3b30e3627832c1b2d87a7d5591ece85",
+        "bytes": 5539,
+        "use": "Capacity inputs, state and bounds."
+      },
+      "net/socket/client_socket_handle.cc": {
+        "git_blob": "1b0ea12dce0a64d014766cfa2070ec34968f516e",
+        "sha256": "20bd0a1ba60ee04fc57a2b22c6355dd10fded7f84c8f658ab8ba44ad388c8ea0",
+        "bytes": 12830,
+        "use": "Request, reprioritization, cancellation and release callers."
+      },
+      "net/socket/client_socket_handle.h": {
+        "git_blob": "2aa8206b433c6d0126e6957029226a224d19e22d",
+        "sha256": "a990e25309ae52aafda23b381afc9e0293ce8e98dfc8188011ee13ba39c073e7",
+        "bytes": 8948,
+        "use": "Client handle lifetime and callback contract."
+      },
+      "net/socket/transport_client_socket_pool_test_util.cc": {
+        "git_blob": "bfb3f0bf49059a726fccf41219ace5a055bb1750",
+        "sha256": "ea4daf7eecf3a37e92a30b51333db3088e0e8f8ecf9f0b1854a2a95a544bb8ea",
+        "bytes": 16475,
+        "use": "Pool test factory and mock job behavior."
+      },
+      "net/socket/transport_client_socket_pool_test_util.h": {
+        "git_blob": "18e75567c893cde838014bc6be374287aff5b92a",
+        "sha256": "4b15f1f8789d0c3d7b448d3004868567b58a6e67c98fe6c2be75de517886d9fa",
+        "bytes": 6039,
+        "use": "Pool test contracts."
+      },
+      "net/socket/transport_client_socket_pool_unittest.cc": {
+        "git_blob": "cd615122059488160a8f4b390153afd0cb92f9b7",
+        "sha256": "6dd2a8bff795cca78fe0f69debc0f6c06b78d44d1681c2f76f50487fd98e5a35",
+        "bytes": 114633,
+        "use": "Existing pool tests and bool-parameterized connection fixtures."
+      },
+      "net/socket/client_socket_pool_base_unittest.cc": {
+        "git_blob": "98581fbbce3c14d47dbab880c1829e879fc2f657",
+        "sha256": "0ad349919b7417e46309cf46b91ee26cbdbdb22d97a13e36a503781d0da912e1",
+        "bytes": 263990,
+        "use": "Existing scheduling, preconnect, priority, cancellation and backup-job tests."
+      },
+      "base/timer/timer.h": {
+        "git_blob": "dff6748b26a930db016710be6896aa0fc8289c84",
+        "sha256": "ff85d8ad819a0ce8ab6ebd1c5be671830d8bf7657f2c0d6a2c4e5d62e35837dc",
+        "bytes": 19201,
+        "use": "Native timer lifecycle, Stop and callback semantics."
+      },
+      "base/timer/timer.cc": {
+        "git_blob": "9a0a45155f9b6db73c9cd1438c2d7dfdb8375edf",
+        "sha256": "f8cda0b0d320007505e91e4468139f6952846d8d3894ffe2a559ebfbb86ebd28",
+        "bytes": 12334,
+        "use": "Timer implementation used for backup-job scheduling."
+      }
+    }
+  },
+  "rebind": {
+    "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+    "current_production_base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+    "original_revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+    "scope": "Rebind the unchanged production scheduling regions and existing source cases while preserving independently frozen idle lifecycle work.",
+    "unchanged_regions": {
+      "stalled_group_ranking": {
+        "begin_marker": "bool TransportClientSocketPool::FindTopStalledGroup(",
+        "end_marker_excluded": "void TransportClientSocketPool::OnIPAddressChanged(",
+        "byte_count": 919,
+        "sha256": "7d968be746661191296cca9da22891f18e4158c6de29f23ad63221bedeb2a321"
+      },
+      "group_request_assignment_and_binding": {
+        "begin_marker": "void TransportClientSocketPool::Group::InsertUnboundRequest(",
+        "end_marker_excluded": "}  // namespace net",
+        "byte_count": 9848,
+        "sha256": "d7b0d7ba3b2bf7bcec085be84158318884a77f3009dc83e948ef7f0940741f54"
+      },
+      "callers_slot_release_then_ranking": {
+        "begin_marker": "void TransportClientSocketPool::CheckForStalledSocketGroups()",
+        "end_marker_excluded": "void TransportClientSocketPool::OnIPAddressChanged(",
+        "byte_count": 1892,
+        "sha256": "0b912f1306fc390a1664b74c916d9026b1970b165bcbb2e37fd79e3808f08f23"
+      }
+    },
+    "existing_case_sources": {
+      "ClientSocketPoolBaseTest.TotalLimitRespectsPriority": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.ReprioritizeResetFIFO": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.CancelRequestReassignsJob": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.HigherPriorityRequestStealsJob": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.PreconnectJobGetsAssignedToRequest": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.PendingJobCompletionOrder": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.StallAndThenCancelAndTriggerAvailableSocket": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.IgnoreLimitsCancelOtherJob": "net/socket/client_socket_pool_base_unittest.cc",
+      "ClientSocketPoolBaseTest.CancelBackupSocketAfterCancelingAllRequests": "net/socket/client_socket_pool_base_unittest.cc"
+    },
+    "storage_and_callbacks": "Native RequestQueue, Request and ConnectJob ownership, auth binding, destruction and scheduling callbacks remain native at this boundary.",
+    "abi_guard": "Ordinary update and stalled ranking should avoid extra decision round trips, new hot-path allocations or pointers escaping across the bridge.",
+    "native_validation": "Pending candidate; no build or test executed."
+  }
+}
