@@ -8,7 +8,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// Director-owned proposal; requires ABI/layout, linkage and ownership review.
+#include "net/base/net_export.h"
+
 // The opaque pointer refers to Rust-owned queue state, never a native Request.
 struct RustRequestOrderQueue;
 struct RustRequestOrderReply {
@@ -70,5 +71,11 @@ int32_t rust_request_queue_snapshot_prefix(const RustRequestOrderQueue* queue,
                                            size_t capacity,
                                            size_t* written);
 }
+
+namespace net {
+
+NET_EXPORT_PRIVATE size_t RetainedQueueReplyLayoutForTesting(uint32_t field);
+
+}  // namespace net
 
 #endif  // NET_SOCKET_RETAINED_REQUEST_QUEUE_FFI_H_

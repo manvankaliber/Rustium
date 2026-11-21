@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <array>
@@ -59,6 +60,7 @@
 #include "net/socket/client_socket_handle.h"
 #include "net/socket/connect_job_factory.h"
 #include "net/socket/datagram_client_socket.h"
+#include "net/socket/retained_queue_ffi.h"
 #include "net/socket/socket_performance_watcher.h"
 #include "net/socket/socket_pool_additional_capacity.h"
 #include "net/socket/socket_tag.h"
@@ -88,6 +90,21 @@ using ::testing::Return;
 namespace net {
 
 namespace {
+
+TEST(TransportRetainedQueueAbiTest, ReplyLayoutMatchesRust) {
+  EXPECT_EQ(sizeof(RustRequestOrderReply),
+            RetainedQueueReplyLayoutForTesting(0));
+  EXPECT_EQ(alignof(RustRequestOrderReply),
+            RetainedQueueReplyLayoutForTesting(1));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, token),
+            RetainedQueueReplyLayoutForTesting(2));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, rank),
+            RetainedQueueReplyLayoutForTesting(3));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, donor),
+            RetainedQueueReplyLayoutForTesting(4));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, action),
+            RetainedQueueReplyLayoutForTesting(5));
+}
 
 const int kDefaultMaxSockets = 4;
 const int kDefaultMaxSocketsPerGroup = 2;
@@ -1530,8 +1547,6 @@ TEST_F(ClientSocketPoolBaseTest, ReprioritizeDownReorder) {
   EXPECT_EQ(2, GetOrderOfRequest(3));
 }
 
-// Reprioritize a request to the same level as another and confirm it is
-// put after the old request.
 TEST_F(ClientSocketPoolBaseTest, RetainedQueueSameAndChangedPriority) {
   CreatePool(1, 1);
   connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
@@ -1566,7 +1581,6 @@ TEST_F(ClientSocketPoolBaseTest, RetainedQueueSameAndChangedPriority) {
 
 // Reprioritize a request to the same level as another and confirm it is
 // put after the old request.
-
 TEST_F(ClientSocketPoolBaseTest, ReprioritizeResetFIFO) {
   CreatePool(kDefaultMaxSockets, 1);
 

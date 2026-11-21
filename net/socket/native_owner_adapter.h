@@ -15,6 +15,7 @@
 
 #include "base/check.h"
 #include "base/check_op.h"
+#include "base/threading/thread_checker.h"
 #include "net/socket/retained_queue_ffi.h"
 
 namespace net {
@@ -33,7 +34,9 @@ class RetainedRequestOwners {
   RetainedRequestOwners() : queue_(rust_request_queue_new()) { CHECK(queue_); }
   RetainedRequestOwners(const RetainedRequestOwners&) = delete;
   RetainedRequestOwners& operator=(const RetainedRequestOwners&) = delete;
-  ~RetainedRequestOwners() = default;
+  ~RetainedRequestOwners() {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  }
 
   // Rust publishes before map insertion, with no callback between them.
   // Ordinary allocation failure is fail-stop as for the original list.
@@ -42,6 +45,7 @@ class RetainedRequestOwners {
                                bool respect,
                                size_t assigned,
                                size_t unassigned) {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     RustRequestOrderReply reply{};
     CHECK_EQ(0, rust_request_queue_create(queue_.get(), priority, respect, assigned,
                                           unassigned, &reply));
@@ -54,6 +58,7 @@ class RetainedRequestOwners {
   // changed request is absent from both order and owner lookup on return.
   // No callback runs between detach and extract. Extract allocates nothing.
   Detached DetachForPriority(Token token, uint8_t priority) {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     uint32_t detached = 0;
     CHECK_EQ(0, rust_request_queue_detach(queue_.get(), token, priority, &detached));
     CHECK_LE(detached, 1u);
@@ -70,6 +75,7 @@ class RetainedRequestOwners {
   // reinsertion into this same map use the retained allocations. No callback
   // runs until both the order and ownership lookup are re-established.
   RustRequestOrderReply Finish(Detached node, size_t assigned, size_t unassigned) {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     CHECK(!node.empty());
     const Token token = node.key();
     RustRequestOrderReply reply{};
@@ -82,17 +88,25 @@ class RetainedRequestOwners {
 
   // Call before native ReleaseJob and the original backup timer stop check.
   std::unique_ptr<Request> Remove(Token token) {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     Detached node = owners_.extract(token);
     CHECK(!node.empty());
     CHECK_EQ(0, rust_request_queue_remove(queue_.get(), token, 0));
     return std::move(node.mapped());
   }
 
-  bool empty() const { return owners_.empty(); }
-  size_t size() const { return owners_.size(); }
+  bool empty() const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    return owners_.empty();
+  }
+  size_t size() const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    return owners_.size();
+  }
 
   template <typename Predicate>
   Token FindIf(Predicate predicate) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     for (const auto& [token, request] : owners_) {
       if (predicate(*request))
         return token;
@@ -101,17 +115,20 @@ class RetainedRequestOwners {
   }
 
   uint8_t Priority(Token token) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     uint8_t priority = 0;
     CHECK_EQ(0, rust_request_queue_priority(queue_.get(), token, &priority));
     return priority;
   }
 
   Request* Lookup(Token token) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     auto it = owners_.find(token);
     return it == owners_.end() ? nullptr : it->second.get();
   }
 
   Token At(size_t rank) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     Token token = 0;
     CHECK_EQ(0, rust_request_queue_at(queue_.get(), rank, &token));
     return token;
@@ -120,6 +137,7 @@ class RetainedRequestOwners {
   // One batch crossing, after the length query. No native callback is allowed
   // between length and snapshot under the owning sequence's normal contract.
   std::vector<Token> Snapshot() const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     size_t count = 0;
     CHECK_EQ(0, rust_request_queue_len(queue_.get(), &count));
     // Value-initialization supplies initialized, aligned, nonaliased u64
@@ -135,6 +153,7 @@ class RetainedRequestOwners {
   // Snapshot only the requested ordered prefix in one Rust call. Native
   // storage is value-initialized for the full declared u64 capacity.
   std::vector<Token> SnapshotPrefix(size_t count) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     CHECK_LE(count, owners_.size());
     std::vector<Token> result(count, 0);
     size_t written = 0;
@@ -146,6 +165,7 @@ class RetainedRequestOwners {
 
   RustRequestOrderReply Hole(Token token, size_t assigned,
                               size_t unassigned) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     RustRequestOrderReply reply{};
     CHECK_EQ(0, rust_request_queue_hole(queue_.get(), token, assigned, unassigned,
                                         &reply));
@@ -153,6 +173,7 @@ class RetainedRequestOwners {
   }
 
   Token Release(size_t assigned, size_t unassigned) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
     Token token = 0;
     CHECK_EQ(0, rust_request_queue_release(queue_.get(), assigned, unassigned, &token));
     return token;
@@ -168,6 +189,7 @@ class RetainedRequestOwners {
   // ownership map is destroyed. Actual Group teardown still requires review.
   std::unique_ptr<RustRequestOrderQueue, QueueDeleter> queue_;
   Owners owners_;
+  THREAD_CHECKER(thread_checker_);
 };
 
 }  // namespace net

@@ -259,8 +259,10 @@ rust_static_library("retained_request_order_rust") {
   crate_root = "socket/retained_request_queue_ffi.rs"
   sources = [
     "socket/retained_queue.rs",
+    "socket/retained_queue_tests.rs",
     "socket/retained_request_queue_ffi.rs",
   ]
+  build_native_rust_unit_tests = true
   allow_unsafe = true  # Private opaque queue and caller-owned output ABI.
   visibility = [ ":*" ]
 }

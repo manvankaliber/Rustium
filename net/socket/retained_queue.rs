@@ -70,9 +70,11 @@ impl RequestQueue {
     pub fn len(&self) -> usize {
         self.scheduled
     }
+    #[cfg(test)]
     pub fn is_empty(&self) -> bool {
         self.scheduled == 0
     }
+    #[cfg(test)]
     pub fn is_scheduled(&self, token: Token) -> bool {
         self.nodes.get(&token).is_some_and(|node| node.pending.is_none())
     }
@@ -84,6 +86,7 @@ impl RequestQueue {
         Ok(node.priority)
     }
 
+    #[cfg(test)]
     pub fn front(&self) -> Option<Token> {
         (0..PRIORITIES).rev().find_map(|priority| self.heads[priority])
     }

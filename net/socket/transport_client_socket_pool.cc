@@ -32,6 +32,7 @@
 #include "net/log/net_log_event_type.h"
 #include "net/log/net_log_source.h"
 #include "net/socket/connect_job_factory.h"
+#include "net/socket/retained_queue_ffi.h"
 #include "net/socket/transport_assignment_ffi.h"
 #include "net/socket/transport_client_socket_pool_scheduling_ffi.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
@@ -57,6 +58,10 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
 namespace net {
 
 static_assert(MINIMUM_PRIORITY == 0 && MAXIMUM_PRIORITY == 5);
+
+size_t RetainedQueueReplyLayoutForTesting(uint32_t field) {
+  return rust_request_queue_reply_layout(field);
+}
 
 size_t TransportAssignmentHole(size_t rank,
                                size_t request_count,
