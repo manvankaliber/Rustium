@@ -5,6 +5,7 @@
 #include "net/socket/transport_client_socket_pool.h"
 
 #include <algorithm>
+#include <array>
 #include <string_view>
 #include <utility>
 
@@ -31,10 +32,13 @@
 #include "net/log/net_log_event_type.h"
 #include "net/log/net_log_source.h"
 #include "net/socket/connect_job_factory.h"
+#include "net/socket/transport_client_socket_pool_scheduling_ffi.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "url/gurl.h"
 
 extern "C" {
+int32_t rust_transport_stalled_select(uint64_t packed, uint32_t count,
+                                      int32_t previous);
 int32_t rust_transport_idle_usable_step(int32_t state, bool value);
 int32_t rust_transport_idle_release_step(int32_t state, bool value);
 bool rust_transport_idle_expired(int64_t elapsed, int64_t timeout);
@@ -43,6 +47,12 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
 }
 
 namespace net {
+
+int32_t SelectStalledGroupBatch(uint64_t packed,
+                                uint32_t count,
+                                int32_t previous) {
+  return rust_transport_stalled_select(packed, count, previous);
+}
 
 int32_t TransportIdlePolicy::UsabilityStep(int32_t state, bool value) {
   return rust_transport_idle_usable_step(state, value);
@@ -1211,32 +1221,48 @@ bool TransportClientSocketPool::FindTopStalledGroup(Group** group,
                                                     GroupId* group_id) {
   CHECK(group);
   CHECK(group_id);
+  static_assert(MINIMUM_PRIORITY == 0 && MAXIMUM_PRIORITY < 16);
+  constexpr size_t kBatchSize = 16;
+  std::array<Group*, kBatchSize> candidates;
+  std::array<const GroupId*, kBatchSize> ids;
   Group* top_group = nullptr;
   const GroupId* top_group_id = nullptr;
-  bool has_stalled_group = false;
+  int32_t top_priority = -1;
+  uint64_t priorities = 0;
+  uint32_t count = 0;
+  auto select_batch = [&]() {
+    if (!count)
+      return;
+    int32_t selected = SelectStalledGroupBatch(priorities, count, top_priority);
+    CHECK_GE(selected, -1);
+    CHECK_LT(selected, static_cast<int32_t>(count));
+    if (selected >= 0) {
+      top_group = candidates[selected];
+      top_group_id = ids[selected];
+      top_priority = (priorities >> (selected * 4)) & 0xf;
+    }
+    priorities = 0;
+    count = 0;
+  };
   for (auto& it : group_map_) {
     Group* curr_group = &it.second;
-    if (!curr_group->has_unbound_requests())
+    if (!curr_group->has_unbound_requests() ||
+        !curr_group->CanUseAdditionalSocketSlot(max_sockets_per_group_)) {
       continue;
-    if (curr_group->CanUseAdditionalSocketSlot(max_sockets_per_group_)) {
-      has_stalled_group = true;
-      bool has_higher_priority =
-          !top_group ||
-          curr_group->TopPendingPriority() > top_group->TopPendingPriority();
-      if (has_higher_priority) {
-        top_group = curr_group;
-        top_group_id = &it.first;
-      }
     }
+    candidates[count] = curr_group;
+    ids[count] = &it.first;
+    priorities |= static_cast<uint64_t>(curr_group->TopPendingPriority())
+                  << (count * 4);
+    if (++count == kBatchSize)
+      select_batch();
   }
-
-  if (top_group) {
-    *group = top_group;
-    *group_id = *top_group_id;
-  } else {
-    CHECK(!has_stalled_group);
-  }
-  return has_stalled_group;
+  select_batch();
+  if (!top_group)
+    return false;
+  *group = top_group;
+  *group_id = *top_group_id;
+  return true;
 }
 
 void TransportClientSocketPool::OnIPAddressChanged(

@@ -1421,6 +1421,27 @@ TEST_F(ClientSocketPoolBaseTest, TotalLimitRespectsPriority) {
   EXPECT_EQ(ClientSocketPoolTest::kIndexOutOfBounds, GetOrderOfRequest(9));
 }
 
+TEST_F(ClientSocketPoolBaseTest, StalledGroupTiesFollowGroupIdOrder) {
+  CreatePool(2, 1);
+  const auto saturated_group = TestGroupId("saturated");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+  ASSERT_THAT(StartRequest(saturated_group, LOWEST), IsOk());
+
+  // The high-priority request cannot use another slot in its own group.
+  ASSERT_THAT(StartRequest(saturated_group, HIGHEST), IsError(ERR_IO_PENDING));
+  // Register the equal-priority groups in reverse GroupId order.
+  ASSERT_THAT(StartRequest(TestGroupId("z"), MEDIUM), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(TestGroupId("a"), MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(4)->handle()->socket());
+  EXPECT_FALSE(request(3)->handle()->socket());
+  EXPECT_FALSE(request(2)->handle()->socket());
+  EXPECT_EQ(3, GetOrderOfRequest(5));
+
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 // Test reprioritizing a request before completion doesn't interfere with
 // its completion.
 TEST_F(ClientSocketPoolBaseTest, ReprioritizeOne) {
