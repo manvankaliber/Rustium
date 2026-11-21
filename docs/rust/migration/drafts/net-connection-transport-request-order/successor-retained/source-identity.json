@@ -1,0 +1,67 @@
+{
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "original_freeze": "bd8b1077791e6e3001bd4290ccde86fa1be0946e",
+  "previous_stateful": "60adca89bdaf13042eee0709cd5cbad955088829",
+  "additional_reached_sources": {
+    "net/socket/connect_job.cc": {
+      "sha256": "c74cfc53703d17ffdae87554c1ac81ed376362db7cab16ac34a4bc560c274c53",
+      "bytes": 10202,
+      "git_blob": "148e0bb3b71e73e82992262f8532b14780da6764"
+    },
+    "net/socket/connect_job.h": {
+      "sha256": "4af79e0e4e3df3922277718c644f3524c8758389191c99c3901a9620cbdea40e",
+      "bytes": 15993,
+      "git_blob": "c1b7054294027c7b6855ca4afa8b3ee844289ca3"
+    },
+    "net/socket/connect_job_rust_ffi.rs": {
+      "sha256": "c12e10840527e7107441d6edd516ea47c558e195ea75b127f86b570232b0a5e9",
+      "bytes": 1925,
+      "git_blob": "07309a9578461194c3e8fdc9cd5a2abdc3f820de"
+    },
+    "net/socket/connect_job_rust_core.rs": {
+      "sha256": "eeda9eeb9e8812cd50afaca705af9a19926ab6fcb229e11ec2941b93a7944082",
+      "bytes": 13468,
+      "git_blob": "c80fa02bc91be514c18a058babd35f9d64c3920a"
+    },
+    "net/socket/connect_job_rust_ffi.h": {
+      "sha256": "c7fc734430bfaf466ed47e310306f191fd8f785d5d3c7f52ae0111cd61d36acd",
+      "bytes": 2063,
+      "git_blob": "e6a23071c56b4c94639808400feab937e0c89850"
+    },
+    "net/socket/connect_job_rust_native.h": {
+      "sha256": "c510a88549e7eddc61193b0d2be8705fe5c8f4fa8308032f913149813cd567df",
+      "bytes": 10240,
+      "git_blob": "46cfab9ff3f66a7aa98843223fa7a0fa055e1865"
+    },
+    "net/socket/transport_connect_job.cc": {
+      "sha256": "fc8d4b19c36dede26ec085dda1b4163ede109d9d0143afe5457e02d553543e22",
+      "bytes": 24932,
+      "git_blob": "7301328dfdd9f57e4f03b74d23590eb3e9d0b950"
+    },
+    "net/socket/ssl_connect_job.cc": {
+      "sha256": "d2e1fb3c3821cf2bd9902bbd2f01a0c927962ab2bf158f555a512635971ca3b6",
+      "bytes": 25368,
+      "git_blob": "8149f0d0cd4065ffc0c2351857cac74f9e4f4358"
+    },
+    "net/socket/socks_connect_job.cc": {
+      "sha256": "de462f58e75fc90937a1d905ec5d0fb01440f98e73ccfd7ade01d65533614b80",
+      "bytes": 10724,
+      "git_blob": "c867e50955f5aefbd12602f2b82a53e5580842c9"
+    },
+    "net/http/http_proxy_connect_job.cc": {
+      "sha256": "ce5d959bc29f527b6701c000b58de162955f26d67b9b3f596e7bd29b499c0da2",
+      "bytes": 38401,
+      "git_blob": "ce3d7d262a3d6eb598585a029e83ed91c1035ddb"
+    },
+    "docs/memory/oom.md": {
+      "sha256": "e53b2c2abec5274c314bf1e5a080088a034757b667b3af87fd0d17efd50efa97",
+      "bytes": 7569,
+      "git_blob": "6fe65a3338b99dd99e29ed1c87e5240e373d4822"
+    },
+    "build/rust/allocator/alloc_error_handler_impl.cc": {
+      "sha256": "b39be8f83054ec9b655244cb5bdb3e2b71a22e7ea70f039260439a8a4a36d1ee",
+      "bytes": 451,
+      "git_blob": "6373efd35668b9b631e5e9353532cf6b44543aba"
+    }
+  }
+}

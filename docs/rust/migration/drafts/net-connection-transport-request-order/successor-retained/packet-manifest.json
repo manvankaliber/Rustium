@@ -1,0 +1,118 @@
+{
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "scope": "unlinked retained-node core, ABI and owner-adapter proposal",
+  "files": {
+    ".gitattributes": {
+      "bytes": 8,
+      "sha256": "705fd4d6451a31d36b3df7de96f83f30ac976c9b4a6d1e51671d8e2f33e2d0da"
+    },
+    "compare_trace.py": {
+      "bytes": 774,
+      "sha256": "496f996e0cda3d23499436d8866a416758318d0b7f5af17a62ed5db19c3415cd"
+    },
+    "frozen/build/rust/allocator/alloc_error_handler_impl.cc": {
+      "bytes": 451,
+      "sha256": "b39be8f83054ec9b655244cb5bdb3e2b71a22e7ea70f039260439a8a4a36d1ee"
+    },
+    "frozen/docs/memory/oom.md": {
+      "bytes": 7569,
+      "sha256": "e53b2c2abec5274c314bf1e5a080088a034757b667b3af87fd0d17efd50efa97"
+    },
+    "frozen/net/http/http_proxy_connect_job.cc": {
+      "bytes": 38401,
+      "sha256": "ce5d959bc29f527b6701c000b58de162955f26d67b9b3f596e7bd29b499c0da2"
+    },
+    "frozen/net/socket/connect_job.cc": {
+      "bytes": 10202,
+      "sha256": "c74cfc53703d17ffdae87554c1ac81ed376362db7cab16ac34a4bc560c274c53"
+    },
+    "frozen/net/socket/connect_job.h": {
+      "bytes": 15993,
+      "sha256": "4af79e0e4e3df3922277718c644f3524c8758389191c99c3901a9620cbdea40e"
+    },
+    "frozen/net/socket/connect_job_rust_core.rs": {
+      "bytes": 13468,
+      "sha256": "eeda9eeb9e8812cd50afaca705af9a19926ab6fcb229e11ec2941b93a7944082"
+    },
+    "frozen/net/socket/connect_job_rust_ffi.h": {
+      "bytes": 2063,
+      "sha256": "c7fc734430bfaf466ed47e310306f191fd8f785d5d3c7f52ae0111cd61d36acd"
+    },
+    "frozen/net/socket/connect_job_rust_ffi.rs": {
+      "bytes": 1925,
+      "sha256": "c12e10840527e7107441d6edd516ea47c558e195ea75b127f86b570232b0a5e9"
+    },
+    "frozen/net/socket/connect_job_rust_native.h": {
+      "bytes": 10240,
+      "sha256": "c510a88549e7eddc61193b0d2be8705fe5c8f4fa8308032f913149813cd567df"
+    },
+    "frozen/net/socket/socks_connect_job.cc": {
+      "bytes": 10724,
+      "sha256": "de462f58e75fc90937a1d905ec5d0fb01440f98e73ccfd7ade01d65533614b80"
+    },
+    "frozen/net/socket/ssl_connect_job.cc": {
+      "bytes": 25368,
+      "sha256": "d2e1fb3c3821cf2bd9902bbd2f01a0c927962ab2bf158f555a512635971ca3b6"
+    },
+    "frozen/net/socket/transport_connect_job.cc": {
+      "bytes": 24932,
+      "sha256": "fc8d4b19c36dede26ec085dda1b4163ede109d9d0143afe5457e02d553543e22"
+    },
+    "MATERIALIZATION.md": {
+      "bytes": 1104,
+      "sha256": "dfce2519bfeb459a9ec1e2e72b46ffc2db257ea1eb3a5f22ce580ff3cd22c46d"
+    },
+    "oracle/original_trace.cc": {
+      "bytes": 4622,
+      "sha256": "135e913520c12e82473739fe3a6686971eb1a22165b85bd7af8cc210fa27f95f"
+    },
+    "proposal/BUILD.gn.inc": {
+      "bytes": 655,
+      "sha256": "41bf4a3045365f6b0a0b3993c310079679e49ba7e4f5eb1bfe63d2c7d7cfc339"
+    },
+    "proposal/native_owner_adapter.h": {
+      "bytes": 5421,
+      "sha256": "b6e7ed13c2e20c83bcb37eb52400087f67e0a448f5852540cf696c6e97cebe5c"
+    },
+    "proposal/native_owner_adapter_unittest.cc": {
+      "bytes": 2163,
+      "sha256": "15ec91e2ffee06f04d221f409f0cfd9f6c3097495ab20b39fd190401a06760fa"
+    },
+    "proposal/retained_queue_ffi.h": {
+      "bytes": 3059,
+      "sha256": "1fbe46c6229c195097963b273a7f0094e1831934f096e98869bd4566f935152a"
+    },
+    "README.md": {
+      "bytes": 4515,
+      "sha256": "bc438794559f76a797eb8c246865b5c46a61fa3edfab71fde6929215c7ff3982"
+    },
+    "source-identity.json": {
+      "bytes": 2823,
+      "sha256": "261345c894e758f39a7f5ea87ce449d20911a269f1a262f352bce5728d2c2542"
+    },
+    "src/ffi.rs": {
+      "bytes": 8524,
+      "sha256": "1e2e6631e8a51a7a24082d37085a6565e3b2a1b7b79a334c7ce00f283118f853"
+    },
+    "src/no_alloc_trace.rs": {
+      "bytes": 1588,
+      "sha256": "b1832691fb2739571680250b5eea47bc8f7fb5f1f29fbec7414b23960af52035"
+    },
+    "src/retained_queue.rs": {
+      "bytes": 11279,
+      "sha256": "ddad3d1b6295611462d8b4ecd3fc2025085e1065decb89bbfc0896de53e18a71"
+    },
+    "src/retained_queue_tests.rs": {
+      "bytes": 3811,
+      "sha256": "bf884a9060f64ce9e05c66e5b05efe5921db49900341ce8d6ab8cd96f01aa58a"
+    },
+    "src/trace.rs": {
+      "bytes": 5084,
+      "sha256": "ec203f98c9c823a0fb7f6cd0e08e273eb35256fd5779f5de22a3483bbfb2d322"
+    },
+    "TRANSACTIONS.md": {
+      "bytes": 5971,
+      "sha256": "293080829bd6d4bb9718e7107ad9922b7a8b699f17559a218cb35cd4da2edecf"
+    }
+  }
+}
