@@ -1,0 +1,55 @@
+{
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "files": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "before_sha256": "d209f6d8aa3b7b5d1f18a449d2ca5c53bf9a4adc3e9d604c933a792f25d6f39a",
+      "after_sha256": "3ee9d2f39d46b892116b262b538f7557ec5cfe8a3523dc58cdde1436af0ff453",
+      "after_git_blob": "baf9d7cf96aa108dfbcacf16715bcd0f804cc9c1"
+    },
+    "net/socket/transport_client_socket_pool.h": {
+      "before_sha256": "e992564b26a57f02e9f400b053f5b6d158cadfe475280ef1ad13bff37c27e534",
+      "after_sha256": "86050adc0b8c4bc99c057e547d257adf36eac2d339f7a9614e4c49cb94b22305",
+      "after_git_blob": "08b0e727c91a2908e83e02685f69b7ec1cb9662c"
+    },
+    "net/socket/client_socket_pool_base_unittest.cc": {
+      "before_sha256": "6ab91f7be9460a91abee9f216f1e4c27c900e85cca05acd40b37f821f4e4e088",
+      "after_sha256": "7f75559be5808f911e03dd8577cc181c87124b70ea35e645a31479c35e435414",
+      "after_git_blob": "a6e970785b598db7bad9e48153f91f2e48282132"
+    },
+    "net/socket/native_owner_adapter.h": {
+      "before_sha256": null,
+      "after_sha256": "bfa7a6f4cb1919707729c690699dcf625bf12ac4fdfe7389ad466ae5e91bba0c",
+      "after_git_blob": "dcfe65cdc75ad30eda897bdcaa781e25698f338e"
+    },
+    "net/socket/retained_queue.rs": {
+      "before_sha256": null,
+      "after_sha256": "ad9e5c707bd4e40bae05641aaed77014b6413b0a860d0ff929c5881061c69d37",
+      "after_git_blob": "b882b5aadaf327b4c937b84ea2c2d53f42bf0221"
+    },
+    "net/socket/retained_queue_tests.rs": {
+      "before_sha256": null,
+      "after_sha256": "5356fedbccdc1feb863780e05e00e152988c514833f7f43a99b7a676cd7b75ec",
+      "after_git_blob": "32f191ee86ebfcc8a282ec300140933593de5c56"
+    },
+    "net/socket/retained_request_queue_ffi.rs": {
+      "before_sha256": null,
+      "after_sha256": "4230325b218acb96a1c30bbf9fdc74a03b54fdd4ebef66bd04b44d5b4ec203ac",
+      "after_git_blob": "a7ff0d1143c31d38785b3ae62926f19d01824a07"
+    },
+    "net/BUILD.gn": {
+      "before_sha256": "2d1701bdddd67dc142e1bd5181cd5e20319be56acdb7369309fbe02874c824f9",
+      "after_sha256": "62f9a4c429bdb85500a75d0c5eae6f6a1be42e828d45602cb2a1663384a8ae7f",
+      "after_git_blob": "93ef1fac5ddb3f4ab8e0085171a8fc70cf196749"
+    },
+    "net/socket/retained_queue_ffi.h": {
+      "before_sha256": null,
+      "after_sha256": "372b462d5a4ac683a9f6ac26b63c390a997d032546d145e3bfc12278ac657561",
+      "after_git_blob": "b25c8bed664661d10ca717cb20bb4564f508999b"
+    }
+  },
+  "patches": {
+    "production.patch": "bb2d41f9de38cba399347134cf1f12ad3f60d21a607f8c41f264a1ddb1dce331",
+    "director-linkage.patch": "cc4d07c6bb5b4e1286b1f97d08687889cbaecb1f9cfe37de09f76159f9cba524"
+  },
+  "validation": "Applied in sequence to isolated Git index at pinned base; no build or test."
+}
