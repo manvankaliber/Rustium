@@ -1,0 +1,40 @@
+{
+  "production_base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "files": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "before_sha256": "403adfa251a54422f2d502de3c491f713fd03f02e1070cd5a68115cfaee34fe6",
+      "after_sha256": "8515980f0f1e9c46419c4768dec010542771bb6ed39dc9edadb8ba8650b7e383",
+      "after_git_blob": "44570fd97dece85aa4db572b0ab7e1bce9b91788"
+    },
+    "net/socket/transport_client_socket_pool_scheduling_rust.rs": {
+      "before_sha256": null,
+      "after_sha256": "e8f0f24c725f9b707c951e338e9c1c59a05e90e3f9dd45bc9bdb2e6a2e7bd91f",
+      "after_git_blob": "284ae4e62f4f7e4670616c8cb62ec78281e0d679"
+    },
+    "net/socket/transport_client_socket_pool_scheduling_original.h": {
+      "before_sha256": null,
+      "after_sha256": "da0396831b5ba0745f1abcfa31a99e270cbe0c30f816e6fa060d60392865d269",
+      "after_git_blob": "d609c39585424e4dadc85d3e6f1a1dcee64a8a10"
+    },
+    "net/socket/transport_client_socket_pool_scheduling_unittest.cc": {
+      "before_sha256": null,
+      "after_sha256": "89f36cb154d66ebf0c26c4786e27bfa66ccfe86a364110f5fb046f81fb172ba3",
+      "after_git_blob": "f10869732fd2d44681dffae8ae555c2f098f1f16"
+    },
+    "net/BUILD.gn": {
+      "before_sha256": "d7fad3a62175636949f9a2b47ab31400be92375867e700935647141f88b1f4d5",
+      "after_sha256": "91847b87a6b56f63cb5e80294427804d411f59a22a5bc888b75a485094e0b15a",
+      "after_git_blob": "450133ce221726aea1f516c29cf67282ab322a83"
+    },
+    "net/socket/transport_client_socket_pool_scheduling_ffi.h": {
+      "before_sha256": null,
+      "after_sha256": "0c5a7ffdb646d8baa72a48bd648cd58078e04f89db37b47d11a2f8560ad763cc",
+      "after_git_blob": "419b13d032a1d4e3fff521de3e91a69910782582"
+    }
+  },
+  "patches": {
+    "production.patch": "56de85d7a9b1a4d6c478c0e0e20d4ec6137b5a286699b99a63569104bc3dfe83",
+    "director-linkage.patch": "327ae2b3618137ffd30ea1062475bbc92cfc57ac1d65d24be26d697c48d0a540"
+  },
+  "validation": "Applied in sequence to isolated Git index at pinned base; no build or test."
+}

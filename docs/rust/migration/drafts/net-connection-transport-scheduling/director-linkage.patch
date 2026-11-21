@@ -1,0 +1,63 @@
+diff --git a/net/BUILD.gn b/net/BUILD.gn
+index a1b2d50500154f54665ba5766261dd9f9d31b161..450133ce221726aea1f516c29cf67282ab322a83 100644
+--- a/net/BUILD.gn
++++ b/net/BUILD.gn
+@@ -255,6 +255,13 @@ rust_static_library("gzip_header_parser") {
+   ]
+ }
+ 
++rust_static_library("transport_client_socket_pool_scheduling_rust") {
++  crate_root = "socket/transport_client_socket_pool_scheduling_rust.rs"
++  sources = [ "socket/transport_client_socket_pool_scheduling_rust.rs" ]
++  allow_unsafe = true  # Exported scalar ABI attribute only.
++  visibility = [ ":*" ]
++}
++
+ rust_static_library("transport_client_socket_pool_idle_rust") {
+   crate_root = "socket/transport_client_socket_pool_idle_rust_core.rs"
+   sources = [ "socket/transport_client_socket_pool_idle_rust_core.rs" ]
+@@ -1562,6 +1569,7 @@ component("net") {
+     "socket/transport_client_socket.h",
+     "socket/transport_client_socket_pool.cc",
+     "socket/transport_client_socket_pool.h",
++    "socket/transport_client_socket_pool_scheduling_ffi.h",
+     "socket/transport_connect_job.cc",
+     "socket/transport_connect_job.h",
+     "socket/transport_connect_job_rust_ffi.h",
+@@ -1784,6 +1792,7 @@ component("net") {
+     ":tcp_client_socket_rust",
+     ":tls_session_cache_rust",
+     ":transport_client_socket_pool_idle_rust",
++    ":transport_client_socket_pool_scheduling_rust",
+     ":websocket_extension_rust",
+     ":websocket_frame_rust",
+     "//components/network_time/time_tracker",
+@@ -3619,6 +3628,8 @@ target(_test_target_type, "net_unittests") {
+     "socket/tls_stream_attempt_unittest.cc",
+     "socket/transport_client_socket_pool_idle_rust_original.cc",
+     "socket/transport_client_socket_pool_idle_rust_original.h",
++    "socket/transport_client_socket_pool_scheduling_original.h",
++    "socket/transport_client_socket_pool_scheduling_unittest.cc",
+     "socket/transport_client_socket_pool_test_util.cc",
+     "socket/transport_client_socket_pool_test_util.h",
+     "socket/transport_client_socket_pool_unittest.cc",
+diff --git a/net/socket/transport_client_socket_pool_scheduling_ffi.h b/net/socket/transport_client_socket_pool_scheduling_ffi.h
+new file mode 100644
+index 0000000000000000000000000000000000000000..419b13d032a1d4e3fff521de3e91a69910782582
+--- /dev/null
++++ b/net/socket/transport_client_socket_pool_scheduling_ffi.h
+@@ -0,0 +1,14 @@
++// Copyright 2026 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++#ifndef NET_SOCKET_TRANSPORT_CLIENT_SOCKET_POOL_SCHEDULING_FFI_H_
++#define NET_SOCKET_TRANSPORT_CLIENT_SOCKET_POOL_SCHEDULING_FFI_H_
++#include <stdint.h>
++#include "net/base/net_export.h"
++namespace net {
++// Private component test/production bridge. -1 means retain prior selection.
++NET_EXPORT_PRIVATE int32_t SelectStalledGroupBatch(uint64_t packed,
++                                                  uint32_t count,
++                                                  int32_t previous);
++}  // namespace net
++#endif  // NET_SOCKET_TRANSPORT_CLIENT_SOCKET_POOL_SCHEDULING_FFI_H_
