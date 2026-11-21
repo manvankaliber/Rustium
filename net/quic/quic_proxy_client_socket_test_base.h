@@ -108,7 +108,7 @@ class QuicProxyClientSocketTestBase
 
   void TearDown() override = 0;
 
-  void InitializeSession();
+  void InitializeSession(bool create_stream = true);
 
   virtual void InitializeClientSocket() = 0;
 

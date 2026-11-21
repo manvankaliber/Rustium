@@ -32,6 +32,8 @@
 
 namespace net {
 
+struct SSLConnectJobFamilyRustBridge;
+
 class HostPortPair;
 class HttpProxySocketParams;
 class SocketTag;
@@ -143,6 +145,7 @@ class NET_EXPORT_PRIVATE SSLConnectJob : public ConnectJob,
   static base::TimeDelta HandshakeTimeoutForTesting();
 
  private:
+  friend struct SSLConnectJobFamilyRustBridge;
   enum State {
     STATE_TRANSPORT_CONNECT,
     STATE_TRANSPORT_CONNECT_COMPLETE,

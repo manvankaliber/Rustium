@@ -34,6 +34,8 @@
 
 namespace net {
 
+struct ClientSocketPoolFamilyRustBridge;
+
 class ClientSocketHandle;
 class ConnectJobFactory;
 class HttpAuthController;
@@ -164,6 +166,7 @@ class NET_EXPORT ClientSocketPool : public LowerLayeredPool {
     auto operator<=>(const GroupId& other) const = default;
 
    private:
+  friend struct ClientSocketPoolFamilyRustBridge;
     // The endpoint of the final destination (not the proxy).
     url::SchemeHostPort destination_;
 
@@ -408,11 +411,7 @@ class NET_EXPORT ClientSocketPool : public LowerLayeredPool {
       SocketTag socket_tag,
       ConnectJob::Delegate* delegate);
 
-  size_t SocketSoftCap() const {
-    return socket_soft_cap_override_for_test_
-               ? *socket_soft_cap_override_for_test_
-               : socket_soft_cap_;
-  }
+  size_t SocketSoftCap() const;
 
   // This should return the sockets the pool considers to be in-use (reserved)
   // of the overall pool. This won't contain 'stalled' sockets as those have yet
@@ -448,6 +447,7 @@ class NET_EXPORT ClientSocketPool : public LowerLayeredPool {
   const ProxyChain& GetProxyChain() const { return proxy_chain_; }
 
  private:
+  friend struct ClientSocketPoolFamilyRustBridge;
   // This section tracks information related to the overall pool capacity.
   // `socket_soft_cap_` is the amount of sockets always available to the pool
   // while additional sockets may be available via `additional_capacity_`

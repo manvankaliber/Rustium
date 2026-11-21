@@ -7,6 +7,7 @@
 
 #include <stddef.h>
 
+#include <array>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -182,28 +183,10 @@ class NET_EXPORT ParsedCookie {
       const;
 
  private:
-  void ParseTokenValuePairs(std::string_view cookie_line,
-                            CookieInclusionStatus& status_out);
-  void SetupAttributes();
-
-  // Sets a key/value pair for a cookie. |index| has to point to one of the
-  // |*_index_| fields in ParsedCookie and is updated to the position where
-  // the key/value pair is set in |pairs_|. Accordingly, |key| has to correspond
-  // to the token matching |index|. If |value| contains invalid characters, the
-  // cookie parameter is not changed and the function returns false.
-  // If |value| is empty/false the key/value pair is removed.
-  bool SetString(size_t* index, std::string_view key, std::string_view value);
-  bool SetBool(size_t* index, std::string_view key, bool value);
-
-  // Helper function for SetString and SetBool handling the case that the
-  // key/value pair shall not be removed.
-  bool SetAttributePair(size_t* index,
-                        std::string_view key,
-                        std::string_view value);
-
-  // Removes the key/value pair from a cookie that is identified by |index|.
-  // |index| refers to a position in |pairs_|.
-  void ClearAttributePair(size_t index);
+  // C++ owns strings for public reference/view lifetimes. Rust returns mutation
+  // plans before any storage write, including when an input aliases pairs_.
+  bool Mutate(size_t field, std::string_view input, bool enabled = false);
+  std::array<size_t*, 9> AttributeIndexes();
 
   std::vector<std::pair<std::string, std::string>> pairs_;
   // These will default to 0, but that should never be valid since the

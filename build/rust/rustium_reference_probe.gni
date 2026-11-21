@@ -1,0 +1,12 @@
+# Explicit qualification configuration only. Normal source roots remain intact.
+declare_args() {
+  rustium_reference_probe = false
+}
+
+# The observed executable and its component DLLs use the default toolchain.
+# Helper executables run in separate processes and keep their ordinary sources.
+rustium_reference_probe_enabled =
+    rustium_reference_probe && current_toolchain == default_toolchain
+assert(
+    !rustium_reference_probe_enabled || is_component_build,
+    "Reference probes require component-owned accessors in this qualification")

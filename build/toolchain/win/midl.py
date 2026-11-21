@@ -22,7 +22,33 @@ import uuid
 from functools import reduce
 
 
-def ZapTimestamp(filename):
+def rebase_idl_comment(contents, idl):
+    # The checked-in MIDL outputs were generated from out/<config>. For
+    # source IDLs, retain that spelling in the compiler-settings comment
+    # even when the current build directory is nested more deeply.
+    if not idl.startswith('../'):
+        return contents
+
+    source_root = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+    source_path = os.path.relpath(idl, source_root)
+    if source_path.startswith(os.pardir + os.sep):
+        return contents
+
+    baseline_idl = '../../' + source_path.replace(os.sep, '/')
+    if idl == baseline_idl:
+        return contents
+
+    prefix = '/* Compiler settings for '
+    original = (prefix + idl + ':').encode('utf-8')
+    canonical = (prefix + baseline_idl + ':').encode('utf-8')
+    return re.sub(
+        rb'(?m)^' + re.escape(original) + rb'(?=\r?$)',
+        lambda _: canonical,
+        contents,
+    )
+
+
+def ZapTimestamp(filename, idl):
     contents = open(filename, 'rb').read()
     # midl.exe writes timestamp 2147483647 (2^31 - 1) as creation date into its
     # outputs, but using the local timezone.  To make the output timezone-
@@ -84,6 +110,7 @@ def ZapTimestamp(filename):
             + contents[custom_off + 0x54 :]
         )
     else:
+        contents = rebase_idl_comment(contents, idl)
         contents = re.sub(
             rb'File created by MIDL compiler version 8\.\d\d\.\d{4} \*/\r\n'
             rb'/\* at ... Jan 1. ..:..:.. 2038',
@@ -274,7 +301,7 @@ def generate_idl_from_template(idl_template, dynamic_guids, idl):
 
 # This function runs the MIDL compiler with the provided arguments. It creates
 # and returns a tuple of |0,midl_output_dir| on success.
-def run_midl(args, env_dict):
+def run_midl(args, env_dict, idl):
     midl_output_dir = tempfile.mkdtemp()
     delete_midl_output_dir = True
 
@@ -306,7 +333,7 @@ def run_midl(args, env_dict):
             return popen.returncode, midl_output_dir
 
         for f in os.listdir(midl_output_dir):
-            ZapTimestamp(os.path.join(midl_output_dir, f))
+            ZapTimestamp(os.path.join(midl_output_dir, f), idl)
 
         delete_midl_output_dir = False
     finally:
@@ -496,7 +523,7 @@ def main(
         + ['/cpp_cmd', clang, '/cpp_opt', preprocessor_options, idl]
     )
 
-    returncode, midl_output_dir = run_midl(args, env_dict)
+    returncode, midl_output_dir = run_midl(args, env_dict, idl)
     if returncode != 0:
         return returncode
 
@@ -538,7 +565,7 @@ def main(
             # In future runs, the placeholder guids in |source| are replaced with the
             # guids specified in |dynamic_guids|.
             generate_idl_from_template(idl_template, None, idl)
-            returncode, midl_output_dir = run_midl(args, env_dict)
+            returncode, midl_output_dir = run_midl(args, env_dict, idl)
             if returncode != 0:
                 return returncode
 

@@ -72,10 +72,10 @@ class NET_EXPORT CookiePartitionKey {
   CookiePartitionKey& operator=(CookiePartitionKey&& other);
   ~CookiePartitionKey();
 
-  friend bool operator==(const CookiePartitionKey&,
-                         const CookiePartitionKey&) = default;
-  friend auto operator<=>(const CookiePartitionKey&,
-                          const CookiePartitionKey&) = default;
+  friend NET_EXPORT bool operator==(const CookiePartitionKey&,
+                                    const CookiePartitionKey&);
+  friend NET_EXPORT std::strong_ordering operator<=>(
+      const CookiePartitionKey&, const CookiePartitionKey&);
 
   // Methods for serializing and deserializing a partition key to/from a string.
   // This is currently used for:
@@ -122,8 +122,8 @@ class NET_EXPORT CookiePartitionKey {
 
   // Create a new CookiePartitionKey from the components of a StorageKey.
   // Forwards to FromWire, but unlike that method in this one the optional nonce
-  // argument has no default. It also checks that cookie partitioning is enabled
-  // before returning a valid key, which FromWire does not check.
+  // argument has no default. Like FromWire, this preserves the supplied site,
+  // nonce, and ancestor bit without checking a feature gate.
   [[nodiscard]] static std::optional<CookiePartitionKey>
   FromStorageKeyComponents(
       const SchemefulSite& top_level_site,
@@ -157,20 +157,17 @@ class NET_EXPORT CookiePartitionKey {
 
   // Returns true if unpartitioned cookie access is forbidden for the current
   // cookie partition key.
-  bool ForbidsUnpartitionedCookieAccess() const { return nonce_.has_value(); }
+  bool ForbidsUnpartitionedCookieAccess() const;
 
   const std::optional<base::UnguessableToken>& nonce() const { return nonce_; }
 
-  static bool HasNonce(base::optional_ref<const CookiePartitionKey> key) {
-    return key && key->nonce();
-  }
+  static bool HasNonce(base::optional_ref<const CookiePartitionKey> key);
 
-  bool IsThirdParty() const {
-    return ancestor_chain_bit_ == AncestorChainBit::kCrossSite;
-  }
+  bool IsThirdParty() const;
 
 
  private:
+  friend struct CookieFamilyNativeAccess;
   // Used by DeserializeInternal to determine how strict the context should be
   // about inconsistencies in the input.
   enum class ParsingMode {

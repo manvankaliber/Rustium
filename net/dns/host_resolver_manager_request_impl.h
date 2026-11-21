@@ -31,7 +31,10 @@
 #include "net/dns/public/resolve_error_info.h"
 #include "net/log/net_log_with_source.h"
 
+namespace net { class DnsResolutionFamilyRustPeer; }
+
 namespace net {
+class DnsResolutionFamilyRustPeer;
 
 class ClientSocketFactory;
 class ResolveContext;
@@ -122,6 +125,8 @@ class HostResolverManager::RequestImpl
   void set_priority(RequestPriority priority) { priority_ = priority; }
 
  private:
+  friend class ::net::DnsResolutionFamilyRustPeer;
+  class RustFrame;
   enum ResolveState {
     STATE_IPV6_REACHABILITY,
     STATE_GET_PARAMETERS,

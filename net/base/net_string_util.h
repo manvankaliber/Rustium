@@ -15,7 +15,7 @@
 
 namespace net {
 
-extern const char* const kCharsetLatin1;
+NET_EXPORT_PRIVATE extern const char* const kCharsetLatin1;
 
 // Converts |text| using |charset| to UTF-8, and writes it to |output|.
 // On failure, returns false and |output| is cleared.
@@ -25,7 +25,7 @@ bool ConvertToUtf8(std::string_view text,
 
 // Converts |text| using |charset| to UTF-8, normalizes the result, and writes
 // it to |output|.  On failure, returns false and |output| is cleared.
-bool ConvertToUtf8AndNormalize(std::string_view text,
+NET_EXPORT_PRIVATE bool ConvertToUtf8AndNormalize(std::string_view text,
                                const char* charset,
                                std::string* output);
 

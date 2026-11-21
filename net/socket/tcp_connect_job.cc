@@ -2,10 +2,17 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_span.h"
+#include "base/memory/raw_ptr.h"
 #include "net/socket/tcp_connect_job.h"
+#include "net/socket/tcp_connect_job_rust_ffi.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
+#include "net/socket/connect_job_rust_native.h"
+#include "net/socket/tcp_connect_fallback_rust_native.h"
 
 #include <algorithm>
 #include <memory>
+#include "base/memory/raw_ptr_exclusion.h"
 #include <optional>
 #include <ranges>
 #include <set>
@@ -61,33 +68,250 @@ HostPortPair ToLegacyDestinationEndpoint(
   return std::get<HostPortPair>(endpoint);
 }
 
-bool IsDualRaceOptimisticDnsEnabled() {
-  return base::FeatureList::IsEnabled(features::kOptimisticDnsForTcp) &&
-         features::kUseStaleConnectorsForOptimisticDns.Get();
-}
 
-bool IsEchEnabled(SSLClientContext* ssl_client_context, std::string_view host) {
-  return ssl_client_context && ssl_client_context->IsEchEnabled(host);
-}
+
+
 
 // Returns true if the given `endpoint` is present in the provided `results`
 // list. This is used to check if an actively connecting stale endpoint is
 // still valid when fresh DNS results arrive, allowing the stale connector to
 // be promoted to a fresh connector.
-bool IsEndpointInFreshList(const IPEndPoint& endpoint,
-                           base::span<const ServiceEndpoint> results) {
-  for (const auto& result : results) {
-    if (std::ranges::find(result.ipv4_endpoints, endpoint) !=
-            result.ipv4_endpoints.end() ||
-        std::ranges::find(result.ipv6_endpoints, endpoint) !=
-            result.ipv6_endpoints.end()) {
-      return true;
-    }
-  }
-  return false;
-}
+
 
 }  // namespace
+
+
+// Invocation-local observer. Invalidated at the most-derived destructor entry.
+// No typed native pointer crosses the Rust ABI or survives a service call.
+struct tcp_connect_jobRustBridge : connection_jobs_upper_rust::Invocation {
+  using Op = tcp_connect_job_rust::Operation;
+  using Action = tcp_connect_job_rust::Action;
+  raw_ptr<const TcpConnectJob> owner;
+  raw_ptr<TcpConnectJob> mutable_owner = nullptr;
+
+  int64_t state_index = 0;
+  // Ephemeral primitive-call observations; never exposed to Rust.
+  RAW_PTR_EXCLUSION TcpConnectJob::Connector* connector = nullptr;
+  RAW_PTR_EXCLUSION const TcpConnectJob::Connector* input_connector = nullptr;
+  RAW_PTR_EXCLUSION const TcpConnectJob::Connector* other = nullptr;
+  RAW_PTR_EXCLUSION const IPEndPoint* input_ip = nullptr;
+  RAW_PTR_EXCLUSION const ServiceEndpoint* endpoint = nullptr;
+  RAW_PTR_EXCLUSION const ServiceEndpoint* endpoint_output = nullptr;
+  base::raw_span<const ServiceEndpoint> results;
+  raw_ptr<const base::flat_set<std::string>> aliases = nullptr;
+  raw_ptr<TcpConnectJob::IPEndPointInfo> ip_output = nullptr;
+  std::optional<IPEndPoint> ip, saved_ip;
+  bool v6 = false;
+  std::optional<ConnectJobRustBridge> base;
+  std::unique_ptr<StreamSocket> socket_payload;
+  std::optional<base::flat_set<std::string>> aliases_payload;
+  base::TimeDelta delay;
+  TcpFallbackRustBridge fallback;
+  TcpConnectJob::ConnectionState& State() {
+    CHECK(mutable_owner);
+    return state_index ? mutable_owner->stale_state_ : mutable_owner->fresh_state_;
+  }
+  const TcpConnectJob::ConnectionState& ReadState() const {
+    return state_index ? owner->stale_state_ : owner->fresh_state_;
+  }
+  base::span<const IPEndPoint> Ips() const {
+    return v6 ? base::span(endpoint->ipv6_endpoints) : base::span(endpoint->ipv4_endpoints);
+  }
+
+  explicit tcp_connect_jobRustBridge(TcpConnectJob* value) : Invocation(static_cast<const ConnectJob*>(value)), owner(value), mutable_owner(value) {
+    Register(&Clear); base.emplace(value);
+  }
+  explicit tcp_connect_jobRustBridge(const TcpConnectJob* value) : Invocation(static_cast<const ConnectJob*>(value)), owner(value) {
+    Register(&Clear); base.emplace(value);
+  }
+  ~tcp_connect_jobRustBridge() { base.reset(); Unregister(); }
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<tcp_connect_jobRustBridge*>(value);
+    c.owner = nullptr; c.mutable_owner = nullptr;
+    c.connector = nullptr; c.input_connector = nullptr; c.other = nullptr; c.input_ip = nullptr; c.endpoint = nullptr; c.endpoint_output = nullptr; c.results = {}; c.aliases = nullptr;
+  }
+  int64_t Run(Op operation, int64_t argument = 0) {
+    return connection_jobs_rust_run(2, static_cast<uint32_t>(operation),
+                                    argument, this, &Service);
+  }
+  static bool Service(void* context, uint32_t module, uint32_t action,
+                      int64_t argument, int64_t* output) {
+    auto& c = *static_cast<tcp_connect_jobRustBridge*>(context);
+    *output = 0;
+    if (!c.owner) return false;
+    if (action == UINT32_MAX) return true;
+    if (module == 0) {
+      CHECK(c.base);
+      return ConnectJobRustBridge::Service(&*c.base, action, argument, output);
+    }
+    const auto& j = *c.owner;
+    // Direct safe Rust fallback helpers project only native providers here.
+    if (module == 2 && action >= 1000 && action <= 1018) {
+      c.fallback.common = j.common_connect_job_params();
+      c.fallback.params = j.params_.get();
+      return TcpFallbackRustBridge::Service(&c.fallback, module, action, argument, output);
+    }
+    CHECK_EQ(module, 2u);
+    // Mutable access is requested only in action arms that require it. Const
+    // wrappers never obtain a mutable receiver and never commit a snapshot.
+    auto Mutable = [&]() -> TcpConnectJob& { CHECK(c.mutable_owner); return *c.mutable_owner; };
+    switch (static_cast<Action>(action)) {
+      case Action::CheckNotDone: { CHECK(!j.is_done_); break; }
+      case Action::CheckDnsIncomplete: { DCHECK(!j.dns_request_complete_); break; }
+      case Action::CheckPendingDifferent: { DCHECK_NE(argument, ERR_IO_PENDING); break; }
+      case Action::CheckFinalEndpointEmpty: { DCHECK(!j.final_service_endpoint_); break; }
+      case Action::CheckComplete: { DCHECK(j.is_done_); break; }
+      case Action::CheckHasFinal: { DCHECK(j.final_service_endpoint_); break; }
+      case Action::CheckCrypto: { DCHECK(argument); break; }
+      case Action::SelectState: { *output = c.state_index; c.state_index = argument; break; }
+      case Action::HasPrimary: { *output = !!c.ReadState().primary_connector; break; }
+      case Action::HasV4: { *output = !!c.ReadState().ipv4_connector; break; }
+      case Action::PrimaryDone: { *output = c.ReadState().primary_connector->is_done(); break; }
+      case Action::V4Done: { *output = c.ReadState().ipv4_connector->is_done(); break; }
+      case Action::PrimaryWaitingDns: { *output = c.ReadState().primary_connector->is_waiting_on_dns(); break; }
+      case Action::V4WaitingDns: { *output = c.ReadState().ipv4_connector->is_waiting_on_dns(); break; }
+      case Action::PrimaryWaitingEndpoint: { *output = c.ReadState().primary_connector->is_waiting_for_endpoint(); break; }
+      case Action::V4WaitingEndpoint: { *output = c.ReadState().ipv4_connector->is_waiting_for_endpoint(); break; }
+      case Action::PrimaryHasAddress: { *output = c.ReadState().primary_connector->current_address().has_value(); break; }
+      case Action::V4HasAddress: { *output = c.ReadState().ipv4_connector->current_address().has_value(); break; }
+      case Action::PrimaryLoad: { *output = c.ReadState().primary_connector->GetLoadState(); break; }
+      case Action::V4Load: { *output = c.ReadState().ipv4_connector->GetLoadState(); break; }
+      case Action::PrimaryV6: { *output = c.ReadState().primary_connector->is_connecting_to_ipv6(); break; }
+      case Action::SelectPrimary: { c.connector = c.State().primary_connector.get(); break; }
+      case Action::SelectV4: { c.connector = c.State().ipv4_connector.get(); break; }
+      case Action::AdvanceConnector: { *output = c.connector->TryAdvanceState(); break; }
+      case Action::HasRequest: { *output = !!j.dns_request_; break; }
+      case Action::HasOverride: { *output = j.endpoint_override_.has_value(); break; }
+      case Action::DisableStale: { *output = j.disable_stale_dns_; break; }
+      case Action::DualRace: { NOTREACHED(); }
+      case Action::OptimisticEnabled: { *output = base::FeatureList::IsEnabled(features::kOptimisticDnsForTcp); break; }
+      case Action::StaleConnectorsFeature: { *output = features::kUseStaleConnectorsForOptimisticDns.Get(); break; }
+      case Action::RequestStale: { *output = j.dns_request_->IsStaleWhileRefreshing(); break; }
+      case Action::DnsComplete: { *output = j.dns_request_complete_; break; }
+      case Action::SetDnsComplete: { Mutable().dns_request_complete_ = true; break; }
+      case Action::DnsStart: { auto now = base::TimeTicks::Now(); if (c.owner) Mutable().connect_timing_.domain_lookup_start = now; break; }
+      case Action::DnsEnd: { auto now = base::TimeTicks::Now(); if(c.owner) { Mutable().connect_timing_.domain_lookup_end = now; Mutable().connect_timing_.connect_start = now; } break; }
+      case Action::MakeRequest: { HostResolver::ResolveHostParameters p; p.initial_priority = j.priority();
+ p.secure_dns_policy = j.params_->secure_dns_policy();
+ p.cache_usage = static_cast<HostResolver::ResolveHostParameters::CacheUsage>(argument);
+ auto request = j.common_connect_job_params()->host_resolver->CreateServiceEndpointRequest(
+ HostResolver::Host(j.params_->destination()), j.params_->network_anonymization_key(),
+ j.params_->target_network(), j.net_log(), p);
+ if(c.owner) Mutable().dns_request_ = std::move(request); break; }
+      case Action::CacheDefault: { *output = static_cast<int>(HostResolver::ResolveHostParameters{}.cache_usage); break; }
+      case Action::CacheStale: { *output = static_cast<int>(HostResolver::ResolveHostParameters::CacheUsage::STALE_ALLOWED_WHILE_REFRESHING); break; }
+      case Action::StartRequest: { *output = Mutable().dns_request_->Start(c.mutable_owner.get()); break; }
+      case Action::Priority: { Mutable().dns_request_->ChangeRequestPriority(static_cast<RequestPriority>(argument)); break; }
+      case Action::ResolveError: { auto info = j.dns_request_->GetResolveErrorInfo(); if(c.owner) Mutable().resolve_error_info_ = info; break; }
+      case Action::ClearAttempts: { Mutable().connection_attempts_.clear(); break; }
+      case Action::HasCallback: { *output = !j.params_->host_resolution_callback().is_null(); break; }
+      case Action::HostCallback: { *output = j.params_->host_resolution_callback().Run(
+ ToLegacyDestinationEndpoint(j.params_->destination()), c.results, *c.aliases) ==
+ OnHostResolutionCallbackResult::kMayBeDeletedAsync; break; }
+      case Action::WaitingDeletion: { *output = j.waiting_on_possible_async_deletion_count_; break; }
+      case Action::IncrementWaiting: { ++Mutable().waiting_on_possible_async_deletion_count_; break; }
+      case Action::DecrementWaiting: { DCHECK_GT(j.waiting_on_possible_async_deletion_count_, 0u); --Mutable().waiting_on_possible_async_deletion_count_; break; }
+      case Action::PostAdvance: { base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+ FROM_HERE, base::BindOnce(&TcpConnectJob::TryAdvanceWaitingConnectorsAsync,
+ Mutable().weak_ptr_factory_.GetWeakPtr(), argument != 0)); break; }
+      case Action::ResetIndex: { c.State().current_endpoint_index = 0; break; }
+      case Action::SetIndex: { c.State().current_endpoint_index = static_cast<size_t>(argument); break; }
+      case Action::GetIndex: { *output = c.ReadState().current_endpoint_index; break; }
+      case Action::IncrementIndex: { ++c.State().current_endpoint_index; break; }
+      case Action::MakeStalePrimary: { Mutable().stale_state_.primary_connector = std::make_unique<TcpConnectJob::Connector>(c.mutable_owner.get(), "stale_primary"); break; }
+      case Action::MakeSecondary: { c.State().ipv4_connector = std::make_unique<TcpConnectJob::Connector>(c.mutable_owner.get(), "second"); break; }
+      case Action::MakeInitialPrimary: { Mutable().fresh_state_.primary_connector = std::make_unique<TcpConnectJob::Connector>(c.mutable_owner.get(), "first"); break; }
+      case Action::SwapConnectors: { std::swap(c.State().primary_connector, c.State().ipv4_connector); break; }
+      case Action::CheckNoSecondary: { DCHECK(!c.State().ipv4_connector); break; }
+      case Action::SlowEvent: { j.net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CREATE_SECOND_CONNECTOR); break; }
+      case Action::SlowRunning: { *output = c.ReadState().slow_timer.IsRunning(); break; }
+      case Action::StopSlow: { c.State().slow_timer.Stop(); break; }
+      case Action::FallbackDuration: { c.delay = c.fallback.delay; break; }
+      case Action::StartTimePresent: {
+        *output = !c.ReadState().primary_connector->start_time().is_null();
+        break;
+      }
+      case Action::SubtractElapsed: { const auto start = c.State().primary_connector->start_time();
+ const auto now = base::TimeTicks::Now(); if(!c.owner) return false;
+ c.delay = c.delay - (now - start); break; }
+      case Action::DelayNegative: { *output = c.delay < base::TimeDelta(); break; }
+      case Action::ZeroDelay: { c.delay = base::TimeDelta(); break; }
+      case Action::StartSlow: { c.State().slow_timer.Start(FROM_HERE, c.delay,
+ base::BindOnce(&TcpConnectJob::OnSlow, base::Unretained(c.mutable_owner.get()), c.state_index != 0)); break; }
+      case Action::ResetPrimary: { c.connector = nullptr; c.State().primary_connector.reset(); break; }
+      case Action::ResetV4: { c.connector = nullptr; c.State().ipv4_connector.reset(); break; }
+      case Action::SetPreferV6: { c.State().prefer_ipv6 = true; break; }
+      case Action::PreferV6: { *output = c.ReadState().prefer_ipv6; break; }
+      case Action::InputIsPrimary: { *output = c.input_connector == c.ReadState().primary_connector.get(); break; }
+      case Action::InputIsStale: { *output = j.IsStaleConnector(*c.input_connector); break; }
+      case Action::OtherExists: { *output = c.other != nullptr; break; }
+      case Action::OtherWaitingEndpoint: { *output = c.other->is_waiting_for_endpoint(); break; }
+      case Action::InputDone: { *output = c.input_connector->is_done(); break; }
+      case Action::SetOtherV4: { c.other = c.ReadState().ipv4_connector.get(); break; }
+      case Action::SetOtherPrimary: { c.other = c.ReadState().primary_connector.get(); break; }
+      case Action::DnsResults: { DCHECK(!j.endpoint_override_); c.results = j.dns_request_->GetEndpointResults(); break; }
+      case Action::OverrideResults: { DCHECK(j.endpoint_override_); c.results = j.endpoint_override_->endpoints; break; }
+      case Action::DnsAliases: { DCHECK(!j.endpoint_override_); c.aliases = &j.dns_request_->GetDnsAliasResults(); break; }
+      case Action::OverrideAliases: { DCHECK(j.endpoint_override_); c.aliases = &j.endpoint_override_->dns_aliases; break; }
+      case Action::DnsCrypto: { DCHECK(!j.endpoint_override_); *output = j.dns_request_->EndpointsCryptoReady(); break; }
+      case Action::ResultsCount: { *output = c.results.size(); break; }
+      case Action::SelectEndpoint: { c.endpoint = &c.results[static_cast<size_t>(argument)]; break; }
+      case Action::Alternative: { *output = !c.endpoint->metadata.supported_protocol_alpns.empty(); break; }
+      case Action::Ech: { *output = !c.endpoint->metadata.ech_config_list.empty(); break; }
+      case Action::AlpnCount: { *output = c.endpoint->metadata.supported_protocol_alpns.size(); break; }
+      case Action::AlpnMatches: { *output = j.params_->supported_alpns().contains(c.endpoint->metadata.supported_protocol_alpns[static_cast<size_t>(argument)]); break; }
+      case Action::Svcb: { *output = j.is_svcb_optional_; break; }
+      case Action::SetSvcb: { Mutable().is_svcb_optional_ = argument != 0; break; }
+      case Action::Https: { const auto* p = std::get_if<url::SchemeHostPort>(&j.params_->destination());
+ *output = p && p->scheme() == url::kHttpsScheme; break; }
+      case Action::EchEnabled: { const auto* p = std::get_if<url::SchemeHostPort>(&j.params_->destination());
+ *output = j.common_connect_job_params()->ssl_client_context->IsEchEnabled(p->host()); break; }
+      case Action::SetFamily: { c.v6 = argument != 0; break; }
+      case Action::IpCount: { *output = c.Ips().size(); break; }
+      case Action::SelectIp: { c.ip = c.Ips()[static_cast<size_t>(argument)]; break; }
+      case Action::IpAlreadyAttempted: { *output = j.attempted_addresses_.contains(*c.ip); break; }
+      case Action::InsertIp: { *output = Mutable().attempted_addresses_.insert(*c.ip).second; break; }
+      case Action::ReturnIp: { *c.ip_output = *c.ip; break; }
+      case Action::InputIpV6: { *output = c.input_ip->GetFamily() == ADDRESS_FAMILY_IPV6; break; }
+      case Action::IpMatchesInput: { *output = *c.ip == *c.input_ip; break; }
+      case Action::ReturnEndpoint: { c.endpoint_output = c.endpoint; break; }
+      case Action::PrimaryAddressToInput: { c.ip = c.State().primary_connector->current_address(); break; }
+      case Action::V4AddressToInput: { c.ip = c.State().ipv4_connector->current_address(); break; }
+      case Action::ConnectorHasAddress: { *output = c.connector->current_address().has_value(); break; }
+      case Action::ConnectorAddressToInput: { c.ip = c.connector->current_address(); break; }
+      case Action::IpEqualsSaved: { *output = c.Ips()[static_cast<size_t>(argument)] == *c.saved_ip; break; }
+      case Action::SaveIp: { c.saved_ip = c.ip; break; }
+      case Action::PromotePrimary: { Mutable().fresh_state_.primary_connector = std::move(Mutable().stale_state_.primary_connector); break; }
+      case Action::PromoteV4: { Mutable().fresh_state_.ipv4_connector = std::move(Mutable().stale_state_.ipv4_connector); break; }
+      case Action::StoreResolution: { auto details = j.dns_request_->GetResolutionDetails(); if(c.owner) Mutable().resolution_details_ = std::move(details); break; }
+      case Action::CheckConnector: { DCHECK(c.connector); break; }
+      case Action::PassSocket: { c.socket_payload = c.connector->PassSocket();
+ if (!c.owner) return false;
+ c.aliases_payload = *c.aliases;
+ c.base->socket_input = &c.socket_payload; c.base->aliases = &c.aliases_payload; break; }
+      case Action::PassFinalEndpoint: { Mutable().final_service_endpoint_ = c.connector->PassFinalServiceEndpoint(); c.endpoint = &*j.final_service_endpoint_; break; }
+      case Action::AttemptsEmpty: { *output = j.connection_attempts_.empty(); break; }
+      case Action::AddEmptyAttempt: { Mutable().connection_attempts_.emplace_back(IPEndPoint(), static_cast<int>(argument)); break; }
+      case Action::LastAttempt: { *output = j.connection_attempts_.back().result; break; }
+      case Action::CheckStaleUnset: { CHECK(!j.is_connected_via_stale_dns_.has_value()); break; }
+      case Action::StoreStale: { Mutable().is_connected_via_stale_dns_ = argument != 0; break; }
+      case Action::ConnectorIsStale: { *output = j.IsStaleConnector(*c.connector); break; }
+      case Action::ResetRequest: { c.results = {}; c.aliases = nullptr; c.endpoint = nullptr; Mutable().dns_request_.reset(); break; }
+      case Action::InvalidateTasks: { Mutable().weak_ptr_factory_.InvalidateWeakPtrs(); break; }
+      case Action::SetDone: { Mutable().is_done_ = true; break; }
+      case Action::Notify: { NOTREACHED(); }
+      case Action::CheckV2: { DCHECK(base::FeatureList::IsEnabled(features::kHappyEyeballsV2)); break; }
+      case Action::CheckInitialIp: { DCHECK(!c.endpoint->ipv4_endpoints.empty() || !c.endpoint->ipv6_endpoints.empty()); break; }
+      case Action::CheckUsable: { DCHECK(argument); break; }
+      case Action::StaleValue: { *output = j.is_connected_via_stale_dns_.value_or(false); break; }
+
+      case Action::CheckStateActive: { CHECK(argument); break; }
+      case Action::HasSsl: { *output = j.common_connect_job_params()->ssl_client_context != nullptr; break; }
+      default: NOTREACHED();
+    }
+    return c.owner != nullptr;
+  }
+};
 
 TcpConnectJob::ServiceEndpointOverride::ServiceEndpointOverride(
     ServiceEndpoint endpoint,
@@ -119,39 +343,16 @@ TcpConnectJob::TcpConnectJob(
       params_(params),
       endpoint_override_(std::move(endpoint_result_override)),
       disable_stale_dns_(disable_stale_dns) {
-  fresh_state_.primary_connector = std::make_unique<Connector>(this, "first");
-  DCHECK(base::FeatureList::IsEnabled(features::kHappyEyeballsV2));
-  if (endpoint_override_) {
-    UpdateSvcbOptional();
-    DCHECK(!endpoint_override_->endpoints.front().ipv4_endpoints.empty() ||
-           !endpoint_override_->endpoints.front().ipv6_endpoints.empty());
-    DCHECK(IsEndpointResultUsable(endpoint_override_->endpoints.front()));
-  }
+  tcp_connect_jobRustBridge c(this);
+  c.Run(tcp_connect_jobRustBridge::Op::Init);
 }
 
-TcpConnectJob::~TcpConnectJob() = default;
+TcpConnectJob::~TcpConnectJob() {
+  tcp_connect_jobRustBridge::Invalidate(static_cast<const ConnectJob*>(this));
+}
 
 LoadState TcpConnectJob::GetLoadState() const {
-  if (!fresh_state_.primary_connector) {
-    return LOAD_STATE_IDLE;
-  }
-  LoadState load_state = fresh_state_.primary_connector->GetLoadState();
-  // This method should return LOAD_STATE_CONNECTING in preference to
-  // LOAD_STATE_WAITING_FOR_AVAILABLE_SOCKET when possible because "waiting
-  // for available socket" implies that nothing is happening.
-  if (fresh_state_.ipv4_connector && load_state != LOAD_STATE_CONNECTING) {
-    load_state = fresh_state_.ipv4_connector->GetLoadState();
-  }
-  // If stale state is doing something and fresh state is just waiting for DNS,
-  // we could report that.
-  if (stale_state_.primary_connector &&
-      load_state == LOAD_STATE_RESOLVING_HOST) {
-    LoadState stale_load_state = stale_state_.primary_connector->GetLoadState();
-    if (stale_load_state == LOAD_STATE_CONNECTING) {
-      load_state = stale_load_state;
-    }
-  }
-  return load_state;
+tcp_connect_jobRustBridge c(this); return static_cast<LoadState>(c.Run(tcp_connect_jobRustBridge::Op::LoadState));
 }
 
 bool TcpConnectJob::HasEstablishedConnection() const {
@@ -183,285 +384,64 @@ ServiceEndpoint TcpConnectJob::PassServiceEndpoint() {
 }
 
 base::TimeDelta TcpConnectJob::ConnectionTimeout() {
-  // TODO(eroman): The use of this constant needs to be re-evaluated. The time
-  // needed for TCPClientSocketXXX::Connect() can be arbitrarily long, since
-  // the address list may contain many alternatives, and most of those may
-  // timeout. Even worse, the per-connect timeout threshold varies greatly
-  // between systems (anywhere from 20 seconds to 190 seconds).
-  // See comment #12 at http://crbug.com/23364 for specifics.
-  return base::Minutes(4);
+return base::Microseconds(connection_jobs_rust_run(2, static_cast<uint32_t>(tcp_connect_job_rust::Operation::Timeout), 0, nullptr, nullptr));
 }
 
 size_t TcpConnectJob::GetFreshConnectorCountForTesting() const {
-  CHECK(!is_done_);
-  size_t count = 0;
-  if (fresh_state_.primary_connector) {
-    count++;
-  }
-  if (fresh_state_.ipv4_connector) {
-    count++;
-  }
-  return count;
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::Count, 0);
 }
 
 size_t TcpConnectJob::GetStaleConnectorCountForTesting() const {
-  CHECK(!is_done_);
-  size_t count = 0;
-  if (stale_state_.primary_connector) {
-    count++;
-  }
-  if (stale_state_.ipv4_connector) {
-    count++;
-  }
-  return count;
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::Count, 1);
 }
 
 int TcpConnectJob::ConnectInternal() {
-  connect_timing_.domain_lookup_start = base::TimeTicks::Now();
-
-  int rv = OK;
-  if (!endpoint_override_) {
-    HostResolver::ResolveHostParameters parameters;
-    parameters.initial_priority = priority();
-    parameters.secure_dns_policy = params_->secure_dns_policy();
-    if (base::FeatureList::IsEnabled(features::kOptimisticDnsForTcp) &&
-        !disable_stale_dns_) {
-      parameters.cache_usage = HostResolver::ResolveHostParameters::CacheUsage::
-          STALE_ALLOWED_WHILE_REFRESHING;
-    }
-    dns_request_ = host_resolver()->CreateServiceEndpointRequest(
-        HostResolver::Host(params_->destination()),
-        params_->network_anonymization_key(), params_->target_network(),
-        net_log(), parameters);
-
-    rv = dns_request_->Start(this);
-    if (rv == ERR_IO_PENDING) {
-      return rv;
-    }
-  }
-
-  return DoServiceEndpointsUpdated(/*dns_request_final_result=*/rv);
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::Connect);
 }
 
 void TcpConnectJob::ChangePriorityInternal(RequestPriority priority) {
-  if (dns_request_) {
-    // Only need to change the priority of the DNS request. The TCP connection
-    // attempts doesn't have priorities.
-    dns_request_->ChangeRequestPriority(priority);
-  }
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Priority, priority);
 }
 
 int TcpConnectJob::DoServiceEndpointsUpdated(
     std::optional<int> dns_request_final_result) {
-  // SetDone() destroys the DNS request on completion, preventing this from
-  // being reached once `is_done_` is set to true.
-  CHECK(!is_done_);
-  DCHECK(!dns_request_complete_);
-
-  // If we have fresh endpoints, try to promote any active stale connectors to
-  // the fresh state, and clear unstarted stale attempts.
-  MaybePromoteStaleConnectors();
-
-  // Reset progress through endpoint results, as new ones may have been inserted
-  // before the one that was currently under consideration.
-  fresh_state_.current_endpoint_index = 0;
-  stale_state_.current_endpoint_index = 0;
-  if (IsDualRaceOptimisticDnsEnabled() &&
-      (!dns_request_ || !dns_request_->IsStaleWhileRefreshing())) {
-    // If fresh endpoints are now available, the stale state should no longer
-    // start any new connection attempts. Point its index to the end.
-    stale_state_.current_endpoint_index = GetEndpointResults().size();
-  }
-
-  bool did_fail = false;
-  if (dns_request_final_result) {
-    DCHECK_NE(*dns_request_final_result, ERR_IO_PENDING);
-
-    dns_request_complete_ = true;
-    did_fail = dns_request_final_result.value() != OK;
-  }
-
-  // If the request has failed, or all live Connectors are waiting on the DNS
-  // result, update `domain_lookup_end`, so it accurately reflects the time that
-  // the request was blocked on DNS. This can hide fetch time, but for now, do
-  // not return overlapping connect and DNS lookup times. See class not in
-  // header for more details.
-  if (did_fail || (fresh_state_.primary_connector->is_waiting_on_dns() &&
-                   (!fresh_state_.ipv4_connector ||
-                    fresh_state_.ipv4_connector->is_waiting_on_dns()))) {
-    connect_timing_.domain_lookup_end = base::TimeTicks::Now();
-    // Even on failure, or when there are no IPs, update `connect_start`. This
-    // matches legacy behavior. Unclear if it matters.
-    connect_timing_.connect_start = connect_timing_.domain_lookup_end;
-  }
-
-  // Complete the TcpConnectJob on DNS error.
-  if (did_fail) {
-    resolve_error_info_ = dns_request_->GetResolveErrorInfo();
-
-    // If hostname resolution failed, clear any recorded connection attempts
-    // record. SetDone() will create a new entry containing
-    // `dns_request_final_result` and no IP, as fatal DNS errors takes
-    // precedence over any earlier connection failures.
-    connection_attempts_.clear();
-    return SetDone(*dns_request_final_result);
-  }
-
-  // Recompute `is_svcb_optional_`. There's no need to do it if
-  // `endpoint_override_` is true, since it's already been set in that case, and
-  // can't change.
-  if (!endpoint_override_) {
-    UpdateSvcbOptional();
-  }
-
-  if (!params_->host_resolution_callback().is_null()) {
-    OnHostResolutionCallbackResult callback_result =
-        params_->host_resolution_callback().Run(
-            ToLegacyDestinationEndpoint(params_->destination()),
-            GetEndpointResults(), GetDnsAliasResults());
-
-    // Best effort to delay `this` to allow looking for H2 sessions that may
-    // result in cancelling this job. Both the slow timer, and previous calls to
-    // HandleServiceEndpointsUpdated() means that it's possible for work to
-    // continue even when this is hit, and we're nominally waiting for
-    // TryAdvanceWaitingConnectorsAsync() to be invoked.
-    //
-    // This is only intended to delay things long enough for a single PostTask,
-    // invoked by the callback, to run. That's a short enough delay that it's
-    // probably not worth trying to do better, though would could have
-    // DoTryAdvanceWaitingConnectors() and GetNextIPEndPoint() return
-    // ERR_IO_PENDING until the task posted here is run.
-    //
-    // This does rely on task scheduling order to work as expected - that is,
-    // for a task posted by the host resolution callback to be run strictly
-    // before this task ends up being executed, so need to be careful of
-    // priority inversion and starvation if modifying task priority here.
-    if (callback_result == OnHostResolutionCallbackResult::kMayBeDeletedAsync) {
-      ++waiting_on_possible_async_deletion_count_;
-      base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-          FROM_HERE,
-          base::BindOnce(
-              &TcpConnectJob::TryAdvanceWaitingConnectorsAsync,
-              weak_ptr_factory_.GetWeakPtr(),
-              /*decrement_waiting_on_possible_async_deletion_count=*/true));
-      return ERR_IO_PENDING;
-    }
-  }
-
-  return DoTryAdvanceWaitingConnectors();
+tcp_connect_jobRustBridge c(this);
+  // Presence selects update vs finished; zero is a valid synchronous result.
+  if (dns_request_final_result) return c.Run(tcp_connect_jobRustBridge::Op::UpdateSync, *dns_request_final_result);
+  return connection_jobs_rust_run(2, 28, 0, &c, &tcp_connect_jobRustBridge::Service);
 }
 
 void TcpConnectJob::TryAdvanceWaitingConnectorsAsync(
     bool decrement_waiting_on_possible_async_deletion_count) {
-  if (decrement_waiting_on_possible_async_deletion_count) {
-    DCHECK_GT(waiting_on_possible_async_deletion_count_, 0u);
-    --waiting_on_possible_async_deletion_count_;
-  }
-  NotifyDelegateIfDone(DoTryAdvanceWaitingConnectors());
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::AdvanceAsync, decrement_waiting_on_possible_async_deletion_count);
 }
 
 int TcpConnectJob::DoTryAdvanceWaitingConnectors() {
-  if (waiting_on_possible_async_deletion_count_) {
-    // We're currently waiting on either `this` to be deleted, or a callback to
-    // TryAdvanceWaitingConnectorsAsync() to be invoked indicating that we're
-    // not going to be deleted. That callback will call this method again, so
-    // can safely defer further work until it's invoked.
-    return ERR_IO_PENDING;
-  }
-
-  // SetDone() should cancel all pending activity on completion, so this should
-  // not be reachable after completion.
-  CHECK(!is_done_);
-
-  if (IsDualRaceOptimisticDnsEnabled()) {
-    if (dns_request_ && dns_request_->IsStaleWhileRefreshing()) {
-      if (!stale_state_.primary_connector) {
-        stale_state_.primary_connector =
-            std::make_unique<Connector>(this, "stale_primary");
-      }
-    }
-
-    if (!IsStateDone(stale_state_)) {
-      int rv = AdvanceConnectionState(stale_state_, /*is_stale=*/true);
-      if (rv != ERR_IO_PENDING) {
-        return rv;
-      }
-    }
-  }
-
-  if (!IsStateDone(fresh_state_)) {
-    return AdvanceConnectionState(fresh_state_, /*is_stale=*/false);
-  }
-
-  return ERR_IO_PENDING;
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::Advance);
 }
 
 int TcpConnectJob::DoConnectorComplete(int result, Connector& connector) {
-  DCHECK_NE(result, ERR_IO_PENDING);
-  // Once one connector succeeds, no need to wait for the other. Also treat
-  // ERR_NETWORK_IO_SUSPENDED as a failure for both connectors.
-  if (result == OK || result == ERR_NETWORK_IO_SUSPENDED) {
-    return SetDone(result, &connector);
-  }
-
-  // If all connectors have failed, we're also done.
-  // Note: `fresh_state_` is only considered "done" due to a null primary
-  // connector if the DNS request is complete. Before DNS completes, the
-  // connector is null because we are still waiting for endpoints.
-  // `stale_state_` does not wait for DNS. If its primary connector is null,
-  // it means stale endpoints were disabled, unavailable, or promoted, so it is
-  // genuinely done.
-  const bool fresh_done =
-      IsStateDone(fresh_state_) &&
-      (fresh_state_.primary_connector || dns_request_complete_);
-  const bool stale_done = IsStateDone(stale_state_);
-
-  if (fresh_done && stale_done) {
-    return SetDone(result, &connector);
-  }
-
-  return ERR_IO_PENDING;
+tcp_connect_jobRustBridge c(this);
+  c.connector = &connector;
+  return c.Run(tcp_connect_jobRustBridge::Op::Complete, result);
 }
 
 void TcpConnectJob::OnServiceEndpointsUpdated() {
-  NotifyDelegateIfDone(
-      DoServiceEndpointsUpdated(/*dns_request_final_result=*/std::nullopt));
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Updated);
 }
 
 void TcpConnectJob::OnServiceEndpointRequestFinished(int rv) {
-  NotifyDelegateIfDone(
-      DoServiceEndpointsUpdated(/*dns_request_final_result=*/rv));
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Finished, rv);
 }
 
 void TcpConnectJob::OnConnectorComplete(int result, Connector& connector) {
-  int rv = DoConnectorComplete(result, connector);
-  if (rv != ERR_IO_PENDING) {
-    NotifyDelegateOfCompletion(rv);
-  }
+tcp_connect_jobRustBridge c(this);
+  c.connector = &connector;
+  c.Run(tcp_connect_jobRustBridge::Op::CompleteAsync, result);
 }
 
 void TcpConnectJob::OnSlow(bool is_stale) {
-  CHECK(!is_done_);
-  ConnectionState& state = is_stale ? stale_state_ : fresh_state_;
-  DCHECK(!state.ipv4_connector);
-
-  net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CREATE_SECOND_CONNECTOR);
-
-  // Make a second connector, so have separate IPv4 and IPv6 connectors. The
-  // `state.primary_connector` may be waiting for an IP, or doing either
-  // a v4 or v6 lookup. If it's doing a v4 lookup, move it into
-  // `state.ipv4_connector`.
-  //
-  // Since the connectors may be flipped here, the static names of the
-  // connectors for logging purposes are "first" and "second", rather than
-  // "primary" and "ipv4".
-  state.ipv4_connector = std::make_unique<Connector>(this, "second");
-  if (!state.primary_connector->is_connecting_to_ipv6()) {
-    std::swap(state.primary_connector, state.ipv4_connector);
-  }
-
-  TryAdvanceWaitingConnectorsAsync(
-      /*decrement_waiting_on_possible_async_deletion_count=*/false);
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Slow, is_stale);
 }
 
 // static
@@ -530,481 +510,79 @@ base::TimeDelta TcpConnectJob::GetIPv6FallbackTime(
 
 int TcpConnectJob::AdvanceConnectionState(ConnectionState& state,
                                           bool is_stale) {
-  CHECK(!IsStateDone(state));
-
-  if (state.primary_connector && !state.primary_connector->is_done()) {
-    int rv = state.primary_connector->TryAdvanceState();
-    if (rv != ERR_IO_PENDING) {
-      // The connection attempt completed synchronously. Call
-      // DoConnectorComplete() to handle the result, and learn if the entire
-      // ConnectJob is complete.
-      rv = DoConnectorComplete(rv, *state.primary_connector);
-      if (rv != ERR_IO_PENDING) {
-        return rv;
-      }
-    }
-  }
-
-  // The primary connector's TryAdvanceState() may have synchronously completed
-  // the entire job, triggering cleanup that resets both connectors. Evaluate
-  // `state.ipv4_connector` here after the primary connector runs to avoid a
-  // potential use-after-free.
-  if (state.ipv4_connector && !state.ipv4_connector->is_done()) {
-    int rv = state.ipv4_connector->TryAdvanceState();
-    if (rv != ERR_IO_PENDING) {
-      // The connection attempt completed synchronously. Call
-      // DoConnectorComplete() to handle the result, and learn if the entire
-      // ConnectJob is complete.
-      rv = DoConnectorComplete(rv, *state.ipv4_connector);
-      if (rv != ERR_IO_PENDING) {
-        return rv;
-      }
-    }
-  }
-
-  // If we reach this point, there should still be work to do.
-  CHECK(!is_done_);
-  // If both connectors within this state are already done, there is no work to
-  // advance. Return ERR_IO_PENDING to wait for other states or DNS completion.
-  if (IsStateDone(state)) {
-    return ERR_IO_PENDING;
-  }
-
-  // Start the slow timer to try an IPv4 fallback if the primary connector is
-  // taking too long.
-  //
-  // This could result in starting the slow timer if, for example, we're
-  // already trying the final IP and no more IPs are coming, but this keeps
-  // things simple.
-  //
-  // We only start the timer if all of the following conditions are met:
-  // 1. We are using fresh results (not stale), or if we are using stale
-  // results,
-  //    the DNS request must still be refreshing. (If we are using stale results
-  //    and the DNS request is complete, we don't start the fallback timer for
-  //    stale IPs).
-  // 2. We haven't already started the secondary (IPv4) connector.
-  // 3. The timer isn't already running.
-  // 4. The primary connector has actually started trying to connect to an IP
-  //    address.
-  if ((!is_stale || !dns_request_ || dns_request_->IsStaleWhileRefreshing()) &&
-      !state.ipv4_connector && !state.slow_timer.IsRunning() &&
-      state.primary_connector &&
-      state.primary_connector->current_address().has_value()) {
-    base::TimeDelta fallback_time =
-        GetIPv6FallbackTime(common_connect_job_params(), params_.get());
-
-    // If the connector was promoted from stale_state_, it may have already
-    // been running for some time. We reduce the fallback timer by the time
-    // already elapsed since the connector started its attempt.
-    base::TimeTicks start_time = state.primary_connector->start_time();
-    if (!start_time.is_null()) {
-      base::TimeDelta elapsed = base::TimeTicks::Now() - start_time;
-      fallback_time = std::max(base::TimeDelta(), fallback_time - elapsed);
-    }
-
-    state.slow_timer.Start(FROM_HERE, fallback_time,
-                           base::BindOnce(&TcpConnectJob::OnSlow,
-                                          base::Unretained(this), is_stale));
-  }
-
-  return ERR_IO_PENDING;
+tcp_connect_jobRustBridge c(this);
+  DCHECK_EQ(&state, is_stale ? &stale_state_ : &fresh_state_);
+  return c.Run(tcp_connect_jobRustBridge::Op::AdvanceState, is_stale);
 }
 
 void TcpConnectJob::MaybePromoteStaleConnectors() {
-  if (!IsDualRaceOptimisticDnsEnabled() || !dns_request_ ||
-      dns_request_->IsStaleWhileRefreshing()) {
-    return;
-  }
-
-  stale_state_.slow_timer.Stop();
-
-  const auto& results = GetEndpointResults();
-
-  auto try_promote = [&](std::unique_ptr<Connector>& stale_connector,
-                         std::unique_ptr<Connector>& fresh_connector) {
-    if (stale_connector && !stale_connector->is_done()) {
-      if (!fresh_connector || fresh_connector->is_waiting_for_endpoint() ||
-          fresh_connector->is_waiting_on_dns() || fresh_connector->is_done() ||
-          !fresh_connector->current_address()) {
-        if (stale_connector->current_address() &&
-            IsEndpointInFreshList(*stale_connector->current_address(),
-                                  results)) {
-          fresh_connector = std::move(stale_connector);
-        }
-      }
-    }
-  };
-
-  try_promote(stale_state_.primary_connector, fresh_state_.primary_connector);
-  try_promote(stale_state_.ipv4_connector, fresh_state_.ipv4_connector);
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Promote);
 }
 
 TcpConnectJob::IPEndPointInfo TcpConnectJob::GetNextIPEndPoint(
     const Connector& connector) {
-  const bool is_stale = IsStaleConnector(connector);
-
-  // Stale connectors must be using stale endpoints, which are only available
-  // when the DNS request is stale while refreshing.
-  if (is_stale && (!dns_request_ || !dns_request_->IsStaleWhileRefreshing())) {
-    return base::unexpected(ERR_NAME_NOT_RESOLVED);
-  }
-
-  // If we are using dedicated stale connectors, fresh connectors must wait
-  // for fresh endpoints to arrive if the current endpoints are stale.
-  if (IsDualRaceOptimisticDnsEnabled()) {
-    if (!is_stale && dns_request_ && dns_request_->IsStaleWhileRefreshing()) {
-      return base::unexpected(ERR_IO_PENDING);
-    }
-  }
-
-  ConnectionState& state = is_stale ? stale_state_ : fresh_state_;
-  if (waiting_on_possible_async_deletion_count_) {
-    // We're currently waiting on either `this` to be deleted, or a callback to
-    // be invoked indicating that we're not going to be deleted. That callback
-    // will wake up the Connectors, so can safely defer further work until it's
-    // invoked.
-    return base::unexpected(ERR_IO_PENDING);
-  }
-
-  const auto& service_endpoints = GetEndpointResults();
-  CHECK(!is_done_);
-  DCHECK(!connector.is_done());
-
-  // Other job, if any, for checking its state, and advancing it if necessary.
-  const Connector* other_job = (&connector == state.primary_connector.get()
-                                    ? state.ipv4_connector.get()
-                                    : state.primary_connector.get());
-
-  // Note that this will make both jobs use IPv4/IPv6, once there are no more
-  // IPs of the other type. Not clear if that's a concern. Not too difficult to
-  // change behavior - only checking IPv4 or IPv6 when there are two jobs should
-  // be sufficient. `state.current_endpoint_index` logic will still work
-  // correctly.
-  bool prefer_ipv6 = state.prefer_ipv6;
-  if (state.ipv4_connector) {
-    prefer_ipv6 = (state.primary_connector.get() == &connector);
-  }
-
-  // If there are two jobs and DNS has not completed yet, only try to connect to
-  // IPv4 destinations with `ipv4_connector_` and IPv6 destinations with
-  // `primary_connector_`. Otherwise, only prefer preferred IP types.
-  const bool only_preferred = other_job && !dns_request_complete_;
-
-  bool posted_resume_task = false;
-
-  while (state.current_endpoint_index < service_endpoints.size()) {
-    const auto& service_endpoint =
-        service_endpoints[state.current_endpoint_index];
-    if (IsEndpointResultUsable(service_endpoint)) {
-      base::span<const IPEndPoint> preferred_endpoints(
-          prefer_ipv6 ? service_endpoint.ipv6_endpoints
-                      : service_endpoint.ipv4_endpoints);
-      // The endpoints that are not preferred. The connector may or may not be
-      // allowed to use them, depending on `only_preferred`.
-      base::span<const IPEndPoint> other_endpoints(
-          prefer_ipv6 ? service_endpoint.ipv4_endpoints
-                      : service_endpoint.ipv6_endpoints);
-
-      // This will contain endpoints that connector may connect to. It will
-      // always have the preferred endpoints, and depending on `only_preferred`
-      // may or may not contain the others as well.
-      std::vector<base::span<const IPEndPoint>> allowed_endpoints{
-          preferred_endpoints};
-
-      // These are endpoints that we may not connect to. It's only populated if
-      // `only_preferred` is true. It's still needed so that we can check if the
-      // other connector still has endpoints to try, even if it's currently
-      // idle.
-      std::optional<base::span<const IPEndPoint>> disallowed_endpoints;
-
-      // Add `other_endpoints` where appropriate.
-      if (only_preferred) {
-        disallowed_endpoints.emplace(other_endpoints);
-      } else {
-        allowed_endpoints.emplace_back(other_endpoints);
-      }
-
-      // Walk through allowed endpoints, returning first one that hasn't yet
-      // been tried if there is one, and adding it to `attempted_addresses_`.
-      for (const auto& ip_endpoints : allowed_endpoints) {
-        for (const auto& ip_endpoint : ip_endpoints) {
-          // If `ip_endpoint` hasn't been tried yet, add it to
-          // `attempted_addresses_` and we will return it.
-          auto [it, inserted] = attempted_addresses_.emplace(ip_endpoint);
-          if (inserted) {
-            return ip_endpoint;
-          }
-        }
-      }
-
-      if (other_job) {
-        // Only move on to the next endpoint if either there's no other
-        // connector, or the other connector is waiting to receive an endpoint.
-        // Since new results may come in out of order, this isn't perfect -
-        // e.g., could still be connecting to a AAAA record when HTTPS records
-        // come in. Then the AAAA connection attempt could block connection
-        // attempts to the second ServiceEndpoint entry (and could block the
-        // second job from trying the next A/AAAA entry as well, if the HTTPS
-        // record connection attempts fail quickly). Could throw away the AAAA
-        // attempt in that case, or have logic to detect it, but this seems a
-        // reasonable balance of accuracy, complexity, and performance.
-        if (!other_job->is_waiting_for_endpoint()) {
-          // Need to wait for other jobs to complete.
-          return base::unexpected(ERR_IO_PENDING);
-        }
-
-        // If there are disallowed endpoints, then it's possible that there's no
-        // available endpoint for this connector, and the other connector is
-        // waiting for an endpoint, but we have yet to inform it that there are
-        // new endpoints available. To detect that case, look for any disallowed
-        // endpoints
-        if (disallowed_endpoints) {
-          // Walk through the endpoints in reverse order looking for one that
-          // hasn't been tried yet, which should tend to find any untried
-          // addresses sooner.
-          for (const auto& disallowed_endpoint :
-               std::views::reverse(*disallowed_endpoints)) {
-            if (!attempted_addresses_.contains(disallowed_endpoint)) {
-              return base::unexpected(ERR_IO_PENDING);
-            }
-          }
-        }
-      }
-    }
-
-    ++state.current_endpoint_index;
-    // May need to resume the other job after advancing to the next result.
-    if (other_job && !posted_resume_task) {
-      // Small optimization to avoid posting multiple tasks at once - probably
-      // not really needed. Nothing would break without it.
-      posted_resume_task = true;
-      base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-          FROM_HERE,
-          base::BindOnce(
-              &TcpConnectJob::TryAdvanceWaitingConnectorsAsync,
-              weak_ptr_factory_.GetWeakPtr(),
-              /*decrement_waiting_on_possible_async_deletion_count=*/false));
-    }
-  }
-
-  // If there are no more IPEndPoints to try, and the DNS request is done,
-  // return ERR_NAME_NOT_RESOLVED. This will be passed to the Connector to mean
-  // there are no more destinations to try, and it will return its last connect
-  // error, if it has one, or ERR_NAME_NOT_RESOLVED, otherwise.
-  //
-  // TODO(https://crbug.com/484073410): This will currently result in returning
-  // ERR_NAME_NOT_RESOLVED if there are endpoints, but we can't use any of them,
-  // or if we established a connection, discovered we can't use it, and then
-  // discovered there are no endpoints we can use. May want to improve returned
-  // errors in those cases.
-  if (dns_request_complete_) {
-    return base::unexpected(ERR_NAME_NOT_RESOLVED);
-  }
-
-  // More DNS results may be received down the line. Wait for them.
-  return base::unexpected(ERR_IO_PENDING);
+tcp_connect_jobRustBridge c(this);
+  IPEndPointInfo output = base::unexpected(ERR_IO_PENDING);
+  c.input_connector = &connector; c.ip_output = &output;
+  int rv = c.Run(tcp_connect_jobRustBridge::Op::NextIp);
+  if (rv != OK) return base::unexpected(static_cast<Error>(rv));
+  return output;
 }
 
 bool TcpConnectJob::IsEndpointResultUsable(
     const ServiceEndpoint& service_endpoint) const {
-  // We assume the authority endpoint (i.e. not from SVCB/HTTPS) is TCP-based,
-  // so an authority endpoint.
-  if (!service_endpoint.metadata.IsAlternative()) {
-    // See RFC 9460, Section 3.
-    return is_svcb_optional_;
-  }
-
-  // See RFC 9460, Section 7.1.2. Alternative endpoints are usable if there is
-  // an overlap between the endpoint's ALPN protocols and the configured ones.
-  // This ensures we do not, e.g., connect to a QUIC-only endpoint with TCP.
-  // Note that, if `params_` did not specify any ALPN protocols, no
-  // SVCB/HTTPS-based endpoints will match and we will effectively ignore all
-  // but plain A/AAAA endpoints.
-  for (const auto& alpn : service_endpoint.metadata.supported_protocol_alpns) {
-    if (params_->supported_alpns().contains(alpn)) {
-      return true;
-    }
-  }
-  return false;
+tcp_connect_jobRustBridge c(this);
+  c.endpoint = &service_endpoint; return c.Run(tcp_connect_jobRustBridge::Op::Usable);
 }
 
 const ServiceEndpoint* TcpConnectJob::FindServiceEndpoint(
     const IPEndPoint& ip_endpoint) const {
-  const bool is_v6 = (ip_endpoint.GetFamily() == ADDRESS_FAMILY_IPV6);
-
-  for (const auto& service_endpoint : GetEndpointResults()) {
-    // Skip unusable endpoints.
-    if (!IsEndpointResultUsable(service_endpoint)) {
-      continue;
-    }
-
-    const auto& ip_endpoints = is_v6 ? service_endpoint.ipv6_endpoints
-                                     : service_endpoint.ipv4_endpoints;
-    if (std::find(ip_endpoints.begin(), ip_endpoints.end(), ip_endpoint) !=
-        ip_endpoints.end()) {
-      return &service_endpoint;
-    }
-  }
-
-  // The service endpoint wasn't found. This can happen when called from
-  // IsIPEndPointUsable() and the HTTPS records indicate that an endpoint that
-  // we previously thought was usable actually is not.
-  return nullptr;
+tcp_connect_jobRustBridge c(this);
+  c.input_ip = &ip_endpoint; c.Run(tcp_connect_jobRustBridge::Op::Find);
+  return c.endpoint_output;
 }
 
 void TcpConnectJob::UpdateSvcbOptional() {
-  const auto* scheme_host_port =
-      std::get_if<url::SchemeHostPort>(&params_->destination());
-  if (!scheme_host_port || scheme_host_port->scheme() != url::kHttpsScheme) {
-    // This is not a SVCB-capable request at all.
-    is_svcb_optional_ = true;
-  } else if (!IsEchEnabled(common_connect_job_params()->ssl_client_context,
-                           scheme_host_port->host())) {
-    // ECH is not supported for this request.
-    is_svcb_optional_ = true;
-  } else {
-    is_svcb_optional_ =
-        !HostResolver::AllAlternativeEndpointsHaveEch(GetEndpointResults());
-  }
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::UpdateSvcb);
 }
 
 void TcpConnectJob::ResetConnectionState(ConnectionState& state) {
-  state.slow_timer.Stop();
-  state.primary_connector.reset();
-  state.ipv4_connector.reset();
-  state.current_endpoint_index = 0;
-  state.prefer_ipv6 = true;
+tcp_connect_jobRustBridge c(this);
+  c.Run(tcp_connect_jobRustBridge::Op::ResetState, &state == &stale_state_);
 }
 
 // static
 bool TcpConnectJob::IsStateDone(const ConnectionState& state) {
-  const bool primary_done =
-      !state.primary_connector || state.primary_connector->is_done();
-  const bool ipv4_done =
-      !state.ipv4_connector || state.ipv4_connector->is_done();
-  return primary_done && ipv4_done;
+return connection_jobs_rust_state_done(
+      !!state.primary_connector, state.primary_connector && state.primary_connector->is_done(),
+      !!state.ipv4_connector, state.ipv4_connector && state.ipv4_connector->is_done());
 }
 
 int TcpConnectJob::SetDone(int result, Connector* connector) {
-  CHECK(!is_done_);
-  DCHECK(!final_service_endpoint_);
-
-  if (dns_request_) {
-    resolution_details_ = dns_request_->GetResolutionDetails();
-  }
-
-  if (result == OK) {
-    DCHECK(EndpointsCryptoReady());
-    DCHECK(connector);
-
-    SetSocket(connector->PassSocket(), GetDnsAliasResults());
-    final_service_endpoint_ = connector->PassFinalServiceEndpoint();
-    DCHECK(final_service_endpoint_);
-    DCHECK(IsEndpointResultUsable(*final_service_endpoint_));
-
-    auto calculate_is_connected_via_stale_dns = [&]() -> bool {
-      // If `disable_stale_dns_` is true, we explicitly requested a fresh
-      // connection, so it cannot be stale.
-      if (disable_stale_dns_) {
-        return false;
-      }
-      if (features::kUseStaleConnectorsForOptimisticDns.Get()) {
-        // If the feature is enabled, stale connectors are completely isolated
-        // in `stale_state_`. If the winning connector is from `stale_state_`,
-        // it is guaranteed to be a connection to a stale endpoint.
-        return IsStaleConnector(*connector);
-      }
-      if (dns_request_) {
-        // If the request is actively returning stale results, the connection is
-        // currently considered stale.
-        if (dns_request_->IsStaleWhileRefreshing()) {
-          return true;
-        }
-        if (connector->current_address() &&
-            !IsEndpointInFreshList(*connector->current_address(),
-                                   dns_request_->GetEndpointResults())) {
-          // If fresh results have arrived but the connected endpoint is not in
-          // the fresh list, we must have raced and completed a connection to an
-          // IP that was present in the stale results but removed in the fresh
-          // results. This connection is stale.
-          return true;
-        }
-      }
-      return false;
-    };
-
-    CHECK(!is_connected_via_stale_dns_.has_value());
-    is_connected_via_stale_dns_ = calculate_is_connected_via_stale_dns();
-  } else {
-    // If there were no attempts, there were no usable addresses. Use `result`
-    // in that case.
-    if (connection_attempts_.empty()) {
-      connection_attempts_.emplace_back(IPEndPoint(), result);
-    }
-
-    // Pulling from `connection_attempts_` is the simplest way to get the most
-    // recent error. If there are two Connectors, and they've both failed at
-    // once when we learn there are no more IP addresses to try, it's difficult
-    // to determine which one's error to use. Pulling the last error
-    // `connection_attempts_`, conveniently, avoids that issue, since it's in
-    // chronological order.
-    result = connection_attempts_.back().result;
-  }
-
-  // Cancel all work, and any pending callbacks. Main methods all have
-  // `CHECK(!is_done_)` to catch if they are incorrectly run after completion,
-  // to help ensure this is comprehensive.
-  ResetConnectionState(fresh_state_);
-  ResetConnectionState(stale_state_);
-  dns_request_.reset();
-  // This will prevent any pending posted TryAdvanceWaitingConnectorsAsync tasks
-  // from running.
-  weak_ptr_factory_.InvalidateWeakPtrs();
-  is_done_ = true;
-
-  return result;
+tcp_connect_jobRustBridge c(this);
+  c.connector = connector; return c.Run(tcp_connect_jobRustBridge::Op::SetDone, result);
 }
 
 base::span<const ServiceEndpoint> TcpConnectJob::GetEndpointResults() const {
-  if (dns_request_) {
-    DCHECK(!endpoint_override_);
-    return dns_request_->GetEndpointResults();
-  }
-
-  DCHECK(endpoint_override_);
-  return endpoint_override_->endpoints;
+tcp_connect_jobRustBridge c(this);
+  c.Run(tcp_connect_jobRustBridge::Op::GetResults); return c.results;
 }
 
 bool TcpConnectJob::EndpointsCryptoReady() const {
-  if (dns_request_) {
-    DCHECK(!endpoint_override_);
-    return dns_request_->EndpointsCryptoReady();
-  }
-
-  DCHECK(endpoint_override_);
-  return true;
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::CryptoReady);
 }
 
 const base::flat_set<std::string>& TcpConnectJob::GetDnsAliasResults() const {
-  if (dns_request_) {
-    DCHECK(!endpoint_override_);
-    return dns_request_->GetDnsAliasResults();
-  }
-
-  DCHECK(endpoint_override_);
-  return endpoint_override_->dns_aliases;
+tcp_connect_jobRustBridge c(this);
+  c.Run(tcp_connect_jobRustBridge::Op::GetAliases); CHECK(c.aliases); return *c.aliases;
 }
 
 void TcpConnectJob::NotifyDelegateIfDone(int result) {
-  if (result != ERR_IO_PENDING) {
-    DCHECK(is_done_);
-    NotifyDelegateOfCompletion(result);
-  }
+tcp_connect_jobRustBridge c(this); c.Run(tcp_connect_jobRustBridge::Op::Notify, result);
 }
 
 bool TcpConnectJob::IsConnectedViaStaleDns() const {
-  return is_connected_via_stale_dns_.value_or(false);
+tcp_connect_jobRustBridge c(this); return c.Run(tcp_connect_jobRustBridge::Op::Stale);
 }
 
 }  // namespace net

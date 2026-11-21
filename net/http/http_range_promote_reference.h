@@ -8,11 +8,12 @@
 #include <string_view>
 #include <vector>
 
-#include "net/http/http_byte_range.h"
+#include "net/http/http_range_original_byte_range.h"
 
 namespace net::http_range_promote_internal::test {
-bool ParseRangeHeader(std::string_view, std::vector<HttpByteRange>*);
-std::optional<HttpByteRange> ParseFetchSingleRange(std::string_view, bool);
+using ByteRange = RangeOriginalByteRange;
+bool ParseRangeHeader(std::string_view, std::vector<ByteRange>*);
+std::optional<ByteRange> ParseFetchSingleRange(std::string_view, bool);
 bool ParseContentRangeHeaderFor206(std::string_view,
                                    int64_t*,
                                    int64_t*,

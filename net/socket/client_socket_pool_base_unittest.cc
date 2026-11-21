@@ -5,6 +5,9 @@
 #include <stdint.h>
 
 #include <array>
+#include <limits>
+#include <memory>
+#include <string>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -154,10 +157,47 @@ void TestLoadTimingInfoNotConnected(const ClientSocketHandle& handle) {
   ExpectLoadTimingHasOnlyConnectionTimes(load_timing_info);
 }
 
+// Optional provider script for observing the real pool's lazy socket calls.
+// Shared state outlives a socket whose destruction is part of the assertion.
+struct IdleSocketScript {
+  std::string name;
+  std::shared_ptr<std::vector<std::string>> events;
+  std::vector<bool> used;
+  std::vector<bool> idle;
+  std::vector<bool> connected;
+  size_t used_index = 0;
+  size_t idle_index = 0;
+  size_t connected_index = 0;
+  raw_ptr<RecordingNetLogObserver> observer = nullptr;
+  bool destroyed = false;
+  bool close_logged_before_destruction = false;
+
+  bool Observe(char kind, const std::vector<bool>& answers, size_t& index,
+               bool fallback) {
+    events->push_back(name + kind);
+    return index < answers.size() ? answers[index++] : fallback;
+  }
+};
+
 class MockClientSocket : public StreamSocket {
  public:
   explicit MockClientSocket(net::NetLog* net_log)
       : net_log_(NetLogWithSource::Make(net_log, NetLogSourceType::SOCKET)) {}
+
+  ~MockClientSocket() override {
+    if (script_) {
+      script_->events->push_back(script_->name + 'D');
+      script_->destroyed = true;
+      script_->close_logged_before_destruction =
+          !script_->observer->GetEntriesForSourceWithType(
+              net_log_.source(), NetLogEventType::SOCKET_POOL_CLOSING_SOCKET,
+              NetLogEventPhase::NONE).empty();
+    }
+  }
+
+  void SetIdleScript(std::shared_ptr<IdleSocketScript> script) {
+    script_ = std::move(script);
+  }
 
   MockClientSocket(const MockClientSocket&) = delete;
   MockClientSocket& operator=(const MockClientSocket&) = delete;
@@ -198,9 +238,16 @@ class MockClientSocket : public StreamSocket {
   }
 
   void Disconnect() override { connected_ = false; }
-  bool IsConnected() const override { return connected_; }
+  bool IsConnected() const override {
+    return script_ ? script_->Observe('C', script_->connected,
+                                      script_->connected_index, connected_)
+                   : connected_;
+  }
   bool IsConnectedAndIdle() const override {
-    return connected_ && !has_unread_data_;
+    const bool idle = connected_ && !has_unread_data_;
+    return script_ ? script_->Observe('I', script_->idle, script_->idle_index,
+                                      idle)
+                   : idle;
   }
 
   int GetPeerAddress(IPEndPoint* /* address */) const override {
@@ -213,7 +260,11 @@ class MockClientSocket : public StreamSocket {
 
   const NetLogWithSource& NetLog() const override { return net_log_; }
 
-  bool WasEverUsed() const override { return was_used_to_convey_data_; }
+  bool WasEverUsed() const override {
+    return script_ ? script_->Observe('W', script_->used, script_->used_index,
+                                      was_used_to_convey_data_)
+                   : was_used_to_convey_data_;
+  }
   NextProto GetNegotiatedProtocol() const override {
     return NextProto::kProtoUnknown;
   }
@@ -229,6 +280,7 @@ class MockClientSocket : public StreamSocket {
   bool has_unread_data_ = false;
   NetLogWithSource net_log_;
   bool was_used_to_convey_data_ = false;
+  std::shared_ptr<IdleSocketScript> script_;
 };
 
 class TestConnectJob;
@@ -727,6 +779,113 @@ class ClientSocketPoolBaseTest : public TestWithTaskEnvironment {
     EXPECT_EQ(expected_reason, *reason);
   }
 
+  void RunIdleSelectionScript(bool proxy, bool change_handout_usage) {
+    const auto group = TestGroupId("idle-script");
+    CreatePoolWithIdleTimeouts(
+        4, 4, base::Minutes(1), base::Minutes(1), false,
+        proxy ? ProxyUriToProxyChain("http://proxy.test:80",
+                                    ProxyServer::SCHEME_HTTP)
+              : ProxyChain::Direct());
+    TestCompletionCallback callback1;
+    TestCompletionCallback callback2;
+    ClientSocketHandle first;
+    ClientSocketHandle second;
+    ASSERT_THAT(first.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                           ClientSocketPool::RespectLimits::ENABLED,
+                           callback1.callback(), ClientSocketPool::ProxyAuthCallback(),
+                           pool_.get(), NetLogWithSource()), IsOk());
+    ASSERT_THAT(second.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                            ClientSocketPool::RespectLimits::ENABLED,
+                            callback2.callback(), ClientSocketPool::ProxyAuthCallback(),
+                            pool_.get(), NetLogWithSource()), IsOk());
+    auto* first_socket = static_cast<MockClientSocket*>(first.socket());
+    auto* second_socket = static_cast<MockClientSocket*>(second.socket());
+    const NetLogSource first_source = first_socket->NetLog().source();
+    const NetLogSource second_source = second_socket->NetLog().source();
+    ASSERT_EQ(1, first_socket->Write(nullptr, 1, CompletionOnceCallback(),
+                                     TRAFFIC_ANNOTATION_FOR_TESTS));
+    ASSERT_EQ(1, second_socket->Write(nullptr, 1, CompletionOnceCallback(),
+                                      TRAFFIC_ANNOTATION_FOR_TESTS));
+    first.Reset();
+    second.Reset();
+    ASSERT_EQ(2u, pool_->IdleSocketCount());
+    ASSERT_EQ(0u, pool_->NumActiveSocketsInGroupForTesting(group));
+
+    auto events = std::make_shared<std::vector<std::string>>();
+    auto a = std::make_shared<IdleSocketScript>();
+    a->name = "A";
+    a->events = events;
+    a->observer = &net_log_observer_;
+    if (change_handout_usage) {
+      a->used = {true, true, true, true, false};
+    }
+    auto b = std::make_shared<IdleSocketScript>();
+    b->name = "B";
+    b->events = events;
+    b->observer = &net_log_observer_;
+    // B survives cleanup, then disconnects after A has become the candidate.
+    b->idle = {true, false};
+    b->connected = {false};
+    first_socket->SetIdleScript(a);
+    second_socket->SetIdleScript(b);
+
+    const NetLogWithSource request_log =
+        NetLogWithSource::Make(NetLogSourceType::NONE);
+    TestCompletionCallback callback3;
+    ClientSocketHandle selected;
+    ASSERT_THAT(selected.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                              ClientSocketPool::RespectLimits::ENABLED,
+                              callback3.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), request_log), IsOk());
+    ASSERT_TRUE(selected.socket());
+    EXPECT_EQ(first_source.id, selected.socket()->NetLog().source().id);
+    EXPECT_EQ(change_handout_usage ? StreamSocketHandle::SocketReuseType::kUnusedIdle
+                                  : StreamSocketHandle::SocketReuseType::kReusedIdle,
+              selected.reuse_type());
+    EXPECT_EQ(base::TimeDelta(), selected.idle_time());
+    EXPECT_EQ(0, selected.group_generation());
+    EXPECT_EQ(0u, pool_->IdleSocketCount());
+    EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(group));
+    EXPECT_EQ(1u, pool_->SocketsInUse());
+    ExpectSocketClosedWithReason(
+        second_source, TransportClientSocketPool::kRemoteSideClosedConnection);
+
+    // Closing the rejected socket is logged before the selected socket is bound.
+    size_t close_index = std::numeric_limits<size_t>::max();
+    size_t bind_index = std::numeric_limits<size_t>::max();
+    auto entries = net_log_observer_.GetEntries();
+    for (size_t i = 0; i < entries.size(); ++i) {
+      if (entries[i].source.id == second_source.id &&
+          entries[i].type == NetLogEventType::SOCKET_POOL_CLOSING_SOCKET) {
+        close_index = i;
+      }
+      if (entries[i].source.id == request_log.source().id &&
+          entries[i].type == NetLogEventType::SOCKET_POOL_BOUND_TO_SOCKET) {
+        bind_index = i;
+      }
+    }
+    ASSERT_NE(std::numeric_limits<size_t>::max(), bind_index);
+    EXPECT_LT(close_index, bind_index);
+    std::vector<std::string> expected = {"AW", "AW", "AI", "BW", "BW", "BI",
+                                         "AW", "AI", "AW", "BW", "BI", "BC"};
+    if (!proxy) {
+      expected.push_back("BD");
+    }
+    expected.push_back("AW");
+    EXPECT_EQ(expected, *events);
+    EXPECT_EQ(!proxy, b->destroyed);
+    if (proxy) {
+      base::RunLoop().RunUntilIdle();
+      expected.push_back("BD");
+      EXPECT_EQ(expected, *events);
+    }
+    EXPECT_TRUE(b->destroyed);
+    EXPECT_TRUE(b->close_logged_before_destruction);
+    selected.Reset();
+    pool_->CloseIdleSockets("test cleanup");
+    base::RunLoop().RunUntilIdle();
+  }
+
   TestSocketRequest* request(int i) { return test_base_.request(i); }
   size_t requests_size() const { return test_base_.requests_size(); }
   std::vector<std::unique_ptr<TestSocketRequest>>* requests() {
@@ -770,6 +929,162 @@ class ClientSocketPoolBaseTest : public TestWithTaskEnvironment {
   raw_ptr<TestConnectJobFactory> connect_job_factory_;
   ClientSocketPoolTest test_base_;
 };
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionDirectDestructionAndChangingUsage) {
+  RunIdleSelectionScript(/*proxy=*/false, /*change_handout_usage=*/true);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionProxyDeferredDestruction) {
+  RunIdleSelectionScript(/*proxy=*/true, /*change_handout_usage=*/false);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionYoungestUsedAndOldestUnused) {
+  CreatePool(4, 4);
+  const auto group = TestGroupId("idle-choice");
+  TestCompletionCallback callback;
+  std::array<ClientSocketHandle, 3> handles;
+  for (auto& handle : handles) {
+    ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                            ClientSocketPool::RespectLimits::ENABLED,
+                            callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                            pool_.get(), NetLogWithSource()), IsOk());
+  }
+  const auto youngest_used = handles[2].socket()->NetLog().source().id;
+  for (size_t i : {size_t{1}, size_t{2}}) {
+    ASSERT_EQ(1, handles[i].socket()->Write(nullptr, 1, CompletionOnceCallback(),
+                                           TRAFFIC_ANNOTATION_FOR_TESTS));
+  }
+  for (auto& handle : handles) {
+    handle.Reset();
+  }
+  EXPECT_EQ(3u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->NumActiveSocketsInGroupForTesting(group));
+  ASSERT_THAT(handles[0].Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                              ClientSocketPool::RespectLimits::ENABLED,
+                              callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), NetLogWithSource()), IsOk());
+  EXPECT_EQ(youngest_used, handles[0].socket()->NetLog().source().id);
+  EXPECT_EQ(StreamSocketHandle::SocketReuseType::kReusedIdle,
+            handles[0].reuse_type());
+  EXPECT_EQ(2u, pool_->IdleSocketCount());
+  EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(group));
+  handles[0].Reset();
+  pool_->CloseIdleSockets("test cleanup");
+
+  const auto unused_group = TestGroupId("unused-choice");
+  for (size_t i : {size_t{0}, size_t{1}}) {
+    ASSERT_THAT(handles[i].Init(unused_group, params_, std::nullopt, LOWEST,
+                                SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                                callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                                pool_.get(), NetLogWithSource()), IsOk());
+  }
+  const auto oldest_unused = handles[0].socket()->NetLog().source().id;
+  handles[0].Reset();
+  handles[1].Reset();
+  EXPECT_EQ(2u, pool_->IdleSocketCount());
+  ASSERT_THAT(handles[0].Init(unused_group, params_, std::nullopt, LOWEST,
+                              SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                              callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), NetLogWithSource()), IsOk());
+  EXPECT_EQ(oldest_unused, handles[0].socket()->NetLog().source().id);
+  EXPECT_EQ(StreamSocketHandle::SocketReuseType::kUnusedIdle,
+            handles[0].reuse_type());
+  EXPECT_EQ(1u, pool_->IdleSocketCount());
+  EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(unused_group));
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleCleanupReasonPrecedenceAndObservationOrder) {
+  const auto group = TestGroupId("idle-cleanup-script");
+  CreatePoolWithIdleTimeouts(2, 2, base::TimeDelta(), base::TimeDelta());
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  ASSERT_EQ(1, socket->Write(nullptr, 1, CompletionOnceCallback(),
+                             TRAFFIC_ANNOTATION_FOR_TESTS));
+  handle.Reset();
+  ASSERT_EQ(1u, pool_->IdleSocketCount());
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {false};
+  script->connected = {true};
+  socket->SetIdleScript(script);
+  pool_->CloseIdleSockets("forced reason");
+  EXPECT_EQ((std::vector<std::string>{"SW", "SW", "SI", "SC", "SD"}),
+            *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kDataReceivedUnexpectedly);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleReleaseClosedPrecedesStaleGeneration) {
+  const auto group = TestGroupId("idle-release-script");
+  CreatePool(2, 2);
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  pool_->FlushWithError(ERR_ABORTED, "generation changed");
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {false};
+  script->connected = {false};
+  socket->SetIdleScript(script);
+  handle.Reset();
+  EXPECT_EQ((std::vector<std::string>{"SI", "SC", "SD"}), *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kClosedConnectionReturnedToPool);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleReleaseStaleGenerationSkipsConnectedQuery) {
+  const auto group = TestGroupId("idle-release-stale");
+  CreatePool(2, 2);
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  pool_->FlushWithError(ERR_ABORTED, "generation changed");
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {true};
+  socket->SetIdleScript(script);
+  handle.Reset();
+  EXPECT_EQ((std::vector<std::string>{"SI", "SD"}), *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kSocketGenerationOutOfDate);
+}
 
 TEST_F(ClientSocketPoolBaseTest, BasicSynchronous) {
   CreatePool(kDefaultMaxSockets, kDefaultMaxSocketsPerGroup);
@@ -1104,6 +1419,27 @@ TEST_F(ClientSocketPoolBaseTest, TotalLimitRespectsPriority) {
 
   // Make sure we test order of all requests made.
   EXPECT_EQ(ClientSocketPoolTest::kIndexOutOfBounds, GetOrderOfRequest(9));
+}
+
+TEST_F(ClientSocketPoolBaseTest, StalledGroupTiesFollowGroupIdOrder) {
+  CreatePool(2, 1);
+  const auto saturated_group = TestGroupId("saturated");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+  ASSERT_THAT(StartRequest(saturated_group, LOWEST), IsOk());
+
+  // The high-priority request cannot use another slot in its own group.
+  ASSERT_THAT(StartRequest(saturated_group, HIGHEST), IsError(ERR_IO_PENDING));
+  // Register the equal-priority groups in reverse GroupId order.
+  ASSERT_THAT(StartRequest(TestGroupId("z"), MEDIUM), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(TestGroupId("a"), MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(4)->handle()->socket());
+  EXPECT_FALSE(request(3)->handle()->socket());
+  EXPECT_FALSE(request(2)->handle()->socket());
+  EXPECT_EQ(3, GetOrderOfRequest(5));
+
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
 }
 
 // Test reprioritizing a request before completion doesn't interfere with
@@ -5395,6 +5731,35 @@ class TestAuthHelper {
   int auth_count_ = 0;
   TestCompletionCallback callback_;
 };
+
+TEST_F(ClientSocketPoolBaseTest, StalledGroupExcludesAuthBoundSlot) {
+  CreatePool(2, 1);
+  const auto auth_group = TestGroupId("auth");
+  const auto eligible_group = TestGroupId("eligible");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
+  TestAuthHelper auth;
+  auth.InitHandle(params_, pool_.get(), LOW,
+                  ClientSocketPool::RespectLimits::ENABLED, auth_group);
+  auth.WaitForAuth();
+  ASSERT_EQ(1, auth.auth_count());
+  ASSERT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  ASSERT_THAT(StartRequest(auth_group, HIGHEST), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(eligible_group, MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(2)->handle()->socket());
+  EXPECT_FALSE(request(1)->have_result());
+  EXPECT_FALSE(auth.have_result());
+  EXPECT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  auth.handle()->Reset();
+  EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
 
 TEST_F(ClientSocketPoolBaseTest, ProxyAuthOnce) {
   CreatePool(1, 1);

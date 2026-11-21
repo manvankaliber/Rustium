@@ -1,0 +1,67 @@
+// Source-only connected-family draft. Not compiled or integrated.
+#ifndef NET_SOCKET_CONNECT_JOB_PARAMS_FACTORY_RUST_DRAFT_H_
+#define NET_SOCKET_CONNECT_JOB_PARAMS_FACTORY_RUST_DRAFT_H_
+#include "net/base/net_export.h"
+#include "net/socket/connection_jobs_rust_ffi.h"
+namespace net::connect_job_params_factory_rust {
+enum class Operation : uint32_t {
+  Construct = 0,
+};
+enum class Action : uint32_t {
+  CheckValid = 0,
+  PushRoot = 1,
+  DestinationScheme = 2,
+  SchemeCrypto = 3,
+  SchemelessSsl = 4,
+  EndpointAlpnMode = 5,
+  AllowedCerts = 6,
+  Privacy = 7,
+  SetDestinationAlpn = 8,
+  ClearAlpn = 9,
+  AlpnHttp11 = 10,
+  AlpnAll = 11,
+  AlpnApplications = 12,
+  CheckAll = 13,
+  HasProperties = 14,
+  MaybeForceHttp11 = 15,
+  RenegoDefault = 16,
+  RenegoHttp11 = 17,
+  DestinationCertFetch = 18,
+  EarlyData = 19,
+  DestinationUsage = 20,
+  Direct = 21,
+  ForceTunnel = 22,
+  GetToProxyAllowed = 23,
+  ChainLength = 24,
+  EndpointPair = 25,
+  SchemeTransport = 26,
+  PairTransport = 27,
+  BeginProtocols = 28,
+  ProtocolCount = 29,
+  InsertProtocol = 30,
+  BuildDirect = 31,
+  PushProxy = 32,
+  EmptyNak = 33,
+  EndpointNak = 34,
+  ProxySecure = 35,
+  ProxyQuic = 36,
+  ProxyHttp = 37,
+  ProxySocks = 38,
+  ProxySocks5 = 39,
+  CheckProxyQuicAt = 40,
+  ProxyDisableFetch = 41,
+  ProxyAlpnEndpoint = 42,
+  ProxyUsage = 43,
+  ProxyTransport = 44,
+  NextProxyHost = 45,
+  WrapProxySsl = 46,
+  BuildQuic = 47,
+  CheckNotQuic = 48,
+  BuildHttp = 49,
+  BuildSocks = 50,
+  PopProxy = 51,
+  WrapDestinationSsl = 52,
+  Return = 53,
+};
+}
+#endif

@@ -13,6 +13,19 @@ const RESTRICTED: &[i32] = &[
     6669, 6697, 10080,
 ];
 
+// Built from the policy list so lookup does not scan it on every connection.
+// Ports above the last listed value cannot occur in this fixed policy.
+const RESTRICTED_BITS: [u64; 158] = {
+    let mut bits = [0u64; 158];
+    let mut i = 0;
+    while i < RESTRICTED.len() {
+        let port = RESTRICTED[i] as usize;
+        bits[port / 64] |= 1u64 << (port % 64);
+        i += 1;
+    }
+    bits
+};
+
 /// Values tell the adapter whether to emit the corresponding UMA histogram.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Decision {
@@ -158,7 +171,8 @@ impl PortPolicy {
     pub fn reload_localhost(&mut self) {
         self.reload_localhost = true;
     }
-    /// None means feature policy must be consulted after releasing the state lock.
+    /// None means feature policy must be consulted after releasing the state
+    /// lock.
     pub fn scheme_preflight(&self, port: i32) -> Option<Decision> {
         if !Self::valid(port) {
             return Some(Decision::Block);
@@ -169,7 +183,10 @@ impl PortPolicy {
         Self::scheme_without_explicit(port)
     }
     pub fn scheme_without_explicit(port: i32) -> Option<Decision> {
-        if RESTRICTED.contains(&port) {
+        let port = port as usize;
+        if port / 64 < RESTRICTED_BITS.len()
+            && (RESTRICTED_BITS[port / 64] & (1u64 << (port % 64))) != 0
+        {
             return Some(Decision::Block);
         }
         None
@@ -220,6 +237,16 @@ mod tests {
         assert!(!PortPolicy::well_known(1024));
     }
     #[test]
+    fn restricted_lookup_matches_policy_list() {
+        for port in -1..=65536 {
+            assert_eq!(
+                PortPolicy::scheme_without_explicit(port).is_some(),
+                RESTRICTED.contains(&port),
+                "port {port}"
+            );
+        }
+    }
+    #[test]
     fn duplicates_reset_and_scoped() {
         let mut p = PortPolicy::default();
         p.reset(&[1, 1, 2]);
@@ -245,7 +272,8 @@ mod tests {
         p.insert(2);
         p.insert(3);
         assert!(p.erase(1));
-        p.insert(2); // Existing overflow entry must not be duplicated in the empty slot.
+        p.insert(2); // Existing overflow entry must not be duplicated in the
+                     // empty slot.
         p.insert(4);
         assert_eq!(p.count(), 5);
         assert!(p.contains_explicit(2));

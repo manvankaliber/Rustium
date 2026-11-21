@@ -7,6 +7,7 @@ import("//testing/test.gni")
 if (use_blink) {
   source_set("feed_core_v2") {
     public = [
+      "experiments_translator.h",
       "public/feed_api.h",
       "public/feed_service.h",
       "public/logging_parameters.h",
@@ -17,6 +18,7 @@ if (use_blink) {
       "public/stream_type.h",
       "public/surface_renderer.h",
       "public/types.h",
+      "shared_prefs.h",
 
       # Includes that should be made private:
       "config.h",
@@ -28,6 +30,7 @@ if (use_blink) {
       "config.h",
       "enums.cc",
       "enums.h",
+      "experiments_translator.cc",
       "feed_network.cc",
       "feed_network.h",
       "feed_network_impl.cc",
@@ -68,6 +71,7 @@ if (use_blink) {
       "request_throttler.h",
       "scheduling.cc",
       "scheduling.h",
+      "shared_prefs.cc",
       "stream/info_card_tracker.cc",
       "stream/info_card_tracker.h",
       "stream/privacy_notice_card_tracker.cc",

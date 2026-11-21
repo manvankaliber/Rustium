@@ -751,7 +751,7 @@ TEST_F(SpdyHttpStreamTest, ConnectionClosedDuringChunkedPost) {
 
   EXPECT_EQ(req.size() + body.size(),
             http_stream.GetTotalSentBytes().InBytes());
-  EXPECT_EQ(0, http_stream.GetTotalReceivedBytes().InBytes());
+  EXPECT_EQ(0u, http_stream.GetTotalReceivedBytes().InBytes());
 
   // Because the server closed the connection, we there shouldn't be a session
   // in the pool anymore.
@@ -766,7 +766,7 @@ TEST_F(SpdyHttpStreamTest, ConnectionClosedDuringChunkedPost) {
   // The total sent and received bytes should be unchanged.
   EXPECT_EQ(req.size() + body.size(),
             http_stream.GetTotalSentBytes().InBytes());
-  EXPECT_EQ(0, http_stream.GetTotalReceivedBytes().InBytes());
+  EXPECT_EQ(0u, http_stream.GetTotalReceivedBytes().InBytes());
 }
 
 // Test to ensure the SpdyStream state machine does not get confused when a
@@ -933,7 +933,7 @@ TEST_F(SpdyHttpStreamTest, DelayedSendChunkedPostWithEmptyFinalDataFrame) {
 
   EXPECT_EQ(req.size() + chunk1.size(),
             http_stream->GetTotalSentBytes().InBytes());
-  EXPECT_EQ(0, http_stream->GetTotalReceivedBytes().InBytes());
+  EXPECT_EQ(0u, http_stream->GetTotalReceivedBytes().InBytes());
 
   // Now end the stream with an empty data frame and the FIN set.
   upload_stream.AppendData(base::byte_span_from_cstring(""), true);
@@ -1147,7 +1147,7 @@ TEST_F(SpdyHttpStreamTest, DelayedSendChunkedPostWithWindowUpdate) {
   ASSERT_FALSE(callback.have_result());
 
   EXPECT_EQ(req.size(), http_stream->GetTotalSentBytes().InBytes());
-  EXPECT_EQ(0, http_stream->GetTotalReceivedBytes().InBytes());
+  EXPECT_EQ(0u, http_stream->GetTotalReceivedBytes().InBytes());
 
   upload_stream.AppendData(base::byte_span_from_cstring(kUploadData), true);
 
@@ -1165,7 +1165,7 @@ TEST_F(SpdyHttpStreamTest, DelayedSendChunkedPostWithWindowUpdate) {
   EXPECT_EQ(req.size() + chunk1.size(),
             http_stream->GetTotalSentBytes().InBytes());
   // The window update is not counted in the total received bytes.
-  EXPECT_EQ(0, http_stream->GetTotalReceivedBytes().InBytes());
+  EXPECT_EQ(0u, http_stream->GetTotalReceivedBytes().InBytes());
 
   // Verify the window update.
   ASSERT_TRUE(http_stream->stream() != nullptr);

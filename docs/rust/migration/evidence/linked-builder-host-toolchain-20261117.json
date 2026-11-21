@@ -1,0 +1,30 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "scope": "Observed laptop installations and cooperative lock behavior at the pinned baseline",
+  "observed_utc": "2026-11-17T18:47:00Z",
+  "source_revision": "4485cc56f5f0e151d8433886976cdf679355e872",
+  "host_config_values": {
+    "visual_studio": "C:/Program Files (x86)/Microsoft Visual Studio/18/BuildTools",
+    "windows_sdk": "C:/Program Files (x86)/Windows Kits/10",
+    "depot_tools": "C:/Users/micro/chromium-tools/depot_tools",
+    "git": "C:/Program Files/Git"
+  },
+  "visual_studio_version": "18.5.11709.299",
+  "vc_toolset": "14.50.35717",
+  "chromium_pinned_sdk_version": "10.0.28000.0",
+  "depot_tools_commit": "ec77017fb3e090ff02bffb9c6980ebcdd3006ddc",
+  "git_version": "2.53.0.windows.3",
+  "python_version": "3.11.8",
+  "python_via_depot_wrapper": "C:/Users/micro/chromium-tools/depot_tools/bootstrap-2@3_11_8_chromium_35_bin/python3/bin/python3.exe",
+  "lock": {
+    "path": "C:/Users/micro/rb/.rustium-native.lock",
+    "range": "byte 0, length 1",
+    "contender_excluded_while_held": true,
+    "contender_acquired_after_release": true,
+    "remote_evidence": "C:/Users/micro/actions-runner-rustium/lock-qualification-20261117.json",
+    "remote_sha256_reported": "4e3aca561aa6e897169bbbc9dc4993f4aa1aa813ef1032430247cc5756dc2bb6"
+  },
+  "remote_receipt": "C:/Users/micro/actions-runner-rustium/NET-CI-BUILDER-READINESS-laptop-evidence-20261117.md",
+  "remote_receipt_sha256_reported": "64f877fe8e5e04c26e95e23a7c7d113186fb0318996562c06ad7c474063cf4a7",
+  "limits": "Tool paths, sampled ATL/MFC and SDK files, and cooperating process contention are verified at the baseline. No candidate checkout or input record, hook execution, GN, compilation, or test is established. Remote hashes are reported by the delegate."
+}

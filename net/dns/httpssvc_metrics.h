@@ -37,7 +37,8 @@ enum class HttpssvcDnsRcode {
 // contiguous range in order to satisfy the UMA enumeration function's
 // requirements. This function never returns |kTimedOut| |kUnrecognizedRcode|,
 // or |kMissingDnsResponse|.
-enum HttpssvcDnsRcode TranslateDnsRcodeForHttpssvcExperiment(uint8_t rcode);
+NET_EXPORT_PRIVATE HttpssvcDnsRcode TranslateDnsRcodeForHttpssvcExperiment(
+    uint8_t rcode);
 
 // Tool for aggregating HTTPS RR metrics. Accumulates metrics via the Save*
 // methods. Records metrics to UMA on destruction.

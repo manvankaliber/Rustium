@@ -13,6 +13,7 @@ if __name__ == '__main__':
   sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 
 import unittest
+from unittest import mock
 
 from grit import util
 from grit.format import html_inline
@@ -477,6 +478,27 @@ class HtmlInlineUnittest(unittest.TestCase):
     resources.add(tmp_dir.GetPath('index.html'))
     self.assertEqual(resources, source_resources)
     self.assertMultiLineEqual(expected_inlined, result.inlined_data)
+
+  def testGeneratedFilenameIsRelativeToNestedOutput(self):
+    output_dir = os.path.join("out", "NetworkCI", "component")
+    generated = os.path.join("gen", "page", "bundle.js")
+    relative_html = os.path.join("..", "..", "..", "page", "index.html")
+    files = {
+      os.path.join("page", "index.html"):
+          '<script src="%ROOT_GEN_DIR%/page/bundle.js"></script>',
+      os.path.join(output_dir, generated): "console.log('generated');",
+    }
+    with util.TempDir(files) as temp, mock.patch.dict(
+        os.environ, {"root_gen_dir": "gen"}
+    ):
+      original_cwd = os.getcwd()
+      try:
+        os.chdir(temp.GetPath(output_dir))
+        inlined = html_inline.DoInline(relative_html, None)
+        self.assertEqual(inlined.inlined_files, {generated})
+        self.assertIn("console.log('generated');", inlined.inlined_data)
+      finally:
+        os.chdir(original_cwd)
 
   def testFilenameVariableExpansion(self):
     '''Tests that variables are expanded in filenames before inlining.'''

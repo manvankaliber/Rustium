@@ -15,6 +15,8 @@
 
 namespace net {
 
+struct StreamSocketHandleFamilyRustBridge;
+
 class StreamSocket;
 class HigherLayeredPool;
 
@@ -92,6 +94,7 @@ class NET_EXPORT_PRIVATE StreamSocketHandle {
   }
 
  private:
+  friend struct StreamSocketHandleFamilyRustBridge;
   bool is_initialized_ = false;
   std::unique_ptr<StreamSocket> socket_;
   SocketReuseType reuse_type_ = SocketReuseType::kUnused;

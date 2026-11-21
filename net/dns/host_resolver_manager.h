@@ -48,6 +48,8 @@
 #include "net/socket/datagram_client_socket.h"
 #include "url/scheme_host_port.h"
 
+namespace net { class DnsResolutionFamilyRustPeer; }
+
 namespace base {
 class TickClock;
 }  // namespace base
@@ -307,6 +309,7 @@ class NET_EXPORT HostResolverManager
   void SetHaveOnlyLoopbackAddresses(bool result);
 
  private:
+  friend class ::net::DnsResolutionFamilyRustPeer;
   friend class HostResolverManagerTest;
   friend class HostResolverManagerDnsTest;
   class LoopbackProbeJob;

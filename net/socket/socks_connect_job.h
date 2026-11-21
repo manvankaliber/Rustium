@@ -23,6 +23,8 @@
 
 namespace net {
 
+struct SOCKSConnectJobFamilyRustBridge;
+
 class SocketTag;
 class StreamSocket;
 class TransportSocketParams;
@@ -106,6 +108,7 @@ class NET_EXPORT_PRIVATE SOCKSConnectJob : public ConnectJob,
   static base::TimeDelta HandshakeTimeoutForTesting();
 
  private:
+  friend struct SOCKSConnectJobFamilyRustBridge;
   enum State {
     STATE_TRANSPORT_CONNECT,
     STATE_TRANSPORT_CONNECT_COMPLETE,

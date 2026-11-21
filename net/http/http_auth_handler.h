@@ -234,6 +234,7 @@ class NET_EXPORT_PRIVATE HttpAuthHandler {
   int properties_ = -1;
 
  private:
+  friend class ConnectionAuthOriginalHandlerPolicy;
   void OnGenerateAuthTokenComplete(int rv);
   void FinishGenerateAuthToken(int rv);
 

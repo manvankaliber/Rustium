@@ -16,6 +16,7 @@
 #include "net/base/load_states.h"
 #include "net/base/net_errors.h"
 #include "net/socket/tcp_connect_job.h"
+#include "net/socket/tcp_connect_job_connector_rust_ffi.h"
 
 namespace net {
 
@@ -72,17 +73,16 @@ class TcpConnectJob::Connector {
   ServiceEndpoint PassFinalServiceEndpoint();
 
   bool is_waiting_for_endpoint() const {
-    return next_state_ == State::kWaitForIPEndPoint;
+    return connection_jobs_rust_connector_flag(0,static_cast<int64_t>(next_state_));
   }
 
   // True if the job is waiting on DNS data before it can advance - either
   // waiting for more IPs, or waiting on crypto ready.
   bool is_waiting_on_dns() const {
-    return next_state_ == State::kWaitForIPEndPoint ||
-           next_state_ == State::kWaitForCryptoReady;
+    return connection_jobs_rust_connector_flag(1,static_cast<int64_t>(next_state_));
   }
 
-  bool is_done() const { return next_state_ == State::kDone; }
+  bool is_done() const { return connection_jobs_rust_connector_flag(2,static_cast<int64_t>(next_state_)); }
 
   // Whether `this` is currently connecting to an IPv6 IP, or is connected to
   // one and waiting for DNS to make progress.
@@ -98,6 +98,8 @@ class TcpConnectJob::Connector {
   base::TimeTicks start_time() const { return start_time_; }
 
  private:
+  friend struct tcp_connect_jobRustBridge;
+  friend struct tcp_connect_job_connectorRustBridge;
   // Note that while in either of the "Wait" states, this is waiting on more
   // ServiceEndpoint data. The parent ConnectJob signals that data may be
   // available by calling OnEndpointDataAvailable(). If the data is not one of

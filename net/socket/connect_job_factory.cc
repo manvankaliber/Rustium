@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_ptr.h"
 #include "net/socket/connect_job_factory.h"
+#include "net/socket/connect_job_factory_rust_ffi.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
+#include "base/notreached.h"
 
 #include <memory>
 #include <optional>
@@ -36,7 +40,7 @@ namespace {
 
 template <typename T>
 std::unique_ptr<T> CreateFactoryIfNull(std::unique_ptr<T> in) {
-  if (in) {
+  if (connection_jobs_rust_factory_has_input(!!in)) {
     return in;
   }
   return std::make_unique<T>();
@@ -44,6 +48,67 @@ std::unique_ptr<T> CreateFactoryIfNull(std::unique_ptr<T> in) {
 
 }  // namespace
 
+
+// Invocation-local observer. Invalidated at the most-derived destructor entry.
+// No typed native pointer crosses the Rust ABI or survives a service call.
+struct connect_job_factoryRustBridge : connection_jobs_upper_rust::Invocation {
+  using Op = connect_job_factory_rust::Operation;
+  using Action = connect_job_factory_rust::Action;
+  raw_ptr<const ConnectJobFactory> owner;
+  raw_ptr<ConnectJobFactory> mutable_owner = nullptr;
+
+  raw_ptr<ConnectJobParams> params = nullptr;
+  raw_ptr<std::unique_ptr<ConnectJob>> output = nullptr;
+  RequestPriority priority = DEFAULT_PRIORITY;
+  raw_ptr<const SocketTag> tag = nullptr;
+  raw_ptr<const CommonConnectJobParams> common = nullptr;
+  raw_ptr<ConnectJob::Delegate> delegate = nullptr;
+
+  explicit connect_job_factoryRustBridge(ConnectJobFactory* value) : Invocation(value), owner(value), mutable_owner(value) {
+    Register(&Clear);
+  }
+  explicit connect_job_factoryRustBridge(const ConnectJobFactory* value) : Invocation(value), owner(value) {
+    Register(&Clear);
+  }
+  ~connect_job_factoryRustBridge() { Unregister(); }
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<connect_job_factoryRustBridge*>(value);
+    c.owner = nullptr; c.mutable_owner = nullptr;
+
+  }
+  int64_t Run(Op operation, int64_t argument = 0) {
+    return connection_jobs_rust_run(3, static_cast<uint32_t>(operation),
+                                    argument, this, &Service);
+  }
+  static bool Service(void* context, uint32_t module, uint32_t action,
+                      [[maybe_unused]] int64_t argument, int64_t* output) {
+    auto& c = *static_cast<connect_job_factoryRustBridge*>(context);
+    *output = 0;
+    if (!c.owner) return false;
+    if (action == UINT32_MAX) return true;
+    CHECK_EQ(module, 3u);
+    const auto& j = *c.owner;
+    // Mutable access is requested only in action arms that require it. Const
+    // wrappers never obtain a mutable receiver and never commit a snapshot.
+    switch (static_cast<Action>(action)) {
+      case Action::IsSsl: { *output = c.params->is_ssl(); break; }
+      case Action::IsTransport: { *output = c.params->is_transport(); break; }
+      case Action::IsHttp: { *output = c.params->is_http_proxy(); break; }
+      case Action::CheckSocks: { CHECK(c.params->is_socks()); break; }
+      case Action::Ssl: { *c.output = j.ssl_connect_job_factory_->Create(c.priority, *c.tag,
+ c.common, c.params->take_ssl(), c.delegate, nullptr); break; }
+      case Action::Transport: { *c.output = j.transport_connect_job_factory_->Create(c.priority, *c.tag,
+ c.common, c.params->take_transport(), c.delegate, nullptr); break; }
+      case Action::Http: { *c.output = j.http_proxy_connect_job_factory_->Create(c.priority, *c.tag,
+ c.common, c.params->take_http_proxy(), c.delegate, nullptr); break; }
+      case Action::Socks: { *c.output = j.socks_connect_job_factory_->Create(c.priority, *c.tag,
+ c.common, c.params->take_socks(), c.delegate, nullptr); break; }
+
+      default: NOTREACHED();
+    }
+    return c.owner != nullptr;
+  }
+};
 ConnectJobFactory::ConnectJobFactory(
     std::unique_ptr<HttpProxyConnectJob::Factory>
         http_proxy_connect_job_factory,
@@ -59,7 +124,9 @@ ConnectJobFactory::ConnectJobFactory(
       transport_connect_job_factory_(
           CreateFactoryIfNull(std::move(transport_connect_job_factory))) {}
 
-ConnectJobFactory::~ConnectJobFactory() = default;
+ConnectJobFactory::~ConnectJobFactory() {
+  connect_job_factoryRustBridge::Invalidate(this);
+}
 
 std::unique_ptr<ConnectJob> ConnectJobFactory::CreateConnectJob(
     url::SchemeHostPort endpoint,
@@ -136,29 +203,12 @@ std::unique_ptr<ConnectJob> ConnectJobFactory::CreateConnectJob(
       disable_cert_network_fetches, common_connect_job_params,
       proxy_dns_network_anonymization_key_, target_network);
 
-  if (connect_job_params.is_ssl()) {
-    return ssl_connect_job_factory_->Create(
-        request_priority, socket_tag, common_connect_job_params,
-        connect_job_params.take_ssl(), delegate, /*net_log=*/nullptr);
-  }
-
-  if (connect_job_params.is_transport()) {
-    return transport_connect_job_factory_->Create(
-        request_priority, socket_tag, common_connect_job_params,
-        connect_job_params.take_transport(), delegate, /*net_log=*/nullptr);
-  }
-
-  if (connect_job_params.is_http_proxy()) {
-    return http_proxy_connect_job_factory_->Create(
-        request_priority, socket_tag, common_connect_job_params,
-        connect_job_params.take_http_proxy(), delegate,
-        /*net_log=*/nullptr);
-  }
-
-  CHECK(connect_job_params.is_socks());
-  return socks_connect_job_factory_->Create(
-      request_priority, socket_tag, common_connect_job_params,
-      connect_job_params.take_socks(), delegate, /*net_log=*/nullptr);
+  std::unique_ptr<ConnectJob> result;
+  connect_job_factoryRustBridge c(this);
+  c.params = &connect_job_params; c.output = &result; c.priority = request_priority;
+  c.tag = &socket_tag; c.common = common_connect_job_params; c.delegate = delegate;
+  c.Run(connect_job_factoryRustBridge::Op::Create);
+  return result;
 }
 
 }  // namespace net

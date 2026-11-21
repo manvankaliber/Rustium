@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("//testing/test.gni")
+
 component("proxy_config") {
   sources = [
     "pref_proxy_config_tracker.cc",
@@ -76,4 +78,13 @@ source_set("unit_tests") {
   sources += [ "proxy_policy_handler_unittest.cc" ]
 
   sources += [ "proxy_override_rules_policy_handler_unittest.cc" ]
+}
+
+# Allows proxy preference feedback without building components_unittests.
+test("proxy_config_unittests") {
+  sources = [ "run_all_unittests.cc" ]
+  deps = [
+    ":unit_tests",
+    "//base/test:test_support",
+  ]
 }
