@@ -4979,6 +4979,39 @@ TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
                                                                &handle1));
 }
 
+TEST_F(ClientSocketPoolBaseTest, AssignmentStealsLastAndReturnsReleasedJob) {
+  CreatePool(2, 2);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  TestCompletionCallback first_callback, second_callback, high_callback;
+  ClientSocketHandle first, second, high;
+  auto start = [&](ClientSocketHandle& handle, RequestPriority priority,
+                   TestCompletionCallback& callback) {
+    return handle.Init(TestGroupId("a"), params_, std::nullopt, priority,
+                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                       callback.callback(),
+                       ClientSocketPool::ProxyAuthCallback(), pool_.get(),
+                       NetLogWithSource());
+  };
+  ASSERT_EQ(ERR_IO_PENDING, start(first, DEFAULT_PRIORITY, first_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(second, DEFAULT_PRIORITY, second_callback));
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+  ASSERT_EQ(ERR_IO_PENDING, start(high, HIGHEST, high_callback));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &second));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &high));
+  high.Reset();
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+}
+
 TEST_F(ClientSocketPoolBaseTest, RequestStealsJobFromLowestRequestWithJob) {
   CreatePool(3, 3);
   connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);

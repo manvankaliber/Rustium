@@ -498,17 +498,11 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
         const RequestQueue::Pointer& pointer);
 
     // Finds the Request which is associated with the given ConnectJob.
-    // Returns nullptr if none is found. Expects the Group to pass SanityCheck()
-    // when called.
+    // Returns a null pointer if none is found; otherwise also reports the
+    // zero-based request rank. Expects the Group to pass SanityCheck().
     RequestQueue::Pointer FindUnboundRequestWithJob(
-        const ConnectJob* job) const;
-
-    // Finds the Request in |unbound_requests_| which is the first request
-    // without a job. Returns a null pointer if all requests have jobs. Does not
-    // expect the Group to pass SanityCheck() when called, but does expect all
-    // jobs to either be assigned to a request or in |unassigned_jobs_|. Expects
-    // that no requests with jobs come after any requests without a job.
-    RequestQueue::Pointer GetFirstRequestWithoutJob() const;
+        const ConnectJob* job,
+        size_t* request_rank) const;
 
     // Tries to assign an unassigned |job| to a request. If no requests need a
     // job, |job| is added to |unassigned_jobs_|.
@@ -529,7 +523,10 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
     //    other than the given request must have ConnectJobs, i.e. the group
     //    must have passed SanityCheck() before the passed in Request was either
     //    added or had its job unassigned.
-    void TryToAssignJobToRequest(RequestQueue::Pointer request_pointer);
+    // |assigned_count| excludes the job just released from the hole.
+    void TryToAssignJobToRequest(RequestQueue::Pointer request_pointer,
+                                 size_t request_rank,
+                                 size_t assigned_count);
 
     // Transfers the associated ConnectJob from one Request to another. Expects
     // the source request to have a job, and the destination request to not have

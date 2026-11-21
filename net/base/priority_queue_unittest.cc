@@ -90,6 +90,33 @@ class PriorityQueueTest : public testing::TestWithParam<size_t> {
   std::array<PriorityQueue<int>::Pointer, kNumElements> pointers_;
 };
 
+TEST(PriorityQueueInsertionRankTest, MatchesNativeFrontAndBackInsertion) {
+  PriorityQueue<int> queue(kNumPriorities);
+  auto check = [&queue]() {
+    for (Priority priority = 0; priority < kNumPriorities; ++priority) {
+      for (int front_option = 0; front_option < 2; ++front_option) {
+        const bool front = front_option != 0;
+        const size_t expected = queue.InsertionRank(priority, front);
+        auto inserted = front ? queue.InsertAtFront(-1, priority)
+                              : queue.Insert(-1, priority);
+        size_t rank = 0;
+        auto cursor = queue.FirstMax();
+        while (!cursor.is_null() && !cursor.Equals(inserted)) {
+          ++rank;
+          cursor = queue.GetNextTowardsLastMin(cursor);
+        }
+        ASSERT_FALSE(cursor.is_null());
+        EXPECT_EQ(expected, rank);
+        queue.Erase(inserted);
+      }
+    }
+  };
+  check();
+  for (size_t i = 0; i < kNumElements; ++i)
+    queue.Insert(static_cast<int>(i), kPriorities[0][i]);
+  check();
+}
+
 TEST_P(PriorityQueueTest, AddAndClear) {
   for (size_t i = 0; i < kNumElements; ++i) {
     EXPECT_EQ(kPriorities[GetParam()][i], pointers_[i].priority());

@@ -32,11 +32,19 @@
 #include "net/log/net_log_event_type.h"
 #include "net/log/net_log_source.h"
 #include "net/socket/connect_job_factory.h"
+#include "net/socket/transport_assignment_ffi.h"
 #include "net/socket/transport_client_socket_pool_scheduling_ffi.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "url/gurl.h"
 
 extern "C" {
+size_t rust_transport_assignment_hole(size_t rank,
+                                      size_t request_count,
+                                      size_t assigned,
+                                      size_t unassigned);
+size_t rust_transport_assignment_release(size_t request_count,
+                                         size_t assigned,
+                                         size_t unassigned);
 int32_t rust_transport_stalled_select(uint64_t packed, uint32_t count,
                                       int32_t previous);
 int32_t rust_transport_idle_usable_step(int32_t state, bool value);
@@ -47,6 +55,20 @@ int32_t rust_transport_idle_select_candidate(int32_t previous, bool was_used);
 }
 
 namespace net {
+
+size_t TransportAssignmentHole(size_t rank,
+                               size_t request_count,
+                               size_t assigned,
+                               size_t unassigned) {
+  return rust_transport_assignment_hole(rank, request_count, assigned,
+                                        unassigned);
+}
+
+size_t TransportAssignmentRelease(size_t request_count,
+                                  size_t assigned,
+                                  size_t unassigned) {
+  return rust_transport_assignment_release(request_count, assigned, unassigned);
+}
 
 int32_t SelectStalledGroupBatch(uint64_t packed,
                                 uint32_t count,
@@ -1797,10 +1819,15 @@ std::unique_ptr<ConnectJob> TransportClientSocketPool::Group::RemoveUnboundJob(
     // try to replace it with another job if possible (either by taking an
     // unassigned job or stealing from another request, if any requests after it
     // have a job).
-    RequestQueue::Pointer request_with_job = FindUnboundRequestWithJob(job);
+    size_t request_rank = 0;
+    RequestQueue::Pointer request_with_job =
+        FindUnboundRequestWithJob(job, &request_rank);
     DCHECK(!request_with_job.is_null());
     request_with_job.value()->ReleaseJob();
-    TryToAssignJobToRequest(request_with_job);
+    DCHECK_GT(jobs_.size(), unassigned_jobs_.size());
+    // The released job remains in jobs_ until after the reassignment.
+    TryToAssignJobToRequest(request_with_job, request_rank,
+                            jobs_.size() - unassigned_jobs_.size() - 1);
   }
   std::unique_ptr<ConnectJob> owned_job = std::move(*it);
   jobs_.erase(it);
@@ -1996,8 +2023,13 @@ void TransportClientSocketPool::Group::InsertUnboundRequest(
   // This value must be cached before we release |request|.
   RequestPriority priority = request->priority();
 
+  const bool insert_at_front =
+      request->respect_limits() == RespectLimits::DISABLED;
+  const size_t request_rank =
+      unbound_requests_.InsertionRank(priority, insert_at_front);
+  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
   RequestQueue::Pointer new_position;
-  if (request->respect_limits() == RespectLimits::DISABLED) {
+  if (insert_at_front) {
     // Put requests with RespectLimits::DISABLED (which should have
     // priority == MAXIMUM_PRIORITY) ahead of other requests with
     // MAXIMUM_PRIORITY.
@@ -2009,7 +2041,7 @@ void TransportClientSocketPool::Group::InsertUnboundRequest(
   }
   DCHECK(!unbound_requests_.empty());
 
-  TryToAssignJobToRequest(new_position);
+  TryToAssignJobToRequest(new_position, request_rank, assigned_count);
 
   SanityCheck();
 }
@@ -2188,12 +2220,15 @@ TransportClientSocketPool::Group::RemoveUnboundRequest(
 
 TransportClientSocketPool::RequestQueue::Pointer
 TransportClientSocketPool::Group::FindUnboundRequestWithJob(
-    const ConnectJob* job) const {
+    const ConnectJob* job,
+    size_t* request_rank) const {
   SanityCheck();
+  *request_rank = 0;
 
   for (RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
        !pointer.is_null() && pointer.value()->job();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
+       pointer = unbound_requests_.GetNextTowardsLastMin(pointer),
+       ++(*request_rank)) {
     if (pointer.value()->job() == job)
       return pointer;
   }
@@ -2202,54 +2237,48 @@ TransportClientSocketPool::Group::FindUnboundRequestWithJob(
   return RequestQueue::Pointer();
 }
 
-TransportClientSocketPool::RequestQueue::Pointer
-TransportClientSocketPool::Group::GetFirstRequestWithoutJob() const {
-  RequestQueue::Pointer pointer = unbound_requests_.FirstMax();
-  size_t i = 0;
-  for (; !pointer.is_null() && pointer.value()->job();
-       pointer = unbound_requests_.GetNextTowardsLastMin(pointer)) {
-    ++i;
-  }
-  DCHECK_EQ(i, jobs_.size() - unassigned_jobs_.size());
-  DCHECK(pointer.is_null() || !pointer.value()->job());
-  return pointer;
-}
-
 void TransportClientSocketPool::Group::TryToAssignUnassignedJob(
     ConnectJob* job) {
   unassigned_jobs_.push_back(job);
-  RequestQueue::Pointer first_request_without_job = GetFirstRequestWithoutJob();
-  if (!first_request_without_job.is_null()) {
-    first_request_without_job.value()->AssignJob(unassigned_jobs_.back());
-    unassigned_jobs_.pop_back();
-  }
+  const size_t assigned_count = jobs_.size() - unassigned_jobs_.size();
+  const size_t rank = TransportAssignmentRelease(
+      unbound_requests_.size(), assigned_count, unassigned_jobs_.size());
+  CHECK_NE(rank, kTransportAssignmentInvalid);
+  if (rank == kTransportAssignmentNone)
+    return;
+  CHECK_LT(rank, unbound_requests_.size());
+  RequestQueue::Pointer request = unbound_requests_.FirstMax();
+  for (size_t i = 0; i < rank; ++i)
+    request = unbound_requests_.GetNextTowardsLastMin(request);
+  DCHECK(!request.is_null());
+  DCHECK(!request.value()->job());
+  request.value()->AssignJob(unassigned_jobs_.back());
+  unassigned_jobs_.pop_back();
 }
 
 void TransportClientSocketPool::Group::TryToAssignJobToRequest(
-    TransportClientSocketPool::RequestQueue::Pointer request_pointer) {
+    TransportClientSocketPool::RequestQueue::Pointer request_pointer,
+    size_t request_rank,
+    size_t assigned_count) {
   DCHECK(!request_pointer.value()->job());
-  if (!unassigned_jobs_.empty()) {
+  const size_t action = TransportAssignmentHole(
+      request_rank, unbound_requests_.size(), assigned_count,
+      unassigned_jobs_.size());
+  CHECK_NE(action, kTransportAssignmentInvalid);
+  if (action == kTransportAssignmentFront) {
     request_pointer.value()->AssignJob(unassigned_jobs_.front());
     unassigned_jobs_.pop_front();
     return;
   }
-
-  // If the next request in the queue does not have a job, then there are no
-  // requests with a job after |request_pointer| from which we can steal.
-  RequestQueue::Pointer next_request =
-      unbound_requests_.GetNextTowardsLastMin(request_pointer);
-  if (next_request.is_null() || !next_request.value()->job())
+  if (action == kTransportAssignmentNone)
     return;
-
-  // Walk down the queue to find the last request with a job.
-  RequestQueue::Pointer cur = next_request;
-  RequestQueue::Pointer next = unbound_requests_.GetNextTowardsLastMin(cur);
-  while (!next.is_null() && next.value()->job()) {
-    cur = next;
-    next = unbound_requests_.GetNextTowardsLastMin(next);
-  }
-  // Steal the job from the last request with a job.
-  TransferJobBetweenRequests(cur.value().get(), request_pointer.value().get());
+  CHECK_GT(action, request_rank);
+  CHECK_LT(action, unbound_requests_.size());
+  RequestQueue::Pointer donor = request_pointer;
+  for (size_t rank = request_rank; rank < action; ++rank)
+    donor = unbound_requests_.GetNextTowardsLastMin(donor);
+  DCHECK(!donor.is_null());
+  TransferJobBetweenRequests(donor.value().get(), request_pointer.value().get());
 }
 
 void TransportClientSocketPool::Group::TransferJobBetweenRequests(

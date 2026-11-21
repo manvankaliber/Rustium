@@ -357,6 +357,17 @@ class PriorityQueue {
     return size_ == 0;
   }
 
+  // Returns the zero-based rank where the next Insert/InsertAtFront would
+  // place an element, without traversing the lists or changing the queue.
+  size_t InsertionRank(Priority priority, bool at_front) const {
+    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+    DCHECK_LT(priority, lists_.size());
+    size_t rank = at_front ? 0 : lists_[priority].size();
+    for (size_t i = static_cast<size_t>(priority) + 1; i < lists_.size(); ++i)
+      rank += lists_[i].size();
+    return rank;
+  }
+
   // Returns number of queued values.
   size_t size() const {
     DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
