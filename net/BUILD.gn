@@ -267,13 +267,6 @@ rust_static_library("retained_request_order_rust") {
   visibility = [ ":*" ]
 }
 
-rust_static_library("transport_assignment_rust") {
-  crate_root = "socket/transport_assignment_rust.rs"
-  sources = [ "socket/transport_assignment_rust.rs" ]
-  allow_unsafe = true  # Scalar ABI export attributes only.
-  visibility = [ ":*" ]
-}
-
 rust_static_library("transport_client_socket_pool_scheduling_rust") {
   crate_root = "socket/transport_client_socket_pool_scheduling_rust.rs"
   sources = [ "socket/transport_client_socket_pool_scheduling_rust.rs" ]
@@ -1814,7 +1807,6 @@ component("net") {
     ":tcp_client_socket_rust",
     ":tls_session_cache_rust",
     ":transport_client_socket_pool_idle_rust",
-    ":transport_assignment_rust",
     ":retained_request_order_rust",
     ":transport_client_socket_pool_scheduling_rust",
     ":websocket_extension_rust",

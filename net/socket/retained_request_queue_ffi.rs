@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-//! Proposed private C ABI; not yet linked to Chromium. Every non-null queue
+//! Private C ABI for the transport pool. Every non-null queue
 //! pointer is a uniquely owned Rust allocation. Native callers must serialize
 //! access, pass valid non-overlapping output storage, and never call after free.
 //! No function calls native code while its Rust reference is alive. Panics must
@@ -11,7 +11,7 @@
 
 #[path = "retained_queue.rs"]
 mod retained_queue;
-use retained_queue::{Action, Detach, Error, Inserted, RequestQueue};
+use retained_queue::{Action, Detach, Error, Inserted, RankAction, RequestQueue};
 
 const OK: i32 = 0;
 const MISSING: i32 = 1;
@@ -46,6 +46,41 @@ fn reply(token: u64, rank: usize, action: Action) -> Reply {
 }
 fn inserted(value: Inserted) -> Reply {
     reply(value.token, value.rank, value.action)
+}
+
+// Scalar views of the production rank decisions for the frozen C++ oracle.
+// The component wrappers keep these private Rust symbols inside net.
+const ASSIGNMENT_NONE: usize = usize::MAX;
+const ASSIGNMENT_FRONT: usize = usize::MAX - 1;
+const ASSIGNMENT_INVALID: usize = usize::MAX - 2;
+
+#[unsafe(no_mangle)]
+pub extern "C" fn rust_transport_assignment_hole(
+    rank: usize,
+    request_count: usize,
+    assigned: usize,
+    unassigned: usize,
+) -> usize {
+    if request_count >= ASSIGNMENT_INVALID || rank >= request_count || assigned >= request_count {
+        return ASSIGNMENT_INVALID;
+    }
+    match retained_queue::hole_action(rank, assigned, unassigned) {
+        RankAction::None => ASSIGNMENT_NONE,
+        RankAction::UnassignedFront => ASSIGNMENT_FRONT,
+        RankAction::Donor(rank) => rank,
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn rust_transport_assignment_release(
+    request_count: usize,
+    assigned: usize,
+    unassigned: usize,
+) -> usize {
+    if request_count >= ASSIGNMENT_INVALID || assigned > request_count || unassigned == 0 {
+        return ASSIGNMENT_INVALID;
+    }
+    retained_queue::released_job_rank(request_count, assigned).unwrap_or(ASSIGNMENT_NONE)
 }
 
 // Testable C ABI layout metadata; unknown selectors return usize::MAX.

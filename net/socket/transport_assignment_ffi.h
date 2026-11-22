@@ -20,7 +20,8 @@ inline constexpr size_t kTransportAssignmentFront =
 inline constexpr size_t kTransportAssignmentInvalid =
     kTransportAssignmentNone - 2;
 
-// All other return values are ranks in the native unbound request queue.
+// Test projections of the retained queue's production rank decisions.
+// All other return values are ranks in the unbound request queue.
 NET_EXPORT_PRIVATE size_t TransportAssignmentHole(size_t rank,
                                                  size_t request_count,
                                                  size_t assigned,

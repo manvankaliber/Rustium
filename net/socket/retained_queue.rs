@@ -12,6 +12,28 @@ use std::collections::HashMap;
 pub type Token = u64;
 const PRIORITIES: usize = 6;
 
+pub(crate) enum RankAction {
+    None,
+    UnassignedFront,
+    Donor(usize),
+}
+
+// The assigned count excludes the one unassigned hole, even if its old job
+// still belongs to the group's job list.
+pub(crate) fn hole_action(rank: usize, assigned: usize, unassigned: usize) -> RankAction {
+    if unassigned != 0 {
+        RankAction::UnassignedFront
+    } else if rank < assigned {
+        RankAction::Donor(assigned)
+    } else {
+        RankAction::None
+    }
+}
+
+pub(crate) fn released_job_rank(request_count: usize, assigned: usize) -> Option<usize> {
+    (assigned < request_count).then_some(assigned)
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Action {
     None,
@@ -236,12 +258,10 @@ impl RequestQueue {
     }
 
     fn selected_action(&self, rank: usize, assigned: usize, unassigned: usize) -> Action {
-        if unassigned != 0 {
-            Action::UnassignedFront
-        } else if rank < assigned {
-            Action::Donor(self.token_at(assigned).expect("donor rank"))
-        } else {
-            Action::None
+        match hole_action(rank, assigned, unassigned) {
+            RankAction::None => Action::None,
+            RankAction::UnassignedFront => Action::UnassignedFront,
+            RankAction::Donor(rank) => Action::Donor(self.token_at(rank).expect("donor rank")),
         }
     }
 
@@ -388,7 +408,7 @@ impl RequestQueue {
         {
             return Err(Error::InvalidState);
         }
-        Ok(self.token_at(assigned))
+        Ok(released_job_rank(self.scheduled, assigned).and_then(|rank| self.token_at(rank)))
     }
 }
 
