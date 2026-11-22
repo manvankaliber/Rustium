@@ -6,12 +6,14 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <string_view>
 
 #include "base/functional/callback_helpers.h"
 #include "base/memory/ref_counted.h"
 #include "base/test/task_environment.h"
 #include "build/build_config.h"
 #include "net/base/net_errors.h"
+#include "net/http/http_auth_challenge_tokenizer.h"
 #include "net/http/http_request_info.h"
 #include "net/http/http_response_headers.h"
 #include "net/http/connection_auth_original_providers.h"
@@ -58,6 +60,61 @@ class OriginalProviderRouteTest : public testing::Test {
       ConnectionAuthOriginalRegistry::Create(nullptr);
   const url::SchemeHostPort origin{GURL("http://proxy.test/")};
 };
+
+TEST_F(OriginalProviderRouteTest, BasicParsesOriginalParameterGrammar) {
+  constexpr struct {
+    std::string_view challenge;
+    std::string_view realm;
+  } kCases[] = {
+      {"Basic", ""},
+      {"Basic unused=x, , rEaLm \t=  \"\"", ""},
+      {R"(Basic realm="a,b\"c")", "a,b\"c"},
+      {"Basic realm=\"legacy", "legacy"},
+      {R"(Basic realm="legacy\")", "legacy"},
+      {"Basic realm=\"", ""},
+      {"Basic realm=\"foo-\xE5\"", "foo-\xC3\xA5"},
+      {"Basic realm=x, realm=y", "y"},
+  };
+  for (const auto& [challenge, realm] : kCases) {
+    SCOPED_TRACE(challenge);
+    std::unique_ptr<HttpAuthHandler> handler;
+    ASSERT_EQ(OK, Create(challenge, &handler));
+    ASSERT_TRUE(handler);
+    EXPECT_EQ(HttpAuth::AUTH_SCHEME_BASIC, handler->auth_scheme());
+    EXPECT_EQ(realm, handler->realm());
+  }
+
+  for (std::string_view challenge :
+       {"Basic realm=", "Basic unknown, realm=x", "Basic re\"alm\"=x",
+        "Basic realm=x, unknown"}) {
+    SCOPED_TRACE(challenge);
+    std::unique_ptr<HttpAuthHandler> handler;
+    EXPECT_EQ(ERR_INVALID_RESPONSE, Create(challenge, &handler));
+    EXPECT_FALSE(handler);
+  }
+}
+
+TEST_F(OriginalProviderRouteTest,
+       BasicLaterChallengesUseOriginalParameterGrammar) {
+  std::unique_ptr<HttpAuthHandler> handler;
+  ASSERT_EQ(OK, Create("Basic realm=first", &handler));
+  ASSERT_TRUE(handler);
+  constexpr struct {
+    std::string_view challenge;
+    HttpAuth::AuthorizationResult expected;
+  } kCases[] = {
+      {"Basic realm=first", HttpAuth::AUTHORIZATION_RESULT_REJECT},
+      {R"(Basic realm="second,realm")",
+       HttpAuth::AUTHORIZATION_RESULT_DIFFERENT_REALM},
+      {"Basic realm=first, unknown", HttpAuth::AUTHORIZATION_RESULT_INVALID},
+  };
+  for (const auto& [challenge, expected] : kCases) {
+    SCOPED_TRACE(challenge);
+    HttpAuthChallengeTokenizer tokenizer(challenge);
+    EXPECT_EQ(expected,
+              Handler::HandleAnotherChallenge(handler.get(), &tokenizer));
+  }
+}
 
 TEST_F(OriginalProviderRouteTest, DigestUsesRegistryAndOriginalHandlerInit) {
   std::unique_ptr<HttpAuthHandler> handler;

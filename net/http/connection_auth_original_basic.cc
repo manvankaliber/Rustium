@@ -5,8 +5,10 @@
 
 #include "net/http/connection_auth_original_basic.h"
 #include "net/http/auth_challenge_reference.h"
+#include "net/http/auth_challenge_reference_tokenizer.h"
 
 #include <string>
+#include <string_view>
 
 #include "base/base64.h"
 #include "base/strings/strcat.h"
@@ -25,6 +27,37 @@
 namespace net {
 
 namespace {
+
+std::string_view TrimParameterWhitespace(std::string_view value) {
+  const size_t begin = value.find_first_not_of(" \t");
+  if (begin == std::string_view::npos) {
+    return {};
+  }
+  return value.substr(begin, value.find_last_not_of(" \t") - begin + 1);
+}
+
+// Frozen lenient unquoting for required Basic parameters. Accept an opening
+// quote without a matching end quote and retain its remaining bytes.
+std::string_view UnquoteParameter(std::string_view value, std::string& storage) {
+  if (value.front() != '"') {
+    return value;
+  }
+  value.remove_prefix(1);
+  if (value.empty() || value.back() != '"') {
+    return value;
+  }
+  value.remove_suffix(1);
+  bool escaped = false;
+  for (char c : value) {
+    if (c == '\\' && !escaped) {
+      escaped = true;
+      continue;
+    }
+    escaped = false;
+    storage.push_back(c);
+  }
+  return storage;
+}
 
 // Parses a realm from an auth challenge, and converts to UTF8-encoding.
 // Returns whether the realm is invalid or the parameters are invalid.
@@ -46,17 +79,35 @@ bool ParseRealm(const HttpAuthChallengeTokenizer& tokenizer,
                 std::string* realm) {
   CHECK(realm);
   realm->clear();
-  HttpUtil::NameValuePairsIterator parameters = tokenizer.param_pairs();
-  while (parameters.GetNext()) {
-    if (!base::EqualsCaseInsensitiveASCII(parameters.name(), "realm")) {
+  // The original required-value, lenient-quote path is frozen at
+  // 478cd0e02a3a22af2ce2b64bd5c440ba87c5943c in net/http/http_util.cc.
+  const std::string_view input = tokenizer.params();
+  auth_challenge_reference::frozen::StringViewTokenizer parameters(input, ",");
+  parameters.set_quote_chars("\"");
+  while (const auto token = parameters.GetNextTokenView()) {
+    const std::string_view pair = TrimParameterWhitespace(*token);
+    if (pair.empty()) {
       continue;
     }
-
-    if (!ConvertToUtf8AndNormalize(parameters.value(), kCharsetLatin1, realm)) {
+    const size_t equals = pair.find('=');
+    if (equals == 0 || equals == std::string_view::npos) {
       return false;
     }
+    const std::string_view name = TrimParameterWhitespace(pair.substr(0, equals));
+    const std::string_view value =
+        TrimParameterWhitespace(pair.substr(equals + 1));
+    if (name.find('"') != std::string_view::npos || value.empty()) {
+      return false;
+    }
+    if (base::EqualsCaseInsensitiveASCII(name, "realm")) {
+      std::string unquoted;
+      if (!ConvertToUtf8AndNormalize(UnquoteParameter(value, unquoted),
+                                     kCharsetLatin1, realm)) {
+        return false;
+      }
+    }
   }
-  return parameters.valid();
+  return true;
 }
 
 }  // namespace
