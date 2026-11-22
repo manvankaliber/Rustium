@@ -4,6 +4,24 @@
 mod host_port_rust_core;
 use host_port_rust_core as core;
 
+#[cfg(rustium_reference_probe)]
+mod reference_probe {
+    use std::sync::atomic::{AtomicU64, Ordering};
+
+    pub(super) static EMPTY: AtomicU64 = AtomicU64::new(0);
+    pub(super) static FORMAT: AtomicU64 = AtomicU64::new(0);
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn rustium_probe_host_port_empty_count() -> u64 {
+        EMPTY.load(Ordering::Relaxed)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn rustium_probe_host_port_format_count() -> u64 {
+        FORMAT.load(Ordering::Relaxed)
+    }
+}
+
 #[cxx::bridge(namespace = "net::host_port_rust")]
 mod ffi {
     struct Authority {
@@ -75,6 +93,8 @@ fn value_valid(dict: bool, host: bool, port: bool, number: i32) -> bool {
     dict && host && port && core::pair_port_valid(number)
 }
 fn empty(host: &[u8], port: u16) -> bool {
+    #[cfg(rustium_reference_probe)]
+    reference_probe::EMPTY.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     host.is_empty() && port == 0
 }
 fn strip(host: &[u8]) -> bool {
@@ -88,6 +108,8 @@ fn compare(ap: u16, ah: &[u8], bp: u16, bh: &[u8]) -> i8 {
     }
 }
 fn format(host: &[u8], port: u16, include_port: bool) -> ffi::FormatResult {
+    #[cfg(rustium_reference_probe)]
+    reference_probe::FORMAT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let result = if include_port { core::format_pair(host, port) } else { core::format_host(host) };
     ffi::FormatResult {
         value: result.value,

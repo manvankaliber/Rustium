@@ -5935,6 +5935,13 @@ rust_static_library("host_port_rust") {
   allow_unsafe = true  # CXX generated bridge only; core forbids unsafe.
   visibility = [ "//*" ]
   deps = [ ":host_port_rust_services_header" ]
+  rustflags = [
+    "--check-cfg=cfg(rustium_reference_probe)",
+    "--check-cfg=cfg(test)",
+  ]
+  if (rustium_reference_probe_enabled) {
+    rustflags += [ "--cfg=rustium_reference_probe" ]
+  }
 }
 
 source_set("host_port_rust_services_header") {
@@ -8783,6 +8790,7 @@ test("connection_jobs_family_rust_unittests") {
     "http/connection_auth_original_rounds_unittest.cc",
   ]
   if (rustium_reference_probe_enabled) {
+    defines = [ "RUSTIUM_HOST_PORT_REFERENCE_PROBE=1" ]
     sources += [
       "http/connection_auth_reference_qualification_unittest.cc",
       "http/rustium_reference_probe_test_support.h",

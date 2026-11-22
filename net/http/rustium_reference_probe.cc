@@ -10,12 +10,20 @@ extern "C" uint64_t rustium_probe_auth_cache_count();
 extern "C" uint64_t rustium_probe_request_headers_count();
 extern "C" uint64_t rustium_probe_net_error_count();
 extern "C" uint64_t rustium_probe_net_log_count();
+extern "C" uint64_t rustium_probe_host_port_empty_count();
+extern "C" uint64_t rustium_probe_host_port_format_count();
 namespace net::rustium_reference_probe {
 uint64_t AuthCount() { return rustium_probe_auth_count(); }
 uint64_t AuthCacheCount() { return rustium_probe_auth_cache_count(); }
 uint64_t RequestHeadersCount() { return rustium_probe_request_headers_count(); }
 uint64_t NetErrorCount() { return rustium_probe_net_error_count(); }
 uint64_t NetLogCount() { return rustium_probe_net_log_count(); }
+uint64_t HostPortEmptyCount() {
+  return rustium_probe_host_port_empty_count();
+}
+uint64_t HostPortFormatCount() {
+  return rustium_probe_host_port_format_count();
+}
 
 namespace request_headers {
 bool Validate(const char* data, size_t length, uint32_t kind) {

@@ -12,6 +12,8 @@ NET_EXPORT uint64_t AuthCacheCount();
 NET_EXPORT uint64_t RequestHeadersCount();
 NET_EXPORT uint64_t NetErrorCount();
 NET_EXPORT uint64_t NetLogCount();
+NET_EXPORT uint64_t HostPortEmptyCount();
+NET_EXPORT uint64_t HostPortFormatCount();
 
 // Direct ABI tests use the same Rust library as the component counter.
 namespace request_headers {

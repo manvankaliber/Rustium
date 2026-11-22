@@ -2,6 +2,7 @@
 #include "net/socket/connection_jobs_family_rust_test_support.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 #include <variant>
@@ -12,6 +13,14 @@
 #include "net/http/http_stream_pool_test_util.h"
 #include "net/socket/socket_test_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if defined(RUSTIUM_HOST_PORT_REFERENCE_PROBE)
+#include <stdint.h>
+
+#include "base/dcheck_is_on.h"
+#include "net/http/rustium_reference_probe.h"
+#endif
+
 namespace net::connection_jobs_family_test {
 static_assert(sizeof(Production::Base)==sizeof(Original::Base));
 static_assert(alignof(Production::Base)==alignof(Original::Base));
@@ -60,19 +69,65 @@ struct ResolverTrace {
   bool operator==(const ResolverTrace&) const = default;
 };
 
-HostResolverEndpointResult ResolverEndpoint() {
+#if defined(RUSTIUM_HOST_PORT_REFERENCE_PROBE)
+struct HostPortCalls {
+  uint64_t empty;
+  uint64_t format;
+};
+
+HostPortCalls ReadHostPortCalls() {
+  return {rustium_reference_probe::HostPortEmptyCount(),
+          rustium_reference_probe::HostPortFormatCount()};
+}
+
+HostPortCalls HostPortCallsSince(HostPortCalls before) {
+  const auto after = ReadHostPortCalls();
+  return {after.empty - before.empty, after.format - before.format};
+}
+
+class ResolverCaseProvider : public MockHostResolver {
+ public:
+  using MockHostResolver::CreateRequest;
+
+  std::unique_ptr<ResolveHostRequest> CreateRequest(
+      const HostPortPair& host,
+      const NetworkAnonymizationKey& key,
+      handles::NetworkHandle target_network,
+      const NetLogWithSource& net_log,
+      const std::optional<ResolveHostParameters>& parameters) override {
+    const auto before = ReadHostPortCalls();
+    auto request = MockHostResolver::CreateRequest(
+        host, key, target_network, net_log, parameters);
+    creation_calls = HostPortCallsSince(before);
+    return request;
+  }
+
+  HostPortCalls creation_calls = {};
+};
+#else
+using ResolverCaseProvider = MockHostResolver;
+#endif
+
+HostResolverEndpointResult ResolverEndpoint(bool use_host_port_pair) {
   HostResolverEndpointResult endpoint;
   endpoint.ip_endpoints = {Ip("2001:db8::1", 8443), Ip("192.0.2.1", 8443)};
-  endpoint.metadata.supported_protocol_alpns = {"h2"};
+  if (!use_host_port_pair) {
+    endpoint.metadata.supported_protocol_alpns = {"h2"};
+  }
   return endpoint;
 }
 
 template <class Traits, class CallbackResult>
 ResolverTrace RunResolverCase(ResolverCase test_case,
+                              bool use_host_port_pair,
                               base::test::TaskEnvironment& tasks) {
   // Both jobs consume the same scripted provider behavior. The mock
   // shares DNS name validation and transport primitives with production.
-  MockHostResolver resolver;
+#if defined(RUSTIUM_HOST_PORT_REFERENCE_PROBE)
+  tasks.RunUntilIdle();
+  const auto before = ReadHostPortCalls();
+#endif
+  ResolverCaseProvider resolver;
   resolver.set_ondemand_mode(true);
   if (test_case == ResolverCase::kTimeout) {
     resolver.rules()->AddSimulatedTimeoutFailure("family.example");
@@ -80,7 +135,8 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
     resolver.rules()->AddRule(
         "family.example",
         MockHostResolverBase::RuleResolver::RuleResult(
-            {ResolverEndpoint()}, {"alias.example", "family.example"}));
+            {ResolverEndpoint(use_host_port_pair)},
+            {"alias.example", "family.example"}));
   }
 
   const MockTransportClientSocketFactory::Rule rule(
@@ -92,9 +148,18 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
 
   ResolverTrace trace;
   Delegate<Traits> delegate;
+  using Endpoint = typename Traits::Params::Endpoint;
+  Endpoint destination =
+      use_host_port_pair
+          ? Endpoint(HostPortPair("family.example", 443))
+          : Endpoint(url::SchemeHostPort("https", "family.example", 443));
+  base::flat_set<std::string> alpns;
+  if (!use_host_port_pair) {
+    alpns = {"h2", "http/1.1"};
+  }
   auto params = base::MakeRefCounted<typename Traits::Params>(
-      url::SchemeHostPort("https", "family.example", 443),
-      NetworkAnonymizationKey(), SecureDnsPolicy::kAllow,
+      std::move(destination), NetworkAnonymizationKey(),
+      SecureDnsPolicy::kAllow,
       handles::kInvalidNetworkHandle,
       base::BindLambdaForTesting(
           [&](const HostPortPair& host,
@@ -114,7 +179,7 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
             trace.callback_aliases = aliases;
             return CallbackResult::kContinue;
           }),
-      base::flat_set<std::string>{"h2", "http/1.1"});
+      std::move(alpns));
   auto job = std::make_unique<typename Traits::Transport>(
       DEFAULT_PRIORITY, SocketTag(), &fixture.common, std::move(params),
       &delegate, nullptr);
@@ -143,12 +208,28 @@ ResolverTrace RunResolverCase(ResolverCase test_case,
       trace.socket_aliases = socket->GetDnsAliases();
     }
   }
+#if defined(RUSTIUM_HOST_PORT_REFERENCE_PROBE)
+  job.reset();
+  tasks.RunUntilIdle();
+  if (use_host_port_pair) {
+    if (DCHECK_IS_ON()) {
+      EXPECT_GT(resolver.creation_calls.empty, 0u);
+    } else {
+      EXPECT_EQ(resolver.creation_calls.empty, 0u);
+    }
+    EXPECT_EQ(resolver.creation_calls.format, 0u);
+
+    // The uncached mock matches rules against the raw hostname. The
+    // HostPortPair checks during request creation belong to the provider.
+    const auto total = HostPortCallsSince(before);
+    EXPECT_EQ(total.empty, resolver.creation_calls.empty);
+    EXPECT_EQ(total.format, resolver.creation_calls.format);
+  }
+#endif
   return trace;
 }
 
-}  // namespace
-
-TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
+void ExpectResolverCases(bool use_host_port_pair) {
   base::test::TaskEnvironment tasks;
   base::test::ScopedFeatureList features;
   features.InitAndDisableFeature(features::kHappyEyeballsV2);
@@ -157,11 +238,11 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
         ResolverCase::kCancelled, ResolverCase::kCancelledAfterQueue}) {
     SCOPED_TRACE(static_cast<int>(test_case));
     const auto original = RunResolverCase<
-        Original, ConnectJobRustOriginalHostResolutionCallbackResult>(test_case,
-                                                                       tasks);
+        Original, ConnectJobRustOriginalHostResolutionCallbackResult>(
+        test_case, use_host_port_pair, tasks);
     const auto production =
-        RunResolverCase<Production, OnHostResolutionCallbackResult>(test_case,
-                                                                    tasks);
+        RunResolverCase<Production, OnHostResolutionCallbackResult>(
+            test_case, use_host_port_pair, tasks);
     EXPECT_EQ(production, original);
     EXPECT_EQ(production.connect_result, ERR_IO_PENDING);
     EXPECT_TRUE(production.pending_after_connect);
@@ -173,7 +254,8 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
         EXPECT_EQ(production.error_info.error, OK);
         EXPECT_EQ(production.host_callbacks, 1);
         EXPECT_TRUE(production.callback_before_completion);
-        EXPECT_EQ(production.callback_results, std::vector{ResolverEndpoint()});
+        EXPECT_EQ(production.callback_results,
+                  std::vector{ResolverEndpoint(use_host_port_pair)});
         EXPECT_EQ(production.callback_aliases,
                   (base::flat_set<std::string>{"alias.example", "family.example"}));
         EXPECT_EQ(production.socket_allocations, 1);
@@ -202,6 +284,39 @@ TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
     }
   }
 }
+
+}  // namespace
+
+TEST(ConnectionJobsFamilyRustTest, ResolverRequestMatchesIndependentOriginal) {
+  ExpectResolverCases(false);
+}
+
+TEST(ConnectionJobsFamilyRustTest,
+     HostPortPairResolverRequestMatchesIndependentOriginal) {
+  ExpectResolverCases(true);
+}
+
+#if defined(RUSTIUM_HOST_PORT_REFERENCE_PROBE)
+TEST(ConnectionJobsFamilyRustTest, HostPortPairProbeControls) {
+  base::test::TaskEnvironment tasks;
+  HostPortPair host("family.example", 443);
+
+  tasks.RunUntilIdle();
+  auto before = ReadHostPortCalls();
+  EXPECT_FALSE(host.IsEmpty());
+  tasks.RunUntilIdle();
+  const auto empty = HostPortCallsSince(before);
+  EXPECT_EQ(empty.empty, 1u);
+  EXPECT_EQ(empty.format, 0u);
+
+  before = ReadHostPortCalls();
+  EXPECT_EQ(host.HostForURL(), "family.example");
+  tasks.RunUntilIdle();
+  const auto format = HostPortCallsSince(before);
+  EXPECT_EQ(format.empty, 0u);
+  EXPECT_EQ(format.format, 1u);
+}
+#endif
 
 namespace {
 
