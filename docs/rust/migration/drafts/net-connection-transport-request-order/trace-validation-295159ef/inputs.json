@@ -1,0 +1,15 @@
+{
+  "source_commit": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "frozen_oracle_packet": "cfc7132c590692e35555f51f429b51d78aac3272",
+  "original_authority": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "production_core": {
+    "path": "net/socket/retained_queue.rs",
+    "sha256": "8e0a37eb1479effc95527c4b288e059b1cf735c81df4d85111618fd751dbbf06"
+  },
+  "harness_sha256": {
+    "original_trace.cc": "135e913520c12e82473739fe3a6686971eb1a22165b85bd7af8cc210fa27f95f",
+    "rust_trace.rs": "14b49ac7f9de1eae69f9a912def3f46e7e7a7498a4c383a70fece9d40495f161",
+    "rust_alloc_probe.rs": "eec24df2f3d31207a1f70b05986ad3548bab2a8779312cf08c2bbaee9af79687"
+  },
+  "scope": "Standalone original-loop oracle versus byte-identical integrated ordering core; allocation probe counts Rust detach/relink only. No browser or provider claim and no timed workload."
+}
