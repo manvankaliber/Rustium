@@ -8655,12 +8655,15 @@ source_set("connection_jobs_rust_reference") {
     "//base/test:test_support",
     "//testing/gtest",
     "//third_party/abseil-cpp:absl",
+    "//third_party/boringssl",
     "//url",
   ]
 
   connection_reference_additional_sources = [
     "http/connection_auth_original_digest_factory.cc",
     "http/connection_auth_original_digest_factory.h",
+    "http/connection_auth_original_parameters.cc",
+    "http/connection_auth_original_parameters.h",
     "http/connection_auth_original_ntlm_handler.cc",
     "http/connection_auth_original_ntlm_handler.h",
     "http/connection_auth_original_providers.cc",

@@ -124,6 +124,34 @@ TEST_F(OriginalProviderRouteTest, DigestUsesRegistryAndOriginalHandlerInit) {
   EXPECT_EQ("r", handler->realm());
 }
 
+TEST_F(OriginalProviderRouteTest, DigestFrozenParserPreservesLaterResults) {
+  std::unique_ptr<HttpAuthHandler> handler;
+  EXPECT_EQ(ERR_INVALID_RESPONSE,
+            Create("Digest realm=r, nonce=n, unknown", &handler));
+  EXPECT_FALSE(handler);
+  ASSERT_EQ(OK, Create(R"(Digest realm="r", nonce=n, qop="invalid,auth")",
+                       &handler));
+  ASSERT_TRUE(handler);
+
+  constexpr struct {
+    std::string_view challenge;
+    HttpAuth::AuthorizationResult expected;
+  } kCases[] = {
+      {"Digest realm=r, stale=true, unknown",
+       HttpAuth::AUTHORIZATION_RESULT_STALE},
+      {"Digest realm=r, unknown", HttpAuth::AUTHORIZATION_RESULT_REJECT},
+      {R"(Digest realm="other,realm")",
+       HttpAuth::AUTHORIZATION_RESULT_DIFFERENT_REALM},
+      {"Basic realm=r", HttpAuth::AUTHORIZATION_RESULT_INVALID},
+  };
+  for (const auto& [challenge, expected] : kCases) {
+    SCOPED_TRACE(challenge);
+    HttpAuthChallengeTokenizer tokenizer(challenge);
+    EXPECT_EQ(expected,
+              Handler::HandleAnotherChallenge(handler.get(), &tokenizer));
+  }
+}
+
 #if BUILDFLAG(USE_KERBEROS)
 class OriginalProviderPreferences : public MockAllowHttpAuthPreferences {
  public:
