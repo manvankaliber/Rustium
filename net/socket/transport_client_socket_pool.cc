@@ -288,6 +288,11 @@ TransportClientSocketPool::CreateForTesting(
           ssl_client_context, connect_backup_jobs_enabled));
 }
 
+size_t TransportClientSocketPool::NumNeverAssignedConnectJobsInGroupForTesting(
+    const GroupId& group_id) const {
+  return group_map_.find(group_id)->second.never_assigned_job_count();
+}
+
 TransportClientSocketPool::CallbackResultPair::CallbackResultPair()
     : result(OK) {}
 

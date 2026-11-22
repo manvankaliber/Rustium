@@ -260,9 +260,7 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
   }
 
   size_t NumNeverAssignedConnectJobsInGroupForTesting(
-      const GroupId& group_id) const {
-    return NumNeverAssignedConnectJobsInGroup(group_id);
-  }
+      const GroupId& group_id) const;
 
   size_t NumUnassignedConnectJobsInGroupForTesting(
       const GroupId& group_id) const {
@@ -593,10 +591,6 @@ class NET_EXPORT_PRIVATE TransportClientSocketPool
   }
 
   // TODO(mmenke): de-inline these.
-  size_t NumNeverAssignedConnectJobsInGroup(const GroupId& group_id) const {
-    return group_map_.find(group_id)->second.never_assigned_job_count();
-  }
-
   size_t NumUnassignedConnectJobsInGroup(const GroupId& group_id) const {
     return group_map_.find(group_id)->second.unassigned_job_count();
   }
