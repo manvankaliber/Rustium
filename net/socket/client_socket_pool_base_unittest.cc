@@ -4752,7 +4752,9 @@ TEST_F(ClientSocketPoolBaseTest, FailedAndFlushedPreconnectsClearClaims) {
   EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
   FastForwardBy(base::Milliseconds(TestConnectJob::kPendingConnectDelay));
   ASSERT_TRUE(failed.have_result());
-  EXPECT_FALSE(failed.WaitForResult());
+  // RequestSockets counts the existing active slot as OK and reports the
+  // maximum of that result and the new job's negative error.
+  EXPECT_TRUE(failed.WaitForResult());
   EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
 
   connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
@@ -4767,7 +4769,8 @@ TEST_F(ClientSocketPoolBaseTest, FailedAndFlushedPreconnectsClearClaims) {
   pool_->FlushWithError(ERR_ABORTED, "test flush");
   base::RunLoop().RunUntilIdle();
   ASSERT_TRUE(flushed.have_result());
-  EXPECT_FALSE(flushed.WaitForResult());
+  // The existing active slots still contribute OK after the flush.
+  EXPECT_TRUE(flushed.WaitForResult());
   EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
 
   connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
