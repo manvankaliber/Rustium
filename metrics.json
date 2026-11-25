@@ -126,8 +126,8 @@
   ],
   "obsolete_functions": 3440,
   "source_gb": 0.410565166,
-  "commit": "4078d038c42f2ddd560da259ed4fde4db341cd44",
-  "updated": "2026-11-24T09:52:36.995334+00:00",
+  "commit": "ee5b9238d072bbb0ee1071aac3a7168f07d4115b",
+  "updated": "2026-11-25T08:30:26.004432+00:00",
   "configuration_files": 14363,
   "root_folder_count": 41,
   "root_folders": [
@@ -690,7 +690,7 @@
     "selected_files": 246709,
     "cached_paths": 246709,
     "read_blobs": 0,
-    "elapsed_seconds": 11.604
+    "elapsed_seconds": 9.063
   },
   "definitions": {
     "scope": "Committed snapshot only; local edits and untracked files are not counted. Maintained production source is the headline; tests and vendored source are separate.",
