@@ -199,7 +199,6 @@ void Thread::Signal(gpr_thd_id tid, int sig) {
   }
 }
 
-#ifndef GPR_ANDROID
 void Thread::Kill(gpr_thd_id tid) {
   auto cancel_err = pthread_cancel((pthread_t)tid);
   if (cancel_err != 0) {
@@ -207,11 +206,6 @@ void Thread::Kill(gpr_thd_id tid) {
                << " failed: " << StrError(cancel_err);
   }
 }
-#else  // GPR_ANDROID
-void Thread::Kill(gpr_thd_id /* tid */) {
-  ABSL_VLOG(2) << "Thread::Kill is not supported on Android.";
-}
-#endif
 
 Thread::Thread(const char* thd_name, void (*thd_body)(void* arg), void* arg,
                bool* success, const Options& options)

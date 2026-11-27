@@ -1,0 +1,17 @@
+{
+  "assigned-teams.json": "b3ec444a1e452f0779728dbe063d9b63f3224f9a33af6e6176075c736e952560",
+  "code_lines.py": "7fad33f4eed2c65e9ab75fe4eaec9ce59385d3d35da8fe88eba194e66e3bbd96",
+  "count_scope.py": "54c20571cc4589f43c65489c6b662b3b0ec152b8ef9ff3d83b509962fa53b44e",
+  "credit-report.json": "7c6bc1458c9e94e60998edefbbed1d07f0767c691ccbead165adc52b90d65068",
+  "credit-source-sha256.json": "569406d98ccf8f0e7de2c04bcd9353281449327b63b66eb29493d1dd4a451457",
+  "credit.json": "0e921864c86da6e28e6bfbeec575da0b229c434a5a26271422bbc89ecfff1df1",
+  "delivery-packages.json": "d6d2491ea7fa16c7e7704b5043fc29260dde3bb95f4e81a31f8a0b0ff49e7573",
+  "external-provider-register.json": "4784f8e7dedcfd22aae6e5085a55159393de8f0ade42ee39adc9e0faa0b4fdf4",
+  "metric.json": "58009c26822c27d7b9dc613ab0c7eb84f7b8134ccb0d0e7bb01ffa1028ab1df6",
+  "prior-stage-record.json": "720ca857a962b55a5e3ad93eb0b759c8711dd61875f97dd9764523536aa2319e",
+  "remaining-baseline-v1.json": "a1035970686d1164a4b55a76d7f9c7423558cd3790ef95739fdcd71945419fa3",
+  "report.html": "76f10dcd7c3d4b9c32b0560f264ddc2b0bd934b70d5c7375c6061a09e238b2ae",
+  "scope-counts.json": "db8ed3e42af878c206bfd46bc0e4e020f5e53cc4b858dcd8bf06c8e38b80563e",
+  "scope-files.json": "7f214f76b9ebd735a11460db2489c47f89d8af994978ac7a5a12184f90102613",
+  "scope-input-sha256.json": "d63715f926d4a6c19b2aa384ae772ed443f8562b05603376498267e65be49f6c"
+}

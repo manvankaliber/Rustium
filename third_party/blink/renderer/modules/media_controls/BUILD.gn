@@ -174,7 +174,7 @@ grit("media_controls_resources") {
     "resources/ic_volume_up_white.svg",
     "resources/jump_image.svg",
     "resources/mediaControls.css",
-    "resources/mediaControls_Android.css",
+    "resources/mediaControls_Mobile.css",
     "resources/mediaControls_animated_arrow.css",
     "resources/mediaControls_loading.css",
     "resources/mediaControls_scrubbing_message.css",

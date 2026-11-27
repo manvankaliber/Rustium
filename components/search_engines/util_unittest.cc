@@ -4,6 +4,7 @@
 
 #include "components/search_engines/util.h"
 
+#include <algorithm>
 #include <map>
 #include <string>
 #include <vector>
@@ -14,10 +15,46 @@
 #include "components/search_engines/template_url.h"
 #include "components/search_engines/template_url_service.h"
 #include "components/search_engines/template_url_service_test_util.h"
+#include "components/search_engines/template_url_starter_pack_data.h"
 #include "net/base/url_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 using SearchEngineUtilTest = testing::Test;
+
+TEST_F(SearchEngineUtilTest, RemovesRetiredAiScopesFromExistingProfiles) {
+  auto current = template_url_starter_pack_data::GetStarterPackEngines();
+  TemplateURLService::OwnedTemplateURLVector existing;
+  for (auto id : {template_url_starter_pack_data::StarterPackId::kGemini,
+                  template_url_starter_pack_data::StarterPackId::kAiMode}) {
+    TemplateURLData data;
+    data.SetShortName(u"Renamed AI shortcut");
+    data.SetKeyword(id == template_url_starter_pack_data::StarterPackId::kAiMode
+                        ? u"@aim"
+                        : u"@gemini");
+    data.SetURL("https://example.com/?q={searchTerms}");
+    data.starter_pack_id = static_cast<int>(id);
+    data.safe_for_autoreplace = false;
+    existing.push_back(std::make_unique<TemplateURL>(data));
+  }
+  TemplateURLData custom;
+  custom.SetShortName(u"My search");
+  custom.SetKeyword(u"mine");
+  custom.SetURL("https://example.com/?q={searchTerms}");
+  custom.safe_for_autoreplace = false;
+  existing.push_back(std::make_unique<TemplateURL>(custom));
+
+  auto actions = CreateActionsFromCurrentStarterPackData(&current, existing);
+  ASSERT_EQ(2u, actions.removed_engines.size());
+  EXPECT_NE(actions.removed_engines.end(),
+            std::find(actions.removed_engines.begin(),
+                      actions.removed_engines.end(), existing[0].get()));
+  EXPECT_NE(actions.removed_engines.end(),
+            std::find(actions.removed_engines.begin(),
+                      actions.removed_engines.end(), existing[1].get()));
+  EXPECT_EQ(actions.removed_engines.end(),
+            std::find(actions.removed_engines.begin(),
+                      actions.removed_engines.end(), existing[2].get()));
+}
 
 TEST_F(SearchEngineUtilTest, IsSearchEngineNameValidToUse) {
   EXPECT_TRUE(IsSearchEngineNameValidToUse(u"Google"));

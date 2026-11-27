@@ -175,14 +175,6 @@ ContactInfoDelegateFromDataService(autofill::AutofillWebDataService* service) {
       ->GetControllerDelegate();
 }
 
-base::WeakPtr<syncer::DataTypeControllerDelegate> AiThreadDelegateFromGetter(
-    const base::RepeatingCallback<contextual_tasks::ContextualTasksService*()>&
-        contextual_tasks_service_getter) {
-  contextual_tasks::ContextualTasksService* service =
-      contextual_tasks_service_getter.Run();
-  return service ? service->GetAiThreadControllerDelegate() : nullptr;
-}
-
 // Helper function that deals will null (e.g. tests, iOS webview).
 base::WeakPtr<syncer::SyncableService> SyncableServiceForPrefs(
     sync_preferences::PrefServiceSyncable* prefs_service,
@@ -1098,22 +1090,7 @@ CommonControllerBuilder::CreateSharedCommentDataTypeController() {
 
 std::unique_ptr<syncer::DataTypeController>
 CommonControllerBuilder::CreateAiThreadDataTypeController() {
-  if (!base::FeatureList::IsEnabled(syncer::kSyncAIThread) ||
-      !aim_eligibility_service_.value() || !contextual_tasks_service_getter_) {
-    return nullptr;
-  }
-  return std::make_unique<contextual_tasks::AIThreadDataTypeController>(
-      aim_eligibility_service_.value(),
-      /*delegate_for_full_sync_mode=*/
-      std::make_unique<syncer::ProxyDataTypeControllerDelegate>(
-          base::SequencedTaskRunner::GetCurrentDefault(),
-          base::BindRepeating(&AiThreadDelegateFromGetter,
-                              contextual_tasks_service_getter_)),
-      /*delegate_for_transport_mode=*/
-      std::make_unique<syncer::ProxyDataTypeControllerDelegate>(
-          base::SequencedTaskRunner::GetCurrentDefault(),
-          base::BindRepeating(&AiThreadDelegateFromGetter,
-                              contextual_tasks_service_getter_)));
+  return nullptr;
 }
 
 std::unique_ptr<syncer::DataTypeController>

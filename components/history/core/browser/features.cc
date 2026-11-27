@@ -9,14 +9,13 @@
 
 namespace history {
 namespace {
-constexpr auto is_android = !!false;
 constexpr auto kOrganicRepeatableQueriesDefaultValue =
     base::FEATURE_DISABLED_BY_DEFAULT;
 
 // Specifies the scaling behavior, i.e. whether the relevance scales of the
 // top sites and repeatable queries should be first aligned.
 // The default behavior is to mix the two lists as is.
-constexpr bool kScaleRepeatableQueriesScoresDefaultValue = is_android;
+constexpr bool kScaleRepeatableQueriesScoresDefaultValue = false;
 
 // Defines the maximum number of repeatable queries that can be shown.
 // The default behavior is having no limit, i.e., the number of the tiles.
@@ -55,7 +54,7 @@ const base::FeatureParam<bool> kPrivilegeRepeatableQueries(
 const base::FeatureParam<bool> kRepeatableQueriesIgnoreDuplicateVisits(
     &kOrganicRepeatableQueries,
     "RepeatableQueriesIgnoreDuplicateVisits",
-    is_android);
+    false);
 
 // The maximum number of days since the last visit (in days) in order for a
 // search query to considered as a repeatable query.
@@ -69,14 +68,13 @@ const base::FeatureParam<int> kRepeatableQueriesMaxAgeDays(
 const base::FeatureParam<int> kRepeatableQueriesMinVisitCount(
     &kOrganicRepeatableQueries,
     "RepeatableQueriesMinVisitCount",
-    is_android ? 6 : 1);
+    1);
 
 BASE_FEATURE(kPopulateVisitedLinkDatabase, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // If enabled, uses new scoring function for Most Visited Tiles computation.
 BASE_FEATURE(kMostVisitedTilesNewScoring,
-             is_android ? base::FEATURE_ENABLED_BY_DEFAULT
-                        : base::FEATURE_DISABLED_BY_DEFAULT);
+             base::FEATURE_DISABLED_BY_DEFAULT);
 
 constexpr char kMvtScoringParamRecencyFactor_Classic[] = "default";
 constexpr char kMvtScoringParamRecencyFactor_Decay[] = "decay";

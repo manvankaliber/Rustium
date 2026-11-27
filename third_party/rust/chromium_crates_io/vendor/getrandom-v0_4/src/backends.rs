@@ -59,8 +59,8 @@ cfg_if! {
         pub use getentropy::*;
     } else if #[cfg(all(target_os = "linux", any(target_arch = "aarch64", target_arch = "arm", target_arch = "powerpc", target_arch = "powerpc64", target_arch = "s390x", target_arch = "x86", target_arch = "x86_64", all(target_env = "musl", not(any(target_arch = "riscv64", target_arch = "riscv32"))))))] {
         mod use_file;
-        mod linux_android_with_fallback;
-        pub use linux_android_with_fallback::*;
+        mod linux_with_fallback;
+        pub use linux_with_fallback::*;
     } else if #[cfg(any(target_os = "linux", target_os = "dragonfly", target_os = "freebsd", target_os = "hurd", target_os = "illumos", target_os = "cygwin", // Check for target_arch = "arm" to only include the 3DS. Does not
         // include the Nintendo Switch (which is target_arch = "aarch64").
         all(target_os = "horizon", target_arch = "arm")))] {

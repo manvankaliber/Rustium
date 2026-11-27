@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-22T10:46:00.249886+00:00",
+  "head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "configuration": "Windows x64 component DCHECK reference probe with USE_KERBEROS=false",
+  "status": "All six intended common cases passed.",
+  "cases": [
+    "EachInstrumentedFamilyHasPositiveControl",
+    "FrozenBase64EncodingDoesNotEnterRust",
+    "DisabledCaptureDoesNotEvaluatePayload",
+    "BasicWireTokenAvoidsRustBase64",
+    "DigestNativeCaseUsesOriginalHandlerPath",
+    "NtlmWireTokenAndLaterRoundAvoidRust"
+  ],
+  "initial_receipt": "C:/Users/micro/rb/network-f27ce55-nonkerberos-20261122b/result.json",
+  "final_case_receipt": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/ntlm-common-receipt-20261122.md",
+  "final_case_scope": "Same bound artifacts reused without compile, relink or checkout. One launcher job and zero retries. Stable exe/DLL hashes and independent lock release.",
+  "limits": "NTLM uses mocked Windows SSPI. Live authentication and POSIX behavior have not been established.",
+  "next_proxy_component_check": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A363b46a0-658a-4759-8683-a36d87d46b68"
+}

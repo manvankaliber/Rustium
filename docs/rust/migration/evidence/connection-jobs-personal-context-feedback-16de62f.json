@@ -1,0 +1,20 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "Optimized proxy preference acceptance through components_unittests requires the Personal Context test object to compile.",
+  "failed_commit": "e41c0f72cfd05fe68c33174b5c8385eb97b0cc73",
+  "merchant_trust_gn_check_passed": true,
+  "merchant_trust_service_object_exit_code": 0,
+  "merchant_trust_service_object_elapsed_seconds": 78.563,
+  "umbrella_elapsed_seconds": 808.250,
+  "umbrella_action_lines": 811,
+  "umbrella_cases_run": 0,
+  "umbrella_error": "Six calls in personal_context_eligibility_service_impl_unittest.cc expanded CreateService to undeclared CreateServiceW",
+  "source_cause": "The Gemini cleanup removed the test helper while leaving six fixture calls. Restore only the helper and call the existing production constructor with its default provider argument.",
+  "failure_log": "C:/Users/micro/rb/network-e41c0f72-merchant-trust-20261121a/components.log",
+  "failure_receipt": "C:/Users/micro/rb/network-e41c0f72-merchant-trust-20261121a/receipt.md",
+  "independent_lock_release": true,
+  "focused_candidate": "16de62f42e82eea5b8c464155c2752aac7490d74",
+  "published_ref": "refs/heads/rust/personal-context-test-feedback-20261121",
+  "validation_thread": "mcp:launch:34b90f328698661b0babb518e60249b1a8a152e10af55404215cfd0faae1b769",
+  "validation_state": "Warm replay of the failed object dispatched before resuming umbrella acceptance."
+}

@@ -326,14 +326,12 @@ cc_library(
         "@com_google_absl//absl/status:status_macros",
         "@com_google_absl//absl/strings:string_view",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:macos": [
             "//mediapipe/framework/port:file_helpers",
@@ -379,14 +377,12 @@ cc_library(
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/status:status_macros",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:macos": [
             "//mediapipe/framework/port:file_helpers",
@@ -1211,14 +1207,12 @@ cc_library(
         "@com_google_absl//absl/status:status_macros",
         "@com_google_absl//absl/status:statusor",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:macos": [
             "//mediapipe/framework/port:file_helpers",

@@ -27,10 +27,6 @@ class SyntheticTrialSyncer;
 
 class UmaSessionStatsExternalExperimentRegistrar;
 
-namespace android_webview {
-class AwMetricsServiceAccessor;
-}  // namespace android_webview
-
 namespace variations {
 struct ActiveGroupId;
 class FieldTrialsProvider;
@@ -79,13 +75,6 @@ class COMPONENT_EXPORT(VARIATIONS) SyntheticTrialRegistry {
   // for privacy reasons.
   void RegisterExternalExperiments(
       base::PassKey<UmaSessionStatsExternalExperimentRegistrar> pass_key,
-      const std::vector<int>& experiment_ids,
-      OverrideMode mode);
-
-  // As above, but restricted to only be called by
-  // android_webview::AwMetricsServiceAccessor.
-  void RegisterExternalExperiments(
-      base::PassKey<android_webview::AwMetricsServiceAccessor> pass_key,
       const std::vector<int>& experiment_ids,
       OverrideMode mode);
 

@@ -1,0 +1,26 @@
+{
+  "utc": "2026-11-22T09:36:42.042317+00:00",
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "base": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "candidate": "8f5306fe656032742dfa0a739e3508bf879b9aff",
+  "status": "Predecessor-bound reference candidate under independent source review, before publication.",
+  "branch": "rust/connection-original-basic-params-20261122",
+  "changes": {
+    "net/http/connection_auth_original_basic.cc": {
+      "sha256": "ec15c5655b6d71d9c4bf07c418ca32a2b4b8d5edc116bab24568387219e4758a",
+      "git_blob": "5cf0ba1e5f9de28716de568a742522ec7cf531c8"
+    },
+    "net/http/connection_auth_original_provider_unittest.cc": {
+      "sha256": "9ced6ae8374adf729e3dc396ff774bd18933441028f8f9e6a2b2b045811d93c1",
+      "git_blob": "249bc249f50e8fba49b9e688c0e3cc31cde43f7b"
+    }
+  },
+  "predecessor_helper_bindings": {
+    "path": "docs/rust/migration/evidence/connection-jobs-native-helper-bindings-443551ed.json",
+    "sha256": "5fbcd5089808a71a6d3e3016a2cc43f631319d6b5aa7566d4da3fcece0303fa6"
+  },
+  "scope": "Original Basic auth now uses a separately frozen form of required-value, lenient-quote parameter parsing and the frozen tokenizer. The Basic oracle retains the native Latin-1 normalization helper. Digest still shares the native C++ handler and parameter iterator.",
+  "test": "OriginalProviderRouteTest.BasicParsesOriginalParameterGrammar",
+  "review": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Adelegate-task%3A9f650ca4-359a-4422-aa89-8644aa5765f5",
+  "validation": "Whitespace and source boundary checks passed. No native build or test at this candidate."
+}

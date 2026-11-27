@@ -1,0 +1,44 @@
+{
+  "utc": "2026-11-22T09:22:30.597242+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "candidate_commit": "e94513cabc66caa3a6bf7c44b21414013b4d9617",
+  "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "source_identity": {
+    "worker_and_source_review": {
+      "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-review-67907d09.json",
+      "sha256": "b2f368e0bb37f6de7309ee0dbdddf2e4b33861cf4ae0447e4a5e2c86be397b25"
+    },
+    "validated_idle_ancestor": "4b1e24848d1080edce5e9bad8e27372760674736",
+    "idle_rust_core_git_blob": "0c6a2eb57523030a34a22c3716640e8ae12e0a1b",
+    "idle_core_matches_ancestor": true
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Reviewed idle policy and fixture build repair. Native provider and ownership boundaries retained."
+  },
+  "tests": {
+    "status": "passed",
+    "prior_idle_differential_pool_and_abi": {
+      "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-laptop-4b1e2484.json",
+      "sha256": "8990dca393705b4462627824d3391c974be02f6b9cffdb33ec042e0b6734ffd5"
+    },
+    "prior_fresh_windows_consumers": {
+      "path": "docs/rust/migration/evidence/connection-jobs-fresh-consumer-laptop-72ee5ddd.json",
+      "sha256": "43f1e5c32d0d8a3554599cf3115f335bfbbac4fd66991687bd3ccfdbbefa50da"
+    },
+    "current_named_family": {
+      "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+      "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+    },
+    "current_pool_aggregate": {
+      "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+      "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+    }
+  },
+  "platform_limits": [
+    "Completion is for the scoped Windows idle-policy delivery on the integration PR.",
+    "Previous fresh consumer and five projection ABI evidence retain their original source revisions.",
+    "Connection Jobs family cutover, additional platforms and performance remain open."
+  ]
+}

@@ -122,7 +122,7 @@ fn test_is_lock_free() {
             target_arch = "arm",
             not(any(miri, portable_atomic_sanitize_thread)),
             any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_os = "linux", target_os = "android"),
+            target_os = "linux",
             not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
             not(portable_atomic_no_outline_atomics),
             not(target_has_atomic = "64"),

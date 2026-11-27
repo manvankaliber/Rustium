@@ -1,0 +1,53 @@
+{
+  "utc": "2026-11-21T23:39:05.427270+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_commit": "cfc7132c590692e35555f51f429b51d78aac3272",
+  "integration_commit": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "prior_pr_head": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "source_identity": "Nine pinned production paths; independent base review, C++/Rust validation wiring fixes, reviewed dispatch fixture with cleanup fixes, and one-line compile repair.",
+  "review": {
+    "status": "accepted",
+    "scope": "Static queue, native adapter, ABI and dispatcher fixture findings addressed. The original provider lifetime contract remains."
+  },
+  "tests": {
+    "status": "passed",
+    "rust_passed": 5,
+    "cpp_passed": 19,
+    "cpp_launcher_jobs": 1,
+    "cpp_retries": 0,
+    "gates": [
+      "C++/Rust reply layout",
+      "unchanged and changed priority",
+      "synchronous dispatcher start with posted completion"
+    ],
+    "scope": "Includes sixteen exact regression cases. Dispatcher is real and uses a mock ConnectJob boundary; the resolver fixtures execute separately."
+  },
+  "build": {
+    "gn_checks": 2,
+    "failing_object_replay_seconds": 34.8,
+    "two_target_build_seconds": 495.0,
+    "ninja_jobs": 4,
+    "link_pool_depth": 1,
+    "link_actions": 6,
+    "link_intervals_overlap": false
+  },
+  "abi": "Independent verification matches decorated layout-wrapper export from net.dll and executable import, and the Rust queue archive is linked into net.dll.",
+  "reconciliation": "Original controller stopped after tests because its dumpbin parser used the last word of a demangled export line. The separate check verified the exact binary artifacts and decorated import/export.",
+  "receipts": {
+    "directory": "C:/Users/micro/rb/network-f2e45f-retained-replay-20261122a",
+    "paths": [
+      "result.json",
+      "independent-release.json",
+      "net-archive-edge.txt"
+    ]
+  },
+  "restoration": "Clean detached 72ee5ddd and seven pins restored. Protected receipts and quiet native process inventory and independent lock release passed.",
+  "platform_limits": [
+    "Scoped Windows ordinary component. Platform, performance, broader family and cutover remain open."
+  ],
+  "pool_runtime_only": {
+    "status": "dispatched on new PR head",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A40855910-702b-40ac-aced-a8540ab54fe1"
+  }
+}

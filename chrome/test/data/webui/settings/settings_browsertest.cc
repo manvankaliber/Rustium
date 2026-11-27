@@ -61,11 +61,6 @@ class SettingsBrowserTest : public WebUIMochaBrowserTest {
   SettingsBrowserTest() {
     set_test_loader_host(chrome::kChromeUISettingsHost);
   }
-
- private:
-  glic::GlicTestEnvironment glic_test_environment_{
-      };
-  base::test::ScopedFeatureList scoped_feature_list_;
 };
 
 using SettingsTest = SettingsBrowserTest;
@@ -219,10 +214,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, AiPage) {
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, AiInfoCard) {
   RunTest("settings/ai_info_card_test.js", "mocha.run()");
-}
-
-IN_PROC_BROWSER_TEST_F(SettingsTest, AiModeSearchPage) {
-  RunTest("settings/ai_mode_search_page_test.js", "mocha.run()");
 }
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, DictationPage) {

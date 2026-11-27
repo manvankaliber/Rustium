@@ -23,21 +23,34 @@
 #include "chrome/browser/ui/webui/content_settings/content_settings_ui.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub.mojom.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub_ui.h"
+#include "chrome/browser/ui/webui/critical_actions/critical_actions.mojom.h"
+#include "chrome/browser/ui/webui/critical_actions/critical_actions_ui.h"
 #include "chrome/browser/ui/webui/data_sharing_internals/data_sharing_internals_ui.h"
 #include "chrome/browser/ui/webui/engagement/site_engagement_ui.h"
+#include "chrome/browser/ui/webui/indigo_internals/indigo_internals.mojom.h"
+#include "chrome/browser/ui/webui/indigo_internals/indigo_internals_ui.h"
 #include "chrome/browser/ui/webui/location_internals/location_internals.mojom.h"
 #include "chrome/browser/ui/webui/location_internals/location_internals_ui.h"
 #include "chrome/browser/ui/webui/media/media_engagement_ui.h"
-#include "chrome/browser/ui/webui/omnibox_internals/aim_eligibility/aim_eligibility.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_everywhere/omnibox_everywhere_ui.h"
 #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals.mojom.h"
 #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.h"
+#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup_aim.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_popup/omnibox_popup_ui.h"
+#include "chrome/browser/ui/webui/password_manager/password_manager_ui.h"
 #include "chrome/browser/ui/webui/policy/policy_ui.h"
 #include "chrome/browser/ui/webui/segmentation_internals/segmentation_internals_ui.h"
+#include "chrome/browser/ui/webui/side_panel/reading_list/reading_list_ui.h"
+#include "chrome/browser/ui/webui/signin/profile_picker_ui.h"
 #include "chrome/browser/ui/webui/subresource_filter/subresource_filter_internals_ui.h"
 #include "chrome/browser/ui/webui/suggest_internals/suggest_internals.mojom.h"
 #include "chrome/browser/ui/webui/suggest_internals/suggest_internals_ui.h"
 #include "chrome/browser/ui/webui/usb_internals/usb_internals.mojom.h"
 #include "chrome/browser/ui/webui/usb_internals/usb_internals_ui.h"
+#include "chrome/browser/ui/webui/user_education_internals/user_education_internals_ui.h"
+#include "chrome/browser/ui/webui/webnn_internals/webnn_internals.mojom.h"
+#include "chrome/browser/ui/webui/webnn_internals/webnn_internals_ui.h"
 #include "chrome/common/webui_url_constants.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/enterprise/connectors/connectors_internals.mojom.h"
@@ -55,21 +68,6 @@
 #include "ui/webui/resources/js/tracked_element/tracked_element.mojom.h"
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
-
-#include "chrome/browser/ui/webui/critical_actions/critical_actions.mojom.h"
-#include "chrome/browser/ui/webui/critical_actions/critical_actions_ui.h"
-#include "chrome/browser/ui/webui/indigo_internals/indigo_internals.mojom.h"
-#include "chrome/browser/ui/webui/indigo_internals/indigo_internals_ui.h"
-#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup.mojom.h"
-#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup_aim.mojom.h"
-#include "chrome/browser/ui/webui/omnibox_popup/omnibox_popup_ui.h"
-#include "chrome/browser/ui/webui/omnibox_everywhere/omnibox_everywhere_ui.h"
-#include "chrome/browser/ui/webui/password_manager/password_manager_ui.h"
-#include "chrome/browser/ui/webui/side_panel/reading_list/reading_list_ui.h"
-#include "chrome/browser/ui/webui/user_education_internals/user_education_internals_ui.h"
-#include "chrome/browser/ui/webui/webnn_internals/webnn_internals.mojom.h"
-#include "chrome/browser/ui/webui/webnn_internals/webnn_internals_ui.h"
-#include "chrome/browser/ui/webui/signin/profile_picker_ui.h"
 
 #if BUILDFLAG(ENABLE_WEBUI_HISTORY)
 #include "chrome/browser/ui/webui/history/history_ui.h"
@@ -109,8 +107,6 @@
 #include "chrome/browser/ui/webui/discards/discards.mojom.h"
 #include "chrome/browser/ui/webui/discards/discards_ui.h"
 #include "chrome/browser/ui/webui/discards/site_data.mojom.h"
-#endif
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #endif
 
 namespace chrome::internal {
@@ -212,9 +208,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       webnn_internals::mojom::PageHandlerFactory, WebNNInternalsUI>(map);
   RegisterWebUIControllerInterfaceBinder<::mojom::OmniboxInternalsPageHandler,
                                          OmniboxInternalsUI>(map);
-
-  RegisterWebUIControllerInterfaceBinder<
-      aim_eligibility::mojom::PageHandlerFactory, OmniboxInternalsUI>(map);
 
   RegisterWebUIControllerInterfaceBinder<
       site_engagement::mojom::SiteEngagementDetailsProvider, SiteEngagementUI>(

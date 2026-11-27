@@ -69,12 +69,11 @@ class DevToolsHttpServiceHandler;
 class DevToolsHttpServiceRegistry;
 class DevToolsUIBindingsDispatchHttpRequestTest;
 class DevToolsUIBindingsLoadNetworkResourceTest;
-class PortForwardingStatusSerializer;
 class Profile;
 
 // Base implementation of DevTools bindings around front-end.
 class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
-                           public DevToolsAndroidBridge::DeviceCountListener,
+                           public DevToolsRemoteBridge::DeviceCountListener,
                            public content::DevToolsAgentHostClient,
                            public TemplateURLServiceObserver,
                            public ThemeServiceObserver,
@@ -378,7 +377,7 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
                       const base::Value* arg1);
   void InnerAttach();
 
-  // DevToolsAndroidBridge::DeviceCountListener override:
+  // DevToolsRemoteBridge::DeviceCountListener override:
   void DeviceCountChanged(int count) override;
 
   // Forwards discovered devices to frontend.
@@ -391,7 +390,6 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
   void FrontendLoaded();
 
   void DevicesDiscoveryConfigUpdated();
-  void SendPortForwardingStatus(base::Value status);
 
   // DevToolsFileHelper::Delegate overrides.
   void FileSystemAdded(
@@ -512,7 +510,6 @@ class DevToolsUIBindings : public DevToolsEmbedderMessageDispatcher::Delegate,
   bool devices_updates_enabled_;
   bool frontend_loaded_;
   std::unique_ptr<DevToolsTargetsUIHandler> remote_targets_handler_;
-  std::unique_ptr<PortForwardingStatusSerializer> port_status_serializer_;
   PrefChangeRegistrar pref_change_registrar_;
   std::unique_ptr<DevToolsEmbedderMessageDispatcher>
       embedder_message_dispatcher_;

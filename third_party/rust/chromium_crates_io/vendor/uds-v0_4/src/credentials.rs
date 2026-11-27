@@ -33,7 +33,7 @@ use libc::{ucred_geteuid, ucred_getegid, ucred_getpid, ucred_getgroups, uid_t, g
 
 /// Credentials to be sent with `send_ancillary()`.
 ///
-/// Only on Linux (& Android) does one need to send credentials, and on other
+/// Only on Linux does one need to send credentials, and on other
 /// operating systems this struct is ignored.
 #[derive(Clone,Copy, PartialEq,Eq, Debug)]
 #[allow(unused)] // not used yet
@@ -110,7 +110,7 @@ pub enum ConnCredentials {
 impl ConnCredentials {
     /// Get the process ID of the initial peer of a connection.
     ///
-    /// This is currently only available on Linux & Android,
+    /// This is currently only available on Linux,
     /// but will in the future also be available on OpenBSD and NetBSD,
     /// and possibly also FreeBSD and Solaris.
     pub fn pid(&self) -> Option<NonZeroU32> {
@@ -130,7 +130,7 @@ impl ConnCredentials {
     }
     /// Get the effective group ID of the initial peer of a connection.
     ///
-    /// * On Linux, Android, OpenBSD and NetBSD,
+    /// * On Linux, OpenBSD and NetBSD,
     ///   `egid` from the `LinuxLike` variant is returned.
     /// * On FreeBSD, DragonFly BSD, macOS & other Apple platforms,
     ///   `groups[0]` from the `MacOsLike` variant is returned
@@ -354,7 +354,7 @@ pub type RawReceivedCredentials = libc::ucred;
 ///
 /// What information is returned varies from OS to OS:
 ///
-/// * On Linux (& Android) the information has to be explicitly sent by the
+/// * On Linux the information has to be explicitly sent by the
 ///   peer through `send_ancillary()` or `sendmsg()`, but is validated by the
 ///   kernel.  
 ///   Peer chooses whether to send effective or real uid or gid, unless root
@@ -411,7 +411,7 @@ impl ReceivedCredentials {
 
     /// The pid of the peer.
     ///
-    /// This information is only available on Linux, Android and DragonFly BSD.
+    /// This information is only available on Linux and DragonFly BSD.
     pub fn pid(&self) -> Option<u32> {
         #[cfg(any(target_os="linux", target_os="dragonfly"))] {
             Some(self.pid)

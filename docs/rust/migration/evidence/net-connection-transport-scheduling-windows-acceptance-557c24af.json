@@ -1,0 +1,47 @@
+{
+  "utc": "2026-11-22T09:19:59.803431+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "candidate_commit": "157c435f186f098c102e255c6af7f86c57f349bc",
+  "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "source_identity": {
+    "worker_delivery": {
+      "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-candidate-712ca01f.json",
+      "sha256": "cb91ad409588a122666cf0711c76df0faa45c638142cc5d21df085d2a8b02df0"
+    },
+    "reviewed_and_validated_adaptation": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+    "prior_bounded_review_and_integration": {
+      "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-integration-80374a37.json",
+      "sha256": "5f399309cd6da5dd91330c4c7c91cda9107c8a9d84bd8ba5326fc60f5c76e07b"
+    },
+    "current_exact_pr_head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+    "latest_assignment_wiring": {
+      "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-integration-557c24af.json",
+      "sha256": "6fec4b5680dd66555fbf64cf4bc25407803aa875bc4143b6ef931f4a8f54f5de"
+    }
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Reviewed Windows component scheduling implementation and corresponding successor changes, with per-delivery and archive retirement source reviews retained."
+  },
+  "tests": {
+    "status": "passed",
+    "focused": {
+      "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-integration-557c24af.json",
+      "sha256": "6fec4b5680dd66555fbf64cf4bc25407803aa875bc4143b6ef931f4a8f54f5de"
+    },
+    "affected_pool": {
+      "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+      "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+    },
+    "named_ordinary_family": {
+      "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+      "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+    }
+  },
+  "platform_limits": [
+    "Acceptance covers the scoped Windows component implementation delivery.",
+    "Provider behavior, six ordinary QUIC configuration skips at this revision, and non-Windows configurations are outside this run.",
+    "Performance and full family cutover remain open."
+  ]
+}

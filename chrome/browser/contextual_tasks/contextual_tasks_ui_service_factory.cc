@@ -30,16 +30,14 @@ ContextualTasksUiServiceFactory::GetInstance() {
 // static
 ContextualTasksUiService* ContextualTasksUiServiceFactory::GetForBrowserContext(
     content::BrowserContext* context) {
-  return static_cast<ContextualTasksUiService*>(
-      GetInstance()->GetServiceForBrowserContext(context, true));
+  return nullptr;
 }
 
 // static
 ContextualTasksUiService*
 ContextualTasksUiServiceFactory::GetForBrowserContextIfExists(
     content::BrowserContext* context) {
-  return static_cast<ContextualTasksUiService*>(
-      GetInstance()->GetServiceForBrowserContext(context, false));
+  return nullptr;
 }
 
 ContextualTasksUiServiceFactory::ContextualTasksUiServiceFactory()
@@ -99,7 +97,7 @@ void ContextualTasksUiServiceFactory::RegisterProfilePrefs(
 
 bool ContextualTasksUiServiceFactory::ServiceIsCreatedWithBrowserContext()
     const {
-  return true;
+  return false;
 }
 
 bool ContextualTasksUiServiceFactory::ServiceIsNULLWhileTesting() const {

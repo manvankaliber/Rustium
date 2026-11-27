@@ -118,17 +118,18 @@ TEST(FeaturesTest, IsContextualTasksUnboundedMenuEnabled_FlagEnabled) {
 
 TEST(FeaturesTest,
      IsContextualTasksUnboundedMenuEnabled_SidePanelRearchitectureEnabled) {
-  base::test::ScopedFeatureList scoped_features;
-  scoped_features.InitAndEnableFeature(kContextualTasksSidePanelRearchitecture);
-  EXPECT_TRUE(IsContextualTasksUnboundedMenuEnabled());
+  base::test::ScopedFeatureList features;
+  features.InitAndEnableFeature(kContextualTasksSidePanelRearchitecture);
+  EXPECT_FALSE(IsContextualTasksUnboundedMenuEnabled());
 }
 
 TEST(FeaturesTest, IsContextualTasksUIEnabled_SidePanelRearchitectureEnabled) {
-  base::test::ScopedFeatureList scoped_features;
-  scoped_features.InitWithFeatures({kContextualTasksSidePanelRearchitecture},
-                                   {kContextualTasks, kContextualTasksSidePanel,
-                                    kContextualTasksRearchitecture});
-  EXPECT_TRUE(IsContextualTasksUIEnabled());
+  base::test::ScopedFeatureList features;
+  features.InitWithFeatures(
+      {kContextualTasks, kContextualTasksSidePanel,
+       kContextualTasksRearchitecture, kContextualTasksSidePanelRearchitecture},
+      {});
+  EXPECT_FALSE(IsContextualTasksUIEnabled());
 }
 
 TEST(FeaturesTest,

@@ -141,8 +141,6 @@ source_set("impl") {
 
 source_set("aim_eligibility_service") {
   sources = [
-    "aim_eligibility_refresh_navigation_throttle.cc",
-    "aim_eligibility_refresh_navigation_throttle.h",
     "aim_eligibility_service_factory.cc",
     "aim_eligibility_service_factory.h",
     "chrome_aim_eligibility_service.cc",
@@ -179,7 +177,6 @@ source_set("browser_tests") {
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = [
     "autocomplete_browsertest.cc",
-    "chrome_aim_eligibility_service_browsertest.cc",
     "chrome_autocomplete_provider_client_browsertest.cc",
     "tab_matcher_desktop_browsertest.cc",
   ]
@@ -238,7 +235,6 @@ source_set("browser_tests") {
 source_set("unit_tests") {
   testonly = true
   sources = [
-    "aim_eligibility_refresh_navigation_throttle_unittest.cc",
     "chrome_autocomplete_scheme_classifier_unittest.cc",
     "provider_state_service_factory_unittest.cc",
     "remote_suggestions_service_factory_unittest.cc",

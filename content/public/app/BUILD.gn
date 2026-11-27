@@ -26,7 +26,6 @@ import("//tools/v8_context_snapshot/v8_context_snapshot.gni")
 import("//ui/base/ui_features.gni")
 
 public_app_shared_sources = [
-  "content_jni_onload.h",
   "content_main.h",
   "content_main_delegate.cc",
   "content_main_delegate.h",

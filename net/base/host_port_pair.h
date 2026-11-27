@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 
+#include <compare>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -49,16 +50,13 @@ class NET_EXPORT HostPortPair {
   // Nullopt if `value` is malformed to be deserialized to HostPortPair.
   static std::optional<HostPortPair> FromValue(const base::Value& value);
 
-  friend bool operator==(const HostPortPair&, const HostPortPair&) = default;
-  friend auto operator<=>(const HostPortPair&, const HostPortPair&) = default;
+  friend NET_EXPORT bool operator==(const HostPortPair&, const HostPortPair&);
+  friend NET_EXPORT std::strong_ordering operator<=>(const HostPortPair&,
+                                                     const HostPortPair&);
 
-  bool IsEmpty() const {
-    return host_.empty() && port_ == 0;
-  }
+  bool IsEmpty() const;
 
-  const std::string& host() const {
-    return host_;
-  }
+  const std::string& host() const { return host_; }
 
   uint16_t port() const { return port_; }
 

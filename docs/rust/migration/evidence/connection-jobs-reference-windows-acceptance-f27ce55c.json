@@ -1,0 +1,70 @@
+{
+  "utc": "2026-11-22T11:01:37.278001+00:00",
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "candidate_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
+  "integration_commit": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
+  "qualified_pr_head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "source_identity": {
+    "submitted_delivery": {
+      "path": "docs/rust/migration/evidence/net-connection-reference-independence-delivery-20261117.json",
+      "sha256": "dd0c8cc5c13eaeeeb9a9612294d547ff9dcdb1b6f8371b488be5f7f0a8f14964"
+    },
+    "frozen_auth": {
+      "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-candidate-f27ce55c.json",
+      "sha256": "99ff71e3e321ada2c7b0ec2839dec2f2f3c939dfce2bc5eb2927d24625f7ffd9"
+    },
+    "native_helper_manifest": {
+      "path": "docs/rust/migration/evidence/connection-jobs-native-helper-bindings-443551ed.json",
+      "sha256": "5fbcd5089808a71a6d3e3016a2cc43f631319d6b5aa7566d4da3fcece0303fa6"
+    },
+    "header_http2_ssl_exact_audit": {
+      "path": "docs/rust/migration/evidence/connection-jobs-header-http2-ssl-source-audit-f27ce55c.json",
+      "sha256": "8e09ddc93baa675bcb00415581f4574cf435c48f500777d0b19dc1059579ad75"
+    }
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Scoped independent source and exact Windows paired lifecycle reference delivery. Shared HTTP response storage/parser, socket/TLS/QUIC, authentication primitives, resolver and logging boundaries remain explicit."
+  },
+  "tests": {
+    "status": "passed",
+    "current_optimized_windows": {
+      "ninja_elapsed_seconds": 169.2,
+      "verify_only_workloads": 16,
+      "paired_lifecycle_cases": 16,
+      "launcher_jobs": 1,
+      "retries": 0,
+      "skips": 0,
+      "verifier_elapsed_seconds": 0.609,
+      "lifecycle_launcher_elapsed_seconds": 0.187,
+      "receipt": "C:/Users/micro/rb/network-f27ce55-connection-lifecycle-20261122b/result.json",
+      "verify_log": "C:/Users/micro/rb/network-f27ce55-connection-lifecycle-20261122b/verify-upper.log",
+      "lifecycle_log": "C:/Users/micro/rb/network-f27ce55-connection-lifecycle-20261122b/run-lifecycle.log",
+      "independent_release": "C:/Users/micro/rb/network-f27ce55-connection-lifecycle-20261122b/independent-release.json",
+      "prior_attempt": "C:/Users/micro/rb/network-f27ce55-connection-lifecycle-20261122a/result.json"
+    },
+    "current_frozen_auth": {
+      "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-integration-f27ce55c.json",
+      "sha256": "ded503833268a523a0dedfc0605835595b283099a95b94b10f09f957ca11fd7d"
+    },
+    "current_non_kerberos": {
+      "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-pass-f27ce55c.json",
+      "sha256": "23fd2ffc88c286a63dab2a4ee0d6f132b56f6d90e02bf949f14eda5917b94e98"
+    },
+    "current_wiring": {
+      "path": "docs/rust/migration/evidence/connection-jobs-reference-wiring-windows-acceptance-f27ce55c.json",
+      "sha256": "4614966b09270514ff31b7437754770ca5004b9f099b6c55c270eef374f20798"
+    },
+    "prior_ordinary_named_family": {
+      "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+      "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+    }
+  },
+  "platform_limits": [
+    "Windows x64 component only for the scoped reference gate. POSIX and live providers are unqualified.",
+    "The optimized paired HTTP/2 case leaves the response pending. Separate native fixtures cover response frames, outside the 16-case verifier.",
+    "Only observed Rust probe entry points are checked. No benchmark, production ownership, performance, or Connection Jobs family cutover claim.",
+    "The older 16+16 receipt reported passes but ended with a final identity invariant failure. The current scoped receipt passed with pinned environment and restoration."
+  ]
+}

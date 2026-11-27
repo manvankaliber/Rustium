@@ -1,0 +1,1751 @@
+{
+  "schema_version": 1,
+  "status": "Proposed plan only; no workers, builds or native tests launched",
+  "recommendation": "Five flexible two-agent pods plus one parent manager",
+  "capacity": {
+    "agent_slots_including_parent": 11,
+    "parent_manager_slots": 1,
+    "worker_slots": 10,
+    "subteams": 5,
+    "workers_per_subteam": 2,
+    "hardware": "Ryzen7 2700X,8 physical cores/16 logical threads,16GiB RAM",
+    "reasoning_authoring_parallelism": 10,
+    "configured_writers": 1,
+    "maximum_total_compiler_linker_jobs": 3,
+    "compiler_budget_is_global_not_per_agent": true,
+    "compiler_jobs_with_broad_suite_active": "Prefer1-2 total, constrained by actual available memory and observed peak demand",
+    "native_launch_memory_guard_bytes": 2684354560,
+    "quiet_benchmark_cpu": 4,
+    "ordinary_broad_suite": "One launcher job onCPU5; no simultaneous performance sampling",
+    "beyond_local_capacity": "More than10 workers needs an actual runtime-capacity increase. More native throughput also requires RAM/build-output/storage or additional build environments; model workers do not add those resources."
+  },
+  "staffing": {
+    "implementation_partner": "Exclusive bounded source/core/adapter/test owner; Sol high/xhigh for async/ownership work",
+    "compatibility_partner": "Original helper closure, ordinary tests, boundary/lifetime checks, evidence and performance preparation; Sol medium/high",
+    "flexibility": "A pair may run two implementation owners on independent stable interfaces within the globalWIP cap. Loan capacity to heavy portfolios when a pod is dependency-blocked. Keep delivery capacity staffed.",
+    "current_agents_consume_slots": true,
+    "not_ten_additional_workers": true
+  },
+  "teams": [
+    {
+      "id": "T1",
+      "name": "HTTP, protocol and request paths",
+      "workers": 2,
+      "portfolios": [
+        "HTTP headers/parsing/streams/sessions/transactions/cache orchestration",
+        "HTTP2/HTTP3 Chromium adapters",
+        "WebSocket handshake/streams",
+        "URLRequest and server ownership"
+      ],
+      "current_priority": "Finish header-coalescer and ALPS measured optimization and ordinary acceptance",
+      "large_portfolio_rule": "Borrow a separate ready implementation seat after agreeing nonoverlapping class/source contracts; do not assign the whole directory concurrently",
+      "current_components": [
+        "alps-decoder",
+        "auth-challenges",
+        "content-disposition",
+        "gzip-header",
+        "header-coalescer",
+        "hsts",
+        "http-auth-cache",
+        "http-byte-range",
+        "http-range",
+        "http-response-info",
+        "http-status-code",
+        "http-vary-data",
+        "http2-priority-dependencies",
+        "http2-read-queue",
+        "http2-write-queue",
+        "http3-client-stream",
+        "mime-sniffer",
+        "mime-type",
+        "request-headers",
+        "websocket-extensions",
+        "websocket-frames",
+        "referrer-policy"
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "DNS, proxy, addressing and URL values",
+      "workers": 2,
+      "portfolios": [
+        "IP/address/name/result values",
+        "Resolver transactions/tasks/config/mDNS",
+        "Proxy configuration/list/PAC/resolution lifecycle",
+        "URL/IDNA/URI provider seams"
+      ],
+      "current_priority": "Freeze original caller/helper closure before replacing shared address primitives; agree direct Rust DNS wire views",
+      "current_components": [
+        "dns-host-cache",
+        "dns-names",
+        "dns-query",
+        "dns-response",
+        "host-mapping",
+        "host-port",
+        "port-policy",
+        "proxy-matching",
+        "proxy-values"
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "Sockets, TLS, runtime and platforms",
+      "workers": 2,
+      "portfolios": [
+        "Connect jobs and socket pools",
+        "TCP/UDP platform backends",
+        "TLS configuration/client/server/certificate integration",
+        "Native task/clock/file/network-change interfaces"
+      ],
+      "current_priority": "Measured TCP residuals and stable transport/cancellation contracts before coupled owner ports",
+      "current_components": [
+        "tcp-client-socket",
+        "tls-session-cache"
+      ]
+    },
+    {
+      "id": "T4",
+      "name": "Cookies, storage, filters and support policy",
+      "workers": 2,
+      "portfolios": [
+        "Cookie canonicalization/store/persistence",
+        "Memory/simple/blockfile caches/recovery",
+        "Filter and dictionary ownership",
+        "Reporting/NEL/NQE/NetLog",
+        "Device-bound session state/storage",
+        "Common utility policy"
+      ],
+      "current_priority": "Finish measured net-error membership experiment; next bounded cookie/storage/NQE family after intake",
+      "current_components": [
+        "backoff-entry",
+        "cookie-inclusion-status",
+        "disk-simple-index",
+        "net-diagnostics-debug-formatting",
+        "net-errors",
+        "net-log-values",
+        "parsed-cookie",
+        "protocol-numbers"
+      ]
+    },
+    {
+      "id": "T5",
+      "name": "Delivery, regular tests and performance",
+      "workers": 2,
+      "portfolios": [
+        "Expected-hash integration patches",
+        "Ordinary compatibility and lifetime tests",
+        "Source/runtime snapshots and perftest provenance",
+        "Quiet sampling and regression tracking",
+        "Test/tool/generator/build/platform/browser closure"
+      ],
+      "current_priority": "Finish copied ordinary net suite; batch held header/ALPS/error handoffs; record every retained workload",
+      "authority": "Workers prepare or perform explicitly delegated checks. Parent retains shared GN/http_util edits, configured synchronization/Ninja writer, benchmark/gallery/backlog updates and commits.",
+      "current_components": []
+    }
+  ],
+  "flow_control": {
+    "maximum_active_implementation_packages": 4,
+    "maximum_native_handoffs_waiting_for_configured_integration": 3,
+    "integration_cohort_size": {
+      "minimum": 3,
+      "maximum": 5,
+      "smaller_tightly_coupled_allowed": true
+    },
+    "intake_condition": "Exact API/source ownership, original baseline/helper closure, stable dependency interface and resource plan agreed",
+    "stop_new_intake_when": "Three complete native handoffs await integration or one full3-5-module cohort is acceptance-blocked",
+    "reassign_on_backlog": "Use free seats on the real integration/ordinary-test/baseline/performance blocker instead of another large implementation wave",
+    "shared_abi": "One owner for each shared session/base-derived interface; batch caller changes and affected consumer rebuilds",
+    "rust_composition": "Prefer direct safe Rust helper/core reuse once both sides migrate; identify Rust-to-C++-to-Rust round trips and retire them in connected cohorts",
+    "configuration": "Keep Default/compiler/flags stable; no one-off configuration per module",
+    "quiet_sampling": "Existing competing native work must settle. ReserveCPU4 and verify affinity before startup. No builds/tests/bulk hashing or copying during sampling.",
+    "low_memory": "Preserve completed artifacts and resume the exact unfinished launch only; never lower the guard or restart completed work because observation yielded"
+  },
+  "initial_cohorts": [
+    {
+      "id": "C0",
+      "phase": "Now",
+      "packages": [
+        "Current header-coalescer optimization",
+        "Current ALPS payload optimization",
+        "Current net-error membership experiment"
+      ],
+      "goal": "Finish existing native handoffs, batch interfaces/test counts, rebuild affected targets, run regular checks and remeasure all cases. The copied broad suite validates its preserved identity only.",
+      "new_large_wave": false
+    },
+    {
+      "id": "C1",
+      "phase": "After current configured correctness and initial measurements, with intake prerequisites",
+      "candidate_packages": [
+        "P01",
+        "D03",
+        "S06",
+        "C01"
+      ],
+      "fallback_candidates": [
+        "H03",
+        "D05",
+        "C04",
+        "C09",
+        "C11"
+      ],
+      "goal": "One bounded family per implementation pod, using existing Rust queue/DNS/cookie/TLS foundations. These are candidates, not dispatched assignments.",
+      "prerequisites": [
+        "Original SpdyBuffer closure for queue references",
+        "Stable direct Rust DNS wire/result view",
+        "Canonical native constants/provider interface for SSL values",
+        "Original CookiePartitionKey closure for later callers"
+      ]
+    },
+    {
+      "id": "C2",
+      "phase": "Next connected ownership cohort selected from results",
+      "candidate_packages": [
+        "P02",
+        "D04",
+        "S01",
+        "C02"
+      ],
+      "goal": "Extend accepted Rust primitives into local state and ownership without concurrently mutating base/derived or session contracts"
+    },
+    {
+      "id": "C3+",
+      "phase": "Dependency milestones",
+      "goal": "Progress through resolver/proxy ownership, native transports, sessions/transactions/stores, request consumers and separate provider projects. No phase name waives remaining scope."
+    }
+  ],
+  "packages_are_not_a_completion_denominator": true,
+  "packages": [
+    {
+      "id": "H01",
+      "team": "T1",
+      "title": "Response-header policy and ownership",
+      "stems": [
+        "net/http/http_response_headers"
+      ],
+      "requires": [],
+      "seams": [
+        "Isolate original Vary/response-info/parser header helpers first",
+        "QUICHE/string/feature providers"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/http/http_response_headers.cc",
+        "net/http/http_response_headers.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "H02",
+      "team": "T1",
+      "title": "HTTP1 stream message parser",
+      "stems": [
+        "net/http/http_stream_parser"
+      ],
+      "requires": [
+        "H01"
+      ],
+      "seams": [
+        "Socket/buffer partial-read/framing/completion contract"
+      ],
+      "stage": 2,
+      "verified_existing_paths": [
+        "net/http/http_stream_parser.cc",
+        "net/http/http_stream_parser.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "H03",
+      "team": "T1",
+      "title": "Stream identity/value policy",
+      "stems": [
+        "net/http/http_stream_key"
+      ],
+      "requires": [],
+      "seams": [
+        "GURL/isolation-key/SSL value ownership"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/http/http_stream_key.cc",
+        "net/http/http_stream_key.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "H04",
+      "team": "T1",
+      "title": "Stream factory job controller",
+      "stems": [
+        "net/http/http_stream_factory_job_controller"
+      ],
+      "requires": [
+        "H03"
+      ],
+      "seams": [
+        "Stable job/acquisition/cancellation contract"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_stream_factory_job_controller.cc",
+        "net/http/http_stream_factory_job_controller.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H05",
+      "team": "T1",
+      "title": "Stream factory job",
+      "stems": [
+        "net/http/http_stream_factory_job"
+      ],
+      "requires": [
+        "H03"
+      ],
+      "seams": [
+        "Controller/job API must stay stable"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_stream_factory_job.cc",
+        "net/http/http_stream_factory_job.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H06",
+      "team": "T1",
+      "title": "Stream pool/group/attempt ownership",
+      "stems": [
+        "net/http/http_stream_pool"
+      ],
+      "requires": [
+        "H03",
+        "S01"
+      ],
+      "seams": [
+        "Separate sibling class/source owners after API agreement"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_stream_pool.cc",
+        "net/http/http_stream_pool.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H07",
+      "team": "T1",
+      "title": "HTTP network session ownership",
+      "stems": [
+        "net/http/http_network_session"
+      ],
+      "requires": [
+        "H06",
+        "D08",
+        "S05"
+      ],
+      "seams": [
+        "DNS/proxy/socket/TLS/cookie/cache interfaces"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_network_session.cc",
+        "net/http/http_network_session.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H08",
+      "team": "T1",
+      "title": "HTTP network transaction",
+      "stems": [
+        "net/http/http_network_transaction"
+      ],
+      "requires": [
+        "H02",
+        "H07"
+      ],
+      "seams": [
+        "Redirect/auth/cookie/cache/stream services"
+      ],
+      "stage": 6,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_network_transaction.cc",
+        "net/http/http_network_transaction.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H09",
+      "team": "T1",
+      "title": "HTTP cache transaction/owner",
+      "stems": [
+        "net/http/http_cache",
+        "net/http/http_cache_transaction"
+      ],
+      "requires": [
+        "H08",
+        "C06"
+      ],
+      "seams": [
+        "Cache backend contract; split owner/transaction sources"
+      ],
+      "stage": 7,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/http/http_cache.cc",
+        "net/http/http_cache.h",
+        "net/http/http_cache_transaction.cc",
+        "net/http/http_cache_transaction.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "H10",
+      "team": "T1",
+      "title": "Remaining MIME lookup/matching/formatting",
+      "stems": [
+        "net/base/mime_util"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing Rust grammar is already migrated; preserve platform/native string APIs"
+      ],
+      "stage": 1,
+      "verified_existing_paths": [
+        "net/base/mime_util.cc",
+        "net/base/mime_util.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "P01",
+      "team": "T1",
+      "title": "SpdyBuffer ownership/callback lifecycle",
+      "stems": [
+        "net/spdy/spdy_buffer"
+      ],
+      "requires": [],
+      "seams": [
+        "Read/write queue and stream baselines share this primitive; freeze independent original buffer closure before replacement"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/spdy/spdy_buffer.cc",
+        "net/spdy/spdy_buffer.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "P02",
+      "team": "T1",
+      "title": "Buffered HTTP2 framing adapter",
+      "stems": [
+        "net/spdy/buffered_spdy_framer"
+      ],
+      "requires": [
+        "P01"
+      ],
+      "seams": [
+        "QUICHE framing; migrated header/ALPS/priority interfaces"
+      ],
+      "stage": 2,
+      "verified_existing_paths": [
+        "net/spdy/buffered_spdy_framer.cc",
+        "net/spdy/buffered_spdy_framer.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "P03",
+      "team": "T1",
+      "title": "HTTP2 stream ownership/state",
+      "stems": [
+        "net/spdy/spdy_stream",
+        "net/spdy/spdy_http_stream"
+      ],
+      "requires": [
+        "P01",
+        "P02"
+      ],
+      "seams": [
+        "Split separate stream classes behind stable session contract"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/spdy/spdy_stream.cc",
+        "net/spdy/spdy_stream.h",
+        "net/spdy/spdy_http_stream.cc",
+        "net/spdy/spdy_http_stream.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "P04",
+      "team": "T1",
+      "title": "HTTP2 session/flow control",
+      "stems": [
+        "net/spdy/spdy_session"
+      ],
+      "requires": [
+        "P03",
+        "S05"
+      ],
+      "seams": [
+        "Socket/TLS/task services and stable shared session API"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/spdy/spdy_session.cc",
+        "net/spdy/spdy_session.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "P05",
+      "team": "T1",
+      "title": "Chromium HTTP3 client-session ownership",
+      "stems": [
+        "net/quic/quic_chromium_client_session"
+      ],
+      "requires": [
+        "S05"
+      ],
+      "seams": [
+        "Migrated client stream; QUICHE framing/crypto/stream providers"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/quic/quic_chromium_client_session.cc",
+        "net/quic/quic_chromium_client_session.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "P06",
+      "team": "T1",
+      "title": "QUIC session pool/migration",
+      "stems": [
+        "net/quic/quic_session_pool"
+      ],
+      "requires": [
+        "P05",
+        "D08"
+      ],
+      "seams": [
+        "DNS/network-change/socket services"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/quic/quic_session_pool.cc",
+        "net/quic/quic_session_pool.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "P07",
+      "team": "T1",
+      "title": "WebSocket handshake/stream ownership",
+      "stems": [
+        "net/websockets/websocket_basic_handshake_stream",
+        "net/websockets/websocket_stream"
+      ],
+      "requires": [
+        "H08"
+      ],
+      "seams": [
+        "Migrated frame/extensions; split each HTTP1/2/3 handshake class"
+      ],
+      "stage": 7,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/websockets/websocket_basic_handshake_stream.cc",
+        "net/websockets/websocket_basic_handshake_stream.h",
+        "net/websockets/websocket_stream.cc",
+        "net/websockets/websocket_stream.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "R01",
+      "team": "T1",
+      "title": "URLRequest jobs/context/delegates",
+      "stems": [
+        "net/url_request/url_request_job",
+        "net/url_request/url_request_http_job",
+        "net/url_request/url_request_context"
+      ],
+      "requires": [
+        "H08",
+        "C08"
+      ],
+      "seams": [
+        "Stable fetch services break PAC/cert/refresh cycles; split each class"
+      ],
+      "stage": 8,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/url_request/url_request_job.cc",
+        "net/url_request/url_request_job.h",
+        "net/url_request/url_request_http_job.cc",
+        "net/url_request/url_request_http_job.h",
+        "net/url_request/url_request_context.cc",
+        "net/url_request/url_request_context.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "R02",
+      "team": "T1",
+      "title": "Server connection ownership",
+      "stems": [
+        "net/server/http_server"
+      ],
+      "requires": [
+        "H02",
+        "P07"
+      ],
+      "seams": [
+        "Server socket/event loop/consumer callbacks"
+      ],
+      "stage": 8,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/server/http_server.cc",
+        "net/server/http_server.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D01",
+      "team": "T2",
+      "title": "IP address value/text policy",
+      "stems": [
+        "net/base/ip_address"
+      ],
+      "requires": [],
+      "seams": [
+        "Freeze original DNS/proxy/port/TCP helper closures first",
+        "URL/IDNA/native address primitives"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/base/ip_address.cc",
+        "net/base/ip_address.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "D02",
+      "team": "T2",
+      "title": "Endpoint/address-list values",
+      "stems": [
+        "net/base/ip_endpoint",
+        "net/base/address_list"
+      ],
+      "requires": [
+        "D01"
+      ],
+      "seams": [
+        "Native socket-address conversion and C++ public value storage"
+      ],
+      "stage": 2,
+      "verified_existing_paths": [
+        "net/base/ip_endpoint.cc",
+        "net/base/ip_endpoint.h",
+        "net/base/address_list.cc",
+        "net/base/address_list.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "D03",
+      "team": "T2",
+      "title": "DNS response result extraction",
+      "stems": [
+        "net/dns/dns_response_result_extractor"
+      ],
+      "requires": [],
+      "seams": [
+        "Agree direct safe Rust DNS wire views",
+        "Independent original query/response/name closure",
+        "Result/IP/time/URL primitives"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/dns/dns_response_result_extractor.cc",
+        "net/dns/dns_response_result_extractor.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "D04",
+      "team": "T2",
+      "title": "DNS session/transaction state",
+      "stems": [
+        "net/dns/dns_session",
+        "net/dns/dns_transaction"
+      ],
+      "requires": [
+        "D03",
+        "S03"
+      ],
+      "seams": [
+        "Split session/transaction ownership; DoH uses stable request service"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/dns/dns_session.cc",
+        "net/dns/dns_session.h",
+        "net/dns/dns_transaction.cc",
+        "net/dns/dns_transaction.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D05",
+      "team": "T2",
+      "title": "HostResolverCache policy",
+      "stems": [
+        "net/dns/host_resolver_cache"
+      ],
+      "requires": [],
+      "seams": [
+        "Distinct from migrated HostCache; result/clock/isolation providers"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/dns/host_resolver_cache.cc",
+        "net/dns/host_resolver_cache.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "D06",
+      "team": "T2",
+      "title": "Resolver DNS/system tasks",
+      "stems": [
+        "net/dns/host_resolver_dns_task",
+        "net/dns/host_resolver_system_task"
+      ],
+      "requires": [
+        "D04",
+        "D05"
+      ],
+      "seams": [
+        "Separate task owners with stable resolver/job/task contract"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/dns/host_resolver_dns_task.cc",
+        "net/dns/host_resolver_dns_task.h",
+        "net/dns/host_resolver_system_task.cc",
+        "net/dns/host_resolver_system_task.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D07",
+      "team": "T2",
+      "title": "mDNS client state",
+      "stems": [
+        "net/dns/mdns_client"
+      ],
+      "requires": [
+        "S03"
+      ],
+      "seams": [
+        "Multicast/socket/config notification services"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/dns/mdns_client.cc",
+        "net/dns/mdns_client.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D08",
+      "team": "T2",
+      "title": "Resolver manager/jobs/config ownership",
+      "stems": [
+        "net/dns/host_resolver_manager"
+      ],
+      "requires": [
+        "D06",
+        "D07"
+      ],
+      "seams": [
+        "Split job/dispatcher/config roles; stable cancellation/observer API"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/dns/host_resolver_manager.cc",
+        "net/dns/host_resolver_manager.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D09",
+      "team": "T2",
+      "title": "Proxy list/config policy",
+      "stems": [
+        "net/proxy_resolution/proxy_list",
+        "net/proxy_resolution/proxy_config"
+      ],
+      "requires": [],
+      "seams": [
+        "Reuse Rust proxy values/matching; independent baseline helpers"
+      ],
+      "stage": 1,
+      "verified_existing_paths": [
+        "net/proxy_resolution/proxy_list.cc",
+        "net/proxy_resolution/proxy_list.h",
+        "net/proxy_resolution/proxy_config.cc",
+        "net/proxy_resolution/proxy_config.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "D10",
+      "team": "T2",
+      "title": "PAC decision/fetch ownership",
+      "stems": [
+        "net/proxy_resolution/pac_file_decider",
+        "net/proxy_resolution/pac_file_fetcher_impl"
+      ],
+      "requires": [
+        "D09"
+      ],
+      "seams": [
+        "Existing request primitive breaks ownership cycle; script/platform discovery are providers"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/proxy_resolution/pac_file_decider.cc",
+        "net/proxy_resolution/pac_file_decider.h",
+        "net/proxy_resolution/pac_file_fetcher_impl.cc",
+        "net/proxy_resolution/pac_file_fetcher_impl.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "D11",
+      "team": "T2",
+      "title": "Configured proxy resolution lifecycle",
+      "stems": [
+        "net/proxy_resolution/configured_proxy_resolution_service"
+      ],
+      "requires": [
+        "D10",
+        "D08"
+      ],
+      "seams": [
+        "PAC execution/config observers/request cancellation"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/proxy_resolution/configured_proxy_resolution_service.cc",
+        "net/proxy_resolution/configured_proxy_resolution_service.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S01",
+      "team": "T3",
+      "title": "ConnectJob base timer/cancel/completion state",
+      "stems": [
+        "net/socket/connect_job"
+      ],
+      "requires": [],
+      "seams": [
+        "Agree base/derived contract; migrated TCP client policy"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/socket/connect_job.cc",
+        "net/socket/connect_job.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "S02",
+      "team": "T3",
+      "title": "TransportConnectJob state",
+      "stems": [
+        "net/socket/transport_connect_job"
+      ],
+      "requires": [
+        "S01",
+        "D02"
+      ],
+      "seams": [
+        "Resolver/socket/clock services"
+      ],
+      "stage": 3,
+      "verified_existing_paths": [
+        "net/socket/transport_connect_job.cc",
+        "net/socket/transport_connect_job.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "S03",
+      "team": "T3",
+      "title": "UDP backend/watcher ownership",
+      "stems": [
+        "net/socket/udp_socket_win",
+        "net/socket/udp_socket_posix"
+      ],
+      "requires": [
+        "D02"
+      ],
+      "seams": [
+        "One cross-platform contract; split platform sources and validate actual supported targets"
+      ],
+      "stage": 2,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/socket/udp_socket_win.cc",
+        "net/socket/udp_socket_win.h",
+        "net/socket/udp_socket_posix.cc",
+        "net/socket/udp_socket_posix.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S04",
+      "team": "T3",
+      "title": "TCP backend/watcher ownership",
+      "stems": [
+        "net/socket/tcp_socket_win",
+        "net/socket/tcp_socket_posix"
+      ],
+      "requires": [
+        "D02"
+      ],
+      "seams": [
+        "Existing Rust TCPClientSocket; native OS socket/event APIs"
+      ],
+      "stage": 2,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/socket/tcp_socket_win.cc",
+        "net/socket/tcp_socket_win.h",
+        "net/socket/tcp_socket_posix.cc",
+        "net/socket/tcp_socket_posix.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S05",
+      "team": "T3",
+      "title": "TLS client/server adapter ownership",
+      "stems": [
+        "net/socket/ssl_client_socket_impl",
+        "net/socket/ssl_server_socket_impl"
+      ],
+      "requires": [
+        "S02",
+        "S04",
+        "S06"
+      ],
+      "seams": [
+        "BoringSSL provider handles, Rust session cache, task callbacks"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/socket/ssl_client_socket_impl.cc",
+        "net/socket/ssl_client_socket_impl.h",
+        "net/socket/ssl_server_socket_impl.cc",
+        "net/socket/ssl_server_socket_impl.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S06",
+      "team": "T3",
+      "title": "SSL configuration/result values",
+      "stems": [
+        "net/ssl/ssl_config",
+        "net/cert/cert_verify_result"
+      ],
+      "requires": [],
+      "seams": [
+        "Canonical native constants and provider APIs; ordinary value compatibility"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/ssl/ssl_config.cc",
+        "net/ssl/ssl_config.h",
+        "net/cert/cert_verify_result.cc",
+        "net/cert/cert_verify_result.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "S07",
+      "team": "T3",
+      "title": "Verifier/cache/platform-provider ownership",
+      "stems": [
+        "net/cert/caching_cert_verifier",
+        "net/cert/cert_verifier"
+      ],
+      "requires": [
+        "S06"
+      ],
+      "seams": [
+        "Split cache/provider/trust-store contracts; no security side projects"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/cert/caching_cert_verifier.cc",
+        "net/cert/caching_cert_verifier.h",
+        "net/cert/cert_verifier.cc",
+        "net/cert/cert_verifier.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S08",
+      "team": "T3",
+      "title": "Socket options/tags and network-change lifecycle",
+      "stems": [
+        "net/socket/socket_options",
+        "net/socket/socket_tag",
+        "net/base/network_change_notifier"
+      ],
+      "requires": [
+        "D02"
+      ],
+      "seams": [
+        "Separate each source family; OS observer/task APIs"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/socket/socket_options.cc",
+        "net/socket/socket_options.h",
+        "net/socket/socket_tag.cc",
+        "net/socket/socket_tag.h",
+        "net/base/network_change_notifier.cc",
+        "net/base/network_change_notifier.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "S09",
+      "team": "T3",
+      "title": "Remaining platform authentication implementation",
+      "stems": [
+        "net/ntlm/ntlm_client",
+        "net/http/http_auth_handler_negotiate"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing challenge/cache Rust logic; SSPI/GSSAPI/crypto providers; rejected actions stay held"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/ntlm/ntlm_client.cc",
+        "net/ntlm/ntlm_client.h",
+        "net/http/http_auth_handler_negotiate.cc",
+        "net/http/http_auth_handler_negotiate.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C01",
+      "team": "T4",
+      "title": "Cookie partition-key values",
+      "stems": [
+        "net/cookies/cookie_partition_key"
+      ],
+      "requires": [],
+      "seams": [
+        "SchemefulSite/GURL ownership; freeze original helper for later callers"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/cookies/cookie_partition_key.cc",
+        "net/cookies/cookie_partition_key.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "C02",
+      "team": "T4",
+      "title": "Remaining cookie canonicalization/utilities",
+      "stems": [
+        "net/cookies/canonical_cookie",
+        "net/cookies/cookie_util"
+      ],
+      "requires": [
+        "C01"
+      ],
+      "seams": [
+        "Reuse ParsedCookie/status cores; URL/PSL/time providers; shared utilities via parent"
+      ],
+      "stage": 2,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/cookies/canonical_cookie.cc",
+        "net/cookies/canonical_cookie.h",
+        "net/cookies/cookie_util.cc",
+        "net/cookies/cookie_util.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C03",
+      "team": "T4",
+      "title": "CookieMonster/store ownership",
+      "stems": [
+        "net/cookies/cookie_monster",
+        "net/cookies/cookie_store"
+      ],
+      "requires": [
+        "C02"
+      ],
+      "seams": [
+        "Partition/storage/time callbacks; separate persistent-store contract"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/cookies/cookie_monster.cc",
+        "net/cookies/cookie_monster.h",
+        "net/cookies/cookie_store.cc",
+        "net/cookies/cookie_store.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C04",
+      "team": "T4",
+      "title": "Simple cache format/index-file persistence",
+      "stems": [
+        "net/disk_cache/simple/simple_entry_format",
+        "net/disk_cache/simple/simple_index_file"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing Rust SimpleIndex; filesystem/version/checksum/recovery; split formats from persistence"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/disk_cache/simple/simple_entry_format.cc",
+        "net/disk_cache/simple/simple_entry_format.h",
+        "net/disk_cache/simple/simple_index_file.cc",
+        "net/disk_cache/simple/simple_index_file.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "C05",
+      "team": "T4",
+      "title": "Simple entry/backend ownership",
+      "stems": [
+        "net/disk_cache/simple/simple_synchronous_entry",
+        "net/disk_cache/simple/simple_backend_impl"
+      ],
+      "requires": [
+        "C04"
+      ],
+      "seams": [
+        "File/task/eviction callbacks; split entry and backend owners"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/disk_cache/simple/simple_synchronous_entry.cc",
+        "net/disk_cache/simple/simple_synchronous_entry.h",
+        "net/disk_cache/simple/simple_backend_impl.cc",
+        "net/disk_cache/simple/simple_backend_impl.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C06",
+      "team": "T4",
+      "title": "Memory/blockfile cache backend closure",
+      "stems": [
+        "net/disk_cache/memory/mem_backend_impl",
+        "net/disk_cache/blockfile/entry_impl",
+        "net/disk_cache/blockfile/eviction"
+      ],
+      "requires": [
+        "C04"
+      ],
+      "seams": [
+        "Split memory backend, block allocation, rankings, sparseIO, eviction and recovery"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/disk_cache/memory/mem_backend_impl.cc",
+        "net/disk_cache/memory/mem_backend_impl.h",
+        "net/disk_cache/blockfile/entry_impl.cc",
+        "net/disk_cache/blockfile/entry_impl.h",
+        "net/disk_cache/blockfile/eviction.cc",
+        "net/disk_cache/blockfile/eviction.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C07",
+      "team": "T4",
+      "title": "Filter pipeline ownership",
+      "stems": [
+        "net/filter/source_stream",
+        "net/filter/filter_source_stream",
+        "net/filter/gzip_source_stream",
+        "net/filter/brotli_source_stream",
+        "net/filter/zstd_source_stream"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing Rust gzip header; codec providers external; split each stream adapter after common contract"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/filter/source_stream.cc",
+        "net/filter/source_stream.h",
+        "net/filter/filter_source_stream.cc",
+        "net/filter/filter_source_stream.h",
+        "net/filter/gzip_source_stream.cc",
+        "net/filter/gzip_source_stream.h",
+        "net/filter/brotli_source_stream.cc",
+        "net/filter/brotli_source_stream.h",
+        "net/filter/zstd_source_stream.cc",
+        "net/filter/zstd_source_stream.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C08",
+      "team": "T4",
+      "title": "Shared dictionary metadata/stream lifecycle",
+      "stems": [
+        "net/shared_dictionary/shared_dictionary_isolation_key",
+        "net/shared_dictionary/shared_dictionary_header_checker_source_stream"
+      ],
+      "requires": [
+        "C05",
+        "C07"
+      ],
+      "seams": [
+        "Header, codec/cache and metadata ownership"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/shared_dictionary/shared_dictionary_isolation_key.cc",
+        "net/shared_dictionary/shared_dictionary_isolation_key.h",
+        "net/shared_dictionary/shared_dictionary_header_checker_source_stream.cc",
+        "net/shared_dictionary/shared_dictionary_header_checker_source_stream.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C09",
+      "team": "T4",
+      "title": "Reporting header/policy values",
+      "stems": [
+        "net/reporting/reporting_header_parser",
+        "net/reporting/reporting_policy"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing header/number/URL primitives; ordinary compatibility"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/reporting/reporting_header_parser.cc",
+        "net/reporting/reporting_header_parser.h",
+        "net/reporting/reporting_policy.cc",
+        "net/reporting/reporting_policy.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "C10",
+      "team": "T4",
+      "title": "Reporting/NEL cache/service ownership",
+      "stems": [
+        "net/reporting/reporting_cache_impl",
+        "net/reporting/reporting_service",
+        "net/reporting/reporting_uploader",
+        "net/network_error_logging/network_error_logging_service"
+      ],
+      "requires": [
+        "C09",
+        "C03"
+      ],
+      "seams": [
+        "Split cache/batching/uploader/service; stable request/persistence/task APIs"
+      ],
+      "stage": 6,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/reporting/reporting_cache_impl.cc",
+        "net/reporting/reporting_cache_impl.h",
+        "net/reporting/reporting_service.cc",
+        "net/reporting/reporting_service.h",
+        "net/reporting/reporting_uploader.cc",
+        "net/reporting/reporting_uploader.h",
+        "net/network_error_logging/network_error_logging_service.cc",
+        "net/network_error_logging/network_error_logging_service.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C11",
+      "team": "T4",
+      "title": "NQE observations/value containers",
+      "stems": [
+        "net/nqe/observation_buffer",
+        "net/nqe/network_quality",
+        "net/nqe/throughput_analyzer"
+      ],
+      "requires": [],
+      "seams": [
+        "Clock/histogram/sampling primitives; split independent value/container families"
+      ],
+      "stage": 1,
+      "initial_candidate": true,
+      "verified_existing_paths": [
+        "net/nqe/observation_buffer.cc",
+        "net/nqe/observation_buffer.h",
+        "net/nqe/network_quality.cc",
+        "net/nqe/network_quality.h",
+        "net/nqe/throughput_analyzer.cc",
+        "net/nqe/throughput_analyzer.h"
+      ],
+      "dispatch_state": "Candidate for bounded intake; not dispatched"
+    },
+    {
+      "id": "C12",
+      "team": "T4",
+      "title": "NQE watcher/prefs lifecycle",
+      "stems": [
+        "net/nqe/network_quality_estimator"
+      ],
+      "requires": [
+        "C11",
+        "S08"
+      ],
+      "seams": [
+        "Socket/network-change observer/task contracts"
+      ],
+      "stage": 4,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/nqe/network_quality_estimator.cc",
+        "net/nqe/network_quality_estimator.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C13",
+      "team": "T4",
+      "title": "NetLog observer/writer ownership",
+      "stems": [
+        "net/log/net_log",
+        "net/log/file_net_log_observer"
+      ],
+      "requires": [],
+      "seams": [
+        "Existing Rust values/debug policy; split observer/file writer; tracing/file/time providers"
+      ],
+      "stage": 3,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/log/net_log.cc",
+        "net/log/net_log.h",
+        "net/log/file_net_log_observer.cc",
+        "net/log/file_net_log_observer.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C14",
+      "team": "T4",
+      "title": "Device-bound session model/store/refresh",
+      "stems": [
+        "net/device_bound_sessions/session",
+        "net/device_bound_sessions/session_store_impl",
+        "net/device_bound_sessions/session_service_impl"
+      ],
+      "requires": [
+        "C02",
+        "S06"
+      ],
+      "seams": [
+        "Key/crypto/protobuf providers and stable request refresh service"
+      ],
+      "stage": 6,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/device_bound_sessions/session.cc",
+        "net/device_bound_sessions/session.h",
+        "net/device_bound_sessions/session_store_impl.cc",
+        "net/device_bound_sessions/session_store_impl.h",
+        "net/device_bound_sessions/session_service_impl.cc",
+        "net/device_bound_sessions/session_service_impl.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    },
+    {
+      "id": "C15",
+      "team": "T4",
+      "title": "SQLite network persistence adapters",
+      "stems": [
+        "net/extras/sqlite/sqlite_persistent_cookie_store"
+      ],
+      "requires": [
+        "C03"
+      ],
+      "seams": [
+        "SQLite/protobuf/task providers; other extras stores are sibling packages"
+      ],
+      "stage": 5,
+      "contract_split_required": true,
+      "verified_existing_paths": [
+        "net/extras/sqlite/sqlite_persistent_cookie_store.cc",
+        "net/extras/sqlite/sqlite_persistent_cookie_store.h"
+      ],
+      "dispatch_state": "Needs source/API contract split before implementation"
+    }
+  ],
+  "closure_projects": [
+    {
+      "id": "X01",
+      "team": "T1",
+      "title": "QUICHE protocol/framing/HPACK/QPACK provider project",
+      "paths": [
+        "net/third_party/quiche"
+      ],
+      "dispatch": "Agree provider APIs, then bounded codecs/state families. This is not one agent assignment."
+    },
+    {
+      "id": "X02",
+      "team": "T2",
+      "title": "URL/IDNA/URI provider and remaining value closure",
+      "paths": [
+        "url",
+        "third_party/icu",
+        "net/third_party/uri_template"
+      ],
+      "dispatch": "Separate cross-project compatibility contracts and providers; not complete because wrappers exist."
+    },
+    {
+      "id": "X03",
+      "team": "T3",
+      "title": "Crypto/TLS/cert/native runtime provider projects",
+      "paths": [
+        "third_party/boringssl",
+        "crypto",
+        "base",
+        "net/third_party/mozilla_security_manager",
+        "net/third_party/mozilla_win"
+      ],
+      "dispatch": "Provider ownership/replacement decisions first; ordinary migration only under current override."
+    },
+    {
+      "id": "X04",
+      "team": "T4",
+      "title": "Codec/storage/generated message providers",
+      "paths": [
+        "third_party/zlib",
+        "third_party/brotli",
+        "third_party/zstd",
+        "third_party/sqlite",
+        "third_party/protobuf"
+      ],
+      "dispatch": "Separate compatible provider projects; preserve file/message/recovery behavior."
+    },
+    {
+      "id": "X05",
+      "team": "T5",
+      "title": "Tests/tools/annotations/generator/root build closure",
+      "paths": [
+        "net/test",
+        "net/tools",
+        "net/traffic_annotation",
+        "net/docs",
+        "net/data",
+        "net/BUILD.gn"
+      ],
+      "dispatch": "Allocate code/tool/API consumers in bounded scopes. Independent original C++ baseline code remains intentionally test-only."
+    },
+    {
+      "id": "X06",
+      "team": "T3",
+      "title": "Supported-platform native ownership closure",
+      "paths": [
+        "net/socket",
+        "net/dns",
+        "net/cert",
+        "net/ssl",
+        "net/proxy_resolution",
+        "net/base"
+      ],
+      "dispatch": "Platform-specific files retain subsystem owner. Windows-only results do not establish other supported-target execution."
+    },
+    {
+      "id": "X07",
+      "team": "T5",
+      "title": "Network-service/browser/embedder final consumer closure",
+      "paths": [
+        "services/network",
+        "content",
+        "chrome"
+      ],
+      "dispatch": "Caller API inventory, Rust-native handoff and coordinated actual consumer/browser builds. Outside-net consumers are not silently credited."
+    }
+  ],
+  "subsystem_routing": {
+    "base": [
+      "T2",
+      "T3",
+      "T4"
+    ],
+    "dns": [
+      "T2"
+    ],
+    "auth": [
+      "T1",
+      "T3"
+    ],
+    "http": [
+      "T1"
+    ],
+    "sockets": [
+      "T3"
+    ],
+    "ssl_certs": [
+      "T3"
+    ],
+    "cookies": [
+      "T4"
+    ],
+    "disk_cache": [
+      "T4"
+    ],
+    "proxy": [
+      "T2"
+    ],
+    "quic": [
+      "T1"
+    ],
+    "spdy": [
+      "T1"
+    ],
+    "websockets": [
+      "T1"
+    ],
+    "url_request": [
+      "T1"
+    ],
+    "device_bound_sessions": [
+      "T4"
+    ],
+    "filter": [
+      "T4"
+    ],
+    "log": [
+      "T4"
+    ],
+    "reporting": [
+      "T4"
+    ],
+    "nqe": [
+      "T4"
+    ],
+    "shared_dictionary": [
+      "T4"
+    ],
+    "platform": [
+      "T3"
+    ],
+    "server": [
+      "T1"
+    ],
+    "support": [
+      "T4",
+      "T5"
+    ],
+    "vendor": [
+      "T1",
+      "T2",
+      "T3",
+      "T4"
+    ],
+    "root": [
+      "T5"
+    ]
+  },
+  "external_provider_owner": {
+    "net/third_party/quiche": "T1",
+    "net/third_party/mozilla_security_manager": "T3",
+    "net/third_party/mozilla_win": "T3",
+    "net/third_party/uri_template": "T2",
+    "third_party/boringssl": "T3",
+    "crypto": "T3",
+    "base": "T3",
+    "url": "T2",
+    "third_party/zlib": "T4",
+    "third_party/brotli": "T4",
+    "third_party/zstd": "T4",
+    "third_party/icu": "T2",
+    "third_party/sqlite": "T4",
+    "third_party/protobuf": "T4",
+    "third_party/rust/sfv": "T1"
+  },
+  "ownership_cycles": [
+    {
+      "cycle": "PAC fetch -> URLRequest -> HTTP -> proxy resolution",
+      "break": "Stable narrow fetch/request service during separate owner ports; retire only after both sides integrate."
+    },
+    {
+      "cycle": "Certificate/revocation fetch -> URLRequest -> TLS/verifier",
+      "break": "Versioned primitive provider/fetch contract; actual platform/browser checks at closure."
+    },
+    {
+      "cycle": "Device-bound refresh -> URLRequest -> cookie/session state",
+      "break": "Separate model/persistence and refresh owner; agree request/key/store contracts first."
+    },
+    {
+      "cycle": "Sessions/factories -> sockets/TLS/DNS/proxy -> public HTTP callers",
+      "break": "Value/completion/cancellation contracts first; one owner per shared session interface; batch caller rebuilds."
+    }
+  ],
+  "handoff_contract": {
+    "required": [
+      "Exact before/after and protected reference/workload hashes",
+      "Complete bounded API/method scope and remaining C++ ownership/platform/provider seams",
+      "Independently original policy/helper dependency closure",
+      "Shared wrapper/GN fragments only; no configured writes",
+      "Ordinary unit/boundary/alias/lifetime/order results with actual counts/skips and runtime identity",
+      "Rustfmt/Clippy/C++ format and exact native Rust unit count",
+      "Every canonical clock-free verifier case/checksum",
+      "Demonstrated work and concrete next optimization; bridge presence alone proves no cause"
+    ],
+    "logic_stages": [
+      "Cpp",
+      "CandidateRust",
+      "NativeHandoff",
+      "Integrated",
+      "ConfiguredRegularCorrectness",
+      "PerformanceAccepted",
+      "PlatformBrowserClosure"
+    ],
+    "ownership_stages": [
+      "CppOwner",
+      "DocumentedBridge",
+      "RustOwner",
+      "RetiredBridge"
+    ],
+    "no_partial_completion_claim": "One migrated helper is not a complete directory/subsystem. Large families remain partial until their owned scope and seams close.",
+    "deferred_checks": "Sanitizer/fuzz campaigns and security-focused side work remain off until explicitly resumed; deferred checks are not passes.",
+    "rejection": "Stop the rejected action. Do not rephrase, reroute to another agent or retry to bypass the rejection; continue unrelated authorized work.",
+    "publication": "Preserve all cases/history/negative results and unchanged batch membership/gate. No performance acceptance or publication follows from code/native counts."
+  },
+  "progress_and_scaling": {
+    "percentage_owner": "Parent scope/credit calculation; this routing plan does not invent a completion fraction",
+    "track_actual": [
+      "Implementation time",
+      "Isolated compile/link time",
+      "Configured queue/build time and rebuild cause",
+      "Regular test time",
+      "Quiet benchmark time",
+      "Optimization iterations",
+      "Source-bound stage and remaining seams"
+    ],
+    "measure_throughput": "Use weighted accepted scope per wall hour after the denominator is established, handoff queue depth/age, integration failure causes and memory overlap. Counts of generated Rust or native handoffs alone are not delivery.",
+    "scale_when": "A stable independent contract/source family is ready and delivery queue remains within cap. Keep extra seats on acceptance work when RAM/build/integration is saturated.",
+    "calendar_eta": "Not estimated here; requires measured weighted accepted throughput across multiple comparable cohorts, with uncertainty and platform/provider gaps."
+  },
+  "scope_notes": [
+    "All41 current bounded components are routed once; this does not sign off every latest source edit or its entire subsystem.",
+    "All24 inventory routing groups and all15 external provider records remain assigned.",
+    "Path existence is checked; this task did not run GN/Ninja or assert a complete evaluated caller graph.",
+    "Concrete seeds are not an exhaustive function-level decomposition. Large families require bounded source/API splitting before dispatch.",
+    "Preserve user-directed Android removal; no new Android/JNI work is scheduled and removal receives no Rust credit.",
+    "Pre-existing Rust sfv is a provider, not new rewrite credit; remaining C++ wrapper/ownership policy still requires closure.",
+    "Platform OS APIs remain valid external system boundaries; project-owned C++ implementations/providers are separate remaining migration work."
+  ],
+  "recorded_utc": "2026-11-13T15:40:22.639437+00:00",
+  "android_observation": {
+    "editing_directory_file_count": 0,
+    "configured_directory_file_count": 0,
+    "meaning": "User-removed target, not Rust migration credit"
+  },
+  "alternatives": [
+    {
+      "allocation": "Ten independent implementation writers",
+      "decision": "Do not use under present constraints",
+      "reason": "No delivery reserve; original-helper/caller contracts and the one configured writer become an acceptance queue. No10x speedup is established."
+    },
+    {
+      "allocation": "Three three-agent domain teams plus one delivery worker",
+      "decision": "Possible later, not recommended for current acceptance backlog",
+      "reason": "More writer seats and weaker delivery reserve; coupled interfaces and16GiB native demand need evidence before increasing WIP."
+    },
+    {
+      "allocation": "Five flexible pairs plus parent",
+      "decision": "Recommended now",
+      "reason": "Four source owners, four compatibility/next-package partners and two delivery seats fit runtime capacity, while pairs can loan independent owners to heavy portfolios."
+    }
+  ],
+  "conditional_future_scale": "If agent/runtime and actual build resources increase, split the large HTTP/protocol/request portfolio into separate pods and add dedicated provider projects. Preserve at least one delivery pair per2-3 implementation pods and one writer per actual output. Do not claim extra capacity or create environments from this plan.",
+  "input_sha256": {
+    "AGENTS.md": "d9a5f2cdaaf0742d81ed44c1d3183582df104070ec7c67905c59b3aece4dd6d9",
+    "docs/rust/net-migration-plan.md": "3b51ab8d422a06f67cb2bb2a021340b7719b8d6525839920b0a607234ed01d88",
+    "docs/rust/net-migration-execution.json": "7883b102319f0b787bf635d02d927ee98146276d6e4b6b22cc84bb8637a93e82",
+    "docs/rust/net-progress-current.json": "720ca857a962b55a5e3ad93eb0b759c8711dd61875f97dd9764523536aa2319e",
+    "docs/rust/net-migration-status.json": "a84859c7a48886907864dab709ac5abd214be8182e16210ca0cfaf511a1f49d2"
+  },
+  "dependency_edge_semantics": {
+    "requires": "Final connected integration prerequisites, not universal implementation-start barriers",
+    "implementation_can_overlap": "An owner can port local Rust policy against an agreed existing native primitive while another pod ports that provider; record the temporary seam/cost and retire it after both sides integrate",
+    "hard_start_blockers": [
+      "Unagreed or concurrently changing shared ownership/ABI contract",
+      "Missing independently original policy/helper baseline before production mutation",
+      "Conflicting source ownership",
+      "Unavailable native resource window for the next compiler/test step"
+    ]
+  }
+}

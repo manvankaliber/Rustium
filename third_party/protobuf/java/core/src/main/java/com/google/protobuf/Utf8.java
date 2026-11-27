@@ -54,9 +54,6 @@ final class Utf8 {
   private static final Processor processor = createProcessor();
 
   private static Processor createProcessor() {
-    if (Android.isOnAndroidDevice()) {
-      return new MobileProcessor();
-    }
     if (ServerProcessorWithEncodedLength.isAvailable()) {
       return new ServerProcessorWithEncodedLength();
     }
@@ -347,7 +344,6 @@ final class Utf8 {
     }
 
 
-
     /**
      * Decodes {@link ByteBuffer} instances using the {@link ByteBuffer} API rather than potentially
      * faster approaches.
@@ -545,8 +541,8 @@ final class Utf8 {
     }
   }
 
-  /** {@link Processor} optimized for mobile platforms. */
-  static final class MobileProcessor extends Processor {
+  /** {@link Processor} using portable byte-wise operations. */
+  static final class PortableProcessor extends Processor {
     @Override
     String decodeUtf8(byte[] bytes, int index, int size) throws InvalidProtocolBufferException {
       // Bitwise OR combines the sign bits so any negative value fails the check.
@@ -621,7 +617,6 @@ final class Utf8 {
 
       return new String(resultArr, 0, resultPos);
     }
-
 
 
     @Override
@@ -773,7 +768,6 @@ final class Utf8 {
 
       throw InvalidProtocolBufferException.invalidUtf8();
     }
-
 
 
     @Override

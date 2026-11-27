@@ -1,6 +1,0 @@
-#ifndef MEDIAPIPE_FRAMEWORK_FORMATS_AHWB_VIEW_H_
-#define MEDIAPIPE_FRAMEWORK_FORMATS_AHWB_VIEW_H_
-
-#include "mediapipe/framework/port.h"
-
-#endif  // MEDIAPIPE_FRAMEWORK_FORMATS_AHWB_VIEW_H_

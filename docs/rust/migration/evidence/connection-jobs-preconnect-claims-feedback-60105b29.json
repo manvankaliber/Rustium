@@ -1,0 +1,21 @@
+{
+  "utc": "2026-11-21T23:46:35.613369+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "reviewed_production_candidate": "9a136b6f4589e53516527d0ce1cb3dabfd6d9b9f",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A781cc454-9bca-4288-977f-b07bc68ba4dd",
+  "review": "No demonstrated state-transition or ABI defect. Require native regression evidence for returning or removing claimed jobs, auth-bound removal, failing and flushed preconnects.",
+  "published_test_successor": "60105b29d6ef53da869a1a8c2691b3405247a764",
+  "ref": "refs/heads/rust/transport-preconnect-claims-feedback-20261122",
+  "new_test_cases": [
+    "ClientSocketPoolBaseTest.CancelledPreconnectClaimIsNotRestored",
+    "ClientSocketPoolBaseTest.FailedAndFlushedPreconnectsClearClaims",
+    "ClientSocketPoolBaseTest.AuthBoundPreconnectDoesNotRestoreClaim",
+    "retained_queue::tests::preconnect_selects_waiter_and_returned_job_does_not_restore_claim"
+  ],
+  "feedback": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A6a586424-38de-44d5-aa2a-2ed89bc56043",
+    "scope": "Two existing warm component targets, -j4 and one simultaneous link, seven Rust tests, nine C++ gate cases, and the affected pool suites on the resulting binary."
+  },
+  "pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd"
+}

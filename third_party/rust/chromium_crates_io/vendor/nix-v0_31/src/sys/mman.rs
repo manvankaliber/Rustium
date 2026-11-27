@@ -26,10 +26,10 @@ libc_bitflags! {
         /// Pages can be executed
         PROT_EXEC;
         /// Apply protection up to the end of a mapping that grows upwards.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         PROT_GROWSDOWN;
         /// Apply protection down to the beginning of a mapping that grows downwards.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         PROT_GROWSUP;
     }
 }
@@ -61,23 +61,23 @@ libc_bitflags! {
         /// The mapping is not backed by any file.
         MAP_ANONYMOUS;
         /// Put the mapping into the first 2GB of the process address space.
-        #[cfg(any(all(linux_android,
+        #[cfg(any(all(linux,
                       any(target_arch = "x86", target_arch = "x86_64")),
                   all(target_os = "linux", target_env = "musl", any(target_arch = "x86", target_arch = "x86_64")),
                   all(target_os = "linux", target_env = "ohos", target_arch = "x86_64"),
                   all(target_os = "freebsd", target_pointer_width = "64")))]
         MAP_32BIT;
         /// Used for stacks; indicates to the kernel that the mapping should extend downward in memory.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_GROWSDOWN;
         /// Compatibility flag. Ignored.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_DENYWRITE;
         /// Compatibility flag. Ignored.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_EXECUTABLE;
         /// Mark the mmaped region to be locked in the same way as `mlock(2)`.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_LOCKED;
         /// Do not reserve swap space for this mapping.
         ///
@@ -85,13 +85,13 @@ libc_bitflags! {
         #[cfg(not(any(freebsdlike, target_os = "aix", target_os = "hurd", target_os = "redox")))]
         MAP_NORESERVE;
         /// Populate page tables for a mapping.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_POPULATE;
         /// Only meaningful when used with `MAP_POPULATE`. Don't perform read-ahead.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_NONBLOCK;
         /// Allocate the mapping using "huge pages."
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MAP_HUGETLB;
         /// Make use of 64KB huge page (must be supported by the system)
         #[cfg(target_os = "linux")]
@@ -145,7 +145,7 @@ libc_bitflags! {
         #[cfg(any(freebsdlike, netbsdlike))]
         MAP_HASSEMAPHORE;
         /// Region grows down, like a stack.
-        #[cfg(any(linux_android, freebsdlike, netbsdlike))]
+        #[cfg(any(linux, freebsdlike, netbsdlike))]
         MAP_STACK;
         /// Do not write through the page caches, write directly to the file. Used for Direct Access (DAX) enabled file systems.
         // Available on Linux glibc and musl, MIPS* target excluded.
@@ -182,7 +182,7 @@ impl MapFlags {
     /// let f = MapFlags::map_hugetlb_with_size_log2(30).unwrap();
     /// assert_eq!(f, MapFlags::MAP_HUGETLB | MapFlags::MAP_HUGE_1GB);
     /// ```
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     pub fn map_hugetlb_with_size_log2(huge_page_size_log2: u32) -> Option<Self> {
         if (16..=63).contains(&huge_page_size_log2) {
             let flag = libc::MAP_HUGETLB | (huge_page_size_log2 << libc::MAP_HUGE_SHIFT) as i32;
@@ -234,48 +234,39 @@ libc_enum! {
         /// Do not expect access in the near future.
         MADV_DONTNEED,
         /// Free up a given range of pages and its associated backing store.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_REMOVE,
         /// Do not make pages in this range available to the child after a `fork(2)`.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_DONTFORK,
         /// Undo the effect of `MADV_DONTFORK`.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_DOFORK,
         /// Poison the given pages.
         ///
         /// Subsequent references to those pages are treated like hardware memory corruption.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_HWPOISON,
         /// Enable Kernel Samepage Merging (KSM) for the given pages.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_MERGEABLE,
         /// Undo the effect of `MADV_MERGEABLE`
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_UNMERGEABLE,
         /// Preserve the memory of each page but offline the original page.
-        #[cfg(any(target_os = "android",
-            all(target_os = "linux", any(
-                target_arch = "aarch64",
-                target_arch = "arm",
-                target_arch = "powerpc",
-                target_arch = "powerpc64",
-                target_arch = "s390x",
-                target_arch = "x86",
-                target_arch = "x86_64",
-                target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", any(target_arch = "aarch64", target_arch = "arm", target_arch = "powerpc", target_arch = "powerpc64", target_arch = "s390x", target_arch = "x86", target_arch = "x86_64", target_arch = "sparc64")))]
         MADV_SOFT_OFFLINE,
         /// Enable Transparent Huge Pages (THP) for pages in the given range.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_HUGEPAGE,
         /// Undo the effect of `MADV_HUGEPAGE`.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_NOHUGEPAGE,
         /// Exclude the given range from a core dump.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_DONTDUMP,
         /// Undo the effect of an earlier `MADV_DONTDUMP`.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_DODUMP,
         /// Specify that the application no longer needs the pages in the given range.
         #[cfg(not(any(target_os = "aix", target_os = "hurd", target_os = "cygwin", target_os = "redox")))]
@@ -315,23 +306,23 @@ libc_enum! {
         #[allow(missing_docs)]
         MADV_CAN_REUSE,
         /// Reclaim the address range when applicable.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_PAGEOUT,
         /// Deactivate the address range when applicable.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_COLD,
         /// After fork, the adress range is zero filled.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_WIPEONFORK,
         /// Undo `MADV_WIPEONFORK` when it applied.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_KEEPONFORK,
         /// Pre-load the address range for reading to reduce page-fault latency.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_POPULATE_READ,
         /// Pre-fault the address range for writing to reduce page-fault
         /// latency on subsequent writes.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MADV_POPULATE_WRITE,
     }
 }

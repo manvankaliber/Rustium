@@ -138,9 +138,6 @@ group = 'safe'
 allow_first_party_usage = false
 extra_kv = { allow_unsafe = false }
 
-[crate.android_system_properties]
-extra_kv = { allow_unsafe = true }
-
 [crate.anstyle.extra_kv]
 allow_unsafe = true
 
@@ -1149,7 +1146,7 @@ extra_kv = { allow_unsafe = false }
 
 [crate.windows-sys.extra_kv]
 allow_unsafe = false
-visibility = ['//build/rust/tests/windows_sys_test:*']
+visibility = ['//third_party/rust/*', '//build/rust/tests/windows_sys_test:*', '//net:*']
 
 [crate.windows-targets.extra_kv]
 allow_unsafe = false

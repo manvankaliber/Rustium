@@ -1,9 +1,9 @@
 //! Provides helpers for making ptrace system calls
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod linux;
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub use self::linux::*;
 
 #[cfg(bsd)]

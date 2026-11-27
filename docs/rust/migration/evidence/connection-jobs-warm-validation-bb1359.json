@@ -1,0 +1,48 @@
+{
+  "family": "connection-jobs",
+  "source_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "host": "HQC-VAN_KALIBER",
+  "qualification": "Scoped incremental Windows component validation using warm outputs",
+  "compiler_jobs": 4,
+  "concurrent_links": 1,
+  "ninja_actions": 0,
+  "native_suite": {
+    "target": "connection_jobs_family_rust_unittests",
+    "discovered": 2602,
+    "passed": 2568,
+    "skipped": 34,
+    "failed": 0,
+    "disabled": 0,
+    "unrun": 0,
+    "retries": 0,
+    "receipt": "C:/Users/micro/rb/network-bb1359-fullsuite-20261119a/result.json"
+  },
+  "ordinary_workloads": {
+    "connect_job_rust_perftests": 15,
+    "connection_jobs_family_rust_perftests": 16,
+    "connection_jobs_upper_rust_perftests": 21,
+    "receipt": "C:/Users/micro/rb/network-bb1359-verify-only-20261119a/result.json"
+  },
+  "rust_core_suite": {
+    "target": "connection_jobs_rust_core_unittests",
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0,
+    "receipt": "C:/Users/micro/rb/network-bb1359-core-fullsuite-20261119b/result.json"
+  },
+  "optimized_quic_supplement": {
+    "connection_jobs_upper_rust_jobs_perftests": 16,
+    "family_differential_passed": 16,
+    "skipped": 0,
+    "retries": 0,
+    "enable_quic_proxy_support": true,
+    "enable_bracketed_proxy_uris": false,
+    "rustium_reference_probe": false,
+    "receipt": "C:/Users/micro/rb/network-bb1359-quic-supplement-20261119b/result.json",
+    "lock_released": "C:/Users/micro/rb/network-bb1359-quic-supplement-20261119b/post-release.json"
+  },
+  "limits": [
+    "Cached artifacts. Fresh build and broader consumer suites remain open.",
+    "No benchmark timings, other-platform evidence or C++ retirement credit."
+  ]
+}

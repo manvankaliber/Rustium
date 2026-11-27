@@ -73,6 +73,6 @@ final class ManifestSchemaFactory {
   }
 
   private static boolean useLiteRuntime(Class<?> messageType) {
-    return Android.assumeLiteRuntime || GeneratedMessageLite.class.isAssignableFrom(messageType);
+    return GeneratedMessageLite.class.isAssignableFrom(messageType);
   }
 }

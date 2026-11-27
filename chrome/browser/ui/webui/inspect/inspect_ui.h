@@ -27,7 +27,6 @@ class DevToolsAgentHost;
 class BrowserWindowInterface;
 class DevToolsTargetsUIHandler;
 class InspectUI;
-class PortForwardingStatusSerializer;
 
 // chrome://inspect isn't supported on Android nor iOS. Page debugging is
 // handled by a remote devtools on the host machine, and other elements, i.e.
@@ -76,15 +75,11 @@ class InspectUI : public content::WebUIController,
   // content::WebContentsObserver:
   void WebContentsDestroyed() override;
 
-  void UpdateDiscoverUsbDevicesEnabled();
-  void UpdatePortForwardingEnabled();
-  void UpdatePortForwardingConfig();
   void UpdateTCPDiscoveryEnabled();
   void UpdateTCPDiscoveryConfig();
   void UpdateBubbleLockingCheckbox();
   void UpdateRemoteDebuggingEnabled();
 
-  void SetPortForwardingDefaults();
 
   const base::Value* GetPrefValue(const char* name);
 
@@ -98,7 +93,6 @@ class InspectUI : public content::WebUIController,
   void PopulateTargets(const std::string& source_id,
                        const base::Value& targets);
 
-  void PopulatePortStatus(base::Value status);
 
   void ShowIncognitoWarning();
 
@@ -109,7 +103,6 @@ class InspectUI : public content::WebUIController,
   std::map<std::string, std::unique_ptr<DevToolsTargetsUIHandler>>
       target_handlers_;
 
-  std::unique_ptr<PortForwardingStatusSerializer> port_status_serializer_;
 
   base::WeakPtrFactory<InspectUI> weak_factory_{this};
 };

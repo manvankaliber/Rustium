@@ -1,0 +1,19 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "Both multistep filter test objects must compile for optimized proxy preference acceptance under components_unittests.",
+  "failed_commit": "c4058976b12859dff64b31e6af4c6e317d03189f",
+  "annotation_index_object_elapsed_seconds": 80.328,
+  "annotation_index_object_exit_code": 0,
+  "umbrella_elapsed_seconds": 1013.484,
+  "umbrella_action_lines": 744,
+  "umbrella_cases_run": 0,
+  "first_umbrella_error": "filter_suggestion_generator_unittest.cc:102: use of undeclared identifier kShoppingTask; subsequent errors refer to omitted local annotations",
+  "failure_receipt": "C:/Users/micro/rb/network-c4058976-feedback-20261121a/receipt.md",
+  "failure_log": "C:/Users/micro/rb/network-c4058976-feedback-20261121a/components.log",
+  "annotation_index_object_log": "C:/Users/micro/rb/network-c4058976-feedback-20261121a/object.log",
+  "independent_lock_release": true,
+  "focused_candidate": "1c843c0cce9725125385665fe9b74eee5aa077f0",
+  "published_ref": "refs/heads/rust/filter-suggestion-test-feedback-20261121",
+  "validation_thread": "mcp:launch:2e589913b732839520aa8c0b2a85aa543c05933eaccd4b359575a6b62bc706d1",
+  "validation_state": "Warm feedback dispatched for both changed objects before continuing umbrella acceptance."
+}

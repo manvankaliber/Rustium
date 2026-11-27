@@ -20,7 +20,7 @@
 #include "base/version.h"
 #include "chrome/browser/extensions/component_loader_prefs.h"
 #include "chrome/common/extensions/extension_constants.h"
-#include "chrome/grit/aim_eligibility_extension_resources.h"
+#include "chrome/grit/browser_resources.h"
 #include "chrome/test/base/testing_browser_process.h"
 #include "components/component_updater/component_updater_paths.h"
 #include "components/component_updater/component_updater_service.h"
@@ -40,7 +40,11 @@
 namespace component_updater {
 namespace {
 
-constexpr char kAimEligibilityExtensionKey[] =
+constexpr char kTestExtensionId[] = "kabpfonokkamggpgbldambnmkliehlbh";
+constexpr base::FilePath::CharType kTestExtensionDir[] =
+    FILE_PATH_LITERAL("test_component_extension");
+
+constexpr char kTestExtensionKey[] =
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApBqd0NT1c0F+CI4e"
     "NK09isJoysNY8QZhW7UrqO2XWwOCG5QH8TykzpAHNdM5vDJwSxDg1vO69dZKhjMdyg4e"
     "MaL4U3qoYAwqobmZilZ/ig/Bzi0XdGKY6rN5xDakWKdR9BkhJlE+xEVqKXd5NoV1gg69s"
@@ -59,16 +63,14 @@ constexpr base::FilePath::CharType kExtensionManifestFilename[] =
 
 ComponentExtensionInstallerConfig MakeTestConfig() {
   return {
-      .name = "AIM Eligibility Component Extension",
-      .extension_id = extension_misc::kAimEligibilityExtensionId,
+      .name = "Test Component Extension",
+      .extension_id = kTestExtensionId,
       .public_key_sha256 = {0xa0, 0x1f, 0x5e, 0xde, 0xaa, 0x0c, 0x66, 0xf6,
                             0x1b, 0x30, 0xc1, 0xdc, 0xab, 0x84, 0x7b, 0x17,
                             0xa0, 0xb9, 0x5f, 0x0e, 0xa6, 0x9c, 0xf7, 0x89,
                             0x39, 0x17, 0xb2, 0x95, 0x5b, 0x02, 0x89, 0xb8},
-      .relative_install_dir =
-          base::FilePath(extension_misc::kAimEligibilityExtensionDirName),
-      .bundled_manifest_resource_id =
-          IDR_AIM_ELIGIBILITY_EXTENSION_MANIFEST_JSON,
+      .relative_install_dir = base::FilePath(kTestExtensionDir),
+      .bundled_manifest_resource_id = IDR_NETWORK_SPEECH_SYNTHESIS_MANIFEST,
   };
 }
 
@@ -116,24 +118,24 @@ TEST_F(ComponentExtensionInstallerPolicyTest, ComponentReadyStaged) {
       install_dir.GetPath().Append(kExtensionManifestFilename);
   ASSERT_TRUE(base::WriteFile(
       manifest_path,
-      base::StringPrintf(R"({"name": "AIM Staged", "version": "2.0", )"
+      base::StringPrintf(R"({"name": "Test Staged", "version": "2.0", )"
                          R"("manifest_version": 3, "key": "%s"})",
-                         kAimEligibilityExtensionKey)));
+                         kTestExtensionKey)));
 
   // ComponentReady with extension version 2.0 (> bundled 1.0) stages in Prefs.
   policy.ComponentReady(base::Version("1.1"), install_dir.GetPath(),
                         base::DictValue());
   PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return extensions::component_loader_prefs::GetExtension(
-               *local_state, extension_misc::kAimEligibilityExtensionId)
+    return extensions::component_loader_prefs::GetExtension(*local_state,
+                                                            kTestExtensionId)
         .has_value();
   }));
 
   std::optional<
       extensions::component_loader_prefs::StagedComponentExtensionInfo>
       staged = extensions::component_loader_prefs::GetExtension(
-          *local_state, extension_misc::kAimEligibilityExtensionId);
+          *local_state, kTestExtensionId);
   ASSERT_TRUE(staged.has_value());
   EXPECT_EQ(staged->relative_path,
             policy.GetRelativeInstallDir().AppendASCII("1.1"));
@@ -144,7 +146,7 @@ TEST_F(ComponentExtensionInstallerPolicyTest, ComponentReadyStaged) {
   const std::string* name =
       staged->manifest.FindString(extensions::manifest_keys::kName);
   ASSERT_TRUE(name);
-  EXPECT_EQ(*name, "AIM Staged");
+  EXPECT_EQ(*name, "Test Staged");
 }
 
 TEST_F(ComponentExtensionInstallerPolicyTest,
@@ -157,15 +159,15 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
       install_dir.GetPath().Append(kExtensionManifestFilename);
   ASSERT_TRUE(base::WriteFile(
       manifest_path,
-      base::StringPrintf(R"({"name": "AIM Staged", "version": "1.0", )"
+      base::StringPrintf(R"({"name": "Test Staged", "version": "1.0", )"
                          R"("manifest_version": 3, "key": "%s"})",
-                         kAimEligibilityExtensionKey)));
+                         kTestExtensionKey)));
 
   PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
+      *local_state, kTestExtensionId,
       policy.GetRelativeInstallDir().AppendASCII("2.0"),
       std::move(staged_manifest));
 
@@ -174,8 +176,8 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   policy.ComponentReady(base::Version("1.1"), install_dir.GetPath(),
                         base::DictValue());
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+    return !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -189,22 +191,22 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   base::FilePath manifest_path =
       install_dir.GetPath().Append(kExtensionManifestFilename);
   ASSERT_TRUE(base::WriteFile(
-      manifest_path, R"({"name": "AIM Staged", "version": "2.0", )"
+      manifest_path, R"({"name": "Test Staged", "version": "2.0", )"
                      R"("manifest_version": 3, "key": "not-valid-pem"})"));
 
   PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
+      *local_state, kTestExtensionId,
       policy.GetRelativeInstallDir().AppendASCII("2.0"),
       std::move(staged_manifest));
 
   policy.ComponentReady(base::Version("1.1"), install_dir.GetPath(),
                         base::DictValue());
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+    return !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -219,7 +221,7 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
       install_dir.GetPath().Append(kExtensionManifestFilename);
   ASSERT_TRUE(base::WriteFile(
       manifest_path,
-      base::StringPrintf(R"({"name": "AIM Staged", "version": "2.0", )"
+      base::StringPrintf(R"({"name": "Test Staged", "version": "2.0", )"
                          R"("manifest_version": 3, "key": "%s"})",
                          kDifferentExtensionKey)));
 
@@ -227,15 +229,15 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
+      *local_state, kTestExtensionId,
       policy.GetRelativeInstallDir().AppendASCII("2.0"),
       std::move(staged_manifest));
 
   policy.ComponentReady(base::Version("1.1"), install_dir.GetPath(),
                         base::DictValue());
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+    return !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -250,7 +252,7 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
+      *local_state, kTestExtensionId,
       policy.GetRelativeInstallDir().AppendASCII("2.0"),
       std::move(staged_manifest));
 
@@ -259,94 +261,8 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   policy.ComponentReady(base::Version("2.0"), install_dir.GetPath(),
                         base::DictValue());
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
-                .has_value();
-  }));
-}
-
-TEST_F(ComponentExtensionInstallerPolicyTest,
-       RegisterAimEligibilityComponentEnabled) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeaturesAndParameters(
-      {{omnibox::kAimEligibilityComponentExtension,
-        {{"use_component_updater", "true"}}}},
-      {});
-
-  auto cus = std::make_unique<MockComponentUpdateService>();
-  // ComponentInstaller::Register performs registration asynchronously on a
-  // background task runner and replies on the current sequence. Use a
-  // TestFuture to wait until RegisterComponent is invoked before verifying
-  // expectations.
-  base::test::TestFuture<void> registered;
-  EXPECT_CALL(*cus, RegisterComponent(
-                        testing::Field(&ComponentRegistration::name,
-                                       "AIM Eligibility Component Extension")))
-      .WillOnce([&registered](const auto&) {
-        registered.SetValue();
-        return true;
-      });
-
-  ManageComponentExtensionRegistrations(cus.get());
-  EXPECT_TRUE(registered.Wait());
-}
-
-TEST_F(ComponentExtensionInstallerPolicyTest,
-       RegisterAimEligibilityComponentDisabledByFeature) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      omnibox::kAimEligibilityComponentExtension);
-
-  // Pre-populate staged prefs to verify that when the feature is disabled,
-  // Uninstall() is triggered and it cleans up staged prefs.
-  PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
-  base::DictValue staged_manifest;
-  staged_manifest.Set("version", "2.0");
-  extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName)
-          .AppendASCII("2.0"),
-      std::move(staged_manifest));
-
-  auto cus = std::make_unique<MockComponentUpdateService>();
-  EXPECT_CALL(*cus, RegisterComponent(testing::_)).Times(0);
-
-  ManageComponentExtensionRegistrations(cus.get());
-
-  EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
-                .has_value();
-  }));
-}
-
-TEST_F(ComponentExtensionInstallerPolicyTest,
-       RegisterAimEligibilityComponentDisabledByFeatureParam) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeaturesAndParameters(
-      {{omnibox::kAimEligibilityComponentExtension,
-        {{"use_component_updater", "false"}}}},
-      {});
-
-  // Pre-populate staged prefs to verify that when the feature param is
-  // disabled, Uninstall() is triggered and it cleans up staged prefs.
-  PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
-  base::DictValue staged_manifest;
-  staged_manifest.Set("version", "2.0");
-  extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName)
-          .AppendASCII("2.0"),
-      std::move(staged_manifest));
-
-  auto cus = std::make_unique<MockComponentUpdateService>();
-  EXPECT_CALL(*cus, RegisterComponent(testing::_)).Times(0);
-
-  ManageComponentExtensionRegistrations(cus.get());
-
-  EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+    return !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -436,13 +352,12 @@ TEST_F(ComponentExtensionInstallerPolicyTest, UninstallComponent) {
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName)
-          .AppendASCII("2.0"),
+      *local_state, kTestExtensionId,
+      base::FilePath(kTestExtensionDir).AppendASCII("2.0"),
       std::move(staged_manifest));
 
-  base::FilePath component_dir = user_data_dir_.GetPath().Append(
-      extension_misc::kAimEligibilityExtensionDirName);
+  base::FilePath component_dir =
+      user_data_dir_.GetPath().Append(kTestExtensionDir);
   base::FilePath version_dir = component_dir.Append(FILE_PATH_LITERAL("2.0"));
   ASSERT_TRUE(base::CreateDirectory(version_dir));
   ASSERT_TRUE(
@@ -457,8 +372,8 @@ TEST_F(ComponentExtensionInstallerPolicyTest, UninstallComponent) {
   // OnCustomUninstall() to clear the staged prefs.
   EXPECT_TRUE(base::test::RunUntil([&] {
     return !base::PathExists(component_dir) &&
-           !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+           !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -478,22 +393,21 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId,
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName)
-          .AppendASCII("2.0"),
+      *local_state, kTestExtensionId,
+      base::FilePath(kTestExtensionDir).AppendASCII("2.0"),
       std::move(staged_manifest));
 
   auto cus = std::make_unique<MockComponentUpdateService>();
-  EXPECT_CALL(*cus, RegisterComponent(
-                        testing::Field(&ComponentRegistration::name,
-                                       "AIM Eligibility Component Extension")))
+  EXPECT_CALL(*cus,
+              RegisterComponent(testing::Field(&ComponentRegistration::name,
+                                               "Test Component Extension")))
       .WillOnce(testing::Return(true));
 
   ManageComponentExtensionRegistrations(cus.get());
 
   EXPECT_TRUE(base::test::RunUntil([&] {
-    return !extensions::component_loader_prefs::GetExtension(
-                *local_state, extension_misc::kAimEligibilityExtensionId)
+    return !extensions::component_loader_prefs::GetExtension(*local_state,
+                                                             kTestExtensionId)
                 .has_value();
   }));
 }
@@ -509,32 +423,31 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
       {});
 
   base::FilePath relative_path =
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName)
-          .AppendASCII("2.0");
+      base::FilePath(kTestExtensionDir).AppendASCII("2.0");
   base::FilePath install_dir = user_data_dir_.GetPath().Append(relative_path);
   ASSERT_TRUE(base::CreateDirectory(install_dir));
   ASSERT_TRUE(base::WriteFile(
       install_dir.AppendASCII("manifest.json"),
       R"({"manifest_version": 2, )"
-      R"("name": "AIM Eligibility Component Extension", "version": "2.0"})"));
+      R"("name": "Test Component Extension", "version": "2.0"})"));
   ASSERT_TRUE(base::WriteFile(
       install_dir.Append(kExtensionManifestFilename),
-      base::StringPrintf(R"({"name": "AIM Staged", "version": "2.0", )"
+      base::StringPrintf(R"({"name": "Test Staged", "version": "2.0", )"
                          R"("manifest_version": 3, "key": "%s"})",
-                         kAimEligibilityExtensionKey)));
+                         kTestExtensionKey)));
 
   PrefService* local_state = TestingBrowserProcess::GetGlobal()->local_state();
   base::DictValue staged_manifest;
   staged_manifest.Set("version", "2.0");
   extensions::component_loader_prefs::StageExtension(
-      *local_state, extension_misc::kAimEligibilityExtensionId, relative_path,
+      *local_state, kTestExtensionId, relative_path,
       std::move(staged_manifest));
 
   auto cus = std::make_unique<MockComponentUpdateService>();
   base::test::TestFuture<void> registered;
-  EXPECT_CALL(*cus, RegisterComponent(
-                        testing::Field(&ComponentRegistration::name,
-                                       "AIM Eligibility Component Extension")))
+  EXPECT_CALL(*cus,
+              RegisterComponent(testing::Field(&ComponentRegistration::name,
+                                               "Test Component Extension")))
       .WillOnce([&registered](const auto&) {
         registered.SetValue();
         return true;
@@ -548,7 +461,7 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
     std::optional<
         extensions::component_loader_prefs::StagedComponentExtensionInfo>
         staged = extensions::component_loader_prefs::GetExtension(
-            *local_state, extension_misc::kAimEligibilityExtensionId);
+            *local_state, kTestExtensionId);
     return staged && staged->manifest.FindString(
                          extensions::manifest_keys::kName) != nullptr;
   }));
@@ -556,13 +469,13 @@ TEST_F(ComponentExtensionInstallerPolicyTest,
   std::optional<
       extensions::component_loader_prefs::StagedComponentExtensionInfo>
       staged = extensions::component_loader_prefs::GetExtension(
-          *local_state, extension_misc::kAimEligibilityExtensionId);
+          *local_state, kTestExtensionId);
   ASSERT_TRUE(staged.has_value());
   EXPECT_EQ(staged->relative_path, relative_path);
   const std::string* name =
       staged->manifest.FindString(extensions::manifest_keys::kName);
   ASSERT_TRUE(name);
-  EXPECT_EQ(*name, "AIM Staged");
+  EXPECT_EQ(*name, "Test Staged");
 }
 
 }  // namespace component_updater

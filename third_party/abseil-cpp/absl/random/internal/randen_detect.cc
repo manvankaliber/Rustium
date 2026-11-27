@@ -76,39 +76,6 @@ static uint32_t GetAuxval(uint32_t hwcap_type) {
 
 #endif
 
-// On android, probe the system's C library for getauxval().
-// This is the same technique used by the android NDK cpu features library
-// as well as the google open-source cpu_features library.
-//
-// TODO(absl-team): Consider implementing a fallback of directly reading
-// /proc/self/auxval.
-#if defined(ABSL_INTERNAL_USE_ANDROID_GETAUXVAL)
-#include <dlfcn.h>
-
-#include <cstring>
-
-static uint32_t GetAuxval(uint32_t hwcap_type) {
-  // NOLINTNEXTLINE(runtime/int)
-  typedef unsigned long (*getauxval_func_t)(unsigned long);
-
-  dlerror();  // Cleaning error state before calling dlopen.
-  void* libc_handle = dlopen("libc.so", RTLD_NOW);
-  if (!libc_handle) {
-    return 0;
-  }
-  uint32_t result = 0;
-  void* sym = dlsym(libc_handle, "getauxval");
-  if (sym) {
-    getauxval_func_t func;
-    memcpy(&func, &sym, sizeof(func));
-    result = static_cast<uint32_t>((*func)(hwcap_type));
-  }
-  dlclose(libc_handle);
-  return result;
-}
-
-#endif
-
 #if defined(__APPLE__) && defined(ABSL_ARCH_AARCH64)
 template <typename T>
 static std::optional<T> ReadSysctlByName(const char* name) {
@@ -142,12 +109,9 @@ namespace random_internal {
 //
 // Fon non-x86 it is much more complicated.
 //
-// 2. When ABSL_INTERNAL_USE_GETAUXVAL is defined, use getauxval() (either
-//    the direct c-library version, or the android probing version which loads
-//    libc), and read the hardware capability bits.
-//    This is based on the technique used by boringssl uses to detect
-//    cpu capabilities, and should allow us to enable crypto in the android
-//    builds where it is supported.
+// 2. When ABSL_INTERNAL_USE_GETAUXVAL is defined, use the C library
+//    getauxval() to read hardware capability bits. This uses the same
+//    technique as boringssl to detect CPU capabilities.
 //
 // 3. When __APPLE__ is defined on AARCH64, use sysctlbyname().
 //

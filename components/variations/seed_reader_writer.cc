@@ -30,7 +30,7 @@
 // ZSTD is not supported on Android due to binary size increase. See
 // crbug.com/40196713.
 // Note: When changing this, seed file migration logic will need to be added.
-#define USE_ZSTD_FOR_SEEDS !BUILDFLAG(IS_ANDROID)
+#define USE_ZSTD_FOR_SEEDS 1
 
 #if USE_ZSTD_FOR_SEEDS
 #include "third_party/zstd/src/lib/zstd.h"  // nogncheck
@@ -1049,8 +1049,6 @@ bool SeedReaderWriter::ShouldUseSeedFile() const {
   return seed_writer_ &&
          base::FieldTrialList::FindFullName(kSeedFileTrial) == kSeedFilesGroup;
 }
-
-
 
 void SeedReaderWriter::ProcessStoredSeedDataAndRunCallback(
     ReadSeedDataCallback done_callback,

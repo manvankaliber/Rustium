@@ -13,7 +13,6 @@
 #include <string>
 
 #include "base/containers/flat_set.h"
-#include "base/containers/lru_cache.h"
 #include "base/functional/bind.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory_coordinator/async_memory_consumer_registration.h"
@@ -30,6 +29,8 @@
 namespace base {
 class Clock;
 }
+
+struct TlsSessionCacheRustState;
 
 namespace net {
 
@@ -79,7 +80,7 @@ class NET_EXPORT SSLClientSessionCache : public base::MemoryConsumer {
   // the `generation_number()` at the time should be recorded and used when
   // inserting the session into the cache, which will ensure that sessions
   // created with stale configs don't get cached.
-  uint64_t generation_number() const { return generation_number_; }
+  uint64_t generation_number() const;
 
   // Returns the session associated with |cache_key| and moves it to the front
   // of the MRU list. Returns nullptr if there is none.
@@ -108,38 +109,17 @@ class NET_EXPORT SSLClientSessionCache : public base::MemoryConsumer {
   void SetClockForTesting(base::Clock* clock);
 
  private:
-  struct Entry {
-    Entry();
-    Entry(Entry&&);
-    ~Entry();
-
-    // Adds a new session onto this entry, dropping the oldest one if two are
-    // already stored.
-    void Push(bssl::UniquePtr<SSL_SESSION> session);
-
-    // Retrieves the latest session from the entry, removing it if its
-    // single-use.
-    bssl::UniquePtr<SSL_SESSION> Pop();
-
-    // Removes any expired sessions, returning true if this entry can be
-    // deleted.
-    bool ExpireSessions(time_t now);
-
-    bssl::UniquePtr<SSL_SESSION> sessions[2];
+  struct StateDeleter {
+    void operator()(TlsSessionCacheRustState* state) const;
   };
-
-  // Removes all expired sessions from the cache.
-  void FlushExpiredSessions();
+  friend class TlsSessionCacheRustTestPeer;
 
   // base::MemoryConsumer implementation:
   void OnUpdateMemoryLimit() override;
   void OnReleaseMemory() override;
 
   raw_ptr<base::Clock> clock_;
-  uint64_t generation_number_ = 0;
-  Config config_;
-  base::LRUCache<Key, Entry> cache_;
-  size_t lookups_since_flush_ = 0;
+  std::unique_ptr<TlsSessionCacheRustState, StateDeleter> state_;
   std::optional<base::AsyncMemoryConsumerRegistration>
       memory_consumer_registration_;
 };

@@ -81,7 +81,6 @@
 #include "components/omnibox/browser/search_provider.h"
 #include "components/omnibox/browser/search_scoring_signals_annotator.h"
 #include "components/omnibox/browser/shortcuts_provider.h"
-#include "components/omnibox/browser/tab_group_provider.h"
 #include "components/omnibox/browser/unscoped_extension_provider.h"
 #include "components/omnibox/browser/url_scoring_signals_annotator.h"
 #include "components/omnibox/browser/verbatim_match.h"
@@ -125,7 +124,6 @@ using OEP = metrics::OmniboxEventProto;
 constexpr bool kIsDesktop =
     !(false ||
       (false && !false));
-constexpr bool is_android = !!false;
 
 void RecordMlScoreCoverage(size_t matches_with_non_null_scores,
                            size_t total_scored_matches) {
@@ -1023,7 +1021,6 @@ void AutocompleteController::UpdateSearchTermsArgsWithAdditionalSearchboxStats(
   // can stop logging this deprecated field.
   search_terms_args.searchbox_stats.set_experiment_stats(experiment_stats);
 
-
   if (smart_compose_stats_.has_value()) {
     *search_terms_args.searchbox_stats.mutable_smart_compose_stats() =
         smart_compose_stats_.value();
@@ -1167,7 +1164,6 @@ bool AutocompleteController::ShouldRunProvider(
     return provider->type() == AutocompleteProvider::Type::kZeroSuggest ||
            provider->type() == AutocompleteProvider::Type::kSearch;
   }
-
 
   // Always let the `ContextualSearchProvider` generate the toolbelt match,
   // even when in keyword modes. Note this comes after above checks
@@ -1831,12 +1827,11 @@ void AutocompleteController::AttachActions() {
 
   // TabMatcher should run for ZPS for the Hub since open tab suggestions are
   // shown there.
-  if (!input_.IsZeroSuggest() ||
-      omnibox::IsAndroidHubOrTabSearch(input_.current_page_classification())) {
+  if ((!(input_.IsZeroSuggest()))) {
     // Do not look for matching tabs on Android unless we collected all the
     // suggestions. Tab matching is an expensive process with multiple JNI calls
     // involved. Run it only when all the suggestions are collected.
-    bool perform_tab_match = is_android ? done() : true;
+    bool perform_tab_match = true;
     if (perform_tab_match) {
       internal_result_.ConvertOpenTabMatches(provider_client_.get(), &input_);
     }
@@ -1955,14 +1950,12 @@ void AutocompleteController::UpdateKeywordDescriptions(
     return;
   }
 
-
   std::u16string last_keyword;
   for (auto i(result->begin()); i != result->end(); ++i) {
     if (AutocompleteMatch::IsSearchType(i->type)) {
       if (i->HasCustomDescription() || IsUnscopedExtensionMatch(*i)) {
         continue;
       }
-
 
       i->description.clear();
       i->description_class.clear();
@@ -2385,7 +2378,6 @@ size_t AutocompleteController::InjectAdHocMatch(AutocompleteMatch match) {
   RequestNotifyChanged(false, false);
   return index;
 }
-
 
 const omnibox::metrics::ChromeSearchboxStats::ExperimentStatsV2
 AutocompleteController::GetOmniboxPositionExperimentStatsV2() const {

@@ -24,7 +24,7 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/getentropy.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/getrandom.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/hermit.rs",
-    "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/linux_android_with_fallback.rs",
+    "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/linux_with_fallback.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/linux_raw.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/netbsd.rs",
     "//third_party/rust/chromium_crates_io/vendor/getrandom-v0_4/src/backends/rdrand.rs",

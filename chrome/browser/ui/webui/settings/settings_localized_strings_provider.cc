@@ -428,25 +428,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
       {"indigoLabel", IDS_INDIGO_SETTINGS_LABEL},
       {"indigoSublabel", IDS_INDIGO_SETTINGS_SUB_LABEL},
 
-      // Google Search AI Mode and connected apps (AIM Workspace) strings.
-      {"googleSearchAiModeWorkspaceLabel",
-       IDS_SETTINGS_GOOGLE_SEARCH_AI_MODE_WORKSPACE_LABEL},
-      {"googleSearchAiModeWorkspaceSublabel",
-       IDS_SETTINGS_GOOGLE_SEARCH_AI_MODE_WORKSPACE_SUBLABEL},
-
-      // AI Mode Search Settings strings for Smart Tab Sharing (STS)
-      {"stsSettingsEntrypointGoogleSearchAiMode",
-       IDS_STS_SETTINGS_ENTRYPOINT_GOOGLE_SEARCH_AI_MODE},
-      {"stsSettingsEntrypointGetResponsesWithContext",
-       IDS_STS_SETTINGS_ENTRYPOINT_GET_RESPONSES_WITH_CONTEXT},
-      {"stsSettingsOption1ShareOpenTabsForEveryThreadV3",
-       IDS_STS_SETTINGS_OPTION_1_SHARE_OPEN_TABS_FOR_EVERY_THREAD_V3},
-      {"stsSettingsOption1ChooseHowRelevantOpenTabsCanBeUsedV3",
-       IDS_STS_SETTINGS_OPTION_1_CHOOSE_HOW_RELEVANT_OPEN_TABS_CAN_BE_USED_V3},
-      {"stsSettingsOption1LearnMore", IDS_STS_SETTINGS_OPTION_1_LEARN_MORE},
-      {"stsSettingsOption1NeverShareTheseSites",
-       IDS_STS_SETTINGS_OPTION_1_NEVER_SHARE_THESE_SITES},
-
       // Suggestions strings.
       {"aiSuggestionsLabel", IDS_CONTEXTUAL_CUEING_SETTINGS_PAGE_TITLE},
       {"aiSuggestionsSublabel", IDS_CONTEXTUAL_CUEING_SETTINGS_PAGE_SUBLABEL},
@@ -488,15 +469,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
           ? IDS_CONTEXTUAL_CUEING_SETTINGS_CONSIDER_1_PRIVATE
           : IDS_CONTEXTUAL_CUEING_SETTINGS_CONSIDER_1_NON_PRIVATE);
 
-  int sts_option_1_sites_added_here_wont_be_referenced_string_id =
-      base::FeatureList::IsEnabled(
-          lens::features::kLensDeleteContextOnPageNavigation)
-          ? IDS_STS_SETTINGS_OPTION_1_SITES_ADDED_HERE_WONT_BE_REFERENCED_V2
-          : IDS_STS_SETTINGS_OPTION_1_SITES_ADDED_HERE_WONT_BE_REFERENCED_V3;
-  html_source->AddLocalizedString(
-      "stsSettingsOption1SitesAddedHereWontBeReferenced",
-      sts_option_1_sites_added_here_wont_be_referenced_string_id);
-
   html_source->AddString("aiPageMainManagedLearnMoreUrl",
                          chrome::kAiSettingsLearnMorePageManagedUrl);
 
@@ -508,8 +480,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
                          chrome::kChromeUiPasswordChangeUrl);
   html_source->AddString("indigoSavedUrl", features::kIndigoSavedUrl.Get());
 
-  html_source->AddString("googleSearchAiModeWorkspaceUrl",
-                         chrome::kMyActivitySearchServicesAppsUrl);
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   html_source->AddString("onDeviceAiLearnMoreUrl",
                          chrome::kOnDeviceAiLearnMoreUrl);
@@ -520,8 +490,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
           chrome::kOnDeviceAiLearnMoreUrl,
           l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB)));
 #endif
-  html_source->AddString("googleSearchAiModeRestrictedUrl",
-                         "https://myactivity.google.com/myactivity");
 }
 
 void AddAppearanceStrings(content::WebUIDataSource* html_source,

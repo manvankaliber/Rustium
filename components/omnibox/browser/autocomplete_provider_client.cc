@@ -72,7 +72,6 @@ bool AutocompleteProviderClient::in_background_state() const {
   return false;
 }
 
-
 bool AutocompleteProviderClient::IsAskGShowChipEnabled() const {
   return false;
 }
@@ -88,10 +87,6 @@ bool AutocompleteProviderClient::IsGeminiStarterPackEnabled() const {
 base::WeakPtr<AutocompleteProviderClient>
 AutocompleteProviderClient::GetWeakPtr() {
   return nullptr;
-}
-
-bool AutocompleteProviderClient::IsWebUiNtpEnabledForDesktopAndroid() const {
-  return false;
 }
 
 bool AutocompleteProviderClient::ShouldOpenCoBrowsePanel() const {

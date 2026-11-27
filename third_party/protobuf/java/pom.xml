@@ -88,12 +88,12 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>32.0.1-android</version>
+        <version>32.0.1-jre</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava-testlib</artifactId>
-        <version>32.0.1-android</version>
+        <version>32.0.1-jre</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -183,18 +183,13 @@
             <artifactId>java18</artifactId>
             <version>1.0</version>
           </signature>
-          <signature>
-            <groupId>net.sf.androidscents.signature</groupId>
-            <artifactId>android-api-level-21</artifactId>
-            <version>5.0.1_r2</version>
-          </signature>
           <ignores>
             <ignore>sun.misc.Unsafe</ignore>
           </ignores>
         </configuration>
         <executions>
           <execution>
-            <id>android</id>
+            <id>jvm</id>
             <phase>test</phase>
             <goals>
               <goal>check</goal>

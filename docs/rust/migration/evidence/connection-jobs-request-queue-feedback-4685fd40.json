@@ -1,0 +1,30 @@
+{
+  "utc": "2026-11-21T23:07:53.396505+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "reviewed_candidate": "50a5a8c1b8625c846adeae9f0ba68e674d4e4b7c",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A52d078c6-f69b-403d-81ad-087f2b4cedbb",
+  "review_scope": "Group behavior and transaction under existing provider contract, Rust pointer/snapshot soundness, native ABI and validation wiring. No demonstrated production scheduling difference in static review.",
+  "repairs": {
+    "candidate": "4685fd403bfa4075e42121a19d5866e302f1610a",
+    "ref": "refs/heads/rust/transport-retained-request-order-feedback-20261122",
+    "changes": [
+      "Gate Rust methods referenced only by tests under cfg(test).",
+      "Register production-crate Rust tests with build_native_rust_unit_tests.",
+      "Restore original debug thread checks on queue operations and destruction.",
+      "Add an ABI test comparing the size, alignment and field offsets with the Rust definition through net.dll."
+    ]
+  },
+  "laptop": {
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A85499429-f226-4917-9722-4a4f7a92bda9",
+    "thread": "t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:d702bdce312c8470a746cd25581bef06a9e6cea3ffe0438949c6eec4abf78625",
+    "scope": "Warm Windows net_unittests and configured native Rust unit tests. Ninja -j4 and link pool depth one.",
+    "status": "dispatched"
+  },
+  "followup": {
+    "local_candidate": "563d3915ab6faf96d467f811211a736c1786608d",
+    "primary_case": "ClientSocketPoolBaseTest.RetainedQueueReprioritizeDuringSynchronousDispatch",
+    "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A0ac65ca7-985c-4980-924e-e762d6cfe417",
+    "scope": "Mock ConnectJob propagates priority into the real dispatcher, observing temporary detachment and posted completion. Real resolver suite cases are separately dispatched."
+  },
+  "limits": "No native or performance result yet, other platform and exact injected-provider scope remains open."
+}

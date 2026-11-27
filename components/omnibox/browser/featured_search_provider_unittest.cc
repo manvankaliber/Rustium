@@ -54,8 +54,7 @@ const std::string kTabsUrl =
     template_url_starter_pack_data::tabs.destination_url;
 const std::string kPageUrl =
     template_url_starter_pack_data::page.destination_url;
-const std::string kAiModeUrl =
-    template_url_starter_pack_data::ai_mode.destination_url;
+const std::string kAiModeUrl = "https://www.google.com";
 
 struct TestData {
   const std::u16string input;

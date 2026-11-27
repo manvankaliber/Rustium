@@ -1,0 +1,49 @@
+{
+  "task_id": "NET-ORDINARY-COMPILE-REPAIR",
+  "candidate_commit": "f00b0d0c0667a634436f7c75fff11ea3ae25441e",
+  "integration_commit": "e70c4fbe094e73024f7c1301ba40c3543949e2a3",
+  "source_identity": {
+    "validated_commit": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+    "input_record_sha256": "1f8f4a36994e16d4425ae9648b13242c22f3bf7bd70df536246e8f27a18bff02",
+    "fresh_output": "out/NetworkCI/qual-72ee5d-1121b",
+    "program_inventory": "tools/ci/network-validation-inventory.json",
+    "program_inventory_sha256": "fa9d00a712b0c4c3bc7fe53d6c0080ac4539803c18a03007d916161e3fc6695e"
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Fresh build and recorded ordinary Windows runtime accepted for the repair proposal inventory.",
+    "receipt": "docs/rust/migration/evidence/network-consumer-runtime-acceptance-72ee5ddd.json"
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Exact independent proposal artifact retained; later reviewed source successors validated at the PR head.",
+    "prior_independent_review": "docs/rust/migration/evidence/net-compile-integration-review-delivery-20261117.json"
+  },
+  "exact_proposal_files": [
+    "net/cookies/cookie_family_store_test_support.h",
+    "net/cookies/cookie_family_store_unittest.cc",
+    "net/cookies/cookie_family_unittest.cc",
+    "net/cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+    "net/cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+    "net/cookies/cookie_partition_key_rust_test_support.h",
+    "net/cookies/cookie_partition_key_rust_unittest.cc",
+    "net/dns/dns_reloader.h",
+    "net/dns/dns_request_family_async_workloads.h",
+    "net/dns/dns_request_family_http_workloads.cc",
+    "net/dns/dns_request_family_http_workloads.h",
+    "net/dns/host_resolver_cache_rust_test_support.cc",
+    "net/dns/host_resolver_cache_rust_test_support.h",
+    "net/dns/httpssvc_metrics.h",
+    "url/origin.h"
+  ],
+  "current_successors": {
+    "net/BUILD.gn": "The intended shared proxy component ownership and DNS object wiring are present; later probe, family and platform target changes remain separately tracked.",
+    "net/cookies/cookie_family_perftest.cc": "Classic stream locale. Existing workloads and output fields retained.",
+    "net/cookies/cookie_family_store_perftest.cc": "Classic locale, test timeout initialization and stderr logging. Both structured fixture captures matched.",
+    "net/dns/dns_resolution_family_attached_rust_unittest.cc": "The tested callback deregisters its resolver context before dropping the manager, matching fixture ownership and retaining cancellation assertions."
+  },
+  "platform_limits": [
+    "Windows qualified build/runtime scope. Other platform and native-provider evidence remains separate.",
+    "No performance, test timing, protocol ownership or cutover credit."
+  ]
+}

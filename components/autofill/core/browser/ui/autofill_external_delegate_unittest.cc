@@ -117,7 +117,7 @@
 
 // TODO(crbug.com/40100455): Move this to a GN buildflag_header.
 #define PLATFORM_SUPPORTS_DEVICE_REAUTH                               \
-  (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
+  (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS))
 
 namespace autofill {
@@ -348,7 +348,6 @@ class MockAutofillClient : public TestAutofillClient {
               ShowAutofillAiSuppressionConfirmationDialog,
               (const EntityInstance&, base::OnceCallback<void(bool)>),
               (override));
-
 
  private:
   std::unique_ptr<PersonalContextEntityMetadataManager>
@@ -777,7 +776,6 @@ TEST_F(AutofillExternalDelegateTest, GetMainFillingProduct) {
   EXPECT_EQ(external_delegate().GetMainFillingProduct(),
             FillingProduct::kCreditCard);
 }
-
 
 TEST_F(AutofillExternalDelegateTest, LegacyOpenGeminiSuggestionDoesNotNavigate) {
   IssueOnQuery();
@@ -2628,7 +2626,6 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
                                 std::optional(FillingProduct::kAutofillAi)));
   }
 
-
   external_delegate().DidAcceptSuggestion(fill_suggestion,
                                           {.multi_index = {0}});
 }
@@ -2669,7 +2666,6 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
               HideSuggestions(SuggestionHidingReason::kAcceptSuggestion,
                               std::optional(FillingProduct::kAutofillAi)));
 
-
   external_delegate().DidAcceptSuggestion(fill_suggestion,
                                           {.multi_index = {0}});
 }
@@ -2706,7 +2702,6 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
   EXPECT_CALL(autofill_client(),
               HideSuggestions(SuggestionHidingReason::kAcceptSuggestion,
                               std::optional(FillingProduct::kAutofillAi)));
-
 
   external_delegate().DidAcceptSuggestion(fill_suggestion,
                                           {.multi_index = {0}});
@@ -2760,7 +2755,6 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
   EXPECT_CALL(autofill_client(),
               HideSuggestions(SuggestionHidingReason::kAcceptSuggestion,
                               std::optional(FillingProduct::kAutofillAi)));
-
 
   external_delegate().DidAcceptSuggestion(fill_suggestion,
                                           {.multi_index = {0}});
@@ -2828,11 +2822,9 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
               GetUnmaskedWalletEntityInstance(masked_passport.guid(), _))
       .WillOnce(MoveArg<1>(&get_unmasked_entity_callback));
 
-
   // Simulate successful authentication.
   ASSERT_FALSE(reauth_callback.is_null());
   std::move(reauth_callback).Run(true);
-
 
   // Simulate the async response.
   ASSERT_FALSE(get_unmasked_entity_callback.is_null());
@@ -2894,11 +2886,9 @@ TEST_P(AutofillExternalDelegateWithWalletPrivatePassesTest,
               GetUnmaskedWalletEntityInstance(masked_passport.guid(), _))
       .WillOnce(MoveArg<1>(&get_unmasked_entity_callback));
 
-
   // Simulate successful authentication.
   ASSERT_FALSE(reauth_callback.is_null());
   std::move(reauth_callback).Run(true);
-
 
   // Reset the access manager before the server request is complete.
   test_api(autofill_manager()).set_autofill_ai_access_manager(nullptr);
@@ -3051,7 +3041,6 @@ TEST_P(AutofillExternalDelegateWithAmbientAutofillTest,
               HideSuggestions(SuggestionHidingReason::kAcceptSuggestion,
                               std::optional(FillingProduct::kAutofillAi)));
 
-
   ASSERT_FALSE(callback.is_null());
   std::move(callback).Run(full_passport);
 }
@@ -3139,11 +3128,9 @@ TEST_P(AutofillExternalDelegateWithAmbientAutofillTest,
               GetUnmaskedSpiiEntity(masked_passport.guid(), _))
       .WillOnce(MoveArg<1>(&get_unmasked_entity_callback));
 
-
   // Simulate successful authentication.
   ASSERT_FALSE(reauth_callback.is_null());
   std::move(reauth_callback).Run(true);
-
 
   // Simulate the async response.
   ASSERT_FALSE(get_unmasked_entity_callback.is_null());
@@ -3228,7 +3215,6 @@ TEST_P(AutofillExternalDelegateWithAmbientAutofillTest,
   // no call to the `PersonalContextAccessManager will be made.
   EXPECT_CALL(personal_context_manager(), GetUnmaskedSpiiEntity).Times(0);
 
-
   // Simulate the successful authentication.
   ASSERT_FALSE(reauth_callback.is_null());
   std::move(reauth_callback).Run(true);
@@ -3312,11 +3298,9 @@ TEST_P(
               GetUnmaskedSpiiEntity(masked_passport.guid(), _))
       .WillOnce(MoveArg<1>(&get_unmasked_entity_callback));
 
-
   // Simulate successful authentication.
   ASSERT_FALSE(reauth_callback.is_null());
   std::move(reauth_callback).Run(true);
-
 
   // Reset the access manager before the server request is complete.
   test_api(autofill_manager()).set_autofill_ai_access_manager(nullptr);
@@ -4485,7 +4469,6 @@ TEST_F(AutofillExternalDelegateTest, UpdateSuggestions_ProductChanged) {
       "Autofill.PopupUpdateIgnored.ProductMismatch", expected_sample, 1);
 }
 
-
 INSTANTIATE_TEST_SUITE_P(,
                          AutofillExternalDelegateWithWalletPrivatePassesTest,
                          testing::Bool());
@@ -4501,7 +4484,6 @@ TEST_F(AutofillExternalDelegateTest,
   // Return empty suggestions.
   OnSuggestionsReturned(queried_field(), {});
 }
-
 
 // Tests that the "Maximize rewards" suggestion functions properly when the
 // user clicks it.

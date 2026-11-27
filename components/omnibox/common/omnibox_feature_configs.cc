@@ -17,9 +17,8 @@
 namespace omnibox_feature_configs {
 
 namespace {
-constexpr bool IS_ANDROID = !!false;
 constexpr bool IS_IOS = !!false;
-constexpr bool IS_DESKTOP = !IS_ANDROID && !IS_IOS;
+constexpr bool IS_DESKTOP = !IS_IOS;
 
 constexpr base::FeatureState DISABLED = base::FEATURE_DISABLED_BY_DEFAULT;
 constexpr base::FeatureState ENABLED = base::FEATURE_ENABLED_BY_DEFAULT;

@@ -257,7 +257,6 @@ def tflite_support_workspace9():
             "http://mirror.tensorflow.org/github.com/gflags/gflags/archive/v2.2.2.tar.gz",
             "https://github.com/gflags/gflags/archive/v2.2.2.tar.gz",
         ],
-        patches = [Label("//third_party:gflags_fix_android_pthread.diff")],
         patch_args = ["-p1"],
     )
 

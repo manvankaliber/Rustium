@@ -270,6 +270,8 @@ cargo_crate("lib") {
   features = [
     "Win32",
     "Win32_Foundation",
+    "Win32_Networking",
+    "Win32_Networking_WinSock",
     "Win32_Storage",
     "Win32_Storage_FileSystem",
     "Win32_System",
@@ -278,11 +280,10 @@ cargo_crate("lib") {
     "default",
   ]
 
-  # Only for usage from third-party crates. Add the crate to
-  # //third_party/rust/chromium_crates_io/Cargo.toml to use
-  # it from first-party code.
-  visibility = [ "//third_party/rust/*" ]
+  visibility = []
+  visibility += [ "//third_party/rust/*" ]
   visibility += [ "//build/rust/tests/windows_sys_test:*" ]
+  visibility += [ "//net:*" ]
 
   #####################################################################
   # Tweaking which GN `config`s apply to this target.

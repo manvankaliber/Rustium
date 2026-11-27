@@ -7,7 +7,7 @@
 
 package com.google.protobuf;
 
-import com.google.protobuf.Utf8.MobileProcessor;
+import com.google.protobuf.Utf8.PortableProcessor;
 import com.google.protobuf.Utf8.Processor;
 import com.google.protobuf.Utf8.ServerProcessor;
 import java.nio.ByteBuffer;
@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 public class DecodeUtf8Test extends TestCase {
   private static Logger logger = Logger.getLogger(DecodeUtf8Test.class.getName());
 
-  private static final Processor MOBILE_PROCESSOR = new MobileProcessor();
+  private static final Processor PORTABLE_PROCESSOR = new PortableProcessor();
   private static final Processor SERVER_PROCESSOR = new ServerProcessor();
 
   public void testRoundTripAllValidChars() throws Exception {
@@ -201,7 +201,7 @@ public class DecodeUtf8Test extends TestCase {
       // Expected.
     }
     try {
-      MOBILE_PROCESSOR.decodeUtf8(bytes, 0, bytes.length);
+      PORTABLE_PROCESSOR.decodeUtf8(bytes, 0, bytes.length);
       fail();
     } catch (InvalidProtocolBufferException e) {
       // Expected.
@@ -219,7 +219,7 @@ public class DecodeUtf8Test extends TestCase {
       // Expected.
     }
     try {
-      MOBILE_PROCESSOR.decodeUtf8(buffer, 0, bytes.length);
+      PORTABLE_PROCESSOR.decodeUtf8(buffer, 0, bytes.length);
       fail();
     } catch (InvalidProtocolBufferException e) {
       // Expected.
@@ -235,7 +235,7 @@ public class DecodeUtf8Test extends TestCase {
       // Expected.
     }
     try {
-      MOBILE_PROCESSOR.decodeUtf8(bytes, index, size);
+      PORTABLE_PROCESSOR.decodeUtf8(bytes, index, size);
       fail();
     } catch (IndexOutOfBoundsException e) {
       // Expected.
@@ -251,7 +251,7 @@ public class DecodeUtf8Test extends TestCase {
       // Expected.
     }
     try {
-      MOBILE_PROCESSOR.decodeUtf8(direct, index, size);
+      PORTABLE_PROCESSOR.decodeUtf8(direct, index, size);
       fail();
     } catch (IndexOutOfBoundsException e) {
       // Expected.
@@ -267,7 +267,7 @@ public class DecodeUtf8Test extends TestCase {
       // Expected.
     }
     try {
-      MOBILE_PROCESSOR.decodeUtf8(heap, index, size);
+      PORTABLE_PROCESSOR.decodeUtf8(heap, index, size);
       fail();
     } catch (IndexOutOfBoundsException e) {
       // Expected.
@@ -288,7 +288,7 @@ public class DecodeUtf8Test extends TestCase {
         SERVER_PROCESSOR.decodeUtf8(bytes, index, size));
     assertDecode(
         new String(bytes, index, size, StandardCharsets.UTF_8),
-        MOBILE_PROCESSOR.decodeUtf8(bytes, index, size));
+        PORTABLE_PROCESSOR.decodeUtf8(bytes, index, size));
 
     ByteBuffer direct = ByteBuffer.allocateDirect(bytes.length);
     direct.put(bytes);
@@ -298,7 +298,7 @@ public class DecodeUtf8Test extends TestCase {
         SERVER_PROCESSOR.decodeUtf8(direct, index, size));
     assertDecode(
         new String(bytes, index, size, StandardCharsets.UTF_8),
-        MOBILE_PROCESSOR.decodeUtf8(direct, index, size));
+        PORTABLE_PROCESSOR.decodeUtf8(direct, index, size));
 
     ByteBuffer heap = ByteBuffer.allocate(bytes.length);
     heap.put(bytes);
@@ -308,7 +308,7 @@ public class DecodeUtf8Test extends TestCase {
         SERVER_PROCESSOR.decodeUtf8(heap, index, size));
     assertDecode(
         new String(bytes, index, size, StandardCharsets.UTF_8),
-        MOBILE_PROCESSOR.decodeUtf8(heap, index, size));
+        PORTABLE_PROCESSOR.decodeUtf8(heap, index, size));
   }
 
   private void assertDecode(String expected, String actual) {

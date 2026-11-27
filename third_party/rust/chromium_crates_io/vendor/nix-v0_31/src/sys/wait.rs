@@ -21,7 +21,7 @@ libc_bitflags!(
         /// [`SIGSTOP`](crate::sys::signal::Signal::SIGSTOP) signal.
         WUNTRACED;
         /// Report the status of selected processes which have terminated.
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   apple_targets,
                   target_os = "freebsd",
                   target_os = "haiku",
@@ -33,7 +33,7 @@ libc_bitflags!(
         /// [`SIGCONT`](crate::sys::signal::Signal::SIGCONT) signal.
         WCONTINUED;
         /// An alias for WUNTRACED.
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   apple_targets,
                   target_os = "freebsd",
                   target_os = "haiku",
@@ -41,7 +41,7 @@ libc_bitflags!(
                   target_os = "netbsd"))]
         WSTOPPED;
         /// Don't reap, just poll status.
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   apple_targets,
                   target_os = "freebsd",
                   target_os = "haiku",
@@ -49,13 +49,13 @@ libc_bitflags!(
                   target_os = "netbsd"))]
         WNOWAIT;
         /// Don't wait on children of other threads in this group
-        #[cfg(any(linux_android, target_os = "redox"))]
+        #[cfg(any(linux, target_os = "redox"))]
         __WNOTHREAD;
         /// Wait on all children, regardless of type
-        #[cfg(any(linux_android, target_os = "redox"))]
+        #[cfg(any(linux, target_os = "redox"))]
         __WALL;
         /// Wait for "clone" children only.
-        #[cfg(any(linux_android, target_os = "redox"))]
+        #[cfg(any(linux, target_os = "redox"))]
         __WCLONE;
     }
 );
@@ -92,14 +92,14 @@ pub enum WaitStatus {
     ///
     /// [`nix::sys::ptrace`]: ../ptrace/index.html
     /// [`ptrace`(2)]: https://man7.org/linux/man-pages/man2/ptrace.2.html
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     PtraceEvent(Pid, Signal, c_int),
     /// The traced process was stopped by execution of a system call,
     /// and `PTRACE_O_TRACESYSGOOD` is in effect. See [`ptrace`(2)] for
     /// more information.
     ///
     /// [`ptrace`(2)]: https://man7.org/linux/man-pages/man2/ptrace.2.html
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     PtraceSyscall(Pid),
     /// The process was previously stopped but has resumed execution
     /// after receiving a `SIGCONT` signal. This is only reported if
@@ -122,7 +122,7 @@ impl WaitStatus {
                 Some(p)
             }
             StillAlive => None,
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             PtraceEvent(p, _, _) | PtraceSyscall(p) => Some(p),
         }
     }
@@ -156,7 +156,7 @@ fn stop_signal(status: i32) -> Result<Signal> {
     Signal::try_from(libc::WSTOPSIG(status))
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn syscall_stop(status: i32) -> bool {
     // From ptrace(2), setting PTRACE_O_TRACESYSGOOD has the effect
     // of delivering SIGTRAP | 0x80 as the signal number for syscall
@@ -165,7 +165,7 @@ fn syscall_stop(status: i32) -> bool {
     libc::WSTOPSIG(status) == libc::SIGTRAP | 0x80
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn stop_additional(status: i32) -> c_int {
     (status >> 16) as c_int
 }
@@ -199,7 +199,7 @@ impl WaitStatus {
             WaitStatus::Signaled(pid, term_signal(status)?, dumped_core(status))
         } else if stopped(status) {
             cfg_if! {
-                if #[cfg(linux_android)] {
+                if #[cfg(linux)] {
                     fn decode_stopped(pid: Pid, status: i32) -> Result<WaitStatus> {
                         let status_additional = stop_additional(status);
                         Ok(if syscall_stop(status) {
@@ -258,7 +258,7 @@ impl WaitStatus {
                 WaitStatus::Stopped(pid, Signal::try_from(si_status)?)
             }
             libc::CLD_CONTINUED => WaitStatus::Continued(pid),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             libc::CLD_TRAPPED => {
                 if si_status == libc::SIGTRAP | 0x80 {
                     WaitStatus::PtraceSyscall(pid)
@@ -327,7 +327,7 @@ pub enum Id<'fd> {
     /// If the PID is zero, the caller's process group is used since Linux 5.4.
     PGid(Pid),
     /// Wait for the child referred to by the given PID file descriptor
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     PIDFd(BorrowedFd<'fd>),
     /// A helper variant to resolve the unused parameter (`'fd`) problem on platforms
     /// other than Linux and Android.
@@ -344,7 +344,7 @@ pub fn waitid(id: Id, flags: WaitPidFlag) -> Result<WaitStatus> {
         Id::All => (libc::P_ALL, 0),
         Id::Pid(pid) => (libc::P_PID, pid.as_raw() as libc::id_t),
         Id::PGid(pid) => (libc::P_PGID, pid.as_raw() as libc::id_t),
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         Id::PIDFd(fd) => (libc::P_PIDFD, fd.as_raw_fd() as libc::id_t),
         Id::_Unreachable(_) => {
             unreachable!("This variant could never be constructed")

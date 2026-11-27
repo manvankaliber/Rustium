@@ -1024,7 +1024,6 @@ TEST_F(AutocompleteResultTest, SortAndCullZeroRelevanceDefaultMatches) {
   }
 }
 
-
 TEST_F(AutocompleteResultTest, SortAndCullOnlyTailSuggestions) {
   // clang-format off
   TestData data[] = {
@@ -2314,33 +2313,6 @@ TEST_F(AutocompleteResultTest, ConvertsOpenTabsCorrectly) {
   EXPECT_FALSE(result.match_at(2)->has_tab_match.value_or(false));
 }
 
-
-TEST_F(AutocompleteResultTest,
-       ConvertOpenTabMatches_WebUiNtpEnabled_DoNotAttachTabSwitchAction) {
-  AutocompleteResult result;
-  ACMatches matches;
-  AutocompleteMatch match;
-  match.destination_url = GURL("http://this-site-matches.com");
-  matches.push_back(match);
-  result.AppendMatches(matches);
-
-  FakeAutocompleteProviderClient client;
-  static_cast<FakeTabMatcher&>(const_cast<TabMatcher&>(client.GetTabMatcher()))
-      .set_url_substring_match("matches");
-
-  ON_CALL(client, IsWebUiNtpEnabledForDesktopAndroid())
-      .WillByDefault(testing::Return(true));
-
-  AutocompleteInput input(u"a", metrics::OmniboxEventProto::NTP_REALBOX,
-                          TestSchemeClassifier());
-  result.ConvertOpenTabMatches(&client, &input);
-
-  ASSERT_TRUE(result.match_at(0)->has_tab_match.value_or(false));
-  // Should NOT attach the action because IsWebUiNtpEnabledForDesktopAndroid()
-  // is true.
-  EXPECT_EQ(result.match_at(0)->actions.size(), 0u);
-}
-
 TEST_F(AutocompleteResultTest, AttachesPedals) {
   FakeAutocompleteProviderClient client;
   std::unordered_map<OmniboxPedalId, scoped_refptr<OmniboxPedal>> pedals;
@@ -3215,7 +3187,6 @@ TEST_F(AutocompleteResultTest, SplitActionsToSuggestions) {
   EXPECT_EQ(result.size(), 4u);
 }
 
-
 TEST_F(AutocompleteResultTest, BadDestinationUrls) {
   AutocompleteMatch empty_url_match;
   empty_url_match.destination_url = GURL();
@@ -3235,7 +3206,6 @@ TEST_F(AutocompleteResultTest, BadDestinationUrls) {
   // Result set of matches should remain empty.
   EXPECT_TRUE(result.empty());
 }
-
 
 TEST_F(AutocompleteResultTest, Android_UndedupTopSearch) {
   scoped_refptr<FakeAutocompleteProvider> provider =
@@ -3312,8 +3282,6 @@ TEST_F(AutocompleteResultTest, Android_UndedupTopSearch) {
     }
   }
 }
-
-
 
 TEST_F(AutocompleteResultTest, ContextualSearchAblateOthers) {
   omnibox_feature_configs::ScopedConfigForTesting<

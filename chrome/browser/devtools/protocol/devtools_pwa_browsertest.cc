@@ -948,7 +948,7 @@ IN_PROC_BROWSER_TEST_F(PWAProtocolTest, LaunchFilesInApp_PartiallyFailed) {
           .Set("files",
                AbsolutePaths({"web_apps/basic-192.png", "web_apps/basic-48.png",
                               "web_apps/basic.html", "cors-ok.txt",
-                              "android/watch.jpg", "download-autoopen.txt"}))));
+                              "watch.jpg", "download-autoopen.txt"}))));
   ASSERT_TRUE(result()->FindList("targetIds")->size() == 3);
 }
 

@@ -285,7 +285,6 @@
 #endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
-#include "chrome/browser/contextual_tasks/search_ai_mode_promo_tab_helper.h"
 #include "components/signin/public/base/signin_switches.h"
 #endif
 
@@ -944,16 +943,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       GetUserDataFactory().CreateInstance<TabCaptureContentsBorderHelper>(tab,
                                                                           tab);
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  if (base::FeatureList::IsEnabled(switches::kEnableSearchAIModeSigninPromo) &&
-      base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks)) {
-    search_ai_mode_promo_tab_helper_ =
-        GetUserDataFactory()
-            .CreateInstance<contextual_tasks::SearchAiModePromoTabHelper>(
-                tab, tab, tab.GetContents());
-  }
-#endif
-
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
   captive_portal::CaptivePortalTabHelper::CreateForWebContents(
       tab.GetContents(), CaptivePortalServiceFactory::GetForProfile(profile),
@@ -1598,17 +1587,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
   plugin_observer_.reset();
   plugin_observer_ = GetUserDataFactory().CreateInstance<PluginObserver>(
       *tab, *tab, new_contents);
-#endif
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  search_ai_mode_promo_tab_helper_.reset();
-  if (base::FeatureList::IsEnabled(switches::kEnableSearchAIModeSigninPromo) &&
-      base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks)) {
-    search_ai_mode_promo_tab_helper_ =
-        GetUserDataFactory()
-            .CreateInstance<contextual_tasks::SearchAiModePromoTabHelper>(
-                *tab, *tab, new_contents);
-  }
 #endif
 
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)

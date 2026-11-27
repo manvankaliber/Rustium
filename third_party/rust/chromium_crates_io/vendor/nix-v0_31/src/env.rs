@@ -40,7 +40,7 @@ impl std::error::Error for ClearEnvError {}
 /// requirement on  thread safety must still be upheld.
 pub unsafe fn clearenv() -> std::result::Result<(), ClearEnvError> {
     cfg_if! {
-        if #[cfg(any(linux_android, target_os = "wasi", target_env = "uclibc", target_os = "emscripten"))] {
+        if #[cfg(any(linux, target_os = "wasi", target_env = "uclibc", target_os = "emscripten"))] {
             let ret = unsafe { libc::clearenv() };
         } else {
             use std::env;

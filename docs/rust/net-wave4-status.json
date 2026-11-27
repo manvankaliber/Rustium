@@ -1,0 +1,205 @@
+{
+  "recorded_utc": "2026-11-13T14:18:10.086165+00:00",
+  "accepted_slices_added": 0,
+  "scope": "Three integrated networking slices plus the TCP baseline repair. First optimized checkpoint passed114 tests and43 verifiers; second measured optimization under configured build. Whole-network acceptance remains incomplete.",
+  "components": [
+    {
+      "component": "http2-read-queue",
+      "native_tests_passed": 25,
+      "deterministic_differential_transitions": 1000000,
+      "untimed_workloads": 7,
+      "report": "docs/rust/benchmarks/http2-read-queue-callback-compat-wave4-20261113T063256335424Z/report.json",
+      "report_sha256": "56869f7d2c27f14126b49e8943ed8ac26b6e91f690bcd41572fbfd68b2bafb09",
+      "public_storage_layout_changed": true,
+      "configured_integration": "Production sources/GN synchronized; GN generation, full //net:* dependency check, focused build, unit tests and untimed workload checks passed.",
+      "independent_review": "No additional confirmed correctness blockers in latest independent review. docs/rust/benchmarks/net-wave4-corrected-policy-review-20261113T071345837726Z/review.json",
+      "benchmark_timing": "Initial configured run archived; optimization and remeasurement pending.",
+      "publication": "held",
+      "parent_followup": "Configured focused checks passed; remaining layout consumers, stable-snapshot ASan and performance validation pending.",
+      "configured_validation_evidence": "docs\\rust\\benchmarks\\net-configured-validation-20261113T102236241283Z"
+    },
+    {
+      "component": "http2-priority-dependencies",
+      "native_tests_passed": 23,
+      "deterministic_differential_transitions": 1048576,
+      "untimed_workloads": 10,
+      "report": "docs/rust/benchmarks/http2-priority-dependencies-wave4-20261113T055328206109Z/report.json",
+      "report_sha256": "10f1f93741abdf54c9aed92885139c481e02cee6f95d16e38e6f4219df1c1a8f",
+      "public_storage_layout_changed": true,
+      "configured_integration": "Production sources/GN synchronized; GN generation, full //net:* dependency check, focused build, unit tests and untimed workload checks passed.",
+      "independent_review": "No additional confirmed correctness blockers in latest independent review. docs/rust/benchmarks/net-wave4-corrected-policy-review-20261113T071345837726Z/review.json",
+      "benchmark_timing": "Initial configured run archived; optimization and remeasurement pending.",
+      "publication": "held",
+      "configured_validation_evidence": "docs\\rust\\benchmarks\\net-configured-validation-20261113T102236241283Z"
+    },
+    {
+      "component": "net-errors",
+      "native_tests_passed": 12,
+      "native_tests_skipped": 1,
+      "deterministic_differential_inputs": 1048576,
+      "untimed_workloads": 10,
+      "report": "docs/rust/benchmarks/net-errors-wave4-20261113T064554Z/report.json",
+      "report_sha256": "def9e25df119dfcad715de3b16f0e82d33c03818b396f5d711fae7a3053f3219",
+      "configured_integration": "Production sources/GN synchronized; GN generation, full //net:* dependency check, focused build, unit tests and untimed workload checks passed.",
+      "independent_review": "No additional confirmed correctness blockers in latest independent review. docs/rust/benchmarks/net-wave4-corrected-policy-review-20261113T071345837726Z/review.json",
+      "benchmark_timing": "Initial configured run archived; optimization and remeasurement pending.",
+      "publication": "held",
+      "gaps": [
+        "native POSIX execution",
+        "official-build nonfatal diagnostics"
+      ],
+      "baseline_dependency": "Frozen TCP native/error helper closure integrated; configured TCP tests and all16 workloads passed verification. Native POSIX and official diagnostic gaps remain.",
+      "configured_validation_evidence": "docs\\rust\\benchmarks\\net-configured-validation-20261113T102236241283Z"
+    }
+  ],
+  "review_evidence": "docs/rust/benchmarks/http2-policy-review-wave4-20261113T060904473376Z/review.json",
+  "latest_review": "docs/rust/benchmarks/net-wave4-corrected-policy-review-20261113T071345837726Z/review.json",
+  "tcp_baseline_repair": {
+    "report": "docs/rust/benchmarks/tcp-native-error-baseline-wave4-20261113T080452912563Z/report.json",
+    "configured_integration": "Integrated and built; 55 configured tests and all16 untimed workloads passed.",
+    "native_socket_tests_passed": 238,
+    "native_client_mapper_tests_passed": 53,
+    "native_feature_gated_skips": 2,
+    "differential_inputs": 1000000,
+    "untimed_workloads": 16,
+    "performance_timings": true
+  },
+  "following_handoffs": [
+    {
+      "module": "header-coalescer",
+      "native_handoff_report": "docs/rust/benchmarks/header-coalescer-wave4-20261113T083512488757Z/report.json",
+      "independent_review": "docs\\rust\\benchmarks\\header-alps-review-wave4-20261113T092642172910Z\\report.json",
+      "independent_review_sha256": "5c5d00a33aab41da84d5e2571e447840249c739847c389289567b875d538d34b",
+      "configured_integration": "pending",
+      "performance_acceptance": "unmeasured",
+      "publication": "held"
+    },
+    {
+      "module": "alps-decoder",
+      "native_handoff_report": "docs/rust/benchmarks/alps-decoder-wave4-20261113T083945156739Z/report.json",
+      "independent_review": "docs\\rust\\benchmarks\\header-alps-review-wave4-20261113T092642172910Z\\report.json",
+      "independent_review_sha256": "5c5d00a33aab41da84d5e2571e447840249c739847c389289567b875d538d34b",
+      "configured_integration": "pending",
+      "performance_acceptance": "unmeasured",
+      "publication": "held"
+    }
+  ],
+  "current_cohort": {
+    "application": ".scratch\\net-wave4\\cohort-apply-20261113T091101876342Z\\journal.json",
+    "application_sha256": "8f9d1bb80b5868aa5c8050f4f066055db7fe38ca22c30ee004d7e154f5debc22",
+    "focused_build_directory": ".scratch\\net-wave4\\configured-cohort-20261113T091433737466Z",
+    "gn_check_passed": true,
+    "build_completion_claimed": true,
+    "correctness_execution_claimed": true,
+    "correctness_scope": "Focused target subset only; broad networking/browser and new-cohort sanitizer acceptance pending.",
+    "configured_validation_directory": "docs\\rust\\benchmarks\\net-configured-validation-20261113T102236241283Z",
+    "configured_validation_completion_sha256": "cf657f2f51ba64c0361a62bc1e40642020714640423b2bc70d023617fed293ac",
+    "configured_tests": {
+      "passed": 111,
+      "skipped": 1
+    },
+    "untimed_workloads": 43,
+    "benchmark_timing": true,
+    "accepted_slices_added": 0,
+    "initial_measurement_directory": "docs\\rust\\benchmarks\\net-cohort-a-initial-20261113T102749705981Z",
+    "initial_measurement_summary_sha256": "ae2a953fae146e1c1bff65ed656e7d4c5455890507a29e17a433e363c9e85f65",
+    "performance_acceptance": false,
+    "working_optimization_candidates": "In progress; earlier build/tests/timings identify the frozen pre-optimization checkpoint only.",
+    "latest_optimized_measurement_directory": "docs/rust/benchmarks/net-cohort-a-optimization-20261113T113229640731Z",
+    "latest_configured_validation_directory": "docs/rust/benchmarks/net-configured-validation-20261113T112941336493Z",
+    "second_iteration": {
+      "sync": ".scratch/net-wave4/second-optimization-sync-20261113T123648279836Z/journal.json",
+      "build_directory": ".scratch/net-wave4/configured-cohort-20261113T123702584710Z",
+      "build_status": "GN generation/full net check and focused9 build passed; compile/link54.887s",
+      "correctness_execution_claimed": true,
+      "performance_acceptance": false,
+      "correctness_scope": "docs/rust/benchmarks/net-configured-validation-20261113T123922346932Z",
+      "measurement": "docs/rust/benchmarks/net-cohort-a-optimization-20261113T124030733250Z",
+      "measurement_summary": {
+        "modules": [
+          {
+            "module": "http2-read-queue",
+            "cases": 7,
+            "faster_intervals": 7,
+            "slower_intervals": 0,
+            "overlapping_zero_intervals": 0,
+            "archive": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+            "sha256": "ab5642e1dc45c9dd57fc15745e481da128536dad388d2c1a6350b3beefb70568"
+          },
+          {
+            "module": "http2-priority-dependencies",
+            "cases": 10,
+            "faster_intervals": 10,
+            "slower_intervals": 0,
+            "overlapping_zero_intervals": 0,
+            "archive": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+            "sha256": "6e109303e0616f6663280c0ccda725d4c94a17b39751a110b349aa976350efbe"
+          },
+          {
+            "module": "net-errors",
+            "cases": 10,
+            "faster_intervals": 7,
+            "slower_intervals": 2,
+            "overlapping_zero_intervals": 1,
+            "archive": "docs\\rust\\benchmarks\\net-errors-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+            "sha256": "0fcd0498dea6305967193544cb7328f5de89f094319c40c519421eda8e2be91b"
+          },
+          {
+            "module": "tcp-client-socket",
+            "cases": 16,
+            "faster_intervals": 0,
+            "slower_intervals": 16,
+            "overlapping_zero_intervals": 0,
+            "archive": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+            "sha256": "50c7602c6e6795e680c4e998e81794337b5ee4af5b87be2b46295387900e6bc9"
+          }
+        ],
+        "case_count": 43,
+        "faster_intervals": 24,
+        "slower_intervals": 18,
+        "source_snapshot_file_count": 925,
+        "source_snapshot_manifest_sha256": "99888331fe79de36f49e4ece4d9dbcb941a5d98a18f72a0c5c1b2fda9cedec36",
+        "interpretation": "95% paired-bootstrap time-change intervals; overlapping zero is not equivalence. Isolated API workloads, not browser performance.",
+        "performance_acceptance": false,
+        "publication": "held"
+      }
+    },
+    "current_sanitizer_build": {
+      "build": ".scratch/net-wave3/fuzz-engine-parent/configured-20261113T125715691322Z",
+      "build_status": "GN full net check, target builds, freshness and runtime manifests passed",
+      "artifact_audit": "docs/rust/benchmarks/net-rust-fuzz-artifact-audit-20261113T125925274630Z/report.json",
+      "rust_feedback_libraries": 22,
+      "tcp_rust_asan_artifact_proof": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/tcp-rust-address-instrumentation.json",
+      "snapshot": ".scratch/validation-snapshots/20261113T130030087254Z",
+      "manifest_sha256": "50c9cedeec471abd6c436ce42467a0444ecbd26db3a1fa23c56d2766062a204f",
+      "preflight": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/preflight/results.json",
+      "preflight_callbacks_per_target": 64,
+      "tcp_sanitizer_unit": "docs/rust/benchmarks/net-cohort-a-sanitizer-20261113T130018859051Z/tcp-unit-20261113T130527283668Z/result.json",
+      "tcp_tests_passed": 55,
+      "active_campaigns": [],
+      "all_campaigns_completed": false,
+      "benchmark_measurements": false,
+      "limitations": "Validates copied identity only. New TCP lazy-slot candidate is a later source change and is excluded.",
+      "current_status": "Off by user instruction; retain historical evidence."
+    },
+    "current_coverage_report": "docs/rust/benchmarks/second-optimization-runtime-coverage-20261113T130226270327Z/report.json"
+  },
+  "build_cache_probe": {
+    "report": ".scratch\\net-wave4\\build-cache-probe\\report.json",
+    "sha256": "1f476f772a4290339a82c95a3b266f9e375f483130a248fee35cc1ef83f7e295",
+    "result": "Actual configured module-cache argument is source-verified ineligible for stock sccache; no dynamic trial or speedup measured. Configuration unchanged."
+  },
+  "current_user_override": {
+    "recorded_utc": "2026-11-13T14:18:10.086165+00:00",
+    "instruction": "Do not start or restart sanitizer/fuzz campaigns or security-focused side work unless user explicitly resumes them. Continue Rust integration, regular tests and performance benchmarks.",
+    "running_campaign_processes_observed": 0,
+    "existing_evidence": "Preserved unchanged; unperformed/deferred checks are not passes."
+  },
+  "next_regular_cohort": {
+    "integration": ".scratch/net-wave4/header-alps-tcp-integration-20261113T141642961091Z/journal.json",
+    "build": ".scratch/net-wave4/configured-cohort-20261113T141704551495Z",
+    "status": "Sources synchronized; ordinary configured build in progress",
+    "performance_acceptance": false,
+    "publication": "held"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "candidate_commit": "2c61fa63b0d2967ec6660a0edabe1792ddf2d193",
+  "receipt_directory": "C:/Users/micro/rb/network-2c61fa-midl-feedback-20261120b/",
+  "native_feedback": {
+    "ISimpleDOMDocument": {
+      "actions": 1,
+      "exit_code": 0
+    },
+    "iaccessible2": {
+      "actions": 1,
+      "exit_code": 0
+    },
+    "declared_outputs_equal_to_baselines": 8,
+    "extra_iaccessible2_tlb_equal": true,
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "source_clean": true,
+    "lock_release_verified": true
+  },
+  "open_validation": [
+    "Optimized components proxy preference suite",
+    "Conventional-layout native replay",
+    "Dynamic-GUID native target and placeholder rebaseline"
+  ],
+  "pr_integration_head": "2c61fa63b0d2967ec6660a0edabe1792ddf2d193",
+  "next_job": {
+    "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+    "candidate_commit": "86550d262c8f1c49dfe2c2ea3814271b282fbabb",
+    "remote_ref": "refs/heads/rust/connection-transport-idle-midl-validation-20261120",
+    "laptop_thread": "mcp:launch:4a7c46a867902aa5078c0bcf3b9ce7034f47a7aee293e07e01093bb53697b3da"
+  }
+}

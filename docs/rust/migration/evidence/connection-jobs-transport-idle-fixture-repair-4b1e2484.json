@@ -1,0 +1,24 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "failed_commit": "86550d262c8f1c49dfe2c2ea3814271b282fbabb",
+  "failed_target": "//net:net_unittests",
+  "build_exit_code": 1,
+  "first_errors": [
+    "net/socket/client_socket_pool_base_unittest.cc(954,18): error: unsafe buffer access [-Werror,-Wunsafe-buffer-usage]",
+    "net/socket/client_socket_pool_base_unittest.cc(976,17): error: unsafe buffer access [-Werror,-Wunsafe-buffer-usage]"
+  ],
+  "logs": [
+    "C:/Users/micro/rb/network-transport-idle-86550d-20261120b/build-net-and-net-unittests.log",
+    "C:/Users/micro/rb/network-transport-idle-86550d-20261120b/result.json",
+    "C:/Users/micro/rb/network-transport-idle-86550d-20261120b/release-probe.json"
+  ],
+  "parent_evidence": "Rust crate compiled and net.dll linked. Tests and component ABI qualification did not execute. Clean checkout and independent lock release verified.",
+  "repair_commit": "4b1e24848d1080edce5e9bad8e27372760674736",
+  "remote_ref": "refs/heads/rust/connection-transport-idle-midl-validation-20261120",
+  "changed_path": "net/socket/client_socket_pool_base_unittest.cc",
+  "before_sha256": "aaa0176fd68fb20e0e9850cc1e5f7817dbd94c8a8701137cde195fd9b3bbcb50",
+  "after_sha256": "f7bf02cf317f298448dc5f9ab002bc999a50a95737956941ea7ce5029a484dc6",
+  "repair": "Replace the fixture's three-element raw handle array with std::array, preserving indexing, handle construction and lifetime, and assertions.",
+  "status": "Scoped diff passed. Laptop replay starts with the failed object, then the exact direct-destruction case.",
+  "validation_thread": "mcp:launch:28d5bdd353c1761b398144fe215221be42157e14f1be3b8918a5e2b3519e0a9c"
+}

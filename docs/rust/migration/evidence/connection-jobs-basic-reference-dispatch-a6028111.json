@@ -1,0 +1,18 @@
+{
+  "utc": "2026-11-22T09:42:01.716631+00:00",
+  "base_revision": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "reviewed_revision": "8f5306fe656032742dfa0a739e3508bf879b9aff",
+  "candidate_revision": "a60281116646a3e3b78fd01607e56aa0448a3fc9",
+  "ref": "refs/heads/rust/connection-original-basic-params-20261122",
+  "review": "No parsing parity defect found by independent source review. Added missing edge cases and direct later-challenge assertions in test-only successor.",
+  "added_cases": [
+    "Latin-1 realm conversion",
+    "escaped terminal quote",
+    "lone opening quote",
+    "invalid unknown parameter after a valid realm",
+    "direct later rejection, different realm and invalid"
+  ],
+  "scope_limits": "The later test supplies a shared HttpAuthChallengeTokenizer input to exercise the frozen handler directly. The parser retains the shared Latin-1 conversion and IcuBridge normalization provider, which can involve the ICU4X backend. Digest still uses the shared native handler.",
+  "status": "Published scoped candidate and dispatched focused warm ordinary Windows build and three exact tests. Native feedback pending.",
+  "laptop_task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A4a60fb7e-6bc1-4615-88af-c2d0cb0e23b3"
+}

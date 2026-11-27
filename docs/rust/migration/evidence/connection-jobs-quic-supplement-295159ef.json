@@ -1,0 +1,32 @@
+{
+  "utc": "2026-11-22T01:07:23.003688+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_and_pr_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "host": "HQC-VAN_KALIBER",
+  "configuration": "Existing warm optimized Windows x64 component, QUIC proxy enabled",
+  "tests": {
+    "status": "passed",
+    "quic_passed": 6,
+    "quic_skipped": 0,
+    "quic_failed": 0,
+    "dual_race_skips_with_passing_enabled_counterpart": 28,
+    "unreconciled_ordinary_skips": 0
+  },
+  "build": "Scope-limited Ninja -j4, recorded links serialized, pinned environment.",
+  "reconciliation": "First attempt used host-helper modified PATH and was preserved. Pinned environment replay passed. A fresh output environment.x64 differed from an older recorded hash before the run, and its pre-run actual state was unchanged.",
+  "restoration": "Detached 72ee5ddd and seven pins restored. Exact PR, quiet process inventory, protected ordinary graph/executable/DLL and evidence verified. Independent lock reacquire and release passed.",
+  "receipts": {
+    "final": "C:/Users/micro/rb/network-295159-connection-jobs-quic-20261122c/result.json",
+    "independent_release": "C:/Users/micro/rb/network-295159-connection-jobs-quic-20261122c/independent-release.json",
+    "earlier_path_attempt": "C:/Users/micro/rb/network-295159-connection-jobs-quic-20261122b/independent-release.json"
+  },
+  "limits": "Named Windows case reconciliation only. Other platforms, full provider/reference closure, performance and overall cutover remain open.",
+  "standalone_followup": {
+    "scope": "Compare frozen original-loop scheduling trace with the exact current Rust core, and count Rust detach/relink allocations. No browser rebuild or benchmark.",
+    "status": "dispatched",
+    "packet": "49412f30ff56a7d85cb6656b101b1588ddcacc56",
+    "ref": "refs/heads/rust/transport-request-queue-trace-validation-20261122",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A98100ca7-0af0-4f5e-9163-2ca48d89d681"
+  }
+}

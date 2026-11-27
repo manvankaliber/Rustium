@@ -1,0 +1,18 @@
+{
+  "task_id": "NET-CURRENT-CONSUMER-CLOSURE",
+  "revision": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "host": "HQC-VAN_KALIBER",
+  "fresh_output": "out/NetworkCI/qual-72ee5d-1121b",
+  "approved_inputs_sha256": "1f8f4a36994e16d4425ae9648b13242c22f3bf7bd70df536246e8f27a18bff02",
+  "prior_completed_programs": 6,
+  "prior_completed_workloads": 68,
+  "remaining_programs": {
+    "gtest": 13,
+    "rust": 3,
+    "verify_only": 14
+  },
+  "remaining_workload_ids": 164,
+  "current_scope": "Run the recorded remaining Network consumer tests and verify-only workloads on sealed copies from the existing build. No new build, timing or other family implementation.",
+  "validation_thread": "mcp:launch:ae5353ed6454e2526662b7d95890d0ba683b15a24fc3c70bfd64cfabbfe2a0e4",
+  "validation_state": "Dispatched. Results and independent release are pending."
+}

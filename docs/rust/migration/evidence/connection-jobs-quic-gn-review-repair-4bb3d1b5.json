@@ -1,0 +1,24 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "reviewed_candidate": "6757e9b56a6a99604ca997ab0f623c36534763c5",
+  "repaired_candidate": "4bb3d1b5cb47122cd93ab631c67199e47e56bab0",
+  "review": "Terra/xhigh identified the unowned workload-header include. The tested scope and shared native provider boundaries are unchanged.",
+  "repair": "Separate the successful QUIC cases into a flag-gated translation unit, list its workload header in the same GN source list, and share the existing socket fixture through a test header. Ordinary QUIC socket tests carry no include of the new workload or original-reference target.",
+  "source_verification": {
+    "fixture_body_unchanged": true,
+    "quic_reference_case_body_unchanged": true,
+    "existing_default_stream_behavior": "The helper defaults to creating a stream. Only the two new tests request a session without a pre-created stream.",
+    "sha256": {
+      "net/BUILD.gn": "d7fad3a62175636949f9a2b47ab31400be92375867e700935647141f88b1f4d5",
+      "net/quic/quic_proxy_client_socket_unittest.cc": "0361c2a9c610429ec59177294d56faa05ed168e2a444852b5275d335379595c5",
+      "net/quic/quic_proxy_connect_job_success_unittest.cc": "d7f65edaf61d2a106147a09c2c30dfcab7a9910a41ca70a1934c64a0582bafe1",
+      "net/quic/quic_proxy_client_socket_test_fixture.h": "6319e9d5adf409a309fe0df2273b09067739ee9391887cc70bf062683810aab3"
+    }
+  },
+  "next_validation": [
+    "Run GN include checking for optimized and ordinary net_unittests.",
+    "Run both RfcV1/QuicProxyConnectJobSuccessTest cases on HQC-VAN_KALIBER.",
+    "Run representative existing QUIC proxy socket and datagram socket cases and verify teardown and packet consumption."
+  ],
+  "native_status": "Pending. Existing optimized components run owns the laptop validation lock."
+}

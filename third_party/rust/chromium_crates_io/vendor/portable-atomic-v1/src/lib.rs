@@ -340,7 +340,7 @@ See also the [`interrupt` module's readme](https://github.com/taiki-e/portable-a
 // - cfg(target_has_atomic)
 // - asm! on AArch64, Arm, RISC-V, x86, x86_64, Arm64EC, s390x, PowerPC64
 // - llvm_asm! on AVR (tier 3) and MSP430 (tier 3)
-// - #[instruction_set] on non-Linux/Android pre-v6 Arm (tier 3)
+// - #[instruction_set] on non-Linux pre-v6 Arm (tier 3)
 // This also helps us test that our assembly code works with the minimum external
 // LLVM version of the first rustc version that inline assembly stabilized.
 #![cfg_attr(portable_atomic_unstable_cfg_target_has_atomic, feature(cfg_target_has_atomic))]
@@ -648,15 +648,9 @@ cfg_sel!({
     {
         pub use self::imp::x86::fence;
     }
-    // We have optimized fence for pre-v6 ARM Linux/Android.
+    // We have optimized fence for pre-v6 ARM Linux.
     // Miri and Sanitizer do not go through __sync_synchronize.
-    #[cfg(all(
-        not(doc),
-        target_arch = "arm",
-        not(any(miri, portable_atomic_sanitize_thread)),
-        any(target_os = "linux", target_os = "android"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-    ))]
+    #[cfg(all(not(doc), target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))))]
     {
         pub use self::imp::arm_linux::fence;
     }

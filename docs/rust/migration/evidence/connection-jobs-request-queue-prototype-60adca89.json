@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-21T22:36:02.684224+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "prototype_commit": "60adca89bdaf13042eee0709cd5cbad955088829",
+  "manifest_sha256": "a64ca7f346e6d2436edb791f2a1fd95f30ff72594434f1dde163ad8ef7bd0e52",
+  "verified_artifact_count": 11,
+  "scope": "Standalone Rust queue, original C++ trace and paired Rust trace source. No production patch or native test.",
+  "current_blocker": "The prototype releases an order entry before native job reassignment and requires a second allocation to insert at the new priority.",
+  "repair": "Retain a detached scalar-token slot and reattach allocation-free. Preserve native absence semantics and keep Rust borrows confined to individual calls.",
+  "active_worker": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Athread-send%3A6fffa7a9-d28b-468c-830e-a4e35584e035",
+  "provider_closure_audit": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A55eea59b-81d6-4bf7-a914-528220c80155",
+  "parallel_validation": "Existing 54f6f4df laptop binary selected transport-pool suite, runtime only.",
+  "parallel_validation_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A9fbedafa-d004-4018-b616-90fa6d63749f"
+}

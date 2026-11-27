@@ -1,7 +1,7 @@
 //! Get filesystem statistics, non-portably
 //!
 //! See [`statvfs`](crate::sys::statvfs) for a portable alternative.
-#[cfg(not(any(linux_android, target_os = "cygwin")))]
+#[cfg(not(any(linux, target_os = "cygwin")))]
 use std::ffi::CStr;
 use std::fmt::{self, Debug};
 use std::mem;
@@ -25,7 +25,7 @@ pub type fsid_t = libc::fsid_t;
 pub type fsid_t = libc::c_long;
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         type type_of_statfs = libc::statfs64;
         const LIBC_FSTATFS: unsafe extern "C" fn
             (fd: libc::c_int, buf: *mut type_of_statfs) -> libc::c_int
@@ -82,166 +82,166 @@ pub struct FsType(pub fs_type_t);
 
 // These constants are defined without documentation in the Linux headers, so we
 // can't very well document them here.
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const ADFS_SUPER_MAGIC: FsType = FsType(libc::ADFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const AFFS_SUPER_MAGIC: FsType = FsType(libc::AFFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const AFS_SUPER_MAGIC: FsType = FsType(libc::AFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const AUTOFS_SUPER_MAGIC: FsType = FsType(libc::AUTOFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const BPF_FS_MAGIC: FsType = FsType(libc::BPF_FS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const BTRFS_SUPER_MAGIC: FsType = FsType(libc::BTRFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const CGROUP2_SUPER_MAGIC: FsType = FsType(libc::CGROUP2_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const CGROUP_SUPER_MAGIC: FsType = FsType(libc::CGROUP_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const CODA_SUPER_MAGIC: FsType = FsType(libc::CODA_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const CRAMFS_MAGIC: FsType = FsType(libc::CRAMFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const DEBUGFS_MAGIC: FsType = FsType(libc::DEBUGFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const DEVPTS_SUPER_MAGIC: FsType = FsType(libc::DEVPTS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const ECRYPTFS_SUPER_MAGIC: FsType = FsType(libc::ECRYPTFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const EFS_SUPER_MAGIC: FsType = FsType(libc::EFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const EXT2_SUPER_MAGIC: FsType = FsType(libc::EXT2_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const EXT3_SUPER_MAGIC: FsType = FsType(libc::EXT3_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const EXT4_SUPER_MAGIC: FsType = FsType(libc::EXT4_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const F2FS_SUPER_MAGIC: FsType = FsType(libc::F2FS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const FUSE_SUPER_MAGIC: FsType = FsType(libc::FUSE_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const FUTEXFS_SUPER_MAGIC: FsType = FsType(libc::FUTEXFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const HOSTFS_SUPER_MAGIC: FsType = FsType(libc::HOSTFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const HPFS_SUPER_MAGIC: FsType = FsType(libc::HPFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const HUGETLBFS_MAGIC: FsType = FsType(libc::HUGETLBFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const ISOFS_SUPER_MAGIC: FsType = FsType(libc::ISOFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const JFFS2_SUPER_MAGIC: FsType = FsType(libc::JFFS2_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MINIX2_SUPER_MAGIC2: FsType = FsType(libc::MINIX2_SUPER_MAGIC2 as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MINIX2_SUPER_MAGIC: FsType = FsType(libc::MINIX2_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MINIX3_SUPER_MAGIC: FsType = FsType(libc::MINIX3_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MINIX_SUPER_MAGIC2: FsType = FsType(libc::MINIX_SUPER_MAGIC2 as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MINIX_SUPER_MAGIC: FsType = FsType(libc::MINIX_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const MSDOS_SUPER_MAGIC: FsType = FsType(libc::MSDOS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const NCP_SUPER_MAGIC: FsType = FsType(libc::NCP_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const NFS_SUPER_MAGIC: FsType = FsType(libc::NFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const NILFS_SUPER_MAGIC: FsType = FsType(libc::NILFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const OCFS2_SUPER_MAGIC: FsType = FsType(libc::OCFS2_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const OPENPROM_SUPER_MAGIC: FsType = FsType(libc::OPENPROM_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const OVERLAYFS_SUPER_MAGIC: FsType = FsType(libc::OVERLAYFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const PROC_SUPER_MAGIC: FsType = FsType(libc::PROC_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const QNX4_SUPER_MAGIC: FsType = FsType(libc::QNX4_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const QNX6_SUPER_MAGIC: FsType = FsType(libc::QNX6_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const RDTGROUP_SUPER_MAGIC: FsType = FsType(libc::RDTGROUP_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const REISERFS_SUPER_MAGIC: FsType = FsType(libc::REISERFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const SECURITYFS_MAGIC: FsType = FsType(libc::SECURITYFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const SELINUX_MAGIC: FsType = FsType(libc::SELINUX_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const SMACK_MAGIC: FsType = FsType(libc::SMACK_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const SMB_SUPER_MAGIC: FsType = FsType(libc::SMB_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const SYSFS_MAGIC: FsType = FsType(libc::SYSFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const TMPFS_MAGIC: FsType = FsType(libc::TMPFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const TRACEFS_MAGIC: FsType = FsType(libc::TRACEFS_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const UDF_SUPER_MAGIC: FsType = FsType(libc::UDF_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const USBDEVICE_SUPER_MAGIC: FsType = FsType(libc::USBDEVICE_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const XENFS_SUPER_MAGIC: FsType = FsType(libc::XENFS_SUPER_MAGIC as fs_type_t);
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub const NSFS_MAGIC: FsType = FsType(libc::NSFS_MAGIC as fs_type_t);
-#[cfg(all(linux_android, not(target_env = "musl"), not(target_env = "ohos")))]
+#[cfg(all(linux, not(target_env = "musl"), not(target_env = "ohos")))]
 #[allow(missing_docs)]
 pub const XFS_SUPER_MAGIC: FsType = FsType(libc::XFS_SUPER_MAGIC as fs_type_t);
 
@@ -253,7 +253,7 @@ impl Statfs {
     }
 
     /// Magic code defining system type
-    #[cfg(not(any(linux_android, target_os = "cygwin")))]
+    #[cfg(not(any(linux, target_os = "cygwin")))]
     pub fn filesystem_type_name(&self) -> &str {
         let c_str = unsafe { CStr::from_ptr(self.0.f_fstypename.as_ptr()) };
         c_str.to_str().unwrap()
@@ -436,7 +436,7 @@ impl Statfs {
 
 
     /// Total data blocks in filesystem
-    #[cfg(any(apple_targets, linux_android, target_os = "freebsd", target_os = "openbsd"))]
+    #[cfg(any(apple_targets, linux, target_os = "freebsd", target_os = "openbsd"))]
     pub fn blocks(&self) -> u64 {
         self.0.f_blocks
     }
@@ -454,7 +454,7 @@ impl Statfs {
     }
 
     /// Free blocks in filesystem
-    #[cfg(any(apple_targets, linux_android, target_os = "freebsd", target_os = "openbsd"))]
+    #[cfg(any(apple_targets, linux, target_os = "freebsd", target_os = "openbsd"))]
     pub fn blocks_free(&self) -> u64 {
         self.0.f_bfree
     }
@@ -472,7 +472,7 @@ impl Statfs {
     }
 
     /// Free blocks available to unprivileged user
-    #[cfg(any(apple_targets, linux_android))]
+    #[cfg(any(apple_targets, linux))]
     pub fn blocks_available(&self) -> u64 {
         self.0.f_bavail
     }
@@ -496,7 +496,7 @@ impl Statfs {
     }
 
     /// Total file nodes in filesystem
-    #[cfg(any(apple_targets, linux_android, target_os = "freebsd", target_os = "openbsd"))]
+    #[cfg(any(apple_targets, linux, target_os = "freebsd", target_os = "openbsd"))]
     pub fn files(&self) -> u64 {
         self.0.f_files
     }
@@ -514,7 +514,7 @@ impl Statfs {
     }
 
     /// Free file nodes in filesystem
-    #[cfg(any(apple_targets, linux_android, target_os = "openbsd"))]
+    #[cfg(any(apple_targets, linux, target_os = "openbsd"))]
     pub fn files_free(&self) -> u64 {
         self.0.f_ffree
     }

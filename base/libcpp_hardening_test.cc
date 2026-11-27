@@ -52,15 +52,12 @@ TEST(LibcppHardeningTest, Assertions) {
 // 1. EXPECT_DEATH_IF_SUPPORTED(...) does not support having gmock matchers as
 //    the second argument if GTEST_HAS_DEATH_TEST is false.
 //
-// We also have to prevent this test from running on Android because even though
-// death tests are supported on Android, GTest death tests don't work with
-// base::ImmediateCrash() (https://crbug.com/1353549#c2).
-#if GTEST_HAS_DEATH_TEST && !GTEST_OS_LINUX_ANDROID
+#if GTEST_HAS_DEATH_TEST
   EXPECT_DEATH(std::ignore = vec[3],
                Not(ContainsRegex(".*assertion.*failed:")));
 #else
   GTEST_UNSUPPORTED_DEATH_TEST(std::ignore = vec[3], "", );
-#endif  // GTEST_HAS_DEATH_TEST && !GTEST_OS_LINUX_ANDROID
+#endif  // GTEST_HAS_DEATH_TEST
 #endif  // CHECK_WILL_STREAM()
 }
 

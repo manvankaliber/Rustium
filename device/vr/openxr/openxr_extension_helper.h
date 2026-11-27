@@ -22,7 +22,6 @@
 #include "device/vr/openxr/openxr_unbounded_space_provider.h"
 #include "device/vr/public/mojom/xr_session.mojom-forward.h"
 #include "device/vr/vr_export.h"
-#include "third_party/openxr/dev/xr_android.h"
 #include "third_party/openxr/src/include/openxr/openxr.h"
 
 namespace device {
@@ -76,10 +75,6 @@ struct OpenXrExtensionMethods {
 
   // Spatial Anchors
   OPENXR_DECLARE_FN(xrCreateSpatialAnchorEXT);
-  OPENXR_DECLARE_FN(xrEnumerateSpatialAnchorAttachableComponentsANDROID);
-
-  // Spatial HitTest
-  OPENXR_DECLARE_FN(xrCreateSpatialRaycastSnapshotANDROID);
 
   // Visibility Mask
   OPENXR_DECLARE_FN(xrGetVisibilityMaskKHR);

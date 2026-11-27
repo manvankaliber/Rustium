@@ -1,0 +1,40 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "current_production_base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "original_revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "scope": "Rebind the unchanged production scheduling regions and existing source cases while preserving independently frozen idle lifecycle work.",
+  "unchanged_regions": {
+    "stalled_group_ranking": {
+      "begin_marker": "bool TransportClientSocketPool::FindTopStalledGroup(",
+      "end_marker_excluded": "void TransportClientSocketPool::OnIPAddressChanged(",
+      "byte_count": 919,
+      "sha256": "7d968be746661191296cca9da22891f18e4158c6de29f23ad63221bedeb2a321"
+    },
+    "group_request_assignment_and_binding": {
+      "begin_marker": "void TransportClientSocketPool::Group::InsertUnboundRequest(",
+      "end_marker_excluded": "}  // namespace net",
+      "byte_count": 9848,
+      "sha256": "d7b0d7ba3b2bf7bcec085be84158318884a77f3009dc83e948ef7f0940741f54"
+    },
+    "callers_slot_release_then_ranking": {
+      "begin_marker": "void TransportClientSocketPool::CheckForStalledSocketGroups()",
+      "end_marker_excluded": "void TransportClientSocketPool::OnIPAddressChanged(",
+      "byte_count": 1892,
+      "sha256": "0b912f1306fc390a1664b74c916d9026b1970b165bcbb2e37fd79e3808f08f23"
+    }
+  },
+  "existing_case_sources": {
+    "ClientSocketPoolBaseTest.TotalLimitRespectsPriority": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.ReprioritizeResetFIFO": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.CancelRequestReassignsJob": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.HigherPriorityRequestStealsJob": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.PreconnectJobGetsAssignedToRequest": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.PendingJobCompletionOrder": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.StallAndThenCancelAndTriggerAvailableSocket": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.IgnoreLimitsCancelOtherJob": "net/socket/client_socket_pool_base_unittest.cc",
+    "ClientSocketPoolBaseTest.CancelBackupSocketAfterCancelingAllRequests": "net/socket/client_socket_pool_base_unittest.cc"
+  },
+  "storage_and_callbacks": "Native RequestQueue, Request and ConnectJob ownership, auth binding, destruction and scheduling callbacks remain native at this boundary.",
+  "abi_guard": "Ordinary update and stalled ranking should avoid extra decision round trips, new hot-path allocations or pointers escaping across the bridge.",
+  "native_validation": "Pending candidate; no build or test executed."
+}

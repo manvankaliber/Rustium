@@ -1255,6 +1255,108 @@
       "source_assembly_findings": "Existing HostMapping GN sources lie outside the current1270input authority. The integration branch must retain their existing Network dependency and preserve unrelated local Android/build edits outside that PR.",
       "compilation_policy": "All compilation on linked laptop; desktop editing and non-compiling targeted tests; no local-j2 trial",
       "network_acceptance": "Unchanged; no new native/runtime/performance pass or cutover"
+    },
+    "connection_jobs_transport_scheduling_20261122": {
+      "observed_utc": "2026-11-22T00:31:57.119135+00:00",
+      "integration_scope": "Scoped Windows component transport scheduler and preconnect claim accounting.",
+      "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+      "production_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+      "evidence": {
+        "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-integration-295159ef.json",
+        "sha256": "3494d88d54746995b4179cdf51fa3ea6c29cb938eda3307d1f76e1862e29c854"
+      },
+      "rust_ownership": "Transport Group request order and reprioritization, assignment recipient selection, stalled-group ranking, idle eligibility and aggregate preconnect claim state. Native retains objects, group routing and eligibility, provider calls, auth-bound pairing, callbacks, timers and teardown.",
+      "current_scope_passed": "Nine focused C++ cases, 221 pool cases and component ABI; unchanged Rust parent passed seven crate cases.",
+      "ordinary_family_result": {
+        "passed": 2570,
+        "skipped": 34,
+        "failed": 0,
+        "evidence": {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-295159ef.json",
+          "sha256": "183ef4f24e795eed5830ba7a748916346146ba29a36825b8f629f569fade9680"
+        }
+      },
+      "configured_skip_reconciliation": {
+        "quic_passed": 6,
+        "dual_race_enabled_counterparts_passed": 28,
+        "unreconciled": 0,
+        "evidence": {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-295159ef.json",
+          "sha256": "a6c0d953a979919d833525225ad4c9ec8a6065368b0af29d5db09fe97dff64b5"
+        }
+      },
+      "standalone_queue_result": {
+        "matching_trace_records": 18,
+        "rust_detach_relink_allocation_probe": "passed",
+        "evidence": {
+          "path": "docs/rust/migration/evidence/connection-jobs-retained-queue-trace-295159ef.json",
+          "sha256": "dbeb0405b6092a0cb9aa1659a4b273ef80f773bb674686d9dd286a6e4fe31f9a"
+        }
+      },
+      "pending": "See the later scoped reference integration. Other platforms and performance remain open."
+    },
+    "connection_jobs_transport_windows_acceptance_557c24af": {
+      "production_head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+      "scope": "Transport idle, stalled-group scheduling, request assignment and retained queue order Windows component delivery acceptance.",
+      "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+      "named_ordinary_family": {
+        "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+        "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+      },
+      "pool_suite": {
+        "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+        "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+      },
+      "task_acceptance": [
+        {
+          "path": "docs/rust/migration/evidence/net-connection-transport-idle-windows-acceptance-557c24af.json",
+          "sha256": "e8548d46e8a50de1e4faff1fab1020e7b280cdcf6b2d1d10b2b393ecedd0aa8c"
+        },
+        {
+          "path": "docs/rust/migration/evidence/net-connection-transport-request-assignment-windows-acceptance-557c24af.json",
+          "sha256": "387a4ee020a2e9650177c3f1c38079d6b2516d78e501ef751b2b1e1e1dee5928"
+        },
+        {
+          "path": "docs/rust/migration/evidence/net-connection-transport-request-order-windows-acceptance-557c24af.json",
+          "sha256": "6f43986ee209c9dd71eee08ddcffb06833dc12b206dba81522982eb82ca8c871"
+        },
+        {
+          "path": "docs/rust/migration/evidence/net-connection-transport-scheduling-windows-acceptance-557c24af.json",
+          "sha256": "c4656a59950e2656634fa966bfa8edc6c26ae44f568c1b807e9bea2c50ee020f"
+        }
+      ],
+      "exact_head_quic_follow_up": {"scope": "Six exact QUIC-only cases in existing warm optimized Windows output.", "task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A8a37bf9c-f15c-43d2-99dd-ac3177507ef6", "result": {"path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-557c24af.json", "sha256": "e9b843bfd8468f013403f16db9079495fb6fe25006c7e9e63aebb7b3344f254d"}},
+      "remaining": "Keep the active family on Connection Jobs. Independent helper/provider closure, wider platform evidence, deferred performance and family cutover remain open."
+    },
+    "connection_jobs_reference_qualification_f27ce55c": {
+      "production_head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+      "scope": "Scoped Windows reference-independence and wiring delivery.",
+      "reference_acceptance": {
+        "path": "docs/rust/migration/evidence/connection-jobs-reference-windows-acceptance-f27ce55c.json",
+        "sha256": "7434c0f530333ec5df5ca28b6ea71e056dba9a7334121af5cc93986a28ac3429"
+      },
+      "lifecycle_verifier": {
+        "workloads": 16,
+        "paired_cases": 16,
+        "skips": 0,
+        "benchmark_timing": false
+      },
+      "remaining": "Connection Jobs remains active. Provider/platform behavior, performance and full C++ retirement are outside this evidence."
+    },
+    "connection_jobs_reference_443551ed": {
+      "production_head": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+      "scope": "Paired HostPortPair resolver and separate DCHECK opt-in probe integrated on PR #1. The ordinary configuration passed two cases and the probe passed three with a single host_port Rust archive and matching generated CXX bindings.",
+      "probe_integration": {
+        "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+        "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+      },
+      "native_helper_bindings": {
+        "path": "docs/rust/migration/evidence/connection-jobs-native-helper-bindings-443551ed.json",
+        "sha256": "5fbcd5089808a71a6d3e3016a2cc43f631319d6b5aa7566d4da3fcece0303fa6"
+      },
+      "auth_runtime": {"path": "docs/rust/migration/evidence/connection-jobs-auth-runtime-443551ed.json", "sha256": "2bfd4a9a75822a9ca72939d464333c3dc897a3e6455d082a1d4e354aba02e61d"},
+      "assignment_retirement": {"path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-integration-557c24af.json", "sha256": "6fec4b5680dd66555fbf64cf4bc25407803aa875bc4143b6ef931f4a8f54f5de"},
+      "pending": "Separate platform, provider, performance and retirement obligations remain open."
     }
   }
 }

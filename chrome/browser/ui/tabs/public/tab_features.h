@@ -111,9 +111,7 @@ class TranslatePageActionController;
 class UMABrowsingActivityTabHelper;
 class ZeroSuggestPrefetchTabHelper;
 
-namespace skills {
-
-}  // namespace skills
+namespace skills {}  // namespace skills
 
 namespace site_protection {
 class SiteProtectionMetricsObserver;
@@ -148,9 +146,7 @@ namespace actor {
 class ActorTabData;
 }  // namespace actor
 
-namespace actor::ui {
-
-}  // namespace actor::ui
+namespace actor::ui {}  // namespace actor::ui
 
 namespace chrome_browser_net {
 class NetErrorTabHelper;
@@ -190,9 +186,6 @@ class ContextualSearchCueTabState;
 namespace contextual_tasks {
 class ContextualTasksTabNavigationObserver;
 class ContextualTasksTabVisitTracker;
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-class SearchAiModePromoTabHelper;
-#endif
 class SearchJourneyTabFeature;
 }  // namespace contextual_tasks
 
@@ -262,9 +255,7 @@ namespace web_app {
 class WindowManagementContentSettingObserver;
 }  // namespace web_app
 
-namespace skills {
-
-}  // namespace skills
+namespace skills {}  // namespace skills
 
 namespace sync_sessions {
 class SyncSessionsRouterTabHelper;
@@ -703,11 +694,6 @@ class TabFeatures {
 
 #if BUILDFLAG(ENABLE_COMPOSE)
   std::unique_ptr<ChromeComposeClient> compose_client_;
-#endif
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  std::unique_ptr<contextual_tasks::SearchAiModePromoTabHelper>
-      search_ai_mode_promo_tab_helper_;
 #endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)

@@ -10,8 +10,8 @@
 #include <cstddef>
 #include <memory>
 
-#include "base/containers/circular_deque.h"
 #include "base/containers/span.h"
+#include "base/memory/raw_ptr_exclusion.h"
 #include "net/base/net_export.h"
 
 namespace net {
@@ -46,10 +46,14 @@ class NET_EXPORT_PRIVATE SpdyReadQueue {
   void Clear();
 
  private:
-  // Class invariant:
-  // |total_size_| is the sum of GetRemainingSize() of |queue_|'s elements.
-  base::circular_deque<std::unique_ptr<SpdyBuffer>> queue_;
-  size_t total_size_ = 0;
+  // Null until the first enqueue; otherwise owns one strong reference to the
+  // Rust FIFO, buffer handles and accounting. Rust creates the state as part of
+  // that enqueue, and releases the owner reference after destruction drains it.
+  // Clear snapshots retain the Rust state independently of this object's life.
+  // Read-only clear/destructor callbacks retain the original pre-clear view;
+  // reentrant mutation ends that view and destruction cannot resurrect storage.
+  // No Rust borrow spans callbacks. Rust Rc allocation, not PartitionAlloc.
+  RAW_PTR_EXCLUSION void* state_;
 };
 
 }  // namespace net

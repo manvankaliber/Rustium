@@ -1009,7 +1009,6 @@ source_set("core") {
     "//chrome/browser/ui/webui/location_internals",
     "//chrome/browser/ui/webui/media",
     "//chrome/browser/ui/webui/omnibox_internals",
-    "//chrome/browser/ui/webui/omnibox_internals/aim_eligibility:mojo_bindings",
     "//chrome/browser/ui/webui/policy",
     "//chrome/browser/ui/webui/private_ai_internals",
     "//chrome/browser/ui/webui/reset_password:mojo_bindings",
@@ -1321,9 +1320,7 @@ source_set("core") {
     ]
   }
 
-  deps += [
-    "//chrome/browser/ui/webui/discards",
-  ]
+  deps += [ "//chrome/browser/ui/webui/discards" ]
 
   if (enable_dice_support) {
     deps += [
@@ -2922,11 +2919,8 @@ source_set("browser") {
     ]
   }
   if (is_win || is_mac || is_linux) {
-    public_deps += [
-      "//chrome/browser/ui/webui/discards:mojo_bindings",
-    ]
-    deps += [
-    ]
+    public_deps += [ "//chrome/browser/ui/webui/discards:mojo_bindings" ]
+    deps += []
   }
   if (enable_downgrade_processing) {
     public_deps += [ "//chrome/browser/downgrade:impl" ]
@@ -2993,8 +2987,6 @@ source_set("browser") {
       "//chrome/browser/ui/views/profiles:profile_picker_toolbar",
       "//chrome/browser/ui/views/profiles:profile_picker_utils",
       "//chrome/browser/ui/views/profiles/feature_showcase",
-      "//chrome/browser/ui/views/search_ai_mode",
-      "//chrome/browser/ui/views/search_ai_mode:impl",
       "//chrome/browser/ui/webui/feature_showcase",
       "//chrome/browser/ui/webui/feature_showcase:mojo_bindings",
       "//chrome/browser/ui/webui/signin:batch_upload",
@@ -3069,7 +3061,6 @@ source_set("browser") {
       "//chrome/browser/extensions/api/web_navigation",
       "//chrome/browser/ui/extensions",
       "//chrome/browser/ui/extensions:impl",
-      "//chrome/browser/ui/webui/omnibox_internals/aim_eligibility_extension",
       "//extensions/browser:crx_installer",
       "//extensions/browser/updater",
     ]

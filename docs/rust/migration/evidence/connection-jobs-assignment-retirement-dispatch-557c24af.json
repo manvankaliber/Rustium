@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-22T02:37:31.148938+00:00",
+  "base_revision": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "reviewed_revision": "f59000ad0cd3e30ce2392613396f64c42f9cac21",
+  "candidate_revision": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "validation_ref": "refs/heads/rust/connection-assignment-retirement-20261122",
+  "status": "Review's standalone visibility repair applied and scoped laptop validation dispatched. Exact-head execution is pending.",
+  "review_finding": "A standalone crate has no parent module. The three review-fixed declarations use pub(crate), available from the main ABI root and direct crate-root harnesses.",
+  "scope_from_base": [
+    [
+      "M",
+      "net/BUILD.gn"
+    ],
+    [
+      "M",
+      "net/socket/retained_queue.rs"
+    ],
+    [
+      "M",
+      "net/socket/retained_request_queue_ffi.rs"
+    ],
+    [
+      "M",
+      "net/socket/transport_assignment_ffi.h"
+    ],
+    [
+      "D",
+      "net/socket/transport_assignment_rust.rs"
+    ]
+  ],
+  "validation": "Ordinary warm retained Rust unit target, net_unittests with 3 scalar and 5 real-pool tests, isolated direct Rust crate-root harness, and one-archive component checks. Ninja -j4 and one simultaneous link.",
+  "laptop_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A82d9018c-6fbd-45ed-a7bf-20610f7c7c8e",
+  "implementation_record": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-candidate-f59000ad.json"
+}

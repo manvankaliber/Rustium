@@ -1,0 +1,13 @@
+{
+  "utc": "2026-11-21T22:50:11.957958+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "retained_prototype": "45f14af55f09330ea75332e1b46211d311a083be",
+  "packet_manifest_sha256": "44fc90c6191e51bb9cd5c13aaffa40daeba9862dcf680fc0b5ff6a1e5b848318",
+  "verified_artifact_count": 28,
+  "scope": "Standalone retained-node Rust queue, opaque private ABI proposal, native owner-map sketch, paired original/production traces and allocation probe.",
+  "limits": "No production Group caller conversion, no GN integration, no run. Implemented Rust detach/relink has no allocation. Native caller and exact teardown contract still need integration and review.",
+  "abi_finding": "Snapshot uses from_raw_parts_mut to make a &mut [u64]. Its safety contract must require initialized nonaliased output elements, or use a representation safe for uninitialized output.",
+  "group_adapter_worker": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Athread-send%3Aabf06f6f-9145-465a-b4cf-04d0e19969c9",
+  "core_and_abi_review": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Aaa34a313-8a2c-4bae-be51-5325c90b7603"
+}

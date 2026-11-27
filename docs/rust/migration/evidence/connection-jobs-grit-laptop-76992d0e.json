@@ -1,0 +1,29 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "candidate_commit": "76992d0efa71149ddb80ed3d174dd799318520b3",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "target": "//components/resources:components_resources_grit",
+  "host": "HQC-VAN_KALIBER",
+  "actions": 22,
+  "compiler_jobs": 4,
+  "simultaneous_links": 1,
+  "optimize_webui": true,
+  "target_result": "Passed",
+  "focused_python_test": "Passed on the pinned laptop interpreter",
+  "hashes": {
+    "pack": "eeaf30b8de2455cf88206543df574a1ab1ec8dfd89270ec0bbe5c26e8b189891",
+    "stamp": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "depfile": "31ac5b8fbfa551de89c2d1bda616bef859ee2e74b9a1336b7659569bcc2386f1",
+    "minified_input": "d19292303c0e4ca7a5ceb49b58dd540349db80b736d9e6154d79a305bf6c6c80"
+  },
+  "verification": "The initial verifier searched compressed pack bytes and reported failure. The corrected verification decompressed the resource, found the exact minified input once, and confirmed the depfile names the input.",
+  "evidence": [
+    "C:/Users/micro/rb/network-76992d0e-grit-edge-20261120a/ninja-edge.log",
+    "C:/Users/micro/rb/network-76992d0e-grit-edge-20261120a/result.json",
+    "C:/Users/micro/rb/network-76992d0e-grit-edge-20261120a/focused-python.log",
+    "C:/Users/micro/rb/network-76992d0e-grit-edge-20261120a/verification.json",
+    "C:/Users/micro/rb/network-76992d0e-grit-edge-20261120a/release-probe.json"
+  ],
+  "lock_released_independently": true,
+  "remaining": "The larger optimized components build and proxy preference suite remain pending. The serial laptop slot is assigned to the focused ordinary reference tests first."
+}

@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-22T02:25:25.716258+00:00",
+  "base_revision": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "integration_commit": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "ordinary": {
+    "tests_passed": 2,
+    "build_elapsed_seconds": 178.782,
+    "configuration": "Windows component, probe disabled",
+    "flag_off_getters_and_test_absent": true,
+    "receipt": "docs/rust/migration/evidence/connection-jobs-host-port-ordinary-feedback-443551ed.json"
+  },
+  "probe": {
+    "tests_passed": 3,
+    "configuration": "Windows component, rustium_reference_probe=true, DCHECK_ALWAYS_ON=1",
+    "scoped_gn_check": "passed",
+    "target": "//net:connection_jobs_family_rust_unittests",
+    "build_elapsed": "38m 18s",
+    "compiler_jobs": 4,
+    "link_pool_depth": 1,
+    "serialized_link_actions": 79,
+    "one_rust_archive_one_cxx_route": true,
+    "cxx_bindings_match_ordinary_sha256": true,
+    "net_dll_boundary": "Two new Rust counters in the single archive, with component getters exported and imported by the test executable.",
+    "receipt": "C:/Users/micro/rb/network-443551-host-port-dcheck-20261122a/result.json",
+    "dcheck_and_ownership": "C:/Users/micro/rb/network-443551-host-port-dcheck-20261122a/dcheck-identity.json"
+  },
+  "environment": {
+    "ordinary_change": "Removal of depot_tools/.cipd_bin from PATH. Compiler and SDK search entries and recorded root and toolchain graph hashes matched. Equality of all expanded commands is unverified.",
+    "receipt": "C:/Users/micro/rb/network-443551-host-port-dcheck-20261122a/ordinary-environment-reconciliation.json"
+  },
+  "restoration_and_lock": "C:/Users/micro/rb/network-443551-host-port-dcheck-20261122a/independent-release.json",
+  "limits": "Incremental scoped validation using copied warm probe cache. Paired TransportConnectJobs use a scripted uncached mock resolver; its CreateRequest DCHECK calls are provider activity. No claim for real resolver, shared TLS and QUIC providers, other platforms, performance or cutover."
+}

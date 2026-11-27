@@ -45,19 +45,12 @@ cc_library(
         "@org_tensorflow//tensorflow/lite/acceleration/configuration:configuration_cc_proto",
         "@org_tensorflow//tensorflow/lite/acceleration/configuration:delegate_registry",
         "@org_tensorflow//tensorflow/lite/acceleration/configuration:flatbuffer_to_proto",
-        "@org_tensorflow//tensorflow/lite/acceleration/configuration:nnapi_plugin",
         "@org_tensorflow//tensorflow/lite/acceleration/configuration:proto_to_flatbuffer",
         "@org_tensorflow//tensorflow/lite/c:common",
         "@org_tensorflow//tensorflow/lite/delegates:interpreter_utils",
         "@org_tensorflow//tensorflow/lite/experimental/acceleration/mini_benchmark",
     ] + select({
-        # We only intend to use TFLite mini-benchmark on arm-based Andorid and x86_64 Linux.
-        "@org_tensorflow//tensorflow:android_arm": [
-            "@org_tensorflow//tensorflow/lite/experimental/acceleration/mini_benchmark:mini_benchmark_implementation",
-        ],
-        "@org_tensorflow//tensorflow:android_arm64": [
-            "@org_tensorflow//tensorflow/lite/experimental/acceleration/mini_benchmark:mini_benchmark_implementation",
-        ],
+        # Use the mini-benchmark implementation on x86_64 Linux.
         "@org_tensorflow//tensorflow:linux_x86_64": [
             "@org_tensorflow//tensorflow/lite/experimental/acceleration/mini_benchmark:mini_benchmark_implementation",
         ],

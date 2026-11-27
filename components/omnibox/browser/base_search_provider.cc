@@ -48,7 +48,6 @@
 #include "url/url_constants.h"
 
 namespace {
-constexpr bool is_android = !!false;
 constexpr bool is_ios = !!false;
 
 bool MatchTypeAndContentsAreEqual(const AutocompleteMatch& lhs,
@@ -250,7 +249,7 @@ AutocompleteMatch BaseSearchProvider::CreateSearchSuggestion(
 
   // Attach Actions in Suggest to the newly created match on Android if Google
   // is the default search engine.
-  if ((is_android || is_ios) && is_google) {
+  if (((is_ios)) && (is_google)) {
     if (suggest_template_info &&
         suggest_template_info->action_suggestions_size() > 0) {
       for (const omnibox::SuggestTemplateInfo_TemplateAction& action :
@@ -578,9 +577,7 @@ void BaseSearchProvider::AddMatchToMap(
       accepted_suggestion, ShouldAppendExtraParams(result));
   if (!match.destination_url.is_valid())
     return;
-  if (match.IsSearchAimSuggestion() &&
-      (!omnibox_feature_configs::AiMode::Get().allow_ai_mode_matches ||
-       !client_->GetAimEligibilityService()->IsAimLocallyEligible())) {
+  if (match.IsSearchAimSuggestion()) {
     return;
   }
   match.RecordAdditionalInfo(kRelevanceFromServerKey,

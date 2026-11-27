@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-13T16:03:02.210914+00:00",
+  "proposal_status": "Parent-assigned active rolling draft teams; no claim draft packages integrated",
+  "suggested_canonical_destination": "docs/rust/net-migration-execution.json",
+  "capacity": {
+    "manager": "/root",
+    "manager_slots": 1,
+    "worker_slots": 10,
+    "total_slots": 11,
+    "pods": 5,
+    "workers_per_pod": 2
+  },
+  "pods": [
+    {
+      "id": "T1",
+      "name": "HTTP and protocol paths",
+      "package": "P01",
+      "draft": "SpdyBuffer",
+      "workers": [
+        {
+          "agent": "/root/header_coalescer_measured_optimization",
+          "role": "Implementation draft"
+        },
+        {
+          "agent": "/root/net_percentage_scope",
+          "role": "Compatibility and scope partner"
+        }
+      ]
+    },
+    {
+      "id": "T2",
+      "name": "DNS and proxy paths",
+      "package": "D05",
+      "draft": "HostResolverCache",
+      "workers": [
+        {
+          "agent": "/root/alps_measured_optimization",
+          "role": "Implementation draft"
+        },
+        {
+          "agent": "/root/net_subteam_delivery_plan",
+          "role": "Compatibility and dependency partner"
+        }
+      ]
+    },
+    {
+      "id": "T3",
+      "name": "Transport and platforms",
+      "package": "S01",
+      "draft": "ConnectJob BASE",
+      "workers": [
+        {
+          "agent": "/root/net_errors_regular_optimization",
+          "role": "Implementation draft"
+        },
+        {
+          "agent": "/root/header_alps_regular_integration",
+          "role": "Compatibility and integration partner"
+        }
+      ]
+    },
+    {
+      "id": "T4",
+      "name": "Cookies and storage",
+      "package": "C01",
+      "draft": "CookiePartitionKey",
+      "workers": [
+        {
+          "agent": "/root/cookie_partition_draft",
+          "role": "Implementation draft"
+        },
+        {
+          "agent": "/root/cookie_partition_support",
+          "role": "Compatibility and dependency partner"
+        }
+      ]
+    },
+    {
+      "id": "T5",
+      "name": "Delivery and progress",
+      "package": null,
+      "draft": "Cohort delivery and reporting",
+      "workers": [
+        {
+          "agent": "/root/header_alps_benchmark_plan",
+          "role": "Acceptance and benchmark preparation"
+        },
+        {
+          "agent": "/root/net_percentage_credit",
+          "role": "Source indicator and management report"
+        }
+      ]
+    }
+  ],
+  "initial_draft_status": "Four scratch-only draft packages dispatched. This record claims no production edit, compiled implementation or accepted rewrite for them.",
+  "workflow": {
+    "model_preference": "Sol, medium through xhigh reasoning according to complexity",
+    "maximum_active_draft_packages": 4,
+    "exclusive_source_ownership": true,
+    "early_checks": "Agree bounded API/source contracts, ownership, lifetime and independent original baseline/helper closure; use quick ordinary contract checks early.",
+    "rolling_cohorts": "Promote coherent groups of roughly 3-5 related slices, with smaller tightly coupled groups allowed. Run full required regular checks, affected consumer rebuilds and quiet benchmarks per cohort.",
+    "not_whole_net_big_bang": true,
+    "backlog_limit": "At three native handoffs awaiting integration, or an acceptance-blocked cohort, loan free capacity to the delivery blocker instead of opening another large wave.",
+    "composition": "Prefer direct safe Rust-to-Rust helpers; record temporary native ownership and provider seams.",
+    "canonical_authority": "Parent owns shared source/GN edits, configured synchronization and build writer, acceptance records, benchmark publication and authorized commits."
+  },
+  "resource_limits": {
+    "global_compiler_linker_job_cap": 3,
+    "configured_writers": 1,
+    "quiet_benchmark_cpu": 4,
+    "quiet_window": "No competing builds, tests, bulk hashes or copying during accepted sampling; verify affinity before launch.",
+    "campaigns": "Off; do not start or restart sanitizer/fuzz or security-focused side work."
+  },
+  "acceptance": {
+    "distinct_stages": [
+      "Scratch draft",
+      "Native handoff",
+      "Integrated production path",
+      "Configured regular correctness",
+      "Performance accepted",
+      "Platform/browser closure"
+    ],
+    "publication": "Held under existing all-workload batch gate. Preserve every result and regression.",
+    "scope": "Whole networking goal unchanged, including all provider/test/tool/platform/browser/performance closure.",
+    "eta": "Not estimated; requires measured accepted throughput across comparable cohorts."
+  },
+  "source_plan": {
+    "path": ".scratch/net-wave4/net-subteam-plan/plan.json",
+    "sha256": "d6d2491ea7fa16c7e7704b5043fc29260dde3bb95f4e81a31f8a0b0ff49e7573",
+    "original_recommendation": "Five flexible two-agent pods plus one parent manager"
+  },
+  "assignment_authority": "Parent task message naming the five actual initial worker pairs; this supersedes candidate dispatch suggestions in source plan."
+}

@@ -394,7 +394,7 @@ const base::FeatureParam<size_t> kABASearchJourneysMinWordsWithoutHint(
     0);
 
 bool IsABASearchJourneysEnabled() {
-  return base::FeatureList::IsEnabled(kABASearchJourneys);
+  return false;
 }
 
 base::TimeDelta GetABASearchJourneysTtl() {
@@ -947,11 +947,11 @@ int ContextualTasksInactiveSidePanelKeepInCacheMinutes() {
 }
 
 bool IsContextualTasksPinButtonInToolbarEnabled() {
-  return base::FeatureList::IsEnabled(kEnableContextualTasksPinButtonInToolbar);
+  return false;
 }
 
 bool IsContextualTasksPinningV2Enabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksPinningV2);
+  return false;
 }
 
 bool IsContextualTasksEphemeralPinButtonRefactorEnabled() {
@@ -1192,11 +1192,11 @@ bool GetIsWebpageApcComparisonEnabled() {
 }
 
 bool IsContextualTasksRearchitectureEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksRearchitecture);
+  return false;
 }
 
 bool IsContextualTasksSidePanelRearchitectureEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksSidePanelRearchitecture);
+  return false;
 }
 
 bool IsContextualTasksSidePanelRearchitectureExpandToFullTabEnabled() {
@@ -1232,10 +1232,7 @@ bool IsContextualTasksSingleTabMenuItemEnabled() {
 }
 
 bool IsContextualTasksUIEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksSidePanel) ||
-         base::FeatureList::IsEnabled(kContextualTasks) ||
-         base::FeatureList::IsEnabled(kContextualTasksRearchitecture) ||
-         base::FeatureList::IsEnabled(kContextualTasksSidePanelRearchitecture);
+  return false;
 }
 
 namespace flag_descriptions {

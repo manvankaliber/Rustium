@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-13T16:22:15.370842+00:00",
+  "instruction": "User requested substantially more code per implementation batch, with tests and benchmarks after whole connected subsystem drafts rather than per-function/per-class cycles.",
+  "goal_scope_unchanged": true,
+  "implementation_workers": 8,
+  "delivery_workers": 2,
+  "parent_managers": 1,
+  "compiler_linker_job_limit": 3,
+  "teams": [
+    {
+      "id": "http2",
+      "name": "HTTP/2 streams and sessions",
+      "stage_root": ".scratch/net-wave5/http2-subsystem",
+      "owners": [
+        {
+          "agent": "/root/header_coalescer_measured_optimization",
+          "role": "family contract and buffer/stream implementation",
+          "modules": [
+            "net/spdy/spdy_buffer",
+            "net/spdy/spdy_buffer_producer",
+            "net/spdy/spdy_stream",
+            "net/spdy/spdy_http_stream"
+          ],
+          "stage_root": ".scratch/net-wave5/http2-subsystem/header_coalescer_measured_optimization",
+          "source_lines_including_comments": 1683
+        },
+        {
+          "agent": "/root/net_percentage_scope",
+          "role": "session and pool implementation",
+          "modules": [
+            "net/spdy/spdy_session",
+            "net/spdy/spdy_session_pool"
+          ],
+          "stage_root": ".scratch/net-wave5/http2-subsystem/net_percentage_scope",
+          "source_lines_including_comments": 4671
+        }
+      ],
+      "existing_draft": ".scratch/net-wave5/spdy-buffer",
+      "baseline_note": "Retain the independent original buffer/producer and queued read/write baseline closure before migrating their shared helper.",
+      "status": "Configured HTTP2 native build and required consumer targets passed; copied complete ordinary runtime execution active; ownership/provider and performance acceptance remain incomplete.",
+      "source_lines_including_comments": 6354,
+      "historical_source_draft_status": "Assigned larger draft; not compiled, integrated or accepted",
+      "current_execution": "docs/rust/net-migration-execution.json#resumed_delivery_intake"
+    },
+    {
+      "id": "dns-resolution",
+      "name": "DNS resolver orchestration and transactions",
+      "stage_root": ".scratch/net-wave5/dns-resolution-subsystem",
+      "owners": [
+        {
+          "agent": "/root/alps_measured_optimization",
+          "role": "family contract, resolver cache, manager and job implementation",
+          "modules": [
+            "net/dns/host_resolver_cache",
+            "net/dns/host_resolver_manager",
+            "net/dns/host_resolver_manager_job"
+          ],
+          "stage_root": ".scratch/net-wave5/dns-resolution-subsystem/alps_measured_optimization",
+          "source_lines_including_comments": 3910
+        },
+        {
+          "agent": "/root/net_subteam_delivery_plan",
+          "role": "resolver request, DNS client and transaction implementation",
+          "modules": [
+            "net/dns/host_resolver_manager_request_impl",
+            "net/dns/host_resolver_manager_service_endpoint_request_impl",
+            "net/dns/dns_client",
+            "net/dns/dns_transaction"
+          ],
+          "stage_root": ".scratch/net-wave5/dns-resolution-subsystem/net_subteam_delivery_plan",
+          "source_lines_including_comments": 2627
+        }
+      ],
+      "existing_draft": ".scratch/net-wave5/host-resolver-cache",
+      "baseline_note": "Cache production adapter is owned by //net/dns:dns. Freeze original DNS/result/query/name/helper closure rather than route original algorithms through current migrated helpers.",
+      "status": "Production policy draft installed; configured affected compilation and Rust policy suite passed. Native family/runtime and performance acceptance tracked separately.",
+      "source_lines_including_comments": 6537,
+      "historical_source_draft_status": "Assigned larger draft; not compiled, integrated or accepted",
+      "current_execution": "docs/rust/net-migration-execution.json#resumed_delivery_intake"
+    },
+    {
+      "id": "connection-jobs",
+      "name": "Connection establishment and native job family",
+      "stage_root": ".scratch/net-wave5/connection-jobs-subsystem",
+      "owners": [
+        {
+          "agent": "/root/net_errors_regular_optimization",
+          "role": "family contract, base, transport and TCP job implementation",
+          "modules": [
+            "net/socket/connect_job",
+            "net/socket/transport_connect_job",
+            "net/socket/tcp_connect_job",
+            "net/socket/connect_job_factory",
+            "net/socket/transport_connect_sub_job",
+            "net/socket/tcp_connect_job_connector",
+            "net/socket/connect_job_params_factory"
+          ],
+          "stage_root": ".scratch/net-wave5/connection-jobs-subsystem/net_errors_regular_optimization",
+          "source_lines_including_comments": 2873
+        },
+        {
+          "agent": "/root/header_alps_regular_integration",
+          "role": "TLS, SOCKS, HTTP proxy jobs and socket handle/pool implementation",
+          "modules": [
+            "net/socket/ssl_connect_job",
+            "net/socket/socks_connect_job",
+            "net/http/http_proxy_connect_job",
+            "net/socket/client_socket_handle",
+            "net/socket/client_socket_pool",
+            "net/socket/socket_pool_additional_capacity",
+            "net/socket/stream_socket_handle"
+          ],
+          "stage_root": ".scratch/net-wave5/connection-jobs-subsystem/header_alps_regular_integration",
+          "source_lines_including_comments": 2617
+        }
+      ],
+      "existing_draft": ".scratch/net-wave5/connect-job",
+      "baseline_note": "Freeze original virtual/callback/timer and native error helper dependencies; retain existing public derived/base contracts and consumer inventory.",
+      "status": "Production policy draft installed; configured affected compilation and Rust policy suite passed. Native family/runtime and performance acceptance tracked separately.",
+      "current_pr_validation": {
+        "commit": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+        "pull_request": "https://github.com/manvankaliber/Rustium/pull/1",
+        "ordinary_windows_component": "Paired resolver and Happy Eyeballs reference cases passed. Full named suite passed 2570 cases and skipped 34 with zero retries.",
+        "ordinary_windows_component_commit": "d106f5634f65abf5004aa990baf657e79465e90c",
+        "ordinary_reference_evidence": "docs/rust/migration/evidence/connection-jobs-reference-laptop-d106f563.json",
+        "optimized_windows_component": "The original and production successful QUIC tunnel cases and four existing RFC v1 socket and datagram cases passed with zero retries using a shared native session and socket provider.",
+        "optimized_windows_component_commit": "8a5e79b466161a70edd05f98edb74dc6015dc97a",
+        "optimized_reference_evidence": "docs/rust/migration/evidence/connection-jobs-quic-success-laptop-8a5e79b4.json",
+        "scoped_production_ownership": "Rust owns idle eligibility, expiry, cleanup, release and candidate selection. Native code retains sockets, requests, providers, scheduling and teardown.",
+        "idle_ownership_evidence": "docs/rust/migration/evidence/connection-jobs-transport-idle-laptop-4b1e2484.json",
+        "proxy_preference_feedback": "docs/rust/migration/evidence/connection-jobs-proxy-feedback-laptop-dc811953.json",
+        "optimized_umbrella_acceptance": "docs/rust/migration/evidence/connection-jobs-optimized-components-laptop-72ee5ddd.json",
+        "fresh_consumer_evidence": "docs/rust/migration/evidence/connection-jobs-fresh-consumer-laptop-72ee5ddd.json",
+        "fresh_connection_jobs_runtime_evidence": "docs/rust/migration/evidence/connection-jobs-fresh-ordinary-runtime-72ee5ddd.json",
+        "optimized_quic_supplement_evidence": "docs/rust/migration/evidence/connection-jobs-optimized-quic-runtime-72ee5ddd.json",
+        "bounded_abi_and_strings_evidence": "docs/rust/migration/evidence/connection-jobs-fresh-abi-strings-72ee5ddd.json",
+        "sealed_strings_replay_evidence": "docs/rust/migration/evidence/connection-jobs-sealed-strings-replay-72ee5ddd.json",
+        "bounded_abi_acceptance": "docs/rust/migration/evidence/connection-jobs-bounded-abi-acceptance-72ee5ddd.json",
+        "wider_network_runtime_acceptance": "docs/rust/migration/evidence/network-consumer-runtime-acceptance-72ee5ddd.json",
+        "remaining": "The 36-program Windows runtime inventory passed its recorded contracts at the PR head, with scoped ABI and optimized QUIC evidence. Open work includes provider and platform qualification, performance acceptance and remaining native ownership.",
+        "cutover_complete": false
+      },
+      "source_lines_including_comments": 5490,
+      "historical_source_draft_status": "Assigned larger draft; not compiled, integrated or accepted",
+      "current_execution": "docs/rust/net-migration-execution.json#resumed_delivery_intake"
+    },
+    {
+      "id": "cookie-storage",
+      "name": "Cookie parsing, canonicalization and store policy",
+      "stage_root": ".scratch/net-wave5/cookie-storage-subsystem",
+      "owners": [
+        {
+          "agent": "/root/cookie_partition_draft",
+          "role": "family contract, partition keys and shared cookie value/policy implementation",
+          "modules": [
+            "net/cookies/cookie_partition_key",
+            "net/cookies/cookie_partition_key_collection",
+            "net/cookies/cookie_options",
+            "net/cookies/cookie_access_result",
+            "net/cookies/cookie_util",
+            "net/cookies/cookie_base"
+          ],
+          "stage_root": ".scratch/net-wave5/cookie-storage-subsystem/cookie_partition_draft",
+          "source_lines_including_comments": 2277
+        },
+        {
+          "agent": "/root/cookie_partition_support",
+          "role": "canonical cookie and CookieMonster store implementation",
+          "modules": [
+            "net/cookies/canonical_cookie",
+            "net/cookies/cookie_monster"
+          ],
+          "stage_root": ".scratch/net-wave5/cookie-storage-subsystem/cookie_partition_support",
+          "source_lines_including_comments": 4388
+        }
+      ],
+      "existing_draft": ".scratch/net-wave5/cookie-partition-key",
+      "baseline_note": "Preserve the reviewed ostream ordering fix and original helper closure; shared parsed-cookie/status/PSL/provider dependencies must be identified independently.",
+      "status": "Production policy draft installed; configured affected compilation and Rust policy suite passed. Native family/runtime and performance acceptance tracked separately.",
+      "source_lines_including_comments": 6665,
+      "historical_source_draft_status": "Assigned larger draft; not compiled, integrated or accepted",
+      "current_execution": "docs/rust/net-migration-execution.json#resumed_delivery_intake"
+    }
+  ],
+  "delivery_owners": [
+    {
+      "agent": "/root/header_alps_benchmark_plan",
+      "scope": "Subsystem shared GN/dependency/consumer integration preparation; scratch only"
+    },
+    {
+      "agent": "/root/net_percentage_credit",
+      "scope": "Cross-family Rust interface/dependency and baseline intake; scratch only"
+    }
+  ],
+  "existing_cc_line_scope": 25046,
+  "line_count_meaning": "Current .cc text lines, including comments and blanks; scope indicator only, not Rust output, delivered progress, effort or ETA.",
+  "workflow": [
+    "Retain current small drafts as family inputs; freeze original C++ helper closure",
+    "Agree paired internal Rust contracts and implement all assigned connected modules",
+    "At a stable family milestone, compile affected targets and run regular compatibility/lifetime tests with caller rebuilds",
+    "After production integration, benchmark the complete family and retain existing microbenchmarks/history/regressions",
+    "Optimize demonstrated bottlenecks; publish only under the existing unchanged gate"
+  ],
+  "per_function_build_test_benchmark_loop": false,
+  "required_checks_waived": false,
+  "campaigns": "Remain off under user override",
+  "publication": "Held; existing 37-module/516-case batch and all pending results remain unchanged",
+  "current_measurement": "The already-running 43-case run completed and was archived. Do not start the queued 20-case small optimization measurement before the larger integration milestone.",
+  "instructions": ".scratch/net-wave5/subsystem-draft-instructions.md",
+  "module_count": 35,
+  "scope_expansions": [
+    {
+      "approved_utc": "2026-11-13T16:51:47.668115+00:00",
+      "family": "connection-jobs",
+      "reason": "Owners identified connected live attempt-state, params, capacity-transition and inherited handle policies; migrate in this same subsystem milestone rather than hiding as native primitives or starting separate leaf cycles.",
+      "assignments": {
+        "/root/net_errors_regular_optimization": [
+          "net/socket/transport_connect_sub_job",
+          "net/socket/tcp_connect_job_connector",
+          "net/socket/connect_job_params_factory"
+        ],
+        "/root/header_alps_regular_integration": [
+          "net/socket/socket_pool_additional_capacity",
+          "net/socket/stream_socket_handle"
+        ]
+      },
+      "publication_membership_changed": false,
+      "new_scope_not_migration_credit": true
+    }
+  ],
+  "parent_interface_decisions": [
+    {
+      "approved_utc": "2026-11-13T16:51:47.668115+00:00",
+      "family": "dns-resolution",
+      "decision": "DnsClient invocation-local primitive service hook accepted for staged family design; default-null custom clients preserve all virtual behavior. Full vtable consumer rebuild required. Prefer one frame per complete synchronous decision; close before callbacks/session replacement.",
+      "production_accepted": false,
+      "compiled": false
+    }
+  ],
+  "current_delivery_overlay": {
+    "recorded_utc": "2026-11-14T01:15:22.994533+00:00",
+    "purpose": "Reconcile historical source-draft planning labels with current source-bound configured evidence; no new source-credit or acceptance percentage",
+    "rust_policy_evidence": ".scratch/net-wave5/rust-policy-tests-20261114T001948839247Z/results.json",
+    "http2_native_build": ".scratch/net-wave5/subsystem-native-build-20261114T002250965076Z/build-result.json",
+    "http2_runtime_execution": ".scratch/net-wave5/resumed-integration/native-runtime-delivery-v2/parent-http2-ordinary-20261114T003801945838Z/ordinary-launch.json",
+    "families_fully_accepted": 0,
+    "remaining_ownership_platform_and_provider_scope_preserved": true
+  }
+}

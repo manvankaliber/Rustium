@@ -1,0 +1,8 @@
+{
+  "utc": "2026-11-22T01:15:42.622950+00:00",
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "status": "Exact-head independent reference/probe scope reconciliation dispatched.",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A09053b4c-772d-4559-b93c-ba8653023770",
+  "scope": "Prior probe and independent paired reference evidence versus current changed scheduler. Identify concrete helper or probe gaps and smallest source repair or laptop checks."
+}

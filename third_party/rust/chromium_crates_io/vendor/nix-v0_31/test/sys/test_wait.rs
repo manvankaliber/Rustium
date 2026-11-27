@@ -135,7 +135,7 @@ fn test_waitid_pid() {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 // FIXME: qemu-user doesn't implement ptrace on most arches
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod ptrace {

@@ -1,0 +1,43 @@
+{
+  "utc": "2026-11-21T22:19:18.519390+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "candidate_commit": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+  "pr_head": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "host": "HQC-VAN_KALIBER",
+  "build": {
+    "scope": "warm ordinary Windows component net:net_unittests",
+    "ninja_jobs": 4,
+    "link_pool_depth": 1,
+    "link_actions": 5,
+    "link_intervals_overlap": false,
+    "gn_include_check": "passed",
+    "status": "passed"
+  },
+  "tests": {
+    "status": "passed",
+    "passed": 16,
+    "first_cases": 5,
+    "regressions": 11,
+    "launcher_jobs": 1,
+    "retries": 0
+  },
+  "abi": "Both TransportAssignmentHole and TransportAssignmentRelease import from net.dll. Its link edge includes the Rust archive defining the corresponding scalar ABI symbols.",
+  "receipt_directory": "C:/Users/micro/rb/network-4304d7-assignment-validation-20261121b",
+  "files": [
+    "receipt.md",
+    "result.json",
+    "ninja-log-run.tsv"
+  ],
+  "restoration": "Detached 72ee5ddd and seven pinned metadata files restored. Independent lock reacquisition and release confirmed, with empty native process inventory and protected fingerprints matched.",
+  "limits": "Scoped Windows validation, performance and other platforms remain open. A verifier pattern stopped the first attempt before build, and ownership evidence initially needed path normalization. The corrected checks passed.",
+  "followup_test": {
+    "candidate": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+    "status": "dispatched",
+    "test": "ClientSocketPoolBaseTest.PreconnectClaimsOldestUnassignedJob",
+    "feature_settings": [
+      "EnableErrorCodePropagationForPreconnect disabled",
+      "EnableErrorCodePropagationForPreconnect enabled"
+    ],
+    "thread": "t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:f06c721c6d3655ba434c216b9f22890daa0e01795e06c1252b83dcfa0ab7b994"
+  }
+}

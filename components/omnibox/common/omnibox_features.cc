@@ -8,10 +8,8 @@
 #include "build/android_buildflags.h"
 #include "build/build_config.h"
 
-
 namespace omnibox {
 namespace {
-constexpr bool IS_ANDROID = !!false;
 constexpr bool IS_CHROMEOS = !!false;
 constexpr bool IS_IOS = !!false;
 
@@ -25,16 +23,16 @@ constexpr base::FeatureState enable_if(bool condition) {
 
 // Feature to enable showing thumbnail in front of the Omnibox clipboard image
 // search suggestion.
-BASE_FEATURE(kImageSearchSuggestionThumbnail, enable_if(IS_ANDROID));
+BASE_FEATURE(kImageSearchSuggestionThumbnail, DISABLED);
 
 // Feature used to allow users to remove suggestions from clipboard.
-BASE_FEATURE(kOmniboxRemoveSuggestionsFromClipboard, enable_if(IS_ANDROID));
+BASE_FEATURE(kOmniboxRemoveSuggestionsFromClipboard, DISABLED);
 
 // When enabled, uses the grouping framework with prefixed suggestions (i.e.
 // autocomplete_grouper_sections.h) to limit and group (but not sort) matches.
 BASE_FEATURE(kGroupingFrameworkForNonZPS,
              "OmniboxGroupingFrameworkForNonZPS",
-             enable_if(IS_ANDROID));
+             DISABLED);
 
 // Feature used to cap max suggestions shown according to the params
 // UIMaxAutocompleteMatches and UIMaxAutocompleteMatchesByProvider.
@@ -102,7 +100,7 @@ BASE_FEATURE(kZeroSuggestPrefetchDebouncing, DISABLED);
 BASE_FEATURE(kZeroSuggestPrefetchingForComposebox, DISABLED);
 
 // Enables prefetching of the zero prefix suggestions for eligible users on SRP.
-BASE_FEATURE(kZeroSuggestPrefetchingOnSRP, enable_if(!IS_ANDROID));
+BASE_FEATURE(kZeroSuggestPrefetchingOnSRP, ENABLED);
 
 // Enables prefetching of the zero prefix suggestions for eligible users on the
 // Web (i.e. non-NTP and non-SRP URLs).
@@ -124,7 +122,7 @@ BASE_FEATURE(kOnDeviceHeadProviderNonIncognito,
              ENABLED);
 BASE_FEATURE(kOnDeviceTailModel,
              "OmniboxOnDeviceTailModel",
-             enable_if(IS_ANDROID || IS_IOS));
+             enable_if(IS_IOS));
 BASE_FEATURE(kOnDeviceTailEnableEnglishModel,
              "OmniboxOnDeviceTailEnableEnglishModel",
              ENABLED);
@@ -165,7 +163,7 @@ BASE_FEATURE(kShowPopupOnMouseReleased,
 // element in the carousel.
 BASE_FEATURE(kMostVisitedTilesHorizontalRenderGroup,
              "OmniboxMostVisitedTilesHorizontalRenderGroup",
-             enable_if(IS_ANDROID));
+             DISABLED);
 
 // If enabled, expands autocompletion to possibly (depending on params) include
 // suggestion titles and non-prefixes as opposed to be restricted to URL
@@ -391,7 +389,6 @@ BASE_FEATURE(kDefaultTypedNavigationsToHttps,
 
 // Override the delay to create a spare renderer when the omnibox is focused
 // on Android.
-BASE_FEATURE(kOverrideAndroidOmniboxSpareRendererDelay, DISABLED);
 
 // Parameter name used to look up the delay before falling back to the HTTP URL
 // while trying an HTTPS URL. The parameter is treated as a TimeDelta, so the
@@ -417,11 +414,11 @@ BASE_FEATURE(kMlUrlPiecewiseMappedSearchBlending, DISABLED);
 
 // If enabled, the ML scoring service will make use of an in-memory ML score
 // cache in order to speed up the overall scoring process.
-BASE_FEATURE(kMlUrlScoreCaching, enable_if(!IS_ANDROID));
+BASE_FEATURE(kMlUrlScoreCaching, ENABLED);
 
 // If enabled, runs the ML scoring model to assign new relevance scores to the
 // URL suggestions and reranks them.
-BASE_FEATURE(kMlUrlScoring, enable_if(!IS_ANDROID));
+BASE_FEATURE(kMlUrlScoring, ENABLED);
 
 // If enabled, specifies how URL model scores integrate with search traditional
 // scores.
@@ -429,29 +426,26 @@ BASE_FEATURE(kMlUrlSearchBlending, DISABLED);
 
 // If enabled, creates Omnibox autocomplete URL scoring model. Prerequisite for
 // `kMlUrlScoring` & `kMlUrlSearchBlending`.
-BASE_FEATURE(kUrlScoringModel, enable_if(!IS_ANDROID));
+BASE_FEATURE(kUrlScoringModel, ENABLED);
 
 // If enabled, sends a signal when a user touches down on a search suggestion to
 // |SearchPrefetchService|. |SearchPrefetchService| will then prefetch
 // suggestion iff the SearchNavigationPrefetch feature and "touch_down" param
 // are enabled.
-BASE_FEATURE(kOmniboxTouchDownTriggerForPrefetch, enable_if(IS_ANDROID));
+BASE_FEATURE(kOmniboxTouchDownTriggerForPrefetch, DISABLED);
 
 // If enabled, sets up an off-main-thread (OMT) input receiver on Android to
 // trigger prefetch requests immediately on touch down.
-BASE_FEATURE(kOmniboxPrefetchSelectedSuggestionsOmtAndroid, DISABLED);
 
 // Enables simultaneous prefetch and navigation on Enter KeyDown in Omnibox.
 BASE_FEATURE(kOmniboxSearchPrefetchOnEnterKeyDown, DISABLED);
 
 // If enabled, surfaces recent tabs, including tabs from other devices, as
 // suggestions in the Android Tab Search overlay.
-BASE_FEATURE(kAndroidTabSearchRecentTabs, DISABLED);
 
 // If enabled, shows a close button on open tab suggestions in the Android Tab
 // Search overlay, allowing users to close tabs directly from the suggestions
 // list.
-BASE_FEATURE(kAndroidTabSearchCloseTabButton, DISABLED);
 
 // Enables keyword-based site search functionality on Android devices.
 BASE_FEATURE(kOmniboxSiteSearch, DISABLED);
@@ -650,7 +644,6 @@ const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxHelperText{
 const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxKeepLegacyUi{
     &kVoiceSearchCoherenceSearchbox, "VoiceSearchCoherenceRealboxKeepLegacyUi",
     false};
-
 
 // If enabled, X-Geo headers are sent using the platform-agnostic C++
 // implementation. On Android, enabling this flag will disable the legacy Java

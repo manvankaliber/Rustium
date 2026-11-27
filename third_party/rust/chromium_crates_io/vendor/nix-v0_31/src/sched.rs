@@ -4,10 +4,10 @@
 //! [sched.h](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sched.h.html)
 use crate::{Errno, Result};
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub use self::sched_linux_like::*;
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod sched_linux_like {
     use crate::errno::Errno;
     use crate::unistd::Pid;
@@ -155,10 +155,10 @@ mod sched_linux_like {
     }
 }
 
-#[cfg(any(linux_android, freebsdlike))]
+#[cfg(any(linux, freebsdlike))]
 pub use self::sched_affinity::*;
 
-#[cfg(any(linux_android, freebsdlike))]
+#[cfg(any(linux, freebsdlike))]
 mod sched_affinity {
     use crate::errno::Errno;
     use crate::unistd::Pid;

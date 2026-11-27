@@ -255,7 +255,10 @@ class Coordinator:
             self.event(t, "workspace-created", str(destination))
             return t["assignment"]
 
-    def transition(self, token, task_id, state, note, evidence=None, commit=None):
+    def transition(self, token, task_id, state, note, evidence=None, commit=None,
+                   integration_ref=None):
+        if integration_ref is not None and state != "integrated":
+            raise ValueError("An integration ref requires an integrated transition")
         with self.transaction(token) as q:
             t = self.task(q, task_id)
             if state not in TRANSITIONS[t["state"]]:
@@ -287,7 +290,12 @@ class Coordinator:
                     accepted = ev.get("integration_commit")
                     if not accepted:
                         raise ValueError("Integration commit required")
-                    git(self.root, "merge-base", "--is-ancestor", accepted, "HEAD")
+                    tip = "HEAD"
+                    if integration_ref is not None:
+                        if not integration_ref.startswith("refs/remotes/"):
+                            raise ValueError("Expected a full remote-tracking integration ref")
+                        tip = git(self.root, "show-ref", "--verify", "--hash", integration_ref)
+                    git(self.root, "merge-base", "--is-ancestor", accepted, tip)
                     t["integration_commit"] = accepted
                 t["evidence"].append({"path": str(evidence.resolve()), "sha256": hashlib.sha256(evidence.read_bytes()).hexdigest()})
             t["state"], t["next_action"] = state, note
@@ -411,6 +419,7 @@ def main():
         else:
             x.add_argument("state", choices=TRANSITIONS); x.add_argument("--note", required=True)
             x.add_argument("--evidence", type=Path); x.add_argument("--commit")
+            x.add_argument("--integration-ref", help="Verified remote-tracking integration branch")
     x = sub.add_parser("amend"); x.add_argument("task"); x.add_argument("--token", required=True); x.add_argument("--patch", type=Path, required=True)
     x = sub.add_parser("enqueue"); x.add_argument("--token", required=True); x.add_argument("--task-file", type=Path, required=True)
     x = sub.add_parser("job"); x.add_argument("--token", required=True); x.add_argument("--manifest", type=Path, required=True); x.add_argument("command", nargs=argparse.REMAINDER)
@@ -427,7 +436,9 @@ def main():
     elif a.action == "recover": result = c.recover(a.kind, a.evidence)
     elif a.action == "claim": result = c.claim(a.token, a.task, a.session)
     elif a.action in {"workspace", "bind"}: result = getattr(c, a.action)(a.token, a.task, a.path)
-    elif a.action == "transition": result = c.transition(a.token, a.task, a.state, a.note, a.evidence, a.commit)
+    elif a.action == "transition":
+        result = c.transition(a.token, a.task, a.state, a.note, a.evidence,
+                              a.commit, a.integration_ref)
     elif a.action == "amend": result = c.amend(a.token, a.task, read(a.patch))
     elif a.action == "enqueue": result = c.enqueue(a.token, read(a.task_file))
     else:

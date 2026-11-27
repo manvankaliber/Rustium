@@ -1,0 +1,20 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "The Variations test object must compile before optimized proxy preference acceptance can run in components_unittests.",
+  "failed_commit": "d08074af11d1c2cfe22bb3e44f3f5c8406af3e5a",
+  "session_proto_db_scoped_exit_code": 0,
+  "session_proto_db_scoped_elapsed_seconds": 106.531,
+  "session_proto_db_scoped_action_lines": 379,
+  "umbrella_action_lines": 1541,
+  "umbrella_failed_edges": 1,
+  "umbrella_cases_run": 0,
+  "first_umbrella_error": "study_filtering_unittest.obj: static assertion evaluated to 8 == 9",
+  "failure_log": "C:/Users/micro/rb/network-d08074af-session-proto-20261121a/components.log",
+  "failure_receipt": "C:/Users/micro/rb/network-d08074af-session-proto-20261121a/receipt.md",
+  "independent_lock_release": true,
+  "source_check": "The study.proto enum has eight declared platforms and reserves 7, 8 and 9. The fixture already lists every declared enum value exactly once.",
+  "focused_candidate": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "published_ref": "refs/heads/rust/study-filtering-test-feedback-20261121",
+  "validation_thread": "mcp:launch:12ee91b6d23af8e0ad86530afa2a791c31e0338e03c092a22f90fd3563fb99e0",
+  "validation_state": "Warm replay of the only failed object dispatched before conditional umbrella acceptance."
+}

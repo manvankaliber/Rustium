@@ -52,8 +52,6 @@ void RecordDiskCacheInitTime(base::TimeDelta time) {
 }
 
 using FileEnumerator = disk_cache::BackendFileOperations::FileEnumerator;
-using ApplicationStatusListenerGetter =
-    disk_cache::ApplicationStatusListenerGetter;
 
 // Builds an instance of the backend depending on platform, type, experiments
 // etc. Takes care of the retry state. This object will self-destroy when
@@ -451,7 +449,6 @@ BackendResult CreateCacheBackend(
                                 net_log, std::move(cache_encryption_delegate),
                                 base::OnceClosure(), std::move(callback));
 }
-
 
 BackendResult CreateCacheBackend(
     net::CacheType type,

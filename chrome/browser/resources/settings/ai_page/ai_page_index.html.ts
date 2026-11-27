@@ -14,10 +14,6 @@ export function getHtml(this: SettingsAiPageIndexElement) {
     ?show-all="${this.shouldShowAll}">
   <settings-ai-info-card slot="view" id="aiInfoCard"></settings-ai-info-card>
 
-  ${this.enableAiModeSearchSetting_ ? html`
-    <settings-ai-mode-search-page slot="view" id="aiModeSearch">
-    </settings-ai-mode-search-page>
-  ` : ''}
 
   ${''}
 

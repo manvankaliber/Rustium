@@ -48,10 +48,6 @@
 #include "url/third_party/mozilla/url_parse.h"
 #include "url/url_util.h"
 
-namespace {
-constexpr int kAndroidHubMaxMatches = 5;
-}  // namespace
-
 bool HistoryQuickProvider::disabled_ = false;
 
 HistoryQuickProvider::HistoryQuickProvider(AutocompleteProviderClient* client)
@@ -97,13 +93,6 @@ void HistoryQuickProvider::DoAutocomplete() {
   size_t max_matches = autocomplete_input_.in_keyword_mode()
                            ? provider_max_matches_in_keyword_mode_
                            : provider_max_matches_;
-  if (omnibox::IsAndroidHubOrTabSearch(
-          autocomplete_input_.current_page_classification())) {
-    // LINT.IfChange(HubHistoryMaxMatches)
-    max_matches = kAndroidHubMaxMatches;
-    // LINT.ThenChange(//components/omnibox/browser/autocomplete_grouper_sections.cc:HubHistorySectionSlots,
-    // //components/omnibox/browser/autocomplete_grouper_sections.cc:TabSearchHistorySectionSlots)
-  }
 
   // Get the matching URLs from the DB.
   ScoredHistoryMatches matches = in_memory_url_index_->HistoryItemsForTerms(
@@ -123,18 +112,13 @@ void HistoryQuickProvider::DoAutocomplete() {
     // Set max_match_score to the score we'll assign this result.
     max_match_score = std::min(max_match_score, history_match.raw_score);
     auto match = QuickMatchToACMatch(history_match, max_match_score);
-    if (omnibox::IsAndroidHubOrTabSearch(
-            autocomplete_input_.current_page_classification())) {
-      match.suggestion_group_id = omnibox::GROUP_MOBILE_HISTORY;
-    }
 
     matches_.push_back(std::move(match));
     // Mark this max_match_score as being used.
     max_match_score--;
   }
 
-  if (!omnibox::IsAndroidHubOrTabSearch(
-          autocomplete_input_.current_page_classification())) {
+  {
     // If ML scoring is enabled, mark all "extra" matches as
     // `culled_by_provider`. If ML scoring is disabled, this is effectively a
     // no-op as the matches will already be resized in the above call to

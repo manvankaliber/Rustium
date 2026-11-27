@@ -1,0 +1,49 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "candidate_commit": "4b1e24848d1080edce5e9bad8e27372760674736",
+  "pr_url": "https://github.com/manvankaliber/Rustium/pull/1",
+  "pr_head_verified": true,
+  "validation": {
+    "host": "HQC-VAN_KALIBER",
+    "configuration": "Warm ordinary Windows x64 component",
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "first_failed_object_rebuilt": true,
+    "net_unittests_built": true,
+    "direct_destruction_passed": 1,
+    "ordered_followup_passed": 8,
+    "remaining_differential_passed": 2,
+    "pool_suite_passed": 308,
+    "connection_jobs_family": {
+      "selected": 2602,
+      "passed": 2568,
+      "skipped": 34
+    },
+    "test_launcher_jobs": 1,
+    "retries": 0,
+    "component_abi": "Rust crate linked in net.dll. Five policy projection symbols verified exported by net.dll and imported by the test executable.",
+    "source_clean": true,
+    "native_lock_released_and_probed": true
+  },
+  "receipts": [
+    "C:/Users/micro/rb/network-transport-idle-4b1e248-20261120a/result.json",
+    "C:/Users/micro/rb/network-transport-idle-4b1e248-20261120a/connection-jobs-family.log",
+    "C:/Users/micro/rb/network-transport-idle-4b1e248-20261120a/release-probe.json"
+  ],
+  "production_ownership": "Rust controls idle usability transitions, expiry, cleanup and close-reason precedence, release decisions and candidate ordering. Native code owns the sockets, iteration, provider calls, transport request scheduling, cancellation and destruction.",
+  "open": [
+    "Fresh affected-consumer build and platform qualification",
+    "Performance acceptance",
+    "Transport pool scheduling and remaining Connection Jobs C++ ownership",
+    "Optimized QUIC proxy preferences, resumed on this PR head"
+  ],
+  "reference_candidate": {
+    "candidate_commit": "a4bcf5ebda14ccbaf1dbdffe02d1758bad29a436",
+    "remote_ref": "refs/heads/rust/connection-jobs-reference-cases-20261120",
+    "tests": [
+      "ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal",
+      "ConnectionJobsFamilyRustTest.HappyEyeballsFallbackMatchesOriginal"
+    ],
+    "scope": "One test-file delta on the validated PR head. Focused native validation pending."
+  }
+}

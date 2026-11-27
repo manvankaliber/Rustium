@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-function focus(element, focusDocumentElement) {
+function focus(element) {
   // Focus the target element in order to send keys to it.
   // First, the currently active element is blurred, if it is different from
   // the target element. We do not want to blur an element unnecessarily,
@@ -54,15 +54,4 @@ function focus(element, focusDocumentElement) {
   }
   if (element != activeElement && !element.contains(activeElement))
     throw new Error('cannot focus element');
-  // On Android, focus() on a non-focusable container (e.g. <html>) can redirect
-  // to a descendant. tabindex=-1 makes it focusable; kept intentionally since
-  // removing it resets document.activeElement back to the descendant.
-  if (focusDocumentElement && element === doc.documentElement &&
-      element != activeElement && element.contains(activeElement)) {
-    if (!element.hasAttribute('tabindex'))
-      element.setAttribute('tabindex', '-1');
-    element.focus({preventScroll: true});
-    if (doc.activeElement !== element)
-      throw new Error('cannot focus element');
-  }
 }

@@ -651,11 +651,6 @@ ChromeAutocompleteProviderClient::GetWeakPtr() {
   return weak_ptr_factory_.GetWeakPtr();
 }
 
-bool ChromeAutocompleteProviderClient::IsWebUiNtpEnabledForDesktopAndroid()
-    const {
-  return search::IsWebUiNtpEnabledForDesktopAndroid();
-}
-
 void ChromeAutocompleteProviderClient::OpenSharingHub() {
   if (BrowserWindowInterface* const bwi =
           GetLastActiveBrowserWindowInterfaceWithAnyProfile()) {

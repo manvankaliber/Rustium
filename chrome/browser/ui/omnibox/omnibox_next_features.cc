@@ -309,25 +309,7 @@ omnibox::NTPComposeboxConfig GetNTPComposeboxConfig() {
 }
 
 bool ShouldShowAimContextMenuOption(Profile* profile) {
-  const auto* aim_eligibility_service =
-      AimEligibilityServiceFactory::GetForProfile(profile);
-  const auto* ai_mode_button_service =
-      AiModeButtonServiceFactory::GetForProfile(profile);
-  const auto* template_url_service =
-      TemplateURLServiceFactory::GetForProfile(profile);
-  const bool is_aim_entrypoint_enabled =
-      OmniboxFieldTrial::IsAimOmniboxEntrypointEnabled(aim_eligibility_service,
-                                                       ai_mode_button_service,
-                                                       template_url_service);
-
-  if (is_aim_entrypoint_enabled) {
-    return true;
-  }
-
-  const bool is_aim_context_entrypoint_enabled =
-      omnibox::IsAimPopupEnabled(profile);
-
-  return is_aim_context_entrypoint_enabled;
+  return false;
 }
 
 bool IsWebUIOmniboxPopupEnabled() {
@@ -346,7 +328,7 @@ bool IsWebUIOmniboxInBrowserViewEnabled() {
 }
 
 bool IsAimPopupFeatureEnabled() {
-  return base::FeatureList::IsEnabled(internal::kWebUIOmniboxAimPopup);
+  return false;
 }
 
 bool IsWebUIOmniboxDynamicAnimationEnabled() {
@@ -403,13 +385,7 @@ bool IsAimPopupEnabled(Profile* profile) {
 }
 
 bool ShouldCreateAimPopupPresenter(Profile* profile) {
-  if (!IsAimPopupFeatureEnabled()) {
-    return false;
-  }
-  if (!base::FeatureList::IsEnabled(kOmniboxAimPopupRequireEligibility)) {
-    return true;
-  }
-  return IsAimPopupEnabled(profile);
+  return false;
 }
 
 bool IsOmniboxEverywhereEligible(Profile* profile) {

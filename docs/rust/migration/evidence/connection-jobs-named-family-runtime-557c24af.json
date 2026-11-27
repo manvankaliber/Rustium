@@ -1,0 +1,45 @@
+{
+  "utc": "2026-11-22T09:19:24.355342+00:00",
+  "head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "host": "HQC-VAN_KALIBER",
+  "configuration": "Ordinary Windows x64 component",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "status": "passed",
+  "runtime": {
+    "discovered": 2605,
+    "passed": 2571,
+    "skipped": 34,
+    "failed": 0,
+    "disabled": 0,
+    "unrun": 0,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "launcher_seconds": 14.675,
+    "note": "Launcher reports SUCCESS for both passes and skips. Counts reconciled from native results."
+  },
+  "selection": {
+    "golden_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+    "retained_names": 2604,
+    "added": "ConnectionJobsFamilyRustTest.HostPortPairResolverRequestMatchesIndependentOriginal",
+    "missing": 0
+  },
+  "skips": {
+    "quic": 6,
+    "dual_race": 28,
+    "limits": "The optimized QUIC counterpart pass is exact to 295159ef, not this head."
+  },
+  "build": {
+    "gn_include_check": "passed",
+    "elapsed_seconds": 155.364,
+    "compiler_jobs": 4,
+    "recorded_link_intervals_overlap": false
+  },
+  "artifact_scope": "Executable and 58 runtime DLL fingerprints were stable across locked execution.",
+  "diagnostic": "An intentional malformed-header assertion was captured by the scoped handler, matched the golden diagnostic, and the native test reported OK.",
+  "receipt": "C:/Users/micro/rb/network-557c24-connection-jobs-ordinary-20261122a/result.json",
+  "discovery": "C:/Users/micro/rb/network-557c24-connection-jobs-ordinary-20261122a/discovery.log",
+  "test_log": "C:/Users/micro/rb/network-557c24-connection-jobs-ordinary-20261122a/test.log",
+  "diagnostic_investigation": "C:/Users/micro/rb/network-557c24-connection-jobs-ordinary-20261122a/diagnostic-investigation.json",
+  "independent_release": "C:/Users/micro/rb/network-557c24-connection-jobs-ordinary-20261122a/independent-release.json"
+}

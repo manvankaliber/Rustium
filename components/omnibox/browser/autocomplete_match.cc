@@ -63,10 +63,8 @@
 #include "components/omnibox/browser/vector_icons.h"  // nogncheck
 #include "components/vector_icons/vector_icons.h"     // nogncheck
 
-constexpr bool kIsAndroid = false;
-constexpr bool kIsDesktopAndroid = false;
 constexpr bool kIsDesktop =
-    (!false && !false) || kIsDesktopAndroid;
+    (!false && !false);
 
 namespace {
 
@@ -1652,12 +1650,6 @@ int AutocompleteMatch::GetSortingOrder() const {
 
   if (IsStarterPackType(type)) {
     return 1;
-  }
-
-  if constexpr (kIsAndroid && !kIsDesktopAndroid) {
-    if (IsClipboardType(type)) {
-      return 1;
-    }
   }
 
   // Group history cluster suggestions with searches.

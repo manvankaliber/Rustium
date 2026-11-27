@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-21T23:41:12.924673+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "base": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd",
+  "candidate": "9a136b6f4589e53516527d0ce1cb3dabfd6d9b9f",
+  "branch": "rust/transport-preconnect-claims-review-20261122",
+  "frozen_reference": [
+    "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+    "bd8b1077791e6e3001bd4290ccde86fa1be0946e"
+  ],
+  "scope": "Rust owns the remaining aggregate preconnect claim count in the authoritative request queue. Add a claim when creating a preconnect before native assignment, consume once for a real request, cap after native removal, reset before native drop. Returning a job does not mint a claim.",
+  "implementation": "Seven paths. No extra FFI crossing for increment; integrated into the existing release recipient selection. Claim, cap/reset and diagnostic count use private scalar ABI methods.",
+  "test": "retained_queue::tests::preconnect_claims_are_consumed_capped_and_cleared",
+  "review": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A781cc454-9bca-4288-977f-b07bc68ba4dd"
+  },
+  "validation": "Local candidate and source check only, unpublished. Pool runtime regression is running on the separate exact f2e45f1e head."
+}

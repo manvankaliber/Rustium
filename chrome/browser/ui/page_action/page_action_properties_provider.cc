@@ -20,17 +20,6 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
     actions::ActionId,
     page_actions::PageActionProperties>({
     {
-        kActionAiMode,
-        {
-            .histogram_name = "AiMode",
-            .exempt_from_omnibox_suppression = true,
-            .type = PageActionIconType::kAiMode,
-            .element_identifier = kAiModePageActionIconElementId,
-            .priority =
-                page_actions::PageActionPriorityCategory::kStrategicPromotion,
-        },
-    },
-    {
         kActionIndigo,
         {
             .histogram_name = "Indigo",
@@ -50,8 +39,6 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
                 page_actions::PageActionPriorityCategory::kProactiveSuggestion,
         },
     },
-
-
 
     {
         kActionShowTranslate,
@@ -138,7 +125,6 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
             .priority = page_actions::PageActionPriorityCategory::kQuietUtility,
         },
     },
-
 
     {
         kActionShowPasswordsBubbleOrPage,
@@ -308,22 +294,6 @@ constexpr auto kPageActionProperties = base::MakeFixedFlatMap<
     },
 });
 // LINT.ThenChange(//components/browser_apis/ui_controllers/toolbar/toolbar_ui_api_data_model.mojom:PageActionId,//chrome/browser/ui/page_action/action_ids.h:kActionIds)
-
-constexpr bool CheckIgnoreFlagUsage() {
-  for (const auto& [action_id, properties] : kPageActionProperties) {
-    if (properties.exempt_from_omnibox_suppression &&
-        action_id != kActionAiMode) {
-      return false;
-    }
-  }
-  return true;
-}
-
-// AI Mode page action is designed to be displayed by itself. Other page actions
-// should avoid using this property unless there is a strong reason.
-static_assert(
-    CheckIgnoreFlagUsage(),
-    "ignore_should_hide_page_actions should only be used by kActionAiMode");
 
 constexpr bool CheckNoUserInteractionDefaultPriority() {
   for (const auto& [action_id, properties] : kPageActionProperties) {

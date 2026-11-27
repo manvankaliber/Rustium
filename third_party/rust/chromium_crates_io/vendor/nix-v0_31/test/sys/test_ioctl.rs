@@ -28,7 +28,7 @@ ioctl_readwrite_buf!(readwritebuf_test, 0, 0, u32);
 // TODO:  Need a way to compute these constants at test time.  Using precomputed
 // values is fragile and needs to be maintained.
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod linux {
     // The cast is not unnecessary on all platforms.
     #[allow(clippy::unnecessary_cast)]
@@ -200,7 +200,7 @@ mod bsd {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod linux_ioctls {
     use std::mem;
     use std::os::unix::io::AsRawFd;

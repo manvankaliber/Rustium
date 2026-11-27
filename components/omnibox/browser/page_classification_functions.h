@@ -57,20 +57,6 @@ bool IsLensSearchbox(
 bool IsCustomTab(
     ::metrics::OmniboxEventProto::PageClassification classification);
 
-// Return true, if supplied page classification is the Android Hub searchbox or
-// Tab Search overlay.
-bool IsAndroidHubOrTabSearch(
-    ::metrics::OmniboxEventProto::PageClassification classification);
-
-// Return true, if supplied page classification is the Android Tab Search
-// overlay.
-bool IsAndroidTabSearch(
-    ::metrics::OmniboxEventProto::PageClassification classification);
-
-// Return true, if supplied page classification applies to Android Widget.
-bool IsAndroidWidget(
-    ::metrics::OmniboxEventProto::PageClassification classification);
-
 // Return true, if supplied page classification supports most visited sites
 // provider.
 bool SupportsMostVisitedSites(

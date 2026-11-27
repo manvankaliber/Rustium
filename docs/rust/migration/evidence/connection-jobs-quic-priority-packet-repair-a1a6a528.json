@@ -1,0 +1,26 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "failed_commit": "3c7c4c052c858d4771fb95e0a4bdb618b7ac226c",
+  "passed_phases": [
+    "Focused object",
+    "GN include check",
+    "//net:net_unittests build",
+    "Four existing RFC v1 socket and datagram cases"
+  ],
+  "failed_case": "RfcV1/QuicProxyConnectJobSuccessTest.OriginalOpensTunnel/0",
+  "first_error": "Mock socket expected the CONNECT request on stream 0, but the first actual write after SETTINGS was the HTTP/3 priority update on stream 2. A stream-open check then terminated this test process.",
+  "production_case_status": "Unrun after the original case crashed.",
+  "binary_sha256": "97cc136037f19000e0e49c0dcdce89c4da2078de224466e73dc021566e797a15",
+  "evidence": [
+    "C:/Users/micro/rb/network-quic-success-3c7c4c05-20261120a/result.json",
+    "C:/Users/micro/rb/network-quic-success-3c7c4c05-tests-20261120a/result.json",
+    "C:/Users/micro/rb/network-quic-success-3c7c4c05-tests-20261120a/test.log",
+    "C:/Users/micro/rb/network-quic-success-3c7c4c05-tests-20261120a/release-probe.json"
+  ],
+  "candidate_commit": "a1a6a528bf4c3389995fc279345e36dd222e441d",
+  "source_sha256": "3e3e410c1f19d511e04da17c90246f152922425d37db1015927db9e3dff7a400",
+  "repair": "Use the existing packet maker to expect the default-priority HTTP/3 control write for the first bidirectional stream before the CONNECT request. Both sides retain strict byte matching and the same assertions.",
+  "prior_script_reference": "QuicNetworkTransactionTest.QuicProxyConnectHttpsServer",
+  "validation_thread": "mcp:launch:971ceacb15f17b9ce3ebe279f3a1a285502852d048184f9fe206da048f5abc07",
+  "next_action": "Run the exact original case first and then the production case in a separate launcher process."
+}

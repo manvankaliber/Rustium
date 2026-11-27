@@ -173,14 +173,6 @@ mediapipe_proto_library(
     deps = [":mediapipe_options_proto"],
 )
 
-# It is for pure-native Android builds where the library can't have any dependency on libandroid.so
-config_setting(
-    name = "android_no_jni",
-    define_values = {"MEDIAPIPE_NO_JNI": "1"},
-    values = {"crosstool_top": "//external:android/crosstool"},
-    visibility = ["//visibility:public"],
-)
-
 cc_library(
     name = "calculator_base",
     srcs = ["calculator_base.cc"],
@@ -1181,12 +1173,9 @@ cc_library(
             "MEDIAPIPE_HAS_RTTI=0",
         ],
         # Excludes AHardwareBuffer features from vendor processes
-        "//mediapipe/framework:android_no_jni": ["MEDIAPIPE_NO_JNI"],
+
         # unless they're linked against nativewindow.
-        "//mediapipe/framework/formats:android_link_native_window": [
-            "MEDIAPIPE_ANDROID_LINK_NATIVE_WINDOW",
-            "MEDIAPIPE_NO_JNI",
-        ],
+
     }),
     visibility = [
         "//mediapipe/calculators:__subpackages__",
@@ -1970,9 +1959,7 @@ cc_library(
         ":port",
         "//mediapipe/gpu:multi_pool",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/framework/formats:hardware_buffer_pool",
-        ],
+
         "//conditions:default": [],
     }),
 )

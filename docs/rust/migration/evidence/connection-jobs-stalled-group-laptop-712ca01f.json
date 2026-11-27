@@ -1,0 +1,48 @@
+{
+  "utc": "2026-11-21T21:45:25.750736+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "candidate_commit": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "base_and_pr_head": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "host": "HQC-VAN_KALIBER",
+  "build": {
+    "scope": "warm ordinary Windows component, net:net_unittests",
+    "ninja_jobs": 4,
+    "link_pool_depth": 1,
+    "seconds": 190.5,
+    "completed_actions": 15,
+    "gn_include_check": "passed",
+    "ninja_regeneration": true
+  },
+  "tests": {
+    "passed": 16,
+    "failed": 0,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "gate_order": [
+      "TransportSchedulingPolicyTest.DifferentialOrderedGroups",
+      "TransportSchedulingPolicyTest.EqualPriorityKeepsEarlierBatch",
+      "ClientSocketPoolBaseTest.StalledGroupTiesFollowGroupIdOrder"
+    ]
+  },
+  "abi": "The decorated net::SelectStalledGroupBatch C++ export in net.dll matches the import in net_unittests.exe.",
+  "restoration": "Preflight checkout and seven metadata files restored. Independent lock reacquisition and release confirmed no native workers and exact PR head. The 21 recorded qualification fingerprints matched.",
+  "receipt_directory": "C:/Users/micro/rb/network-712ca01-stalled-feedback-20261121b",
+  "files": [
+    "result.json",
+    "build-net-unittests.log",
+    "receipt.md",
+    "independent-release.json"
+  ],
+  "limits": [
+    "Warm scoped Windows feedback.",
+    "No performance evidence.",
+    "Existing auth and timer cases do not cover competitive ranking while a group holds an auth-bound slot.",
+    "An initial preflight stopped before checkout on a missing partial-clone blob. Four Git object identities were subsequently verified."
+  ],
+  "followup": {
+    "candidate": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+    "first_case": "ClientSocketPoolBaseTest.StalledGroupExcludesAuthBoundSlot",
+    "thread": "t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:f0d1537f348125c4e6818781ad66f5a7a97b33156a50bf922a34bde80611dee3",
+    "status": "dispatched"
+  }
+}

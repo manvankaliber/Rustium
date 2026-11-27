@@ -12,6 +12,9 @@
 #include "net/base/scheme_host_port_matcher_rule.h"
 
 namespace net {
+namespace proxy_matching_rust {
+struct MatcherStorage;
+}
 
 // SchemeHostPortMatcher holds an ordered list of rules for matching URLs, that
 // is serializable to a string.
@@ -86,6 +89,9 @@ class NET_EXPORT SchemeHostPortMatcher {
 
  private:
   RuleList rules_;
+  std::unique_ptr<proxy_matching_rust::MatcherStorage> rust_;
+
+  friend class ProxyHostMatchingRules;
 };
 
 }  // namespace net

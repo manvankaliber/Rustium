@@ -348,10 +348,6 @@ bool IsInstantNTPURL(const GURL& url, Profile* profile) {
   return new_tab_url.is_valid() && MatchesOriginAndPath(url, new_tab_url);
 }
 
-bool IsWebUiNtpEnabledForDesktopAndroid() {
-  return false;
-}
-
 bool IsSplitViewNewTabPage(const GURL& url) {
   return url.spec() == chrome::kChromeUISplitViewNewTabPageURL;
 }

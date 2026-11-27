@@ -238,8 +238,8 @@ TEST(VariationsStudyFilteringTest, CheckStudyPlatform) {
       {Study::PLATFORM_WINDOWS, Study::PLATFORM_MAC, Study::PLATFORM_LINUX,
        Study::PLATFORM_CHROMEOS, Study::PLATFORM_ANDROID, Study::PLATFORM_IOS,
        Study::PLATFORM_ANDROID_WEBVIEW, Study::PLATFORM_ANDROID_DESKTOP});
-  // Study::Platform has 2 reserved enum values (8 and 9).
-  static_assert(platforms.size() == Study::Platform_ARRAYSIZE - 2,
+  // Study::Platform has 3 reserved enum values (7, 8, and 9).
+  static_assert(platforms.size() == Study::Platform_ARRAYSIZE - 3,
                 "|platforms| must include all platforms.");
   std::array<bool, platforms.size()> platform_added = {false};
 

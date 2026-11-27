@@ -73,6 +73,7 @@ source_set("registry_controlled_domains") {
     "//net/base/registry_controlled_domains",
   ]
   deps = [
+    ":host_port_rust_services",
     "//base",
     "//net:parse_number_native_parser",
     "//url",
@@ -124,3 +125,19 @@ group("unittests") {
   testonly = true
   deps = [ ":filename_util_unittest" ]
 }
+
+# Parent Wave2 host-port services
+# net/base/BUILD.gn (parent-owned):
+source_set("host_port_rust_services") {
+  sources = [ "host_port_rust_services.cc" ]
+  public_deps = [ "//net:host_port_rust_services_header" ]
+  deps = [
+    "//base",
+    "//net:host_port_rust",
+    "//url",
+  ]
+}
+# Add ":host_port_rust_services" to registry_controlled_domains deps so the
+# public wrapper also works for standalone users of that source set.
+# Exact patch: url-util-wrapper.patch; git apply --ignore-whitespace --check
+# is necessary in the CRLF editing worktree. Validate GN and component exports.

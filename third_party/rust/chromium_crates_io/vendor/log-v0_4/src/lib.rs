@@ -155,7 +155,6 @@
 //!     * [syslog]
 //!     * [slog-stdlog]
 //!     * [systemd-journal-logger]
-//!     * [android_log]
 //!     * [win_dbg_logger]
 //!     * [db_logger]
 //!     * [log-to-defmt]
@@ -337,7 +336,6 @@
 //! [fern]: https://docs.rs/fern/*/fern/
 //! [spdlog-rs]: https://docs.rs/spdlog-rs/*/spdlog/
 //! [systemd-journal-logger]: https://docs.rs/systemd-journal-logger/*/systemd_journal_logger/
-//! [android_log]: https://docs.rs/android_log/*/android_log/
 //! [win_dbg_logger]: https://docs.rs/win_dbg_logger/*/win_dbg_logger/
 //! [db_logger]: https://docs.rs/db_logger/*/db_logger/
 //! [log-to-defmt]: https://docs.rs/log-to-defmt/*/log_to_defmt/

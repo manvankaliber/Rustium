@@ -55,28 +55,6 @@ public abstract class AbstractSchemaTest<T extends MessageLite> {
     }
   }
 
-  @Test
-  public void mergeFromByteArrayFastPathMayThrowIndexOutOfBoundsException() throws IOException {
-    if (!Android.isOnAndroidDevice()) {
-      // Skip this test if not on Android.
-      return;
-    }
-    byte[] data = messageFactory().newMessage().toByteArray();
-    int exceptionCount = 0;
-    for (int i = 0; i <= data.length; i++) {
-      byte[] truncatedData = Arrays.copyOf(data, i);
-      try {
-        T message = schema.newInstance();
-        // Test that this method throws the expected exceptions.
-        schema.mergeFrom(message, truncatedData, 0, i, new ArrayDecoders.Registers());
-      } catch (InvalidProtocolBufferException e) {
-        // Ignore expected exceptions.
-      } catch (IndexOutOfBoundsException e) {
-        exceptionCount += 1;
-      }
-    }
-    assertThat(exceptionCount).isNotEqualTo(0);
-  }
 
   protected static final <M extends MessageLite> void roundtrip(
       String failureMessage, M msg, Schema<M> schema) throws IOException {
@@ -86,14 +64,6 @@ public abstract class AbstractSchemaTest<T extends MessageLite> {
         .isEqualTo(msg.getSerializedSize());
 
     // Now read it back in and verify it matches the original.
-    if (Android.isOnAndroidDevice()) {
-      // Test the fast path on Android.
-      M newMsg = schema.newInstance();
-      schema.mergeFrom(
-          newMsg, serializedBytes, 0, serializedBytes.length, new ArrayDecoders.Registers());
-      schema.makeImmutable(newMsg);
-      assertWithMessage(failureMessage).that(newMsg).isEqualTo(msg);
-    }
     M newMsg = schema.newInstance();
     CodedInputStreamReader reader =
         CodedInputStreamReader.forCodedInput(CodedInputStream.newInstance(serializedBytes));

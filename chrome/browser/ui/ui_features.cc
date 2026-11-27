@@ -263,9 +263,9 @@ BASE_FEATURE_PARAM(int,
                    0);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-// Preloads a WebContents with a Top Chrome WebUI on BrowserView initialization,
-// so that it can be shown instantly at a later time when necessary.
-BASE_FEATURE(kPreloadTopChromeWebUI, base::FEATURE_ENABLED_BY_DEFAULT);
+// Open browser WebUIs on demand rather than keeping an unused renderer and
+// document alive while the browser is idle.
+BASE_FEATURE(kPreloadTopChromeWebUI, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // An experiment to reduce the number of navigations when preloading WebUIs.
 BASE_FEATURE(kPreloadTopChromeWebUILessNavigations,

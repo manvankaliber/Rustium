@@ -1,0 +1,147 @@
+{
+  "family": "connection-jobs",
+  "scope": "TransportClientSocketPool idle-socket lifecycle",
+  "status": "Original production inputs pinned before policy changes. Independent executable reference and differential results pending.",
+  "source_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "original_unchanged_since_commit": "02b99268c8a9ddfd015d1c4ed65856e28a0488b2",
+  "recovery": "Read each Git blob as raw bytes and verify the recorded SHA-256 before adapting it. The dirty checkout is outside this pin.",
+  "files": {
+    "net/socket/transport_client_socket_pool.cc": {
+      "git_blob": "8ff92215ca088b9ce951cc70ef925942db46dd0e",
+      "sha256": "51b9f3f2dde801aaed696ec6b7c492f2e30349650933a903aaf6ea8fff117f49",
+      "bytes": 79198,
+      "use": "Original idle usability, selection, cleanup, release, handout and lifecycle helpers"
+    },
+    "net/socket/transport_client_socket_pool.h": {
+      "git_blob": "28dec2162416075e52aff530235fb747ecc07972",
+      "sha256": "db18e40922f21b463edcd99284e473637cf3d4ba01d9857ae8c1abeb4d6d7b25",
+      "bytes": 35822,
+      "use": "IdleSocket, Group storage, counters and owned socket list contracts"
+    },
+    "net/socket/transport_client_socket_pool_unittest.cc": {
+      "git_blob": "cd615122059488160a8f4b390153afd0cb92f9b7",
+      "sha256": "6dd2a8bff795cca78fe0f69debc0f6c06b78d44d1681c2f76f50487fd98e5a35",
+      "bytes": 114633,
+      "use": "Derived pool timing, runtime lifetime and request behavior"
+    },
+    "net/socket/client_socket_pool_base_unittest.cc": {
+      "git_blob": "98581fbbce3c14d47dbab880c1829e879fc2f657",
+      "sha256": "0ad349919b7417e46309cf46b91ee26cbdbdb22d97a13e36a503781d0da912e1",
+      "bytes": 263990,
+      "use": "Production pool idle-socket scenarios, fixture clocks and mock sockets"
+    },
+    "net/socket/socket_test_util.cc": {
+      "git_blob": "7be20db797960b4a19acc355640ea81c176faa70",
+      "sha256": "181165151816757f5f1092eb284a14a99cff7335c2fc15e5b7bcd8d5daad6ef7",
+      "bytes": 88074,
+      "use": "Existing mock socket behavior used by fixture"
+    },
+    "net/socket/socket_test_util.h": {
+      "git_blob": "df7d7d852cbb3aedc3ad486e689cd5b2ebce1918",
+      "sha256": "9611872d74ca9d1e069dbda361caa74fc08545ddb9e01ad4ada3622ea0c5ccb6",
+      "bytes": 59813,
+      "use": "Existing mock socket contract"
+    },
+    "net/socket/client_socket_pool.cc": {
+      "git_blob": "3da97d8843d3f69d5604a3f1fa99b6ccaaff4570",
+      "sha256": "16167c08c338dbc18bf43a81bcf12b20518221374674466c742059a276180a5f",
+      "bytes": 17662,
+      "use": "Immediate pool expandability and proxy-chain helper boundary"
+    },
+    "net/socket/client_socket_pool.h": {
+      "git_blob": "bf2615f67cbc2814fef161421d920401dedeaed0",
+      "sha256": "0064528d1aeec3cef9b658088b0419890caee60442203f56d2fd22e9d9bfc328",
+      "bytes": 20565,
+      "use": "Parent virtual API and pool policy contract"
+    },
+    "net/socket/socket_pool_additional_capacity.cc": {
+      "git_blob": "13dc2a6862d0ad2309ee78de306a9cca3e757848",
+      "sha256": "15ed4e85be603864b153d1615bbd724a02341804ad18f0da58a2162464a678cb",
+      "bytes": 11510,
+      "use": "Dependencies of expandability updates"
+    },
+    "net/socket/socket_pool_additional_capacity.h": {
+      "git_blob": "a1c51a97efd3155d911319862e6f3f228d30c6f4",
+      "sha256": "126526f73df2bf47f9856c873bb12330e3b30e3627832c1b2d87a7d5591ece85",
+      "bytes": 5539,
+      "use": "Expandability type and input contracts"
+    },
+    "net/socket/client_socket_handle.cc": {
+      "git_blob": "1b0ea12dce0a64d014766cfa2070ec34968f516e",
+      "sha256": "20bd0a1ba60ee04fc57a2b22c6355dd10fded7f84c8f658ab8ba44ad388c8ea0",
+      "bytes": 12830,
+      "use": "Production release and handout consumer"
+    },
+    "net/socket/client_socket_handle.h": {
+      "git_blob": "2aa8206b433c6d0126e6957029226a224d19e22d",
+      "sha256": "a990e25309ae52aafda23b381afc9e0293ce8e98dfc8188011ee13ba39c073e7",
+      "bytes": 8948,
+      "use": "Production handle ABI"
+    },
+    "net/socket/stream_socket_handle.cc": {
+      "git_blob": "606bab92706d1753a2c856c064af0a962fbf91d3",
+      "sha256": "fd576f84d2f48374d8d5ec45cde7b9c35274727975b2f57e7cb27c05ae79b344",
+      "bytes": 3948,
+      "use": "Socket ownership and reuse metadata"
+    },
+    "net/socket/stream_socket_handle.h": {
+      "git_blob": "b26001d813b2676733e685810316e8c1a94aa81d",
+      "sha256": "b9074398d19e40df11197bce92e1c1f9b549ff3c48ec866980e3f3ae2d1730cf",
+      "bytes": 3717,
+      "use": "Socket ownership and reuse metadata contract"
+    },
+    "net/socket/stream_socket.h": {
+      "git_blob": "d1c3d4536c9b8271cfd189f01b45df9ea361ef18",
+      "sha256": "175a51d4ac37b763dd1dd45449d9819d4187b97b2cf9b1779a92251b7e70c00c",
+      "bytes": 6794,
+      "use": "Native socket provider observation API"
+    },
+    "net/socket/socket.h": {
+      "git_blob": "372e00b1072c46676c2a12d322edc9a36e7091a3",
+      "sha256": "d840c83e2aae4373228a8fdd9df3665e096afda0f6a7644020f9a13a3af99097",
+      "bytes": 4709,
+      "use": "Native socket provider base API"
+    },
+    "net/socket/client_socket_pool_manager_impl.cc": {
+      "git_blob": "8b402f81cec89fb6a2bd7de67da59feb9ff920c5",
+      "sha256": "3b3643ab67e876fe8023be520f3a5c74a5205933b155607383e6c897b626306c",
+      "bytes": 4491,
+      "use": "Production concrete pool selection"
+    },
+    "net/http/http_network_session.cc": {
+      "git_blob": "80ad63488e89359710df07c550ee20904f20f865",
+      "sha256": "916ee003206259bbc790dac479ccbcf4541aa8ff75c55823b058694ee095dcee",
+      "bytes": 18816,
+      "use": "Production pool manager consumer"
+    },
+    "net/base/proxy_chain.h": {
+      "git_blob": "6b4fc3ec4153910d09fb96485dfb31759d372de9",
+      "sha256": "a376b6cfa54b91612ea0293503191bca4ae2c8faedd20b2c75beab79a7ddcc04",
+      "bytes": 8131,
+      "use": "Direct-versus-proxied destruction boundary"
+    },
+    "base/time/time.h": {
+      "git_blob": "d1d5a00e8201d63494d9e1e9559f3c2a182552a0",
+      "sha256": "9611314b1d0952e28fd8dace035128ae158591b5aa68c5ce20227505dbe3f93b",
+      "bytes": 58191,
+      "use": "Elapsed-time and timeout semantics"
+    },
+    "net/BUILD.gn": {
+      "git_blob": "12b925f3be25cc71a20a5e4fbcea53be29d8c609",
+      "sha256": "e1573deca058a20fa339cb9bfe2b1e57b0ae108a53883995d939fdee101a687f",
+      "bytes": 296231,
+      "use": "Production and existing ordinary test build roots"
+    }
+  },
+  "policy": [
+    "Preserve release disposition and close-reason priority for disconnected, data-pending and stale-generation sockets.",
+    "Preserve observation order and timeout selection. An unusable socket reason supersedes expiry, which supersedes forced flush.",
+    "Select the newest usable previously used socket, otherwise the oldest usable unused socket. Preserve handout metadata, destruction order, counters and wakeups."
+  ],
+  "untouched_provider_contracts": "Native socket IO, C++ object storage and callbacks, monotonic clock, NetLog, and thread-runner destruction remain explicit. The reference must keep original policy and must avoid forwarding decisions to migrated code.",
+  "ordinary_targets": [
+    "//net:net",
+    "//net:net_unittests",
+    "//net:connection_jobs_family_rust_unittests"
+  ]
+}

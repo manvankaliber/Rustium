@@ -54,7 +54,7 @@ DevToolsWindowTesting::~DevToolsWindowTesting() {
 
   // Needed for Chrome_DevToolsADBThread to shut down gracefully in tests.
   ChromeDevToolsManagerDelegate::GetInstance()
-      ->ResetAndroidDeviceManagerForTesting();
+      ->ResetRemoteDeviceManagerForTesting();
 }
 
 // static

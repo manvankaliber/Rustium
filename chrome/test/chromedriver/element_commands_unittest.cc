@@ -22,9 +22,7 @@ namespace {
 
 class MockChrome : public StubChrome {
  public:
-  explicit MockChrome(bool is_android = false) : web_view_("1") {
-    browser_info_.is_android = is_android;
-  }
+  MockChrome() : web_view_("1") {}
   ~MockChrome() override = default;
 
   const BrowserInfo* GetBrowserInfo() const override { return &browser_info_; }
@@ -55,9 +53,8 @@ Status CallElementCommand(Command command,
                           const std::string& element_id,
                           const base::DictValue& params = {},
                           bool w3c_compliant = true,
-                          std::unique_ptr<base::Value>* value = nullptr,
-                          bool is_android = false) {
-  MockChrome* chrome = new MockChrome(is_android);
+                          std::unique_ptr<base::Value>* value = nullptr) {
+  MockChrome* chrome = new MockChrome();
   Session session("id", std::unique_ptr<Chrome>(chrome));
   session.w3c_compliant = w3c_compliant;
 
@@ -205,13 +202,12 @@ class KeyboardInteractabilityWebView : public StubWebView {
   ~KeyboardInteractabilityWebView() override = default;
 
   bool focus_called() const { return focus_called_; }
-  bool focus_script_android_arg_was_expected() const {
-    return focus_script_android_arg_was_expected_;
+  bool focus_script_element_arg_was_expected() const {
+    return focus_script_element_arg_was_expected_;
   }
 
-  void ExpectFocusScriptAndroidArg(bool expected) {
-    check_focus_script_android_arg_ = true;
-    expected_focus_script_android_arg_ = expected;
+  void ExpectFocusScriptElementArg() {
+    check_focus_script_element_arg_ = true;
   }
 
   Status EvaluateScript(const std::string& frame,
@@ -277,12 +273,11 @@ class KeyboardInteractabilityWebView : public StubWebView {
     }
     if (function.find("function focus") != std::string::npos) {
       focus_called_ = true;
-      if (check_focus_script_android_arg_ &&
-          (args.size() < 2 || !args[1].is_bool() ||
-           args[1].GetBool() != expected_focus_script_android_arg_)) {
-        return Status(kUnknownError, "unexpected focus script Android arg");
+      if (check_focus_script_element_arg_ &&
+          args.size() != 1) {
+        return Status(kUnknownError, "unexpected focus script arguments");
       }
-      focus_script_android_arg_was_expected_ = check_focus_script_android_arg_;
+      focus_script_element_arg_was_expected_ = check_focus_script_element_arg_;
       *result = std::make_unique<base::Value>();
       return Status(kOk);
     }
@@ -301,9 +296,8 @@ class KeyboardInteractabilityWebView : public StubWebView {
   std::string display_;
   std::string visibility_;
   bool focus_called_ = false;
-  bool check_focus_script_android_arg_ = false;
-  bool expected_focus_script_android_arg_ = false;
-  bool focus_script_android_arg_was_expected_ = false;
+  bool check_focus_script_element_arg_ = false;
+  bool focus_script_element_arg_was_expected_ = false;
 };
 
 }  // namespace
@@ -328,7 +322,7 @@ TEST(ElementCommandsTest,
   KeyboardInteractabilityWebView webview(/*is_displayed=*/false,
                                          /*display=*/"inline-block",
                                          /*visibility=*/"visible");
-  webview.ExpectFocusScriptAndroidArg(false);
+  webview.ExpectFocusScriptElementArg();
   base::DictValue params;
   params.Set("text", "");
   std::unique_ptr<base::Value> result_value;
@@ -337,25 +331,10 @@ TEST(ElementCommandsTest,
                          params, true, &result_value);
   ASSERT_TRUE(status.IsOk()) << status.message();
   EXPECT_TRUE(webview.focus_called());
-  EXPECT_TRUE(webview.focus_script_android_arg_was_expected());
+  EXPECT_TRUE(webview.focus_script_element_arg_was_expected());
 }
 
-TEST(ElementCommandsTest,
-     ExecuteSendKeysToElement_AndroidPassesFocusDocumentElementArg) {
-  KeyboardInteractabilityWebView webview(/*is_displayed=*/false,
-                                         /*display=*/"inline-block",
-                                         /*visibility=*/"visible");
-  webview.ExpectFocusScriptAndroidArg(true);
-  base::DictValue params;
-  params.Set("text", "");
-  std::unique_ptr<base::Value> result_value;
-  Status status =
-      CallElementCommand(ExecuteSendKeysToElement, &webview, "test-element-id",
-                         params, true, &result_value, /*is_android=*/true);
-  ASSERT_TRUE(status.IsOk()) << status.message();
-  EXPECT_TRUE(webview.focus_called());
-  EXPECT_TRUE(webview.focus_script_android_arg_was_expected());
-}
+
 
 namespace {
 

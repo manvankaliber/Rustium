@@ -1,0 +1,64 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "base": "a4bcf5ebda14ccbaf1dbdffe02d1758bad29a436",
+  "candidate_commit": "6757e9b56a6a99604ca997ab0f623c36534763c5",
+  "local_ref": "refs/heads/rust/connection-jobs-quic-success-reference-20261120",
+  "build": "Optimized QUIC-enabled //net:net_unittests. Added original-reference dependency only when enable_quic_proxy_support is set.",
+  "native_filter_candidates": [
+    "RfcV1/QuicProxyConnectJobSuccessTest.OriginalOpensTunnel/0",
+    "RfcV1/QuicProxyConnectJobSuccessTest.ProductionOpensTunnel/0"
+  ],
+  "fixture": "Fresh RFC v1 scripted native session for each case. The pool injects the actual session handle through QuicSessionRequest::SetSession. Each job requests and releases its own stream, processes the scripted 200 CONNECT response, publishes a connected tunnel and tears it down.",
+  "boundary": "Session setup, transport, stream provider and packet script are shared native test inputs. Job policies and original value and auth adaptations remain distinct. No claim about protocol or session-pool implementation independence.",
+  "pinned_inputs": {
+    "net/BUILD.gn": {
+      "git_blob": "3e760f00e6ac1d446e2d0b08385b1c0d67f395eb",
+      "sha256": "359b36ce7a074dd1befe89cb51c9c8c6fb07d0cb7df193e8b140fe9eec7072af"
+    },
+    "net/http/http_proxy_connect_job_rust_original.cc": {
+      "git_blob": "d22324b3d096fac29980154fe909948a6002aa06",
+      "sha256": "669a3426ac2b30064965d23feb1b35f879ab6e5b5eb32e202230982c8acb4bdb"
+    },
+    "net/http/http_proxy_connect_job_rust_original.h": {
+      "git_blob": "7f44a116051574f0b6070537aa1e2cf877966e03",
+      "sha256": "47c792f73efef3eb5eeb01b1c864e56b496a386725b88775577b0a6f5bf3768d"
+    },
+    "net/quic/quic_chromium_client_session.cc": {
+      "git_blob": "f834046ad76df87ebeca5990eb013dbf0e5acb0f",
+      "sha256": "55d76c6c11d44a40e228e6a127bb958b773d4ae6c01651abd7186ca2eaf7db0e"
+    },
+    "net/quic/quic_proxy_client_socket.cc": {
+      "git_blob": "5a95b2f62dddcbfa1d328321bf5668ac6736e33b",
+      "sha256": "bf810fe80beb2c3fd039381012b785790b21212a210e83da551ebd01be6d2204"
+    },
+    "net/quic/quic_proxy_client_socket_test_base.cc": {
+      "git_blob": "801655bd8e5e1ba7b37f3462f94251321de977a3",
+      "sha256": "40dcbcd27a98adb02ed18bdfeeecd5d2129e2e5a42b4cb775592b3d88dba8864"
+    },
+    "net/quic/quic_proxy_client_socket_test_base.h": {
+      "git_blob": "09eb7e1f849f56d5b2c44851a3b1e2984b995321",
+      "sha256": "bb0c0159e5e49dca111207190f49be77e980af971c7aa670529f0d0435eb329c"
+    },
+    "net/quic/quic_proxy_client_socket_unittest.cc": {
+      "git_blob": "1c4766288420447cad74fb71dc0dd41d027dcceb",
+      "sha256": "6dc743abc4d6532fdd9fbc8ddee7eff18484ea5f433eb9d0c45ea1a086a6f8ce"
+    },
+    "net/quic/quic_session_pool.cc": {
+      "git_blob": "7b2d253f8f34d294495467bd49cd2d3707dffcaf",
+      "sha256": "de11e7230c05e13542d1e7861c269282cee11b328121c00d218a8962b15f502d"
+    },
+    "net/quic/quic_session_pool.h": {
+      "git_blob": "1441ed7f4621e50100c9072620a760749ad778cd",
+      "sha256": "dceeee1c140784ed28a799ceccf884b029f08223e5c74fd43dbfed3322e09fba"
+    },
+    "net/socket/connection_jobs_upper_rust_job_workloads.h": {
+      "git_blob": "524c0ccd1004cd0dfa20eea2b2b0a33e9d29a76b",
+      "sha256": "d9564482375dfd34467528c03c758f0a8fa5a02126de0c21b086438c263748d2"
+    },
+    "net/socket/connection_jobs_upper_rust_original_helpers.h": {
+      "git_blob": "e39b26356f45ea7398545a99847ad10cc630eb84",
+      "sha256": "ade72520a45087b13fc3ab2c85f752731d1cb6eb5461405b58b60bf9b18d197a"
+    }
+  },
+  "status": "Four expected paths and whitespace diff checked. Independent source review requested. No native evidence or publication."
+}

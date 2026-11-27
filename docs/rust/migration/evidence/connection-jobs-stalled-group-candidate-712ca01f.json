@@ -1,0 +1,26 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "candidate_commit": "157c435f186f098c102e255c6af7f86c57f349bc",
+  "oracle_commit": "fc2d429f3493ade4272d3b1e2ade96a81ba03d41",
+  "production_base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "review_candidate": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "source_identity": {
+    "production_patch_sha256": "56de85d7a9b1a4d6c478c0e0e20d4ec6137b5a286699b99a63569104bc3dfe83",
+    "director_linkage_patch_sha256": "327ae2b3618137ffd30ea1062475bbc92cfc57ac1d65d24be26d697c48d0a540",
+    "materialization_after_images_verified": 6,
+    "director_changes": "Use std::array in the differential fixture, add native GroupId-order and socket-limit assertions, and keep only the ranking oracle in the proposed Net test header."
+  },
+  "scope": "Stalled-group priority ranking at FindTopStalledGroup. C++ retains native eligibility and group order, ownership, request assignment, reprioritization, job stealing, preconnect and callbacks.",
+  "tests": {
+    "status": "pending",
+    "observed": "Exact source materialization and git diff --check passed. No native compile or tests ran."
+  },
+  "review": {
+    "status": "pending",
+    "scope": "Independent source, FFI and GN review before first native validation."
+  },
+  "platform_limits": [
+    "Source-only candidate. Native qualification and performance are pending.",
+    "The frozen standalone Group assignment oracle remains in the worker packet for the following slice."
+  ]
+}

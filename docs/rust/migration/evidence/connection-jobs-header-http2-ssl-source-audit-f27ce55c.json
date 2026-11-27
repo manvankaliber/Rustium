@@ -1,0 +1,97 @@
+{
+  "utc": "2026-11-22T10:57:06.944704+00:00",
+  "head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "scope": "Independent exact-object source audit of reached original header, HTTP/2, and SSL helper paths.",
+  "audit_task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Adelegate-task%3A659615bd-b1d2-4e2f-8f1a-6634b88225c9",
+  "source_bindings": {
+    "http1": {
+      "net/http/http_proxy_client_socket_rust_original.cc": {
+        "git_blob": "c63c938e070c58bb49d0f4b3b20192287c6b00ce",
+        "sha256": "bbb851fdcbf9df83b7f269a0d464a0bc90372ec93c94f072f676a82b528eca75"
+      },
+      "net/http/http_stream_parser_rust_original.cc": {
+        "git_blob": "600d1a7f3089dcab1533e930106148efc6c6d42a",
+        "sha256": "c4e37ff41a5ab11b9a1ac87abcc9f38cd6e346573d61e11ef4359a0d8611caad"
+      },
+      "net/http/connection_header_original_policy.cc": {
+        "git_blob": "ec3b573f8cda7c0f66bb92dab16907d54c3d8346",
+        "sha256": "cd4ac4055efdc60c6aff6e395a6547d606f0e6d9fc90a837b429f3372f7c74b3"
+      },
+      "net/http/connection_header_original_log.cc": {
+        "git_blob": "f55143b761920b83bdefc60934ecc0ff45e5b6d2",
+        "sha256": "06dad8e26fd5a7b577103b5b0339b0ef35a17ae977a315c2e24000939d57f97e"
+      },
+      "net/http/connection_header_original_helpers.h": {
+        "git_blob": "a533ad13c22fb009c937d2ee92c9595cc62ad2c5",
+        "sha256": "85d410dc89f617d8ecbdf868655b43d6ed1b199cd2e1f2e2779419345037bde4"
+      },
+      "net/http/http_response_headers.cc": {
+        "git_blob": "fba451250adf81ad3fc810badb22282a30139933",
+        "sha256": "3251ff9c70130d85f4ffa95732c6816f2a8224b0441bab5bb5b82a58781e0232"
+      },
+      "net/http/http_util.cc": {
+        "git_blob": "118f6f077fc7b12d5d4ee40d2d8ed21045d21dbe",
+        "sha256": "2af70e937192181a7ef74648a4531af0bcb71ebea3a82aff2dad1c5b1ae1fa24"
+      }
+    },
+    "http2": {
+      "net/http/http_proxy_connect_job_rust_original.cc": {
+        "git_blob": "d22324b3d096fac29980154fe909948a6002aa06",
+        "sha256": "669a3426ac2b30064965d23feb1b35f879ab6e5b5eb32e202230982c8acb4bdb"
+      },
+      "net/spdy/spdy_proxy_client_socket_rust_original.cc": {
+        "git_blob": "cc89c48f3e78d7c13a0e874393aa046783e51fff",
+        "sha256": "bc9afcad4222310a7eb4853faaf71b569fd1ddf31356974b34d50da95f0a91b5"
+      },
+      "net/spdy/spdy_http_utils_family_original.cc": {
+        "git_blob": "0f6a6c33dd7f1d24a7682713b77d8757b074c8c4",
+        "sha256": "100be631960ac25a6b09e1135cf5214feb55ab7735b691b0136337aec0ec269c"
+      },
+      "net/socket/connection_jobs_http2_rust_original_context.cc": {
+        "git_blob": "0f6ccde796da933766adcfd7b7f2940077bd366e",
+        "sha256": "6d2f197e167947c0af75903364f0aec61663b02d43fbe8d26c58f4362524cf9b"
+      },
+      "net/socket/connection_jobs_upper_rust_jobs_perftest.cc": {
+        "git_blob": "6f42ff129f21dbce14e2b0c715af075d3fbbc099",
+        "sha256": "67216e249582f18fd78ed563991e0b04e90699b08654534fd30226e9037ed896"
+      },
+      "net/socket/connection_jobs_upper_rust_job_workloads.h": {
+        "git_blob": "524c0ccd1004cd0dfa20eea2b2b0a33e9d29a76b",
+        "sha256": "d9564482375dfd34467528c03c758f0a8fa5a02126de0c21b086438c263748d2"
+      },
+      "net/http/http_proxy_connect_job_rust_original_unittest.cc": {
+        "git_blob": "629527fc30d0ee7fa59f045555599a5b3870d4d5",
+        "sha256": "8ae5d37fbb896387ef53b2239d97bf171d02fb328d38a5717193e12ebf3ca4b3"
+      },
+      "net/http/http_proxy_connect_job_unittest.cc": {
+        "git_blob": "91b0a1a60ba58dc9734441e4ce1662c3806d7960",
+        "sha256": "0ef1f60a092afa43b90e7656fc26b9b1c3d94335821abefae62a5dbc3be5bc55"
+      }
+    },
+    "ssl": {
+      "net/socket/ssl_connect_job_rust_original.cc": {
+        "git_blob": "a268de491ccbf313265a191f1729af30a63eac08",
+        "sha256": "32e39f850a83ff457b6bb4523a50dd8bf36b538adc8e5d8f56876c905c0f6a7c"
+      },
+      "net/socket/ssl_connect_job_rust_original_unittest.cc": {
+        "git_blob": "b87a8d625ba6b8c1cd172b9974341cd2f9698afb",
+        "sha256": "e9f246f9da271e9d6bef8480359ad4f4c988b822364af5641c4d479e906eb0ac"
+      },
+      "net/socket/ssl_client_socket.cc": {
+        "git_blob": "2a4c1b7bf3cac888135e2a9b0d4137ae098ebacf",
+        "sha256": "403481644b07b5cd3f83c37e170706f6784be81694e55df34bbb85b108490a9b"
+      },
+      "net/cert/x509_util.cc": {
+        "git_blob": "f60e50df8d1715706efba291f146a28c2ab830c2",
+        "sha256": "ca8320989bbd5c6964f7193a3208de517c7c8284b3a9a62790b9a2637ba3c971"
+      }
+    }
+  },
+  "findings": [
+    "Original HTTP/1 proxy and stream parser use original request-header policy, serialization and logging. The shared response path through HttpResponseHeaders::TryToCreate and HttpUtil::HeadersIterator uses inspected C++ token and whitespace operations.",
+    "Original HTTP/2 job/session/stream and outbound header conversion use frozen paths. SpdyHeadersToHttpResponseOriginal delegates response storage to the shared HttpResponseHeaders raw-string or builder path. Both inspected shared response implementation files are identical to bb1359ebe.",
+    "SSL reference selects original nested jobs and calls a shared SSL client socket factory. The TrustAnchorIDs original test calls connection_baseline_original::SplitString, with fixture variants for both Happy Eyeballs settings.",
+    "The 16-case optimized verifier's HTTP/2 case compares attach and request handling and leaves the response pending. Separate named native proxy suites contain SPDY response tests, including HasEstablishedConnectionTunnel and ProxyDelegateExtraHeaders. Their two source files are unchanged from 557c24af. This audit did not independently inspect those individual runtime results."
+  ],
+  "limits": "No migrated request-header algorithm observed in the traced original chains. This does not prove every shared helper independent or certify socket, TLS, resolver, QUIC/QUICHE, logging or platform providers. Source-only; no new native results claimed."
+}

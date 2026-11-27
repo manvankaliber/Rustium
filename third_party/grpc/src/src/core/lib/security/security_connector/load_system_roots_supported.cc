@@ -22,8 +22,7 @@
 #include <string>
 #include <vector>
 
-#if defined(GPR_LINUX) || defined(GPR_ANDROID) || defined(GPR_FREEBSD) || \
-    defined(GPR_APPLE)
+#if (defined(GPR_LINUX)) || (defined(GPR_FREEBSD)) || (defined(GPR_APPLE))
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -44,7 +43,7 @@
 namespace grpc_core {
 namespace {
 
-#if defined(GPR_LINUX) || defined(GPR_ANDROID)
+#if (defined(GPR_LINUX))
 const char* kCertFiles[] = {
     "/etc/ssl/certs/ca-certificates.crt", "/etc/pki/tls/certs/ca-bundle.crt",
     "/etc/ssl/ca-bundle.pem", "/etc/pki/tls/cacert.pem",
@@ -52,11 +51,11 @@ const char* kCertFiles[] = {
 const char* kCertDirectories[] = {
     "/etc/ssl/certs", "/system/etc/security/cacerts", "/usr/local/share/certs",
     "/etc/pki/tls/certs", "/etc/openssl/certs"};
-#elif defined(GPR_FREEBSD)  // endif GPR_LINUX || GPR_ANDROID
+#elif defined(GPR_FREEBSD)
 const char* kCertFiles[] = {"/etc/ssl/cert.pem",
                             "/usr/local/share/certs/ca-root-nss.crt"};
 const char* kCertDirectories[] = {""};
-#elif defined(GPR_APPLE)    // endif GPR_FREEBSD
+#elif defined(GPR_APPLE)
 const char* kCertFiles[] = {"/etc/ssl/cert.pem"};
 const char* kCertDirectories[] = {""};
 #endif                      // GPR_APPLE

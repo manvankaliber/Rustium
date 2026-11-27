@@ -1,0 +1,43 @@
+{
+  "utc": "2026-11-21T22:00:31.829908+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "integrated_ranking_slice": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "previous_pr_head": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "scope": "Stalled-group ranking in Rust, with native eligibility, stable GroupId traversal, and ownership. New competitive auth-bound slot and prior tie/differential tests.",
+  "validation": {
+    "prior_candidate": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+    "prior_pass_count": 16,
+    "integrated_head_pass_count": 4,
+    "build": "Warm Windows component net:net_unittests, -j4, serialized links.",
+    "reconciliation": {
+      "link_elapsed_ms": {
+        "net.dll": [
+          17688,
+          18231
+        ],
+        "net_unittests.exe": [
+          22423,
+          23798
+        ]
+      },
+      "between_links_ms": 4192,
+      "source": "C:/Users/micro/rb/src/out/NetworkCI/pr1-ad617-20261118a/.ninja_log at prior auth evidence reconciliation",
+      "ninja_log_sha256": "602f24e71741876881e05db4fc48d17ccd9b698258a74dde8e1a6922fe6ebd48",
+      "build_log_sha256": "ba1c83c933f088e78814302eb20b84d8c4f1fc193b9c21bf141803e699e89927",
+      "result_sha256": "a1e3fb4886f58d7309835993f5ac3a45591e0c5f9f4aa7591e2cae26392f8252",
+      "runtime_result_sha256": "102c8194b686405515ebef107276268e0fdc3dee27fcc481a6b0d5e9f8a31801",
+      "verdict": "The two links did not overlap. The controller incorrectly counted total link actions; actual timing matches build interval and action order.",
+      "graph_limit": "No exact post-regeneration graph snapshot was recorded; pool binding cannot be certified for that run from the current root hash."
+    }
+  },
+  "remaining": "Transport scheduling task remains open through further request assignment, queue and native lifecycle work. Performance, full Windows family acceptance on the new stack, and other platform evidence remain pending.",
+  "assignment_feedback": {
+    "candidate": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+    "status": "dispatched",
+    "target": "net:net_unittests",
+    "first_cases": 5,
+    "followup_cases": 11,
+    "thread": "t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:a2342490535a6eefba7bd62de17ff4cc2cc9ab8c61d4500a91b845ab8e798c02"
+  }
+}

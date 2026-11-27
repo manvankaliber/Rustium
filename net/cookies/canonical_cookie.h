@@ -266,17 +266,8 @@ class NET_EXPORT CanonicalCookie : public CookieBase {
       std::optional<CookiePartitionKey> cookie_partition_key = std::nullopt,
       CookieInclusionStatus* status = nullptr);
 
-  friend auto operator<=>(const CanonicalCookie& left,
-                          const CanonicalCookie& right) {
-    // Use the cookie properties that uniquely identify a cookie to determine
-    // ordering.
-    return left.RefUniqueKey() <=> right.RefUniqueKey();
-  }
-
-  friend bool operator==(const CanonicalCookie& left,
-                         const CanonicalCookie& right) {
-    return left.RefUniqueKey() == right.RefUniqueKey();
-  }
+  friend NET_EXPORT std::strong_ordering operator<=>(const CanonicalCookie&,const CanonicalCookie&);
+  friend NET_EXPORT bool operator==(const CanonicalCookie&,const CanonicalCookie&);
 
   // See CookieBase for other accessors.
 
@@ -286,26 +277,19 @@ class NET_EXPORT CanonicalCookie : public CookieBase {
   base::Time ExpiryDate() const { return expiry_date_; }
   base::Time LastAccessDate() const { return last_access_date_; }
   base::Time LastUpdateDate() const { return last_update_date_; }
-  bool IsPersistent() const { return !expiry_date_.is_null(); }
+  bool IsPersistent() const;
   CookiePriority Priority() const { return priority_; }
   CookieSourceType SourceType() const { return source_type_; }
 
-  bool IsExpired(base::Time current) const {
-    return !expiry_date_.is_null() && current >= expiry_date_;
-  }
+  bool IsExpired(base::Time current) const;
 
   // Returns true iff Value() equals `cc.Value()`. As an optimization, this
   // tries to avoid decrypting the cookies if possible.
-  bool IsValueEqual(const CanonicalCookie& cc) const {
-    return ValueSize() == cc.ValueSize() && Value() == cc.Value();
-  }
+  bool IsValueEqual(const CanonicalCookie& cc) const;
 
   // Returns true iff Value() equals `value_string`. As an optimization, this
   // tries to avoid decrypting the cookie if possible.
-  bool IsValueEqual(std::string_view value_string) const {
-    return ValueSize().InBytes() == value_string.size() &&
-           Value() == value_string;
-  }
+  bool IsValueEqual(std::string_view value_string) const;
 
   // Are the cookies considered equivalent in the eyes of RFC 2965.
   // The RFC says that name must match (case-sensitive), domain must
@@ -320,11 +304,7 @@ class NET_EXPORT CanonicalCookie : public CookieBase {
   // scheme and/or port depending on the state of the associated feature.
   // Additionally, domain cookies get a slightly different check which does not
   // include the source port.
-  bool IsEquivalent(const CanonicalCookie& ecc) const {
-    // It seems like it would make sense to take secure, httponly, and samesite
-    // into account, but the RFC doesn't specify this.
-    return RefUniqueKey() == ecc.RefUniqueKey();
-  }
+  bool IsEquivalent(const CanonicalCookie& ecc) const;
 
   // Checks a looser set of equivalency rules than 'IsEquivalent()' in order
   // to support the stricter 'Secure' behaviors specified in Step 12 of

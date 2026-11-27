@@ -142,14 +142,6 @@ autofill::AddressDataManager* GetAddressDataManager(Profile* profile) {
   return pdm ? &pdm->address_data_manager() : nullptr;
 }
 
-contextual_tasks::ContextualTasksService* GetContextualTasksService(
-    base::WeakPtr<Profile> profile) {
-  return profile
-             ? contextual_tasks::ContextualTasksServiceFactory::GetForProfile(
-                   profile.get())
-             : nullptr;
-}
-
 syncer::DataTypeController::TypeVector CreateCommonControllers(
     Profile* profile,
     syncer::SyncService* sync_service) {
@@ -196,10 +188,6 @@ syncer::DataTypeController::TypeVector CreateCommonControllers(
       collaboration::CollaborationServiceFactory::GetForProfile(profile));
   builder.SetAimEligibilityService(
       AimEligibilityServiceFactory::GetForProfile(profile));
-  // A callback is needed here to decouple `SyncServiceFactory` from
-  // `ContextualTasksServiceFactory` and prevent dependency cycles.
-  builder.SetContextualTasksServiceGetter(
-      base::BindRepeating(&GetContextualTasksService, profile->GetWeakPtr()));
   builder.SetDataSharingService(
       data_sharing::DataSharingServiceFactory::GetForProfile(profile));
   builder.SetPersonalCollaborationDataService(

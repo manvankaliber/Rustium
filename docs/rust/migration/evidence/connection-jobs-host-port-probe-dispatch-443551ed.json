@@ -1,0 +1,53 @@
+{
+  "utc": "2026-11-22T01:26:00.630581+00:00",
+  "base_revision": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "candidate_revision": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "candidate_branch": "rust/connection-host-port-reference-review-20261122",
+  "status": "Source review cleared the implementation. Scoped successor published and sent to the Windows laptop for focused validation. No candidate build or runtime result yet.",
+  "base_review": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A09053b4c-772d-4559-b93c-ba8653023770",
+  "candidate_review": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Adf2dc196-84c0-4612-8302-ca5f82022caf",
+  "changes": {
+    "net/BUILD.gn": {
+      "sha256": "bb7a2130e03af62fd877d728e64804b666b9d0f3c8aa82c34c4fbe682d1dbb56",
+      "git_blob": "ae0b2a0c0eace3a19158654a74295e448c827b2e"
+    },
+    "net/base/host_port_rust_ffi.rs": {
+      "sha256": "2a7555e001bf445f8ecf79c83d8430f4151431155ff2259293580a79130aa473",
+      "git_blob": "1fe40a41c219af38398190f163c6b5d32fc603eb"
+    },
+    "net/http/rustium_reference_probe.cc": {
+      "sha256": "320021c451fe02874b15d8b47c9feb3e9d0e7846a9876da711c5cfc5f63e194f",
+      "git_blob": "cb4c2fa6e077e52d1fa507d404ae4625e2e66b93"
+    },
+    "net/http/rustium_reference_probe.h": {
+      "sha256": "67937fb23fff7edeec75c5541bdbc9b827bc02ebe0bfa39073a5120f0bd4281c",
+      "git_blob": "4141bc011b8ba9b55a7127f229a23f5cf3525dc4"
+    },
+    "net/socket/connection_jobs_family_rust_unittest.cc": {
+      "sha256": "ba8b468e01a69869b01cca8f2d04910941a35f4d7cb6f3fcde1386eca39da99d",
+      "git_blob": "e5011462775b41cf884bd73aca895067a4285b01"
+    }
+  },
+  "scope": [
+    "Add a paired bare HostPortPair TransportConnectJob comparison for success, raw timeout, cancellation and queued cancellation. Keep the existing scheme-aware comparison.",
+    "Measure HostPortPair emptiness and formatting in the existing component-owned Rust CXX implementation only under the probe flag, with separate positive controls.",
+    "The uncached MockHostResolver matches the raw hostname. Scope the provider contribution during CreateRequest and compare it to the enclosing drained window. The cached/diagnostic paths that can call HostForURL are outside this fixture.",
+    "The prior auth reference registry and seven probe snapshots are already wired at the base. Preserve their own qualification identity and scope."
+  ],
+  "next_validation": {
+    "target": "//net:connection_jobs_family_rust_unittests",
+    "ordinary": [
+      "ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal",
+      "ConnectionJobsFamilyRustTest.HostPortPairResolverRequestMatchesIndependentOriginal"
+    ],
+    "dcheck_component_probe": [
+      "ConnectionJobsFamilyRustTest.HostPortPairProbeControls",
+      "ConnectionJobsFamilyRustTest.HostPortPairResolverRequestMatchesIndependentOriginal"
+    ],
+    "boundary_checks": "One host_port Rust archive/CXX route per graph, getters absent flag-off and exported/imported through net.dll flag-on."
+  },
+  "cutover": "incomplete",
+  "reviewed_revision": "0f5f6e3c7dc84db3a4d5051b3702e7cd700afcd3",
+  "review_delta": "The director added --check-cfg=cfg(test) for the existing host_port_rust_core.rs test module. The GN file is the only changed blob from the reviewed candidate.",
+  "laptop_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A4831fd70-5535-4cd2-b036-9e86fb1a5c19"
+}

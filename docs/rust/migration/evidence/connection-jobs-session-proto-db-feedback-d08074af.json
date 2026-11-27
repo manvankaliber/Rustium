@@ -1,0 +1,18 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "The optimized components binary requires the SessionProtoDB unit-test object before proxy preference acceptance can run.",
+  "failed_commit": "16de62f42e82eea5b8c464155c2752aac7490d74",
+  "personal_context_object_exit_code": 0,
+  "personal_context_object_elapsed_seconds": 84.383,
+  "umbrella_elapsed_seconds": 904.753,
+  "umbrella_cases_run": 0,
+  "first_umbrella_error": "session_proto_db_unittest.cc:25: undeclared identifier persisted_state_db",
+  "failure_log": "C:/Users/micro/rb/network-16de62f4-personal-context-20261121b/components.log",
+  "failure_receipt": "C:/Users/micro/rb/network-16de62f4-personal-context-20261121b/receipt.md",
+  "independent_lock_release": true,
+  "focused_candidate": "d08074af11d1c2cfe22bb3e44f3f5c8406af3e5a",
+  "published_ref": "refs/heads/rust/session-proto-db-test-feedback-20261121",
+  "test_scope": "Keep the same 15 test names, binary payload fields and distinct message used by the simultaneous-databases case. Browser callers under chrome/browser/persisted_state_db still reference the retired commerce type and need separate qualification if they are reached.",
+  "validation_thread": "mcp:launch:a318b1979d6fed0c77d7e946fa79fe48a44cd5068cf731bcf18dbd1b80d405c8",
+  "validation_state": "Focused object replay dispatched. On success the warm umbrella will collect up to six failed Ninja edges before returning evidence."
+}

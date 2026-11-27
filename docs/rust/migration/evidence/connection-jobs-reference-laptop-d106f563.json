@@ -1,0 +1,48 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "validated_commit": "d106f5634f65abf5004aa990baf657e79465e90c",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "host": "HQC-VAN_KALIBER",
+  "configuration": "Warm Windows x64 component",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "compiler_jobs": 4,
+  "simultaneous_links": 1,
+  "focused_cases_passed_in_order": [
+    "ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal",
+    "ConnectionJobsFamilyRustTest.HappyEyeballsFallbackMatchesOriginal"
+  ],
+  "family": {
+    "selected": 2604,
+    "passed": 2570,
+    "skipped": 34,
+    "disabled": 0
+  },
+  "test_launcher_jobs": 1,
+  "retries": 0,
+  "source_sha256": {
+    "net/socket/connection_jobs_family_rust_unittest.cc": "ff9b212f25fe11bc3e1ea9425e3e9fa1f25038c17ce3e8b0fb8625e9943dc378",
+    "tools/grit/grit/format/html_inline.py": "e047703de4f2005036ee96e330eb3e204804c8c49d28584c308a5c90b6ff17c2",
+    "tools/grit/grit/format/html_inline_unittest.py": "f8e5cec3ea6c596c1cee3b4aab675cfa250b54aaba782b361476fcff06f35b4b"
+  },
+  "environment_sha256": {
+    "args.gn": "8b184cb6faf1950b45850a9b29fc44aa7d13fff4a6dd11d1f64bb4a64a8e4020",
+    "build.ninja": "d841e9875bef87dbd2c387ac5b355395e84e5d313564d5aad2de6b9476d1ee07",
+    "target_graph": "90ccbe7bd161203aef59c7aa6f8fd0553c38cdab36ef173c6544cbb1034e58ba",
+    "test_binary": "dd789a4deb942496759d46a62334960943d9098d69b3a7a6e1989d4dd31da187"
+  },
+  "receipt": "C:/Users/micro/rb/network-reference-independence-d106f563-20261120b/result.json",
+  "raw_log": "C:/Users/micro/rb/network-reference-independence-d106f563-20261120b/family/test-connection_jobs_family_rust_unittests.log",
+  "lock_release": "C:/Users/micro/rb/network-reference-independence-d106f563-20261120b/release-probe.json",
+  "existing_limitations": [
+    "Shared scripted native providers",
+    "No fresh-build qualification",
+    "Optimized QUIC session and proxy preferences pending",
+    "POSIX/non-Kerberos qualification pending"
+  ],
+  "next_candidate": {
+    "commit": "11a7c1cc66c93c27171c591255a3166b96bfff3a",
+    "remote_ref": "refs/heads/rust/connection-jobs-quic-success-grit-20261120",
+    "laptop_thread": "mcp:launch:bf68080e4f9596b42883b761cffa3f514506fa92ffb246adf43f29bf283c6cb1",
+    "status": "In progress: optimized GN include checking and two successful QUIC tunnel cases."
+  }
+}

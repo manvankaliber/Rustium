@@ -320,8 +320,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // symbols:
 //
 //   Linux and Linux-derived           __linux__
-//   Android                           __ANDROID__ (implies __linux__)
-//   Linux (non-Android)               __linux__ && !__ANDROID__
 //   Darwin (macOS and iOS)            __APPLE__
 //   Akaros (http://akaros.org)        __ros__
 //   Windows                           _WIN32
@@ -330,8 +328,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 //   Fuchsia                           __Fuchsia__
 //   WebAssembly (WASI)                __wasi__
 //
-// Note that since Android defines both __ANDROID__ and __linux__, one
-// may probe for either Linux or Android by simply testing for __linux__.
 
 // ABSL_HAVE_MMAP
 //

@@ -165,10 +165,6 @@ OpenXrExtensionHelper::OpenXrExtensionHelper(
 
   // Spatial Anchors
   OPENXR_LOAD_FN(xrCreateSpatialAnchorEXT);
-  OPENXR_LOAD_FN(xrEnumerateSpatialAnchorAttachableComponentsANDROID);
-
-  // Spatial HitTest
-  OPENXR_LOAD_FN(xrCreateSpatialRaycastSnapshotANDROID);
 
   // Visibility Mask
   OPENXR_LOAD_FN(xrGetVisibilityMaskKHR);

@@ -7,6 +7,7 @@
 #include <limits>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <vector>
 
 #include "base/compiler_specific.h"
@@ -20,7 +21,7 @@ namespace net {
 namespace {
 namespace reference = http_range_promote_internal::test;
 
-void Equal(const HttpByteRange& a, const HttpByteRange& b) {
+void Equal(const HttpByteRange& a, const reference::ByteRange& b) {
   EXPECT_EQ(a.first_byte_position(), b.first_byte_position());
   EXPECT_EQ(a.last_byte_position(), b.last_byte_position());
   EXPECT_EQ(a.suffix_length(), b.suffix_length());
@@ -32,7 +33,10 @@ void Compare(std::string_view input) {
     if (prepopulated) {
       a.push_back(HttpByteRange::Bounded(12, 34));
     }
-    auto b = a;
+    std::vector<reference::ByteRange> b;
+    if (prepopulated) {
+      b.push_back(reference::ByteRange::Bounded(12, 34));
+    }
     EXPECT_EQ(HttpUtil::ParseRangeHeader(input, &a),
               reference::ParseRangeHeader(input, &b));
     ASSERT_EQ(a.size(), b.size());
@@ -58,6 +62,28 @@ void Compare(std::string_view input) {
               reference::ParseContentRangeHeaderFor206(
                   input, &b[layout[0]], &b[layout[1]], &b[layout[2]]));
     EXPECT_EQ(a, b);
+  }
+}
+
+static_assert(!std::is_same_v<HttpByteRange, reference::ByteRange>);
+
+TEST(HttpRangePromoteTest, IndependentValuePolicyAndPartialFailure) {
+  // Each constructor executes its own implementation, including prepopulation.
+  std::vector<HttpByteRange> actual = {HttpByteRange::Bounded(12, 34)};
+  std::vector<reference::ByteRange> expected = {
+      reference::ByteRange::Bounded(12, 34)};
+  EXPECT_FALSE(HttpUtil::ParseRangeHeader("bytes=1-2,broken", &actual));
+  EXPECT_FALSE(reference::ParseRangeHeader("bytes=1-2,broken", &expected));
+  ASSERT_EQ(actual.size(), 2u);
+  ASSERT_EQ(expected.size(), 2u);
+  for (size_t i = 0; i < actual.size(); ++i) {
+    Equal(actual[i], expected[i]);
+    EXPECT_EQ(actual[i].IsValid(), expected[i].IsValid());
+    EXPECT_EQ(actual[i].GetHeaderValue(), expected[i].GetHeaderValue());
+    EXPECT_EQ(actual[i].ComputeBounds(20), expected[i].ComputeBounds(20));
+    Equal(actual[i], expected[i]);
+    EXPECT_FALSE(actual[i].ComputeBounds(100));
+    EXPECT_FALSE(expected[i].ComputeBounds(100));
   }
 }
 
@@ -303,6 +329,65 @@ TEST(HttpRangePromoteTest, FixedBridgeHandlesNullEmptyAndAliasedStorage) {
   EXPECT_EQ(first, -1);
   EXPECT_EQ(last, -1);
   EXPECT_EQ(length, -1);
+}
+
+TEST(HttpRangePromoteTest, SmallListBridgeInlineOverflowAndPartialPrefix) {
+  using namespace http_range_internal;
+  EXPECT_EQ(rustium_http_range_list_small(nullptr, 0, nullptr), 0);
+  for (std::string_view input : {"items=0-1", "bytes=x", "bytes=-"}) {
+    EXPECT_EQ(rustium_http_range_list_small(
+                  reinterpret_cast<const uint8_t*>(input.data()), input.size(),
+                  nullptr),
+              0);
+  }
+  constexpr std::string_view empty = "bytes=,,,";
+  EXPECT_EQ(rustium_http_range_list_small(
+                reinterpret_cast<const uint8_t*>(empty.data()), empty.size(),
+                nullptr),
+            kListSyntaxValid);
+  std::string input = "bytes=";
+  for (size_t count = 1; count <= 9; ++count) {
+    if (count > 1) {
+      input += ',';
+    }
+    input += "1-2";
+    for (bool malformed_tail : {false, true}) {
+      const std::string header = input + (malformed_tail ? ",broken" : "");
+      SmallRanges result;
+      const auto state = rustium_http_range_list_small(
+          reinterpret_cast<const uint8_t*>(header.data()), header.size(),
+          &result);
+      EXPECT_EQ(state,
+                kListHasEntries | (malformed_tail ? 0 : kListSyntaxValid));
+      const ScopedSmallRangeList owned(result);
+      ASSERT_EQ(result.len, count);
+      ASSERT_EQ(owned.values().size(), count);
+      EXPECT_EQ(result.heap.capacity == 0, count <= 4);
+      for (const auto& range : owned.values()) {
+        EXPECT_EQ(range.first, 1);
+        EXPECT_EQ(range.last, 2);
+        EXPECT_EQ(range.suffix, -1);
+      }
+    }
+  }
+}
+
+TEST(HttpRangePromoteTest, SmallListBridgeInputCanOverlapResult) {
+  using namespace http_range_internal;
+  for (std::string_view header : {"bytes=1-2", "bytes=1-2,3-4,5-6,7-8,9-10"}) {
+    SmallRanges result;
+    // SAFETY: The header fits the live ABI record's object representation.
+    // Rust must finish borrowing input before overwriting the result.
+    UNSAFE_BUFFERS(std::memcpy(&result, header.data(), header.size()));
+    ASSERT_EQ(
+        rustium_http_range_list_small(reinterpret_cast<const uint8_t*>(&result),
+                                      header.size(), &result),
+        kListHasEntries | kListSyntaxValid);
+    const ScopedSmallRangeList owned(result);
+    EXPECT_EQ(result.len, header == "bytes=1-2" ? 1u : 5u);
+    EXPECT_EQ(owned.values()[0].first, 1);
+    EXPECT_EQ(owned.values().back().last, header == "bytes=1-2" ? 2 : 10);
+  }
 }
 }  // namespace
 }  // namespace net

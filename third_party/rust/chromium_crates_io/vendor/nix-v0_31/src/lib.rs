@@ -132,7 +132,7 @@ pub mod fcntl;
 feature! {
     #![feature = "net"]
 
-    #[cfg(any(linux_android,
+    #[cfg(any(linux,
               bsd,
               solarish,
               target_os = "hurd"))]
@@ -142,7 +142,7 @@ feature! {
     #[deny(missing_docs)]
     pub mod net;
 }
-#[cfg(linux_android)]
+#[cfg(linux)]
 feature! {
     #![feature = "kmod"]
     pub mod kmod;
@@ -395,7 +395,7 @@ impl NixPath for PathBuf {
 /// A NULL pointer will be provided if `path.is_none()`.
 #[cfg(any(
     all(apple_targets, feature = "mount"),
-    all(linux_android, any(feature = "mount", feature = "fanotify"))
+    all(linux, any(feature = "mount", feature = "fanotify"))
 ))]
 pub(crate) fn with_opt_nix_path<P, T, F>(path: Option<&P>, f: F) -> Result<T>
 where

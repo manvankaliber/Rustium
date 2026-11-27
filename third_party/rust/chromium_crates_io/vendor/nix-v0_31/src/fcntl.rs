@@ -24,14 +24,14 @@ use std::os::unix::io::RawFd;
     all(target_os = "freebsd", target_arch = "x86_64"),
 ))]
 use std::path::PathBuf;
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 use std::ptr;
 
 #[cfg(feature = "fs")]
 use crate::{sys::stat::Mode, NixPath, Result};
 
 #[cfg(any(
-    linux_android,
+    linux,
     target_os = "emscripten",
     target_os = "wasi",
     target_env = "uclibc",
@@ -95,15 +95,15 @@ libc_bitflags! {
         AT_SYMLINK_NOFOLLOW;
         /// Don't automount the terminal ("basename") component of pathname if it is a directory
         /// that is an automount point.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         AT_NO_AUTOMOUNT;
         /// If the provided path is an empty string, operate on the provided directory file
         /// descriptor instead.
-        #[cfg(any(linux_android, target_os = "freebsd", target_os = "hurd"))]
+        #[cfg(any(linux, target_os = "freebsd", target_os = "hurd"))]
         AT_EMPTY_PATH;
         /// Used with [`faccessat`](crate::unistd::faccessat), the checks for accessibility are
         /// performed using the effective user and group IDs instead of the real user and group ID
-        #[cfg(not(target_os = "android"))]
+
         AT_EACCESS;
     }
 }
@@ -137,7 +137,7 @@ libc_bitflags!(
         /// Try to minimize cache effects of the I/O for this file.
         #[cfg(any(
             freebsdlike,
-            linux_android,
+            linux,
             target_os = "illumos",
             target_os = "netbsd"
         ))]
@@ -145,7 +145,7 @@ libc_bitflags!(
         /// If the specified path isn't a directory, fail.
         O_DIRECTORY;
         /// Implicitly follow each `write()` with an `fdatasync()`.
-        #[cfg(any(linux_android, apple_targets, target_os = "freebsd", netbsdlike))]
+        #[cfg(any(linux, apple_targets, target_os = "freebsd", netbsdlike))]
         O_DSYNC;
         /// Error out if a file was not created.
         O_EXCL;
@@ -161,10 +161,10 @@ libc_bitflags!(
                   target_os = "redox"))]
         O_FSYNC;
         /// Allow files whose sizes can't be represented in an `off_t` to be opened.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         O_LARGEFILE;
         /// Do not update the file last access time during `read(2)`s.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         O_NOATIME;
         /// Don't attach the device as the process' controlling terminal.
         #[cfg(not(target_os = "redox"))]
@@ -182,7 +182,7 @@ libc_bitflags!(
         /// Obtain a file descriptor for low-level access.
         ///
         /// The file itself is not opened and other file operations will fail.
-        #[cfg(any(linux_android, target_os = "redox", target_os = "freebsd"))]
+        #[cfg(any(linux, target_os = "redox", target_os = "freebsd"))]
         O_PATH;
         /// Only allow reading.
         ///
@@ -206,7 +206,7 @@ libc_bitflags!(
         #[cfg(not(target_os = "redox"))]
         O_SYNC;
         /// Create an unnamed temporary file.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         O_TMPFILE;
         /// Truncate an existing regular file to 0 length if it allows writing.
         O_TRUNC;
@@ -561,7 +561,7 @@ unsafe fn inner_readlink<P: ?Sized + NixPath>(
         let reported_size = match dirfd {
             #[cfg(target_os = "redox")]
             Some(_) => unreachable!("redox does not have readlinkat(2)"),
-            #[cfg(any(linux_android, target_os = "freebsd", target_os = "hurd"))]
+            #[cfg(any(linux, target_os = "freebsd", target_os = "hurd"))]
             Some(dirfd) => {
                 // SAFETY:
                 //
@@ -582,7 +582,7 @@ unsafe fn inner_readlink<P: ?Sized + NixPath>(
                 )
             }
             #[cfg(not(any(
-                linux_android,
+                linux,
                 target_os = "redox",
                 target_os = "freebsd",
                 target_os = "hurd"
@@ -679,7 +679,7 @@ pub fn readlinkat<Fd: std::os::fd::AsFd,P: ?Sized + NixPath>(
 }
 }
 
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "fs")]
 libc_bitflags!(
     /// Additional flags for file sealing, which allows for limiting operations on a file.
@@ -695,7 +695,7 @@ libc_bitflags!(
         F_SEAL_WRITE;
         /// The file contents cannot be modified, except via shared writable mappings that were
         /// created prior to the seal being set. Since Linux 5.1.
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         F_SEAL_FUTURE_WRITE;
     }
 );
@@ -738,25 +738,25 @@ pub enum FcntlArg<'a> {
     /// Get the first lock that blocks the lock description
     F_GETLK(&'a mut libc::flock),
     /// Acquire or release an open file description lock
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     F_OFD_SETLK(&'a libc::flock),
     /// Like [`F_OFD_SETLK`] except that if a conflicting lock is held on
     /// the file, then wait for that lock to be released.
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     F_OFD_SETLKW(&'a libc::flock),
     /// Determine whether it would be possible to create the given lock.  If not, return details
     /// about one existing lock that would prevent it.
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     F_OFD_GETLK(&'a mut libc::flock),
     /// Add seals to the file
     #[cfg(any(
-        linux_android,
+        linux,
         target_os = "freebsd"
     ))]
     F_ADD_SEALS(SealFlag),
     /// Get seals associated with the file
     #[cfg(any(
-        linux_android,
+        linux,
         target_os = "freebsd"
     ))]
     F_GET_SEALS,
@@ -767,10 +767,10 @@ pub enum FcntlArg<'a> {
     #[cfg(apple_targets)]
     F_BARRIERFSYNC,
     /// Return the capacity of a pipe
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     F_GETPIPE_SZ,
     /// Change the capacity of a pipe
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     F_SETPIPE_SZ(c_int),
     /// Look up the path of an open file descriptor, if possible.
     #[cfg(any(
@@ -866,21 +866,21 @@ pub fn fcntl<Fd: std::os::fd::AsFd>(fd: Fd, arg: FcntlArg) -> Result<c_int> {
             F_SETLKW(flock) => libc::fcntl(fd, libc::F_SETLKW, flock),
             #[cfg(not(target_os = "redox"))]
             F_GETLK(flock) => libc::fcntl(fd, libc::F_GETLK, flock),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             F_OFD_SETLK(flock) => libc::fcntl(fd, libc::F_OFD_SETLK, flock),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             F_OFD_SETLKW(flock) => libc::fcntl(fd, libc::F_OFD_SETLKW, flock),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             F_OFD_GETLK(flock) => libc::fcntl(fd, libc::F_OFD_GETLK, flock),
             #[cfg(any(
-                linux_android,
+                linux,
                 target_os = "freebsd"
             ))]
             F_ADD_SEALS(flag) => {
                 libc::fcntl(fd, libc::F_ADD_SEALS, flag.bits())
             }
             #[cfg(any(
-                linux_android,
+                linux,
                 target_os = "freebsd"
             ))]
             F_GET_SEALS => libc::fcntl(fd, libc::F_GET_SEALS),
@@ -888,9 +888,9 @@ pub fn fcntl<Fd: std::os::fd::AsFd>(fd: Fd, arg: FcntlArg) -> Result<c_int> {
             F_FULLFSYNC => libc::fcntl(fd, libc::F_FULLFSYNC),
             #[cfg(apple_targets)]
             F_BARRIERFSYNC => libc::fcntl(fd, libc::F_BARRIERFSYNC),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             F_GETPIPE_SZ => libc::fcntl(fd, libc::F_GETPIPE_SZ),
-            #[cfg(linux_android)]
+            #[cfg(linux)]
             F_SETPIPE_SZ(size) => libc::fcntl(fd, libc::F_SETPIPE_SZ, size),
             #[cfg(any(
                 target_os = "dragonfly",
@@ -1153,7 +1153,7 @@ unsafe impl Flockable for std::fs::File {}
 unsafe impl Flockable for OwnedFd {}
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "zerocopy")]
 libc_bitflags! {
     /// Additional flags to `splice` and friends.
@@ -1203,7 +1203,7 @@ feature! {
 // Note: FreeBSD defines the offset argument as "off_t".  Linux and Android
 // define it as "loff_t".  But on both OSes, on all supported platforms, those
 // are 64 bits.  So Nix uses i64 to make the docs simple and consistent.
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 pub fn copy_file_range<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
     fd_in: Fd1,
     off_in: Option<&mut i64>,
@@ -1255,7 +1255,7 @@ pub fn copy_file_range<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
 ///
 /// # See Also
 /// *[`splice`](https://man7.org/linux/man-pages/man2/splice.2.html)
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn splice<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
     fd_in: Fd1,
     off_in: Option<&mut libc::loff_t>,
@@ -1283,7 +1283,7 @@ pub fn splice<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
 ///
 /// # See Also
 /// *[`tee`](https://man7.org/linux/man-pages/man2/tee.2.html)
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn tee<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
     fd_in: Fd1,
     fd_out: Fd2,
@@ -1300,7 +1300,7 @@ pub fn tee<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::AsFd>(
 ///
 /// # See Also
 /// *[`vmsplice`](https://man7.org/linux/man-pages/man2/vmsplice.2.html)
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn vmsplice<F: std::os::fd::AsFd>(
     fd: F,
     iov: &[std::io::IoSlice<'_>],
@@ -1522,7 +1522,7 @@ pub fn fspacectl_all<Fd: std::os::fd::AsFd>(
     Ok(())
 }
 
-#[cfg(any(linux_android, target_os = "emscripten", target_os = "wasi", target_env = "uclibc", target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "emscripten", target_os = "wasi", target_env = "uclibc", target_os = "freebsd"))]
 mod posix_fadvise {
     use crate::errno::Errno;
     use crate::Result;
@@ -1580,7 +1580,7 @@ mod posix_fadvise {
 ///
 /// # See Also
 /// * [`posix_fallocate`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/posix_fallocate.html)
-#[cfg(any(linux_android, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
+#[cfg(any(linux, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
 pub fn posix_fallocate<Fd: std::os::fd::AsFd>(
     fd: Fd,
     offset: libc::off_t,

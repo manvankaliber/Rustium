@@ -1,0 +1,258 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "source_commit": "df7a5e64f112b86c8b2292630649aecedcc313bb",
+  "review_scope": "Source-only intake for existing resolver-result, dual-connector and successful QUIC proxy coverage gaps. Inputs pin the reviewed fixture starting points; audit the reached helper closure before changing or crediting a comparison.",
+  "next_comparisons": {
+    "resolver_result": {
+      "original_cases": [
+        "TransportConnectJobTestRustOriginal.EndpointResult",
+        "TransportConnectJobTestRustOriginal.DnsAliases",
+        "TransportConnectJobTestRustOriginal.HostResolutionFailure"
+      ],
+      "expected_path": "Use scripted request creation and completion with endpoint metadata, aliases, resolution details and attempts. Compare callbacks and cancellation in production and original jobs.",
+      "boundary": "Scripted HostResolver; isolate migrated HostPortPair helper behavior reached through shared test code before accepting oracle independence."
+    },
+    "happy_eyeballs_v2": {
+      "original_cases": [
+        "TcpConnectJobTestRustOriginal.TwoConnectorsTwoIpsOneNeverCompletes",
+        "TcpConnectJobTestRustOriginal.TwoConnectorsIPv6ThenIpv4"
+      ],
+      "expected_path": "Compare first IPv6 attempt, mock-clock fallback, IPv4 attempt, each possible winner, socket publication and cancellation of the pending attempt.",
+      "boundary": "The existing FactoryThroughHandleMatchesOriginal test toggles v2 through an abstract pool; the two-connector race needs its own trace comparison."
+    },
+    "quic_session_success": {
+      "provider_cases": [
+        "QuicNetworkTransactionTest.QuicProxyConnectHttpsServer",
+        "QuicProxyClientSocketTest.ConnectSendsCorrectRequest"
+      ],
+      "expected_path": "Supply a usable session and stream handle, process the successful CONNECT response, and compare timing-independent transitions, priority, publication and teardown in the original and production proxy jobs.",
+      "boundary": "Shared native QUIC session and socket providers. A fake return code without a session handle cannot qualify successful acquisition."
+    }
+  },
+  "configuration": "Ordinary component test target //net:connection_jobs_family_rust_unittests. Use the separately qualified optimized build with enable_quic_proxy_support=true for the successful QUIC case. Review evaluated GN and applicable ABI hooks after wiring.",
+  "qualification": "Source review and hash checks only. New comparisons, dependent helper audit and native evidence remain open.",
+  "files": {
+    "net/socket/transport_connect_job_rust_original.cc": {
+      "group": "resolver_result",
+      "git_blob": "818f846cfdf3461695deeedbe3ecd7b4cafbe892",
+      "sha256": "c6f808a2eba1689f0f4d083d9c4e0accb9dbd5abf8bf0b5cace4cf1a898190e2",
+      "bytes": 22463
+    },
+    "net/socket/transport_connect_job_rust_original.h": {
+      "group": "resolver_result",
+      "git_blob": "ecb308f890f835876965d8034933bda778d327f8",
+      "sha256": "085dc2c94255e9f30f7236276e137df9bedea25c60b5de75493413d8d76d1c6c",
+      "bytes": 11183
+    },
+    "net/socket/transport_connect_sub_job_rust_original.cc": {
+      "group": "resolver_result",
+      "git_blob": "1b92c5e181ca0734293ad6e8b5c04c00fca5128e",
+      "sha256": "7359da478d4b7790ed10567b153fd02f71932b034ced2329c7a6b124bea20a0b",
+      "bytes": 5401
+    },
+    "net/socket/transport_connect_sub_job_rust_original.h": {
+      "group": "resolver_result",
+      "git_blob": "2e899f45c803b7abc470bf997f5916f48870c3a6",
+      "sha256": "26e6ba38211862bde02f823f5bcc1f53f6ee5efc91f83db4ebf652e65568140c",
+      "bytes": 2313
+    },
+    "net/socket/transport_connect_job_rust_original_unittest.cc": {
+      "group": "resolver_result",
+      "git_blob": "52d5fb3d672bcb98a4a025ad60ed950a3bbdc9de",
+      "sha256": "ec00f89e9a6121dd18c0b0756e2b959485117dd0ced28afc4606cb695938e5ab",
+      "bytes": 57442
+    },
+    "net/socket/transport_connect_job_unittest.cc": {
+      "group": "resolver_result",
+      "git_blob": "6364afbfa1d0ce9c4e3a690c34bb7eaaaca6e6c3",
+      "sha256": "4d76309ffd0c5b7d5b8e3aec03ec5a6cd0734420e12f8c6e075aa6992d4b580d",
+      "bytes": 55790
+    },
+    "net/dns/host_resolver.h": {
+      "group": "resolver_result",
+      "git_blob": "d916f2038e6f77f6f77b430e20dce5eea725de53",
+      "sha256": "709393bcbac47082b83bdd192236a7f3ecc516ab651cbfaab9fa75b24b529e77",
+      "bytes": 30767
+    },
+    "net/dns/mock_host_resolver.cc": {
+      "group": "resolver_result",
+      "git_blob": "6d4c71c41ccdc6a9c1ef767cab942fa3c24411d0",
+      "sha256": "0b3b018b0aab9a640cbde4f0a71ad8086d0a348f4f07ca5eb1a14c46ee5022ff",
+      "bytes": 62612
+    },
+    "net/dns/mock_host_resolver.h": {
+      "group": "resolver_result",
+      "git_blob": "d0ca91d2b1cb0a16da6d75713f022ab3c973dc1f",
+      "sha256": "77434528f20783b58644c8dc36764348b0c7210fa09687bf3df0ebc7525d0821",
+      "bytes": 31744
+    },
+    "net/base/host_port_pair.cc": {
+      "group": "resolver_result",
+      "git_blob": "2eeb6590053b4bf9ae8f3f38b70bbc06e80df119",
+      "sha256": "560e59f36e6edba3c87898635ce3856b6b51ec2ff71ed90ee065c88ce9b3c4ca",
+      "bytes": 5313
+    },
+    "net/base/host_port_pair.h": {
+      "group": "resolver_result",
+      "git_blob": "4b184de7ccd9e583f67b605ebb3a155e174db4d3",
+      "sha256": "ef3f3ef6ff127b094b02f9917ee7e87981e03d3ae4af142f8a468e48ab6ea8e2",
+      "bytes": 2392
+    },
+    "net/socket/tcp_connect_job_rust_original.cc": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "fb2b8abe12ebaa46bcfc3756621dab075a2f7a7d",
+      "sha256": "35120223d6443e2b295d230e8182d7514ed9b14a03557c378fa36e9002c0981b",
+      "bytes": 39976
+    },
+    "net/socket/tcp_connect_job_rust_original.h": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "520d7e91b23f7cb32aa55a0cc30e2869dd63a0d4",
+      "sha256": "f4405909e00660d98ef441d4b3a5a25bb3415019e456c6b0561e7cd71ddbc1f2",
+      "bytes": 22232
+    },
+    "net/socket/tcp_connect_job_connector_rust_original.cc": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "0e429c2745285bff2e713796e47e64f7078a5b07",
+      "sha256": "2aaa4720795228ae55a13b0cd722e05550cf742f8b867db594c84a2eb70cb585",
+      "bytes": 12228
+    },
+    "net/socket/tcp_connect_job_connector_rust_original.h": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "5d96e0f55dd3d088dee905bf516d0cdccfe81c90",
+      "sha256": "adf2512ff94ab4293ef5a5ceed0eae1f32a29298391b48038b34383f0a563701",
+      "bytes": 6597
+    },
+    "net/socket/tcp_connect_job_rust_original_unittest.cc": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "fd459652e78d71253946d70353b63d8b676604c9",
+      "sha256": "afa586f6dac32ec382c9310b5b4008f958fbeaf2de11e52d7a2585c546cde22f",
+      "bytes": 196928
+    },
+    "net/socket/tcp_connect_job_unittest.cc": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "317810a831611ac7e8596966e4555549bcddd020",
+      "sha256": "7f1685882a25fea08bf02b01ab5dd7d128b9ed80e6dbe635b182d3271e1b1c15",
+      "bytes": 193532
+    },
+    "net/socket/connection_jobs_family_flow_fixture.h": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "1eac0a12c9825a9e4ccf8e8fb1dc1a085f41124d",
+      "sha256": "bfc6a9d20a846558ad6acc75df2833a2ee693068531959352886d3a6cbe6d914",
+      "bytes": 11777
+    },
+    "net/socket/connection_jobs_family_flow_unittest.cc": {
+      "group": "happy_eyeballs_v2",
+      "git_blob": "b14d6d5d83006dd3a232adef59c9960da9c29d69",
+      "sha256": "668244573ab67b0b85df70b53a3435b2c2788d20eec41a92661bf778228d52da",
+      "bytes": 2966
+    },
+    "net/http/http_proxy_connect_job_rust_original.cc": {
+      "group": "quic_session_success",
+      "git_blob": "d22324b3d096fac29980154fe909948a6002aa06",
+      "sha256": "669a3426ac2b30064965d23feb1b35f879ab6e5b5eb32e202230982c8acb4bdb",
+      "bytes": 39740
+    },
+    "net/http/http_proxy_connect_job_rust_original.h": {
+      "group": "quic_session_success",
+      "git_blob": "7f44a116051574f0b6070537aa1e2cf877966e03",
+      "sha256": "47c792f73efef3eb5eeb01b1c864e56b496a386725b88775577b0a6f5bf3768d",
+      "bytes": 13527
+    },
+    "net/http/http_proxy_connect_job_unittest.cc": {
+      "group": "quic_session_success",
+      "git_blob": "91b0a1a60ba58dc9734441e4ce1662c3806d7960",
+      "sha256": "0ef1f60a092afa43b90e7656fc26b9b1c3d94335821abefae62a5dbc3be5bc55",
+      "bytes": 120932
+    },
+    "net/quic/quic_network_transaction_unittest.cc": {
+      "group": "quic_session_success",
+      "git_blob": "32b3d3fa7d95f6a691a4dad8f767a4934907cce4",
+      "sha256": "e458f6cfaab24b19e14f1910aac8dcb0c8f6f86a406afd86ff9f16e2ebb4f246",
+      "bytes": 439625
+    },
+    "net/quic/quic_proxy_client_socket_unittest.cc": {
+      "group": "quic_session_success",
+      "git_blob": "1c4766288420447cad74fb71dc0dd41d027dcceb",
+      "sha256": "6dc743abc4d6532fdd9fbc8ddee7eff18484ea5f433eb9d0c45ea1a086a6f8ce",
+      "bytes": 62743
+    },
+    "net/quic/quic_session_pool.h": {
+      "group": "quic_session_success",
+      "git_blob": "1441ed7f4621e50100c9072620a760749ad778cd",
+      "sha256": "dceeee1c140784ed28a799ceccf884b029f08223e5c74fd43dbfed3322e09fba",
+      "bytes": 49942
+    },
+    "net/quic/quic_chromium_client_session.h": {
+      "group": "quic_session_success",
+      "git_blob": "8707b6107c9f26ac069ba1dc9b7b76545ad27cc7",
+      "sha256": "dc466907efe8e5c84bd82cda74141411219ee624796360b6ae5c794893109f69",
+      "bytes": 61230
+    },
+    "net/socket/connection_jobs_upper_rust_job_workloads.h": {
+      "group": "quic_session_success",
+      "git_blob": "524c0ccd1004cd0dfa20eea2b2b0a33e9d29a76b",
+      "sha256": "d9564482375dfd34467528c03c758f0a8fa5a02126de0c21b086438c263748d2",
+      "bytes": 16059
+    },
+    "net/socket/connection_jobs_upper_rust_jobs_unittest.cc": {
+      "group": "quic_session_success",
+      "git_blob": "6fb82374d2032b1bd656497e240dd2b650e1ba81",
+      "sha256": "43a1f4a64dc6f863a660c94563de35e8d68bb476460152d0334112b6bfe98a98",
+      "bytes": 1234
+    },
+    "net/socket/connect_job_rust_original.cc": {
+      "group": "shared_reference_and_build",
+      "git_blob": "b05d413e19fa6794940565bc7ec55b3d6f1feb52",
+      "sha256": "a4115a075ad4c2b988dd02a04c73624fb4e6d1cd171fc13b671a0d072289a435",
+      "bytes": 9381
+    },
+    "net/socket/connect_job_rust_original.h": {
+      "group": "shared_reference_and_build",
+      "git_blob": "cb4a30e3deaec4f2bd1988c4dd26dc60893a8537",
+      "sha256": "d748e7af4f7b32bb471d92c1be01900c96324b24df7284465da85fb942a6bd88",
+      "bytes": 16385
+    },
+    "net/socket/connect_job_test_util_rust_original.h": {
+      "group": "shared_reference_and_build",
+      "git_blob": "37344eff5fe5e9f80e02941c37b112fe8c486b92",
+      "sha256": "61e2d0c687587d7f7ab908dfb8f61adb277e2005e73ed984ac9ca2304b5895ae",
+      "bytes": 3329
+    },
+    "net/socket/connection_jobs_rust_original_helpers.h": {
+      "group": "shared_reference_and_build",
+      "git_blob": "67afc94a1da0b7230fc9ec4f5b6a802b348abe83",
+      "sha256": "5c580e9306dd13cf1413b0eec5143ad5ad1672030cf35e4f6293cb4f221bac40",
+      "bytes": 1870
+    },
+    "net/socket/connection_jobs_upper_rust_original_helpers.h": {
+      "group": "shared_reference_and_build",
+      "git_blob": "e39b26356f45ea7398545a99847ad10cc630eb84",
+      "sha256": "ade72520a45087b13fc3ab2c85f752731d1cb6eb5461405b58b60bf9b18d197a",
+      "bytes": 7966
+    },
+    "net/socket/connection_jobs_family_rust_test_support.h": {
+      "group": "shared_reference_and_build",
+      "git_blob": "591a66cc448bf2d1c4be32481105ce08c516dc47",
+      "sha256": "d1a6c64f5f799eac5296053ca7f4eb63800b0621c7267a118aa753315dfd6aa9",
+      "bytes": 8062
+    },
+    "net/BUILD.gn": {
+      "group": "shared_reference_and_build",
+      "git_blob": "12b925f3be25cc71a20a5e4fbcea53be29d8c609",
+      "sha256": "e1573deca058a20fa339cb9bfe2b1e57b0ae108a53883995d939fdee101a687f",
+      "bytes": 296231
+    },
+    "net/features.gni": {
+      "group": "shared_reference_and_build",
+      "git_blob": "df44c377b9ca41efc54f393d3c6cd1a49d0fd961",
+      "sha256": "7a5a3a36e1434db7c632dec6c197eb1833546d97954b1ec707dbd406963a901f",
+      "bytes": 4549
+    },
+    "build/rust/rustium_reference_probe.gni": {
+      "group": "shared_reference_and_build",
+      "git_blob": "7ebd98ca9470faacdccb5d9e210035289138d930",
+      "sha256": "af672ebf347ae220f13973faacf784e4a8073389356d95b36416460e2ab1d6c3",
+      "bytes": 542
+    }
+  }
+}

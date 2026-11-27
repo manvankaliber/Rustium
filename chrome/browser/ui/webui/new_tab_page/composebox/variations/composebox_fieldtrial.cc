@@ -126,32 +126,7 @@ omnibox::NTPComposeboxConfig GetNTPComposeboxConfig() {
 }  // namespace
 
 bool IsNtpComposeboxEnabled(Profile* profile) {
-  if (!profile) {
-    return false;
-  }
-
-  if (!contextual_search::ContextualSearchService::IsContextSharingEnabled(
-          profile->GetPrefs()) &&
-      !base::FeatureList::IsEnabled(omnibox::kAimUsePecApi)) {
-    return false;
-  }
-
-  // The `AimEligibilityService` depends on the `TemplateURLService`. If the
-  // `TemplateURLService` does not exist for this profile, then the
-  // `AimEligibilityService` cannot be created.
-  if (!TemplateURLServiceFactory::GetForProfile(profile)) {
-    return false;
-  }
-
-  AimEligibilityService* aim_eligibility_service =
-      AimEligibilityServiceFactory::GetForProfile(profile);
-  if (!aim_eligibility_service) {
-    return false;
-  }
-
-  return base::FeatureList::IsEnabled(kNtpComposebox) &&
-         aim_eligibility_service->IsAimEligible() &&
-         aim_eligibility_service->IsFuseboxEligible();
+  return false;
 }
 
 std::unique_ptr<
@@ -219,36 +194,7 @@ FeatureConfig::~FeatureConfig() = default;
 namespace ntp_realbox {
 
 bool IsNtpRealboxNextEnabled(Profile* profile) {
-  if (!profile) {
-    return false;
-  }
-
-  if (!ntp_composebox::IsNtpComposeboxEnabled(profile)) {
-    return false;
-  }
-
-  if (!contextual_search::ContextualSearchService::IsContextSharingEnabled(
-          profile->GetPrefs()) &&
-      !base::FeatureList::IsEnabled(omnibox::kAimUsePecApi)) {
-    return false;
-  }
-
-  // The `AimEligibilityService` depends on the `TemplateURLService`. If the
-  // `TemplateURLService` does not exist for this profile, then the
-  // `AimEligibilityService` cannot be created.
-  if (!TemplateURLServiceFactory::GetForProfile(profile)) {
-    return false;
-  }
-
-  AimEligibilityService* aim_eligibility_service =
-      AimEligibilityServiceFactory::GetForProfile(profile);
-  if (!aim_eligibility_service) {
-    return false;
-  }
-
-  return base::FeatureList::IsEnabled(kNtpRealboxNext) &&
-         aim_eligibility_service->IsAimEligible() &&
-         aim_eligibility_service->IsFuseboxEligible();
+  return false;
 }
 
 BASE_FEATURE(kNtpRealboxNext, base::FEATURE_ENABLED_BY_DEFAULT);

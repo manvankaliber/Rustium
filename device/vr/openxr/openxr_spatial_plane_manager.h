@@ -81,7 +81,6 @@ class OpenXrSpatialPlaneManager : public OpenXrPlaneManager,
   // tracked or otherwise invalid.
   XrSpatialEntityIdEXT GetEntityId(PlaneId plane_id) const;
 
-  bool can_parent_anchors() const { return can_parent_anchors_; }
   bool mesh_detection_enabled() const { return mesh_detection_enabled_; }
 
  private:
@@ -108,8 +107,6 @@ class OpenXrSpatialPlaneManager : public OpenXrPlaneManager,
   absl::flat_hash_map<XrSpatialEntityIdEXT, mojom::XRMeshDataPtr>
       mesh_entity_id_to_data_;
   absl::flat_hash_set<XrSpatialEntityIdEXT> mesh_updated_entity_ids_;
-
-  bool can_parent_anchors_ = false;
 
   absl::flat_hash_set<XrSpatialComponentTypeEXT> enabled_components_;
   bool polygon_enabled_ = false;

@@ -1,0 +1,30 @@
+{
+  "utc": "2026-11-22T01:15:42.622950+00:00",
+  "task_id": "NET-CI-SOURCE-REVIEW",
+  "head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "prior_driver_baseline": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "prior_review": "4c8c55fa00f6ed761bd0f777d35dac568756f125",
+  "tests": {
+    "passed": 18,
+    "failed": 0,
+    "seconds": 4.869,
+    "command": "python -B -m unittest -v test_network_build_planning",
+    "scope": "Exact Git blobs copied to a temporary directory. Simulated harness calls. No GN, compiler or actual native tests."
+  },
+  "inventory": {
+    "programs": 36,
+    "workloads": 232,
+    "logical_roots": 96,
+    "entrypoint_source_hashes_matched": 18,
+    "archive_members_including_metadata": 1329,
+    "archive_sha256": "2af0bafa6f9c77a491b96a9b68260143f3dc48ff055d7ee5b834178cc960cd43",
+    "archive_check": "Matches pinned SHA-256 and every ZIP member passed CRC check."
+  },
+  "input_sha256": {
+    "build_network_consumers.py": "30f65c79f7cec0da0af69ef3b9a9e5c5a65d201ecbd33e1dd1aead020a4df426",
+    "test_network_build_planning.py": "a35d43e1e4b29fa24db9aae63dc9872e04747d3b616446c08efdc370f0303446",
+    "network-validation-inventory.json": "fa9d00a712b0c4c3bc7fe53d6c0080ac4539803c18a03007d916161e3fc6695e",
+    "network-focus.json": "31b5be00bf74857fa810c018dbbf601b09d7f3d0e6c9e0f4c6259455d3fffbac"
+  },
+  "limits": "No workflow lint rerun. The tools/ci and workflow paths byte-match the earlier 72ee5ddd input basis. The existing review worktree retains untracked V2 evidence untouched."
+}

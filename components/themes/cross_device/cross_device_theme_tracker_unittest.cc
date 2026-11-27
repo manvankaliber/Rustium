@@ -7,7 +7,7 @@
 #include "base/test/task_environment.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "components/sync/protocol/theme_android_specifics.pb.h"
+#include "components/sync/protocol/theme_mobile_specifics.pb.h"
 #include "components/sync/protocol/theme_ios_specifics.pb.h"
 #include "components/sync/protocol/theme_specifics.pb.h"
 #include "components/themes/common/image_url_options.h"

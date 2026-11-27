@@ -1,0 +1,47 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "candidate_commit": "fe5d79e24020bde959538a7f0b493b164e4e97af",
+  "base_commit": "4fadffffebb3a76fd8604245b29e9f4f5cd2cddc",
+  "original_reference_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "oracle_commit": "f758ed40bab89f04b700e2c0533ecea701c7f502",
+  "source_identity": {
+    "files": {
+      "net/socket/transport_client_socket_pool.cc": {
+        "blob": "b74b875c660d35330146c63d33c5338672037686",
+        "sha256": "15b162e35a7428749d318ff1a6fc07f2b27983993cc58830370edb7d9f473bf4",
+        "bytes": 81596
+      },
+      "net/socket/transport_client_socket_pool_idle_rust_core.rs": {
+        "blob": "c56116f57240fc82fc268fcd2ff8315b468dc61c",
+        "sha256": "66f1718b292f49d343c0151de31d1ede7fb4b4f0edc8bbf846ca960b749473f9",
+        "bytes": 2334
+      },
+      "net/socket/transport_client_socket_pool_idle_rust_original.cc": {
+        "blob": "73cbcd4efcb9fd6697d13d5c7488cbc5241c9bde",
+        "sha256": "0fb57daa5b786701f0fa307e16f38ebb23e405b3b0ba24314327372662a0fab9",
+        "bytes": 2765
+      },
+      "net/socket/transport_client_socket_pool_idle_rust_original.h": {
+        "blob": "5b116a918a72071a070e19a72dfa1b6bc0615e2e",
+        "sha256": "39e6693267499935e1025a2fb91be5a36a785911173ed7f8e1585c4e19726c88",
+        "bytes": 1678
+      },
+      "net/socket/transport_client_socket_pool_unittest.cc": {
+        "blob": "8bff2e3303f11fd6e7434a632fce06149e528183",
+        "sha256": "c575823693cfbbb800ae93fed9a3abd5404b39cb0bec67819be5f6c7abb3566a",
+        "bytes": 122356
+      }
+    }
+  },
+  "tests": {
+    "status": "pending",
+    "source_checks": "Clean worktree, owned paths and diff check. Worker checked Rust formatting and ABI declaration/export names."
+  },
+  "review": {
+    "status": "pending",
+    "role": "Independent Terra/xhigh source and ABI review"
+  },
+  "platform_limits": [
+    "Source candidate only. No configured build or tests on this revision."
+  ]
+}

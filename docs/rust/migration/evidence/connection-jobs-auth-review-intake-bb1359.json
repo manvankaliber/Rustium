@@ -1,0 +1,32 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-REVIEW",
+  "candidate_commit": "1fd755aa78d20d08e724283f77a6a025d2853338",
+  "integration_commit": "baf5ec4a1226f78697d3a3bc778dee9a3d2e2c7b",
+  "source_identity": {
+    "windows_probe_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+    "prior_link_qualification_commit": "0eaf99456e03232b7ed8ad5837c739542f0ffbb1"
+  },
+  "tests": {
+    "status": "passed",
+    "scope": "Review artifact byte-for-byte intake, Windows scoped reference-probe follow-up and source guard checks",
+    "windows": "14 selected family cases, 29 headers cases and isolated counter control passed, zero skips or retries. Six ownership artifacts and recorded flag-off artifacts matched the previous bytes.",
+    "receipt": "C:/Users/micro/rb/network-reference-bb1359-20261119a/receipt.md"
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Accept the retained independent Terra review artifact and its scoped follow-up.",
+    "disposition": {
+      "R1": "The repaired Windows teardown and reentry observations executed in the passing probe suite.",
+      "R2": "The seven bracketed controls passed and the scoped Windows component ownership/flag-off hashes matched.",
+      "R3": "Six common qualification cases are outside the USE_KERBEROS guard at the pinned source. Non-Kerberos execution remains open."
+    }
+  },
+  "platform_limits": [
+    "Windows x64 component probe only.",
+    "POSIX and non-Kerberos runtime validation remain open."
+  ],
+  "remaining": [
+    "Non-auth oracle coverage and fresh consumer qualification remain open.",
+    "No production ownership or C++ retirement credit."
+  ]
+}

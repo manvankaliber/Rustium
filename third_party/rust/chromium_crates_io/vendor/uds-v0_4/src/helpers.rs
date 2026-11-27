@@ -279,7 +279,7 @@ impl Socket {
         unsafe { UnixSocketAddr::new_from_ffi(|addr_ptr, len_ptr| {
             // Use accept4() to set close-on-exec atomically if possible.
             // (macOS and iOS doesn't have accept4(),
-            //  and the Android emulator prohibits it: https://github.com/tokio-rs/mio/issues/1445)
+            //  see https://github.com/tokio-rs/mio/issues/1445)
             // ENOSYS is handled for compatibility with Linux < 2.6.28,
             // because Rust std still supports Linux 2.6.18.
             // (used by RHEL 5 which didn't reach EOL until November 2020).

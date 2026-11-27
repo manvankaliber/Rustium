@@ -14,7 +14,6 @@
 // Various opaque system types that should still be usable with the base
 // callback system. Please keep sorted.
 #define BASE_INTERNAL_LIST_OF_SAFE_FOR_UNRETAINED                      \
-  BASE_INTERNAL_SAFE_FOR_UNRETAINED(ANativeWindow)                     \
   BASE_INTERNAL_SAFE_FOR_UNRETAINED(DBusMessage)                       \
   BASE_INTERNAL_SAFE_FOR_UNRETAINED(HWND__)                            \
   BASE_INTERNAL_SAFE_FOR_UNRETAINED(VkBuffer_T)                        \

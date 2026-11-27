@@ -43,13 +43,6 @@ export function getHtml(this: SettingsAiPageElement) {
         sub-label="$i18n{indigoSublabel}" @click="${this.onIndigoRowClick_}"
         external>
     </cr-link-row>
-    <cr-link-row id="googleSearchAiModeWorkspaceRow" class="hr"
-        ?hidden="${!this.showGoogleSearchAiModeWorkspaceControl_}"
-        start-icon="settings20:apps"
-        label="$i18n{googleSearchAiModeWorkspaceLabel}"
-        sub-label="$i18n{googleSearchAiModeWorkspaceSublabel}"
-        @click="${this.onGoogleSearchAiModeWorkspaceRowClick_}" external>
-    </cr-link-row>
   </div>
 </settings-section>
 <if expr="_google_chrome">

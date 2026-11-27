@@ -2316,9 +2316,15 @@ TemplateURLService::CreateTemplateURLFromTemplateURLAndSyncData(
   // Throw out anything from sync that has an invalid starter pack ID.  This
   // might happen occasionally when the starter pack gets new entries that are
   // not yet supported in this version of Chrome.
-  if (static_cast<int>(specifics.starter_pack_id()) >=
-      static_cast<int>(
-          template_url_starter_pack_data::StarterPackId::kMaxStarterPackId)) {
+  if (specifics.starter_pack_id() ==
+          static_cast<int>(
+              template_url_starter_pack_data::StarterPackId::kAiMode) ||
+      specifics.starter_pack_id() ==
+          static_cast<int>(
+              template_url_starter_pack_data::StarterPackId::kGemini) ||
+      static_cast<int>(specifics.starter_pack_id()) >=
+          static_cast<int>(template_url_starter_pack_data::StarterPackId::
+                               kMaxStarterPackId)) {
     return nullptr;
   }
 

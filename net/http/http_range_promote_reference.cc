@@ -4,7 +4,7 @@
 
 // Frozen range parsers plus their original same-TU trimming/tokenizer helpers.
 // Helpers are local to avoid adding asymmetric imported-DLL calls in
-// benchmarks.
+// benchmarks. The value policy is also frozen and compiled locally.
 #include "net/http/http_range_promote_reference.h"
 
 #include <limits>
@@ -119,7 +119,7 @@ bool ValuesIterator::GetNext() {
 
 }  // namespace
 bool ParseRangeHeader(std::string_view ranges_specifier,
-                      std::vector<HttpByteRange>* ranges) {
+                      std::vector<ByteRange>* ranges) {
   size_t equal_char_offset = ranges_specifier.find('=');
   if (equal_char_offset == std::string::npos) {
     return false;
@@ -148,7 +148,7 @@ bool ParseRangeHeader(std::string_view ranges_specifier,
     std::string_view first_byte_pos = value.substr(0, minus_char_offset);
     first_byte_pos = TrimLWS(first_byte_pos);
 
-    HttpByteRange range;
+    ByteRange range;
     // Try to obtain first-byte-pos.
     if (!first_byte_pos.empty()) {
       int64_t first_byte_position = -1;
@@ -176,7 +176,7 @@ bool ParseRangeHeader(std::string_view ranges_specifier,
       return false;
     }
 
-    // Do a final check on the HttpByteRange object.
+    // Do a final check on the ByteRange object.
     if (!range.IsValid()) {
       return false;
     }
@@ -185,7 +185,7 @@ bool ParseRangeHeader(std::string_view ranges_specifier,
   return !ranges->empty();
 }
 
-std::optional<HttpByteRange> ParseFetchSingleRange(
+std::optional<ByteRange> ParseFetchSingleRange(
     std::string_view range_header_value,
     bool allow_whitespace) {
   // Fetch requires the range unit to be exactly "bytes".
@@ -255,12 +255,12 @@ std::optional<HttpByteRange> ParseFetchSingleRange(
   }
 
   if (!range_start) {
-    return HttpByteRange::Suffix(*range_end);
+    return ByteRange::Suffix(*range_end);
   }
   if (!range_end) {
-    return HttpByteRange::RightUnbounded(*range_start);
+    return ByteRange::RightUnbounded(*range_start);
   }
-  return HttpByteRange::Bounded(*range_start, *range_end);
+  return ByteRange::Bounded(*range_start, *range_end);
 }
 
 bool ParseContentRangeHeaderFor206(std::string_view content_range_spec,

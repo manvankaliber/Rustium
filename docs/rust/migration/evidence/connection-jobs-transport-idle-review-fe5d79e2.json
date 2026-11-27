@@ -1,0 +1,33 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "candidate_commit": "fe5d79e24020bde959538a7f0b493b164e4e97af",
+  "reviewer": {
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh"
+  },
+  "status": "needs-repair",
+  "findings": [
+    {
+      "severity": "P1",
+      "owner": "director",
+      "issue": "Shared GN does not link the Rust crate or oracle. Provide an intentional single component owner test boundary and evaluate link ownership."
+    },
+    {
+      "severity": "P1",
+      "owner": "worker",
+      "issue": "Scalar differential tests duplicate the protocol driver and do not exercise production moves, cleanup, handout, logging or destruction and reentry."
+    },
+    {
+      "severity": "P2",
+      "owner": "worker",
+      "issue": "Two identity calls unnecessarily cross the ABI and selected-candidate policy remains split. Reduce redundant calls and duplicated numeric definitions."
+    }
+  ],
+  "original_manifest": "connection-jobs-transport-idle-baseline-bb1359.json",
+  "verified": [
+    "21 original blob, byte count and SHA-256 pins",
+    "source trace preserving lazy observations and original list mutation order"
+  ],
+  "first_warm_filter": "TransportIdleRustDifferentialTest.RepeatedObservationsStayLazy",
+  "native_state": "No compiled evidence. Active optimized QUIC consumer validation owns the laptop."
+}

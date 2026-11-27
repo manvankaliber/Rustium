@@ -1,0 +1,18 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "failed_commit": "011bcc5f3ae41cb83cf6d1ef7568c0177f4d375a",
+  "validated_phases": [
+    "Previously failing fixture object rebuilt",
+    "gn check //net:net_unittests passed"
+  ],
+  "failure": "The new QUIC tunnel test object failed because the provider request count was undeclared and the source did not include net::test::IsError. No tests executed.",
+  "source_path": "net/quic/quic_proxy_connect_job_success_unittest.cc",
+  "raw_log": "C:/Users/micro/rb/network-quic-success-011bcc5f-20261120a/ninja-build.log",
+  "result": "C:/Users/micro/rb/network-quic-success-011bcc5f-20261120a/result.json",
+  "release_probe": "C:/Users/micro/rb/network-quic-success-011bcc5f-20261120a/release-probe.json",
+  "repair_commit": "3c7c4c052c858d4771fb95e0a4bdb618b7ac226c",
+  "repair_source_sha256": "bf130b9d95ee08ceec36ba0e6b50b369e53ff73afdbba3d2715fe50b7e579e1d",
+  "remote_ref": "refs/heads/rust/connection-jobs-quic-success-grit-20261120",
+  "native_retry": "mcp:launch:986594e988c6746b4409e5f10c732e65b53fb232cd908b4153bbea8a5fce6706",
+  "status": "Rebuild the exact failed object first. Then GN check, link and the focused tests if each prior phase passes."
+}

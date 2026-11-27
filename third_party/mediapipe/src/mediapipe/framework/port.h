@@ -26,7 +26,6 @@
 #define MEDIAPIPE_MOBILE
 #endif
 
-
 #if defined(__APPLE__)
 #include "TargetConditionals.h"  // for TARGET_OS_*
 #if !defined(MEDIAPIPE_OSX) && TARGET_OS_OSX
@@ -93,19 +92,5 @@
 #define MEDIAPIPE_HAS_RTTI 1
 #endif
 #endif  // MEDIAPIPE_HAS_RTTI
-
-// AHardware buffers are only available since Android API 26.
-#if !defined(MEDIAPIPE_NO_JNI)
-        // defined(__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
-#endif  // !defined(MEDIAPIPE_NO_JNI) ||
-        // defined(MEDIAPIPE_ANDROID_LINK_NATIVE_WINDOW)
-
-// Supported use cases for tensor_ahwb:
-// 1. Native code running in Android apps.
-// 2. Android vendor processes linked against nativewindow.
-#if !defined(MEDIAPIPE_NO_JNI)
-        // defined(__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__)
-#endif  // !defined(MEDIAPIPE_NO_JNI) ||
-        // defined(MEDIAPIPE_ANDROID_LINK_NATIVE_WINDOW)
 
 #endif  // MEDIAPIPE_FRAMEWORK_PORT_H_

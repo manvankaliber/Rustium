@@ -10,27 +10,18 @@ major components:
 *   **TFLite Model Metadata**: (metadata populator and metadata extractor
     library): includes both human and machine readable information about what a
     model does and how to use the model.
-*   **TFLite Support Codegen Tool**: an executable that generates model wrapper
-    automatically based on the Support Library and the metadata.
 *   **TFLite Support Task Library**: a flexible and ready-to-use library for
     common machine learning model types, such as classification and detection,
-    client can also build their own native/Android/iOS inference API on Task
+    client can also build their own native/iOS inference API on Task
     Library infra.
 
 TFLite Support library serves different tiers of deployment requirements from
-easy onboarding to fully customizable. There are three major use cases that
+easy onboarding to fully customizable. There are two major use cases that
 TFLite Support targets at:
-
-*   **Provide ready-to-use APIs for users to interact with the model**. \
-    This is achieved by the TFLite Support Codegen tool, where users can get the
-    model interface (contains ready-to-use APIs) simply by passing the model to
-    the codegen tool. The automatic codegen strategy is designed based on the
-    TFLite metadata.
 
 *   **Provide optimized model interface for popular ML tasks**. \
     The model interfaces provided by the TFLite Support Task Library are
-    specifically optimized compared to the codegen version in terms of both
-    usability and performance. Users can also swap their own custom models with
+    optimized for their task-specific interfaces. Users can also swap their own custom models with
     the default models in each task.
 
 *   **Provide the flexibility to customize model interface and build inference
@@ -46,14 +37,8 @@ for more instruction and examples.
 
 ## Build Instructions
 
-We use Bazel to build the project. When you're building the Java (Android)
-Utils, you need to set up following env variables correctly:
-
-*   `ANDROID_NDK_HOME`
-*   `ANDROID_SDK_HOME`
-*   `ANDROID_NDK_API_LEVEL`
-*   `ANDROID_SDK_API_LEVEL`
-*   `ANDROID_BUILD_TOOLS_VERSION`
+Use Chromium GN targets for the integrated desktop build. The remaining
+standalone host libraries also retain their Bazel definitions.
 
 ## How to contribute
 

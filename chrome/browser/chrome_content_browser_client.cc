@@ -1865,12 +1865,11 @@ bool ChromeContentBrowserClient::ShouldUseSpareRenderProcessHost(
 
 bool ChromeContentBrowserClient::CanBrowserContextUseSpareRenderProcessHost(
     content::BrowserContext* browser_context) {
-  // Navigations in TopChromeWebUIProfile never use a spare, since
-  // ShouldUseSpareRenderProcessHost() refuses it for that profile. Warming up
-  // a spare for it would replace the spare of the profile that the user
-  // browses with.
-  Profile* profile = Profile::FromBrowserContext(browser_context);
-  return !profile || !profile->IsTopChromeWebUIProfile();
+  // Create renderers when a navigation needs them. A speculative warm renderer
+  // otherwise keeps its heaps, threads and IPC state alive while the browser
+  // is idle. Process isolation and renderer sandboxing remain independent of
+  // whether a spare is prepared in advance.
+  return false;
 }
 
 bool ChromeContentBrowserClient::DoesSiteRequireDedicatedProcess(

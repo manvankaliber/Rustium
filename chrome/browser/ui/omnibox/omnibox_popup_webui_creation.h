@@ -9,13 +9,10 @@
 
 namespace omnibox {
 
-// Whether the classic and AI Mode WebUI omnibox popups create their WebUI
-// content only when it is first needed (on show, or when the classic popup's
-// context menu opens), instead of eagerly or after the browser window's first
-// frame. Browser tests turn this on (see `InProcessBrowserTest`), since most
-// never show the popups. The first show then loads the page, so the popup may
-// show before the page has painted, which production only does if the popup
-// is shown before its deferred creation.
+// Whether WebUI omnibox popups create their content only when first needed
+// (on show, or when the classic popup's context menu opens). On-demand creation
+// is the default to avoid keeping hidden documents alive in idle windows.
+// The first show loads the page, so the popup may show before it has painted.
 // TODO(crbug.com/542347163): Make the full WebUI omnibox popup honor this too.
 bool ShouldCreatePopupWebUIOnDemand();
 

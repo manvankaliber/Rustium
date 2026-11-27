@@ -1,0 +1,38 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "family": "connection-jobs",
+  "dependency": "The optimized QUIC proxy preference acceptance links components_unittests, which requires the generated components resource pack.",
+  "source_commit": "4b1e24848d1080edce5e9bad8e27372760674736",
+  "failed_target": "//components/resources:components_resources_grit",
+  "failure": {
+    "action": 7724,
+    "dry_run_actions": 26758,
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "suite_run": false,
+    "original_run": "C:/Users/micro/rb/network-4b1e248-quic-components-20261120a/",
+    "isolated_replay": "C:/Users/micro/rb/network-4b1e248-grit-replay-20261120a/",
+    "diagnosis": "The producer chain completed and the exact 6495-byte minified file was present. The identical pinned Python executable failed to open the expanded relative spelling while the direct relative and normalized absolute spellings succeeded.",
+    "raw_joined_path_length": 272,
+    "normalized_absolute_path_length": 223,
+    "explicit_lock_release": true
+  },
+  "repair": {
+    "candidate_commit": "18f8c741c73c3142704bcba2fa11c04db4071681",
+    "remote_ref": "refs/heads/rust/network-grit-nested-resource-path-20261120",
+    "files": {
+      "tools/grit/grit/format/html_inline.py": {
+        "before": "3286d572e9a7dfe21ea3db1fede9d43a448e80f3b05f135a1dff2b4cdb52a315",
+        "candidate": "e047703de4f2005036ee96e330eb3e204804c8c49d28584c308a5c90b6ff17c2"
+      },
+      "tools/grit/grit/format/html_inline_unittest.py": {
+        "before": "f8c8dbe82efdcf5ec30cac62efc64f3ec1cb4cfb078497e48ec66dc44f690937",
+        "candidate": "f8e5cec3ea6c596c1cee3b4aab675cfa250b54aaba782b361476fcff06f35b4b"
+      }
+    },
+    "behavior": "Resolve relative GRIT generated-resource filenames against the build CWD to remove an unnecessary path detour. Preserve existing absolute paths and filename expansion.",
+    "desktop_checks": "New regression failed on the pinned original source. All 27 HTML inlining unit tests passed on the repaired source.",
+    "native_replay_thread": "mcp:launch:9731664e5d832e5580b170225b6fa599fb27d6b7d14bcb079d30285c96e0ea8e",
+    "status": "Published task candidate. Independent source review and isolated laptop rerun in progress. Full optimized components build and suite remain pending."
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "The annotation-index test object must compile for components_unittests to run optimized proxy preference acceptance.",
+  "failed_commit": "dc811953201f580f575653242de04468e4d61fd8",
+  "failure_elapsed_seconds": 500,
+  "failure_action_lines": 947,
+  "first_error": "optimization_guide_annotation_index_client_unittest.cc:196: use of undeclared identifier kTestTaskTypeShopping",
+  "earlier_feed_object_compiled": true,
+  "proxy_preference_cases_run_in_umbrella": 0,
+  "failure_result": "C:/Users/micro/rb/network-quic-components-dc811953-20261121a/result.json",
+  "failure_log": "C:/Users/micro/rb/network-quic-components-dc811953-20261121a/components-build.log",
+  "release_probe": "C:/Users/micro/rb/network-quic-components-dc811953-20261121a/release-probe.json",
+  "source_cause": "c750cd9c58 removed the shopping test constant and left one fixture reference. The response factory accepts a generic task-type string.",
+  "focused_candidate": "c4058976b12859dff64b31e6af4c6e317d03189f",
+  "published_ref": "refs/heads/rust/annotation-index-test-feedback-20261121",
+  "validation_thread": "mcp:launch:41692a0fb42980d4f3b964df001ab35cf9217677bc96a870a89fb76f76a90f9f",
+  "validation_state": "Warm rerun dispatched. The exact failing object gates the umbrella build and selected tests."
+}

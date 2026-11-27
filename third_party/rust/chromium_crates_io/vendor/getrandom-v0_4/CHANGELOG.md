@@ -126,7 +126,7 @@ For more information, see the discussions in [#671], [#675], and [#730].
 - `linux_raw` opt-in backend [#572]
 - `.cargo/config.toml` example in the crate-level docs [#591]
 - `getrandom_test_linux_without_fallback` configuration flag to test that file fallback
-  is not triggered in the `linux_android_with_fallback` backend [#605]
+  is not triggered in the `linux_with_fallback` backend [#605]
 - Built-in support for `*-linux-none` targets [#618]
 - Cygwin support [#626]
 
@@ -134,7 +134,7 @@ For more information, see the discussions in [#671], [#675], and [#730].
 - Update `wasi` dependency to v0.14 [#594]
 - Add `#[inline]` attribute to the inner functions [#596]
 - Update WASI and Emscripten links in the crate-level docs [#597]
-- Do not use `dlsym` on MUSL targets in the `linux_android_with_fallback` backend [#602]
+- Do not use `dlsym` on MUSL targets in the `linux_with_fallback` backend [#602]
 - Remove `linux_android.rs` and use `getrandom.rs` instead [#603]
 - Always use `RtlGenRandom` on Windows targets when compiling with pre-1.78 Rust [#610]
 - Internal representation of the `Error` type [#614]

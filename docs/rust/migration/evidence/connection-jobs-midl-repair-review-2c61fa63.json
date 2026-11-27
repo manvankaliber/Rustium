@@ -1,0 +1,26 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "candidate_commit": "2c61fa63b0d2967ec6660a0edabe1792ddf2d193",
+  "remote_ref": "refs/heads/rust/network-nested-output-midl-20261120",
+  "source_review": {
+    "status": "accepted-for-focused-laptop-validation",
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "findings": "Exact compiler-settings line, source-relative input binding, original endings, dynamic gen/ spelling and TLB processing retained. Existing validation and rebaseline ordering preserved."
+  },
+  "data_checks": {
+    "baseline_and_mismatch_checks": 36,
+    "explicit_lf_and_crlf_checks": 8,
+    "failures": 0
+  },
+  "native_validation": {
+    "status": "pending",
+    "sequence": [
+      "Reconcile terminal results and lock release for the isolated baseline repro.",
+      "Under one laptop reservation, rerun exact ISimpleDOMDocument and iaccessible2 nested-output edges on the reviewed candidate with Ninja -j4 and one link.",
+      "Validate one ordinary out/<config> layout target and one existing dynamic-GUID TLB target. Use isolated temporary copies to exercise strict mismatch and placeholder rebaseline behavior without mutating checked-in baselines.",
+      "Archive first native result before selecting the next serial Connection Jobs validation workload."
+    ],
+    "limits": "The proxy preference suite, broader components closure and family cutover remain open."
+  }
+}

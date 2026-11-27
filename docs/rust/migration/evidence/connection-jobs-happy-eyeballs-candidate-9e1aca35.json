@@ -1,0 +1,53 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "parent": "dc8a79e51b3c881ea2c860fc25d568d068c9ad8f",
+  "candidate_commit": "9e1aca356955ce8cc256ed3074f96370d9667d4d",
+  "local_ref": "refs/heads/rust/connection-jobs-resolver-reference-20261120",
+  "focused_test": "ConnectionJobsFamilyRustTest.HappyEyeballsFallbackMatchesOriginal",
+  "existing_comparison": "TcpConnectJobTestRustOriginal.TwoConnectorsTwoIpsOneNeverCompletes and the production counterpart",
+  "fixture": "net/socket/connection_jobs_family_rust_unittest.cc",
+  "observations": [
+    "Immediate IPv6 start",
+    "IPv4 starts at the original fallback boundary",
+    "IPv4 and IPv6 each win a separate run",
+    "Selected peer and endpoint match",
+    "Losing mock socket detaches on teardown",
+    "Completion exactly once"
+  ],
+  "shared_provider_boundary": "Fake service endpoint resolver and mock TCP socket factory provide scripted native I/O for both jobs.",
+  "source_pins": {
+    "net/socket/tcp_connect_job_rust_original.cc": {
+      "git_blob": "fb2b8abe12ebaa46bcfc3756621dab075a2f7a7d",
+      "sha256": "35120223d6443e2b295d230e8182d7514ed9b14a03557c378fa36e9002c0981b"
+    },
+    "net/socket/tcp_connect_job_connector_rust_original.cc": {
+      "git_blob": "0e429c2745285bff2e713796e47e64f7078a5b07",
+      "sha256": "2aaa4720795228ae55a13b0cd722e05550cf742f8b867db594c84a2eb70cb585"
+    },
+    "net/socket/tcp_connect_job_rust_original_unittest.cc": {
+      "git_blob": "fd459652e78d71253946d70353b63d8b676604c9",
+      "sha256": "afa586f6dac32ec382c9310b5b4008f958fbeaf2de11e52d7a2585c546cde22f"
+    },
+    "net/socket/tcp_connect_job_unittest.cc": {
+      "git_blob": "317810a831611ac7e8596966e4555549bcddd020",
+      "sha256": "7f1685882a25fea08bf02b01ab5dd7d128b9ed80e6dbe635b182d3271e1b1c15"
+    },
+    "net/http/http_stream_pool_test_util.cc": {
+      "git_blob": "a4b92bcf5e33f16efa29bbb2c863e3e5211eb661",
+      "sha256": "3464eaf063176b88646e83940f2edfd059c36c9f1565ca528bedb0b84bb34709"
+    },
+    "net/http/http_stream_pool_test_util.h": {
+      "git_blob": "b0cd350275e0c05665e0a3cbef6ba01500b6faca",
+      "sha256": "4d9f2f9d9a948ae1ce80396f4a3ba3295294cfee7bec87aabe98a07021fa05ae"
+    },
+    "net/socket/socket_test_util.cc": {
+      "git_blob": "7be20db797960b4a19acc355640ea81c176faa70",
+      "sha256": "181165151816757f5f1092eb284a14a99cff7335c2fc15e5b7bcd8d5daad6ef7"
+    },
+    "net/socket/socket_test_util.h": {
+      "git_blob": "df7d7d852cbb3aedc3ad486e689cd5b2ebce1918",
+      "sha256": "9611872d74ca9d1e069dbda361caa74fc08545ddb9e01ad4ada3622ea0c5ccb6"
+    }
+  },
+  "status": "Local candidate and scoped diff verified. Independent source review dispatched and native validation pending."
+}

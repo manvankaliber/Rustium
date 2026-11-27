@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-21T22:07:36.878483+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "reviewed_commit": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "parent": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+  "published_ref": "refs/heads/rust/transport-assignment-job-order-coverage-20261121",
+  "sole_delta": {
+    "path": "net/socket/client_socket_pool_base_unittest.cc",
+    "blob": "a073f2dc2f483baad62503eb2b134ca16925b504"
+  },
+  "review": {
+    "status": "passed",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Af23e562c-6b05-455e-ab85-be373998649d",
+    "scope": "Distinct mock state proves assignment to the oldest unassigned job, and each job receives its claimant priority. Completion and early-abort lifetimes reviewed."
+  },
+  "test": "ClientSocketPoolBaseTest.PreconnectClaimsOldestUnassignedJob",
+  "feature": "EnableErrorCodePropagationForPreconnect",
+  "validation": "Source review only. After focused parent acceptance, compile in the same warm target and run with each feature state. The unit test suite helper consumes the enable-features and disable-features flags into its initial ScopedFeatureList."
+}

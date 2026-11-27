@@ -1,0 +1,38 @@
+{
+  "utc": "2026-11-21T21:54:26.088396+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "candidate_commit": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "parent": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "restoration_base_and_pr_head": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "host": "HQC-VAN_KALIBER",
+  "candidate_binary_sha256": "04475e482dcef2fd8f0445a92507b8d06b1106958c8987e99fc163aef1295b20",
+  "tests": {
+    "status": "passed",
+    "launcher_jobs": 1,
+    "retries": 0,
+    "cases": [
+      "ClientSocketPoolBaseTest.StalledGroupExcludesAuthBoundSlot",
+      "TransportSchedulingPolicyTest.DifferentialOrderedGroups",
+      "TransportSchedulingPolicyTest.EqualPriorityKeepsEarlierBatch",
+      "ClientSocketPoolBaseTest.StalledGroupTiesFollowGroupIdOrder"
+    ]
+  },
+  "build": {
+    "ninja_jobs": 4,
+    "total_link_actions": [
+      "net.dll",
+      "net_unittests.exe"
+    ],
+    "status": "built; one simultaneous link condition under reconciliation",
+    "observation": "The original receipt flagged two total links after graph regeneration. The repository requires one simultaneous link. Exact evidence is being checked for concurrency."
+  },
+  "receipt_dir": "C:/Users/micro/rb/network-80374-auth-feedback-20261121a",
+  "receipt_files": [
+    "receipt.md",
+    "runtime-result.json",
+    "build-net-unittests.log",
+    "independent-release.json"
+  ],
+  "restoration": "Clean detached base and seven metadata files restored. Protected evidence unchanged. Independent byte-zero acquire and release and empty native process inventory recorded.",
+  "followup_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3Abf8b9001-9b60-483e-b6fd-d052e53461fc"
+}

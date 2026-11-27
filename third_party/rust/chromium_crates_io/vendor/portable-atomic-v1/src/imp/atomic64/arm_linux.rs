@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 Arm Linux/Android.
+64-bit atomic implementation using kuser_cmpxchg64 on pre-v6 Arm Linux.
 
 See "Atomic operation overview by architecture" in atomic-maybe-uninit for a more comprehensive and
 detailed description of the atomic and synchronize instructions in this architecture:

@@ -16,7 +16,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/devtools/chrome_devtools_session.h"
-#include "chrome/browser/devtools/device/android_device_manager.h"
+#include "chrome/browser/devtools/device/remote_device_manager.h"
 #include "chrome/browser/devtools/device/tcp_device_provider.h"
 #include "chrome/browser/devtools/devtools_availability_checker.h"
 #include "chrome/browser/devtools/devtools_browser_context_manager.h"
@@ -639,9 +639,9 @@ void ChromeDevToolsManagerDelegate::UpdateDeviceDiscovery() {
     remote_agent_hosts_.clear();
   } else {
     if (!device_manager_)
-      device_manager_ = AndroidDeviceManager::Create();
+      device_manager_ = RemoteDeviceManager::Create();
 
-    AndroidDeviceManager::DeviceProviders providers;
+    RemoteDeviceManager::DeviceProviders providers;
     providers.push_back(new TCPDeviceProvider(remote_locations));
     device_manager_->SetDeviceProviders(providers);
 
@@ -717,7 +717,7 @@ void ChromeDevToolsManagerDelegate::OnDismiss() {
   infobar_ = nullptr;
 }
 
-void ChromeDevToolsManagerDelegate::ResetAndroidDeviceManagerForTesting() {
+void ChromeDevToolsManagerDelegate::ResetRemoteDeviceManagerForTesting() {
   device_manager_.reset();
 
   // We also need |device_discovery_| to go away because there may be a pending

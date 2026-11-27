@@ -1,0 +1,17 @@
+{
+  "utc": "2026-11-22T00:20:05.726447+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "preflight": {
+    "outcome": "Stopped before compilation and tests.",
+    "reason": "Ninja dry run reported graph regeneration; direct GN generated same contents but dry run still reported regeneration.",
+    "receipt": "C:/Users/micro/rb/network-295159-test-repair-validation-20261122b/result.json",
+    "restoration": "Exact clean checkout and seven metadata files restored, prior evidence stable and independent lock release confirmed."
+  },
+  "retry": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3Ae515508e-ea0d-4a47-a62f-f66a410f3139",
+    "scope": "Same warm net_unittests with full normal dependency closure. Allow Ninja graph regeneration, -j4 and one simultaneous link. Do not gate on seeing a complete Ninja dry-run action list or total action count."
+  },
+  "pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd"
+}

@@ -13,7 +13,7 @@
 
 namespace {
 
-bool ShouldLoadAndroidCSS() {
+bool ShouldLoadMobileCSS() {
   return blink::RuntimeEnabledFeatures::MobileLayoutThemeEnabled();
 }
 
@@ -30,8 +30,8 @@ String MediaControlsResourceLoader::GetMediaControlsCSS() const {
   return UncompressResourceAsString(IDR_UASTYLE_MEDIA_CONTROLS_CSS);
 }
 
-String MediaControlsResourceLoader::GetMediaControlsAndroidCSS() const {
-  return UncompressResourceAsString(IDR_UASTYLE_MEDIA_CONTROLS_ANDROID_CSS);
+String MediaControlsResourceLoader::GetMediaControlsMobileCSS() const {
+  return UncompressResourceAsString(IDR_UASTYLE_MEDIA_CONTROLS_MOBILE_CSS);
 }
 
 // static
@@ -72,8 +72,8 @@ String MediaControlsResourceLoader::GetMediaInterstitialsStyleSheet() {
 }
 
 String MediaControlsResourceLoader::GetUAStyleSheet() {
-  if (ShouldLoadAndroidCSS()) {
-    return StrCat({GetMediaControlsCSS(), GetMediaControlsAndroidCSS(),
+  if (ShouldLoadMobileCSS()) {
+    return StrCat({GetMediaControlsCSS(), GetMediaControlsMobileCSS(),
                    GetMediaInterstitialsStyleSheet()});
   }
   return StrCat({GetMediaControlsCSS(), GetMediaInterstitialsStyleSheet()});

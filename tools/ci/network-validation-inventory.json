@@ -9,7 +9,14 @@
     "configured_graph_result_sha256": "48579477156c84514966dfa8ce6953d43dbde5ead8e75f350bc83b24fe4a2b52",
     "configured_args_sha256": "b865c8a8cf26b97a622a12e9c13e6855679827f8b45407121a8fd4d0c47340e2",
     "graph_finished_utc": "2026-11-17T15:09:44.952620+00:00",
-    "authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake"
+    "authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake",
+    "historical_discovery_only": true,
+    "assembled_source_commit": "fe18b237de48d2fbc0026a534c61ae8281dbddef",
+    "portable_assembly": "docs/rust/migration/evidence/network-ci-source-assembly-v1.json",
+    "raw_inputs_archive": "docs/rust/migration/evidence/network-ci-raw-source-inputs.zip",
+    "raw_inputs_archive_sha256": "2af0bafa6f9c77a491b96a9b68260143f3dc48ff055d7ee5b834178cc960cd43",
+    "entrypoint_byte_policy": "Candidate Git blobs and qualified LF checkout bytes; raw pre-normalization hashes remain historical",
+    "auth_union": "Included in clean candidate; fresh normal/probe graph and qualification pending"
   },
   "membership": {
     "programs": 36,
@@ -360,7 +367,8 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/spdy/http2_priority_rust_perftest.cc",
-        "sha256": "093ec91088062761ba5a72e0177bbbfafc3a55073501790846abbd89f40d498d"
+        "sha256": "d445067e6587597cc4237189de0839248b444266a300ef1a2236a6a40ee7cc2e",
+        "historical_raw_sha256": "093ec91088062761ba5a72e0177bbbfafc3a55073501790846abbd89f40d498d"
       }
     },
     {
@@ -401,7 +409,8 @@
       "blockers": [],
       "entrypoint": {
         "path": "net/spdy/header_coalescer_rust_perftest.cc",
-        "sha256": "673cfe5de2961852effe2386c5eeb8d49c506331969bc344e13d0a51078bc73d"
+        "sha256": "f0d0a859c4b29a7aecabb8c3ac1932ffe6f264da290c55fb36e038e127a7c773",
+        "historical_raw_sha256": "673cfe5de2961852effe2386c5eeb8d49c506331969bc344e13d0a51078bc73d"
       }
     },
     {
@@ -915,7 +924,7 @@
     }
   ],
   "additional_obligations": [
-    "Re-evaluate GN after the unapplied complete46-file auth/probe union; add its provider/test/probe roots and seven positive controls without dropping any existing member.",
+    "Re-evaluate the included complete46-file auth/probe union in fresh candidate normal/probe graphs; retain every existing member and seven positive controls.",
     "Reconcile changed-header, inline, link, export and ABI consumers. These96 necessary roots are not proof of complete consumer closure.",
     "Qualify all16 connection reference lifecycles, including cancellation, reentry and provider lifetime behavior.",
     "Retain separately defined optimized-QUIC phase; verify-only workload completion does not establish it.",

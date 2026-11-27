@@ -90,7 +90,7 @@ mod doctest_md_files {
     }}
     mdfile!{
         include_str!("../README.md"),
-        #[cfg(any(target_os="linux", target_os="android"))] // uses abstract addrs
+        #[cfg(target_os="linux")] // uses abstract addrs
         Readme
     }
 }

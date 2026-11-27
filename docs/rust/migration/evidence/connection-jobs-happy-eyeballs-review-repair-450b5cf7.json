@@ -1,0 +1,20 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "reviewed_commit": "9e1aca356955ce8cc256ed3074f96370d9667d4d",
+  "reviewer": {
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh"
+  },
+  "repaired_candidate": "450b5cf7bac4afeb3e2ddbc1d3f48868600f762b",
+  "changed_file": "net/socket/connection_jobs_family_rust_unittest.cc",
+  "source_sha256": "ff9b212f25fe11bc3e1ea9425e3e9fa1f25038c17ce3e8b0fb8625e9943dc378",
+  "repaired_expectations": [
+    "Observe losing socket detachment before job destruction.",
+    "Check the returned service endpoint against the scripted endpoint and expect no failed connection attempts.",
+    "Enable Happy Eyeballs v2 and explicitly disable both variable-fallback features."
+  ],
+  "provider_boundary": "Both implementations use the same fake service endpoint resolver and mock socket provider. The test does not call a completion callback retained by the mock after connector destruction.",
+  "status": "One-file diff and targeted source checks passed. Native compile and behavior are pending.",
+  "focused_target": "//net:connection_jobs_family_rust_unittests",
+  "focused_case": "ConnectionJobsFamilyRustTest.HappyEyeballsFallbackMatchesOriginal"
+}

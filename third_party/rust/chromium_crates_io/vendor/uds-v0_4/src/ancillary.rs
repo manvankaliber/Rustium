@@ -539,7 +539,7 @@ pub fn recv_fds(
     for message in &mut ancillary {
         if let AncillaryItem::Fds(fds) = message {
             // Due to alignment of cmsg_len in glibc the minimum payload
-            // capacity is on Linux (and probably Android) 8 bytes,
+            // capacity is on Linux 8 bytes,
             // which means we might receive two file descriptors even though
             // we only want one.
             let can_keep = fds.len().min(fd_buf.len()-num_fds);

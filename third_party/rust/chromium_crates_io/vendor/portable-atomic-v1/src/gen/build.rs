@@ -20,7 +20,6 @@ pub(crate) static NO_ATOMIC_CAS: &[&str] = &[
 // nightly-2022-02-11+ because feature(cfg_target_has_atomic) stabilized.
 #[rustfmt::skip]
 pub(crate) static NO_ATOMIC_64: &[&str] = &[
-    "arm-linux-androideabi",
     "armebv7r-none-eabi",
     "armebv7r-none-eabihf",
     "armv4t-unknown-linux-gnueabi",

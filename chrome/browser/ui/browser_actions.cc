@@ -116,7 +116,6 @@
 #include "chrome/browser/ui/global_error/global_error_service_factory.h"
 #include "chrome/browser/ui/intent_picker_tab_helper.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/page_action/page_action_controller.h"
 #include "chrome/browser/ui/page_action/page_action_triggers.h"
 #include "chrome/browser/ui/page_info/page_info_dialog.h"
@@ -151,6 +150,7 @@
 #include "chrome/browser/ui/views/app_menu/app_menu_action_item.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_ephemeral_button_controller.h"
 #include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_ephemeral_button_utils.h"
+#include "chrome/browser/ui/views/download/bubble/download_toolbar_ui_controller.h"
 #include "chrome/browser/ui/views/file_system_access/file_system_access_bubble_controller.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/browser/ui/views/frame/toolbar_button_provider.h"
@@ -212,12 +212,11 @@
 #include "components/strings/grit/components_strings.h"
 #include "components/sync/base/features.h"
 #include "components/tabs/public/tab_interface.h"
-#include "content/public/browser/page_navigator.h"
-#include "extensions/common/extension_urls.h"
-#include "components/lens/lens_overlay_invocation_source.h"
 #include "components/user_prefs/user_prefs.h"
 #include "components/vector_icons/vector_icons.h"
 #include "components/webapps/browser/installable/installable_metrics.h"
+#include "content/public/browser/page_navigator.h"
+#include "extensions/common/extension_urls.h"
 #include "printing/buildflags/buildflags.h"
 #include "third_party/omnibox_proto/chrome_aim_entry_point.pb.h"
 #include "ui/accessibility/accessibility_features.h"
@@ -233,8 +232,6 @@
 #include "ui/menus/simple_menu_model.h"
 #include "ui/views/view.h"
 #include "ui/views/view_class_properties.h"
-
-#include "chrome/browser/ui/views/download/bubble/download_toolbar_ui_controller.h"
 
 #if BUILDFLAG(IS_LINUX)
 #include "chrome/browser/enterprise/util/managed_browser_utils.h"
@@ -666,166 +663,6 @@ void BrowserActions::InitializeSidePanelActions() {
                         kActionSidePanelShowComments, bwi, false)
             .Build());
   }
-
-  if (contextual_tasks::IsContextualTasksUIEnabled()) {
-    ui::ImageModel contextual_tasks_image = ui::ImageModel::FromVectorIcon(
-        features::IsRoundedIconsEnabled() ? omnibox::kSearchSparkIcon
-                                          : omnibox::kSearchSparkOldIcon,
-        ui::kColorIcon);
-    int contextual_tasks_icon_size_delta = 0;
-    if (contextual_tasks::ShouldUseSuperGIconForPinButtons()) {
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-      contextual_tasks_image = ui::ImageModel::FromImageSkia(
-          gfx::ImageSkiaOperations::CreateResizedImage(
-              *ui::ResourceBundle::GetSharedInstance().GetImageSkiaNamed(
-                  IDR_GOOGLE_G_GRADIENT_20),
-              skia::ImageOperations::RESIZE_BEST, gfx::Size(18, 18)));
-#else
-      contextual_tasks_image = ui::ImageModel::FromVectorIcon(
-          vector_icons::kGoogleColorIcon, ui::kColorIcon);
-#endif
-      contextual_tasks_icon_size_delta = -2;
-    } else if (contextual_tasks::ShouldUseGraySuperGIconForPinButtons()) {
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-      contextual_tasks_image = ui::ImageModel::FromVectorIcon(
-          vector_icons::kGoogleGLogoMonochromeIcon, ui::kColorIcon);
-#else
-      contextual_tasks_image = ui::ImageModel::FromVectorIcon(
-          vector_icons::kGoogleColorIcon, ui::kColorIcon);
-#endif
-      contextual_tasks_icon_size_delta = -2;
-    }
-    const std::u16string contextual_tasks_label = l10n_util::GetStringUTF16(
-        contextual_tasks::GetContextualTasksPinningStringId(
-            IDS_CONTEXTUAL_TASKS_CUSTOMIZE_CHROME_LABEL));
-    root_action_item_->AddChild(
-        actions::ActionItem::Builder(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  if (!bwi) {
-                    return;
-                  }
-                  if (contextual_tasks::
-                          IsContextualTasksEphemeralPinButtonRefactorEnabled() &&
-                      !contextual_tasks::GetEffectivePinState(
-                          bwi->GetProfile())) {
-                    base::OnceClosure on_ephemeral_open;
-                    if (auto* const ephemeral_controller =
-                            ContextualTasksEphemeralButtonController::From(
-                                bwi)) {
-                      on_ephemeral_open = base::BindOnce(
-                          &ContextualTasksEphemeralButtonController::
-                              RecordEphemeralButtonClicked,
-                          base::Unretained(ephemeral_controller));
-                    }
-                    contextual_tasks::HandleEphemeralButtonPressed(
-                        bwi, std::move(on_ephemeral_open));
-                    return;
-                  }
-                  auto* controller =
-                      contextual_tasks::ContextualTasksPanelController::From(
-                          bwi);
-                  if (controller) {
-                    // Only mark the "icon changed" promo as used when in a
-                    // Super G arm, so clicking the old pinned icon before the
-                    // flag is enabled does not suppress the promo later.
-                    if (contextual_tasks::ShouldUseSuperGIconForPinButtons() ||
-                        contextual_tasks::
-                            ShouldUseGraySuperGIconForPinButtons()) {
-                      if (auto* const user_ed =
-                              BrowserUserEducationInterface::From(bwi)) {
-                        user_ed->NotifyFeaturePromoFeatureUsed(
-                            feature_engagement::
-                                kIPHContextualTasksPinnedIconChangedFeature,
-                            FeaturePromoFeatureUsedAction::
-                                kClosePromoIfPresent);
-                      }
-                    }
-                    bool is_open = controller->IsPanelOpenForContextualTask();
-                    const char* user_action =
-                        is_open ? "ContextualTasks.PermanentToolbarButton."
-                                  "UserAction."
-                                  "CloseSidePanel"
-                                : "ContextualTasks.PermanentToolbarButton."
-                                  "UserAction."
-                                  "OpenSidePanel";
-                    base::RecordAction(base::UserMetricsAction(user_action));
-                    base::UmaHistogramBoolean(user_action, true);
-                    if (contextual_tasks::IsContextualTasksPinningV2Enabled()) {
-                      const char* aggregate_action =
-                          is_open ? "ContextualTasks.ToolbarButton.UserAction."
-                                    "CloseSidePanel"
-                                  : "ContextualTasks.ToolbarButton.UserAction."
-                                    "OpenSidePanel";
-                      base::RecordAction(
-                          base::UserMetricsAction(aggregate_action));
-                      base::UmaHistogramBoolean(aggregate_action, true);
-                      if (!is_open) {
-                        const bool has_current_task =
-                            controller->GetCurrentTask().has_value();
-                        const char* thread_action =
-                            has_current_task
-                                ? "ContextualTasks.PermanentToolbarButton."
-                                  "UserAction.OpenSidePanel.ContinueThread"
-                                : "ContextualTasks.PermanentToolbarButton."
-                                  "UserAction.OpenSidePanel.NewThread";
-                        base::RecordAction(
-                            base::UserMetricsAction(thread_action));
-                        base::UmaHistogramEnumeration(
-                            "ContextualTasks.PermanentToolbarButton."
-                            "UserAction.OpenSidePanel.ThreadAction",
-                            has_current_task
-                                ? contextual_tasks::
-                                      ContextualTasksPanelController::
-                                          PermanentToolbarButtonThreadAction::
-                                              kContinueThread
-                                : contextual_tasks::
-                                      ContextualTasksPanelController::
-                                          PermanentToolbarButtonThreadAction::
-                                              kNewThread);
-                      }
-                    }
-                    if (!is_open) {
-                      if (auto* const ephemeral_controller =
-                              ContextualTasksEphemeralButtonController::From(
-                                  bwi)) {
-                        ephemeral_controller->RecordToolbarButtonOpenClick(
-                            /*is_permanent_button=*/true);
-                      }
-                    }
-                  }
-                  if (contextual_tasks::
-                          IsContextualTasksPinButtonInToolbarEnabled() &&
-                      contextual_tasks::GetEffectivePinState(
-                          bwi->GetProfile())) {
-                    chrome::ToggleContextualTasksSidePanelZeroState(bwi);
-                  } else {
-                    chrome::ToggleContextualTasksSidePanel(bwi);
-                  }
-                },
-                bwi))
-            .SetActionId(kActionSidePanelShowContextualTasks)
-            .SetText(contextual_tasks_label)
-            .SetTooltipText(contextual_tasks_label)
-            .SetImage(contextual_tasks_image)
-            .SetProperty(chrome::kActionItemIconSizeDeltaKey,
-                         contextual_tasks_icon_size_delta)
-            .SetProperty(
-                actions::kActionItemPinnableKey,
-                static_cast<
-                    std::underlying_type_t<actions::ActionPinnableState>>(
-                    (!contextual_tasks::
-                         IsContextualTasksEphemeralPinButtonRefactorEnabled() ||
-                     contextual_tasks::EntryPointEligibilityManager::
-                         IsPinningEligible(profile))
-                        ? actions::ActionPinnableState::kPinnable
-                        : actions::ActionPinnableState::kNotPinnable))
-            .SetVisible(contextual_tasks::EntryPointEligibilityManager::
-                            IsPinningEligible(profile))
-            .Build());
-  }
-
 }
 
 void BrowserActions::InitializePageActionIconActions() {
@@ -2062,56 +1899,6 @@ void BrowserActions::InitializeToolbarAndMiscActions() {
                   : kPersonFilledPaddedSmallOldIcon,
               ui::kColorIcon))
           .Build());
-
-  auto* ai_mode_button_service =
-      AiModeButtonServiceFactory::GetForProfile(base::to_address(profile_));
-  if (ai_mode_button_service) {
-    // If `ai_mode_button_service` is null, it will remain null and the button
-    // will not be needed.
-    root_action_item_->AddChild(
-        actions::ActionItem::Builder(
-            base::BindRepeating(
-                [](BrowserWindowInterface* bwi, actions::ActionItem* item,
-                   actions::ActionInvocationContext context) {
-                  bool via_keyboard = false;
-
-                  std::underlying_type_t<page_actions::PageActionTrigger>
-                      page_action_trigger = context.GetProperty(
-                          page_actions::kPageActionTriggerKey);
-
-                  if ((page_action_trigger !=
-                       page_actions::kInvalidPageActionTrigger) &&
-                      page_action_trigger ==
-                          std::to_underlying(
-                              page_actions::PageActionTrigger::kKeyboard)) {
-                    via_keyboard = true;
-                  }
-
-                  tabs::TabInterface* active_tab = bwi->GetActiveTabInterface();
-                  CHECK(active_tab);
-
-                  content::WebContents* web_contents =
-                      active_tab->GetContents();
-                  CHECK(web_contents);
-
-                  OmniboxController* omnibox_controller =
-                      search::GetOmniboxController(web_contents);
-                  CHECK(omnibox_controller);
-
-                  omnibox::AiModePageActionController::OpenAiMode(
-                      *omnibox_controller, via_keyboard);
-                },
-                bwi))
-            .SetActionId(kActionAiMode)
-            .SetImage(ui::ImageModel::FromVectorIcon(
-                features::IsRoundedIconsEnabled()
-                    ? omnibox::kSearchSparkIcon
-                    : omnibox::kSearchSparkOldIcon))
-            .SetProperty(actions::kActionItemPinnableKey, false)
-            .Build());
-  }
-
-
 
   root_action_item_->AddChild(
       actions::ActionItem::Builder(

@@ -328,7 +328,7 @@ fn main() {
             }
         }
         "arm" => {
-            // For non-Linux/Android pre-v6 Arm (tier 3) with unsafe_assume_single_core enabled.
+            // For non-Linux pre-v6 Arm (tier 3) with unsafe_assume_single_core enabled.
             // feature(isa_attribute) stabilized in Rust 1.67 (nightly-2022-11-06): https://github.com/rust-lang/rust/pull/102458
             if version.nightly && !version.probe(67, 2022, 11, 5) {
                 println!("cargo:rustc-cfg=portable_atomic_unstable_isa_attribute");
@@ -355,9 +355,6 @@ fn main() {
                         "v7" | "v7a" | "v7neon" | "v7s" | "v7k" | "v8" | "v8a" | "v9" | "v9a" => {} // aclass
                         "v7r" | "v8r" | "v9r" => {} // rclass
                         "v6m" | "v7em" | "v7m" | "v8m" => mclass = true,
-                        // arm-linux-androideabi is v5te
-                        // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/arm_linux_androideabi.rs#L18
-                        _ if target == "arm-linux-androideabi" => subarch = "v5te",
                         // armeb-unknown-linux-gnueabi is v8 & aclass
                         // https://github.com/rust-lang/rust/blob/1.84.0/compiler/rustc_target/src/spec/targets/armeb_unknown_linux_gnueabi.rs#L18
                         _ if target == "armeb-unknown-linux-gnueabi" => subarch = "v8",

@@ -206,7 +206,7 @@ fn test_readlink() {
 /// The from_offset should be updated by the call to reflect
 /// the 3 bytes read (6).
 #[cfg(any(
-        linux_android,
+        linux,
         // Not available until FreeBSD 13.0
         all(target_os = "freebsd", fbsd14),
 ))]
@@ -235,8 +235,8 @@ fn test_copy_file_range() {
     assert_eq!(from_offset, 6);
 }
 
-#[cfg(linux_android)]
-mod linux_android {
+#[cfg(linux)]
+mod linux {
     use libc::loff_t;
     use std::io::prelude::*;
     use std::io::IoSlice;
@@ -419,7 +419,7 @@ mod linux_android {
 }
 
 #[cfg(any(
-    linux_android,
+    linux,
     target_os = "emscripten",
     target_os = "wasi",
     target_env = "uclibc",
@@ -446,7 +446,7 @@ mod test_posix_fadvise {
     }
 }
 
-#[cfg(any(linux_android, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
+#[cfg(any(linux, freebsdlike, target_os = "emscripten", target_os = "wasi"))]
 mod test_posix_fallocate {
 
     use nix::errno::Errno;

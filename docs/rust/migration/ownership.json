@@ -523,6 +523,7 @@
   ],
   "platform_policy": "Inventory supported product platforms per task. Host Windows only establishes observed execution environment. Existing platform deletions are user work, not proof requirements retired.",
   "active_focus": {
+    "single_family_record": "tools/ci/network-focus.json",
     "subsystem": "network-services",
     "name": "Network",
     "allowed_dependency_tasks": [

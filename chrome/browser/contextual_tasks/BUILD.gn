@@ -260,10 +260,7 @@ source_set("ui") {
   ]
 
   if (enable_dice_support) {
-    sources += [
-      "search_ai_mode_promo_tab_helper.h",
-      "search_ai_mode_signin_promo_controller_observer.h",
-    ]
+    sources += []
   }
 
   public_deps = [
@@ -521,8 +518,8 @@ source_set("ui_impl") {
   ]
 
   if (enable_dice_support) {
-    sources += [ "search_ai_mode_promo_tab_helper.cc" ]
-    deps += [ "//chrome/browser/ui/views/search_ai_mode" ]
+    sources += []
+    deps += []
   }
 
   if (enable_webui_contextual_tasks_composebox) {
@@ -698,8 +695,8 @@ source_set("browser_tests") {
   ]
 
   if (enable_dice_support) {
-    sources += [ "search_ai_mode_promo_tab_helper_browsertest.cc" ]
-    deps += [ "//chrome/browser/ui/views/search_ai_mode" ]
+    sources += []
+    deps += []
   }
 
   if (enable_pdf) {
@@ -936,11 +933,10 @@ source_set("interactive_ui_tests") {
   public_deps = [ "//components/omnibox/common:features" ]
 
   if (enable_dice_support) {
-    sources += [ "search_ai_mode_promo_tab_helper_interactive_uitest.cc" ]
+    sources += []
     deps += [
       ":test_support",
       "//chrome/browser/ui/signin",
-      "//chrome/browser/ui/views/search_ai_mode",
     ]
   }
 

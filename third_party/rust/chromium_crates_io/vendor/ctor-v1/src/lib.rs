@@ -463,7 +463,6 @@ __declare_features!(
         example: "body(link_section = \".text.startup\")";
         default {
             (target_os = "linux") => ".text.startup",
-            (target_os = "android") => ".text.startup",
             (target_os = "freebsd") => ".text.startup",
             // Windows MSVC: sort startup functions near the start of the binary
             (all(target_os = "windows", any(target_env = "gnu", target_env = "msvc"))) => ".text$A",
@@ -512,7 +511,6 @@ __declare_features!(
             // Most LLVM/GCC targets can use .init_array
             (any(
                 target_os = "linux",
-                target_os = "android",
                 target_os = "freebsd",
                 target_os = "netbsd",
                 target_os = "openbsd",

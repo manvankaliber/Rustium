@@ -1,0 +1,73 @@
+{
+  "utc": "2026-11-22T11:02:55.818300+00:00",
+  "head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "scope": "Read-only hosted capability check and local data/syntax tests on exact Git blobs copied to scratch.",
+  "unchanged_ci_tree_against": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "source_sha256": {
+    "tools/ci/build_network_consumers.py": "30f65c79f7cec0da0af69ef3b9a9e5c5a65d201ecbd33e1dd1aead020a4df426",
+    "tools/ci/test_network_build_planning.py": "a35d43e1e4b29fa24db9aae63dc9872e04747d3b616446c08efdc370f0303446",
+    "tools/ci/network-validation-inventory.json": "fa9d00a712b0c4c3bc7fe53d6c0080ac4539803c18a03007d916161e3fc6695e",
+    "tools/ci/network-focus.json": "31b5be00bf74857fa810c018dbbf601b09d7f3d0e6c9e0f4c6259455d3fffbac",
+    "tools/ci/Install-WindowsRunner.ps1": "da586da25cc70d8742c6dea82c87c8b206d0510158589fa19b78a64ead8cb8d6",
+    "tools/ci/Start-WindowsRunner.ps1": "05b8af71d32722020ba9d58cb76558e51766b0413e7f970e3a04284463a1065c",
+    ".github/workflows/network-consumer-build.yml": "08aad59e22786efd61d79d3a2d9a6c37529d4ae41374d455d1deb305c3829e7d",
+    ".github/workflows/windows-runner-inventory.yml": "e7d5bf532890b8916355dbc9f4f1596487dd592672da197dc8d27fa0875a4da0"
+  },
+  "planning": {
+    "passed": 18,
+    "log": [
+      "test_default_group_keeps_its_exact_alias (test_network_build_planning.BuildPlanningTest.test_default_group_keeps_its_exact_alias) ... ok",
+      "test_missing_root_cannot_shrink_the_build (test_network_build_planning.BuildPlanningTest.test_missing_root_cannot_shrink_the_build) ... ok",
+      "test_native_process_check_does_not_need_powershell_on_path (test_network_build_planning.BuildPlanningTest.test_native_process_check_does_not_need_powershell_on_path) ... ok",
+      "test_ninja_jobs_for_all_build_modes (test_network_build_planning.BuildPlanningTest.test_ninja_jobs_for_all_build_modes) ... ok",
+      "test_nondefault_root_cannot_fall_back_to_default_alias (test_network_build_planning.BuildPlanningTest.test_nondefault_root_cannot_fall_back_to_default_alias) ... ok",
+      "test_nondefault_roots_use_current_outputs (test_network_build_planning.BuildPlanningTest.test_nondefault_roots_use_current_outputs) ... ok",
+      "test_outputs_cannot_escape_or_reuse_other_configuration (test_network_build_planning.BuildPlanningTest.test_outputs_cannot_escape_or_reuse_other_configuration) ... ok",
+      "test_checkout_symlink_binds_target_and_target_contents (test_network_build_planning.CheckoutIdentityTest.test_checkout_symlink_binds_target_and_target_contents) ... ok",
+      "test_checkout_symlink_cannot_include_external_or_excluded_file (test_network_build_planning.CheckoutIdentityTest.test_checkout_symlink_cannot_include_external_or_excluded_file) ... ok",
+      "test_existing_outputs_cannot_be_reused_or_deleted (test_network_build_planning.CheckoutIdentityTest.test_existing_outputs_cannot_be_reused_or_deleted) ... ok",
+      "test_ignored_tool_input_is_hashed_but_native_output_is_excluded (test_network_build_planning.CheckoutIdentityTest.test_ignored_tool_input_is_hashed_but_native_output_is_excluded) ... ok",
+      "test_new_untracked_source_is_rejected (test_network_build_planning.CheckoutIdentityTest.test_new_untracked_source_is_rejected) ... ok",
+      "test_same_revision_dirty_nested_checkout_is_rejected (test_network_build_planning.CheckoutIdentityTest.test_same_revision_dirty_nested_checkout_is_rejected) ... ok",
+      "test_feedback_uses_only_requested_active_family_and_configuration (test_network_build_planning.FamilyFeedbackTest.test_feedback_uses_only_requested_active_family_and_configuration) ... ok",
+      "test_filtered_gtest_requires_each_requested_case_to_pass_once (test_network_build_planning.FamilyFeedbackTest.test_filtered_gtest_requires_each_requested_case_to_pass_once) ... ok",
+      "test_rust_selection_is_exact_and_whole_suites_are_deliberate (test_network_build_planning.FamilyFeedbackTest.test_rust_selection_is_exact_and_whole_suites_are_deliberate) ... ok",
+      "test_warm_run_builds_and_executes_in_order_with_separate_logs (test_network_build_planning.FamilyFeedbackTest.test_warm_run_builds_and_executes_in_order_with_separate_logs) ... PASS connect_job_rust_perftests at aaaaaaaaaaaa",
+      "PASS connection_jobs_family_rust_unittests at aaaaaaaaaaaa",
+      "PASS connect_job_rust_perftests at aaaaaaaaaaaa",
+      "PASS connection_jobs_family_rust_unittests at aaaaaaaaaaaa",
+      "PASS connect_job_rust_perftests at aaaaaaaaaaaa",
+      "PASS connection_jobs_family_rust_unittests at aaaaaaaaaaaa",
+      "ok",
+      "test_only_provisioning_runs_launcher_and_stale_bindings_fail_early (test_network_build_planning.PythonCacheTest.test_only_provisioning_runs_launcher_and_stale_bindings_fail_early) ... ok",
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 18 tests in 4.121s",
+      "",
+      "OK"
+    ]
+  },
+  "powershell_syntax": [
+    "Install-WindowsRunner.ps1 parsed",
+    "Start-WindowsRunner.ps1 parsed"
+  ],
+  "runner": {
+    "busy": false,
+    "labels": [
+      "self-hosted",
+      "Windows",
+      "X64",
+      "rustium-build"
+    ],
+    "name": "HQC-VAN_KALIBER-rustium",
+    "status": "online"
+  },
+  "registered_workflows": [
+    {
+      "name": "Codebase metrics",
+      "path": ".github/workflows/codebase-metrics.yml",
+      "state": "active"
+    }
+  ],
+  "limits": "No actionlint executable resolved on the desktop, so it was not rerun. Prior archive/member CRC receipt remains at 295159ef; code and inventory hashes match. The Network consumer workflow exists in PR source and is absent from the hosted workflow catalogue. No workflow was configured or dispatched and no GN, compiler, build or native cases ran."
+}

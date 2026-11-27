@@ -1,0 +1,19 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "baseline_commit": "df7a5e64f112b86c8b2292630649aecedcc313bb",
+  "baseline_evidence_root": "C:/Users/micro/rb/network-df7a5-midl-edge-20261120a/",
+  "baseline_result": {
+    "exit_codes": {
+      "ISimpleDOMDocument": 1,
+      "iaccessible2": 1
+    },
+    "jobs": 4,
+    "simultaneous_links": 1,
+    "discrepancy": "Only the compiler-settings comment differs in each .h, _i.c and _p.c. Both .dlldata.c files and the extra ia2_api_all.tlb were byte-identical. All nine fresh generated files match the archived original failure.",
+    "lock_released": true,
+    "source_clean": true
+  },
+  "repair_commit": "2c61fa63b0d2967ec6660a0edabe1792ddf2d193",
+  "focused_validation_thread": "mcp:launch:b6d7bced6033c0ad13f4bfb96d67802d6865a84336f17abd2b72462fad030b84",
+  "focused_validation_status": "Dispatched to verify the two isolated MIDL edges at the reviewed published candidate. Native result pending."
+}

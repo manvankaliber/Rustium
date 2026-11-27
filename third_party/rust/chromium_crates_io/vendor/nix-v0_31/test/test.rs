@@ -11,7 +11,7 @@ mod sys;
 mod test_dir;
 mod test_errno;
 mod test_fcntl;
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod test_kmod;
 #[cfg(any(freebsdlike, all(target_os = "linux", not(target_env = "ohos")), target_os = "netbsd"))]
 mod test_mq;
@@ -21,9 +21,9 @@ mod test_nix_path;
 mod test_poll;
 #[cfg(not(any(target_os = "redox", target_os = "haiku")))]
 mod test_pty;
-#[cfg(any(linux_android, target_os = "dragonfly", all(target_os = "freebsd", fbsd14),))]
+#[cfg(any(linux, target_os = "dragonfly", all(target_os = "freebsd", fbsd14),))]
 mod test_sched;
-#[cfg(any(linux_android, freebsdlike, apple_targets, solarish))]
+#[cfg(any(linux, freebsdlike, apple_targets, solarish))]
 mod test_sendfile;
 #[cfg(any(
     target_os = "freebsd",

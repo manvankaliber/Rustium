@@ -132,11 +132,11 @@
 //!
 //! ```
 //! # #[macro_use] extern crate nix;
-//! # #[cfg(linux_android)]
+//! # #[cfg(linux)]
 //! # use nix::libc::TCGETS as TCGETS;
-//! # #[cfg(linux_android)]
+//! # #[cfg(linux)]
 //! # use nix::libc::termios as termios;
-//! # #[cfg(linux_android)]
+//! # #[cfg(linux)]
 //! ioctl_read_bad!(tcgets, TCGETS, termios);
 //! # fn main() {}
 //! ```
@@ -242,11 +242,11 @@
 //! ```
 use cfg_if::cfg_if;
 
-#[cfg(any(linux_android, target_os = "redox", target_os = "cygwin"))]
+#[cfg(any(linux, target_os = "redox", target_os = "cygwin"))]
 #[macro_use]
 mod linux;
 
-#[cfg(any(linux_android, target_os = "redox", target_os = "cygwin"))]
+#[cfg(any(linux, target_os = "redox", target_os = "cygwin"))]
 pub use self::linux::*;
 
 #[cfg(any(bsd, solarish, target_os = "haiku",))]
@@ -417,7 +417,7 @@ macro_rules! ioctl_read {
 ///
 /// ```
 /// # #[macro_use] extern crate nix;
-/// # #[cfg(linux_android)]
+/// # #[cfg(linux)]
 /// ioctl_read_bad!(tcgets, libc::TCGETS, libc::termios);
 /// # fn main() {}
 /// ```
@@ -498,7 +498,7 @@ macro_rules! ioctl_write_ptr {
 ///
 /// ```
 /// # #[macro_use] extern crate nix;
-/// # #[cfg(linux_android)]
+/// # #[cfg(linux)]
 /// ioctl_write_ptr_bad!(tcsets, libc::TCSETS, libc::termios);
 /// # fn main() {}
 /// ```
@@ -625,7 +625,7 @@ cfg_if! {
 ///
 /// ```
 /// # #[macro_use] extern crate nix;
-/// # #[cfg(linux_android)]
+/// # #[cfg(linux)]
 /// ioctl_write_int_bad!(tcsbrk, libc::TCSBRK);
 /// # fn main() {}
 /// ```

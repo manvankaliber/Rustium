@@ -1,0 +1,28 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "reviewed_predecessor": "62cd081abc6f1879d95243552f5c2916fff9aff4",
+  "repaired_candidate": "67907d0975dca4332d6a53d225e1a107b702db3f",
+  "source_identity": {
+    "tree": "7f56b6db0ed1e1bd2594e121f2b4988dcc26e74f"
+  },
+  "selection": "Single transition per usable socket. Rust holds the ranking state for newest used, previously selected used or oldest remaining. Native list and observation lifetimes remain inside the pool.",
+  "frozen_oracle_commit": "dbd5cf7b5a72951b553494258311f89ce04d7964",
+  "scripted_oracle_commit": "67907d0975dca4332d6a53d225e1a107b702db3f",
+  "oracle_status": "The pinned original remains retrievable byte-for-byte from the frozen commit. The separately identified executable adaptation scripts repeated WasEverUsed responses and initializes fixture storage. The comparison decision bodies remain unchanged.",
+  "oracle_adaptation_diff_sha256": "61caccbd0dbec3007c6ca7c3047100dc99f7932a0869aa3372aade8e4bfbe7d7",
+  "oracle_files": {
+    "net/socket/transport_client_socket_pool_idle_rust_original.cc": {
+      "frozen_blob": "cdb6378bbcedb783e8388da929601406cd73f066",
+      "frozen_sha256": "f006f5c997a67ec4e90c948bf778660d3cf4074de6cd8282dcdc4092711b04c0",
+      "scripted_blob": "73cbcd4efcb9fd6697d13d5c7488cbc5241c9bde",
+      "scripted_sha256": "0fb57daa5b786701f0fa307e16f38ebb23e405b3b0ba24314327372662a0fab9"
+    },
+    "net/socket/transport_client_socket_pool_idle_rust_original.h": {
+      "frozen_blob": "5e9771e6da52222cca3e93fed1c2e201002663bb",
+      "frozen_sha256": "980fbcebbc5c5d450bdad5ec0a1f3e3a7d132f2402ecb9eb1715d616c3db4f1d",
+      "scripted_blob": "5b116a918a72071a070e19a72dfa1b6bc0615e2e",
+      "scripted_sha256": "39e6693267499935e1025a2fb91be5a36a785911173ed7f8e1585c4e19726c88"
+    }
+  },
+  "status": "Source-only repair and explicit oracle identity binding. Final review and laptop validation pending."
+}

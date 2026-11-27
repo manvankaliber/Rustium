@@ -1,0 +1,104 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "observed_utc": "2026-11-17T17:31:57.599Z",
+  "remote_thread_link": "[Check Windows builder runner readiness](t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:264a818b887177bf19c6392beecb5b719f33bbcd0e8635a9720897f8755ad429)",
+  "executed_model": "gpt-6.1-terra",
+  "effort": "xhigh",
+  "remote_file": "C:/Users/micro/actions-runner-rustium/setup-result.json",
+  "remote_file_sha256_reported": "7d09051294e128d26012b538fdb6df0f09e68b5e74db85caab4719c89dbfa550",
+  "copy_scope": "Parsed sanitized report returned by completed Terra task; original remote file bytes were not downloaded. Remote SHA is the worker's reported file hash.",
+  "remote_setup_report": {
+    "recorded_utc": "2026-11-17T17:31:33.7262278Z",
+    "host": "HQC-VAN_KALIBER",
+    "windows_user": "HQC-VAN_KALIBER\\micro",
+    "elevated": false,
+    "repository": "manvankaliber/Rustium",
+    "github_account": "manvankaliber",
+    "directory": "C:\\Users\\micro\\actions-runner-rustium",
+    "installer": {
+      "path": "C:\\Users\\micro\\actions-runner-rustium\\Install-WindowsRunner.ps1",
+      "sha256": "da586da25cc70d8742c6dea82c87c8b206d0510158589fa19b78a64ead8cb8d6"
+    },
+    "package": {
+      "version": "2.338.2",
+      "path": "C:\\Users\\micro\\actions-runner-rustium\\actions-runner-win-x64-2.338.2.zip",
+      "sha256": "a1f17aa987fc8158bc7521d284912267a0d01b7c2c4684b33c86783b5e8221cc",
+      "prepare_log": "C:\\Users\\micro\\actions-runner-rustium\\prepare.log"
+    },
+    "listener_version_check": {
+      "path": "C:\\Users\\micro\\actions-runner-rustium\\bin\\Runner.Listener.exe",
+      "sha256": "0CB7DD9418D9CBC58BBB9D4C6E73398BDA0FD607C19535A4DD537FBF7673D6AD",
+      "exit_code": 0,
+      "output": "2.338.2",
+      "error": null,
+      "exception_type": null,
+      "hresult": null
+    },
+    "registration": {
+      "token_file_cleanup": "removed",
+      "result_log": "C:\\Users\\micro\\actions-runner-rustium\\registration-result.json"
+    },
+    "runner": {
+      "busy": false,
+      "id": 21,
+      "labels": [
+        "self-hosted",
+        "Windows",
+        "X64",
+        "rustium-build"
+      ],
+      "name": "HQC-VAN_KALIBER-rustium",
+      "status": "online"
+    },
+    "startup": {
+      "mode": "interactive",
+      "launcher_pid": 11012,
+      "launcher_alive": true,
+      "listener_pids": [
+        16564
+      ],
+      "stdout": "C:\\Users\\micro\\actions-runner-rustium\\runner-stdout.log",
+      "stderr": "C:\\Users\\micro\\actions-runner-rustium\\runner-stderr.log"
+    },
+    "unresolved_blockers": [
+      {
+        "kind": "application_control",
+        "description": "Maintenance owner reported Device Guard/Code Integrity blocks on compiler-smoke.exe, .cipd_client.exe and vpython3.exe; runner listener execution succeeded. No policy changes made.",
+        "policy": "{0283ac0f-fff1-49ae-ada1-8a933130cad6}",
+        "event_ids": [
+          3077,
+          3033
+        ],
+        "win32_process_start_code": "not recorded by maintenance owner",
+        "blocked_paths": [
+          "C:\\Users\\micro\\.t3\\projects\\laptop-buildvoorbereiding\\maintenance\\compiler-smoke.exe",
+          "C:\\Users\\micro\\chromium-tools\\depot_tools\\.cipd_client.exe",
+          "C:\\Users\\micro\\chromium-tools\\depot_tools\\.cipd_bin\\vpython3.exe"
+        ]
+      },
+      {
+        "kind": "toolchain",
+        "description": "Maintenance owner reported ATL/MFC missing; Visual Studio modification exited 5007 because elevation was required."
+      }
+    ],
+    "verification_note": "Runner connection only; no network/toolchain acceptance, build, compiler, or test was performed."
+  },
+  "independent_github_api_check": {
+    "repository": "manvankaliber/Rustium",
+    "runner_count": 1,
+    "runner": {
+      "id": 21,
+      "name": "HQC-VAN_KALIBER-rustium",
+      "status": "online",
+      "busy": false,
+      "labels": [
+        "self-hosted",
+        "Windows",
+        "X64",
+        "rustium-build"
+      ]
+    }
+  },
+  "setup_note": "Initial installer script was placed inside the new target; manager materialized expected installation-identity marker before PrepareOnly so the directory guard could accept it. Installer and actual package hashes were subsequently verified.",
+  "scope": "Runner installation/registration/connectivity only. No service, elevation, application-control change, compiler/build/test/workflow or source publication. Network/toolchain acceptance remains pending."
+}

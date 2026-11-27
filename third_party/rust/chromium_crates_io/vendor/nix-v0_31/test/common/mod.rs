@@ -13,7 +13,7 @@ macro_rules! skip {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! require_capability {
             ($name:expr, $capname:ident) => {
                 use ::caps::{Capability, CapSet, has_cap};
@@ -73,7 +73,7 @@ macro_rules! skip_if_not_root {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! skip_if_seccomp {
             ($name:expr) => {
                 if let Ok(s) = std::fs::read_to_string("/proc/self/status") {
@@ -97,7 +97,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! require_kernel_version {
             ($name:expr, $version_requirement:expr) => {
                 use semver::{Version, VersionReq};

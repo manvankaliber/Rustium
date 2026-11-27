@@ -1,0 +1,36 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "worker_commit": "e94513cabc66caa3a6bf7c44b21414013b4d9617",
+  "published_candidate": "67907d0975dca4332d6a53d225e1a107b702db3f",
+  "remote_ref": "refs/heads/rust/connection-transport-idle-wired-review-20261119",
+  "source_review": {
+    "status": "accepted-for-laptop",
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh",
+    "scope": "Rust candidate selection state, native ordering and oracle identities after the earlier exact GN and fixture review"
+  },
+  "warm_validation": {
+    "host": "HQC-VAN_KALIBER",
+    "configuration": "Existing ordinary Windows x64 component output. Preflight graph and single link pool before build.",
+    "targets": [
+      "//net:net",
+      "//net:net_unittests",
+      "//net:connection_jobs_family_rust_unittests"
+    ],
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "execution_order": [
+      "ClientSocketPoolBaseTest.IdleSelectionDirectDestructionAndChangingUsage",
+      "ClientSocketPoolBaseTest.IdleSelectionProxyDeferredDestruction",
+      "Both exact discovered instances of TransportClientSocketPoolTest.CleanupIdleSocketsReentrantGroupDestruction",
+      "ClientSocketPoolBaseTest.IdleSelectionYoungestUsedAndOldestUnused",
+      "ClientSocketPoolBaseTest.IdleCleanupReasonPrecedenceAndObservationOrder",
+      "ClientSocketPoolBaseTest.IdleReleaseClosedPrecedesStaleGeneration",
+      "ClientSocketPoolBaseTest.IdleReleaseStaleGenerationSkipsConnectedQuery",
+      "TransportIdleRustDifferentialTest.RepeatedObservationsStayLazy",
+      "Remaining transport idle differential, ordinary pool, and Connection Jobs behavior suites"
+    ],
+    "feedback": "Record the rust crate dependency, projection export and EXE import, single owner, exact source/graph/binary hashes, raw first error and all test outcomes. Keep scope on this candidate.",
+    "status": "Pending release and terminal reconciliation of the ongoing QUIC components retry on df7a5e64."
+  }
+}

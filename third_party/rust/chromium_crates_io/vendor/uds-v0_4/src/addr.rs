@@ -324,9 +324,9 @@ impl UnixSocketAddr {
     /// Returns whether the operating system is known to support
     /// abstract unix domain socket addresses.
     ///
-    /// Is `true` for Linux & Android, and `false` for all other OSes.
+    /// Is `true` for Linux, and `false` for all other OSes.
     pub const fn has_abstract_addresses() -> bool {
-        cfg!(any(target_os="linux", target_os="android"))
+        cfg!(target_os="linux")
     }
 
     /// Creates an abstract unix domain socket address.
@@ -347,7 +347,7 @@ impl UnixSocketAddr {
     /// get the limit.
     ///
     /// It will also fail on operating systems that don't support abstract
-    /// addresses. (ie. anything other than Linux and Android)
+    /// addresses. (ie. anything other than Linux)
     pub fn from_abstract<N: AsRef<[u8]>+?Sized>(name: &N) -> Result<Self, io::Error> {
         fn from_abstract_inner(name: &[u8]) -> Result<UnixSocketAddr, io::Error> {
             let mut addr = UnixSocketAddr::new_unspecified();
@@ -369,7 +369,7 @@ impl UnixSocketAddr {
 
     /// Tries to convert a `std::os::unix::net::SocketAddr` into an `UnixSocketAddr`.
     ///
-    /// This can fail (produce `None`) on Linux and Android
+    /// This can fail (produce `None`) on Linux
     /// if the `std` `SocketAddr` represents an abstract address,
     /// as it provides no method for viewing abstract addresses.
     /// (other than parsing its `Debug` output, anyway.)

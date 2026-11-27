@@ -76,13 +76,11 @@ s! {
         pub ai_protocol: c_int,
         pub ai_addrlen: socklen_t,
 
-        #[cfg(not(target_os = "android"))]
+
         pub ai_addr: *mut crate::sockaddr,
 
         pub ai_canonname: *mut c_char,
 
-        #[cfg(target_os = "android")]
-        pub ai_addr: *mut crate::sockaddr,
 
         pub ai_next: *mut addrinfo,
     }
@@ -1657,8 +1655,7 @@ cfg_if! {
         pub const STATX_MNT_ID_UNIQUE: c_uint = 0x00004000;
         pub const STATX_SUBVOL: c_uint = 0x00008000;
         pub const STATX_WRITE_ATOMIC: c_uint = 0x00010000;
-        // Not in the Android NDK as of r29.
-        #[cfg(not(target_os = "android"))]
+
         pub const STATX_DIO_READ_ALIGN: c_uint = 0x00020000;
         pub const STATX__RESERVED: c_int = u32_cast_int(0x80000000);
         pub const STATX_ATTR_COMPRESSED: c_int = 0x0004;

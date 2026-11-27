@@ -21,7 +21,7 @@
 #include "third_party/blink/renderer/bindings/core/v8/native_value_traits_impl.h"
 #include "third_party/blink/renderer/bindings/core/v8/script_promise_resolver.h"
 #include "third_party/blink/renderer/bindings/modules/v8/v8_address_errors.h"
-#include "third_party/blink/renderer/bindings/modules/v8/v8_android_pay_method_data.h"
+#include "third_party/blink/renderer/bindings/modules/v8/v8_payment_app_method_data.h"
 #include "third_party/blink/renderer/bindings/modules/v8/v8_google_play_billing_method_data.h"
 #include "third_party/blink/renderer/bindings/modules/v8/v8_payer_errors.h"
 #include "third_party/blink/renderer/bindings/modules/v8/v8_payment_details_init.h"
@@ -398,12 +398,12 @@ void ValidateAndConvertTotal(const PaymentItem* input,
 }
 
 // Parses Android Pay data to avoid parsing JSON in the browser.
-void SetAndroidPayMethodData(v8::Isolate* isolate,
+void SetPaymentAppMethodData(v8::Isolate* isolate,
                              const ScriptValue& input,
                              PaymentMethodDataPtr& output,
                              ExceptionState& exception_state) {
-  AndroidPayMethodData* android_pay =
-      NativeValueTraits<AndroidPayMethodData>::NativeValue(
+  PaymentAppMethodData* android_pay =
+      NativeValueTraits<PaymentAppMethodData>::NativeValue(
           isolate, input.V8Value(), exception_state);
   if (exception_state.HadException()) {
     return;
@@ -472,7 +472,7 @@ void StringifyAndParseMethodSpecificData(ExecutionContext& execution_context,
   if (supported_method == kGooglePayMethod ||
       supported_method == kAndroidPayMethod ||
       supported_method == kGooglePayAuthenticationMethod) {
-    SetAndroidPayMethodData(execution_context.GetIsolate(), input, output,
+    SetPaymentAppMethodData(execution_context.GetIsolate(), input, output,
                             IGNORE_EXCEPTION);
   }
 

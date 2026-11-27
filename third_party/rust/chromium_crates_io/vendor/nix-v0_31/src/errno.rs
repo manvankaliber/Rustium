@@ -267,7 +267,7 @@ fn desc(errno: Errno) -> &'static str {
         EHOSTUNREACH => "No route to host",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -276,7 +276,7 @@ fn desc(errno: Errno) -> &'static str {
         ECHRNG => "Channel number out of range",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -285,7 +285,7 @@ fn desc(errno: Errno) -> &'static str {
         EL2NSYNC => "Level 2 not synchronized",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -294,7 +294,7 @@ fn desc(errno: Errno) -> &'static str {
         EL3HLT => "Level 3 halted",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -303,7 +303,7 @@ fn desc(errno: Errno) -> &'static str {
         EL3RST => "Level 3 reset",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -312,7 +312,7 @@ fn desc(errno: Errno) -> &'static str {
         ELNRNG => "Link number out of range",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -321,7 +321,7 @@ fn desc(errno: Errno) -> &'static str {
         EUNATCH => "Protocol driver not attached",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -330,7 +330,7 @@ fn desc(errno: Errno) -> &'static str {
         ENOCSI => "No CSI structure available",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -338,29 +338,29 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         EL2HLT => "Level 2 halted",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBADE => "Invalid exchange",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBADR => "Invalid request descriptor",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EXFULL => "Exchange full",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ENOANO => "No anode",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBADRQC => "Invalid request code",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBADSLT => "Invalid slot",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBFONT => "Bad font file format",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -369,7 +369,7 @@ fn desc(errno: Errno) -> &'static str {
         ENOSTR => "Device not a stream",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -378,7 +378,7 @@ fn desc(errno: Errno) -> &'static str {
         ENODATA => "No data available",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -387,7 +387,7 @@ fn desc(errno: Errno) -> &'static str {
         ETIME => "Timer expired",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -395,14 +395,14 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         ENOSR => "Out of streams resources",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ENONET => "Machine is not on the network",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ENOPKG => "Package not installed",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -410,20 +410,20 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         EREMOTE => "Object is remote",
 
-        #[cfg(any(linux_android, solarish, target_os = "aix", target_os = "emscripten"))]
+        #[cfg(any(linux, solarish, target_os = "aix", target_os = "emscripten"))]
         ENOLINK => "Link has been severed",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EADV => "Advertise error",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ESRMNT => "Srmount error",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ECOMM => "Communication error on send",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "emscripten",
@@ -431,14 +431,14 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         EPROTO => "Protocol error",
 
-        #[cfg(any(linux_android, solarish, target_os = "aix", target_os = "emscripten"))]
+        #[cfg(any(linux, solarish, target_os = "aix", target_os = "emscripten"))]
         EMULTIHOP => "Multihop attempted",
 
-        #[cfg(any(linux_android, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, target_os = "emscripten", target_os = "cygwin"))]
         EDOTDOT => "RFS specific error",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "aix",
             target_os = "emscripten",
             target_os = "cygwin"
@@ -449,7 +449,7 @@ fn desc(errno: Errno) -> &'static str {
         EBADMSG => "Trying to read unreadable message",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "aix",
             target_os = "haiku",
             target_os = "hurd",
@@ -458,29 +458,29 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         EOVERFLOW => "Value too large for defined data type",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ENOTUNIQ => "Name not unique on network",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EBADFD => "File descriptor in bad state",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EREMCHG => "Remote address changed",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ELIBACC => "Can not access a needed shared library",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ELIBBAD => "Accessing a corrupted shared library",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ELIBSCN => ".lib section in a.out corrupted",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ELIBMAX => "Attempting to link in too many shared libraries",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "hurd",
             target_os = "emscripten",
@@ -489,7 +489,7 @@ fn desc(errno: Errno) -> &'static str {
         ELIBEXEC => "Cannot exec a shared library directly",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "aix",
             target_os = "openbsd",
@@ -498,17 +498,17 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         EILSEQ => "Illegal byte sequence",
 
-        #[cfg(any(linux_android, solarish, target_os = "aix", target_os = "emscripten"))]
+        #[cfg(any(linux, solarish, target_os = "aix", target_os = "emscripten"))]
         ERESTART => "Interrupted system call should be restarted",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         ESTRPIPE => "Streams pipe error",
 
-        #[cfg(any(linux_android, solarish, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, target_os = "emscripten", target_os = "cygwin"))]
         EUSERS => "Too many users",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "netbsd",
             target_os = "redox",
             target_os = "emscripten",
@@ -517,33 +517,33 @@ fn desc(errno: Errno) -> &'static str {
         EOPNOTSUPP => "Operation not supported on transport endpoint",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "hurd",
             target_os = "emscripten",
             target_os = "cygwin"
         ))]
         ESTALE => "Stale file handle",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EUCLEAN => "Structure needs cleaning",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         ENOTNAM => "Not a XENIX named type file",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         ENAVAIL => "No XENIX semaphores available",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EISNAM => "Is a named type file",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EREMOTEIO => "Remote I/O error",
 
-        #[cfg(any(linux_android, target_os = "emscripten", target_os = "cygwin"))]
+        #[cfg(any(linux, target_os = "emscripten", target_os = "cygwin"))]
         EDQUOT => "Quota exceeded",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "openbsd",
             target_os = "dragonfly",
             target_os = "emscripten",
@@ -551,11 +551,11 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         ENOMEDIUM => "No medium found",
 
-        #[cfg(any(linux_android, target_os = "openbsd", target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "openbsd", target_os = "emscripten"))]
         EMEDIUMTYPE => "Wrong medium type",
 
         #[cfg(any(
-            linux_android,
+            linux,
             solarish,
             target_os = "haiku",
             target_os = "emscripten",
@@ -563,20 +563,20 @@ fn desc(errno: Errno) -> &'static str {
         ))]
         ECANCELED => "Operation canceled",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         ENOKEY => "Required key not available",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EKEYEXPIRED => "Key has expired",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EKEYREVOKED => "Key has been revoked",
 
-        #[cfg(any(linux_android, target_os = "emscripten"))]
+        #[cfg(any(linux, target_os = "emscripten"))]
         EKEYREJECTED => "Key was rejected by service",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "aix",
             target_os = "hurd",
             target_os = "emscripten",
@@ -588,7 +588,7 @@ fn desc(errno: Errno) -> &'static str {
         EOWNERDEAD => "Process died with lock",
 
         #[cfg(any(
-            linux_android,
+            linux,
             target_os = "aix",
             target_os = "emscripten",
             target_os = "cygwin"
@@ -786,7 +786,7 @@ fn desc(errno: Errno) -> &'static str {
     }
 }
 
-#[cfg(any(linux_android, target_os = "emscripten"))]
+#[cfg(any(linux, target_os = "emscripten"))]
 mod consts {
     #[derive(Clone, Copy, Debug, Eq, PartialEq)]
     #[repr(i32)]

@@ -1,0 +1,25 @@
+{
+  "utc": "2026-11-21T23:24:38.442317+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "failed_candidate": "4685fd403bfa4075e42121a19d5866e302f1610a",
+  "failure": {
+    "phase": "native compile",
+    "path": "net/socket/transport_client_socket_pool.cc",
+    "line": 2107,
+    "diagnostic": "'return' will never be executed [-Werror,-Wunreachable-code-return]",
+    "raw_log": "C:/Users/micro/rb/network-4685fd-retained-resume-20261122c/build-targets.log",
+    "receipt": "C:/Users/micro/rb/network-4685fd-retained-resume-20261122c/result.json",
+    "completed": "Scoped GN checks and generated Rust executable mapping passed. No link or test ran.",
+    "restoration": "Exact 72ee5ddd checkout, seven pins and 268 protected evidence files verified. Independent lock release and quiet process inventory recorded."
+  },
+  "repaired_candidate": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd",
+  "repair_blob": "d79131dda15f32a1af8a197dccf54cb16757e54e",
+  "repair": "Remove dead return following noreturn NOTREACHED in Group::SetPriority.",
+  "parent": "7f88361ac16352c5f44e01dc2b8d3976a7989787",
+  "includes_prior_test_only_successor": "Validate dispatcher fixture in the same target build to avoid a separate laptop link.",
+  "validation": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3Ae2af5262-8f35-435c-8ff3-915eaa2d6d57",
+    "scope": "Replay failed object first, then only C++ and retained Rust test targets, warm -j4 and one simultaneous link."
+  }
+}

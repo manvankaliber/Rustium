@@ -159,20 +159,9 @@ StartupProfilePathInfo GetStartupProfilePath(
     const base::CommandLine& command_line,
     bool ignore_profile_picker);
 
-
 Profile* GetLastProfileMac();
 bool HasWaylandDisplay(base::Environment* env);
 
-namespace android_webview {
-class AwBrowserContext;
-class AwBrowserContextStore;
-class AwMetricsServiceClient;
-class CookieManager;
-class JsSandboxIsolate;
-class OverlayProcessorWebView;
-class ScopedAllowInitGLBindings;
-class VizCompositorThreadRunnerWebView;
-}  // namespace android_webview
 namespace ash {
 class LoginEventRecorder;
 class StartupCustomizationDocument;
@@ -235,7 +224,6 @@ class DesktopCaptureDevice;
 class DWriteFontCollectionProxy;
 class DWriteFontProxyImpl;
 class InProcessUtilityThread;
-class NestedMessagePumpAndroid;
 class NetworkServiceInstancePrivate;
 class PepperPrintSettingsManagerImpl;
 class RenderProcessHostImpl;
@@ -464,12 +452,6 @@ class WebMainLoop;
 
 namespace base {
 
-namespace android {
-class JavaHandlerThread;
-class PmfUtils;
-class ScopedAllowBlockingForImportantFileWriter;
-}  // namespace android
-
 namespace apple::internal {
 base::FilePath GetExecutablePath();
 }
@@ -592,11 +574,6 @@ class BASE_EXPORT ScopedAllowBlocking {
 #endif
   friend class ::StartupTabProviderImpl;
   friend class ::WebEngineBrowserMainParts;
-  friend class android_webview::AwBrowserContext;
-  friend class android_webview::AwBrowserContextStore;
-  friend class android_webview::AwMetricsServiceClient;
-  friend class android_webview::CookieManager;
-  friend class android_webview::ScopedAllowInitGLBindings;
   friend class ash::LoginEventRecorder;
   friend class ash::StartupCustomizationDocument;  // http://crosbug.com/11103
   friend class ash::StartupUtils;
@@ -608,8 +585,6 @@ class BASE_EXPORT ScopedAllowBlocking {
   friend class base::ScopedAllowBlockingForProc;
   friend class base::ScopedAllowBlockingForProcessMetrics;
   friend class base::StackSamplingProfiler;
-  friend class base::android::ScopedAllowBlockingForImportantFileWriter;
-  friend class base::android::PmfUtils;
   friend class base::debug::StackTrace;
   friend class base::subtle::PlatformSharedMemoryRegion;
   friend class base::win::ScopedAllowBlockingForUser32AndGdi32;
@@ -807,8 +782,6 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   // Usage that should be fixed:
   // Sorted by class name (with namespace).
   friend class ::NativeBackendKWallet;  // http://crbug.com/125331
-  friend class android_webview::
-      OverlayProcessorWebView;                     // http://crbug.com/341151462
   friend class blink::VideoFrameResourceProvider;  // http://crbug.com/878070
   friend class viz::
       DisplayCompositorMemoryAndTaskController;    // http://crbug.com/341151462
@@ -846,10 +819,6 @@ ScopedAllowBaseSyncPrimitivesOutsideBlockingScope {
   friend class ::KeyStorageLinux;
   friend class ::NativeDesktopMediaList;
   friend class ::ash::system::StatisticsProviderImpl;
-  friend class android::JavaHandlerThread;
-  friend class android_webview::CookieManager;
-  friend class android_webview::JsSandboxIsolate;
-  friend class android_webview::VizCompositorThreadRunnerWebView;
   friend class audio::OutputDevice;
   friend class base::FileDescriptorWatcher;
   friend class base::ScopedAllowThreadRecallForStackSamplingProfiler;

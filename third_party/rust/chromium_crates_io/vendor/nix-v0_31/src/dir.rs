@@ -303,7 +303,7 @@ impl Entry {
     #[allow(clippy::unnecessary_cast)]
     fn from_raw(de: &libc::dirent) -> Self {
         cfg_if! {
-            if #[cfg(any(target_os = "aix", target_os = "emscripten", target_os = "haiku", target_os = "hurd", target_os = "cygwin", solarish, linux_android, apple_targets))] {
+            if #[cfg(any(target_os = "aix", target_os = "emscripten", target_os = "haiku", target_os = "hurd", target_os = "cygwin", solarish, linux, apple_targets))] {
                 let ino = de.d_ino as u64;
             } else {
                 let ino = u64::from(de.d_fileno);

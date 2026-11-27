@@ -13,7 +13,7 @@ feature! {
 feature! {
     #![feature = "event"]
 
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     #[allow(missing_docs)]
     pub mod epoll;
 
@@ -21,7 +21,7 @@ feature! {
     pub mod event;
 
     /// Event file descriptor.
-    #[cfg(any(linux_android, target_os = "freebsd"))]
+    #[cfg(any(linux, target_os = "freebsd"))]
     pub mod eventfd;
 }
 
@@ -31,13 +31,13 @@ feature! {
     pub mod fanotify;
 }
 
-#[cfg(any(bsd, linux_android, solarish, target_os = "redox", target_os = "cygwin"))]
+#[cfg(any(bsd, linux, solarish, target_os = "redox", target_os = "cygwin"))]
 #[cfg(feature = "ioctl")]
 #[cfg_attr(docsrs, doc(cfg(feature = "ioctl")))]
 #[macro_use]
 pub mod ioctl;
 
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 feature! {
     #![feature = "fs"]
     pub mod memfd;
@@ -65,7 +65,7 @@ feature! {
     pub mod pthread;
 }
 
-#[cfg(any(linux_android, bsd))]
+#[cfg(any(linux, bsd))]
 feature! {
     #![feature = "ptrace"]
     #[allow(missing_docs)]
@@ -95,7 +95,7 @@ feature! {
     pub mod select;
 }
 
-#[cfg(any(linux_android, freebsdlike, apple_targets, solarish))]
+#[cfg(any(linux, freebsdlike, apple_targets, solarish))]
 feature! {
     #![feature = "zerocopy"]
     pub mod sendfile;
@@ -103,7 +103,7 @@ feature! {
 
 pub mod signal;
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 feature! {
     #![feature = "signal"]
     #[allow(missing_docs)]
@@ -122,7 +122,7 @@ feature! {
     pub mod stat;
 }
 
-#[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "openbsd", target_os = "cygwin"))]
+#[cfg(any(linux, freebsdlike, apple_targets, target_os = "openbsd", target_os = "cygwin"))]
 feature! {
     #![feature = "fs"]
     pub mod statfs;
@@ -133,7 +133,7 @@ feature! {
     pub mod statvfs;
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[allow(missing_docs)]
 pub mod sysinfo;
 
@@ -161,13 +161,13 @@ feature! {
     pub mod wait;
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 feature! {
     #![feature = "inotify"]
     pub mod inotify;
 }
 
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 feature! {
     #![feature = "time"]
     pub mod timerfd;

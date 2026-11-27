@@ -21,7 +21,7 @@ import org.junit.runners.JUnit4;
 public class Utf8Test {
   private static final int NUM_CHARS = 16384;
 
-  private static final Utf8.Processor mobileProcessor = new Utf8.MobileProcessor();
+  private static final Utf8.Processor portableProcessor = new Utf8.PortableProcessor();
   private static final Utf8.Processor serverProcessor = new Utf8.ServerProcessor();
 
   @Test
@@ -106,7 +106,7 @@ public class Utf8Test {
 
   private static void assertEncoding(String message) {
     byte[] expected = message.getBytes(StandardCharsets.UTF_8);
-    byte[] output = encodeToByteArray(message, expected.length, mobileProcessor);
+    byte[] output = encodeToByteArray(message, expected.length, portableProcessor);
     assertWithMessage("encodeUtf8[ARRAY]")
         .that(output).isEqualTo(expected);
 
@@ -114,11 +114,11 @@ public class Utf8Test {
     assertWithMessage("encodeUtf8[ARRAY_UNSAFE]")
         .that(output).isEqualTo(expected);
 
-    output = encodeToByteBuffer(message, expected.length, false, mobileProcessor);
+    output = encodeToByteBuffer(message, expected.length, false, portableProcessor);
     assertWithMessage("encodeUtf8[NIO_HEAP]")
         .that(output).isEqualTo(expected);
 
-    output = encodeToByteBuffer(message, expected.length, true, mobileProcessor);
+    output = encodeToByteBuffer(message, expected.length, true, portableProcessor);
     assertWithMessage("encodeUtf8[NIO_DEFAULT]")
         .that(output).isEqualTo(expected);
 
@@ -132,7 +132,7 @@ public class Utf8Test {
     Class<ArrayIndexOutOfBoundsException> clazz = ArrayIndexOutOfBoundsException.class;
 
     try {
-      encodeToByteArray(message, length, mobileProcessor);
+      encodeToByteArray(message, length, portableProcessor);
       assertWithMessage("Expected " + clazz.getSimpleName()).fail();
     } catch (Throwable t) {
       // Expected
@@ -153,7 +153,7 @@ public class Utf8Test {
     }
 
     try {
-      encodeToByteBuffer(message, length, false, mobileProcessor);
+      encodeToByteBuffer(message, length, false, portableProcessor);
       assertWithMessage("Expected " + clazz.getSimpleName()).fail();
     } catch (Throwable t) {
       // Expected
@@ -164,7 +164,7 @@ public class Utf8Test {
     }
 
     try {
-      encodeToByteBuffer(message, length, true, mobileProcessor);
+      encodeToByteBuffer(message, length, true, portableProcessor);
       assertWithMessage("Expected " + clazz.getSimpleName()).fail();
     } catch (Throwable t) {
       // Expected

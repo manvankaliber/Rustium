@@ -24,7 +24,6 @@ COMPONENT_EXPORT(VR_FEATURES) BASE_DECLARE_FEATURE(kWebXrVisibleBlurred);
 // Note that this feature can be overridden by logic contained within
 // `IsOpenXrEnabled` and therefore should generally not be queried directly.
 COMPONENT_EXPORT(VR_FEATURES) BASE_DECLARE_FEATURE(kOpenXR);
-COMPONENT_EXPORT(VR_FEATURES) BASE_DECLARE_FEATURE(kSpatialEntitesDepthHitTest);
 
 // Helper method to check if OpenXR should be enabled, this is because we want
 // the feature enabled on XrDevices, but don't have a buildflag to cleanly set

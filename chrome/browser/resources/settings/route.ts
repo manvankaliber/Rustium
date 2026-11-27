@@ -188,9 +188,6 @@ function createRoutes(): SettingsRoutes {
   if (visibility.ai !== false && loadTimeData.getBoolean('showAiPage')) {
     r.AI = r.BASIC.createSection(
         '/ai', 'ai', loadTimeData.getString('aiPageTitle'));
-    if (loadTimeData.getBoolean('enableAiModeSearchSetting')) {
-      r.AI_MODE_SEARCH = r.AI.createChild('/ai/aiModeSearch');
-    }
     if (loadTimeData.getBoolean('showComposeControl')) {
       r.OFFER_WRITING_HELP = r.AI.createChild('/ai/helpMeWrite');
     }

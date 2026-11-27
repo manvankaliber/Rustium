@@ -1,0 +1,37 @@
+{
+  "utc": "2026-11-22T02:33:20.510662+00:00",
+  "base_revision": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "candidate": "f59000ad0cd3e30ce2392613396f64c42f9cac21",
+  "branch": "rust/connection-assignment-retirement-20261122",
+  "status": "Source candidate awaiting independent review. No build or native runtime on candidate.",
+  "tasks": [
+    "NET-CONNECTION-TRANSPORT-SCHEDULING",
+    "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT"
+  ],
+  "changes": [
+    [
+      "M",
+      "net/BUILD.gn"
+    ],
+    [
+      "M",
+      "net/socket/retained_queue.rs"
+    ],
+    [
+      "M",
+      "net/socket/retained_request_queue_ffi.rs"
+    ],
+    [
+      "M",
+      "net/socket/transport_assignment_ffi.h"
+    ],
+    [
+      "D",
+      "net/socket/transport_assignment_rust.rs"
+    ]
+  ],
+  "reason": "The exhaustive frozen C++ oracle cases used an earlier stand-alone scalar Rust implementation. The retained queue had become the production authority. The candidate removes the duplicate archive and routes the same scalar test symbols to the production retained queue rank decisions.",
+  "unchanged": "Native Group call sites, queue validation, token mapping and native ownership. No source change to C++ oracle assertions or test names.",
+  "verification": "Git whitespace check and code/runner target search passed. A data-only comparison transcribed the frozen selection and the scalar rank rules for 621 old test loop states (375 insertion, 192 removal, 54 release), all equal. This comparison did not execute the Rust or C++ implementation.",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Ab8b0254f-8fd2-4555-86bf-535ee3aebf95"
+}

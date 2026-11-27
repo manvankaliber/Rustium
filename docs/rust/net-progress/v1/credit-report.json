@@ -1,0 +1,47 @@
+{
+  "recorded_utc": "2026-11-13T15:51:18.706644+00:00",
+  "status": "Read-only source-credit attribution; no production, build or runtime actions",
+  "metric": "Conservative source-weighted retired-policy indicator, not functionality percentage or delivery acceptance",
+  "strict_credit_ncloc": 2407,
+  "credited_methods": 428,
+  "mapped_methods": 581,
+  "logical_production_paths": 52,
+  "components_requested": 41,
+  "components_with_nonzero_credit": 40,
+  "mapped_original_body_envelope_ncloc": 6915,
+  "metrics": {
+    "first-party-net": {
+      "retired_policy_credit_ncloc": 2407,
+      "remaining_cpp_ncloc": 264599,
+      "formula": "credit / (remaining + credit) * 100",
+      "source_credit_indicator_percent": 0.9014778694111742
+    },
+    "whole-net-directory": {
+      "retired_policy_credit_ncloc": 2407,
+      "remaining_cpp_ncloc": 427812,
+      "formula": "credit / (remaining + credit) * 100",
+      "source_credit_indicator_percent": 0.5594824961240671
+    }
+  },
+  "original_body_envelope_is_not_an_upper_bound": true,
+  "path_scope_validation": "Every credited original logical path is included by the separate denominator inventory.",
+  "deduplication": "Original logical path plus normalized owned method signature; frozen helper closures deliberately omitted.",
+  "attribution_limits": [
+    "This is a conservative syntactic/source-attribution indicator: whole semantic delivery cannot be derived from it, and it is not a formally proved lower bound on functionality.",
+    "Eligible owned original methods were manually selected by component scope, then a deterministic line rule excludes unchanged C++ lines, native/ownership/diagnostic expressions and uncertain mixed lines.",
+    "Pure declaration, constructor/destructor, header/static-data and unresolved attribution receive zero credit. HostMapping is integrated but receives zero credit here until its frozen original ownership mapping is resolved.",
+    "The full6915-line owned original-body envelope is context only, not eligible credit and not an upper bound for all migrated code.",
+    "Snapshot source identity/routing is not proof of current functional, performance, platform or browser acceptance.",
+    "External providers outside net remain registered unfinished goal work. No first-party metric silently completes or excludes them."
+  ],
+  "missing_rust_inventory_for_nonzero_credit": [],
+  "historical_acceptance_ledger": "docs/rust/net-migration-status.json accepted_rewrite_slices; not automatically current acceptance",
+  "credit_file_sha256": "0e921864c86da6e28e6bfbeec575da0b229c434a5a26271422bbc89ecfff1df1",
+  "scope_counts_sha256": "db8ed3e42af878c206bfd46bc0e4e020f5e53cc4b858dcd8bf06c8e38b80563e",
+  "scope_files_sha256": "7f214f76b9ebd735a11460db2489c47f89d8af994978ac7a5a12184f90102613",
+  "registry_sha256": "c33510225ed91c38fd31bec1971474e5296a13d03a2d6b48e24ecd208654e225",
+  "lexer_sha256": "7fad33f4eed2c65e9ab75fe4eaec9ce59385d3d35da8fe88eba194e66e3bbd96",
+  "all_source_inputs_unchanged": true,
+  "compilers_ninja_native_programs_timing_or_campaigns": false,
+  "canonical_changes": false
+}

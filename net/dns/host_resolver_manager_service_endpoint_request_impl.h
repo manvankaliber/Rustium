@@ -28,7 +28,10 @@
 #include "net/log/net_log_with_source.h"
 #include "url/scheme_host_port.h"
 
+namespace net { class DnsResolutionFamilyRustPeer; }
+
 namespace net {
+class DnsResolutionFamilyRustPeer;
 
 // Implementation of HostResolver::ServiceEndpointRequest.
 class HostResolverManager::ServiceEndpointRequestImpl
@@ -85,6 +88,8 @@ class HostResolverManager::ServiceEndpointRequestImpl
   base::WeakPtr<ServiceEndpointRequestImpl> GetWeakPtr();
 
  private:
+  friend class ::net::DnsResolutionFamilyRustPeer;
+  class RustFrame;
   enum class State {
     kNone,
     kCheckIPv6Reachability,

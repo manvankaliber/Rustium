@@ -24,7 +24,7 @@
 #endif
 
 #define ENABLE_BEHAVIOUR_OVERRIDE_PROVIDER                                    \
-  ((BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)) || \
+  ((BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)) || \
    BUILDFLAG(IS_WIN))
 
 namespace base {
@@ -91,8 +91,6 @@ Provider base_provider_mac = {PathProviderMac, &base_provider,
 #endif
                               true};
 #endif
-
-
 
 #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 Provider posix_provider = {PathProviderPosix, &base_provider,

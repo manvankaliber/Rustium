@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-22T00:15:28.618451+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "validated_linkage_candidate": "5932850e6369eee45d8623cef0a06c6fdb7d2895",
+  "linkage": "Five non-overlapping successful links. net_unittests imports the C++ count accessor from net.dll. The Rust symbol is in the archive and private to net.dll.",
+  "passed": "All seven retained Rust tests and CancelledPreconnectClaimIsNotRestored.",
+  "failure": {
+    "test": "ClientSocketPoolBaseTest.FailedAndFlushedPreconnectsClearClaims",
+    "source_lines": [
+      4755,
+      4770
+    ],
+    "actual": "Both callbacks returned true, while the test expected false. All asserted native count transitions passed.",
+    "raw_log": "C:/Users/micro/rb/network-5932850-component-repair-validation-20261122a/gate-01.log",
+    "receipt": "C:/Users/micro/rb/network-5932850-component-repair-validation-20261122a/result.json"
+  },
+  "root_cause": "RequestSockets fills positions already covered by active sockets with OK. The feature-enabled aggregator takes the maximum of those values and the actual negative failure or cancellation, as at the frozen original bb1359ebe.",
+  "test_only_repair": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "ref": "refs/heads/rust/transport-preconnect-result-feedback-20261122",
+  "blob": "01778a3b6dca41dcc4ba9977738674ca74ec01f3",
+  "repair_validation": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3Af3a56e8f-0f62-4715-b80b-98f66d404e6b",
+    "scope": "Test-only warm rebuild, replay exact case first, then remaining focused and 221 pool cases if green."
+  },
+  "pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd"
+}

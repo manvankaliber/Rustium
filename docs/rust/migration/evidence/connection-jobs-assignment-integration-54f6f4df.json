@@ -1,0 +1,45 @@
+{
+  "utc": "2026-11-21T22:34:24.173718+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "candidate_commit": "b4435e701df258a50c8746812a949b37b4e02e9d",
+  "integration_commit": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "prior_pr_head": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "source_identity": {
+    "validated_production_parent": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+    "only_successor_changed_path": "net/socket/client_socket_pool_base_unittest.cc",
+    "changed_blob": "a073f2dc2f483baad62503eb2b134ca16925b504"
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Independent source review of exact production assignment and separate identity/priority fixture."
+  },
+  "tests": {
+    "status": "passed",
+    "parent_cases": 16,
+    "successor_runs": 7,
+    "test": "ClientSocketPoolBaseTest.PreconnectClaimsOldestUnassignedJob",
+    "feature_switches": [
+      "--disable-features=EnableErrorCodePropagationForPreconnect",
+      "--enable-features=EnableErrorCodePropagationForPreconnect"
+    ],
+    "feature_limit": "Observed actual child argv for each switch; did not query feature state independently inside the test.",
+    "parent_abi": "DLL export/import and native link edge Rust archive ownership passed.",
+    "receipt_directory": "C:/Users/micro/rb/network-54f6f4-job-order-validation-20261121a"
+  },
+  "build": {
+    "scope": "warm Windows component net:net_unittests",
+    "seconds": 537,
+    "actions": 142,
+    "graph_regenerations": 1,
+    "link_actions": 2,
+    "overlap": false,
+    "net_unittests_sha256": "c25d368c7a23806052d9aa4997a4ef070fa4541d6e201a36ab3300cebf578a38",
+    "net_dll_sha256": "1778b8ffdee7fffadf935d642d671a7389498097a2d73cd601d8a5356dadc633"
+  },
+  "restoration": "Clean detached 72ee5ddd and seven metadata files restored. The separate lock reacquisition/release, process inventory and protected file fingerprint checks passed.",
+  "platform_limits": [
+    "Scoped Windows warm result. Family and performance qualification, other platform coverage, and authoritative queue ownership are pending."
+  ],
+  "rust_scope": "Front-job, no-action, donor and release selection. Native request order and lifetimes remain."
+}

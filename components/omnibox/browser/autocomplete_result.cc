@@ -73,17 +73,13 @@
 #endif
 
 using metrics::OmniboxEventProto;
-using TemplateAction = omnibox::SuggestTemplateInfo::TemplateAction;
 
 using AutocompleteMatchType = omnibox::AutocompleteMatchType;
 
 namespace {
 
-constexpr bool is_android_any = !!false;
-constexpr bool is_android_desktop = !!false;
-constexpr bool is_android_mobile = is_android_any && !is_android_desktop;
 constexpr bool is_ios = !!false;
-constexpr bool is_desktop = !(is_android_mobile || is_ios);
+constexpr bool is_desktop = !is_ios;
 
 // Rotates |it| to be in the front of |matches|.
 // |it| must be a valid iterator of |matches| or equal to |matches->end()|.
@@ -107,28 +103,6 @@ constexpr size_t kMaxPedalMatchIndex =
 constexpr size_t kActionsInSuggestCutoffThreshold = 1;
 constexpr size_t kPedalsCutoffThreshold = 3;
 
-// Returns the maximum index (inclusive) at which this action type is allowed.
-constexpr size_t GetActionInSuggestCutoff(TemplateAction::ActionType type) {
-  switch (type) {
-    case TemplateAction::CALL:
-    case TemplateAction::DIRECTIONS:
-    case TemplateAction::REVIEWS:
-      return kActionsInSuggestCutoffThreshold;
-    default:
-      return std::numeric_limits<size_t>::max();
-  }
-}
-
-// Returns if the ACTION_IN_SUGGEST exceeds its allowed position.
-bool ShouldRemoveActionInSuggest(const scoped_refptr<OmniboxAction>& action,
-                                 const size_t match_index) {
-  auto* action_in_suggest = OmniboxActionInSuggest::FromAction(action.get());
-  if (!action_in_suggest) {
-    return false;
-  }
-  return match_index > GetActionInSuggestCutoff(action_in_suggest->Type());
-}
-
 }  // namespace
 
 // static
@@ -136,9 +110,9 @@ size_t AutocompleteResult::GetMaxMatches(
     bool is_zero_suggest,
     AutocompleteInput::FeaturedKeywordMode featured_keyword_mode) {
   constexpr size_t kDefaultMaxAutocompleteMatches =
-      is_android_mobile ? 10 : (is_ios ? 10 : 8);
+      is_ios ? 10 : 8;
   constexpr size_t kDefaultMaxZeroSuggestMatches =
-      is_android_mobile ? 15 : (is_ios ? 20 : 8);
+      is_ios ? 20 : 8;
   constexpr size_t kMaxFeaturedKeywordAutocompleteMatches = 9;
 
   // Verify possible return values are between (0,
@@ -177,7 +151,7 @@ size_t AutocompleteResult::GetMaxMatches(
 
 // static
 size_t AutocompleteResult::GetDynamicMaxMatches() {
-  constexpr const int kDynamicMaxMatchesLimit = is_android_mobile ? 15 : 10;
+  constexpr const int kDynamicMaxMatchesLimit = 10;
   if (!base::FeatureList::IsEnabled(omnibox::kDynamicMaxAutocomplete))
     return AutocompleteResult::GetMaxMatches();
   return base::GetFieldTrialParamByFeatureAsInt(
@@ -187,7 +161,7 @@ size_t AutocompleteResult::GetDynamicMaxMatches() {
 }
 
 AutocompleteResult::AutocompleteResult()
-    : max_url_matches_(is_android_mobile || is_ios ? 5 : 7) {
+    : max_url_matches_(is_ios ? 5 : 7) {
   static uint32_t next_sequence_id = 1;
   sequence_id_ = next_sequence_id;
   next_sequence_id++;
@@ -360,7 +334,7 @@ void AutocompleteResult::Sort(
 
   // Because tail suggestions are a "last resort", we cull the tail suggestions
   // if there are any non-default, non-tail suggestions.
-  if (!is_android_mobile && !is_ios) {
+  if ((!(is_ios))) {
     MaybeCullTailSuggestions(&matches_, comparing_object);
   }
 
@@ -497,32 +471,7 @@ void AutocompleteResult::SortAndCull(
   // current input & platform are supported, delegate to the framework.
   if (is_zero_suggest) {
     PSections sections;
-    if (is_android_any &&
-        page_classification == metrics::OmniboxEventProto::ANDROID_HUB) {
-      sections.push_back(
-          std::make_unique<AndroidHubZPSSection>(suggestion_groups_map_));
-    } else if (is_android_any &&
-               page_classification ==
-                   metrics::OmniboxEventProto::ANDROID_TAB_SEARCH_OVERLAY) {
-      sections.push_back(
-          std::make_unique<AndroidTabSearchZPSSection>(suggestion_groups_map_));
-    } else if (is_android_any &&
-               omnibox::IsAndroidWidget(page_classification)) {
-      sections.push_back(
-          std::make_unique<AndroidWebZpsSection>(suggestion_groups_map_));
-    } else if (is_android_any && omnibox::IsComposebox(page_classification)) {
-    } else if constexpr (is_android_mobile) {
-      if (omnibox::IsNTPPage(page_classification)) {
-        sections.push_back(std::make_unique<AndroidNTPZpsSection>(
-            suggestion_groups_map_, mia_enabled));
-      } else if (omnibox::IsSearchResultsPage(page_classification)) {
-        sections.push_back(
-            std::make_unique<AndroidSRPZpsSection>(suggestion_groups_map_));
-      } else {
-        sections.push_back(
-            std::make_unique<AndroidWebZpsSection>(suggestion_groups_map_));
-      }
-    } else if constexpr (is_desktop) {
+    if constexpr (is_desktop) {
       const size_t contextual_zps_limit =
           can_show_contextual_suggestions && !is_lens_active
               ? omnibox_feature_configs::ContextualSearch::Get()
@@ -731,20 +680,7 @@ void AutocompleteResult::SortAndCull(
     matches_ = Section::GroupMatches(std::move(sections), matches_);
   } else if (use_grouping_for_non_zps) {
     PSections sections;
-    if (is_android_any &&
-        page_classification == metrics::OmniboxEventProto::ANDROID_HUB) {
-      sections.push_back(
-          std::make_unique<AndroidHubNonZPSSection>(suggestion_groups_map_));
-    } else if (is_android_any &&
-               page_classification ==
-                   metrics::OmniboxEventProto::ANDROID_TAB_SEARCH_OVERLAY) {
-      sections.push_back(std::make_unique<AndroidTabSearchNonZPSSection>(
-          suggestion_groups_map_));
-    } else if (is_android_any && omnibox::IsComposebox(page_classification)) {
-    } else if (is_android_any &&
-               omnibox::IsAndroidWidget(page_classification)) {
-    } else if (is_android_mobile) {
-    } else {
+    {
       sections.push_back(
           std::make_unique<DesktopNonZpsSection>(suggestion_groups_map_));
     }
@@ -845,10 +781,7 @@ void AutocompleteResult::TrimOmniboxActions(bool is_zero_suggest) {
                                            OmniboxActionId::CROSS_DEVICE_TAB};
   std::vector<OmniboxActionId> include_pedals_and_others;
   std::vector<OmniboxActionId> exclude_pedals;
-  if constexpr (is_android_any) {
-    include_pedals_and_others.push_back(OmniboxActionId::ACTION_IN_SUGGEST);
-    exclude_pedals.push_back(OmniboxActionId::ACTION_IN_SUGGEST);
-  }
+
   include_pedals_and_others.push_back(OmniboxActionId::PEDAL);
   include_pedals_and_others.push_back(OmniboxActionId::CROSS_DEVICE_TAB);
   exclude_pedals.push_back(OmniboxActionId::CROSS_DEVICE_TAB);
@@ -863,13 +796,6 @@ void AutocompleteResult::TrimOmniboxActions(bool is_zero_suggest) {
       matches_[index].FilterAndSortActionsInSuggest();
     }
 
-    if constexpr (!is_android_any) {
-      continue;
-    }
-    // Android-specific fine-grained filtering of ACTION_IN_SUGGEST.
-    std::erase_if(matches_[index].actions, [index](const auto& action) {
-      return ShouldRemoveActionInSuggest(action, index);
-    });
   }
 }
 
@@ -1129,12 +1055,8 @@ void AutocompleteResult::ConvertOpenTabMatches(
         continue;
       }
       if ((!match.from_keyword ||
-           match.type != omnibox::AutocompleteMatchType::kOpenTab) &&
-          !(client->IsWebUiNtpEnabledForDesktopAndroid() && input &&
-            input->current_page_classification() ==
-                OmniboxEventProto::NTP_REALBOX)) {
-        if constexpr (is_android_any) {
-        } else {
+           match.type != omnibox::AutocompleteMatchType::kOpenTab)) {
+        {
           // The default action for suggestions from the open tab provider in
           // keyword mode is to switch to the open tab so no button is
           // necessary.

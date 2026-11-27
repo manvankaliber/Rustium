@@ -217,8 +217,8 @@ fn test_getsid() {
     assert_eq!(none_sid, pid_sid);
 }
 
-#[cfg(linux_android)]
-mod linux_android {
+#[cfg(linux)]
+mod linux {
     use nix::unistd::gettid;
 
     #[test]
@@ -540,7 +540,7 @@ fn test_lseek() {
     assert_eq!(b"f123456", &buf);
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_lseek64() {
     const CONTENTS: &[u8] = b"abcdef123456";
@@ -555,7 +555,7 @@ fn test_lseek64() {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         macro_rules! require_acct{
             () => {
                 require_capability!("test_acct", CAP_SYS_PACCT);
@@ -638,7 +638,7 @@ fn test_sysconf_unsupported() {
     assert!(open_max.expect("sysconf failed").is_none())
 }
 
-#[cfg(any(linux_android, freebsdlike, target_os = "openbsd"))]
+#[cfg(any(linux, freebsdlike, target_os = "openbsd"))]
 #[test]
 fn test_getresuid() {
     let resuids = getresuid().unwrap();
@@ -647,7 +647,7 @@ fn test_getresuid() {
     assert_ne!(resuids.saved.as_raw(), libc::uid_t::MAX);
 }
 
-#[cfg(any(linux_android, freebsdlike, target_os = "openbsd"))]
+#[cfg(any(linux, freebsdlike, target_os = "openbsd"))]
 #[test]
 fn test_getresgid() {
     let resgids = getresgid().unwrap();
@@ -671,7 +671,7 @@ fn test_pipe() {
 // pipe2(2) is the same as pipe(2), except it allows setting some flags.  Check
 // that we can set a flag.
 #[cfg(any(
-    linux_android,
+    linux,
     freebsdlike,
     solarish,
     netbsdlike,
@@ -1088,7 +1088,7 @@ fn test_user_into_passwd() {
 }
 
 /// Tests setting the filesystem UID with `setfsuid`.
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_setfsuid() {
     use std::os::unix::fs::PermissionsExt;

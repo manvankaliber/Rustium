@@ -312,7 +312,7 @@ fn test_sigwait() {
 
 #[cfg(any(
     bsd,
-    linux_android,
+    linux,
     solarish,
     target_os = "haiku",
     target_os = "hurd",

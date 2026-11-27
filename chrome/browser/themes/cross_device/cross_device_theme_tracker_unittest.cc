@@ -6,7 +6,7 @@
 #include "base/memory/raw_ptr.h"
 #include "base/test/run_until.h"
 #include "chrome/browser/themes/cross_device/cross_device_theme_tracker_test_util.h"
-#include "components/sync/protocol/theme_android_specifics.pb.h"
+#include "components/sync/protocol/theme_mobile_specifics.pb.h"
 #include "components/sync/protocol/theme_ios_specifics.pb.h"
 #include "components/sync/protocol/theme_specifics.pb.h"
 #include "components/themes/cross_device/theme_comparer.h"

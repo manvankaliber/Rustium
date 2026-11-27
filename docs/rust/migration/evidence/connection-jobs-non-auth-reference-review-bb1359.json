@@ -1,0 +1,25 @@
+{
+  "family": "connection-jobs",
+  "source_commit": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "reviewer": {
+    "model": "gpt-6.1-terra",
+    "effort": "xhigh"
+  },
+  "scope": "Non-auth Connection Jobs oracle helper independence, source-only",
+  "disposition": "No accidental delegation of audited Connection Jobs reference policy to production Rust was demonstrated.",
+  "audited_paths": [
+    "net/socket/connection_jobs_rust_original_helpers.h",
+    "net/socket/connection_jobs_upper_rust_original_helpers.h",
+    "net/socket/connect_job_params_factory_rust_original.cc",
+    "net/socket/tcp_connect_job_rust_original.cc",
+    "net/socket/connection_jobs_tcp_factory_rust_original.cc",
+    "net/http/http_proxy_connect_job_rust_original.cc"
+  ],
+  "remaining_boundaries": [
+    "Shared native HostResolver values can reach migrated HostPortPair diagnostics and debug checks.",
+    "TLS and datagram providers remain native. QUIC request and cancellation are not a whole-protocol reference.",
+    "The lower fixture uses endpoint overrides and a mock transport provider. It does not cover actual DNS resolution.",
+    "The upper workload disables Happy Eyeballs v2. QUIC fixture cases cover pending and error paths, with successful session coverage still open.",
+    "Shared native fixtures do not independently qualify all proxy-chain validation."
+  ]
+}

@@ -61,6 +61,9 @@ if (current_os == "") {
   current_os = target_os
 }
 
+assert(target_os != "android" && current_os != "android",
+       "Android target support has been removed from Rustium.")
+
 # =============================================================================
 # BUILD FLAGS
 # =============================================================================

@@ -1,0 +1,35 @@
+{
+  "utc": "2026-11-21T22:45:00.768908+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "pr_head": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "host": "HQC-VAN_KALIBER",
+  "scope": "Runtime-only transport pool regression from existing warm component binary.",
+  "tests": {
+    "discovered": 216,
+    "passed": 216,
+    "failed": 0,
+    "skipped": 0,
+    "disabled_in_selected_suites": 0,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "selected_suites": {
+      "ClientSocketPoolBaseTest": 132,
+      "TransportClientSocketPoolTest": 84
+    }
+  },
+  "artifact_sha256": {
+    "net_unittests.exe": "c25d368c7a23806052d9aa4997a4ef070fa4541d6e201a36ab3300cebf578a38",
+    "net.dll": "1778b8ffdee7fffadf935d642d671a7389498097a2d73cd601d8a5356dadc633"
+  },
+  "identity_checks": "Both main artifacts matched their candidate receipt. 49 listed dependency hashes matched the current preflight and remained stable. 2863 other manifest-listed files were recorded, including PDB size/mtime entries.",
+  "restoration": "Clean detached 72ee5ddd, seven metadata pins, quiet native process inventory, PR head and protected files verified. Independent lock reacquire/release passed.",
+  "receipt_directory": "C:/Users/micro/rb/network-54f6f4-transport-runtime-regression-20261121b",
+  "files": [
+    "result.json",
+    "discovery.log",
+    "run.log",
+    "launcher-summary.json",
+    "independent-release.json"
+  ],
+  "limits": "Bounded Windows runtime feedback with current dependencies. No historically sealed closure, runtime trace, fresh build or full Network family acceptance. One discovery-only attempt matched unrelated WebSocket tests and ran none; the final exact discovery and execution sets matched."
+}

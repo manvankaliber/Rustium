@@ -1,4 +1,3 @@
-load("@build_bazel_rules_android//android:rules.bzl", "android_library")
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load(":build_defs.bzl", "flatbuffer_py_strip_prefix_srcs")
 
@@ -183,12 +182,6 @@ filegroup(
 
 java_library(
     name = "runtime_java",
-    srcs = [":runtime_java_srcs"],
-    visibility = ["//visibility:public"],
-)
-
-android_library(
-    name = "runtime_android",
     srcs = [":runtime_java_srcs"],
     visibility = ["//visibility:public"],
 )

@@ -27,8 +27,6 @@ final class ExtensionRegistryFactory {
     try {
       return Class.forName(FULL_REGISTRY_CLASS_NAME);
     } catch (ClassNotFoundException e) {
-      // The exception allocation is potentially expensive on Android (where it can be triggered
-      // many times at start up). Is there a way to ameliorate this?
       return null;
     }
   }
@@ -48,8 +46,7 @@ final class ExtensionRegistryFactory {
   }
 
   static boolean isFullRegistry(ExtensionRegistryLite registry) {
-    return !Android.assumeLiteRuntime
-        && EXTENSION_REGISTRY_CLASS != null
+    return EXTENSION_REGISTRY_CLASS != null
         && EXTENSION_REGISTRY_CLASS.isAssignableFrom(registry.getClass());
   }
 

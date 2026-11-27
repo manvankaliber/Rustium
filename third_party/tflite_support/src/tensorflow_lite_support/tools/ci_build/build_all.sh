@@ -37,29 +37,9 @@ export BAZEL_PARALLEL="-j 32"
 
 # General targets.
 bazel build -c opt ${BAZEL_PARALLEL} --config=monolithic \
-    //tensorflow_lite_support/codegen/python:codegen \
     //tensorflow_lite_support/custom_ops/kernel:all \
     //tensorflow_lite_support/custom_ops/python:tflite_text_api \
     //tensorflow_lite_support/examples/task/audio/desktop:audio_classifier_demo
-
-# Android targets.
-bazel build -c opt ${BAZEL_PARALLEL} --config=monolithic \
-    --config=android_arm64 --fat_apk_cpu=x86,x86_64,arm64-v8a,armeabi-v7a \
-    --define=xnn_enable_arm_fp16=false \
-    --define=android_dexmerger_tool=d8_dexmerger \
-    --define=android_incremental_dexing_tool=d8_dexbuilder\
-    //tensorflow_lite_support/java:tensorflowlite_support \
-    //tensorflow_lite_support/cc/task/vision:image_embedder \
-    //tensorflow_lite_support/cc/task/vision:image_searcher \
-    //tensorflow_lite_support/cc/task/audio:audio_embedder \
-    //tensorflow_lite_support/cc/task/processor:all \
-    //tensorflow_lite_support/cc/task/text:text_searcher \
-    //tensorflow_lite_support/odml/java/image \
-    //tensorflow_lite_support/java/src/java/org/tensorflow/lite/task/core:base-task-api.aar \
-    //tensorflow_lite_support/java/src/java/org/tensorflow/lite/task/text:task-library-text \
-    //tensorflow_lite_support/java/src/java/org/tensorflow/lite/task/vision:task-library-vision \
-    //tensorflow_lite_support/java/src/java/org/tensorflow/lite/task/audio:task-library-audio \
-    //tensorflow_lite_support/acceleration/configuration:gpu-delegate-plugin
 
 # Pip package
 bazel build -c opt ${BAZEL_PARALLEL} \
@@ -79,9 +59,3 @@ bazel test -c opt $BAZEL_PARALLEL --test_output=all \
     //tensorflow_lite_support/metadata/python/tests/metadata_writers:all \
     //tensorflow_lite_support/python/test/task/... \
     //tensorflow_lite_support/scann_ondevice/cc/...
-
-bazel test -c opt $BAZEL_PARALLEL --test_output=all --build_tests_only \
-    --build_tag_filters=-tflite_emulator_test_android \
-    --test_tag_filters=-tflite_emulator_test_android \
-    //tensorflow_lite_support/java/src/javatests/org/tensorflow/lite/support/...
-

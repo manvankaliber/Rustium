@@ -127,8 +127,8 @@ class NET_EXPORT CookieBase {
   // collect metrics for a potential change to the cookie spec.
   int SourcePort() const { return source_port_; }
 
-  bool IsDomainCookie() const { return !domain_.empty() && domain_[0] == '.'; }
-  bool IsHostCookie() const { return !IsDomainCookie(); }
+  bool IsDomainCookie() const;
+  bool IsHostCookie() const;
 
   // Returns the cookie's domain, with the leading dot removed, if present.
   // This corresponds to the "cookie's domain" as described in RFC 6265bis.
@@ -222,6 +222,7 @@ class NET_EXPORT CookieBase {
   static int ValidateAndAdjustSourcePort(int port);
 
  private:
+  friend struct CookieFamilyNativeAccess;
   // Allows subclasses to add custom logic for e.g. logging metrics. Called
   // after inclusion has been determined for the respective access.
   virtual void PostIncludeForRequestURL(

@@ -1,79 +1,62 @@
 // Copyright 2010 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
 #include "net/base/host_mapping_rules.h"
 
-#include <string>
-
+#include "base/compiler_specific.h"
 #include "base/logging.h"
-#include "base/strings/pattern.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/string_split.h"
-#include "base/strings/string_tokenizer.h"
-#include "base/strings/string_util.h"
+#include "net/base/host_mapping_rust_ffi.rs.h"
 #include "net/base/host_port_pair.h"
-#include "net/base/url_util.h"
 #include "url/gurl.h"
 #include "url/third_party/mozilla/url_parse.h"
 #include "url/url_canon.h"
-
 namespace net {
-
-struct HostMappingRules::MapRule {
-  MapRule() = default;
-
-  std::string hostname_pattern;
-  std::string replacement_hostname;
-  int replacement_port = -1;
-};
-
-struct HostMappingRules::ExclusionRule {
-  std::string hostname_pattern;
-};
-
-HostMappingRules::HostMappingRules() = default;
-
-HostMappingRules::HostMappingRules(const HostMappingRules& host_mapping_rules) =
-    default;
-
-HostMappingRules::~HostMappingRules() = default;
-
-HostMappingRules& HostMappingRules::operator=(
-    const HostMappingRules& host_mapping_rules) = default;
-
-bool HostMappingRules::RewriteHost(HostPortPair* host_port) const {
-  // Check if the hostname was remapped.
-  for (const auto& map_rule : map_rules_) {
-    // The rule's hostname_pattern will be something like:
-    //     www.foo.com
-    //     *.foo.com
-    //     www.foo.com:1234
-    //     *.foo.com:1234
-    // First, we'll check for a match just on hostname.
-    // If that fails, we'll check for a match with both hostname and port.
-    if (!base::MatchPattern(host_port->host(), map_rule.hostname_pattern)) {
-      std::string host_port_string = host_port->ToString();
-      if (!base::MatchPattern(host_port_string, map_rule.hostname_pattern))
-        continue;  // This rule doesn't apply.
-    }
-
-    // Check if the hostname was excluded.
-    for (const auto& exclusion_rule : exclusion_rules_) {
-      if (base::MatchPattern(host_port->host(),
-                             exclusion_rule.hostname_pattern))
-        return false;
-    }
-
-    host_port->set_host(map_rule.replacement_hostname);
-    if (map_rule.replacement_port != -1)
-      host_port->set_port(static_cast<uint16_t>(map_rule.replacement_port));
-    return true;
-  }
-
-  return false;
+namespace {
+rust::Slice<const uint8_t> Bytes(std::string_view input) {
+  // SAFETY: CXX borrows initialized input only for the synchronous call. Empty
+  // views may have null data; do not pass that pointer through the bridge.
+  return input.empty() ? rust::Slice<const uint8_t>()
+                       : UNSAFE_BUFFERS(rust::Slice<const uint8_t>(
+                             reinterpret_cast<const uint8_t*>(input.data()),
+                             input.size()));
 }
-
+std::string_view View(const rust::Vec<uint8_t>& input) {
+  // SAFETY: The owned CXX vector stays live through the C++ string assignment.
+  return input.empty()
+             ? std::string_view()
+             : UNSAFE_BUFFERS(std::string_view(
+                   reinterpret_cast<const char*>(input.data()), input.size()));
+}
+}  // namespace
+struct HostMappingRules::Impl {
+  rust::Box<host_mapping_rust::Rules> rules = host_mapping_rust::new_rules();
+  Impl() = default;
+  explicit Impl(const Impl& other)
+      : rules(host_mapping_rust::clone_rules(*other.rules)) {}
+};
+HostMappingRules::HostMappingRules() : impl_(std::make_unique<Impl>()) {}
+HostMappingRules::HostMappingRules(const HostMappingRules& other)
+    : impl_(std::make_unique<Impl>(*other.impl_)) {}
+HostMappingRules::~HostMappingRules() = default;
+HostMappingRules& HostMappingRules::operator=(const HostMappingRules& other) {
+  if (this != &other) {
+    impl_ = std::make_unique<Impl>(*other.impl_);
+  }
+  return *this;
+}
+bool HostMappingRules::RewriteHost(HostPortPair* pair) const {
+  // Input borrows end before mutation. Rust returns independently owned bytes,
+  // so a host view passed to AddRuleFromString may alias this same pair safely.
+  auto result = host_mapping_rust::rewrite(*impl_->rules, Bytes(pair->host()),
+                                           pair->port());
+  if (!result.matched) {
+    return false;
+  }
+  pair->set_host(View(result.host));
+  pair->set_port(result.port);
+  return true;
+}
 HostMappingRules::RewriteResult HostMappingRules::RewriteUrl(GURL& url) const {
   // Must be a valid and standard URL. Otherwise, Chrome might not know how to
   // find/replace the contained host or port.
@@ -81,19 +64,23 @@ HostMappingRules::RewriteResult HostMappingRules::RewriteUrl(GURL& url) const {
   DCHECK(url.IsStandard());
   DCHECK(url.has_host());
 
-  HostPortPair host_port_pair = HostPortPair::FromURL(url);
-  if (!RewriteHost(&host_port_pair))
+  HostPortPair host_port_pair(url.HostNoBracketsPiece(),
+                              static_cast<uint16_t>(url.EffectiveIntPort()));
+  if (!RewriteHost(&host_port_pair)) {
     return RewriteResult::kNoMatchingRule;
+  }
 
   GURL::Replacements replacements;
   std::string port_str = base::NumberToString(host_port_pair.port());
   replacements.SetPortStr(port_str);
-  std::string host_str = host_port_pair.HostForURL();
-  replacements.SetHostStr(host_str);
+  const auto host =
+      host_mapping_rust::format_url_host(Bytes(host_port_pair.host()));
+  replacements.SetHostStr(View(host));
   GURL new_url = url.ReplaceComponents(replacements);
 
-  if (!new_url.is_valid())
+  if (!new_url.is_valid()) {
     return RewriteResult::kInvalidRewrite;
+  }
 
   DCHECK(new_url.IsStandard());
   DCHECK(new_url.has_host());
@@ -104,47 +91,13 @@ HostMappingRules::RewriteResult HostMappingRules::RewriteUrl(GURL& url) const {
   return RewriteResult::kRewritten;
 }
 
-bool HostMappingRules::AddRuleFromString(std::string_view rule_string) {
-  std::vector<std::string_view> parts = base::SplitStringPiece(
-      base::TrimWhitespaceASCII(rule_string, base::TRIM_ALL), " ",
-      base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
-
-  // Test for EXCLUSION rule.
-  if (parts.size() == 2 &&
-      base::EqualsCaseInsensitiveASCII(parts[0], "exclude")) {
-    ExclusionRule rule;
-    rule.hostname_pattern = base::ToLowerASCII(parts[1]);
-    exclusion_rules_.push_back(rule);
-    return true;
-  }
-
-  // Test for MAP rule.
-  if (parts.size() == 3 && base::EqualsCaseInsensitiveASCII(parts[0], "map")) {
-    MapRule rule;
-    rule.hostname_pattern = base::ToLowerASCII(parts[1]);
-
-    if (!ParseHostAndPort(parts[2], &rule.replacement_hostname,
-                          &rule.replacement_port)) {
-      return false;  // Failed parsing the hostname/port.
-    }
-
-    map_rules_.push_back(rule);
-    return true;
-  }
-
-  return false;
+bool HostMappingRules::AddRuleFromString(std::string_view input) {
+  return host_mapping_rust::add(*impl_->rules, Bytes(input));
 }
-
-void HostMappingRules::SetRulesFromString(std::string_view rules_string) {
-  exclusion_rules_.clear();
-  map_rules_.clear();
-
-  std::vector<std::string_view> rules = base::SplitStringPiece(
-      rules_string, ",", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
-  for (std::string_view rule : rules) {
-    bool ok = AddRuleFromString(rule);
-    LOG_IF(ERROR, !ok) << "Failed parsing rule: " << rule;
+void HostMappingRules::SetRulesFromString(std::string_view input) {
+  const auto invalid = host_mapping_rust::set(*impl_->rules, Bytes(input));
+  for (const auto& rule : invalid) {
+    LOG(ERROR) << "Failed parsing rule: " << input.substr(rule.begin, rule.len);
   }
 }
-
 }  // namespace net

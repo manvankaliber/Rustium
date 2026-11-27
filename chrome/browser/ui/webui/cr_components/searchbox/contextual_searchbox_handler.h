@@ -59,10 +59,6 @@ class ContextualSearchboxTabFaviconHelper;
 class DrivePickerHostController;
 class OmniboxPopupDeactivationBlocker;
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-class ComposeboxDriveSignInPromoController;
-#endif
-
 namespace content {
 class NavigationHandle;
 }
@@ -617,12 +613,6 @@ class ContextualSearchboxHandler
   // Keeps the AIM popup open while the Google Drive picker is active.
   std::unique_ptr<OmniboxPopupDeactivationBlocker>
       drive_picker_deactivation_blocker_;
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  std::unique_ptr<ComposeboxDriveSignInPromoController>
-      composebox_drive_signin_promo_controller_;
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
-
 
   std::unique_ptr<ContextualSearchboxScreenshareController>
       screenshare_controller_;

@@ -9,7 +9,7 @@ import("sources.gni")
 
 declare_args() {
   # Overrides the platform data directory used by //third_party/rust/icu4x_data
-  # (e.g. "common", "chromeos", "android", "ios", "cast", "chromecast_video",
+  # (e.g. "common", "chromeos", "ios", "cast", "chromecast_video",
   # "flutter", "flutter_desktop"). When empty, mirrors
   # //third_party/icu/BUILD.gn. Allows downstream builds like
   # `cast`/`flutter_desktop`/`chromecast_video` to select data, and helps for
@@ -25,9 +25,7 @@ if (icu4x_override_data_dir != "") {
   _icu4x_data_platform = "common"
 }
 
-if (_icu4x_data_platform == "android") {
-  _icu4x_data_inputs = icu4x_data_android_inputs
-} else if (_icu4x_data_platform == "ios") {
+if (_icu4x_data_platform == "ios") {
   _icu4x_data_inputs = icu4x_data_ios_inputs
 } else if (_icu4x_data_platform == "chromeos") {
   _icu4x_data_inputs = icu4x_data_chromeos_inputs

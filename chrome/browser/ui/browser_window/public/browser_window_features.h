@@ -175,10 +175,7 @@ class ExtensionSidePanelManager;
 
   // namespace glic
 
-namespace lens {
-
-
-}  // namespace lens
+namespace lens {}  // namespace lens
 
 namespace media_router {
 class CastBrowserController;
@@ -193,7 +190,6 @@ class NewTabFooterController;
 }  // namespace new_tab_footer
 
 namespace omnibox {
-class AiModePageActionController;
 class OmniboxPopupCloser;
 }  // namespace omnibox
 
@@ -213,9 +209,7 @@ namespace sharing_hub {
 class SharingHubWindowController;
 }  // namespace sharing_hub
 
-namespace skills {
-
-}  // namespace skills
+namespace skills {}  // namespace skills
 
 namespace split_tabs {
 class SplitTabHighlightController;
@@ -337,8 +331,6 @@ class BrowserWindowFeatures {
   //   extension_window_controller_ depends on tab_list_bridge_.
   std::unique_ptr<TabListBridge> tab_list_bridge_;
 
-  std::unique_ptr<contextual_tasks::ContextualTasksBrowserController>
-      contextual_tasks_browser_controller_;
   std::unique_ptr<CookieControlsBubbleCoordinator>
       cookie_controls_bubble_coordinator_;
   std::unique_ptr<content_settings::CookieControlsController>
@@ -447,8 +439,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<ZoomBubbleCoordinator> zoom_bubble_coordinator_;
 
   // Members owned only when a BrowserView is attached.
-  std::unique_ptr<omnibox::AiModePageActionController>
-      ai_mode_page_action_controller_;
   std::unique_ptr<media_router::CastBrowserController> cast_browser_controller_;
   std::unique_ptr<ColorProviderBrowserHelper> color_provider_browser_helper_;
   std::unique_ptr<ContentsBorderController> contents_border_controller_;

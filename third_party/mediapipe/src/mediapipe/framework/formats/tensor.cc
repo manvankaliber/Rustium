@@ -354,25 +354,15 @@ Tensor::OpenGlBufferView Tensor::GetOpenGlBufferReadView() const {
   auto lock(std::make_unique<absl::MutexLock>(&view_mutex_));
   AllocateOpenGlBuffer();
   if (!(valid_ & kValidOpenGlBuffer)) {
-    // If the call succeeds then AHWB -> SSBO are synchronized so any usage of
-    // the SSBO is correct after this call.
-    if (!InsertAhwbToSsboFence()) {
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, opengl_buffer_);
-      void* ptr =
-          glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, bytes(),
-                           GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT);
-      ABSL_CHECK(ptr) << "glMapBufferRange failed: " << glGetError();
-      CpuBufferHandle<const void> cpu_buffer_handle = AcquireCpuBufferHandle();
-      std::memcpy(ptr, cpu_buffer_handle.buffer<const void>(), bytes());
-      glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-      if (prefer_ahwb_) {
-        // Next time Tensor is written, AHWB will be used.
-        MarkAhwbUsage();
-      }
-    }
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, opengl_buffer_);
+    void* ptr =
+        glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, bytes(),
+                         GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT);
+    ABSL_CHECK(ptr) << "glMapBufferRange failed: " << glGetError();
+    CpuBufferHandle<const void> cpu_buffer_handle = AcquireCpuBufferHandle();
+    std::memcpy(ptr, cpu_buffer_handle.buffer<const void>(), bytes());
+    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     valid_ |= kValidOpenGlBuffer;
-  } else {
   }
 
   return {/*is_write_view=*/false, opengl_buffer_, std::move(lock),
@@ -383,7 +373,6 @@ Tensor::OpenGlBufferView Tensor::GetOpenGlBufferReadView() const {
 Tensor::OpenGlBufferView Tensor::GetOpenGlBufferWriteView(
     uint64_t source_location_hash) const {
   auto lock(std::make_unique<absl::MutexLock>(&view_mutex_));
-  TrackAhwbUsage(source_location_hash);
   if ((valid_ & kValidOpenGlBuffer) && gl_context_ != nullptr &&
       !gl_context_->IsCurrent() && GlContext::IsAnyContextCurrent()) {
     ABSL_LOG_FIRST_N(WARNING, 1)
@@ -412,12 +401,10 @@ void Tensor::AllocateOpenGlBuffer() const {
       gl_context_ = mediapipe::GlContext::GetCurrent();
     }
     ABSL_LOG_IF(FATAL, !gl_context_) << "GlContext is not bound to the thread.";
-    if (!use_ahwb_ || !AllocateAhwbMapToSsbo()) {
-      glGenBuffers(1, &opengl_buffer_);
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, opengl_buffer_);
-      glBufferData(GL_SHADER_STORAGE_BUFFER, bytes(), NULL, GL_STREAM_COPY);
-      glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    }
+    glGenBuffers(1, &opengl_buffer_);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, opengl_buffer_);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, bytes(), NULL, GL_STREAM_COPY);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
   }
 }
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_31
@@ -442,9 +429,7 @@ void Tensor::Move(Tensor* src) {
   element_type_ = src->element_type();
   src->element_type_ = ElementType::kNone;  // Mark as invalidated.
   cpu_buffer_ = std::exchange(src->cpu_buffer_, nullptr);
-  ahwb_tracking_key_ = src->ahwb_tracking_key_;
   mtl_resources_ = std::move(src->mtl_resources_);
-  MoveAhwbStuff(src);
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   gl_context_ = std::move(src->gl_context_);
@@ -536,7 +521,6 @@ absl::Status Tensor::Invalidate() {
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   {
     absl::MutexLock lock(view_mutex_);
-    ABSL_RETURN_IF_ERROR(ReleaseAhwbStuff());
 
     // Don't need to wait for the resource to be deleted because if will be
     // released on last reference deletion inside the OpenGL driver.
@@ -604,10 +588,6 @@ absl::Status Tensor::ReadBackGpuToCpu() const {
       glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
     });
 
-    if (prefer_ahwb_) {
-      // Next time Tensor is written, AHWB will be used.
-      MarkAhwbUsage();
-    }
     return absl::OkStatus();
   }
 #endif  // MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_31
@@ -711,7 +691,6 @@ Tensor::CpuReadView Tensor::GetCpuReadView() const {
 Tensor::CpuWriteView Tensor::GetCpuWriteView(
     uint64_t source_location_hash) const {
   auto lock = std::make_unique<absl::MutexLock>(&view_mutex_);
-  TrackAhwbUsage(source_location_hash);
   ABSL_CHECK_OK(AllocateCpuBuffer()) << "AllocateCpuBuffer failed.";
   if (valid_ != 0) {
     ABSL_LOG_FIRST_N(ERROR, 1)

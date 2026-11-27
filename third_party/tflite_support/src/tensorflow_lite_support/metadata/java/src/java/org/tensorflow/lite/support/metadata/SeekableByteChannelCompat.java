@@ -24,7 +24,7 @@ import java.nio.channels.Channel;
  * {@link SeekableByteChannelCompat} is compatible with {@link
  * java.nio.channels.SeekableByteChannel}.
  *
- * <p>{@link java.nio.channels.SeekableByteChannel} is not available in Android API 23 and under.
+ * <p>This interface provides the seekable-channel operations used by the metadata reader.
  * Therefore, {@link SeekableByteChannelCompat} is introduced here to make the interfaces used in
  * the MetadtaExtractor library consistent with the common used Java libraries.
  */

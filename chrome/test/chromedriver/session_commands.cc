@@ -34,7 +34,6 @@
 #include "chrome/test/chromedriver/chrome/chrome.h"
 #include "chrome/test/chromedriver/chrome/chrome_desktop_impl.h"
 #include "chrome/test/chromedriver/chrome/chrome_impl.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
 #include "chrome/test/chromedriver/chrome/devtools_client_impl.h"
 #include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
 #include "chrome/test/chromedriver/chrome/geoposition.h"
@@ -103,12 +102,11 @@ void SetSerializedTimeout(base::DictValue& timeouts,
 InitSessionParams::InitSessionParams(
     network::mojom::URLLoaderFactory* factory,
     const SyncWebSocketFactory& socket_factory,
-    DeviceManager* device_manager,
+
     const scoped_refptr<base::SingleThreadTaskRunner> cmd_task_runner,
     TerminateSessionCallback terminate_on_cmd)
     : url_loader_factory(factory),
       socket_factory(socket_factory),
-      device_manager(device_manager),
       cmd_task_runner(cmd_task_runner),
       terminate_on_cmd(terminate_on_cmd) {}
 
@@ -199,7 +197,7 @@ base::DictValue CreateCapabilities(Session* session,
     caps.Set("proxy", proxy->Clone());
 
   // add setWindowRect based on whether we are desktop/android/remote
-  if (capabilities.IsAndroid() || capabilities.IsRemoteBrowser()) {
+  if (capabilities.IsRemoteBrowser()) {
     caps.Set("setWindowRect", false);
   } else {
     caps.Set("setWindowRect", true);
@@ -216,12 +214,12 @@ base::DictValue CreateCapabilities(Session* session,
 
   // Extensions defined by the W3C.
   // See https://w3c.github.io/webauthn/#sctn-automation-webdriver-capability
-  caps.Set("webauthn:virtualAuthenticators", !capabilities.IsAndroid());
-  caps.Set("webauthn:extension:largeBlob", !capabilities.IsAndroid());
-  caps.Set("webauthn:extension:minPinLength", !capabilities.IsAndroid());
-  caps.Set("webauthn:extension:credBlob", !capabilities.IsAndroid());
-  caps.Set("webauthn:extension:prf", !capabilities.IsAndroid());
-  caps.Set("webauthn:extension:cmtgKey", !capabilities.IsAndroid());
+  caps.Set("webauthn:virtualAuthenticators", true);
+  caps.Set("webauthn:extension:largeBlob", true);
+  caps.Set("webauthn:extension:minPinLength", true);
+  caps.Set("webauthn:extension:credBlob", true);
+  caps.Set("webauthn:extension:prf", true);
+  caps.Set("webauthn:extension:cmtgKey", true);
 
   // See https://github.com/fedidcg/FedCM/pull/478
   caps.Set("fedcm:accounts", true);
@@ -301,9 +299,7 @@ Status InitSessionHelper(const InitSessionParams& bound_params,
   session->terminate_on_cmd = base::BindPostTask(
       session->cmd_task_runner,
       base::BindOnce(bound_params.terminate_on_cmd, session->id), FROM_HERE);
-  if (!bound_params.device_manager) {
-    return Status{kSessionNotCreated, "device manager cannot be null"};
-  }
+
 
   const base::DictValue* desired_caps;
   base::DictValue merged_caps;
@@ -341,7 +337,7 @@ Status InitSessionHelper(const InitSessionParams& bound_params,
 
   status = LaunchChrome(
       bound_params.url_loader_factory, bound_params.socket_factory,
-      *bound_params.device_manager, capabilities,
+      capabilities,
       std::move(devtools_event_listeners),
       base::BindRepeating(&Session::HandleMessagesAndTerminateIfNecessary),
       session->w3c_compliant, session->chrome);
@@ -599,9 +595,10 @@ bool MatchCapabilities(const base::DictValue& capabilities) {
   const base::DictValue* chrome_options;
   const bool has_chrome_options =
       GetChromeOptionsDictionary(capabilities, &chrome_options);
+  if (has_chrome_options && chrome_options->contains("androidPackage")) {
+    return false;
+  }
 
-  bool is_android = has_chrome_options &&
-                    chrome_options->FindString("androidPackage") != nullptr;
 
   const base::Value* platform_name_value = capabilities.Find("platformName");
   if (platform_name_value && !platform_name_value->is_none()) {
@@ -619,14 +616,11 @@ bool MatchCapabilities(const base::DictValue& capabilities) {
 
     bool is_remote = has_chrome_options &&
                      chrome_options->FindString("debuggerAddress") != nullptr;
-    if (requested_platform_name == "any" || is_remote ||
-        (is_android && requested_platform_name == "android")) {
+    if (requested_platform_name == "any" || is_remote) {
       // "any" can be used as a wild card for platformName.
       // if |is_remote| there is no easy way to know
-      // target platform. Android check also occurs here.
+      // target platform.
       // If any of the above cases pass, we return true.
-    } else if (is_android && requested_platform_name != "android") {
-      return false;
     } else if (requested_first_token == "mac" ||
                requested_first_token == "windows" ||
                requested_first_token == "linux") {
@@ -640,8 +634,7 @@ bool MatchCapabilities(const base::DictValue& capabilities) {
   const base::Value* virtual_authenticators_value =
       capabilities.Find("webauthn:virtualAuthenticators");
   if (virtual_authenticators_value) {
-    if (!virtual_authenticators_value->is_bool() ||
-        (virtual_authenticators_value->GetBool() && is_android)) {
+    if (!virtual_authenticators_value->is_bool()) {
       return false;
     }
   }
@@ -649,8 +642,7 @@ bool MatchCapabilities(const base::DictValue& capabilities) {
   const base::Value* large_blob_value =
       capabilities.Find("webauthn:extension:largeBlob");
   if (large_blob_value) {
-    if (!large_blob_value->is_bool() ||
-        (large_blob_value->GetBool() && is_android)) {
+    if (!large_blob_value->is_bool()) {
       return false;
     }
   }

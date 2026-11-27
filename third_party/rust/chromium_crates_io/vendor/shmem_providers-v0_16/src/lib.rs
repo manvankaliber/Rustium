@@ -161,7 +161,7 @@ impl ShMemDescription {
 ///
 /// An id associated with a given shared memory mapping ([`ShMem`]), which can be used to
 /// establish shared-mappings between processes.
-/// Id is a file descriptor if you use `MmapShMem` or `AshmemShMem`.
+/// Id is a file descriptor if you use `MmapShMem`.
 /// That means you have to use shmem server to access to the shmem segment from other processes in these cases.
 /// On the other hand, id is a unique identifier if you use `CommonUnixShMem` or `Win32ShMem`.
 /// In these two cases, you can use shmat(id) or `OpenFileMappingA`(id) to gain access to the shmem
@@ -697,10 +697,6 @@ impl<SP> RcShMemProvider<ServedShMemProvider<SP>> {
 }
 
 /// A Unix sharedmem implementation.
-///
-/// On Android, this is partially reused to wrap `AshmemShMem`,
-/// Although for an [`ServedShMemProvider`] using a unix domain socket
-/// Is needed on top.
 #[cfg(all(unix, feature = "std", not(target_os = "haiku")))]
 pub mod unix_shmem {
     /// Mmap [`ShMem`] for Unix
@@ -709,10 +705,6 @@ pub mod unix_shmem {
 
     #[cfg(doc)]
     use crate::ShMem;
-
-    /// Shared memory provider for Android, allocating and forwarding maps over unix domain sockets.
-
-    /// Shared memory for Android
 
     /// Shared memory Provider for Unix
 
@@ -1258,224 +1250,7 @@ pub mod unix_shmem {
         }
     }
 
-    /// Module containing `ashmem` shared memory support, commonly used on Android.
-    #[cfg(all(target_os = "linux", feature = "std"))]
-    pub mod ashmem {
-        use alloc::{ffi::CString, string::ToString};
-        use core::{
-            ops::{Deref, DerefMut},
-            ptr, slice,
-        };
-
-        use libc::{
-            MAP_SHARED, O_RDWR, PROT_READ, PROT_WRITE, c_uint, c_ulong, c_void, close, ioctl, mmap,
-            open,
-        };
-
-        use crate::{Error, ShMem, ShMemId, ShMemProvider};
-
-        /// An ashmem based impl for linux/android
-        #[derive(Debug)]
-        pub struct AshmemShMem {
-            id: ShMemId,
-            map: *mut u8,
-            map_size: usize,
-        }
-
-        unsafe impl Send for AshmemShMem {}
-
-        #[allow(non_camel_case_types)] // expect somehow breaks here
-        #[derive(Copy, Clone)]
-        #[repr(C)]
-        struct ashmem_pin {
-            pub offset: c_uint,
-            pub len: c_uint,
-        }
-
-        const ASHMEM_GET_SIZE: c_ulong = 0x00007704;
-        const ASHMEM_UNPIN: c_ulong = 0x40087708;
-        //const ASHMEM_SET_NAME: c_long = 0x41007701;
-        const ASHMEM_SET_SIZE: c_ulong = 0x40087703;
-
-        impl AshmemShMem {
-            /// Create a new shared memory mapping, using shmget/shmat
-            pub fn new(map_size: usize) -> Result<Self, Error> {
-                unsafe {
-                    let device_path = CString::new(
-                        if let Ok(boot_id) =
-                            std::fs::read_to_string("/proc/sys/kernel/random/boot_id")
-                        {
-                            let path_str = format!("/dev/ashmem{boot_id}").trim().to_string();
-                            if std::path::Path::new(&path_str).exists() {
-                                path_str
-                            } else {
-                                "/dev/ashmem".to_string()
-                            }
-                        } else {
-                            "/dev/ashmem".to_string()
-                        },
-                    )
-                    .unwrap();
-
-                    let fd = open(device_path.as_ptr(), O_RDWR);
-                    if fd == -1 {
-                        return Err(Error::unknown(format!(
-                            "Failed to open the ashmem device at {device_path:?}"
-                        )));
-                    }
-
-                    //if ioctl(fd, ASHMEM_SET_NAME, name) != 0 {
-                    //close(fd);
-                    //return Err(Error::unknown("Failed to set the ashmem mapping's name".to_string()));
-                    //};
-
-                    #[allow(trivial_numeric_casts)]
-                    if ioctl(fd, ASHMEM_SET_SIZE as _, map_size) != 0 {
-                        close(fd);
-                        return Err(Error::unknown(
-                            "Failed to set the ashmem mapping's size".to_string(),
-                        ));
-                    }
-
-                    let map = mmap(
-                        ptr::null_mut(),
-                        map_size,
-                        PROT_READ | PROT_WRITE,
-                        MAP_SHARED,
-                        fd,
-                        0,
-                    );
-                    if ptr::addr_eq(map, usize::MAX as *mut c_void) {
-                        close(fd);
-                        return Err(Error::unknown(
-                            "Failed to map the ashmem mapping".to_string(),
-                        ));
-                    }
-
-                    Ok(Self {
-                        id: ShMemId::from_string(&format!("{fd}")),
-                        map: map as *mut u8,
-                        map_size,
-                    })
-                }
-            }
-
-            /// Get a [`crate::unix_shmem::UnixShMem`] of the existing [`ShMem`] mapping identified by id.
-            pub fn shmem_from_id_and_size(id: ShMemId, map_size: usize) -> Result<Self, Error> {
-                unsafe {
-                    let fd: i32 = id.to_string().parse().unwrap();
-                    #[allow(trivial_numeric_casts)]
-                    #[expect(clippy::cast_sign_loss)]
-                    if ioctl(fd, ASHMEM_GET_SIZE as _) as u32 as usize != map_size {
-                        return Err(Error::unknown(
-                            "The mapping's size differs from the requested size".to_string(),
-                        ));
-                    }
-
-                    let map = mmap(
-                        ptr::null_mut(),
-                        map_size,
-                        PROT_READ | PROT_WRITE,
-                        MAP_SHARED,
-                        fd,
-                        0,
-                    );
-                    if ptr::addr_eq(map, usize::MAX as *mut c_void) {
-                        close(fd);
-                        return Err(Error::unknown(
-                            "Failed to map the ashmem mapping".to_string(),
-                        ));
-                    }
-
-                    Ok(Self {
-                        id,
-                        map: map as *mut u8,
-                        map_size,
-                    })
-                }
-            }
-        }
-
-        // # Safety
-        // `AshmemShMem` is backed by Android ashmem `mmap`, which returns page-aligned memory addresses (4096-byte aligned).
-        unsafe impl ShMem for AshmemShMem {
-            fn id(&self) -> ShMemId {
-                self.id
-            }
-        }
-
-        impl Deref for AshmemShMem {
-            type Target = [u8];
-
-            fn deref(&self) -> &[u8] {
-                unsafe { slice::from_raw_parts(self.map, self.map_size) }
-            }
-        }
-
-        impl DerefMut for AshmemShMem {
-            fn deref_mut(&mut self) -> &mut [u8] {
-                unsafe { slice::from_raw_parts_mut(self.map, self.map_size) }
-            }
-        }
-
-        /// [`Drop`] implementation for [`AshmemShMem`], which cleans up the mapping.
-        impl Drop for AshmemShMem {
-            #[allow(trivial_numeric_casts)]
-            fn drop(&mut self) {
-                unsafe {
-                    let fd: i32 = self.id.to_string().parse().unwrap();
-
-                    #[allow(trivial_numeric_casts)]
-                    #[expect(clippy::cast_sign_loss)]
-                    let length = ioctl(fd, ASHMEM_GET_SIZE as _) as u32;
-
-                    let ap = ashmem_pin {
-                        offset: 0,
-                        len: length,
-                    };
-
-                    ioctl(fd, ASHMEM_UNPIN as _, &ap);
-                    close(fd);
-                }
-            }
-        }
-
-        /// A [`ShMemProvider`] which uses ashmem to provide shared memory mappings.
-        #[derive(Debug, Clone)]
-        pub struct AshmemShMemProvider {}
-
-        unsafe impl Send for AshmemShMemProvider {}
-
-        impl Default for AshmemShMemProvider {
-            fn default() -> Self {
-                Self::new().unwrap()
-            }
-        }
-
-        /// Implement [`ShMemProvider`] for [`AshmemShMemProvider`], for the Android `ShMem`.
-        impl ShMemProvider for AshmemShMemProvider {
-            type ShMem = AshmemShMem;
-
-            fn new() -> Result<Self, Error> {
-                Ok(Self {})
-            }
-
-            fn new_shmem(&mut self, map_size: usize) -> Result<Self::ShMem, Error> {
-                let mapping = AshmemShMem::new(map_size)?;
-                Ok(mapping)
-            }
-
-            fn shmem_from_id_and_size(
-                &mut self,
-                id: ShMemId,
-                size: usize,
-            ) -> Result<Self::ShMem, Error> {
-                AshmemShMem::shmem_from_id_and_size(id, size)
-            }
-        }
-    }
-
-    /// Module containing `memfd` shared memory support, usable on Linux and Android.
+    /// Module containing `memfd` shared memory support, usable on Linux and FreeBSD.
     #[cfg(all(unix, feature = "std", any(target_os = "linux", target_os = "freebsd")))]
     pub mod memfd {
         use alloc::{ffi::CString, string::ToString};
@@ -1490,7 +1265,7 @@ pub mod unix_shmem {
 
         use crate::{Error, ShMem, ShMemId, ShMemProvider};
 
-        /// An memfd based impl for linux/android
+        /// A memfd based impl for Linux and FreeBSD
         #[cfg(unix)]
         #[derive(Debug)]
         pub struct MemfdShMem {

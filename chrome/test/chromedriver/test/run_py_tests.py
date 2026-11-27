@@ -215,7 +215,6 @@ _DESKTOP_NEGATIVE_FILTER = [
   'ChromeDriverTestLegacy.testTouchDoubleTapElement',
   'ChromeDriverTestLegacy.testTouchLongPressElement',
   'ChromeDriverTest.testTouchFlickElement',
-  'ChromeDriverAndroidTest.*',
 ]
 
 _INTEGRATION_NEGATIVE_FILTER = [

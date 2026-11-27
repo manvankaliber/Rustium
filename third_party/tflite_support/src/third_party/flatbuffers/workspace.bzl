@@ -2,9 +2,7 @@
 
 load("//third_party:repo.bzl", "third_party_http_archive")
 
-# _FLATBUFFERS_GIT_COMMIT / _FLATBUFFERS_SHA256 were added due to an urgent change being made to
-# Flatbuffers that needed to be updated in order for Flatbuffers/TfLite be compatible with Android
-# API level >= 23. They can be removed next flatbuffers offical release / update.
+# Pinned FlatBuffers source revision and archive checksum.
 _FLATBUFFERS_GIT_COMMIT = "7d6d99c6befa635780a4e944d37ebfd58e68a108"
 
 # curl -L https://github.com/google/flatbuffers/archive/<_FLATBUFFERS_GIT_COMMIT>.tar.gz | shasum -a 256

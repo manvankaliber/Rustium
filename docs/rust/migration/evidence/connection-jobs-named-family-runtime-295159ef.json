@@ -1,0 +1,61 @@
+{
+  "utc": "2026-11-22T00:44:04.723304+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_and_pr_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "configuration": "Existing warm ordinary Windows x64 component",
+  "host": "HQC-VAN_KALIBER",
+  "build": {
+    "status": "passed",
+    "interval_utc": [
+      "2026-11-22T00:37:39Z",
+      "2026-11-22T00:40:35Z"
+    ],
+    "regeneration": true,
+    "post_regeneration_actions": 68,
+    "ninja_jobs": 4,
+    "link_pool_depth": 1,
+    "link_actions": 14,
+    "link_intervals_overlap": false
+  },
+  "tests": {
+    "status": "passed",
+    "interval_utc": [
+      "2026-11-22T00:40:48Z",
+      "2026-11-22T00:41:03Z"
+    ],
+    "discovered": 2604,
+    "passed": 2570,
+    "skipped": 34,
+    "failed": 0,
+    "disabled": 0,
+    "pre": 0,
+    "unrun": 0,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "skip_categories": {
+      "QUIC feature unavailable": 4,
+      "QUIC provider build flag disabled": 2,
+      "Connector promotion requires dual-race mode": 28
+    }
+  },
+  "artifact_sha256": {
+    "exe": "dd789a4deb942496759d46a62334960943d9098d69b3a7a6e1989d4dd31da187",
+    "net.dll": "24f287a3fd108ad0fd2d2ee5e15daf5b4aba353438acb8ca50cb4b74ccee897d"
+  },
+  "dll_provenance_limit": "DLL hash recorded after execution and restoration only.",
+  "restoration": "Clean detached base and seven pins restored. Independent lock reacquire/release, quiet native process list, PR exact head and protected fingerprints verified.",
+  "receipt_directory": "C:/Users/micro/rb/network-295159-connection-jobs-ordinary-20261122b",
+  "files": [
+    "result.json",
+    "build.log",
+    "reconciliation.json",
+    "independent-release.json"
+  ],
+  "optimized_followup": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A76acf2ba-bf5c-400e-9dae-9185aee98090",
+    "scope": "Only the named target in the existing QUIC-enabled warm output, six exact skipped cases, and ordinary dual-race enabled-counterpart reconciliation."
+  },
+  "limits": "Windows ordinary component only. No fresh, performance, secondary platform or subsystem cutover claim."
+}

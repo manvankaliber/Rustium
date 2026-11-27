@@ -38,7 +38,6 @@
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/content_settings/content_setting_bubble_model.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/clipboard_utils.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
@@ -496,13 +495,6 @@ void LocationBarView::Init() {
       AddChildView(std::make_unique<page_actions::PageActionContainerView>(
           page_action_items, page_actions::PageActionPropertiesProvider(),
           page_action_params));
-  if (base::FeatureList::IsEnabled(
-          omnibox::kComposeboxPersistentAimButtonOmnibox)) {
-    if (auto* ai_mode_page_action_view =
-            page_action_container_->GetPageActionView(kActionAiMode)) {
-      ai_mode_page_action_view->SetFontList(omnibox_chip_font_list);
-    }
-  }
 
   auto clear_all_button = views::CreateVectorImageButton(base::BindRepeating(
       static_cast<void (OmniboxView::*)(const std::u16string&)>(
@@ -1329,23 +1321,11 @@ bool LocationBarView::ShouldHidePageActionIcons() const {
 // Returns information about visible page actions in the location bar.
 LocationBarView::PageActionInfo LocationBarView::GetPageActionInfo() const {
   PageActionInfo info;
-
-  bool aim_page_action_is_visible = false;
   for (views::View* view : page_action_container_->children()) {
     if (view->GetVisible()) {
       info.num_page_actions_shown++;
-      page_actions::PageActionView* page_action_view =
-          static_cast<page_actions::PageActionView*>(view);
-      if (page_action_view->GetActionId() == kActionAiMode) {
-        aim_page_action_is_visible = true;
-      }
     }
   }
-
-  if (aim_page_action_is_visible && info.num_page_actions_shown == 1) {
-    info.is_aim_last_visible_page_action = true;
-  }
-
   return info;
 }
 
@@ -1523,28 +1503,7 @@ void LocationBarView::RefreshPageActionIconViews() {
   }
 }
 
-void LocationBarView::RefreshAiModePageAction() {
-  auto* aim_page_action_controller =
-      omnibox::AiModePageActionController::From(browser_);
-  if (aim_page_action_controller) {
-    aim_page_action_controller->UpdatePageAction();
-  }
-
-  if (omnibox::kShowRhsAimHint.Get()) {
-    if (omnibox_controller_->popup_state_manager()->popup_state() ==
-        OmniboxPopupState::kClassic) {
-      ai_mode_hint_label_->SetVisible(true);
-    } else {
-      ai_mode_hint_label_->SetVisible(false);
-    }
-#if BUILDFLAG(IS_MAC)
-    ai_mode_hint_label_->SetText(u"⌘ + return for AI Mode");
-#else
-    ai_mode_hint_label_->SetText(u"Ctrl + Enter for AI Mode");
-#endif
-    ai_mode_hint_label_->SetEnabledColor(kColorOmniboxTextDimmed);
-  }
-}
+void LocationBarView::RefreshAiModePageAction() {}
 
 void LocationBarView::RefreshPageActionContainerViewAndIconsVisibility(
     bool should_hide_page_actions) {

@@ -36,17 +36,11 @@ cc_library(
 cc_import(
     name = "sqlite_vector_store_prebuilt",
     static_library = select({
-        # The iOS arms must come from config settings that carry an OS
-        # constraint. The bare CPU conditions below also match iOS, and without
-        # a more specific match Bazel would silently hand an Android archive to
-        # a Mach-O link.
+        # Select each archive by operating system and architecture.
         "//mediapipe:ios_arm64": "@com_google_mediapipe_ios_arm64_libsqlite_vector_store_a//file",
         "//mediapipe:ios_sim_arm64": "@com_google_mediapipe_ios_sim_arm64_libsqlite_vector_store_a//file",
         "//mediapipe:ios_x86_64": "@com_google_mediapipe_ios_sim_x86_64_libsqlite_vector_store_a//file",
-        "@platforms//cpu:armv7": "@com_google_mediapipe_android_armeabi_v7a_libsqlite_vector_store_a//file",
-        "@platforms//cpu:arm64": "@com_google_mediapipe_android_arm64_v8a_libsqlite_vector_store_a//file",
-        "@platforms//cpu:x86_32": "@com_google_mediapipe_android_x86_libsqlite_vector_store_a//file",
-        "@platforms//cpu:x86_64": "@com_google_mediapipe_android_x86_64_libsqlite_vector_store_a//file",
+
         "@bazel_tools//src/conditions:linux_aarch64": "@com_google_mediapipe_desktop_linux_arm64_libsqlite_vector_store_a//file",
         "@bazel_tools//src/conditions:linux_x86_64": "@com_google_mediapipe_desktop_linux_x86_64_libsqlite_vector_store_a//file",
         "@bazel_tools//src/conditions:windows_arm64": "@com_google_mediapipe_desktop_windows_arm64_libsqlite_vector_store_lib//file",
@@ -82,10 +76,7 @@ cc_import(
         "//mediapipe:ios_arm64": "@com_google_mediapipe_ios_arm64_libsqlite_memory_store_a//file",
         "//mediapipe:ios_sim_arm64": "@com_google_mediapipe_ios_sim_arm64_libsqlite_memory_store_a//file",
         "//mediapipe:ios_x86_64": "@com_google_mediapipe_ios_sim_x86_64_libsqlite_memory_store_a//file",
-        "@platforms//cpu:armv7": "@com_google_mediapipe_android_armeabi_v7a_libsqlite_memory_store_a//file",
-        "@platforms//cpu:arm64": "@com_google_mediapipe_android_arm64_v8a_libsqlite_memory_store_a//file",
-        "@platforms//cpu:x86_32": "@com_google_mediapipe_android_x86_libsqlite_memory_store_a//file",
-        "@platforms//cpu:x86_64": "@com_google_mediapipe_android_x86_64_libsqlite_memory_store_a//file",
+
         "@bazel_tools//src/conditions:linux_aarch64": "@com_google_mediapipe_desktop_linux_arm64_libsqlite_memory_store_a//file",
         "@bazel_tools//src/conditions:linux_x86_64": "@com_google_mediapipe_desktop_linux_x86_64_libsqlite_memory_store_a//file",
         "@bazel_tools//src/conditions:windows_arm64": "@com_google_mediapipe_desktop_windows_arm64_libsqlite_memory_store_lib//file",

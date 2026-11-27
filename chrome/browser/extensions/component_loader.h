@@ -199,12 +199,8 @@ class ComponentLoader : public KeyedService {
 
   void AddNetworkSpeechSynthesisExtension();
 
-  void AddAimEligibilityExtension();
-
   void AddNewTabPageExtension();
 
-
-  void AddContextualTasksExtension();
 
   void AddWithNameAndDescription(int manifest_resource_id,
                                  const base::FilePath& root_directory,

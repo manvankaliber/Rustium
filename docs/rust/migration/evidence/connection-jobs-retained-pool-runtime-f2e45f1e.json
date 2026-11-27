@@ -1,0 +1,32 @@
+{
+  "utc": "2026-11-21T23:41:42.613494+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd",
+  "host": "HQC-VAN_KALIBER",
+  "scope": "Windows ordinary component runtime-only regression over ClientSocketPoolBaseTest and TransportClientSocketPoolTest excluding unrelated WebSocket tests.",
+  "tests": {
+    "passed": 218,
+    "failed": 0,
+    "skipped": 0,
+    "selected_disabled": 0,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "seconds": 7.409,
+    "prior_names_retained": 216,
+    "new_cases": [
+      "ClientSocketPoolBaseTest.RetainedQueueReprioritizeDuringSynchronousDispatch",
+      "ClientSocketPoolBaseTest.RetainedQueueSameAndChangedPriority"
+    ]
+  },
+  "identities": "Executable and net.dll matched the pinned build and corrected independent receipts by SHA-256. Current recorded dependencies and protected evidence remained stable. No GN or rebuild.",
+  "restoration": "Clean 72ee5ddd and seven metadata pins unchanged; independent native lock reacquire/release and empty process inventory verified.",
+  "receipt_directory": "C:/Users/micro/rb/network-f2e45f-transport-runtime-regression-20261122a",
+  "files": [
+    "result.json",
+    "discovery.log",
+    "run.log",
+    "launcher-summary.json",
+    "independent-release.json"
+  ],
+  "limits": "Scoped current runtime inputs, no historical sealed closure, broad platform or performance result."
+}

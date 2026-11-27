@@ -8,7 +8,9 @@ namespace omnibox {
 
 namespace {
 
-bool g_create_popup_webui_on_demand = false;
+// Keep hidden omnibox documents out of idle windows. The popup initializes its
+// WebUI when it is first shown or its context menu is requested.
+bool g_create_popup_webui_on_demand = true;
 
 }  // namespace
 

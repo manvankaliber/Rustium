@@ -1,0 +1,36 @@
+{
+  "utc": "2026-11-21T21:57:26.913107+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "proposal": "b4435e701df258a50c8746812a949b37b4e02e9d",
+  "reviewed_candidate": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+  "parent": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "published_ref": "refs/heads/rust/transport-request-assignment-review-20261121",
+  "review": {
+    "role": "independent Terra xhigh",
+    "status": "passed for scoped warm feedback",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Aaebcbd82-13bf-4a5c-919f-52efd2c50340",
+    "verified": "Original transient assignment counts, exact donor and release ranks, FIFO front and back, native object/priority ownership, rank accessor and structurally consistent scalar ABI and GN.",
+    "limits": "Source review only. The tests do not isolate which individual job is picked from multiple unassigned jobs or directly assert forwarded job priorities. FFI and bucket-scan costs are unmeasured. Platform configurations other than the scoped Windows output remain open."
+  },
+  "first_cases": [
+    "TransportAssignmentPolicyTest.InsertedHoleMatchesOriginalLoop",
+    "TransportAssignmentPolicyTest.RemovedAssignedJobMatchesOriginalLoop",
+    "TransportAssignmentPolicyTest.AddedOrReleasedJobMatchesOriginalLoop",
+    "PriorityQueueInsertionRankTest.MatchesNativeFrontAndBackInsertion",
+    "ClientSocketPoolBaseTest.AssignmentStealsLastAndReturnsReleasedJob"
+  ],
+  "followup_cases": [
+    "RequestStealsJobFromLowestRequestWithJob",
+    "CancelRequestReassignsJob",
+    "JobCompletionReassignsJob",
+    "PreconnectJobGetsAssignedToRequest",
+    "ReprioritizeRequestStealsJob",
+    "ReprioritizeResetFIFO",
+    "ProxyAuthStaysBound",
+    "IgnoreLimitsCancelOtherJob",
+    "StalledGroupExcludesAuthBoundSlot",
+    "CallbackThatReleasesPool",
+    "CancelBackupSocketAfterCancelingAllRequests"
+  ],
+  "validation": "Warm Windows component net_unittests for the exact published candidate, -j4 and link-pool depth one. The prior auth run is being reconciled read-only against the same warm graph. Preserve that evidence before the next native build touches it."
+}

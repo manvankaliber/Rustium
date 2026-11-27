@@ -9,7 +9,6 @@
  */
 import 'chrome://resources/cr_elements/cr_view_manager/cr_view_manager.js';
 import './ai_info_card.js';
-import './ai_mode_search_page.js';
 import './ai_page.js';
 
 
@@ -60,7 +59,6 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
       aiSettingsSection_: {type: String},
       showAiPageAiFeatureSection_: {type: Boolean},
       showComposeControl_: {type: Boolean},
-      enableAiModeSearchSetting_: {type: Boolean},
       showAiSuggestionsControl_: {type: Boolean},
       showInlineCueMenuControl_: {type: Boolean},
 
@@ -78,8 +76,6 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
       loadTimeData.getBoolean('showAiPageAiFeatureSection');
   protected accessor showComposeControl_: boolean =
       loadTimeData.getBoolean('showComposeControl');
-  protected accessor enableAiModeSearchSetting_: boolean =
-      loadTimeData.getBoolean('enableAiModeSearchSetting');
   protected accessor showAiSuggestionsControl_: boolean =
       loadTimeData.getBoolean('showAiSuggestionsControl');
   protected accessor showInlineCueMenuControl_: boolean =
@@ -99,9 +95,6 @@ export class SettingsAiPageIndexElement extends SettingsAiPageIndexElementBase
       defaultViews.push('parent');
     }
 
-    if (this.enableAiModeSearchSetting_) {
-      defaultViews.push('aiModeSearch');
-    }
 
     switch (this.aiSettingsSection_) {
       case AiSettingsSection.NONE:

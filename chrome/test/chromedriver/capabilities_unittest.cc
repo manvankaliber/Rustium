@@ -256,271 +256,31 @@ TEST(ParseCapabilities, UnknownCapabilityW3c) {
   ASSERT_EQ(status.code(), kInvalidArgument);
 }
 
-TEST(ParseCapabilities, WithAndroidPackage) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-  Status status = capabilities.Parse(caps);
-  ASSERT_TRUE(status.IsOk());
-  ASSERT_TRUE(capabilities.IsAndroid());
-  ASSERT_EQ("com.example.app", capabilities.android_package);
-}
 
-TEST(ParseCapabilities, EmptyAndroidPackage) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", std::string());
-  Status status = capabilities.Parse(caps);
-  ASSERT_FALSE(status.IsOk());
-}
 
-TEST(ParseCapabilities, IllegalAndroidPackageType) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", 123);
-  Status status = capabilities.Parse(caps);
-  ASSERT_FALSE(status.IsOk());
-}
 
-TEST(ParseCapabilities, InvalidAndroidPackageName) {
-  Capabilities capabilities;
-  base::DictValue caps;
 
-  // Single segment
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "abc");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  // Ends with dot
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  // Starts with dot
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", ".com.example");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  // Contains invalid characters (command injection attempt)
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example|sh");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage",
-                       "com.example space");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
 
-TEST(ParseCapabilities, AndroidGrantPermissionsDefault) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_FALSE(capabilities.android_grant_permissions.has_value());
-}
 
-TEST(ParseCapabilities, AndroidGrantPermissions) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-  base::ListValue permissions;
-  permissions.Append("ACCESS_LOCAL_NETWORK");
-  permissions.Append("android.permission.CAMERA");
-  permissions.Append("com.example.permission.FOO_BAR");
-  caps.SetByDottedPath("goog:chromeOptions.androidGrantPermissions",
-                       std::move(permissions));
-  Status status = capabilities.Parse(caps);
-  ASSERT_TRUE(status.IsOk()) << status.message();
-  ASSERT_TRUE(capabilities.android_grant_permissions.has_value());
-  EXPECT_EQ((std::vector<std::string>{"android.permission.ACCESS_LOCAL_NETWORK",
-                                      "android.permission.CAMERA",
-                                      "com.example.permission.FOO_BAR"}),
-            *capabilities.android_grant_permissions);
-}
 
-TEST(ParseCapabilities, AndroidGrantPermissionsEmpty) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-  caps.SetByDottedPath("goog:chromeOptions.androidGrantPermissions",
-                       base::ListValue());
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_TRUE(capabilities.android_grant_permissions.has_value());
-  EXPECT_TRUE(capabilities.android_grant_permissions->empty());
-}
 
-TEST(ParseCapabilities, InvalidAndroidGrantPermissions) {
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
 
-  // Not a list.
-  {
-    Capabilities capabilities;
-    caps.SetByDottedPath("goog:chromeOptions.androidGrantPermissions",
-                         "ACCESS_LOCAL_NETWORK");
-    EXPECT_EQ(kInvalidArgument, capabilities.Parse(caps).code());
-  }
 
-  // Not a list of strings.
-  {
-    Capabilities capabilities;
-    base::ListValue permissions;
-    permissions.Append(123);
-    caps.SetByDottedPath("goog:chromeOptions.androidGrantPermissions",
-                         std::move(permissions));
-    EXPECT_EQ(kInvalidArgument, capabilities.Parse(caps).code());
-  }
 
-  // Invalid characters (command injection attempts) and empty names.
-  for (const char* name : {"FOO;rm -rf /", "FOO|sh", "FOO BAR", "$(reboot)",
-                           "FOO&&reboot", "android.permission.FOO`id`", ""}) {
-    Capabilities capabilities;
-    base::ListValue permissions;
-    permissions.Append(name);
-    caps.SetByDottedPath("goog:chromeOptions.androidGrantPermissions",
-                         std::move(permissions));
-    EXPECT_EQ(kInvalidArgument, capabilities.Parse(caps).code()) << name;
-  }
-}
 
-TEST(ParseCapabilities, AndroidActivity) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
 
-  // Valid relative activity
-  caps.SetByDottedPath("goog:chromeOptions.androidActivity", ".MainActivity");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ(".MainActivity", capabilities.android_activity);
 
-  // Valid fully qualified activity
-  caps.SetByDottedPath("goog:chromeOptions.androidActivity",
-                       "com.example.app.MainActivity");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("com.example.app.MainActivity", capabilities.android_activity);
 
-  // Valid with colon
-  caps.SetByDottedPath("goog:chromeOptions.androidActivity", ":MainActivity");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
 
-  // Invalid characters (command injection attempt)
-  caps.SetByDottedPath("goog:chromeOptions.androidActivity",
-                       ".MainActivity;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
 
-  caps.SetByDottedPath("goog:chromeOptions.androidActivity",
-                       ".MainActivity|sh");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
 
-TEST(ParseCapabilities, AndroidProcess) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
 
-  // Valid process name
-  caps.SetByDottedPath("goog:chromeOptions.androidProcess",
-                       "com.example.app:remote");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("com.example.app:remote", capabilities.android_process);
 
-  // Invalid process name (injection attempt)
-  caps.SetByDottedPath("goog:chromeOptions.androidProcess",
-                       "com.example.app;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
-
-TEST(ParseCapabilities, AndroidDeviceSocket) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-
-  // Valid socket name
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSocket",
-                       "@webview_devtools_remote_123");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("@webview_devtools_remote_123", capabilities.android_device_socket);
-
-  // Invalid socket name (injection attempt)
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSocket", "webview;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
-
-TEST(ParseCapabilities, AndroidDeviceSerial) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-
-  // Valid device serials
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSerial",
-                       "192.168.1.100:5555");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("192.168.1.100:5555", capabilities.android_device_serial);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSerial",
-                       "HT4CTSK00123");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("HT4CTSK00123", capabilities.android_device_serial);
-
-  // Invalid device serial (injection attempt)
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSerial", "serial;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-
-  caps.SetByDottedPath("goog:chromeOptions.androidDeviceSerial", "serial|sh");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
-
-TEST(ParseCapabilities, AndroidExecName) {
-  Capabilities capabilities;
-  base::DictValue caps;
-  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
-
-  // Valid executable names (alphanumeric, /, ., _, -)
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("chrome", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome123");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("chrome123", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "content_shell");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("content_shell", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome-shell");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("chrome-shell", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome.bin");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("chrome.bin", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName",
-                       "/system/bin/chrome");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("/system/bin/chrome", capabilities.android_exec_name);
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName",
-                       "./chrome_shell-123.bin");
-  ASSERT_TRUE(capabilities.Parse(caps).IsOk());
-  ASSERT_EQ("./chrome_shell-123.bin", capabilities.android_exec_name);
-
-  // Invalid executable names (shell injection attempts and metadata)
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome;rm");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome|sh");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome&sh");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome$(rm)");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-
-  caps.SetByDottedPath("goog:chromeOptions.androidExecName", "chrome `rm`");
-  ASSERT_FALSE(capabilities.Parse(caps).IsOk());
-}
 
 TEST(ParseCapabilities, LogPath) {
   Capabilities capabilities;
@@ -1133,47 +893,9 @@ base::DictValue CreateCapabilitiesDict(const std::string& mobile_emulation) {
 
 }  //  namespace
 
-TEST(ParseClientHints, MinimalistMobileAndroid) {
-  Capabilities capabilities;
-  const std::string mobile_emulation =
-      "{\"deviceMetrics\": {}, \"clientHints\": {\"platform\": \"Android\", "
-      "\"mobile\": true}}";
-  base::DictValue caps = CreateCapabilitiesDict(mobile_emulation);
-  EXPECT_TRUE(StatusOk(capabilities.Parse(caps)));
-  ASSERT_TRUE(capabilities.mobile_device.has_value());
-  ASSERT_TRUE(capabilities.mobile_device->client_hints.has_value());
-  const ClientHints& client_hints =
-      capabilities.mobile_device->client_hints.value();
-  CheckDefaults(client_hints);
-  ASSERT_FALSE(capabilities.mobile_device->user_agent.has_value());
-  EXPECT_EQ("Android", client_hints.platform);
-  EXPECT_EQ(true, client_hints.mobile);
-  std::string reduced_user_agent;
-  EXPECT_TRUE(StatusOk(capabilities.mobile_device->GetReducedUserAgent(
-      "114", &reduced_user_agent)));
-  EXPECT_EQ(kUserAgentMobileChromeOnAndroid, reduced_user_agent);
-}
 
-TEST(ParseClientHints, MinimalistTabletAndroid) {
-  Capabilities capabilities;
-  const std::string mobile_emulation =
-      "{\"deviceMetrics\": {},"
-      "\"clientHints\": {\"platform\": \"Android\", \"mobile\": false}}";
-  base::DictValue caps = CreateCapabilitiesDict(mobile_emulation);
-  EXPECT_TRUE(StatusOk(capabilities.Parse(caps)));
-  ASSERT_TRUE(capabilities.mobile_device.has_value());
-  ASSERT_TRUE(capabilities.mobile_device->client_hints.has_value());
-  const ClientHints& client_hints =
-      capabilities.mobile_device->client_hints.value();
-  CheckDefaults(client_hints);
-  ASSERT_FALSE(capabilities.mobile_device->user_agent.has_value());
-  EXPECT_EQ("Android", client_hints.platform);
-  EXPECT_EQ(false, client_hints.mobile);
-  std::string reduced_user_agent;
-  EXPECT_TRUE(StatusOk(capabilities.mobile_device->GetReducedUserAgent(
-      "114", &reduced_user_agent)));
-  EXPECT_EQ(kUserAgentNonMobileChromeOnAndroid, reduced_user_agent);
-}
+
+
 
 class ParseClientHintsPerPlatform
     : public testing::TestWithParam<std::pair<std::string, std::string>> {};
@@ -1307,10 +1029,10 @@ TEST(ParseClientHints, MinimalistCustomTablet) {
   EXPECT_TRUE(reduced_user_agent.empty());
 }
 
-class InferClientHintsOnAndroid
+class InferClientHintsForMobileUserAgents
     : public testing::TestWithParam<std::pair<std::string, bool>> {};
 
-TEST_P(InferClientHintsOnAndroid, NoDeviceMetrics) {
+TEST_P(InferClientHintsForMobileUserAgents, NoDeviceMetrics) {
   const std::string input_user_agent = GetParam().first;
   const bool expected_is_mobile = GetParam().second;
   const std::string mobile_emulation =
@@ -1333,7 +1055,7 @@ TEST_P(InferClientHintsOnAndroid, NoDeviceMetrics) {
   EXPECT_EQ(input_user_agent, reduced_user_agent);
 }
 
-TEST_P(InferClientHintsOnAndroid, MobileDeviceMetrics) {
+TEST_P(InferClientHintsForMobileUserAgents, MobileDeviceMetrics) {
   const std::string input_user_agent = GetParam().first;
   const bool expected_is_mobile = GetParam().second;
   const std::string mobile_emulation =
@@ -1357,7 +1079,7 @@ TEST_P(InferClientHintsOnAndroid, MobileDeviceMetrics) {
   EXPECT_EQ(input_user_agent, reduced_user_agent);
 }
 
-TEST_P(InferClientHintsOnAndroid, TabletDeviceMetrics) {
+TEST_P(InferClientHintsForMobileUserAgents, TabletDeviceMetrics) {
   const std::string input_user_agent = GetParam().first;
   const bool expected_is_mobile = GetParam().second;
   const std::string mobile_emulation = base::StringPrintf(
@@ -1384,7 +1106,7 @@ TEST_P(InferClientHintsOnAndroid, TabletDeviceMetrics) {
 
 INSTANTIATE_TEST_SUITE_P(
     Inference,
-    InferClientHintsOnAndroid,
+    InferClientHintsForMobileUserAgents,
     testing::Values(std::make_pair(kUserAgentMobileChromeOnAndroid, true),
                     std::make_pair(kUserAgentNonMobileChromeOnAndroid, false)));
 
@@ -1821,4 +1543,12 @@ TEST(ParseClientHints, MalformedFullVersionList) {
       "]"
       "}}");
   EXPECT_TRUE(capabilities.Parse(caps).IsError());
+}
+
+TEST(ParseCapabilities, RejectsRetiredMobilePackageOption) {
+  Capabilities capabilities;
+  base::DictValue caps;
+  caps.SetByDottedPath("goog:chromeOptions.androidPackage", "com.example.app");
+  const Status status = capabilities.Parse(caps);
+  EXPECT_EQ(kInvalidArgument, status.code());
 }

@@ -1,0 +1,17 @@
+{
+  "utc": "2026-11-22T08:55:55.681169+00:00",
+  "head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "scope": "Runtime-only affected pool suites after assignment archive retirement",
+  "status": "Stopped before discovery on warm DLL identity mismatch. Targeted recovery and immediate test run dispatched.",
+  "ordinary_executable_matched": true,
+  "expected_dll_sha256": "c9c0d1e379ee87be6a749853f3fd5ac01f27b53ae37136c7144fcec1efac71e0",
+  "expected_dll_bytes": 16794112,
+  "observed_dll_sha256": "d68bf27a568c4cec8ce6adfe3c1631aa3075c504b8d4611c19bd070068891d47",
+  "observed_dll_bytes": 16792064,
+  "tests_discovered": 0,
+  "tests_run": 0,
+  "receipt": "C:/Users/micro/rb/network-557c24-pool-suites-runtime-20261122b/result.json",
+  "independent_release": "C:/Users/micro/rb/network-557c24-pool-suites-runtime-20261122b/independent-release.json",
+  "recovery_task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A11ebcea4-ba3a-4868-b6b9-5a45aae86a65",
+  "recovery_scope": "Reuse known exact pair if recoverable, otherwise warm net_unittests at exact head. Test within the same reservation before restoration."
+}

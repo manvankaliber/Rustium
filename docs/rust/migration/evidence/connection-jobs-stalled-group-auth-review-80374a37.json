@@ -1,0 +1,18 @@
+{
+  "utc": "2026-11-21T21:39:16.523146+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "candidate_commit": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "parent": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "published_ref": "refs/heads/rust/transport-stalled-group-auth-coverage-20261121",
+  "changed_path": "net/socket/client_socket_pool_base_unittest.cc",
+  "source_blob": "3fcfdc65730edb61c30e6cf37d275395ea3941f2",
+  "review": {
+    "role": "independent Terra xhigh",
+    "verdict": "Source review passed for a one-object incremental follow-up.",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A137c5301-1d52-4a2a-81ab-fc131a4e7a5f",
+    "scope": "A higher-priority request competes for the released global slot while its group remains at limit with an auth-bound job. The eligible group gets the socket, then cancelling the auth handle releases capacity for the higher-priority request.",
+    "limits": "Source review only. An incorrect repeatedly selected group could hang the test until launcher timeout."
+  },
+  "first_case": "ClientSocketPoolBaseTest.StalledGroupExcludesAuthBoundSlot",
+  "validation": "Await the pinned parent laptop feedback before starting the additional warm net_unittests increment under the same native lock."
+}

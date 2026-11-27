@@ -19,7 +19,6 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/lib.rs",
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/platform.rs",
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/tz_aix.rs",
-    "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/tz_android.rs",
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/tz_darwin.rs",
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/tz_freebsd.rs",
     "//third_party/rust/chromium_crates_io/vendor/iana-time-zone-v0_1/src/tz_haiku.rs",

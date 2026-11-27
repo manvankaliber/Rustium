@@ -36,10 +36,6 @@ namespace base {
 class FilePath;
 class SequencedTaskRunner;
 
-namespace android {
-class ApplicationStatusListener;
-}  // namespace android
-
 }  // namespace base
 
 #if BUILDFLAG(ENABLE_DISK_CACHE_SQL_BACKEND)
@@ -128,12 +124,6 @@ CreateCacheBackend(net::CacheType type,
                    net::NetLog* net_log,
                    net::CacheEncryptionDelegate* cache_encryption_delegate,
                    BackendResultCallback callback);
-
-// Note: this is permitted to return nullptr when things are in process of
-// shutting down.
-using ApplicationStatusListenerGetter =
-    base::RepeatingCallback<base::android::ApplicationStatusListener*()>;
-
 
 // Variant of the above that calls |post_cleanup_callback| once all the I/O
 // that was in flight has completed post-destruction. |post_cleanup_callback|

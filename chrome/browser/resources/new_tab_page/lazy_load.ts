@@ -17,7 +17,6 @@ import './iframe.js';
 import './lens_upload_dialog.js';
 import './modules/module_descriptors.js';
 import './modules/modules.js';
-import './ntp_composebox.js';
 import './ntp_promo/individual_promos.js';
 import './voice_search_overlay.js';
 import '/shared/customize_buttons/customize_buttons.js';
@@ -84,7 +83,8 @@ export {MostRelevantTabResumptionProxyImpl} from './modules/most_relevant_tab_re
 export {IconContainerElement} from './modules/tab_groups/icon_container.js';
 export {COLOR_NEW_TAB_PAGE_MODULE_TAB_GROUPS_DOT_PREFIX, COLOR_NEW_TAB_PAGE_MODULE_TAB_GROUPS_PREFIX, colorIdToString, tabGroupsDescriptor, TabGroupsModuleElement} from './modules/tab_groups/module.js';
 export {TabGroupsProxyImpl} from './modules/tab_groups/tab_groups_proxy.js';
-export {NtpComposeboxElement} from './ntp_composebox.js';
 export {IndividualPromosElement} from './ntp_promo/individual_promos.js';
+export {NtpComposeboxElement} from './ntp_composebox.js';
+export type {SearchboxComposeButtonElement} from 'chrome://resources/cr_components/searchbox/searchbox_compose_button.js';
 export {ActionChipsRetrievalState} from './utils.js';
 export {VoiceSearchOverlayElement} from './voice_search_overlay.js';

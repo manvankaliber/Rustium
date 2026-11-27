@@ -1,0 +1,33 @@
+{
+  "utc": "2026-11-22T01:39:36.572469+00:00",
+  "candidate_revision": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "pr_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "machine": "HQC-VAN_KALIBER",
+  "status": "Ordinary passed; separate DCHECK component probe pending.",
+  "ordinary": {
+    "build_target": "//net:connection_jobs_family_rust_unittests",
+    "gn_include_check": "passed",
+    "elapsed_seconds": 178.782,
+    "tests_passed": [
+      "ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal",
+      "ConnectionJobsFamilyRustTest.HostPortPairResolverRequestMatchesIndependentOriginal"
+    ],
+    "jobs": 4,
+    "links": "Two nonoverlapping intervals.",
+    "probe_test_and_getters_absent": true,
+    "single_host_port_archive_and_cxx_route": true,
+    "qualification_limit": "Generated ordinary environment.x64 changed during GN activity. The admitted build and GN check used the pinned environment. The before/after bytes still need reconciliation where available."
+  },
+  "probe": {
+    "build_or_tests_started": false,
+    "blocker": "Copying two prior cache entries exceeded Windows path length in the separate destination.",
+    "retry": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A0b6f3a74-003b-4545-85b7-da936c55b84e",
+    "retry_scope": "Existing compatible dedicated output or short separate path. Probe only, with DCHECK enabled."
+  },
+  "restoration": "The clean detached checkout and all seven pinned metadata files were restored. Independent byte-zero reacquire and release passed; 565 protected evidence files matched.",
+  "receipts": {
+    "result": "C:/Users/micro/rb/network-443551-host-port-checkpoint-20261122a/result.json",
+    "build": "C:/Users/micro/rb/network-443551-host-port-checkpoint-20261122a/ordinary-build.log",
+    "lock_release": "C:/Users/micro/rb/network-443551-host-port-checkpoint-20261122a/independent-release.json"
+  }
+}

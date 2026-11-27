@@ -18,7 +18,6 @@
 #include "build/build_config.h"
 #include "chrome/browser/ui/layout_constants.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
 #include "chrome/browser/ui/omnibox/omnibox_next_features.h"
@@ -116,14 +115,7 @@ void OmniboxPopupFullPresenter::Show() {
   auto* controller =
       GetWebUIContent()->contents_wrapper()->GetWebUIController();
   if (auto* handler = controller ? controller->omnibox_handler() : nullptr) {
-    // Compute visibility from the omnibox state rather than reading the Views
-    // AIM chip. During a tab change, `Show()` runs before the location bar's
-    // page action container is rebound to the new tab, so the chip still
-    // reflects the deactivated previous tab and would report hidden, briefly
-    // hiding the AIM button on new tab creation.
-    handler->SetAimButtonVisible(
-        omnibox::AiModePageActionController::ShouldShowPageAction(
-            location_bar()->GetProfile(), *location_bar()));
+    handler->SetAimButtonVisible(false);
   }
 
   views::Widget* browser_widget = GetBrowserWidget();

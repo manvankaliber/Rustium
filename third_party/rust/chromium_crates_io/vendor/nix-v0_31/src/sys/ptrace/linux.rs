@@ -36,8 +36,8 @@ cfg_if! {
 }
 
 libc_enum! {
-    #[cfg_attr(not(any(target_env = "musl", target_env = "uclibc", target_os = "android", target_env = "ohos")), repr(u32))]
-    #[cfg_attr(any(target_env = "musl", target_env = "uclibc", target_os = "android", target_env = "ohos"), repr(i32))]
+    #[cfg_attr(not(any(target_env = "musl", target_env = "uclibc", target_env = "ohos")), repr(u32))]
+    #[cfg_attr(any(target_env = "musl", target_env = "uclibc", target_env = "ohos"), repr(i32))]
     /// Ptrace Request enum defining the action to be taken.
     #[non_exhaustive]
     pub enum Request {
@@ -51,45 +51,13 @@ libc_enum! {
         PTRACE_CONT,
         PTRACE_KILL,
         PTRACE_SINGLESTEP,
-        #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
-                  all(target_os = "linux", any(target_env = "musl",
-                                               target_env = "ohos",
-                                               target_arch = "mips",
-                                               target_arch = "mips32r6",
-                                               target_arch = "mips64",
-                                               target_arch = "mips64r6",
-                                               target_arch = "x86_64",
-                                               target_pointer_width = "32"))))]
+        #[cfg(all(target_os = "linux", any(target_env = "musl", target_env = "ohos", target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "x86_64", target_pointer_width = "32")))]
         PTRACE_GETREGS,
-        #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
-                  all(target_os = "linux", any(target_env = "musl",
-                                               target_env = "ohos",
-                                               target_arch = "mips",
-                                               target_arch = "mips32r6",
-                                               target_arch = "mips64",
-                                               target_arch = "mips64r6",
-                                               target_arch = "x86_64",
-                                               target_pointer_width = "32"))))]
+        #[cfg(all(target_os = "linux", any(target_env = "musl", target_env = "ohos", target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "x86_64", target_pointer_width = "32")))]
         PTRACE_SETREGS,
-        #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
-                  all(target_os = "linux", any(target_env = "musl",
-                                               target_env = "ohos",
-                                               target_arch = "mips",
-                                               target_arch = "mips32r6",
-                                               target_arch = "mips64",
-                                               target_arch = "mips64r6",
-                                               target_arch = "x86_64",
-                                               target_pointer_width = "32"))))]
+        #[cfg(all(target_os = "linux", any(target_env = "musl", target_env = "ohos", target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "x86_64", target_pointer_width = "32")))]
         PTRACE_GETFPREGS,
-        #[cfg(any(all(target_os = "android", target_pointer_width = "32"),
-                  all(target_os = "linux", any(target_env = "musl",
-                                               target_env = "ohos",
-                                               target_arch = "mips",
-                                               target_arch = "mips32r6",
-                                               target_arch = "mips64",
-                                               target_arch = "mips64r6",
-                                               target_arch = "x86_64",
-                                               target_pointer_width = "32"))))]
+        #[cfg(all(target_os = "linux", any(target_env = "musl", target_env = "ohos", target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "x86_64", target_pointer_width = "32")))]
         PTRACE_SETFPREGS,
         PTRACE_ATTACH,
         PTRACE_DETACH,

@@ -108,9 +108,7 @@ cc_library(
         "@com_google_absl//absl/strings",
     ] + select({
         "//conditions:default": [],
-        "//mediapipe:android": [
-            "@androidndk//:cpufeatures",
-        ],
+
     }),
 )
 
@@ -288,8 +286,7 @@ cc_library(
         "resource_util_internal.h",
     ] + select({
         "//conditions:default": ["resource_util_default.cc"],
-        "//mediapipe:android": ["resource_util_android.cc"],
-        "//mediapipe/framework:android_no_jni": ["resource_util_loonix.cc"],
+
         "//mediapipe:ios": ["resource_util_apple.cc"],
         "//mediapipe:macos": ["resource_util_default.cc"],
         "//mediapipe:emscripten": ["resource_util_emscripten.cc"],
@@ -326,11 +323,7 @@ cc_library(
         "//conditions:default": [
             "@com_google_absl//absl/flags:flag",
         ],
-        "//mediapipe:android": [
-            "//mediapipe/util/android:asset_manager_util",
-            "//mediapipe/util/android/file/base",
-        ],
-        "//mediapipe/framework:android_no_jni": [],
+
         "//mediapipe:ios": [],
         "//mediapipe:emscripten": [],
         "//mediapipe:macos": [
@@ -401,9 +394,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
 )
 

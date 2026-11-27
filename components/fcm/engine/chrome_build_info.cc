@@ -9,7 +9,7 @@
 #include "build/build_config.h"
 #include "components/version_info/channel.h"
 #include "components/version_info/version_info.h"
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 
 namespace fcm {
 

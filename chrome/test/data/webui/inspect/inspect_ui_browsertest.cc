@@ -5,9 +5,7 @@
 #include "base/run_loop.h"
 #include "base/strings/stringprintf.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/devtools/device/adb/adb_device_provider.h"
-#include "chrome/browser/devtools/device/adb/mock_adb_server.h"
-#include "chrome/browser/devtools/device/devtools_android_bridge.h"
+#include "chrome/browser/devtools/device/devtools_remote_bridge.h"
 #include "chrome/browser/devtools/features.h"
 #include "chrome/browser/privacy_sandbox/privacy_sandbox_settings_factory.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -91,22 +89,7 @@ IN_PROC_BROWSER_TEST_F(InspectUITest, SharedWorker) {
 }
 
 // Flaky due to failure to bind a hardcoded port. crbug.com/41226327
-IN_PROC_BROWSER_TEST_F(InspectUITest, DISABLED_AndroidTargets) {
-  DevToolsAndroidBridge* android_bridge =
-      DevToolsAndroidBridge::Factory::GetForProfile(browser()->GetProfile());
-  AndroidDeviceManager::DeviceProviders providers;
-  providers.push_back(new AdbDeviceProvider());
-  android_bridge->set_device_providers_for_test(providers);
 
-  StartMockAdbServer(FlushWithSize);
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(),
-                                           GURL(chrome::kChromeUIInspectURL)));
-
-  ASSERT_TRUE(RunTestCase("AdbTargetsListed"));
-
-  StopMockAdbServer();
-}
 
 IN_PROC_BROWSER_TEST_F(InspectUITest, ReloadCrash) {
   ASSERT_TRUE(embedded_test_server()->Start());

@@ -1,0 +1,33 @@
+{
+  "utc": "2026-11-22T08:52:37.123451+00:00",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "parent": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "status": "Integrated after scoped Windows validation",
+  "retirement": "The transport_assignment_rust target and archive were removed. The same frozen C++ tests reach the shared rank decisions in the production retained queue.",
+  "build": {
+    "host": "HQC-VAN_KALIBER",
+    "targets": [
+      "//net:retained_request_order_rust_unittests",
+      "//net:net_unittests"
+    ],
+    "elapsed_seconds": 501.3,
+    "compiler_jobs": 4,
+    "links_nonoverlapping": true,
+    "gn_include_checks_passed": 2
+  },
+  "runtime": {
+    "rust_unit_cases": 7,
+    "standalone_rust_unit_cases": 7,
+    "scalar_oracle_cases": 3,
+    "named_pool_cases": 5,
+    "all_passed": true
+  },
+  "component": "Retained queue archive was the sole definition of the two private Rust assignment exports in the net.dll link. Both C++ wrappers are unchanged at the DLL import/export boundary.",
+  "preflight": "Initial runs stopped before building on a superseded environment pin, unsupported GN wildcard, and executable label mapping. The passing run used the pinned launcher and environment.",
+  "receipt": "C:/Users/micro/rb/network-557c24-assignment-retirement-validation-20261122e/result.json",
+  "build_log": "C:/Users/micro/rb/network-557c24-assignment-retirement-validation-20261122e/build-targets.log",
+  "independent_release": "C:/Users/micro/rb/network-557c24-assignment-retirement-validation-20261122e/independent-release.json",
+  "runtime_only_pool_task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A5114d18e-9e10-4647-9bb1-0e6131c3d741",
+  "scope": "Retires superseded scalar archive for the scheduling slice. Wider platform, native providers, performance and Connection Jobs cutover remain open."
+}

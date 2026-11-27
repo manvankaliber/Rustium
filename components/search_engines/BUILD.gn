@@ -3,13 +3,6 @@
 # found in the LICENSE file.
 
 import("//build/config/chrome_build.gni")
-import("//tools/json_to_struct/json_to_struct.gni")
-
-json_to_struct("ai_mode_button_config") {
-  source = "ai_mode_button_config.json"
-  schema_file = "ai_mode_button_config_schema.json"
-  namespace = "ai_mode_button_config"
-}
 
 static_library("search_engines") {
   sources = [
@@ -69,7 +62,6 @@ static_library("search_engines") {
   ]
 
   public_deps = [
-    ":ai_mode_button_config",
     ":search_engine_pref_names",
     ":search_engine_type",
     ":search_engine_utils",

@@ -165,23 +165,6 @@ mojom::XRSemanticLabel ToMojomSemanticLabel(
   }
 }
 
-mojom::XRSemanticLabel ToMojomSemanticLabel(
-    XrSceneMeshSemanticLabelANDROID label) {
-  switch (label) {
-    case XR_SCENE_MESH_SEMANTIC_LABEL_FLOOR_ANDROID:
-      return mojom::XRSemanticLabel::kFloor;
-    case XR_SCENE_MESH_SEMANTIC_LABEL_WALL_ANDROID:
-      return mojom::XRSemanticLabel::kWall;
-    case XR_SCENE_MESH_SEMANTIC_LABEL_CEILING_ANDROID:
-      return mojom::XRSemanticLabel::kCeiling;
-    case XR_SCENE_MESH_SEMANTIC_LABEL_TABLE_ANDROID:
-      return mojom::XRSemanticLabel::kTable;
-    case XR_SCENE_MESH_SEMANTIC_LABEL_OTHER_ANDROID:
-    default:
-      return mojom::XRSemanticLabel::kOther;
-  }
-}
-
 bool IsConvexPolygon(
     const std::vector<mojom::XRPlanePointDataPtr>& polygon) {
   const size_t n = polygon.size();

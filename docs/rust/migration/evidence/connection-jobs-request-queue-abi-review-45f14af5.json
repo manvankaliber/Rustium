@@ -1,0 +1,20 @@
+{
+  "utc": "2026-11-21T22:52:56.452327+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "reviewed_prototype": "45f14af55f09330ea75332e1b46211d311a083be",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Aaa34a313-8a2c-4bae-be51-5325c90b7603",
+  "lifetime_audit": {
+    "path": "docs/rust/migration/evidence/connection-jobs-request-queue-lifetime-audit-54f6f4df.json",
+    "sha256": "0aab37a1fe8156de3faeb95e72d75ec603ba09522e7d18835fd7e99d36228894"
+  },
+  "scope": "Core, trace and proposed private ABI and native map adapter. Source review only; the provider audit was not included in the reviewed commit.",
+  "required": [
+    "Snapshot must require initialized, correctly aligned nonoverlapping u64 elements before forming a Rust slice, or write uninitialized storage without forming a u64 reference.",
+    "Preserve same-map owner node reinsertion or define paired node disposal if permitted. Review real Group auth, teardown, callback sequence and linkage."
+  ],
+  "verified": "Retained node and scalar token order, assigned-prefix counts in the present native transients, six priorities, scalar widths, and field-based repr(C) reply use.",
+  "limits": "No link/compile, actual C++ layout test, allocator measurement or pool runtime was run. Native allocation and Rust panic results need configured build evidence.",
+  "optional": "Require nonempty paired trace output if standalone comparator is used.",
+  "worker_correction": "The initialized-snapshot requirement was sent during the active production conversion before independent review completed."
+}

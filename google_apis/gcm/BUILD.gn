@@ -79,7 +79,7 @@ proto_library("proto") {
   # This is part of the gcm component.
   visibility = [ ":gcm" ]
   sources = [
-    "protocol/android_checkin.proto",
+    "protocol/device_checkin.proto",
     "protocol/checkin.proto",
     "protocol/mcs.proto",
   ]

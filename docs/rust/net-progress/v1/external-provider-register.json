@@ -1,0 +1,86 @@
+{
+  "providers": [
+    {
+      "path": "net/third_party/quiche",
+      "role": "QUIC, HTTP/2, HTTP/3, QPACK and related protocol implementations",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "net/third_party/mozilla_security_manager",
+      "role": "certificate/security support",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "net/third_party/mozilla_win",
+      "role": "Windows support",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "net/third_party/uri_template",
+      "role": "URI templates",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/boringssl",
+      "role": "TLS and crypto primitives",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "crypto",
+      "role": "Chromium crypto and key ownership wrappers",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "base",
+      "role": "runtime, memory, callbacks, files, threads and platform services",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "url",
+      "role": "URL canonicalization and GURL ownership",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/zlib",
+      "role": "gzip/deflate codec",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/brotli",
+      "role": "Brotli codec",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/zstd",
+      "role": "Zstd codec",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/icu",
+      "role": "charset/IDNA/Unicode",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/sqlite",
+      "role": "persistent storage",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/protobuf",
+      "role": "generated storage/message interfaces",
+      "status": "external dependency; not rewritten; remains in eventual project scope"
+    },
+    {
+      "path": "third_party/rust/sfv",
+      "role": "pre-existing structured-header Rust dependency",
+      "status": "Pre-existing Rust provider; no rewrite credit assigned here. Remaining C++ wrapper/container/feature-policy integration is explicitly unfinished."
+    }
+  ],
+  "whole_network_delivery_status": "Unfinished. Outside-net providers are not counted as rewritten or silently waived by the net-directory code metric.",
+  "counted_in_net_directory": [
+    "net/third_party/quiche",
+    "net/third_party/mozilla_security_manager",
+    "net/third_party/mozilla_win",
+    "net/third_party/uri_template"
+  ]
+}

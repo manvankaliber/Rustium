@@ -1,6 +1,6 @@
 //! Sleep, query system clocks, and set system clock
 use crate::sys::time::TimeSpec;
-#[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+#[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
 #[cfg(feature = "process")]
 use crate::unistd::Pid;
 use crate::{Errno, Result};
@@ -22,7 +22,7 @@ impl ClockId {
     feature! {
     #![feature = "process"]
     /// Returns `ClockId` of a `pid` CPU-time clock
-    #[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+    #[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
     pub fn pid_cpu_clock_id(pid: Pid) -> Result<Self> {
         clock_getcpuclockid(pid)
     }
@@ -51,7 +51,7 @@ impl ClockId {
     }
 
     #[cfg(any(
-        linux_android,
+        linux,
         target_os = "emscripten",
         target_os = "freebsd",
         target_os = "openbsd"
@@ -61,13 +61,13 @@ impl ClockId {
     pub const CLOCK_BOOTTIME: ClockId = ClockId(libc::CLOCK_BOOTTIME);
     /// Like [`CLOCK_BOOTTIME`](ClockId::CLOCK_BOOTTIME), but will wake the
     /// system if it is suspended..
-    #[cfg(any(linux_android, target_os = "emscripten"))]
+    #[cfg(any(linux, target_os = "emscripten"))]
     pub const CLOCK_BOOTTIME_ALARM: ClockId = ClockId(libc::CLOCK_BOOTTIME_ALARM);
     /// Increments in SI seconds.
     pub const CLOCK_MONOTONIC: ClockId = ClockId(libc::CLOCK_MONOTONIC);
     /// Like [`CLOCK_MONOTONIC`](ClockId::CLOCK_MONOTONIC), but optimized for
     /// execution time at the expense of accuracy.
-    #[cfg(any(linux_android, target_os = "emscripten", target_os = "freebsd"))]
+    #[cfg(any(linux, target_os = "emscripten", target_os = "freebsd"))]
     pub const CLOCK_MONOTONIC_COARSE: ClockId = ClockId(libc::CLOCK_MONOTONIC_COARSE);
     #[cfg(freebsdlike)]
     /// Like [`CLOCK_MONOTONIC`](ClockId::CLOCK_MONOTONIC), but optimized for
@@ -80,10 +80,10 @@ impl ClockId {
     /// Similar to [`CLOCK_MONOTONIC`](ClockId::CLOCK_MONOTONIC), but provides
     /// access to a raw hardware-based time that is not subject to NTP
     /// adjustments.
-    #[cfg(any(linux_android, target_os = "emscripten"))]
+    #[cfg(any(linux, target_os = "emscripten"))]
     pub const CLOCK_MONOTONIC_RAW: ClockId = ClockId(libc::CLOCK_MONOTONIC_RAW);
     #[cfg(any(
-        linux_android,
+        linux,
         apple_targets,
         freebsdlike,
         netbsdlike,
@@ -98,11 +98,11 @@ impl ClockId {
     /// Increments as a wall clock should.
     pub const CLOCK_REALTIME: ClockId = ClockId(libc::CLOCK_REALTIME);
     /// Like [`CLOCK_REALTIME`](ClockId::CLOCK_REALTIME), but not settable.
-    #[cfg(any(linux_android, target_os = "emscripten"))]
+    #[cfg(any(linux, target_os = "emscripten"))]
     pub const CLOCK_REALTIME_ALARM: ClockId = ClockId(libc::CLOCK_REALTIME_ALARM);
     /// Like [`CLOCK_REALTIME`](ClockId::CLOCK_REALTIME), but optimized for
     /// execution time at the expense of accuracy.
-    #[cfg(any(linux_android, target_os = "emscripten", target_os = "freebsd"))]
+    #[cfg(any(linux, target_os = "emscripten", target_os = "freebsd"))]
     pub const CLOCK_REALTIME_COARSE: ClockId = ClockId(libc::CLOCK_REALTIME_COARSE);
     #[cfg(freebsdlike)]
     /// Like [`CLOCK_REALTIME`](ClockId::CLOCK_REALTIME), but optimized for
@@ -126,9 +126,9 @@ impl ClockId {
     ///
     /// A nonsettable system-wide clock derived from wall-clock time but
     /// ignoring leap seconds.
-    #[cfg(any(linux_android, target_os = "emscripten"))]
+    #[cfg(any(linux, target_os = "emscripten"))]
     pub const CLOCK_TAI: ClockId = ClockId(libc::CLOCK_TAI);
-    #[cfg(any(linux_android, apple_targets, freebsdlike, netbsdlike, target_os = "emscripten"))]
+    #[cfg(any(linux, apple_targets, freebsdlike, netbsdlike, target_os = "emscripten"))]
     /// Returns the execution time of the calling thread.
     pub const CLOCK_THREAD_CPUTIME_ID: ClockId = ClockId(libc::CLOCK_THREAD_CPUTIME_ID);
     #[cfg(any(freebsdlike, target_os = "openbsd"))]
@@ -198,7 +198,7 @@ pub fn clock_settime(clock_id: ClockId, timespec: TimeSpec) -> Result<()> {
 
 /// Get the clock id of the specified process id, (see
 /// [clock_getcpuclockid(3)](https://pubs.opengroup.org/onlinepubs/009695399/functions/clock_getcpuclockid.html)).
-#[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+#[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
 #[cfg(feature = "process")]
 #[cfg_attr(docsrs, doc(cfg(feature = "process")))]
 pub fn clock_getcpuclockid(pid: Pid) -> Result<ClockId> {
@@ -213,7 +213,7 @@ pub fn clock_getcpuclockid(pid: Pid) -> Result<ClockId> {
 }
 
 #[cfg(any(
-    linux_android,
+    linux,
     solarish,
     freebsdlike,
     target_os = "netbsd",
@@ -240,7 +240,7 @@ libc_bitflags! {
 ///
 /// see also [man 3 clock_nanosleep](https://pubs.opengroup.org/onlinepubs/009695399/functions/clock_nanosleep.html)
 #[cfg(any(
-    linux_android,
+    linux,
     solarish,
     freebsdlike,
     target_os = "netbsd",

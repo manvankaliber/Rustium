@@ -410,7 +410,7 @@ TEST(SessionCommandsTest, MatchCapabilitiesVirtualAuthenticators) {
   merged.SetByDottedPath("webauthn:virtualAuthenticators", true);
   EXPECT_TRUE(MatchCapabilities(merged));
 
-  // Don't match webauthn:virtualAuthenticators on android.
+  // Reject a retired app-platform option before matching desktop capabilities.
   merged.SetByDottedPath("goog:chromeOptions.androidPackage", "packageName");
   EXPECT_FALSE(MatchCapabilities(merged));
 
@@ -426,7 +426,7 @@ TEST(SessionCommandsTest, MatchCapabilitiesVirtualAuthenticatorsLargeBlob) {
   merged.SetByDottedPath("webauthn:extension:largeBlob", true);
   EXPECT_TRUE(MatchCapabilities(merged));
 
-  // Don't match webauthn:extension:largeBlob on android.
+  // Reject a retired app-platform option before matching desktop capabilities.
   merged.SetByDottedPath("goog:chromeOptions.androidPackage", "packageName");
   EXPECT_FALSE(MatchCapabilities(merged));
 

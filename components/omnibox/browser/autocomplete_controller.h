@@ -47,7 +47,6 @@ class OmniboxTriggeredFeatureService;
 class OnDeviceHeadProvider;
 class OpenTabProvider;
 class SearchProvider;
-class TabGroupProvider;
 class TemplateURLService;
 class VoiceSuggestProvider;
 class ZeroSuggestProvider;
@@ -329,7 +328,6 @@ class AutocompleteController : public AutocompleteProviderListener,
   // match into the result set, currently still needed only by iOS.
   size_t InjectAdHocMatch(AutocompleteMatch match);
 
-
  private:
   friend class FakeAutocompleteController;
   friend class AutocompleteProviderTest;
@@ -555,7 +553,6 @@ class AutocompleteController : public AutocompleteProviderListener,
   raw_ptr<ClipboardProvider> clipboard_provider_ = nullptr;
   raw_ptr<VoiceSuggestProvider> voice_suggest_provider_ = nullptr;
   raw_ptr<OpenTabProvider> open_tab_provider_ = nullptr;
-  raw_ptr<TabGroupProvider> tab_group_provider_ = nullptr;
   raw_ptr<FeaturedSearchProvider> featured_search_provider_ = nullptr;
   raw_ptr<ContextualSearchProvider> contextual_search_provider_ = nullptr;
 

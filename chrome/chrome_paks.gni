@@ -297,12 +297,8 @@ template("chrome_extra_paks") {
     }
 
     if (is_win || is_mac || is_linux) {
-      sources += [
-        "$root_gen_dir/chrome/discards_resources.pak",
-      ]
-      deps += [
-        "//chrome/browser/resources/discards:resources",
-      ]
+      sources += [ "$root_gen_dir/chrome/discards_resources.pak" ]
+      deps += [ "//chrome/browser/resources/discards:resources" ]
     }
 
     if (is_win || is_mac || is_linux) {
@@ -312,7 +308,6 @@ template("chrome_extra_paks") {
 
     if (enable_extensions_core) {
       sources += [
-        "$root_gen_dir/chrome/aim_eligibility_extension_resources.pak",
         "$root_gen_dir/chrome/contextual_tasks_extension_resources.pak",
         "$root_gen_dir/chrome/extensions_resources.pak",
         "$root_gen_dir/extensions/extensions_renderer_generated_resources.pak",
@@ -322,7 +317,6 @@ template("chrome_extra_paks") {
       deps += [
         "//chrome/browser/resources/contextual_tasks/extension:resources",
         "//chrome/browser/resources/extensions:resources",
-        "//chrome/browser/resources/omnibox_internals/aim_eligibility_extension:resources",
         "//extensions:extensions_resources",
       ]
       if (enable_webui_ntp) {

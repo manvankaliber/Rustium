@@ -1,4 +1,4 @@
-//! Rust parser of ZoneInfoDb(`tzdata`) on Android and OpenHarmony
+//! Rust parser of ZoneInfoDb(`tzdata`) on OpenHarmony
 //!
 //! Ported from: https://android.googlesource.com/platform/prebuilts/fullsdk/sources/+/refs/heads/androidx-appcompat-release/android-34/com/android/i18n/timezone/ZoneInfoDb.java
 use std::{
@@ -14,12 +14,6 @@ pub(crate) fn for_zone(tz_string: &str) -> Result<Option<Vec<u8>>> {
     let mut file = File::open("/system/etc/zoneinfo/tzdata")?;
     find_tz_data::<OHOS_ENTRY_LEN>(&mut file, tz_string.as_bytes())
 }
-
-/// Get timezone data from the `tzdata` file of Android.
-
-
-/// Open the `tzdata` file of Android from the environment variables.
-
 
 /// Get timezone data from the `tzdata` file reader
 #[cfg(any(test, target_env = "ohos"))]
@@ -140,10 +134,6 @@ fn from_bytes_until_nul(bytes: &[u8]) -> Option<&CStr> {
 /// Ohos tzdata index entry size: `name + offset + length`
 #[cfg(any(test, target_env = "ohos"))]
 const OHOS_ENTRY_LEN: usize = TZ_NAME_LEN + 2 * size_of::<u32>();
-/// Android tzdata index entry size: `name + offset + length + raw_utc_offset(legacy)`:
-/// [reference](https://android.googlesource.com/platform/prebuilts/fullsdk/sources/+/refs/heads/androidx-appcompat-release/android-34/com/android/i18n/timezone/ZoneInfoDb.java#271)
-#[cfg(test)]
-const ANDROID_ENTRY_LEN: usize = TZ_NAME_LEN + 3 * size_of::<u32>();
 /// The database reserves 40 bytes for each id.
 const TZ_NAME_LEN: usize = 40;
 /// Size of the version string in the header of `tzdata` file.
@@ -185,31 +175,6 @@ mod tests {
     }
 
     #[test]
-    fn test_android_tzdata_header_and_index() {
-        let file = File::open("./tests/android/tzdata").unwrap();
-        let header = TzDataHeader::new(&file).unwrap();
-        assert_eq!(header.version, *b"2021a");
-        assert_eq!(header.index_offset, 24);
-        assert_eq!(header.data_offset, 30860);
-        assert_eq!(header.zonetab_offset, 491837);
-
-        let iter = TzDataIndexes::new::<ANDROID_ENTRY_LEN>(&file, &header).unwrap();
-        assert_eq!(iter.indexes.len(), 593);
-        assert!(iter.find_timezone(b"Asia/Shanghai").is_some());
-        assert!(iter.find_timezone(b"Pacific/Noumea").is_some());
-    }
-
-    #[test]
-    fn test_android_tzdata_loading() {
-        let file = File::open("./tests/android/tzdata").unwrap();
-        let header = TzDataHeader::new(&file).unwrap();
-        let iter = TzDataIndexes::new::<ANDROID_ENTRY_LEN>(&file, &header).unwrap();
-        let timezone = iter.find_timezone(b"Asia/Shanghai").unwrap();
-        let tzdata = iter.find_tzdata(&file, &header, timezone).unwrap();
-        assert_eq!(tzdata.len(), 573);
-    }
-
-    #[test]
     fn test_ohos_tzdata_find() {
         let file = File::open("./tests/ohos/tzdata").unwrap();
         let tzdata = find_tz_data::<OHOS_ENTRY_LEN>(file, b"Asia/Shanghai").unwrap().unwrap();
@@ -220,19 +185,6 @@ mod tests {
     fn test_ohos_tzdata_find_missing() {
         let file = File::open("./tests/ohos/tzdata").unwrap();
         assert!(find_tz_data::<OHOS_ENTRY_LEN>(file, b"Asia/Sjasdfai").unwrap().is_none());
-    }
-
-    #[test]
-    fn test_android_tzdata_find() {
-        let file = File::open("./tests/android/tzdata").unwrap();
-        let tzdata = find_tz_data::<ANDROID_ENTRY_LEN>(file, b"Asia/Shanghai").unwrap().unwrap();
-        assert_eq!(tzdata.len(), 573);
-    }
-
-    #[test]
-    fn test_android_tzdata_find_missing() {
-        let file = File::open("./tests/android/tzdata").unwrap();
-        assert!(find_tz_data::<ANDROID_ENTRY_LEN>(file, b"Asia/S000000i").unwrap().is_none());
     }
 
     #[cfg(target_env = "ohos")]

@@ -332,7 +332,7 @@
 #include "chrome/browser/apps/app_service/app_service_proxy_factory.h"
 #include "chrome/browser/badging/badge_manager_factory.h"
 #include "chrome/browser/device_api/managed_configuration_api_factory.h"
-#include "chrome/browser/devtools/device/devtools_android_bridge.h"
+#include "chrome/browser/devtools/device/devtools_remote_bridge.h"
 #include "chrome/browser/devtools/devtools_navigation_gating_service_factory.h"
 #include "chrome/browser/dictation/dictation_keyed_service_factory.h"
 #include "chrome/browser/download/offline_item_model_manager_factory.h"
@@ -472,7 +472,6 @@
 #include "chrome/browser/omnibox/omnibox_suggestions_watcher_factory.h"
 #include "chrome/browser/policy/cloud/extension_install_policy_service_factory.h"
 #include "chrome/browser/speech/extension_api/tts_extension_api.h"
-#include "chrome/browser/ui/webui/omnibox_internals/aim_eligibility_extension/aim_eligibility_extension_bridge_factory.h"
 #include "components/contextual_tasks/public/features.h"
 #include "extensions/browser/browser_context_keyed_service_factories.h"
 #include "extensions/browser/extensions_browser_client.h"
@@ -636,8 +635,6 @@ void ChromeBrowserMainExtraPartsProfiles::
   autofill::AutofillFieldClassificationModelServiceFactory::GetInstance();
   autofill::AutofillOfferManagerFactory::GetInstance();
   autofill::AutofillOptimizationGuideDeciderFactory::GetInstance();
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-#endif
   autofill::MlLogRouterFactory::GetInstance();
   autofill::PersonalContextEntityMetadataManagerFactory::GetInstance();
   autofill::PersonalDataManagerFactory::GetInstance();
@@ -711,15 +708,13 @@ void ChromeBrowserMainExtraPartsProfiles::
   ConsentAuditorFactory::GetInstance();
   ContextHubServiceFactory::GetInstance();
   contextual_cueing::ContextualCueingServiceFactory::GetInstance();
-
+  // Shared search code still queries these factories and their registered
+  // preferences. AI Mode's UI and context-extraction services stay unavailable.
   contextual_tasks::ContextualTasksContextServiceFactory::GetInstance();
   contextual_tasks::ContextualTasksServiceFactory::GetInstance();
   contextual_tasks::ContextualTasksUiServiceFactory::GetInstance();
-  contextual_tasks::SearchJourneyTrackerFactory::GetInstance();
 
   ContentIndexProviderFactory::GetInstance();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
-#endif
   ContextualSearchServiceFactory::GetInstance();
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   controlled_frame::ControlledFrameMediaPermissionCacheFactory::GetInstance();
@@ -736,7 +731,7 @@ void ChromeBrowserMainExtraPartsProfiles::
   data_sharing::personal_collaboration_data::
       PersonalCollaborationDataServiceFactory::GetInstance();
   DependencyParserModelLoaderFactory::GetInstance();
-  DevToolsAndroidBridge::Factory::GetInstance();
+  DevToolsRemoteBridge::Factory::GetInstance();
   DevToolsNavigationGatingServiceFactory::GetInstance();
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   DiceMigrationServiceFactory::GetInstance();
@@ -908,14 +903,10 @@ void ChromeBrowserMainExtraPartsProfiles::
   OfflineItemModelManagerFactory::GetInstance();
   OmniboxPopupWebUIPoolFactory::GetInstance();
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-  AimEligibilityExtensionBridgeFactory::GetInstance();
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   NewTabPageExtensionBridgeFactory::GetInstance();
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
-  if (base::FeatureList::IsEnabled(
-          contextual_tasks::kContextualTasksRearchitecture)) {
-    contextual_tasks::ContextualTasksExtensionBridgeFactory::GetInstance();
-  }
+
   OmniboxInputWatcherFactory::GetInstance();
   OmniboxSuggestionsWatcherFactory::GetInstance();
 #endif
@@ -1048,8 +1039,6 @@ void ChromeBrowserMainExtraPartsProfiles::
 #endif
 #if BUILDFLAG(FULL_SAFE_BROWSING)
   safe_browsing::ExtensionTelemetryServiceFactory::GetInstance();
-#endif
-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #endif
 #if BUILDFLAG(FULL_SAFE_BROWSING)
   safe_browsing::HashRealTimeServiceFactory::GetInstance();

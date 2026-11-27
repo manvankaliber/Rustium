@@ -109,8 +109,7 @@ class ObjectDetector : public BaseVisionTaskApi<DetectionResult> {
   // directly suitable for display if the input image is displayed *with* the
   // `Orientation` flag taken into account according to the EXIF specification
   // (http://jpegclub.org/exif_orientation.html): it may first need to be
-  // rotated. This is typically true when consuming camera frames on Android or
-  // iOS.
+  // rotated. This can occur when consuming camera frames with EXIF orientation.
   //
   // For example, if the input `frame_buffer` has its `Orientation` flag set to
   // `kLeftBottom` (i.e. the image will be rotated 90° clockwise during

@@ -1,0 +1,33 @@
+{
+  "utc": "2026-11-22T10:17:49.575470+00:00",
+  "prior_pr_head": "a60281116646a3e3b78fd01607e56aa0448a3fc9",
+  "integration_commit": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "scope": "Frozen Digest handler policy and shared frozen Basic/Digest original parameter and quoting helpers in the reference target.",
+  "build": "Both GN checks and named Windows family target builds passed with -j4. Two recorded links per build were serialized.",
+  "runtime": {
+    "ordinary_passed": 4,
+    "dcheck_probe_passed": 2,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "failed": 0,
+    "skipped": 0,
+    "fixed_nonce_whole_wire_token_assertion": "passed",
+    "probe_control_and_silence": "Passed for the seven entry counters in the Digest test snapshot."
+  },
+  "providers": [
+    "Nonce generator",
+    "ICU conversion and normalization",
+    "URL access and effective port",
+    "BoringSSL digest primitive"
+  ],
+  "restoration": "Both prior DLLs were restored after the locked run. The remaining warm executables must not be paired with those previous DLLs as candidate evidence.",
+  "receipt": "C:/Users/micro/rb/network-f27ce55-digest-validation-20261122a/result.json",
+  "ordinary_test_log": "C:/Users/micro/rb/network-f27ce55-digest-validation-20261122a/ordinary-test.log",
+  "probe_test_log": "C:/Users/micro/rb/network-f27ce55-digest-validation-20261122a/probe-test.log",
+  "independent_release": "C:/Users/micro/rb/network-f27ce55-digest-validation-20261122a/independent-release.json",
+  "non_kerberos": {
+    "status": "dispatched on the exact integration head",
+    "task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A6daed4cd-b867-4357-920f-572abeee2b89"
+  }
+}

@@ -24,10 +24,6 @@
 #include "components/variations/variations_associated_data.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 
-namespace android_webview {
-class AwBrowserMainParts;
-}  // namespace android_webview
-
 namespace variations {
 namespace internal {
 
@@ -163,14 +159,10 @@ class COMPONENT_EXPORT(VARIATIONS) VariationsIdsProvider
   // strings of numeric experiment ids. Ids explicitly passed in `variation_ids`
   // and those in the comma-separated `command_line_variation_ids` are added.
   //
-  // This function is restricted to be used from only two specific locations for
+  // This function is restricted to be used from a specific location for
   // privacy reasons.
   ForceIdsResult ForceVariationIds(
       base::PassKey<VariationsFieldTrialCreator> pass_key,
-      const std::vector<std::string>& variation_ids,
-      const std::string& command_line_variation_ids);
-  ForceIdsResult ForceVariationIds(
-      base::PassKey<android_webview::AwBrowserMainParts> pass_key,
       const std::vector<std::string>& variation_ids,
       const std::string& command_line_variation_ids);
 

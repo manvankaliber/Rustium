@@ -306,8 +306,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -316,7 +315,7 @@ cc_library(
     name = "matrix_to_tensor_calculator",
     srcs = ["matrix_to_tensor_calculator.cc"],
     features = select({
-        "//mediapipe:android": ["-layering_check"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -332,9 +331,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -414,8 +411,6 @@ cc_library(
     alwayslink = 1,
 )
 
-# On android, this calculator is configured to run with lite protos. Therefore,
-# compile your binary with the flag TENSORFLOW_PROTOS=lite.
 cc_library(
     name = "tensorflow_inference_calculator_no_envelope_loader",
     deps = [
@@ -435,7 +430,7 @@ cc_library(
     name = "tensorflow_inference_calculator_for_boq",
     srcs = ["tensorflow_inference_calculator.cc"],
     features = select({
-        "//mediapipe:android": ["-layering_check"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -460,9 +455,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
         "//mediapipe:ios": [
             "@org_tensorflow//tensorflow/core:portable_tensorflow_lib",
         ],
@@ -493,9 +486,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
         "//mediapipe:ios": [
             "@org_tensorflow//tensorflow/core:portable_tensorflow_lib",
         ],
@@ -521,12 +512,9 @@ cc_library(
             "//mediapipe/framework/port:file_helpers",
             "@org_tensorflow//tensorflow/core",
         ],
-        "//mediapipe:android": [
-            "//mediapipe/android/file/base",
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/android/file/base",
+
             "@org_tensorflow//tensorflow/core:portable_tensorflow_lib",
         ],
     }),
@@ -552,12 +540,9 @@ cc_library(
             "//mediapipe/framework/port:file_helpers",
             "@org_tensorflow//tensorflow/core",
         ],
-        "//mediapipe:android": [
-            "//mediapipe/android/file/base",
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/android/file/base",
+
             "@org_tensorflow//tensorflow/core:portable_tensorflow_lib",
         ],
     }),
@@ -568,7 +553,7 @@ cc_library(
     name = "tensorflow_session_from_saved_model_calculator",
     srcs = ["tensorflow_session_from_saved_model_calculator.cc"],
     defines = select({
-        "//mediapipe:android": ["__ANDROID__"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -586,7 +571,7 @@ cc_library(
     ] + select({
         "//conditions:default": [
         ],
-        "//mediapipe:android": [],
+
     }) + select(
         {
             "//conditions:default": [
@@ -596,8 +581,7 @@ cc_library(
         {
             "//conditions:default": [
             ],
-            "//mediapipe:android": [
-            ],
+
         },
     ),
     alwayslink = 1,
@@ -606,7 +590,7 @@ cc_library(
 cc_library(
     name = "tensorflow_session_from_saved_model_generator",
     defines = select({
-        "//mediapipe:android": ["__ANDROID__"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -625,7 +609,7 @@ cc_library(
 cc_library(
     name = "tensorflow_session_from_saved_model_generator_no_envelope_loader",
     defines = select({
-        "//mediapipe:android": ["__ANDROID__"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -644,7 +628,7 @@ cc_library(
     name = "tensorflow_session_from_saved_model_generator_for_boq",
     srcs = ["tensorflow_session_from_saved_model_generator.cc"],
     defines = select({
-        "//mediapipe:android": ["__ANDROID__"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -703,7 +687,7 @@ cc_library(
     name = "tensor_to_matrix_calculator",
     srcs = ["tensor_to_matrix_calculator.cc"],
     features = select({
-        "//mediapipe:android": ["-layering_check"],
+
         "//conditions:default": [],
     }),
     deps = [
@@ -719,9 +703,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -754,9 +736,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -775,9 +755,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -794,9 +772,7 @@ cc_library(
         "//conditions:default": [
             "@org_tensorflow//tensorflow/core:framework",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
+
     }),
     alwayslink = 1,
 )
@@ -1277,11 +1253,6 @@ test_suite(
     tags = ["ios"],
 )
 
-test_suite(
-    name = "android",
-    tags = ["android"],
-)
-
 cc_test(
     name = "tensorflow_inference_calculator_test",
     size = "medium",
@@ -1313,10 +1284,7 @@ cc_test(
             "@org_tensorflow//tensorflow/core/kernels:conv_ops",
             "@org_tensorflow//tensorflow/core/kernels:math",
         ],
-        "//mediapipe:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib",
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_test_lib",
-        ],
+
         "//mediapipe:ios": [
             "@org_tensorflow//tensorflow/core:portable_tensorflow_test_lib",
         ],

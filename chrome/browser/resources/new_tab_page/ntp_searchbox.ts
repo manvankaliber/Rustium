@@ -4,7 +4,6 @@
 
 import 'chrome://resources/cr_components/composebox/composebox_file_inputs.js';
 import 'chrome://resources/cr_components/composebox/contextual_entrypoint_and_menu.js';
-import 'chrome://resources/cr_components/searchbox/searchbox_compose_button.js';
 import 'chrome://resources/cr_components/searchbox/searchbox_dropdown.js';
 import 'chrome://resources/cr_components/searchbox/searchbox_input.js';
 

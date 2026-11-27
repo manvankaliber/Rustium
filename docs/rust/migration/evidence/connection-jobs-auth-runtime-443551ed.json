@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-22T02:31:38.700666+00:00",
+  "head": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "configuration": "Existing opt-in Windows DCHECK component probe",
+  "tests": {
+    "AuthReferenceQualificationTest.EachInstrumentedFamilyHasPositiveControl": 0.113,
+    "AuthReferenceQualificationTest.BasicWireTokenAvoidsRustBase64": 0.107,
+    "AuthReferenceQualificationTest.DigestNativeCaseUsesOriginalHandlerPath": 0.12
+  },
+  "discovery_elapsed_seconds": 0.046,
+  "failed": 0,
+  "skipped": 0,
+  "launcher_jobs": 1,
+  "retries": 0,
+  "build": false,
+  "runtime_scope": "Executable and DLL matched the built probe receipt. Current source data and observed dependencies were stable; historical and system closure was not established. The seven instrumented entry points remain the observation limit.",
+  "receipt": "C:/Users/micro/rb/network-443551-auth-runtime-20261122a/result.json",
+  "independent_release": "C:/Users/micro/rb/network-443551-auth-runtime-20261122a/independent-release.json"
+}

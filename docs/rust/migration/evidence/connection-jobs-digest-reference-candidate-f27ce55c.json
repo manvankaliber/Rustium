@@ -1,0 +1,65 @@
+{
+  "utc": "2026-11-22T10:00:59.425641+00:00",
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "base_revision": "a60281116646a3e3b78fd01607e56aa0448a3fc9",
+  "candidate_revision": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "branch": "rust/connection-original-digest-handler-20261122",
+  "original_revision": "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c",
+  "original_source": {
+    "net/http/http_auth_handler_digest.cc": {
+      "git_blob": "b97412fc800be2f47658a87de89365c789b4329a",
+      "sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369"
+    },
+    "net/http/http_auth_handler_digest.h": {
+      "git_blob": "38693f838aa08cba5ff6ed7b9fc6196cbdb6c1db",
+      "sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962"
+    },
+    "net/http/http_util.cc": {
+      "git_blob": "1463d134da8b3965c4c99e16ccfa5788dcfe6571",
+      "sha256": "a229dc1b80c334eb041f99cb76bb75df9b9f231af49455b0b0aa8c0b3ad371f5"
+    },
+    "net/http/http_util.h": {
+      "git_blob": "003f5f2e43587954092e8bd0d7bef463a7c9ebad",
+      "sha256": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871"
+    },
+    "base/strings/string_tokenizer.h": {
+      "git_blob": "3e7c1e5561b031a52cf7b9b1ea34ec47ed2fe82b",
+      "sha256": "7903a2d6c826af38d216ea1ff77baf24be17051bbf4baa647984c25d4db854a7"
+    }
+  },
+  "candidate_source": {
+    "net/BUILD.gn": {
+      "git_blob": "61064fe2d4e06a863706e42372cf2f95c627cb2b",
+      "sha256": "a4cdff7a5d81bb839f25ead309e23f19036c17fa8457bb463aa9a7cfa87abf9b"
+    },
+    "net/http/connection_auth_original_basic.cc": {
+      "git_blob": "e467b4aac4a2be9167f6dfba3e40866a5a6e8da5",
+      "sha256": "af234208823e2e0a3f13f11b80f0b7a4ed28ce0aef0263670d9d93f24cae07c5"
+    },
+    "net/http/connection_auth_original_digest_factory.cc": {
+      "git_blob": "ce792be5248b2d142eb622c0df59ea8bf9304a93",
+      "sha256": "15b4d4f67efbb8687b81140b1b773ac104f2503e04953617a26363982d5a0590"
+    },
+    "net/http/connection_auth_original_parameters.cc": {
+      "git_blob": "5c950cdb66289bc7353d1d11f33a1e0f4511c831",
+      "sha256": "91bca0e11c70fd91ad405afaf715c252c2b62c22d21ae2cb1cd266bc60acd376"
+    },
+    "net/http/connection_auth_original_parameters.h": {
+      "git_blob": "5600ed848213ca45cd14e10d6154b92a686e4763",
+      "sha256": "82f09e1afb663a10dd65f470d7019260f185bbbcf5cc690aa53971619164c00e"
+    },
+    "net/http/connection_auth_original_provider_unittest.cc": {
+      "git_blob": "a6bb8be64a7ff4c3291e690c3333eefe554a8d69",
+      "sha256": "1d4ee79a1547d90e6d6817858b40e79638d13f4cf9b06eaa90fded754ec4e056"
+    }
+  },
+  "scope": "Private test/reference Digest handler from pinned C++ with shared original Basic/Digest frozen parameter values, parameters and quoting. Production Digest handler remains on its own path.",
+  "external_providers": [
+    "Native nonce generation interface and injected fixed nonce",
+    "ICU conversion and normalization",
+    "URL access and effective port",
+    "BoringSSL digest primitive"
+  ],
+  "validation": "Source candidate and whitespace checks only. Existing exact probe case compares the fixed-nonce authorization bytes, and one ordinary case checks stale/invalid/later grammar. Independent source review underway; no compiles or tests on candidate.",
+  "review": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Adelegate-task%3A2fc20ff9-372b-4700-840c-3566aaecbdb7"
+}

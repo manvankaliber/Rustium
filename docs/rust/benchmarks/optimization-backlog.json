@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "policy": "Migration-priority: correctness and safety remain required; measured slowdowns are accepted and tracked. Integrated regressions remain included in the benchmark aggregate.",
+  "policy": "Migration-priority: correctness, compatibility and safety remain required. Temporary measured regressions may remain during migration, with every iteration archived and tracked. Hold gallery/site publication until the complete batch meets the improvement/no-measurable-regression target, or each remaining regression has a demonstrated hard blocker and a concrete near-term follow-up rewrite. Mere bridge presence is not evidence of cause. Publish every case, including accepted regressions, once the gate is met; pending publication does not imply candidate-only status.",
   "entries": [
     {
       "id": "protocol-number-bridge",
@@ -1600,6 +1600,1555 @@
       "measured_regressions": [],
       "cause_status": "Removed work is established by source review and behavioral tests. FFI remains included, but no isolated bridge contribution or sampling-profiler attribution has been measured.",
       "follow_up": "Measure and profile residual complete API costs, allocation/state/locking work and adapter calls. Batch across migrated callers when those migrate; do not assume removing the bridge fixes every regression. Retain all cases and original references in each remeasurement."
+    },
+    {
+      "id": "http2-read-queue-cohort-a-initial-20261113t102749705981z",
+      "module": "http2-read-queue",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-initial-20261113t102749705981z-2026-11-13.json",
+      "evidence_sha256": "cbab8c1b834a111c4f4a74da614a67622c33ade3572a2d1d66987eb350d44ba1",
+      "scope": "Explicit --timing enables 20 deterministic randomized-order pairs (mt19937 seed 20261113), 256 full API sequences per sample, nanoseconds/API sequence. Every case verified independently before all clocks, plus native semantic fixtures and paired checksums. Changing payload bytes and lengths per iteration; independent buffer/queue fixtures. Include construction/destruction, allocations, payload generation/copies, callbacks/event allocations/checksumming, FFI, queries, drain and empty miss; no network/session IO, stream construction, system scheduling, HTTP/2 frame parsing, or gallery work. The empty-query case executes 256 IsEmpty/GetTotalSize pairs and includes an empty event-vector/queue lifetime; empty-dequeue case includes one missed read and size/empty queries. Callback bytes/source and output bytes participate in checksums; per-sample checksums emitted and compared after clocks. --verify-only executes no measurement clocks.",
+      "bridge": null,
+      "measured_regressions": [
+        {
+          "case": "empty_queries",
+          "cpp_median_ns": 854.296875,
+          "rust_median_ns": 1147.265625,
+          "rust_speedup_percent": -25.536261491317667,
+          "time_change_95_ci_percent": [
+            33.24263038548754,
+            35.21320495185694
+          ]
+        },
+        {
+          "case": "empty_dequeue",
+          "cpp_median_ns": 176.5625,
+          "rust_median_ns": 224.21875,
+          "rust_speedup_percent": -21.254355400696866,
+          "time_change_95_ci_percent": [
+            26.991150442477885,
+            27.27272727272727
+          ]
+        },
+        {
+          "case": "single_full",
+          "cpp_median_ns": 1147.65625,
+          "rust_median_ns": 1176.5625,
+          "rust_speedup_percent": -2.4568393094289487,
+          "time_change_95_ci_percent": [
+            1.7633095964733725,
+            3.315105946684893
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile empty-state lifetime allocation, per-query dispatch, and single-buffer sequencing; preserve callback observations and owner-deletion safety.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-priority-dependencies-cohort-a-initial-20261113t102749705981z",
+      "module": "http2-priority-dependencies",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-initial-20261113t102749705981z-2026-11-13.json",
+      "evidence_sha256": "566f6a3967958d3813177a75b8be0d58aaeb5ede8c867f8e24376d2ab97a52ef",
+      "scope": "Prepared; zero timing samples collected. Parent-only --timing emits 20 randomized-order paired samples per case, seed 20261113, 256 changing-input lifecycle iterations per sample; ns per complete scenario. Includes construction/destruction, creation/setup of live streams, actual C++/Rust public API calls, FFI, Rust containers/allocations, public native vector allocation/reserve, result checksum calculation and post-action probes. Excludes untimed independent flat-order specification checks, warmup (32 iterations), 256-iteration checksum preflight, order PRNG and JSON output. All writes/deletions are in-memory: no socket, packet, server, whole-browser or isolated operation claim. Do not time the isolated instrumented validation binary. --verify-only checks all 10 workloads and never enters Measure/reads a timing clock.",
+      "bridge": {
+        "present": true,
+        "kind": "Opaque unique Rust owner with synchronous C ABI and fixed-size result values; native public vector/output assignment",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "update_missing",
+          "cpp_median_ns": 6558.7890625,
+          "rust_median_ns": 7863.4765625,
+          "rust_speedup_percent": -16.591738903653663,
+          "time_change_95_ci_percent": [
+            19.824916626965216,
+            20.07564476740724
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect missing-ID update path and output-plan allocation; preserve duplicate/null/alias contracts and input workloads.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "net-errors-cohort-a-initial-20261113t102749705981z",
+      "module": "net-errors",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\net-errors-cohort-a-initial-20261113t102749705981z-2026-11-13.json",
+      "evidence_sha256": "bd0a3d3710e0374ed7474e07879d2e71e344a6272b1446431400fcd8a81ddfc8",
+      "scope": "Prepared only; no timings collected. Parent-only --timing emits 20 randomized-order pairs per case (seed 20261113), 16384 calls/scenarios per sample; nanoseconds per iteration. Includes public C++ adapter/FFI, native string ownership/allocation/destruction and byte checksum for string cases; all five predicates per classification iteration; one API mapping plus checksum in mapping cases. Mapping misses include warning formatting and a suppressing log sink in both implementations; no stderr/file output, same configured diagnostics in both. Zero system error is a constant-input intentional no-diagnostic control. Other cases cycle 256 initialized inputs. Independent semantic checks and paired complete-case checksum verification occur before clocks. Excludes fixture construction, preflight, order PRNG, report output. Instrumented local binaries are validation only; do not time them. No network/browser performance claim.",
+      "bridge": {
+        "present": true,
+        "kind": "Stateless synchronous C ABI; native owned std::string and named platform constant POD; Rust owns all local error policy",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "classification",
+          "cpp_median_ns": 9.045410156,
+          "rust_median_ns": 11.242675781,
+          "rust_speedup_percent": -19.543973941802673,
+          "time_change_95_ci_percent": [
+            24.291497976379883,
+            25.843454792919406
+          ]
+        },
+        {
+          "case": "system_hits",
+          "cpp_median_ns": 13.317871093499999,
+          "rust_median_ns": 15.344238281,
+          "rust_speedup_percent": -13.20604614182217,
+          "time_change_95_ci_percent": [
+            13.678498756227086,
+            17.233348856800678
+          ]
+        },
+        {
+          "case": "system_misses",
+          "cpp_median_ns": 1465.3778076175,
+          "rust_median_ns": 1507.6171875,
+          "rust_speedup_percent": -2.8017311179997506,
+          "time_change_95_ci_percent": [
+            2.475501118222878,
+            3.5770509008141937
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect predicate dispatch and system mapping code generation; preserve generated schema and warning/log diagnostic behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "tcp-client-socket-cohort-a-initial-20261113t102749705981z",
+      "module": "tcp-client-socket",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-initial-20261113t102749705981z-2026-11-13.json",
+      "evidence_sha256": "a6dfef1a26ac7209d2fd58f9160be43174d139526d5b3b48db67aa389b057af6",
+      "scope": "Full public API, 20 deterministic randomized-order paired samples (seed 20261113), 256 iterations per sample. Each iteration includes AddressList and IOBuffer construction where used, native TCPSocket construction, Open/default options/Close where used, public C++ adapter, FFI, Rust policy, completion callback ownership, allocation, copy and destruction. No ownership/copy/destruction is excluded. Inputs are deterministic; 32-iteration paired verification/warmup precedes each timed case. Native timers use the real task runner. Scripted connect and IO eliminate external network latency; these are isolated controller/API workloads, not Chromium end-to-end performance. Verification mode substitutes constant diagnostic clocks and never calls measurement clocks. Timing requires explicit --timing and a parent-coordinated quiet window.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "C++/Rust ABI; native service boundaries remain explicit in the source manifest",
+        "evidence": "Full public API workloads include their Rust boundary. No isolated bridge cost or causal overhead is established."
+      },
+      "measured_regressions": [
+        {
+          "case": "sync-read-64",
+          "cpp_median_ns": 45990.234375,
+          "rust_median_ns": 47925.0,
+          "rust_speedup_percent": -4.037069640062596,
+          "time_change_95_ci_percent": [
+            2.94161676646707,
+            4.984155649448008
+          ]
+        },
+        {
+          "case": "sync-read-ready-64",
+          "cpp_median_ns": 45440.625,
+          "rust_median_ns": 47912.5,
+          "rust_speedup_percent": -5.159144273415084,
+          "time_change_95_ci_percent": [
+            4.7399599343129095,
+            6.150370223170709
+          ]
+        },
+        {
+          "case": "sync-write-64",
+          "cpp_median_ns": 45327.1484375,
+          "rust_median_ns": 47324.8046875,
+          "rust_speedup_percent": -4.221161108199234,
+          "time_change_95_ci_percent": [
+            3.365491905996265,
+            5.584108001853139
+          ]
+        },
+        {
+          "case": "async-read-64",
+          "cpp_median_ns": 44672.65625,
+          "rust_median_ns": 47011.1328125,
+          "rust_speedup_percent": -4.9743037927352685,
+          "time_change_95_ci_percent": [
+            4.494612308618118,
+            5.769450373766927
+          ]
+        },
+        {
+          "case": "async-write-64",
+          "cpp_median_ns": 44916.9921875,
+          "rust_median_ns": 47346.875,
+          "rust_speedup_percent": -5.132086990957696,
+          "time_change_95_ci_percent": [
+            4.202933084938154,
+            6.398345195105715
+          ]
+        },
+        {
+          "case": "cancel-ready",
+          "cpp_median_ns": 44559.765625,
+          "rust_median_ns": 47066.2109375,
+          "rust_speedup_percent": -5.325360301105075,
+          "time_change_95_ci_percent": [
+            4.464313012941745,
+            6.18965123027948
+          ]
+        },
+        {
+          "case": "disconnect-pending",
+          "cpp_median_ns": 45381.4453125,
+          "rust_median_ns": 48359.765625,
+          "rust_speedup_percent": -6.158674001017761,
+          "time_change_95_ci_percent": [
+            5.467735089456838,
+            7.313038295078567
+          ]
+        },
+        {
+          "case": "suspend-duplex",
+          "cpp_median_ns": 45273.828125,
+          "rust_median_ns": 48463.671875,
+          "rust_speedup_percent": -6.581927506911589,
+          "time_change_95_ci_percent": [
+            5.982178915440062,
+            7.8818375048800515
+          ]
+        },
+        {
+          "case": "adopt-connected",
+          "cpp_median_ns": 43529.296875,
+          "rust_median_ns": 45120.5078125,
+          "rust_speedup_percent": -3.5265802949566494,
+          "time_change_95_ci_percent": [
+            2.6410831198405926,
+            4.383918863438474
+          ]
+        },
+        {
+          "case": "construct-normal",
+          "cpp_median_ns": 4584.765625,
+          "rust_median_ns": 5530.2734375,
+          "rust_speedup_percent": -17.096945082111958,
+          "time_change_95_ci_percent": [
+            18.423379795342566,
+            22.19834994843588
+          ]
+        },
+        {
+          "case": "bind-local-disconnect",
+          "cpp_median_ns": 124619.921875,
+          "rust_median_ns": 129620.3125,
+          "rust_speedup_percent": -3.8577214701592366,
+          "time_change_95_ci_percent": [
+            3.3127015953273498,
+            4.9898597924313615
+          ]
+        },
+        {
+          "case": "forward-options",
+          "cpp_median_ns": 51337.3046875,
+          "rust_median_ns": 53016.6015625,
+          "rust_speedup_percent": -3.167492493875368,
+          "time_change_95_ci_percent": [
+            2.6247217642992204,
+            3.8504923630377164
+          ]
+        },
+        {
+          "case": "fallback-connect",
+          "cpp_median_ns": 121470.703125,
+          "rust_median_ns": 129335.15625,
+          "rust_speedup_percent": -6.08067702009677,
+          "time_change_95_ci_percent": [
+            6.095876328403094,
+            6.858800786075947
+          ]
+        },
+        {
+          "case": "async-connect",
+          "cpp_median_ns": 46343.5546875,
+          "rust_median_ns": 50202.5390625,
+          "rust_speedup_percent": -7.686831078794098,
+          "time_change_95_ci_percent": [
+            7.424862210600214,
+            9.384512836624403
+          ]
+        },
+        {
+          "case": "before-error",
+          "cpp_median_ns": 118461.71875,
+          "rust_median_ns": 126165.0390625,
+          "rust_speedup_percent": -6.105748763477903,
+          "time_change_95_ci_percent": [
+            5.998213018684462,
+            6.886281050813126
+          ]
+        },
+        {
+          "case": "timeout-connect",
+          "cpp_median_ns": 54567.1875,
+          "rust_median_ns": 58612.5,
+          "rust_speedup_percent": -6.901791426743442,
+          "time_change_95_ci_percent": [
+            6.528396934547875,
+            7.805351050457898
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile state snapshot marshalling and constructor/control dispatch; preserve native services, diagnostics and lifetime/cancellation behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-read-queue-cohort-a-optimization-20261113t113229640731z",
+      "module": "http2-read-queue",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-optimization-20261113t113229640731z-2026-11-13.json",
+      "evidence_sha256": "52507e5e171a6db6252692b622f8db1723e545752618f506d6b46375838e05dd",
+      "scope": "Explicit --timing enables 20 deterministic randomized-order pairs (mt19937 seed 20261113), 256 full API sequences per sample, nanoseconds/API sequence. Every case verified independently before all clocks, plus native semantic fixtures and paired checksums. Changing payload bytes and lengths per iteration; independent buffer/queue fixtures. Include construction/destruction, allocations, payload generation/copies, callbacks/event allocations/checksumming, FFI, queries, drain and empty miss; no network/session IO, stream construction, system scheduling, HTTP/2 frame parsing, or gallery work. The empty-query case executes 256 IsEmpty/GetTotalSize pairs and includes an empty event-vector/queue lifetime; empty-dequeue case includes one missed read and size/empty queries. Callback bytes/source and output bytes participate in checksums; per-sample checksums emitted and compared after clocks. --verify-only executes no measurement clocks.",
+      "bridge": null,
+      "measured_regressions": [
+        {
+          "case": "single_full",
+          "cpp_median_ns": 1159.9609375,
+          "rust_median_ns": 1176.3671875,
+          "rust_speedup_percent": -1.394653826996517,
+          "time_change_95_ci_percent": [
+            0.9723386420787961,
+            1.922428330522763
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile empty-state lifetime allocation, per-query dispatch, and single-buffer sequencing; preserve callback observations and owner-deletion safety.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-priority-dependencies-cohort-a-optimization-20261113t113229640731z",
+      "module": "http2-priority-dependencies",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-optimization-20261113t113229640731z-2026-11-13.json",
+      "evidence_sha256": "612a33de84158334ed51c8e60991453d68526d9ce3172eedf557ddbef70b1979",
+      "scope": "Prepared; zero timing samples collected. Parent-only --timing emits 20 randomized-order paired samples per case, seed 20261113, 256 changing-input lifecycle iterations per sample; ns per complete scenario. Includes construction/destruction, creation/setup of live streams, actual C++/Rust public API calls, FFI, Rust containers/allocations, public native vector allocation/reserve, result checksum calculation and post-action probes. Excludes untimed independent flat-order specification checks, warmup (32 iterations), 256-iteration checksum preflight, order PRNG and JSON output. All writes/deletions are in-memory: no socket, packet, server, whole-browser or isolated operation claim. Do not time the isolated instrumented validation binary. --verify-only checks all 10 workloads and never enters Measure/reads a timing clock.",
+      "bridge": {
+        "present": true,
+        "kind": "Opaque unique Rust owner with synchronous C ABI and fixed-size result values; native public vector/output assignment",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect missing-ID update path and output-plan allocation; preserve duplicate/null/alias contracts and input workloads.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "net-errors-cohort-a-optimization-20261113t113229640731z",
+      "module": "net-errors",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\net-errors-cohort-a-optimization-20261113t113229640731z-2026-11-13.json",
+      "evidence_sha256": "220450481e0179b99e449ea7ccbce80d5415153b21e1c01741c81ea80bb03a78",
+      "scope": "Prepared only; no timings collected. Parent-only --timing emits 20 randomized-order pairs per case (seed 20261113), 16384 calls/scenarios per sample; nanoseconds per iteration. Includes public C++ adapter/FFI, native string ownership/allocation/destruction and byte checksum for string cases; all five predicates per classification iteration; one API mapping plus checksum in mapping cases. Mapping misses include warning formatting and a suppressing log sink in both implementations; no stderr/file output, same configured diagnostics in both. Zero system error is a constant-input intentional no-diagnostic control. Other cases cycle 256 initialized inputs. Independent semantic checks and paired complete-case checksum verification occur before clocks. Excludes fixture construction, preflight, order PRNG, report output. Instrumented local binaries are validation only; do not time them. No network/browser performance claim.",
+      "bridge": {
+        "present": true,
+        "kind": "Stateless synchronous C ABI; native owned std::string and named platform constant POD; Rust owns all local error policy",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "classification",
+          "cpp_median_ns": 8.990478516,
+          "rust_median_ns": 9.9609375,
+          "rust_speedup_percent": -9.742647055058828,
+          "time_change_95_ci_percent": [
+            8.799999994058073,
+            11.948404615930674
+          ]
+        },
+        {
+          "case": "system_hits",
+          "cpp_median_ns": 13.3544921875,
+          "rust_median_ns": 14.614868164,
+          "rust_speedup_percent": -8.623929838824107,
+          "time_change_95_ci_percent": [
+            7.478535924616891,
+            10.116999309181928
+          ]
+        },
+        {
+          "case": "system_misses",
+          "cpp_median_ns": 1481.3446044920001,
+          "rust_median_ns": 1525.622558594,
+          "rust_speedup_percent": -2.9022875843423668,
+          "time_change_95_ci_percent": [
+            2.4799881532732826,
+            3.7920933717758176
+          ]
+        },
+        {
+          "case": "system_zero",
+          "cpp_median_ns": 3.161621094,
+          "rust_median_ns": 4.132080078,
+          "rust_speedup_percent": -23.48596749532791,
+          "time_change_95_ci_percent": [
+            30.69498068069254,
+            30.947775629852647
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect predicate dispatch and system mapping code generation; preserve generated schema and warning/log diagnostic behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "tcp-client-socket-cohort-a-optimization-20261113t113229640731z",
+      "module": "tcp-client-socket",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-optimization-20261113t113229640731z-2026-11-13.json",
+      "evidence_sha256": "4fe5780636baecaef591bfaeb13e5b245efc357044f27d5f0104d85020180811",
+      "scope": "Full public API, 20 deterministic randomized-order paired samples (seed 20261113), 256 iterations per sample. Each iteration includes AddressList and IOBuffer construction where used, native TCPSocket construction, Open/default options/Close where used, public C++ adapter, FFI, Rust policy, completion callback ownership, allocation, copy and destruction. No ownership/copy/destruction is excluded. Inputs are deterministic; 32-iteration paired verification/warmup precedes each timed case. Native timers use the real task runner. Scripted connect and IO eliminate external network latency; these are isolated controller/API workloads, not Chromium end-to-end performance. Verification mode substitutes constant diagnostic clocks and never calls measurement clocks. Timing requires explicit --timing and a parent-coordinated quiet window.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "C++/Rust ABI; native service boundaries remain explicit in the source manifest",
+        "evidence": "Full public API workloads include their Rust boundary. No isolated bridge cost or causal overhead is established."
+      },
+      "measured_regressions": [
+        {
+          "case": "sync-read-64",
+          "cpp_median_ns": 45261.328125,
+          "rust_median_ns": 47192.7734375,
+          "rust_speedup_percent": -4.092671762675526,
+          "time_change_95_ci_percent": [
+            3.6254675830647454,
+            4.913279834325657
+          ]
+        },
+        {
+          "case": "sync-read-ready-64",
+          "cpp_median_ns": 45156.25,
+          "rust_median_ns": 46805.859375,
+          "rust_speedup_percent": -3.524365105196836,
+          "time_change_95_ci_percent": [
+            3.3470397225861426,
+            4.145068737756352
+          ]
+        },
+        {
+          "case": "sync-write-64",
+          "cpp_median_ns": 44929.8828125,
+          "rust_median_ns": 46668.359375,
+          "rust_speedup_percent": -3.725171799013982,
+          "time_change_95_ci_percent": [
+            3.642080667787173,
+            4.246410963192271
+          ]
+        },
+        {
+          "case": "async-read-64",
+          "cpp_median_ns": 45008.3984375,
+          "rust_median_ns": 47319.53125,
+          "rust_speedup_percent": -4.884099126615926,
+          "time_change_95_ci_percent": [
+            4.556861251968636,
+            5.447624675736629
+          ]
+        },
+        {
+          "case": "async-write-64",
+          "cpp_median_ns": 45001.3671875,
+          "rust_median_ns": 47167.7734375,
+          "rust_speedup_percent": -4.592979681075282,
+          "time_change_95_ci_percent": [
+            4.397281176307399,
+            5.369923733785287
+          ]
+        },
+        {
+          "case": "cancel-ready",
+          "cpp_median_ns": 45113.671875,
+          "rust_median_ns": 47459.1796875,
+          "rust_speedup_percent": -4.942158351543879,
+          "time_change_95_ci_percent": [
+            4.817441145657453,
+            5.597432450015183
+          ]
+        },
+        {
+          "case": "disconnect-pending",
+          "cpp_median_ns": 45659.1796875,
+          "rust_median_ns": 48587.5,
+          "rust_speedup_percent": -6.026900565989191,
+          "time_change_95_ci_percent": [
+            5.837728056252445,
+            6.886064438086326
+          ]
+        },
+        {
+          "case": "suspend-duplex",
+          "cpp_median_ns": 45844.140625,
+          "rust_median_ns": 48937.109375,
+          "rust_speedup_percent": -6.3202931057878775,
+          "time_change_95_ci_percent": [
+            6.33941428583602,
+            7.230800800287285
+          ]
+        },
+        {
+          "case": "adopt-connected",
+          "cpp_median_ns": 44584.5703125,
+          "rust_median_ns": 46131.0546875,
+          "rust_speedup_percent": -3.3523715975629864,
+          "time_change_95_ci_percent": [
+            2.754437146251143,
+            4.156515773827851
+          ]
+        },
+        {
+          "case": "construct-normal",
+          "cpp_median_ns": 4615.8203125,
+          "rust_median_ns": 5577.9296875,
+          "rust_speedup_percent": -17.248503098848,
+          "time_change_95_ci_percent": [
+            20.393265538630324,
+            21.45405129947342
+          ]
+        },
+        {
+          "case": "bind-local-disconnect",
+          "cpp_median_ns": 125121.484375,
+          "rust_median_ns": 130375.5859375,
+          "rust_speedup_percent": -4.0299734990404845,
+          "time_change_95_ci_percent": [
+            3.8108380659200636,
+            4.808400769269183
+          ]
+        },
+        {
+          "case": "forward-options",
+          "cpp_median_ns": 51163.671875,
+          "rust_median_ns": 52770.3125,
+          "rust_speedup_percent": -3.044591833713317,
+          "time_change_95_ci_percent": [
+            2.8004065537690304,
+            3.5399650053103304
+          ]
+        },
+        {
+          "case": "fallback-connect",
+          "cpp_median_ns": 121100.390625,
+          "rust_median_ns": 129448.4375,
+          "rust_speedup_percent": -6.448935990440208,
+          "time_change_95_ci_percent": [
+            6.5056888021942205,
+            7.42469582958063
+          ]
+        },
+        {
+          "case": "async-connect",
+          "cpp_median_ns": 45934.1796875,
+          "rust_median_ns": 50020.1171875,
+          "rust_speedup_percent": -8.168588419503086,
+          "time_change_95_ci_percent": [
+            8.477561518024634,
+            9.43778353856124
+          ]
+        },
+        {
+          "case": "before-error",
+          "cpp_median_ns": 119321.875,
+          "rust_median_ns": 126695.3125,
+          "rust_speedup_percent": -5.819818708762414,
+          "time_change_95_ci_percent": [
+            5.796393529394472,
+            6.808035346563024
+          ]
+        },
+        {
+          "case": "timeout-connect",
+          "cpp_median_ns": 55509.765625,
+          "rust_median_ns": 60196.484375,
+          "rust_speedup_percent": -7.785701770893494,
+          "time_change_95_ci_percent": [
+            7.738923176928614,
+            9.049705180574685
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile state snapshot marshalling and constructor/control dispatch; preserve native services, diagnostics and lifetime/cancellation behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-read-queue-cohort-a-optimization-20261113t124030733250z",
+      "module": "http2-read-queue",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+      "evidence_sha256": "ab5642e1dc45c9dd57fc15745e481da128536dad388d2c1a6350b3beefb70568",
+      "scope": "Explicit --timing enables 20 deterministic randomized-order pairs (mt19937 seed 20261113), 256 full API sequences per sample, nanoseconds/API sequence. Every case verified independently before all clocks, plus native semantic fixtures and paired checksums. Changing payload bytes and lengths per iteration; independent buffer/queue fixtures. Include construction/destruction, allocations, payload generation/copies, callbacks/event allocations/checksumming, FFI, queries, drain and empty miss; no network/session IO, stream construction, system scheduling, HTTP/2 frame parsing, or gallery work. The empty-query case executes 256 IsEmpty/GetTotalSize pairs and includes an empty event-vector/queue lifetime; empty-dequeue case includes one missed read and size/empty queries. Callback bytes/source and output bytes participate in checksums; per-sample checksums emitted and compared after clocks. --verify-only executes no measurement clocks.",
+      "bridge": null,
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile empty-state lifetime allocation, per-query dispatch, and single-buffer sequencing; preserve callback observations and owner-deletion safety.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-priority-dependencies-cohort-a-optimization-20261113t124030733250z",
+      "module": "http2-priority-dependencies",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+      "evidence_sha256": "6e109303e0616f6663280c0ccda725d4c94a17b39751a110b349aa976350efbe",
+      "scope": "Prepared; zero timing samples collected. Parent-only --timing emits 20 randomized-order paired samples per case, seed 20261113, 256 changing-input lifecycle iterations per sample; ns per complete scenario. Includes construction/destruction, creation/setup of live streams, actual C++/Rust public API calls, FFI, Rust containers/allocations, public native vector allocation/reserve, result checksum calculation and post-action probes. Excludes untimed independent flat-order specification checks, warmup (32 iterations), 256-iteration checksum preflight, order PRNG and JSON output. All writes/deletions are in-memory: no socket, packet, server, whole-browser or isolated operation claim. Do not time the isolated instrumented validation binary. --verify-only checks all 10 workloads and never enters Measure/reads a timing clock.",
+      "bridge": {
+        "present": true,
+        "kind": "Opaque unique Rust owner with synchronous C ABI and fixed-size result values; native public vector/output assignment",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect missing-ID update path and output-plan allocation; preserve duplicate/null/alias contracts and input workloads.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "net-errors-cohort-a-optimization-20261113t124030733250z",
+      "module": "net-errors",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\net-errors-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+      "evidence_sha256": "0fcd0498dea6305967193544cb7328f5de89f094319c40c519421eda8e2be91b",
+      "scope": "Prepared only; no timings collected. Parent-only --timing emits 20 randomized-order pairs per case (seed 20261113), 16384 calls/scenarios per sample; nanoseconds per iteration. Includes public C++ adapter/FFI, native string ownership/allocation/destruction and byte checksum for string cases; all five predicates per classification iteration; one API mapping plus checksum in mapping cases. Mapping misses include warning formatting and a suppressing log sink in both implementations; no stderr/file output, same configured diagnostics in both. Zero system error is a constant-input intentional no-diagnostic control. Other cases cycle 256 initialized inputs. Independent semantic checks and paired complete-case checksum verification occur before clocks. Excludes fixture construction, preflight, order PRNG, report output. Instrumented local binaries are validation only; do not time them. No network/browser performance claim.",
+      "bridge": {
+        "present": true,
+        "kind": "Stateless synchronous C ABI; native owned std::string and named platform constant POD; Rust owns all local error policy",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "classification",
+          "cpp_median_ns": 9.155273438,
+          "rust_median_ns": 10.144042969,
+          "rust_speedup_percent": -9.747292416067832,
+          "time_change_95_ci_percent": [
+            10.79999999667951,
+            10.833333326597705
+          ]
+        },
+        {
+          "case": "system_zero",
+          "cpp_median_ns": 3.240966797,
+          "rust_median_ns": 3.485107422,
+          "rust_speedup_percent": -7.005253940204081,
+          "time_change_95_ci_percent": [
+            7.532956685208525,
+            7.735849068794076
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect predicate dispatch and system mapping code generation; preserve generated schema and warning/log diagnostic behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "tcp-client-socket-cohort-a-optimization-20261113t124030733250z",
+      "module": "tcp-client-socket",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-optimization-20261113t124030733250z-2026-11-13.json",
+      "evidence_sha256": "50c7602c6e6795e680c4e998e81794337b5ee4af5b87be2b46295387900e6bc9",
+      "scope": "Full public API, 20 deterministic randomized-order paired samples (seed 20261113), 256 iterations per sample. Each iteration includes AddressList and IOBuffer construction where used, native TCPSocket construction, Open/default options/Close where used, public C++ adapter, FFI, Rust policy, completion callback ownership, allocation, copy and destruction. No ownership/copy/destruction is excluded. Inputs are deterministic; 32-iteration paired verification/warmup precedes each timed case. Native timers use the real task runner. Scripted connect and IO eliminate external network latency; these are isolated controller/API workloads, not Chromium end-to-end performance. Verification mode substitutes constant diagnostic clocks and never calls measurement clocks. Timing requires explicit --timing and a parent-coordinated quiet window.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "C++/Rust ABI; native service boundaries remain explicit in the source manifest",
+        "evidence": "Full public API workloads include their Rust boundary. No isolated bridge cost or causal overhead is established."
+      },
+      "measured_regressions": [
+        {
+          "case": "sync-read-64",
+          "cpp_median_ns": 45466.40625,
+          "rust_median_ns": 46829.8828125,
+          "rust_speedup_percent": -2.9115523691553125,
+          "time_change_95_ci_percent": [
+            2.033837903882696,
+            3.6046592068625483
+          ]
+        },
+        {
+          "case": "sync-read-ready-64",
+          "cpp_median_ns": 44655.6640625,
+          "rust_median_ns": 46090.0390625,
+          "rust_speedup_percent": -3.1121149584076635,
+          "time_change_95_ci_percent": [
+            2.4565368567454726,
+            4.085772239930452
+          ]
+        },
+        {
+          "case": "sync-write-64",
+          "cpp_median_ns": 44981.4453125,
+          "rust_median_ns": 46630.2734375,
+          "rust_speedup_percent": -3.5359606612857974,
+          "time_change_95_ci_percent": [
+            2.9417763486215387,
+            4.230899948584321
+          ]
+        },
+        {
+          "case": "async-read-64",
+          "cpp_median_ns": 45914.2578125,
+          "rust_median_ns": 47794.921875,
+          "rust_speedup_percent": -3.9348616730007,
+          "time_change_95_ci_percent": [
+            3.1753397132445516,
+            4.800473028445507
+          ]
+        },
+        {
+          "case": "async-write-64",
+          "cpp_median_ns": 44692.578125,
+          "rust_median_ns": 46599.21875,
+          "rust_speedup_percent": -4.091572082418226,
+          "time_change_95_ci_percent": [
+            2.940611185854314,
+            5.88951710404666
+          ]
+        },
+        {
+          "case": "cancel-ready",
+          "cpp_median_ns": 44224.21875,
+          "rust_median_ns": 45901.3671875,
+          "rust_speedup_percent": -3.65380933131928,
+          "time_change_95_ci_percent": [
+            3.2422389235978066,
+            4.436867614802242
+          ]
+        },
+        {
+          "case": "disconnect-pending",
+          "cpp_median_ns": 44656.4453125,
+          "rust_median_ns": 47068.1640625,
+          "rust_speedup_percent": -5.12388532256659,
+          "time_change_95_ci_percent": [
+            4.854445249927952,
+            6.478857222834544
+          ]
+        },
+        {
+          "case": "suspend-duplex",
+          "cpp_median_ns": 44780.6640625,
+          "rust_median_ns": 47362.3046875,
+          "rust_speedup_percent": -5.450834037815211,
+          "time_change_95_ci_percent": [
+            5.2274851640110365,
+            6.399828486171688
+          ]
+        },
+        {
+          "case": "adopt-connected",
+          "cpp_median_ns": 43281.25,
+          "rust_median_ns": 44693.75,
+          "rust_speedup_percent": -3.1603971472521364,
+          "time_change_95_ci_percent": [
+            2.0699825951399298,
+            4.8525782106229265
+          ]
+        },
+        {
+          "case": "construct-normal",
+          "cpp_median_ns": 4671.875,
+          "rust_median_ns": 5391.9921875,
+          "rust_speedup_percent": -13.355308436266167,
+          "time_change_95_ci_percent": [
+            15.267111853088489,
+            15.747767389208
+          ]
+        },
+        {
+          "case": "bind-local-disconnect",
+          "cpp_median_ns": 125743.9453125,
+          "rust_median_ns": 132149.4140625,
+          "rust_speedup_percent": -4.847141241935837,
+          "time_change_95_ci_percent": [
+            3.295479917636257,
+            6.044397985722294
+          ]
+        },
+        {
+          "case": "forward-options",
+          "cpp_median_ns": 51482.421875,
+          "rust_median_ns": 52930.2734375,
+          "rust_speedup_percent": -2.735394073128339,
+          "time_change_95_ci_percent": [
+            2.1610450675919157,
+            3.44704695900091
+          ]
+        },
+        {
+          "case": "fallback-connect",
+          "cpp_median_ns": 120446.2890625,
+          "rust_median_ns": 125767.3828125,
+          "rust_speedup_percent": -4.230901232899898,
+          "time_change_95_ci_percent": [
+            3.347585206299075,
+            5.246833511991289
+          ]
+        },
+        {
+          "case": "async-connect",
+          "cpp_median_ns": 46299.21875,
+          "rust_median_ns": 49286.1328125,
+          "rust_speedup_percent": -6.060353880599967,
+          "time_change_95_ci_percent": [
+            6.034989832445414,
+            6.858834290360272
+          ]
+        },
+        {
+          "case": "before-error",
+          "cpp_median_ns": 119045.1171875,
+          "rust_median_ns": 124021.6796875,
+          "rust_speedup_percent": -4.012655297476653,
+          "time_change_95_ci_percent": [
+            3.737706315813627,
+            5.050755628764492
+          ]
+        },
+        {
+          "case": "timeout-connect",
+          "cpp_median_ns": 55621.09375,
+          "rust_median_ns": 58935.15625,
+          "rust_speedup_percent": -5.62323528242109,
+          "time_change_95_ci_percent": [
+            4.786994037082537,
+            6.4387225450432295
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile state snapshot marshalling and constructor/control dispatch; preserve native services, diagnostics and lifetime/cancellation behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-read-queue-cohort-a-optimization-20261113t143813998526z",
+      "module": "http2-read-queue",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-optimization-20261113t143813998526z-2026-11-13.json",
+      "evidence_sha256": "c3592455343747996370eff9fe9c1117304631378081b6e64ff7e4df01ff2239",
+      "scope": "Explicit --timing enables 20 deterministic randomized-order pairs (mt19937 seed 20261113), 256 full API sequences per sample, nanoseconds/API sequence. Every case verified independently before all clocks, plus native semantic fixtures and paired checksums. Changing payload bytes and lengths per iteration; independent buffer/queue fixtures. Include construction/destruction, allocations, payload generation/copies, callbacks/event allocations/checksumming, FFI, queries, drain and empty miss; no network/session IO, stream construction, system scheduling, HTTP/2 frame parsing, or gallery work. The empty-query case executes 256 IsEmpty/GetTotalSize pairs and includes an empty event-vector/queue lifetime; empty-dequeue case includes one missed read and size/empty queries. Callback bytes/source and output bytes participate in checksums; per-sample checksums emitted and compared after clocks. --verify-only executes no measurement clocks.",
+      "bridge": null,
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile empty-state lifetime allocation, per-query dispatch, and single-buffer sequencing; preserve callback observations and owner-deletion safety.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-priority-dependencies-cohort-a-optimization-20261113t143813998526z",
+      "module": "http2-priority-dependencies",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-optimization-20261113t143813998526z-2026-11-13.json",
+      "evidence_sha256": "6c566331560d292a3e23b5d6125b3e9014e4e3af64db5bacb08a379c91f9b7f9",
+      "scope": "Parent-only --timing emits 20 randomized-order paired samples per case, seed 20261113, 256 changing-input lifecycle iterations per sample; ns per complete scenario. Includes construction/destruction, creation/setup of live streams, actual C++/Rust public API calls, FFI, Rust containers/allocations, public native vector allocation/reserve, result checksum calculation and post-action probes. Excludes untimed independent flat-order specification checks, warmup (32 iterations), 256-iteration checksum preflight, order PRNG and JSON output. All writes/deletions are in-memory: no socket, packet, server, whole-browser or isolated operation claim. Do not time the isolated instrumented validation binary. --verify-only checks all 10 workloads and never enters Measure/reads a timing clock.",
+      "bridge": {
+        "present": true,
+        "kind": "Opaque unique Rust owner with synchronous C ABI and fixed-size result values; native public vector/output assignment",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect missing-ID update path and output-plan allocation; preserve duplicate/null/alias contracts and input workloads.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "net-errors-cohort-a-optimization-20261113t143813998526z",
+      "module": "net-errors",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\net-errors-cohort-a-optimization-20261113t143813998526z-2026-11-13.json",
+      "evidence_sha256": "a6bf3ed7247cd930de63d2f20a0432f61c0a8b4aafa16ce1c40f1c915434a7e1",
+      "scope": "Parent-only --timing emits 20 randomized-order pairs per case (seed 20261113), 16384 calls/scenarios per sample; nanoseconds per iteration. Includes public C++ adapter/FFI, native string ownership/allocation/destruction and byte checksum for string cases; all five predicates per classification iteration; one API mapping plus checksum in mapping cases. Mapping misses include warning formatting and a suppressing log sink in both implementations; no stderr/file output, same configured diagnostics in both. Zero system error is a constant-input intentional no-diagnostic control. Other cases cycle 256 initialized inputs. Independent semantic checks and paired complete-case checksum verification occur before clocks. Excludes fixture construction, preflight, order PRNG, report output. Instrumented local binaries are validation only; do not time them. No network/browser performance claim.",
+      "bridge": {
+        "present": true,
+        "kind": "Stateless synchronous C ABI; native owned std::string and named platform constant POD; Rust owns all local error policy",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "classification",
+          "cpp_median_ns": 9.155273438,
+          "rust_median_ns": 10.888671875,
+          "rust_speedup_percent": -15.919282506618837,
+          "time_change_95_ci_percent": [
+            18.86666665607897,
+            18.933333326837996
+          ]
+        },
+        {
+          "case": "system_misses",
+          "cpp_median_ns": 1441.8487548829999,
+          "rust_median_ns": 1499.447631836,
+          "rust_speedup_percent": -3.8413396860331295,
+          "time_change_95_ci_percent": [
+            2.9573193973148504,
+            4.941337690411007
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect predicate dispatch and system mapping code generation; preserve generated schema and warning/log diagnostic behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "tcp-client-socket-cohort-a-optimization-20261113t143813998526z",
+      "module": "tcp-client-socket",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-optimization-20261113t143813998526z-2026-11-13.json",
+      "evidence_sha256": "a7373f650ed583ba06c2a8e14dfdeb839a8be0c51839e6f1f883e103a740258c",
+      "scope": "Full public API, 20 deterministic randomized-order paired samples (seed 20261113), 256 iterations per sample. Each iteration includes AddressList and IOBuffer construction where used, native TCPSocket construction, Open/default options/Close where used, public C++ adapter, FFI, Rust policy, completion callback ownership, allocation, copy and destruction. No ownership/copy/destruction is excluded. Inputs are deterministic; 32-iteration paired verification/warmup precedes each timed case. Native timers use the real task runner. Scripted connect and IO eliminate external network latency; these are isolated controller/API workloads, not Chromium end-to-end performance. Verification mode substitutes constant diagnostic clocks and never calls measurement clocks. Timing requires explicit --timing and a parent-coordinated quiet window.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "C++/Rust ABI; native service boundaries remain explicit in the source manifest",
+        "evidence": "Full public API workloads include their Rust boundary. No isolated bridge cost or causal overhead is established."
+      },
+      "measured_regressions": [
+        {
+          "case": "sync-read-64",
+          "cpp_median_ns": 45884.1796875,
+          "rust_median_ns": 47445.5078125,
+          "rust_speedup_percent": -3.290781776791629,
+          "time_change_95_ci_percent": [
+            2.947361251819758,
+            4.003153023342554
+          ]
+        },
+        {
+          "case": "sync-write-64",
+          "cpp_median_ns": 44910.15625,
+          "rust_median_ns": 46426.3671875,
+          "rust_speedup_percent": -3.2658401450549657,
+          "time_change_95_ci_percent": [
+            3.0194681367450293,
+            6.588948857227139
+          ]
+        },
+        {
+          "case": "async-read-64",
+          "cpp_median_ns": 44871.6796875,
+          "rust_median_ns": 46906.0546875,
+          "rust_speedup_percent": -4.337126653591994,
+          "time_change_95_ci_percent": [
+            3.9899231203579077,
+            5.2794029174041635
+          ]
+        },
+        {
+          "case": "async-write-64",
+          "cpp_median_ns": 45026.171875,
+          "rust_median_ns": 46838.671875,
+          "rust_speedup_percent": -3.869665657551269,
+          "time_change_95_ci_percent": [
+            2.7553670360110694,
+            4.497131798418796
+          ]
+        },
+        {
+          "case": "cancel-ready",
+          "cpp_median_ns": 45217.96875,
+          "rust_median_ns": 47269.921875,
+          "rust_speedup_percent": -4.34092768426011,
+          "time_change_95_ci_percent": [
+            4.095307083354882,
+            5.128527406611227
+          ]
+        },
+        {
+          "case": "disconnect-pending",
+          "cpp_median_ns": 46268.1640625,
+          "rust_median_ns": 48960.546875,
+          "rust_speedup_percent": -5.499086477473092,
+          "time_change_95_ci_percent": [
+            4.1359004729383475,
+            6.641944578496872
+          ]
+        },
+        {
+          "case": "suspend-duplex",
+          "cpp_median_ns": 47446.09375,
+          "rust_median_ns": 49627.1484375,
+          "rust_speedup_percent": -4.394882148521595,
+          "time_change_95_ci_percent": [
+            1.1146924523233848,
+            6.219560679852898
+          ]
+        },
+        {
+          "case": "construct-normal",
+          "cpp_median_ns": 4757.421875,
+          "rust_median_ns": 5423.6328125,
+          "rust_speedup_percent": -12.283481580179334,
+          "time_change_95_ci_percent": [
+            11.426047856110477,
+            17.159318637274556
+          ]
+        },
+        {
+          "case": "forward-options",
+          "cpp_median_ns": 52718.9453125,
+          "rust_median_ns": 53929.6875,
+          "rust_speedup_percent": -2.245038389106191,
+          "time_change_95_ci_percent": [
+            2.0204448455171553,
+            3.508647575843482
+          ]
+        },
+        {
+          "case": "fallback-connect",
+          "cpp_median_ns": 123437.5,
+          "rust_median_ns": 129696.6796875,
+          "rust_speedup_percent": -4.826013821310838,
+          "time_change_95_ci_percent": [
+            4.28040898244284,
+            5.692621997278158
+          ]
+        },
+        {
+          "case": "async-connect",
+          "cpp_median_ns": 46622.265625,
+          "rust_median_ns": 49723.2421875,
+          "rust_speedup_percent": -6.236472977378693,
+          "time_change_95_ci_percent": [
+            5.834942490135164,
+            7.432344069691399
+          ]
+        },
+        {
+          "case": "before-error",
+          "cpp_median_ns": 119872.4609375,
+          "rust_median_ns": 125247.65625,
+          "rust_speedup_percent": -4.291653411678109,
+          "time_change_95_ci_percent": [
+            3.431035206921851,
+            6.308523409363742
+          ]
+        },
+        {
+          "case": "timeout-connect",
+          "cpp_median_ns": 55090.4296875,
+          "rust_median_ns": 58516.6015625,
+          "rust_speedup_percent": -5.855042472588911,
+          "time_change_95_ci_percent": [
+            5.151219923959194,
+            7.018188171448747
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile state snapshot marshalling and constructor/control dispatch; preserve native services, diagnostics and lifetime/cancellation behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "header-coalescer-header-alps-initial-20261113t144252419055z",
+      "module": "header-coalescer",
+      "status": "Integrated; configured regular tests and measurement recorded; performance acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\header-coalescer-header-alps-initial-20261113t144252419055z-2026-11-13.json",
+      "evidence_sha256": "298e0089319181b8edb36ee3979ad030a88cd9d632f4b004c05f94c22a4b829b",
+      "scope": "--verify-only reads no benchmark clock. --timing emits 20 randomized-order paired samples/case, seed 20261113, 128 identical complete block lifecycles/sample, nanoseconds per lifecycle. Includes construction/destruction of the public object, source creation, observer ownership/recording, Start/OnHeader/End/error query/release, FFI, native QUICHE appending/merging/ownership, log formatting/value conversion, release destruction, output block/log traversal and checksum. Fixture construction, literal-output oracle preflight, PRNG and JSON output excluded. Global NetLog singleton startup is not independently measured. No packet/socket/whole-browser or isolated operation claim. Instrumented local validation binaries must not be timed.",
+      "bridge": {
+        "present": true,
+        "kind": "One synchronous C ABI per OnHeader/release; value-state snapshot and immutable byte inputs; native HttpHeaderBlock ownership and diagnostic services",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "request",
+          "cpp_median_ns": 1545.703125,
+          "rust_median_ns": 1633.59375,
+          "rust_speedup_percent": -5.38020086083214,
+          "time_change_95_ci_percent": [
+            3.5403726708074457,
+            11.004784688995217
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "duplicates",
+          "cpp_median_ns": 3757.8125,
+          "rust_median_ns": 4517.1875,
+          "rust_speedup_percent": -16.810792113455552,
+          "time_change_95_ci_percent": [
+            17.42336049670159,
+            24.158004158004154
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "cookies",
+          "cpp_median_ns": 3700.78125,
+          "rust_median_ns": 4407.8125,
+          "rust_speedup_percent": -16.04041120170152,
+          "time_change_95_ci_percent": [
+            18.846843048382,
+            19.510393584467668
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "obs_text",
+          "cpp_median_ns": 1022.265625,
+          "rust_median_ns": 1040.625,
+          "rust_speedup_percent": -1.7642642642642592,
+          "time_change_95_ci_percent": [
+            1.2927756653992484,
+            1.987767584097866
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "invalid_name",
+          "cpp_median_ns": 2827.34375,
+          "rust_median_ns": 2962.5,
+          "rust_speedup_percent": -4.56223628691983,
+          "time_change_95_ci_percent": [
+            3.861955628594904,
+            5.457063711911347
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "uppercase",
+          "cpp_median_ns": 2836.328125,
+          "rust_median_ns": 2965.625,
+          "rust_speedup_percent": -4.359852476290838,
+          "time_change_95_ci_percent": [
+            4.155200880572374,
+            5.031706644609879
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "ordering",
+          "cpp_median_ns": 3283.203125,
+          "rust_median_ns": 3416.796875,
+          "rust_speedup_percent": -3.909911969818225,
+          "time_change_95_ci_percent": [
+            3.7450957080014335,
+            4.328180737217591
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "size_limit",
+          "cpp_median_ns": 3029.6875,
+          "rust_median_ns": 3127.734375,
+          "rust_speedup_percent": -3.13475708754839,
+          "time_change_95_ci_percent": [
+            2.963153826333409,
+            3.4304874903275717
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "invalid_value",
+          "cpp_median_ns": 3209.375,
+          "rust_median_ns": 3321.484375,
+          "rust_speedup_percent": -3.3752793131835768,
+          "time_change_95_ci_percent": [
+            2.8439474963539046,
+            3.803022915650911
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        }
+      ],
+      "cause_status": "Unmeasured; presence of a bridge does not establish a cause or hard blocker.",
+      "follow_up": "Profile actual slow cases and native storage/log/telemetry boundaries; preserve frozen policy, every workload and regular test behavior.",
+      "publication": "held; existing37-module516-case gate unchanged"
+    },
+    {
+      "id": "alps-decoder-header-alps-initial-20261113t144252419055z",
+      "module": "alps-decoder",
+      "status": "Integrated; configured regular tests and measurement recorded; performance acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\alps-decoder-header-alps-initial-20261113t144252419055z-2026-11-13.json",
+      "evidence_sha256": "1b1e45b54d87477af4afbe1a9db777e21a521a1046c1a5194580401904e8cdd3",
+      "scope": "Parent-only --timing uses 20 randomized-order pairs per case, seed 20261113, 256 complete lifecycles per sample, ns per lifecycle. Each sample equally includes construction, QUICHE ProcessInput, public Decode/error return, histogram insertion, Rust C ABI and offset-plan allocations, native SettingsMap/string/vector allocations, public output traversal/hash and destruction. Fixture input/expected-output generation, feature initialization/reset, independent expected-output assertions, 256-iteration untimed checksum preflight, random ordering and JSON output are excluded. --verify-only never enters Measure or reads a timing clock. No socket, packet, Chromium/browser or isolated parse improvement claim. Never time the instrumented native validation binaries.",
+      "bridge": {
+        "present": true,
+        "kind": "Synchronous C ABI policy facts and owned batch of validated ACCEPT_CH offsets; native frame decoder, storage and telemetry primitives",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "empty",
+          "cpp_median_ns": 576.953125,
+          "rust_median_ns": 584.1796875,
+          "rust_speedup_percent": -1.237044466733539,
+          "time_change_95_ci_percent": [
+            0.7407407407407307,
+            1.7609210971893052
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "settings_duplicates",
+          "cpp_median_ns": 1207.2265625,
+          "rust_median_ns": 1207.8125,
+          "rust_speedup_percent": -0.048512289780078266,
+          "time_change_95_ci_percent": [
+            -0.32346757237586843,
+            0.38809831824062613
+          ],
+          "slower_interval": false,
+          "interpretation": "Numerical slowdown; uncertainty does not establish a slowdown or equivalence"
+        },
+        {
+          "case": "accept_bytes",
+          "cpp_median_ns": 969.53125,
+          "rust_median_ns": 1164.6484375,
+          "rust_speedup_percent": -16.753312091229244,
+          "time_change_95_ci_percent": [
+            19.331453886427717,
+            33.74294923448831
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "accept_many",
+          "cpp_median_ns": 8680.6640625,
+          "rust_median_ns": 9551.953125,
+          "rust_speedup_percent": -9.121580174211752,
+          "time_change_95_ci_percent": [
+            9.254579205152869,
+            10.347620654741817
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "malformed_tail",
+          "cpp_median_ns": 994.53125,
+          "rust_median_ns": 1171.875,
+          "rust_speedup_percent": -15.133333333333333,
+          "time_change_95_ci_percent": [
+            17.357310398749014,
+            18.20330969267139
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "disabled",
+          "cpp_median_ns": 1431.4453125,
+          "rust_median_ns": 1440.234375,
+          "rust_speedup_percent": -0.6102522375915354,
+          "time_change_95_ci_percent": [
+            0.23148148148148806,
+            1.1067085667440857
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "forbidden",
+          "cpp_median_ns": 1450.5859375,
+          "rust_median_ns": 1460.9375,
+          "rust_speedup_percent": -0.7085561497326198,
+          "time_change_95_ci_percent": [
+            0.34955633234741157,
+            1.077876583131232
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "settings_ack",
+          "cpp_median_ns": 1356.640625,
+          "rust_median_ns": 1377.34375,
+          "rust_speedup_percent": -1.5031196823596105,
+          "time_change_95_ci_percent": [
+            1.3781223083548566,
+            1.7574186113511914
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "invalid_stream",
+          "cpp_median_ns": 826.5625,
+          "rust_median_ns": 846.2890625,
+          "rust_speedup_percent": -2.3309485345026526,
+          "time_change_95_ci_percent": [
+            1.8819101387908654,
+            3.176861071597914
+          ],
+          "slower_interval": true,
+          "interpretation": "Slower interval"
+        },
+        {
+          "case": "partial_frame",
+          "cpp_median_ns": 1188.4765625,
+          "rust_median_ns": 1192.3828125,
+          "rust_speedup_percent": -0.3276003276003303,
+          "time_change_95_ci_percent": [
+            -0.16366612111292644,
+            1.0212485587217879
+          ],
+          "slower_interval": false,
+          "interpretation": "Numerical slowdown; uncertainty does not establish a slowdown or equivalence"
+        }
+      ],
+      "cause_status": "Unmeasured; presence of a bridge does not establish a cause or hard blocker.",
+      "follow_up": "Profile actual slow cases and native storage/log/telemetry boundaries; preserve frozen policy, every workload and regular test behavior.",
+      "publication": "held; existing37-module516-case gate unchanged"
+    },
+    {
+      "id": "http2-read-queue-cohort-a-optimization-20261113t161559748190z",
+      "module": "http2-read-queue",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-read-queue-cohort-a-optimization-20261113t161559748190z-2026-11-13.json",
+      "evidence_sha256": "364e53e97e3087667af4b01d37c7b3ec9d8cab9ed1f89a1765f3d1e20368754a",
+      "scope": "Explicit --timing enables 20 deterministic randomized-order pairs (mt19937 seed 20261113), 256 full API sequences per sample, nanoseconds/API sequence. Every case verified independently before all clocks, plus native semantic fixtures and paired checksums. Changing payload bytes and lengths per iteration; independent buffer/queue fixtures. Include construction/destruction, allocations, payload generation/copies, callbacks/event allocations/checksumming, FFI, queries, drain and empty miss; no network/session IO, stream construction, system scheduling, HTTP/2 frame parsing, or gallery work. The empty-query case executes 256 IsEmpty/GetTotalSize pairs and includes an empty event-vector/queue lifetime; empty-dequeue case includes one missed read and size/empty queries. Callback bytes/source and output bytes participate in checksums; per-sample checksums emitted and compared after clocks. --verify-only executes no measurement clocks.",
+      "bridge": null,
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile empty-state lifetime allocation, per-query dispatch, and single-buffer sequencing; preserve callback observations and owner-deletion safety.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "http2-priority-dependencies-cohort-a-optimization-20261113t161559748190z",
+      "module": "http2-priority-dependencies",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\http2-priority-dependencies-cohort-a-optimization-20261113t161559748190z-2026-11-13.json",
+      "evidence_sha256": "83f81cc6a9627c84f36bc02439e3f58af73956ead65919ba4c3bd5c5da859e23",
+      "scope": "Parent-only --timing emits 20 randomized-order paired samples per case, seed 20261113, 256 changing-input lifecycle iterations per sample; ns per complete scenario. Includes construction/destruction, creation/setup of live streams, actual C++/Rust public API calls, FFI, Rust containers/allocations, public native vector allocation/reserve, result checksum calculation and post-action probes. Excludes untimed independent flat-order specification checks, warmup (32 iterations), 256-iteration checksum preflight, order PRNG and JSON output. All writes/deletions are in-memory: no socket, packet, server, whole-browser or isolated operation claim. Do not time the isolated instrumented validation binary. --verify-only checks all 10 workloads and never enters Measure/reads a timing clock.",
+      "bridge": {
+        "present": true,
+        "kind": "Opaque unique Rust owner with synchronous C ABI and fixed-size result values; native public vector/output assignment",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect missing-ID update path and output-plan allocation; preserve duplicate/null/alias contracts and input workloads.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "net-errors-cohort-a-optimization-20261113t161559748190z",
+      "module": "net-errors",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\net-errors-cohort-a-optimization-20261113t161559748190z-2026-11-13.json",
+      "evidence_sha256": "bbe1abe9f81ba66199ef933722472f47bec31e69ee6551c74a06020dcd939f0f",
+      "scope": "Parent-only --timing emits 20 randomized-order pairs per case (seed 20261113), 16384 calls/scenarios per sample; nanoseconds per iteration. Includes public C++ adapter/FFI, native string ownership/allocation/destruction and byte checksum for string cases; all five predicates per classification iteration; one API mapping plus checksum in mapping cases. Mapping misses include warning formatting and a suppressing log sink in both implementations; no stderr/file output, same configured diagnostics in both. Zero system error is a constant-input intentional no-diagnostic control. Other cases cycle 256 initialized inputs. Independent semantic checks and paired complete-case checksum verification occur before clocks. Excludes fixture construction, preflight, order PRNG, report output. Instrumented local binaries are validation only; do not time them. No network/browser performance claim.",
+      "bridge": {
+        "present": true,
+        "kind": "Stateless synchronous C ABI; native owned std::string and named platform constant POD; Rust owns all local error policy",
+        "included_in_timing": true,
+        "separately_measured": false
+      },
+      "measured_regressions": [
+        {
+          "case": "classification",
+          "cpp_median_ns": 9.378051758,
+          "rust_median_ns": 10.6536865235,
+          "rust_speedup_percent": -11.973646518378334,
+          "time_change_95_ci_percent": [
+            12.830431980519164,
+            14.010450684969978
+          ]
+        },
+        {
+          "case": "system_misses",
+          "cpp_median_ns": 1456.6986083985,
+          "rust_median_ns": 1507.9498291015,
+          "rust_speedup_percent": -3.398735137861819,
+          "time_change_95_ci_percent": [
+            1.6854485709604683,
+            4.288853527352066
+          ]
+        },
+        {
+          "case": "system_zero",
+          "cpp_median_ns": 3.216552734,
+          "rust_median_ns": 3.466796875,
+          "rust_speedup_percent": -7.218309869971828,
+          "time_change_95_ci_percent": [
+            7.575757575757569,
+            7.779886160573057
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Inspect predicate dispatch and system mapping code generation; preserve generated schema and warning/log diagnostic behavior.",
+      "publication": "held; no hard blocker established"
+    },
+    {
+      "id": "tcp-client-socket-cohort-a-optimization-20261113t161559748190z",
+      "module": "tcp-client-socket",
+      "status": "Integrated; initial configured regressions measured; optimization and acceptance pending",
+      "evidence": "docs\\rust\\benchmarks\\tcp-client-socket-cohort-a-optimization-20261113t161559748190z-2026-11-13.json",
+      "evidence_sha256": "33d20bfe85ab0723d9b56218b156be0f4e092d34398e4fb19228135f5a548b65",
+      "scope": "Full public API, 20 deterministic randomized-order paired samples (seed 20261113), 256 iterations per sample. Each iteration includes AddressList and IOBuffer construction where used, native TCPSocket construction, Open/default options/Close where used, public C++ adapter, FFI, Rust policy, completion callback ownership, allocation, copy and destruction. No ownership/copy/destruction is excluded. Inputs are deterministic; 32-iteration paired verification/warmup precedes each timed case. Native timers use the real task runner. Scripted connect and IO eliminate external network latency; these are isolated controller/API workloads, not Chromium end-to-end performance. Verification mode substitutes constant diagnostic clocks and never calls measurement clocks. Timing requires explicit --timing and a parent-coordinated quiet window.",
+      "bridge": {
+        "present": true,
+        "included_in_timing": true,
+        "separately_measured": false,
+        "kind": "C++/Rust ABI; native service boundaries remain explicit in the source manifest",
+        "evidence": "Full public API workloads include their Rust boundary. No isolated bridge cost or causal overhead is established."
+      },
+      "measured_regressions": [
+        {
+          "case": "sync-read-64",
+          "cpp_median_ns": 44913.4765625,
+          "rust_median_ns": 46494.140625,
+          "rust_speedup_percent": -3.399705944129383,
+          "time_change_95_ci_percent": [
+            2.2880617776680046,
+            4.739530667038605
+          ]
+        },
+        {
+          "case": "sync-read-ready-64",
+          "cpp_median_ns": 46135.7421875,
+          "rust_median_ns": 47748.6328125,
+          "rust_speedup_percent": -3.377878129691214,
+          "time_change_95_ci_percent": [
+            1.305090381476326,
+            6.87726491311611
+          ]
+        },
+        {
+          "case": "async-write-64",
+          "cpp_median_ns": 44787.5,
+          "rust_median_ns": 46420.5078125,
+          "rust_speedup_percent": -3.517858570388732,
+          "time_change_95_ci_percent": [
+            2.52931917249013,
+            5.207458424323863
+          ]
+        },
+        {
+          "case": "cancel-ready",
+          "cpp_median_ns": 44896.6796875,
+          "rust_median_ns": 47009.375,
+          "rust_speedup_percent": -4.494199960114342,
+          "time_change_95_ci_percent": [
+            2.5694354174790934,
+            6.356052036199089
+          ]
+        },
+        {
+          "case": "disconnect-pending",
+          "cpp_median_ns": 45910.15625,
+          "rust_median_ns": 48448.4375,
+          "rust_speedup_percent": -5.239139549134064,
+          "time_change_95_ci_percent": [
+            3.3759015697921058,
+            7.458124413403566
+          ]
+        },
+        {
+          "case": "suspend-duplex",
+          "cpp_median_ns": 45955.859375,
+          "rust_median_ns": 48436.5234375,
+          "rust_speedup_percent": -5.121474223270628,
+          "time_change_95_ci_percent": [
+            4.133712281965218,
+            6.460082219228247
+          ]
+        },
+        {
+          "case": "adopt-connected",
+          "cpp_median_ns": 44460.3515625,
+          "rust_median_ns": 45832.6171875,
+          "rust_speedup_percent": -2.994080873422733,
+          "time_change_95_ci_percent": [
+            2.67203154692337,
+            3.9929437706725412
+          ]
+        },
+        {
+          "case": "construct-normal",
+          "cpp_median_ns": 4674.0234375,
+          "rust_median_ns": 5384.1796875,
+          "rust_speedup_percent": -13.189683317009472,
+          "time_change_95_ci_percent": [
+            14.70723450495257,
+            15.754283326368569
+          ]
+        },
+        {
+          "case": "forward-options",
+          "cpp_median_ns": 52304.296875,
+          "rust_median_ns": 55133.0078125,
+          "rust_speedup_percent": -5.130703093725753,
+          "time_change_95_ci_percent": [
+            1.8329983158581031,
+            10.068765540495672
+          ]
+        },
+        {
+          "case": "fallback-connect",
+          "cpp_median_ns": 122089.0625,
+          "rust_median_ns": 127876.7578125,
+          "rust_speedup_percent": -4.525994724534888,
+          "time_change_95_ci_percent": [
+            3.6139588523514288,
+            5.479596803114917
+          ]
+        },
+        {
+          "case": "async-connect",
+          "cpp_median_ns": 46097.4609375,
+          "rust_median_ns": 49711.5234375,
+          "rust_speedup_percent": -7.270069895451492,
+          "time_change_95_ci_percent": [
+            6.409462028384394,
+            8.695284629820609
+          ]
+        },
+        {
+          "case": "before-error",
+          "cpp_median_ns": 123278.7109375,
+          "rust_median_ns": 128992.1875,
+          "rust_speedup_percent": -4.4293198473744795,
+          "time_change_95_ci_percent": [
+            3.7346997227144296,
+            6.9113406978166925
+          ]
+        },
+        {
+          "case": "timeout-connect",
+          "cpp_median_ns": 57122.65625,
+          "rust_median_ns": 60162.3046875,
+          "rust_speedup_percent": -5.052413555778479,
+          "time_change_95_ci_percent": [
+            4.366973480859437,
+            7.234622214345543
+          ]
+        }
+      ],
+      "cause_status": "Exact causal contribution unmeasured; bridge presence is not a demonstrated cause or publication exemption.",
+      "follow_up": "Profile state snapshot marshalling and constructor/control dispatch; preserve native services, diagnostics and lifetime/cancellation behavior.",
+      "publication": "held; no hard blocker established"
     }
   ]
 }

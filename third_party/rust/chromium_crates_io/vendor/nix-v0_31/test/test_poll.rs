@@ -38,7 +38,7 @@ fn test_poll() {
 // ppoll(2) is the same as poll except for how it handles timeouts and signals.
 // Repeating the test for poll(2) should be sufficient to check that our
 // bindings are correct.
-#[cfg(any(linux_android, freebsdlike))]
+#[cfg(any(linux, freebsdlike))]
 #[test]
 fn test_ppoll() {
     use nix::poll::ppoll;

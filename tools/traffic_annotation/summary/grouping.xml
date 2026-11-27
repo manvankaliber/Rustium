@@ -16,8 +16,8 @@ after discussions on the right group.
 <groups>
   <group name="Mobile">
     <sender name="Android Unsorted">
-      <annotation id="android_device_manager_socket"/>
-      <annotation id="android_web_socket"/>
+      <annotation id="remote_device_manager_socket"/>
+      <annotation id="remote_web_socket"/>
       <annotation id="cached_image_fetcher"/>
       <annotation id="chrome_variations_android"/>
       <annotation id="customtabs_parallel_request"/>

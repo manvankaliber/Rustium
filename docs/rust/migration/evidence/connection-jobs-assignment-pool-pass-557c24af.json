@@ -1,0 +1,24 @@
+{
+  "utc": "2026-11-22T09:10:20.851707+00:00",
+  "head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "configuration": "Ordinary Windows component on HQC-VAN_KALIBER",
+  "status": "221 pool tests passed under the same lock as the candidate build",
+  "build": "Warm net:net_unittests, Ninja -j4, two recorded serial links",
+  "runtime": {
+    "discovered": 221,
+    "passed": 221,
+    "failed": 0,
+    "skipped": 0,
+    "launcher_jobs": 1,
+    "retries": 0
+  },
+  "scope": "Exact prior affected ClientSocketPoolBaseTest and TransportClientSocketPoolTest selection. Discovery names matched with no additions or omissions.",
+  "executable_sha256": "2285c58626a49825194a2251c6dce2c41d310f4252cb410ffe78be904f55a39f",
+  "dll_sha256": "c9c0d1e379ee87be6a749853f3fd5ac01f27b53ae37136c7144fcec1efac71e0",
+  "warm_dll_reconciliation": "The passing scoped build fingerprinted net.dll before cleanup. Cleanup restored the earlier DLL. The retry rebuilt the candidate and ran tests before restoring; both build artifacts matched historical candidate digests and were unchanged through testing.",
+  "receipt": "C:/Users/micro/rb/network-557c24-pool-suite-rebuild-20261122a/result.json",
+  "discovery_log": "C:/Users/micro/rb/network-557c24-pool-suite-rebuild-20261122a/discovery.log",
+  "test_log": "C:/Users/micro/rb/network-557c24-pool-suite-rebuild-20261122a/suite-run.log",
+  "independent_release": "C:/Users/micro/rb/network-557c24-pool-suite-rebuild-20261122a/independent-release.json",
+  "named_family_follow_up": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3Ae37ff5ba-a664-4264-85e3-b62bf9019894"
+}

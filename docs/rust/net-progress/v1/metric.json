@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "recorded_utc": "2026-11-13T16:03:02.210914+00:00",
+  "proposal_status": "Published version1 source-attribution planning baseline; not functional or final acceptance percentage",
+  "suggested_canonical_destination": "docs/rust/net-progress-current.json",
+  "suggested_field": "source_weighted_implementation_indicator",
+  "metric_name": "Conservative source-attribution planning indicator",
+  "unit": "Comment-stripped nonblank physical original policy source lines (NCLOC)",
+  "default_scope": "whole-net-directory",
+  "metrics": {
+    "whole-net-directory": {
+      "label": "Net including vendored code",
+      "retired_original_policy_ncloc": 2407,
+      "remaining_handwritten_cpp_ncloc": 427812,
+      "denominator_ncloc": 430219,
+      "formula": "2407 / (427812 + 2407) * 100",
+      "source_indicator_percent": 0.5594824961240671,
+      "display_percent": "0.56%"
+    },
+    "first-party-net": {
+      "label": "First-party Net",
+      "retired_original_policy_ncloc": 2407,
+      "remaining_handwritten_cpp_ncloc": 264599,
+      "denominator_ncloc": 267006,
+      "formula": "2407 / (264599 + 2407) * 100",
+      "source_indicator_percent": 0.9014778694111742,
+      "display_percent": "0.90%"
+    }
+  },
+  "formula": "verified retired original policy NCLOC / (current remaining handwritten production C++ NCLOC + verified retired original policy NCLOC) * 100",
+  "credit": {
+    "ncloc": 2407,
+    "credited_methods": 428,
+    "mapped_methods": 581,
+    "original_production_paths": 52,
+    "built_bounded_components": 41,
+    "components_with_nonzero_credit": 40,
+    "vendor_or_external_credit": 0,
+    "deduplication": "Original logical path plus normalized owned method signature; frozen helper closures deliberately omitted.",
+    "attribution_method": "Manually bounded original owned methods; deterministic exclusions of unchanged, native/ownership/diagnostic and uncertain mixed lines. Helper closures do not earn duplicate credit."
+  },
+  "not_a_measure_of": [
+    "Formal functionality completion or a formally proved semantic lower bound",
+    "Effort, time remaining or ETA",
+    "Performance acceptance or whole-goal delivery acceptance",
+    "Raw Rust language share or module/file count"
+  ],
+  "undercredit_and_uncertainty": [
+    "Headers, static data, constructors/destructors, unmapped pre-existing Rust and uncertain mixed lines receive no credit.",
+    "Integrated HostMapping receives zero until its original ownership mapping is resolved.",
+    "All-platform lexical classification includes unresolved production candidates conservatively; it is not complete all-platform GN evaluation.",
+    "The 6915-line mapped owned-method envelope is context only; it is neither eligible credit nor an upper bound."
+  ],
+  "scope_still_unfinished": {
+    "net_vendored_remaining_cpp_ncloc": 163213,
+    "outside_net_provider_records": 15,
+    "closure": [
+      "Project-owned external provider implementations",
+      "Tests and tooling",
+      "Platform execution",
+      "Chrome build and browser behavior",
+      "Performance acceptance and publication"
+    ],
+    "goal_scope_unchanged": true
+  },
+  "frozen_identity": {
+    "built_snapshot_a": "net-cohort-a-optimization-20261113T143813998526Z",
+    "built_snapshot_b": "net-header-alps-initial-20261113T144252419055Z",
+    "later_header_alps_error_edits": "Separate WIP, excluded from this credit",
+    "source_manifest_sha256": "d63715f926d4a6c19b2aa384ae772ed443f8562b05603376498267e65be49f6c",
+    "recursive_gn_sha256": "0842dc6f718dde57a82a80a82336b19d7712cf530a9d931c5af3ab3a16a2d288",
+    "external_provider_register_sha256": "4784f8e7dedcfd22aae6e5085a55159393de8f0ade42ee39adc9e0faa0b4fdf4"
+  },
+  "regular_checkpoint": {
+    "build": ".scratch/net-wave4/regular-cohort-build-20261113T143020524681Z/build-complete.json",
+    "tests_passed": 166,
+    "tests_skipped": 1,
+    "test_executions": 15,
+    "benchmarked_cases": 63,
+    "validation": [
+      "docs/rust/benchmarks/net-configured-validation-20261113T143222927565Z",
+      "docs/rust/benchmarks/net-header-alps-validation-20261113T143500Z"
+    ],
+    "measurements": [
+      "docs/rust/benchmarks/net-cohort-a-optimization-20261113T143813998526Z",
+      "docs/rust/benchmarks/net-header-alps-initial-20261113T144252419055Z"
+    ],
+    "performance_acceptance": false,
+    "publication": "held",
+    "full_chrome_browser_acceptance": false
+  },
+  "stage_qualification": "41 built integrated bounded slices are not 41 performance-accepted modules or complete subsystems. Checkpoint evidence applies only to its frozen identity.",
+  "campaign_mode": "Off by user instruction; deferred checks are not passes",
+  "source_sha256": {
+    "docs\\rust\\net-progress\\v1\\credit-report.json": "7c6bc1458c9e94e60998edefbbed1d07f0767c691ccbead165adc52b90d65068",
+    "docs\\rust\\net-progress\\v1\\credit.json": "0e921864c86da6e28e6bfbeec575da0b229c434a5a26271422bbc89ecfff1df1",
+    "docs\\rust\\net-progress\\v1\\credit-source-sha256.json": "569406d98ccf8f0e7de2c04bcd9353281449327b63b66eb29493d1dd4a451457",
+    "docs\\rust\\net-progress\\v1\\scope-counts.json": "db8ed3e42af878c206bfd46bc0e4e020f5e53cc4b858dcd8bf06c8e38b80563e",
+    "docs\\rust\\net-progress\\v1\\scope-files.json": "7f214f76b9ebd735a11460db2489c47f89d8af994978ac7a5a12184f90102613",
+    "docs\\rust\\net-progress\\v1\\scope-input-sha256.json": "d63715f926d4a6c19b2aa384ae772ed443f8562b05603376498267e65be49f6c",
+    "docs\\rust\\net-progress\\v1\\delivery-packages.json": "d6d2491ea7fa16c7e7704b5043fc29260dde3bb95f4e81a31f8a0b0ff49e7573",
+    "docs\\rust\\net-progress\\v1\\prior-stage-record.json": "720ca857a962b55a5e3ad93eb0b759c8711dd61875f97dd9764523536aa2319e",
+    "docs/rust/benchmarks/net-cohort-a-optimization-20261113T143813998526Z/source-snapshot-sha256.json": "ad6d6f16192a27fd8e987658a8db96602ee7996d6b8f13ffc565477045a1a1d2",
+    "docs/rust/benchmarks/net-header-alps-initial-20261113T144252419055Z/snapshot-sha256.json": "6fa1f6a163695a91b8ea3b00bf73682f0432e881cba7888d6c900f2fe8e7b336"
+  },
+  "original_input_paths": {
+    ".scratch/net-wave4/net-percentage-credit/report.json": "7c6bc1458c9e94e60998edefbbed1d07f0767c691ccbead165adc52b90d65068",
+    ".scratch/net-wave4/net-percentage-credit/credit.json": "0e921864c86da6e28e6bfbeec575da0b229c434a5a26271422bbc89ecfff1df1",
+    ".scratch/net-wave4/net-percentage-credit/source-sha256.json": "569406d98ccf8f0e7de2c04bcd9353281449327b63b66eb29493d1dd4a451457",
+    ".scratch/net-wave4/net-percentage-scope/scope-counts.json": "db8ed3e42af878c206bfd46bc0e4e020f5e53cc4b858dcd8bf06c8e38b80563e",
+    ".scratch/net-wave4/net-percentage-scope/scope-files.json": "7f214f76b9ebd735a11460db2489c47f89d8af994978ac7a5a12184f90102613",
+    ".scratch/net-wave4/net-percentage-scope/input-sha256.json": "d63715f926d4a6c19b2aa384ae772ed443f8562b05603376498267e65be49f6c",
+    ".scratch/net-wave4/net-subteam-plan/plan.json": "d6d2491ea7fa16c7e7704b5043fc29260dde3bb95f4e81a31f8a0b0ff49e7573",
+    "docs/rust/net-progress-current.json": "720ca857a962b55a5e3ad93eb0b759c8711dd61875f97dd9764523536aa2319e",
+    "docs/rust/benchmarks/net-cohort-a-optimization-20261113T143813998526Z/source-snapshot-sha256.json": "ad6d6f16192a27fd8e987658a8db96602ee7996d6b8f13ffc565477045a1a1d2",
+    "docs/rust/benchmarks/net-header-alps-initial-20261113T144252419055Z/snapshot-sha256.json": "6fa1f6a163695a91b8ea3b00bf73682f0432e881cba7888d6c900f2fe8e7b336"
+  },
+  "metric_update_rule": "Freeze baseline weights. Add credit only for evidenced Rust migration/ownership work, never formatting/deletion alone. Newly discovered old credit is a labeled baseline correction, not new work."
+}

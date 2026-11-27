@@ -35,14 +35,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "android_system_properties"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "anstyle"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -299,6 +291,7 @@ dependencies = [
  "syn 3.0.9",
  "temporal_capi",
  "temporal_rs",
+ "windows-sys",
  "xml",
  "zeroize",
  "zip",
@@ -782,7 +775,6 @@ name = "iana-time-zone"
 version = "0.1.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "android_system_properties",
  "core-foundation-sys",
  "iana-time-zone-haiku",
  "js-sys",

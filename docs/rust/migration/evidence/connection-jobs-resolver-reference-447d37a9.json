@@ -1,0 +1,22 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "base": "dd17ccc60e2a1498298ca3fbc62578ff9fc57aa6",
+  "candidate_commit": "447d37a92273b5b0f761c13c3beb4195d54e5071",
+  "local_branch": "rust/connection-jobs-resolver-reference-20261120",
+  "changed_file": "net/socket/connection_jobs_family_rust_unittest.cc",
+  "original_sha256": "77eb6cb57593e2f5ad111dc8c919623ff43699a6873507882f994fcddf6643d3",
+  "candidate_sha256": "c4593362d769335479488c3c1000e4f96bc099be9319c7c3e07d37868c677e13",
+  "focused_gtest": "ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "coverage": [
+    "On-demand resolver success records endpoint metadata and aliases before completion, checks the actual selected socket peer, and compares production and original connection attempts.",
+    "Asynchronous name failure checks resolver error, recorded attempt and absence of socket creation.",
+    "Destruction while the resolver request is pending checks cancellation and absence of later host or completion callbacks."
+  ],
+  "shared_provider_limits": [
+    "MockHostResolver and the scripted transport socket are shared. MockHostResolver calls dns_names_util::IsValidDnsName and existing HostPortPair helpers. The current scope compares consumption of a scripted resolver result by the two job implementations.",
+    "No real DNS provider, paired Happy Eyeballs v2 race, or successful QUIC session comparison is demonstrated."
+  ],
+  "static_checks": "Expected one-file delta and git diff --check passed. Calls checked against the pinned APIs. Independent source/link review pending.",
+  "native_status": "Pending. Keep this candidate separate from dd17ccc60e while the serial laptop validation and repair sequence is in progress."
+}

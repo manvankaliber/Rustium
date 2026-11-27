@@ -1,0 +1,8 @@
+# Copyright 2026 The Rustium Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Pinned DevTools test targets import this file. BUILDCONFIG.gn already
+# provides the disabled is_chromeos and is_chromeos_device flags.
+assert(!is_chromeos && !is_chromeos_device,
+       "Rustium does not support ChromeOS builds.")

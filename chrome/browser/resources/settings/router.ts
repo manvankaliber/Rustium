@@ -19,7 +19,6 @@ export interface SettingsRoutes {
   ADDRESSES: Route;
   ADVANCED: Route;
   AI: Route;
-  AI_MODE_SEARCH: Route;
   AI_SUGGESTIONS: Route;
   APPEARANCE: Route;
   AUTOFILL: Route;

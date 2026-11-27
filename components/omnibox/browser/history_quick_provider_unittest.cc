@@ -1043,26 +1043,6 @@ TEST_F(HistoryQuickProviderTest, MaxMatches) {
   EXPECT_EQ(matches.size(), 8u);
 }
 
-TEST_F(HistoryQuickProviderTest, GroupForAndroidHub) {
-  // Keyword mode is off. We should only get provider_max_matches_ matches.
-  AutocompleteInput input(u"somedomain.com",
-                          metrics::OmniboxEventProto::ANDROID_HUB,
-                          TestSchemeClassifier());
-  provider().Start(input, false);
-  EXPECT_EQ(omnibox::GROUP_MOBILE_HISTORY,
-            provider().matches()[0].suggestion_group_id);
-}
-
-TEST_F(HistoryQuickProviderTest, BiggerMaxMatchesForAndroidHub) {
-  AutocompleteInput input(u"daysagoest",
-                          metrics::OmniboxEventProto::ANDROID_HUB,
-                          TestSchemeClassifier());
-  provider().Start(input, false);
-  EXPECT_EQ(3u, provider().provider_max_matches());
-  EXPECT_FALSE(provider().matches().empty());
-  EXPECT_EQ(provider().matches().size(), 5u);
-}
-
 class HQPDomainSuggestionsTest : public HistoryQuickProviderTest {
  protected:
   std::vector<TestURLInfo> GetTestData() override {

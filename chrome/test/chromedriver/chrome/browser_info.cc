@@ -90,34 +90,24 @@ Status BrowserInfo::ParseBrowserInfo(std::string_view data,
     return Status(kUnknownError, "version info not a dictionary");
   }
 
-  const base::Value* android_package = dict->Find("Android-Package");
-  if (android_package) {
-    if (!android_package->is_string()) {
-      return Status(kUnknownError, "'Android-Package' is not a string");
-    }
-    browser_info->android_package = android_package->GetString();
+  if (dict->contains("Android-Package")) {
+    return Status(kUnknownError, "Android targets are not supported");
   }
 
   const std::string* browser_string = dict->FindString("Browser");
   if (!browser_string)
     return Status(kUnknownError, "version doesn't include 'Browser'");
 
-  Status status = ParseBrowserString(android_package != nullptr,
+  Status status = ParseBrowserString(false,
                                      *browser_string, browser_info);
   if (status.IsError())
     return status;
 
-  // Android-Package predates File-Path-Style and is authoritative when both
-  // are present. Missing, malformed, and unrecognized File-Path-Style values
-  // are intentionally non-fatal for compatibility with older browsers.
-  if (browser_info->is_android) {
-    browser_info->file_path_style = FilePathStyle::kPosix;
-  } else {
-    const std::string* file_path_style = dict->FindString("File-Path-Style");
-    browser_info->file_path_style = file_path_style
-                                        ? ParseFilePathStyle(*file_path_style)
-                                        : FilePathStyle::kUnknown;
-  }
+  // Missing or unrecognized metadata remains compatible with older desktop browsers.
+  const std::string* file_path_style = dict->FindString("File-Path-Style");
+  browser_info->file_path_style = file_path_style
+                                      ? ParseFilePathStyle(*file_path_style)
+                                      : FilePathStyle::kUnknown;
 
   status = ParseUserAgent(*dict, "User-Agent", &browser_info->user_agent);
   if (status.IsError()) {
@@ -138,12 +128,11 @@ Status BrowserInfo::ParseBrowserInfo(std::string_view data,
   return ParseBlinkVersionString(*blink_version, &browser_info->blink_revision);
 }
 
-Status BrowserInfo::ParseBrowserString(bool has_android_package,
+Status BrowserInfo::ParseBrowserString(bool has_unsupported_mobile_package,
                                        std::string_view browser_string,
                                        BrowserInfo* browser_info) {
-  if (has_android_package) {
-    browser_info->is_android = true;
-    browser_info->file_path_style = FilePathStyle::kPosix;
+  if (has_unsupported_mobile_package) {
+    return Status(kUnknownError, "Mobile app targets are not supported");
   }
 
   if (browser_string.empty()) {
@@ -187,20 +176,7 @@ Status BrowserInfo::ParseBrowserString(bool has_android_package,
     }
   }
 
-  if (browser_string.find("Version/") == 0u ||   // KitKat
-      (has_android_package && build_no == 0)) {  // Lollipop
-    size_t pos = browser_string.find(kVersionPrefix);
-    if (pos != std::string_view::npos) {
-      browser_info->browser_name = "webview";
-      browser_info->browser_version =
-          std::string(browser_string.substr(pos + kVersionPrefix.length()));
-      browser_info->is_android = true;
-      browser_info->file_path_style = FilePathStyle::kPosix;
-      return ParseBrowserVersionString(browser_info->browser_version,
-                                       &browser_info->major_version, &build_no);
-    }
-    return Status(kOk);
-  }
+
 
   return Status(kUnknownError,
                 base::StringPrintf("unrecognized %s version: %s",

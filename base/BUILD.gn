@@ -1098,6 +1098,7 @@ component("base") {
   deps = [
     ":base64_rust_shim",
     ":check_version_internal",
+    ":string_split_rust",
     "//base/allocator:buildflags",
     "//base/third_party/cityhash",
     "//base/third_party/cityhash_v103",
@@ -1136,7 +1137,6 @@ component("base") {
     ":debugging_buildflags",
     ":feature_buildflags",
     ":ios_cronet_buildflags",
-    ":orderfile_buildflags",
     ":power_monitor_buildflags",
     ":profiler_buildflags",
     ":protected_memory_buildflags",
@@ -2126,6 +2126,22 @@ rust_static_library("base64_rust_shim") {
   deps = [ "//third_party/rust/base64/v0_23:lib" ]
 }
 
+rust_static_library("string_split_rust") {
+  visibility = [
+    ":base",
+    ":base_unittests",
+  ]
+  crate_root = "strings/string_split_rust.rs"
+  sources = [
+    "strings/string_split_rust.rs",
+    "strings/string_split_rust_policy.rs",
+  ]
+  cxx_bindings = [ "strings/string_split_rust.rs" ]
+  allow_unsafe =
+      true  # Generated CXX FFI only; authored policy/glue is safe Rust.
+  deps = [ "//third_party/rust/cxx/v1:lib" ]
+}
+
 rust_static_library("scoped_refptr") {
   sources = [ "memory/scoped_refptr.rs" ]
   crate_root = "memory/scoped_refptr.rs"
@@ -2470,18 +2486,6 @@ buildflag_header("feature_buildflags") {
   header = "feature_buildflags.h"
 
   flags = [ "ENABLE_BANNED_BASE_FEATURE_PREFIX=false" ]
-}
-
-buildflag_header("orderfile_buildflags") {
-  header = "orderfile_buildflags.h"
-  header_dir = "base/android/orderfile"
-  using_order_profiling = false
-  using_devtools_dumping = false
-
-  flags = [
-    "DEVTOOLS_INSTRUMENTATION_DUMPING=$using_devtools_dumping",
-    "ORDERFILE_INSTRUMENTATION=$using_order_profiling",
-  ]
 }
 
 # Build flags for ProtectedMemory
@@ -3221,6 +3225,7 @@ test("base_unittests") {
     "strings/strcat_unittest.cc",
     "strings/string_number_conversions_unittest.cc",
     "strings/string_slice_unittest.cc",
+    "strings/string_split_rust_bridge_unittest.cc",
     "strings/string_split_unittest.cc",
     "strings/string_tokenizer_unittest.cc",
     "strings/string_util_unittest.cc",
@@ -3442,6 +3447,7 @@ test("base_unittests") {
     ":path_service_unittest",
     ":rust_feature_unittests",
     ":sanitizer_buildflags",
+    ":string_split_rust",
     "//base/allocator:buildflags",
     "//base/i18n:test_support",
     "//base/i18n:unittests",

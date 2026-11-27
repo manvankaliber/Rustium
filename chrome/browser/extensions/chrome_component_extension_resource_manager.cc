@@ -17,7 +17,6 @@
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/extensions/extension_constants.h"
-#include "chrome/grit/aim_eligibility_extension_resources_map.h"
 #include "chrome/grit/chrome_unscaled_resources.h"
 #include "chrome/grit/component_extension_resources_map.h"
 #include "chrome/grit/contextual_tasks_extension_resources_map.h"
@@ -106,7 +105,6 @@ ChromeComponentExtensionResourceManager::Data::Data() {
   AddComponentResourceEntries(kExtraComponentExtensionResources);
   if (base::FeatureList::IsEnabled(
           omnibox::kAimEligibilityComponentExtension)) {
-    AddComponentResourceEntries(kAimEligibilityExtensionResources);
   }
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   if (base::FeatureList::IsEnabled(ntp_features::kNtpComponentExtension)) {

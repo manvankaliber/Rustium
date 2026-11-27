@@ -1,0 +1,13 @@
+{
+  "active_family": "connection-jobs",
+  "dependency": "The optimized QUIC proxy preference acceptance requires components_unittests, whose font-data dependency copies this notice.",
+  "parent": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "candidate": "df7a5e64f112b86c8b2292630649aecedcc313bb",
+  "branch": "refs/heads/rust/network-quic-test-fonts-20261119",
+  "original_consolidation_commit": "c176b362e6120602d97a148efefe0d93c9953a77",
+  "restored_file": "third_party/test_fonts/LICENSE",
+  "restored_blob": "0366f49a67bbd9bb924eec438dc8eabf6210adbb",
+  "restored_sha256": "aeb78a4f3b8f3f0e8b56d8ffd67ca154df66ab0376fc12e896e02013a6332cc9",
+  "source_check": "Exact original Git blob and mode restored. Scoped diff check passed.",
+  "status": "Source repair prepared. Pending warm font copy target and optimized QUIC components validation."
+}

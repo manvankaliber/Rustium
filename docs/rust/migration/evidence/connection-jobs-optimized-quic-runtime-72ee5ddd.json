@@ -1,0 +1,22 @@
+{
+  "family": "connection-jobs",
+  "validated_commit": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "host": "HQC-VAN_KALIBER",
+  "configuration": "Warm optimized Windows x64 component with QUIC enabled and bracketed proxy URI and reference probe disabled",
+  "verify_only_workloads_passed": 16,
+  "paired_lifecycle_gtests_passed": 16,
+  "additional_quic_cases_passed": 4,
+  "retries": 0,
+  "ordinary_quic_skips_reconciled": 6,
+  "ordinary_dual_race_skips_with_passing_enabled_counterpart": 28,
+  "runtime_output_files": 62,
+  "frozen_source_data_files": 598,
+  "independent_lock_release": true,
+  "result": "C:/Users/micro/rb/network-72ee5ddd-quic-jobs-supplement-20261121b/result.json",
+  "environment_reconciliation": "C:/Users/micro/rb/network-72ee5ddd-quic-jobs-supplement-20261121b/reconciliation.json",
+  "frozen_source_result": "C:/Users/micro/rb/network-72ee5ddd-quic-jobs-supplement-20261121b/sealed-source-result.json",
+  "independent_probe": "C:/Users/micro/rb/network-72ee5ddd-quic-jobs-supplement-20261121b/independent-release-probe.json",
+  "abi_source_preflight": "Seven of nine archived after-image paths match the exact head. The current base/BUILD.gn adds probe-specific sources and flags plus orderfile buildflags. Compared to its archived before-image, http_auth_cache.h adds the two reviewed friends and private exports for EntryMapKey's constructor, destructor and comparison. The binary capture must account for those exports.",
+  "next_scope": "Read existing fresh graph and binaries for bounded ABI validation and five exact Strings bridge tests. No compiler or umbrella build.",
+  "next_thread": "mcp:launch:675c3a38eb4b2ee216d0cc87d0ceca0f531ed8bd17433b14c15b2af593daf32a"
+}

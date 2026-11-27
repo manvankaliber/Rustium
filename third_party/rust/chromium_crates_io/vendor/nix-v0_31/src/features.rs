@@ -1,7 +1,7 @@
 //! Feature tests for OS functionality
 pub use self::os::*;
 
-#[cfg(any(linux_android, target_os = "emscripten"))]
+#[cfg(any(linux, target_os = "emscripten"))]
 mod os {
     use crate::sys::utsname::uname;
     use crate::Result;

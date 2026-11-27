@@ -966,7 +966,7 @@ pub(crate) mod ffi {
     //
     // Use asm-based syscall on Linux for compatibility with non-libc targets if possible.
     //
-    // In non-Linux environments (including Android), syscalls should be called via libc,
+    // In non-Linux environments, syscalls should be called via libc,
     // mainly for the following reasons.
     // - asm-based syscalls are not permitted in the first place. e.g.,
     //   - OpenBSD https://github.com/golang/go/issues/36435
@@ -977,7 +977,6 @@ pub(crate) mod ffi {
     //   - OpenBSD https://lwn.net/Articles/806863/
     //   - CheriBSD https://www.cheribsd.org/release-notes/25.03/index.html
     //   - FreeBSD https://www.freebsd.org/status/report-2024-01-2024-03/libsys/
-    //   - Android https://android.googlesource.com/platform/bionic/+/HEAD/docs/fdtrack.md
     //
     // Miri and Sanitizer do not support inline assembly.
     #[cfg(all(

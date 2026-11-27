@@ -61,14 +61,14 @@ libc_bitflags!(
         IFF_POINTOPOINT as IflagsType;
         /// Avoid use of trailers. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, solarish, apple_targets, target_os = "cygwin"))]
+        #[cfg(any(linux, solarish, apple_targets, target_os = "cygwin"))]
         IFF_NOTRAILERS as IflagsType;
         /// Interface manages own routes.
         #[cfg(any(target_os = "dragonfly"))]
         IFF_SMART as IflagsType;
         /// Resources allocated. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(any(linux_android, bsd, solarish, target_os = "cygwin"))]
+        #[cfg(any(linux, bsd, solarish, target_os = "cygwin"))]
         IFF_RUNNING as IflagsType;
         /// No arp protocol, L2 destination address not set. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
@@ -82,7 +82,7 @@ libc_bitflags!(
         IFF_ALLMULTI as IflagsType;
         /// Master of a load balancing bundle. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_MASTER;
         /// transmission in progress, tx hardware queue is full
         #[cfg(any(target_os = "freebsd", apple_targets, netbsdlike))]
@@ -92,7 +92,7 @@ libc_bitflags!(
         IFF_INTELLIGENT as IflagsType;
         /// Slave of a load balancing bundle. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_SLAVE;
         /// Can't hear own transmissions.
         #[cfg(bsd)]
@@ -108,7 +108,7 @@ libc_bitflags!(
         IFF_MULTI_BCAST as IflagsType;
         /// Is able to select media type via ifmap. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_PORTSEL;
         /// Per link layer defined bit.
         #[cfg(bsd)]
@@ -118,7 +118,7 @@ libc_bitflags!(
         IFF_UNNUMBERED as IflagsType;
         /// Auto media selection active. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_AUTOMEDIA;
         /// Per link layer defined bit.
         #[cfg(bsd)]
@@ -131,7 +131,7 @@ libc_bitflags!(
         IFF_DHCPRUNNING as IflagsType;
         /// The addresses are lost when the interface goes down. (see
         /// [`netdevice(7)`](https://man7.org/linux/man-pages/man7/netdevice.7.html))
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_DYNAMIC;
         /// Do not advertise.
         #[cfg(solarish)]
@@ -197,13 +197,13 @@ libc_bitflags!(
         #[cfg(solarish)]
         IFF_NORTEXCH as IflagsType;
         /// Do not provide packet information
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_NO_PI as IflagsType;
         /// TUN device (no Ethernet headers)
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_TUN as IflagsType;
         /// TAP device
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         IFF_TAP as IflagsType;
         /// IPv4 interface.
         #[cfg(solarish)]

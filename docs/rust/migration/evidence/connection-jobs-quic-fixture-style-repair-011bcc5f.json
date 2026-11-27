@@ -1,0 +1,25 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "failed_commit": "11a7c1cc66c93c27171c591255a3166b96bfff3a",
+  "configuration": "Optimized Windows x64 QUIC component",
+  "gn_check": "Passed for //net:net_unittests",
+  "failure": "Thirteen Chromium style diagnostics required an out-of-line constructor, destructor and eleven virtual method definitions in the extracted fixture.",
+  "raw_log": "C:/Users/micro/rb/network-quic-success-11a7c1cc-20261120a/ninja-build.log",
+  "receipt": "C:/Users/micro/rb/network-quic-success-11a7c1cc-20261120a/result.json",
+  "release_probe": "C:/Users/micro/rb/network-quic-success-11a7c1cc-20261120a/release-probe.json",
+  "tests_executed": 0,
+  "repaired_commit": "011bcc5f3ae41cb83cf6d1ef7568c0177f4d375a",
+  "remote_ref": "refs/heads/rust/connection-jobs-quic-success-grit-20261120",
+  "changed_paths": [
+    "net/quic/quic_proxy_client_socket_test_fixture.h",
+    "net/quic/quic_proxy_client_socket_unittest.cc"
+  ],
+  "static_checks": "Verified all eleven method bodies have the same tokens and both file modes are unchanged. The new QUIC tunnel cases and GN sources are unchanged by the scoped repair.",
+  "native_retry": {
+    "thread": "mcp:launch:6e9d7a28c7bc09b6febb75200bf159b2c94b170af8b0ec077b6fd5456655bf51",
+    "first_target": "Exact failed C++ object, then GN check, unit binary, and selected QUIC cases",
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "status": "In progress"
+  }
+}

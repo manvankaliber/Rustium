@@ -66,7 +66,7 @@
 #include "components/sync/protocol/sync_invalidations_payload.pb.h"
 #include "components/sync/protocol/tab_context_container_access_token.pb.h"
 #include "components/sync/protocol/tab_group_attribution_metadata.pb.h"
-#include "components/sync/protocol/theme_android_specifics.pb.h"
+#include "components/sync/protocol/theme_mobile_specifics.pb.h"
 #include "components/sync/protocol/theme_ios_specifics.pb.h"
 #include "components/sync/protocol/theme_specifics.pb.h"
 #include "components/sync/protocol/theme_types.pb.h"

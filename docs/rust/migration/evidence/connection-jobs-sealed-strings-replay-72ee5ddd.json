@@ -1,0 +1,22 @@
+{
+  "task_id": "NET-CURRENT-ABI-QUALIFICATION",
+  "validated_commit": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "host": "HQC-VAN_KALIBER",
+  "approved_input_sha256": "1f8f4a36994e16d4425ae9648b13242c22f3bf7bd70df536246e8f27a18bff02",
+  "tests_passed": 5,
+  "test_jobs": 1,
+  "test_retries": 0,
+  "sealed_source_files": 113,
+  "sealed_output_runtime_files": 99,
+  "generated_fixtures_retained": 2,
+  "closure_hashes_unchanged": true,
+  "independent_lock_release": true,
+  "receipt": "C:/Users/micro/rb/network-72ee5ddd-strings-source-replay-20261121e/result.json",
+  "test_summary": "C:/Users/micro/rb/network-72ee5ddd-strings-source-replay-20261121e/strings-summary.json",
+  "independent_release": "C:/Users/micro/rb/network-72ee5ddd-strings-source-replay-20261121e/independent-release.json",
+  "legacy_manifest_sha256": "f9ca9aece3722438913ebab8c54a99f6b04561561b620abfc373a3ffe15691d0",
+  "legacy_entries_matching_current_logical_labels": 119,
+  "legacy_explicit_artifact_entries_for_further_reconciliation": 36,
+  "followup": "Compare the remaining 36 entries to fresh artifacts and run the original Strings tests alongside the five bridge tests. No build.",
+  "followup_thread": "mcp:launch:784ca39981f28f0847008a37d69cd3cc14e6f848aaaf6d75ef6ad9ce31cf3bfe"
+}

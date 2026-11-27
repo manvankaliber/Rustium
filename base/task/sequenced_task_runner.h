@@ -43,9 +43,6 @@ class ThreadWrapper;
 
 namespace base {
 
-namespace android {
-class PreFreezeBackgroundMemoryTrimmer;
-}
 namespace internal {
 class DelayTimerBase;
 class DelayedTaskManager;

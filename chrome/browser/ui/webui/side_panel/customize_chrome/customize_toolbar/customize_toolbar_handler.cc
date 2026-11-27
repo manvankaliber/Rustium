@@ -388,11 +388,7 @@ void CustomizeToolbarHandler::ListActions(ListActionsCallback callback) {
 
   add_action(kActionPrint,
              side_panel::customize_chrome::mojom::CategoryId::kTools);
-  if (base::FeatureList::IsEnabled(
-          contextual_tasks::kEnableContextualTasksPinButtonInToolbar)) {
-    add_action(kActionSidePanelShowContextualTasks,
-               side_panel::customize_chrome::mojom::CategoryId::kTools);
-  }
+
   add_action(kActionSidePanelShowSearchCompanion,
              side_panel::customize_chrome::mojom::CategoryId::kTools);
   add_action(kActionShowTranslate,

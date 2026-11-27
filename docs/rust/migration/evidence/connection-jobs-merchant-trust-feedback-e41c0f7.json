@@ -1,0 +1,18 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "The Page Info unit-test source set is part of components_unittests and blocked optimized proxy preference acceptance.",
+  "failed_commit": "1c843c0cce9725125385665fe9b74eee5aa077f0",
+  "focused_multistep_objects_passed": 2,
+  "umbrella_action_lines": 659,
+  "umbrella_cases_run": 0,
+  "first_umbrella_error": "merchant_trust_validation_unittest.cc:15: undeclared ValidateProto; the service tests also failed on removed commerce protobuf helpers",
+  "failure_receipt": "C:/Users/micro/rb/network-1c843c0c-feedback-20261121a/receipt.md",
+  "failure_log": "C:/Users/micro/rb/network-1c843c0c-feedback-20261121a/components.log",
+  "focused_log": "C:/Users/micro/rb/network-1c843c0c-feedback-20261121a/focused.log",
+  "independent_lock_release": true,
+  "focused_candidate": "e41c0f72cfd05fe68c33174b5c8385eb97b0cc73",
+  "published_ref": "refs/heads/rust/merchant-trust-tests-feedback-20261121",
+  "test_scope": "Remove cases for the intentionally retired validator and metadata-fetch paths. Preserve both interaction-metrics cases and test URL and empty data delivered by the live callback. Production code is untouched.",
+  "validation_thread": "mcp:launch:1cc2e1d7f9d07fb0e123b48dcb9ad01beaac519c8499a7c3839436395ed89068",
+  "validation_state": "Warm GN source check and service test object replay dispatched before conditional umbrella acceptance."
+}

@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-21T21:51:08.802910+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "candidate_commit": "b4435e701df258a50c8746812a949b37b4e02e9d",
+  "production_candidate": "4304d7e0742c196f2cc4b1e8a72658ac562ebbbb",
+  "production_parent": "80374a37061121a5b3e5d6f82311f857a38cf29d",
+  "source_identity": {
+    "packet_base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+    "original_freeze": "fc2d429f3493ade4272d3b1e2ade96a81ba03d41",
+    "production_patch_sha256": "72e4bf0cb825faa6200fdebfb4c9e92666cd7f5bdfb8cdfaad8d531c5d498e1d",
+    "director_linkage_patch_sha256": "590d2c49570390891ec719bf9cf405616d62fe13eba1e1ffcd8a9530fa6b8fdb",
+    "verification": "Both patch digests and ten applied images matched the packet on its pinned base. On the stacked parent nine images were byte-identical, and the sole expected addition to the remaining image was the previously reviewed auth fixture. Both applied diffs passed git diff --cached --check."
+  },
+  "tests": {
+    "status": "pending",
+    "scope": "Source checked only. Compile and first affected cases confined to the warm laptop net_unittests target."
+  },
+  "review": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3Aaebcbd82-13bf-4a5c-919f-52efd2c50340"
+  },
+  "rust_scope": "Rust selects the front-job, no-action, donor or release rank using native queue observations. Native code applies ownership and priority changes, maintains queue order and reprioritization, and owns auth, timers and preconnect accounting.",
+  "platform_limits": [
+    "GN and shared template consumer review pending.",
+    "No native or performance result."
+  ]
+}

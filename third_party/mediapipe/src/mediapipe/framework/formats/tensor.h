@@ -35,9 +35,7 @@
 #include "absl/synchronization/mutex.h"     // from @com_google_absl
 #include "mediapipe/framework/formats/tensor/internal.h"
 #include "mediapipe/framework/memory_manager.h"
-// Exports MEDIAPIPE_TENSOR_USE_AHWB macro.
 #include "mediapipe/framework/port.h"
-
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
 #include "mediapipe/gpu/gl_base.h"
@@ -153,7 +151,7 @@ class Tensor {
   // a buffer that is padded to multiples of memory_alignment bytes.
   // memory_alignment must be power of 2, i.e. 2, 4, 8, 16, 64, etc.
   // If memory_alignment is 0, then the buffer will not be padded.
-  // Note that memory_alignment is only applied to CPU storage (includes AHWBs).
+  // Note that memory_alignment is only applied to CPU storage.
   Tensor(ElementType element_type, const Shape& shape,
          MemoryManager* memory_manager = nullptr, int memory_alignment = 0);
   Tensor(ElementType element_type, const Shape& shape,
@@ -213,7 +211,6 @@ class Tensor {
   CpuWriteView GetCpuWriteView(
       uint64_t source_location_hash =
           tensor_internal::FnvHash64(builtin_FILE(), builtin_LINE())) const;
-
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   // TODO: Use GlTextureView instead.
@@ -400,21 +397,20 @@ class Tensor {
   int bytes() const { return shape_.num_elements() * element_size(); }
 
   bool ready_on_cpu() const {
-    return valid_ & (kValidAHardwareBuffer | kValidCpu);
+    return valid_ & kValidCpu;
   }
   bool ready_on_gpu() const {
     return valid_ &
            (kValidMetalBuffer | kValidOpenGlBuffer | kValidWebGpuTexture2d |
-            kValidAHardwareBuffer | kValidOpenGlTexture2d);
+            kValidOpenGlTexture2d);
   }
   bool ready_as_metal_buffer() const { return valid_ & kValidMetalBuffer; }
   bool ready_as_opengl_buffer() const {
-    return valid_ & (kValidAHardwareBuffer | kValidOpenGlBuffer);
+    return valid_ & kValidOpenGlBuffer;
   }
   bool ready_as_opengl_texture_2d() const {
     return valid_ & kValidOpenGlTexture2d;
   }
-  bool ready_as_ahwb() const;
   bool ready_as_webgpu_texture_2d() const {
     return valid_ & kValidWebGpuTexture2d;
   }
@@ -473,7 +469,6 @@ class Tensor {
     kValidOpenGlBuffer = 1 << 2,
     kValidOpenGlTexture2d = 1 << 3,
     kValidWebGpuTexture2d = 1 << 4,
-    kValidAHardwareBuffer = 1 << 5,
   };
   // A list of resource which are currently allocated and synchronized between
   // each-other: valid_ = kValidCpu | kValidMetalBuffer;
@@ -492,30 +487,6 @@ class Tensor {
   mutable wgpu::Device webgpu_device_;
   mutable wgpu::Texture webgpu_texture2d_;
 #endif  // MEDIAPIPE_USE_WEBGPU
-
-
-  // Use Ahwb for other views: OpenGL / CPU buffer.
-  mutable bool use_ahwb_ = false;
-  // If true, the tensor will use an AHWB if the tensor is written on CPU and
-  // read as GL buffer or vice versa.
-  mutable bool prefer_ahwb_ = false;
-  mutable uint64_t ahwb_tracking_key_ = 0;
-  // Expects the target SSBO to be already bound.
-  bool AllocateAhwbMapToSsbo() const;
-  bool InsertAhwbToSsboFence() const;
-  void MoveAhwbStuff(Tensor* src);
-  absl::Status ReleaseAhwbStuff();
-  void* MapAhwbToCpuRead() const;
-  void* MapAhwbToCpuWrite() const;
-  void MoveCpuOrSsboToAhwb() const;
-  // Sets current tracking key to the given source_location_hash, and sets
-  // use_ahwb_ if the key is already marked (see below)
-  void TrackAhwbUsage(uint64_t key) const;
-  // Memorizes the tracking key set by TrackAhwbUsage(), so that if
-  // TrackAhwbUsage() is called again with the same key, the tensor will use an
-  // AHWB, even if the tensor instance is different from the one that called
-  // TrackAhwbUsage().
-  void MarkAhwbUsage() const;
 
 #if MEDIAPIPE_OPENGL_ES_VERSION >= MEDIAPIPE_OPENGL_ES_30
   mutable std::shared_ptr<mediapipe::GlContext> gl_context_;

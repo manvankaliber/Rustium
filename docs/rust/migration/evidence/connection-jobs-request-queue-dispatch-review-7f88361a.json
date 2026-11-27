@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-21T23:11:45.779722+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "production_candidate": "4685fd403bfa4075e42121a19d5866e302f1610a",
+  "reviewed_fixture": "563d3915ab6faf96d467f811211a736c1786608d",
+  "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A0ac65ca7-985c-4980-924e-e762d6cfe417",
+  "repaired_fixture": "7f88361ac16352c5f44e01dc2b8d3976a7989787",
+  "published_ref": "refs/heads/rust/transport-retained-dispatch-coverage-20261122",
+  "test_file": "net/socket/client_socket_pool_base_unittest.cc",
+  "test_file_git_blob": "f925ec68a505dc7d2011297d2492dd001c18658e",
+  "test": "ClientSocketPoolBaseTest.RetainedQueueReprioritizeDuringSynchronousDispatch",
+  "repair": "Verify the waiter before posting, assert the post succeeds, drain tasks and confirm the expected callback has its result before reading. Scoped cleanup removes waiter registrations even on early assertions and finishes or cancels the dispatcher jobs; clear live priority callback immediately after reprioritization.",
+  "coverage": "Actual PrioritizedDispatcher is called by a mock ConnectJob priority provider. Validate LOW then MEDIUM propagation, synchronous dispatch during removal with one visible queued request, and completion posted after returning.",
+  "validation": "Review and hash-bound test repair only. Build/run test-only successor after exact production candidate feedback."
+}

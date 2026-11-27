@@ -5,7 +5,7 @@ Copyright 2008 Google Inc.
 ## The Protobuf Java Lite Runtime
 
 The Protobuf Java Lite runtime is a separate runtime designed to be used on
-mobile clients (especially on Android).
+clients with constrained memory.
 
 Lite runtime should not be used on server-side, as the tradeoffs it makes are
 not suited for that environment. In server contexts, the Full runtime should

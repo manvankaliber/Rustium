@@ -188,9 +188,6 @@ pub fn ctor(args: TokenStream, input: TokenStream) -> TokenStream {
                                 TokenTree::Punct(Punct::new('=', Spacing::Alone)),
                                 TokenTree::Literal(Literal::string("netbsd")),
                                 TokenTree::Punct(Punct::new(',', Spacing::Alone)),
-                                TokenTree::Ident(Ident::new("target_os", Span::call_site())),
-                                TokenTree::Punct(Punct::new('=', Spacing::Alone)),
-                                TokenTree::Literal(Literal::string("android")),
                             ],
                         )),
                         TokenTree::Punct(Punct::new(',', Spacing::Alone)),
@@ -270,12 +267,6 @@ pub fn ctor(args: TokenStream, input: TokenStream) -> TokenStream {
                                         TokenTree::Punct(Punct::new('=', Spacing::Alone)),
                                         TokenTree::Literal(Literal::string("linux")),
                                         TokenTree::Punct(Punct::new(',', Spacing::Alone)),
-                                        TokenTree::Ident(Ident::new(
-                                            "target_os",
-                                            Span::call_site()
-                                        )),
-                                        TokenTree::Punct(Punct::new('=', Spacing::Alone)),
-                                        TokenTree::Literal(Literal::string("android")),
                                     ],
                                 )),
                                 TokenTree::Punct(Punct::new(',', Spacing::Alone)),

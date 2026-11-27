@@ -1,0 +1,21 @@
+{
+  "utc": "2026-11-22T10:03:41.315726+00:00",
+  "base_revision": "a60281116646a3e3b78fd01607e56aa0448a3fc9",
+  "candidate_revision": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "ref": "refs/heads/rust/connection-original-digest-handler-20261122",
+  "review_result": "Independent exact-object review found no blocking source findings. Mechanical comparison of pinned Digest bodies verified the intended reference helper substitutions. No runtime was claimed.",
+  "status": "Published and dispatched; tests pending.",
+  "tests": {
+    "ordinary": [
+      "OriginalProviderRouteTest.DigestFrozenParserPreservesLaterResults",
+      "OriginalProviderRouteTest.DigestUsesRegistryAndOriginalHandlerInit",
+      "OriginalProviderRouteTest.BasicParsesOriginalParameterGrammar",
+      "OriginalProviderRouteTest.BasicLaterChallengesUseOriginalParameterGrammar"
+    ],
+    "dcheck_probe": [
+      "AuthReferenceQualificationTest.EachInstrumentedFamilyHasPositiveControl",
+      "AuthReferenceQualificationTest.DigestNativeCaseUsesOriginalHandlerPath"
+    ]
+  },
+  "laptop_task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3Ac22cb7cf-e307-4ffa-95f9-7435976cfa2a"
+}

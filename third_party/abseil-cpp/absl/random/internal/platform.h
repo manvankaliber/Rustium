@@ -30,8 +30,6 @@
 // symbols:
 //
 //   Linux and Linux-derived           __linux__
-//   Android                           __ANDROID__ (implies __linux__)
-//   Linux (non-Android)               __linux__ && !__ANDROID__
 //   Darwin (macOS and iOS)            __APPLE__
 //   Akaros (http://akaros.org)        __ros__
 //   Windows                           _WIN32
@@ -39,8 +37,6 @@
 //   WebAssembly                       __wasm__
 //   Fuchsia                           __Fuchsia__
 //
-// Note that since Android defines both __ANDROID__ and __linux__, one
-// may probe for either Linux or Android by simply testing for __linux__.
 //
 // NOTE: For __APPLE__ platforms, we use #include <TargetConditionals.h>
 // to distinguish os variants.
@@ -149,7 +145,6 @@
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 1
 #elif defined(__linux__) && defined(ABSL_ARCH_ARM) && (__ARM_ARCH >= 8)
 // Or when running linux ARM v8 or higher.
-// (This captures a lot of Android configurations.)
 #undef ABSL_RANDOM_INTERNAL_AES_DISPATCH
 #define ABSL_RANDOM_INTERNAL_AES_DISPATCH 1
 #endif

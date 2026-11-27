@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-22T00:01:40.239445+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "failed_candidate": "60105b29d6ef53da869a1a8c2691b3405247a764",
+  "failure": {
+    "phase": "net_unittests Windows component link",
+    "diagnostic": "lld-link: error: undefined symbol: rust_request_queue_preconnect_claims",
+    "root_cause": "An inline test accessor invoked a private C Rust symbol from net_unittests rather than through the net.dll C++ boundary.",
+    "raw_log": "C:/Users/micro/rb/network-60105b-preconnect-validation-20261122a/build-targets.log",
+    "receipt_directory": "C:/Users/micro/rb/network-60105b-preconnect-validation-20261122a",
+    "tests": "Seven Rust cases passed. C++ tests not run.",
+    "harness_limit": "The failed link has no Ninja timing row. The missing-row diagnostic followed the actual linker failure."
+  },
+  "repaired_candidate": "5932850e6369eee45d8623cef0a06c6fdb7d2895",
+  "repair": "Define the exported C++ NumNeverAssignedConnectJobsInGroupForTesting accessor out-of-line and remove the redundant private inline helper. Keep the underlying Rust C symbol private.",
+  "ref": "refs/heads/rust/transport-preconnect-component-repair-20261122",
+  "scope": [
+    "net/socket/transport_client_socket_pool.h",
+    "net/socket/transport_client_socket_pool.cc"
+  ],
+  "validation": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3Acc78ea32-2ea1-4edf-b431-7fe88025b573",
+    "scope": "Warm net_unittests replay, one simultaneous link and -j4. Preserve prior Rust results, verify repaired C++ export/import and run nine focused native cases then affected pool suites."
+  },
+  "pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd"
+}

@@ -18,7 +18,7 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/time/time.h"
 #include "google_apis/gcm/base/gcm_export.h"
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 #include "google_apis/gcm/protocol/checkin.pb.h"
 #include "net/base/backoff_entry.h"
 #include "net/http/http_status_code.h"

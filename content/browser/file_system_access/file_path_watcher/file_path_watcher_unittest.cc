@@ -53,7 +53,6 @@
 #include <sys/stat.h>
 #endif
 
-
 #if BUILDFLAG(IS_POSIX)
 #include "base/files/file_descriptor_watcher_posix.h"
 #endif  // BUILDFLAG(IS_POSIX)
@@ -173,7 +172,7 @@ constexpr size_t kExpectedEventsForNewFileWrite = 1;
 #endif
 
 #define CHANGE_INFO_SUPPORTED                                               \
-  BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
+  BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
       BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
 #if CHANGE_INFO_SUPPORTED

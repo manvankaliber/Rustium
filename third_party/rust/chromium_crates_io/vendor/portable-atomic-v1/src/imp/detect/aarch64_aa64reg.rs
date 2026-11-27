@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64 Linux/Android/FreeBSD/NetBSD/OpenBSD by parsing system registers.
+Run-time CPU feature detection on AArch64 Linux/FreeBSD/NetBSD/OpenBSD by parsing system registers.
 
 As of Rust 1.94, is_aarch64_feature_detected doesn't support run-time detection on NetBSD.
 https://github.com/rust-lang/rust/blob/1.94.0/library/std_detect/src/detect/mod.rs
@@ -29,8 +29,8 @@ Supported platforms:
 
 For now, this module is only used on NetBSD/OpenBSD.
 
-On Linux/Android/FreeBSD, we use auxv.rs and this module is test-only because:
-- On Linux/Android, this approach requires a higher kernel version than Rust supports,
+On Linux/FreeBSD, we use auxv.rs and this module is test-only because:
+- On Linux, this approach requires a higher kernel version than Rust supports,
   and also does not work with qemu-user (as of QEMU 7.2) and Valgrind (as of Valgrind 3.24).
   (Looking into HWCAP_CPUID in auxvec, it appears that Valgrind is setting it
   to false correctly, but qemu-user is setting it to true.)

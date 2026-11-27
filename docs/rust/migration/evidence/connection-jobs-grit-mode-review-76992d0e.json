@@ -1,0 +1,30 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "reviewed_candidate": "18f8c741c73c3142704bcba2fa11c04db4071681",
+  "source_review": "Terra/xhigh accepted path resolution with a required correction to preserve the two baseline executable modes.",
+  "prior_target_dry_run": {
+    "result": "Stopped by director's scope restriction before executing any actions.",
+    "planned_prerequisites": 21,
+    "planned_grit_edges": 1,
+    "resource_sha256": "d19292303c0e4ca7a5ceb49b58dd540349db80b736d9e6154d79a305bf6c6c80",
+    "receipt": "C:/Users/micro/rb/network-18f8c741-grit-edge-20261120a/result.json",
+    "native_lock_released_independently": true
+  },
+  "repaired_candidate": "76992d0efa71149ddb80ed3d174dd799318520b3",
+  "remote_ref": "refs/heads/rust/network-grit-nested-resource-mode-20261120",
+  "file_modes": {
+    "tools/grit/grit/format/html_inline.py": "100755",
+    "tools/grit/grit/format/html_inline_unittest.py": "100755"
+  },
+  "blob_identity": "Both restored-mode files are byte-identical to 18f8c741.",
+  "native_retry": {
+    "thread": "mcp:launch:d7565fb48c4cfe54c0234ea356fc37505fcd83d7a02ddf6d19cbdf97c8577f37",
+    "allowed_scope": "Failed GRIT target and all required evaluated prerequisites.",
+    "status": "Pending"
+  },
+  "dependent_candidate": {
+    "commit": "d106f5634f65abf5004aa990baf657e79465e90c",
+    "reference_delta": "Exact original a4bcf5eb paired tests on the mode-preserving GRIT repair.",
+    "status": "Local. Publication and native test pending."
+  }
+}

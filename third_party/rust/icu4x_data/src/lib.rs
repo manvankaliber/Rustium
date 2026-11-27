@@ -35,8 +35,6 @@ macro_rules! segmenter_lstm_tag {
 include!("data/common/mod.rs");
 #[cfg(icu4x_data_platform_chromeos)]
 include!("data/chromeos/mod.rs");
-#[cfg(icu4x_data_platform_android)]
-include!("data/android/mod.rs");
 #[cfg(icu4x_data_platform_ios)]
 include!("data/ios/mod.rs");
 #[cfg(icu4x_data_platform_cast)]
@@ -50,7 +48,6 @@ include!("data/flutter_desktop/mod.rs");
 #[cfg(not(any(
     icu4x_data_platform_common,
     icu4x_data_platform_chromeos,
-    icu4x_data_platform_android,
     icu4x_data_platform_ios,
     icu4x_data_platform_cast,
     icu4x_data_platform_chromecast_video,

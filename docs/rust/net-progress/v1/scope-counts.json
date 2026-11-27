@@ -1,0 +1,195 @@
+{
+  "recorded_utc": "2026-11-13T15:34:17.626496+00:00",
+  "metric": "Remaining handwritten production C/C++ comment-stripped nonblank physical code lines (NCLOC), including declarations/braces/preprocessor",
+  "scope": "All present configured-tree net platform source branches; Windows evaluated membership plus lexical GN and conservative runtime-directory candidates",
+  "not_completion_percentage": true,
+  "groups": {
+    "first-party-net": {
+      "production_files": 1779,
+      "production_cpp_ncloc": 264459,
+      "remaining_cpp_production_ncloc": 264599,
+      "remaining_cpp_production_files": 1694,
+      "tests_or_test_support_files": 1109,
+      "tests_or_test_support_cpp_ncloc": 485827,
+      "frozen_reference_or_candidate_files": 121,
+      "frozen_reference_or_candidate_cpp_ncloc": 20911,
+      "generated_code_files": 12,
+      "generated_code_cpp_ncloc": 3690,
+      "production_candidate_unresolved_files": 6,
+      "production_candidate_unresolved_cpp_ncloc": 140,
+      "tools_or_examples_files": 83,
+      "tools_or_examples_cpp_ncloc": 8722
+    },
+    "whole-net-directory": {
+      "production_files": 2552,
+      "production_cpp_ncloc": 387200,
+      "remaining_cpp_production_ncloc": 427812,
+      "remaining_cpp_production_files": 2724,
+      "tests_or_test_support_files": 1771,
+      "tests_or_test_support_cpp_ncloc": 713755,
+      "frozen_reference_or_candidate_files": 121,
+      "frozen_reference_or_candidate_cpp_ncloc": 20911,
+      "generated_code_files": 13,
+      "generated_code_cpp_ncloc": 3762,
+      "production_candidate_unresolved_files": 263,
+      "production_candidate_unresolved_cpp_ncloc": 40612,
+      "tools_or_examples_files": 191,
+      "tools_or_examples_cpp_ncloc": 23665
+    },
+    "net-vendored": {
+      "production_files": 773,
+      "production_cpp_ncloc": 122741,
+      "remaining_cpp_production_ncloc": 163213,
+      "remaining_cpp_production_files": 1030,
+      "tests_or_test_support_files": 662,
+      "tests_or_test_support_cpp_ncloc": 227928,
+      "production_candidate_unresolved_files": 257,
+      "production_candidate_unresolved_cpp_ncloc": 40472,
+      "generated_code_files": 1,
+      "generated_code_cpp_ncloc": 72,
+      "tools_or_examples_files": 108,
+      "tools_or_examples_cpp_ncloc": 14943
+    }
+  },
+  "families": {
+    "first-party/base": {
+      "remaining_cpp_ncloc": 22860,
+      "files": 259
+    },
+    "first-party/cert": {
+      "remaining_cpp_ncloc": 15517,
+      "files": 127
+    },
+    "first-party/cert_net": {
+      "remaining_cpp_ncloc": 575,
+      "files": 2
+    },
+    "first-party/cookies": {
+      "remaining_cpp_ncloc": 9055,
+      "files": 48
+    },
+    "first-party/device_bound_sessions": {
+      "remaining_cpp_ncloc": 8540,
+      "files": 67
+    },
+    "first-party/disk_cache": {
+      "remaining_cpp_ncloc": 32573,
+      "files": 149
+    },
+    "first-party/dns": {
+      "remaining_cpp_ncloc": 27272,
+      "files": 162
+    },
+    "first-party/extras": {
+      "remaining_cpp_ncloc": 4960,
+      "files": 14
+    },
+    "first-party/filter": {
+      "remaining_cpp_ncloc": 1040,
+      "files": 16
+    },
+    "first-party/http": {
+      "remaining_cpp_ncloc": 41960,
+      "files": 190
+    },
+    "first-party/log": {
+      "remaining_cpp_ncloc": 3154,
+      "files": 25
+    },
+    "first-party/network_error_logging": {
+      "remaining_cpp_ncloc": 969,
+      "files": 3
+    },
+    "first-party/nqe": {
+      "remaining_cpp_ncloc": 4060,
+      "files": 37
+    },
+    "first-party/ntlm": {
+      "remaining_cpp_ncloc": 1340,
+      "files": 10
+    },
+    "first-party/proxy_resolution": {
+      "remaining_cpp_ncloc": 9774,
+      "files": 88
+    },
+    "first-party/quic": {
+      "remaining_cpp_ncloc": 22281,
+      "files": 97
+    },
+    "first-party/reporting": {
+      "remaining_cpp_ncloc": 4232,
+      "files": 33
+    },
+    "first-party/server": {
+      "remaining_cpp_ncloc": 1457,
+      "files": 13
+    },
+    "first-party/shared_dictionary": {
+      "remaining_cpp_ncloc": 1049,
+      "files": 12
+    },
+    "first-party/socket": {
+      "remaining_cpp_ncloc": 25155,
+      "files": 140
+    },
+    "first-party/spdy": {
+      "remaining_cpp_ncloc": 9197,
+      "files": 44
+    },
+    "first-party/ssl": {
+      "remaining_cpp_ncloc": 4101,
+      "files": 61
+    },
+    "first-party/storage_access_api": {
+      "remaining_cpp_ncloc": 9,
+      "files": 1
+    },
+    "first-party/traffic_annotation": {
+      "remaining_cpp_ncloc": 208,
+      "files": 1
+    },
+    "first-party/url_request": {
+      "remaining_cpp_ncloc": 6520,
+      "files": 42
+    },
+    "first-party/websockets": {
+      "remaining_cpp_ncloc": 6741,
+      "files": 53
+    },
+    "net-vendor/mozilla_security_manager": {
+      "remaining_cpp_ncloc": 583,
+      "files": 4
+    },
+    "net-vendor/mozilla_win": {
+      "remaining_cpp_ncloc": 36,
+      "files": 2
+    },
+    "net-vendor/quiche": {
+      "remaining_cpp_ncloc": 162441,
+      "files": 1022
+    },
+    "net-vendor/uri_template": {
+      "remaining_cpp_ncloc": 153,
+      "files": 2
+    }
+  },
+  "evaluated_gn_targets": 554,
+  "all_platform_lexical_source_paths": 3003,
+  "source_manifest_sha256": "d63715f926d4a6c19b2aa384ae772ed443f8562b05603376498267e65be49f6c",
+  "recursive_gn_sha256": "0842dc6f718dde57a82a80a82336b19d7712cf530a9d931c5af3ab3a16a2d288",
+  "scope_files_sha256": "7f214f76b9ebd735a11460db2489c47f89d8af994978ac7a5a12184f90102613",
+  "lexer_sha256": "7fad33f4eed2c65e9ab75fe4eaec9ce59385d3d35da8fe88eba194e66e3bbd96",
+  "exclusions": "Tests/support, tools/examples, data/doc code, explicit generated files and preserved test-only original/candidate references are separate records, not silently removed from eventual delivery.",
+  "limitations": [
+    "Headers include declarations and interop, not just algorithms.",
+    "Lexical GN is not a full all-platform evaluation.",
+    "Unresolved runtime candidates are included conservatively and individually listed.",
+    "Current C++ bodies plus retired original policy credit form a versioned source-weight metric, not a functionality/performance acceptance percentage.",
+    "Outside-net providers and caller/tool/test closure remain separate unfinished delivery work."
+  ],
+  "classification_context_sha256": "3668dab2846bd8524fc43611ee6bd637d729043a219c0dba320a66c0d0805f1b",
+  "external_provider_register_sha256": "4784f8e7dedcfd22aae6e5085a55159393de8f0ade42ee39adc9e0faa0b4fdf4",
+  "code_line_test_count": 10,
+  "pre_existing_rust_credit_note": "Rust files are retained as context but raw Rust NCLOC supplies no credit. Already-Rust modules whose original policy weight is unmapped are separately uncredited; the final migrated-policy ratio is a conservative verified estimate, not exhaustive feature completion.",
+  "baseline_update_rule": "Freeze these per-path remaining-code weights for progress baseline v1. Later deletion/formatting/source churn does not earn Rust credit; explicit scope changes require versioned denominator rebasing. Add verified port/bridge-retirement credit by original path/body, with deduplication and evidence."
+}

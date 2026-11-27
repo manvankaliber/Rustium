@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
 - Linux 6.4+ (through prctl)
@@ -44,15 +44,6 @@ Supported platforms:
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
   The implementation always return 0 (as of 1.8.12): https://github.com/picolibc/picolibc/blob/1.8.12/libc/misc/getauxval.c
-- Android 4.3+ (API level 18+) (through getauxval)
-  https://android.googlesource.com/platform/bionic.git/+/2c5153b043b44e9935a334ae9b2d5a4bc5258b40
-  https://android.googlesource.com/platform/bionic.git/+/655e430b28d7404f763e7ebefe84fba5a387666d
-  Always available on:
-  - 64-bit architectures (Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
-  Not always available on:
-  - arm
-  Since Rust 1.68, std requires API level 19+ https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25
-  Since Rust 1.82, std requires API level 21+ https://github.com/rust-lang/rust/pull/120593
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
@@ -102,10 +93,10 @@ called directly instead of using dlsym by `--cfg portable_atomic_outline_atomics
 
 Also, note that dlsym usually not working with static linking.
 
-# Linux/Android
+# Linux
 
 As of Rust 1.69, is_aarch64_feature_detected always uses dlsym by default
-on AArch64 Linux/Android, but on some platforms, we can safely assume
+on AArch64 Linux, but on some platforms, we can safely assume
 getauxval is linked to the binary (see the above).
 
 See also https://github.com/rust-lang/stdarch/pull/1375
@@ -176,39 +167,10 @@ mod os {
             // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
             // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-            // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-            #[cfg(any(
-                test,
-                not(any(
-                    all(
-                        target_os = "linux",
-                        any(
-                            all(
-                                target_env = "gnu",
-                                any(
-                                    target_arch = "aarch64",
-                                    all(target_arch = "powerpc64", target_endian = "little"),
-                                ),
-                            ),
-                            target_env = "musl",
-                            target_env = "ohos",
-                        ),
-                    ),
-                    all(target_os = "android", target_pointer_width = "64"),
-                    portable_atomic_outline_atomics,
-                )),
-            ))]
-            #[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
-            pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
-            #[cfg(all(target_os = "android", target_pointer_width = "32"))]
-            #[allow(clippy::cast_sign_loss)]
-            pub(crate) const RTLD_DEFAULT: *mut c_void =
-                crate::utils::ptr::without_provenance_mut(-1_isize as usize);
+            #[cfg(any(test, not(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))))]
 
-            // Defined in sys/system_properties.h.
-            // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
-            #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-            pub(crate) const PROP_VALUE_MAX: c_int = 92;
+            pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
+
         });
 
         sys_fn!({
@@ -219,27 +181,8 @@ mod os {
                 // https://git.musl-libc.org/cgit/musl/tree/include/sys/auxv.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/sys/auxv.h
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.12/libc/include/sys/auxv.h
-                #[cfg(any(
-                    test,
-                    all(
-                        target_os = "linux",
-                        any(
-                            all(
-                                target_env = "gnu",
-                                any(
-                                    target_arch = "aarch64",
-                                    all(target_arch = "powerpc64", target_endian = "little"),
-                                ),
-                            ),
-                            target_env = "musl",
-                            target_env = "ohos",
-                        ),
-                    ),
-                    all(target_os = "android", target_pointer_width = "64"),
-                    portable_atomic_outline_atomics,
-                ))]
+                #[cfg(any(test, all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))]
                 pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
 
                 // Defined in dlfcn.h.
@@ -248,37 +191,9 @@ mod os {
                 // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-                #[cfg(any(
-                    test,
-                    not(any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                all(
-                                    target_env = "gnu",
-                                    any(
-                                        target_arch = "aarch64",
-                                        all(target_arch = "powerpc64", target_endian = "little"),
-                                    ),
-                                ),
-                                target_env = "musl",
-                                target_env = "ohos",
-                            ),
-                        ),
-                        all(target_os = "android", target_pointer_width = "64"),
-                        portable_atomic_outline_atomics,
-                    )),
-                ))]
+                #[cfg(any(test, not(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))))]
                 pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
-                // Defined in sys/system_properties.h.
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
-                #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-                pub(crate) fn __system_property_get(
-                    name: *const c_char,
-                    value: *mut c_char,
-                ) -> c_int;
             }
         });
     }
@@ -286,24 +201,7 @@ mod os {
     pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
     pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
         cfg_sel!({
-            #[cfg(any(
-                all(
-                    target_os = "linux",
-                    any(
-                        all(
-                            target_env = "gnu",
-                            any(
-                                target_arch = "aarch64",
-                                all(target_arch = "powerpc64", target_endian = "little"),
-                            ),
-                        ),
-                        target_env = "musl",
-                        target_env = "ohos",
-                    ),
-                ),
-                all(target_os = "android", target_pointer_width = "64"),
-                portable_atomic_outline_atomics,
-            ))]
+            #[cfg(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))]
             {
                 let getauxval: GetauxvalTy = ffi::getauxval;
             }
@@ -742,7 +640,6 @@ mod tests {
                     target_os = "linux",
                     any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
                 ),
-                target_os = "android",
             )) {
                 assert!(!ptr.is_null());
             } else if option_env!("CI").is_some() {

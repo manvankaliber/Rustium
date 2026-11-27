@@ -74,7 +74,6 @@
 #include "mediapipe/gpu/gl_context.h"
 #endif
 
-
 #if defined(__EMSCRIPTEN__)
 #include "mediapipe/gpu/webgpu/webgpu_service.h"
 #endif  // __EMSCRIPTEN__
@@ -195,23 +194,6 @@ ToLiteRtHtpPdSession(
   }
 }
 
-bool CanUseAhwbForInput(
-    const Tensor& input_tensor,
-    absl::Span<const litert::TensorBufferType> supported_types) {
-  // Tensor::GetAHardwareBufferReadView() does not support converting from
-  // OpenGL 2D textures.
-  if (input_tensor.ready_as_opengl_texture_2d()) {
-    return false;
-  }
-  // Prefer direct GL-CL buffer sharing (`kGlBuffer`) when available if the
-  // input tensor is an OpenGL buffer not already backed by AHWB.
-  if (!input_tensor.ready_as_ahwb() && input_tensor.ready_as_opengl_buffer() &&
-      absl::c_contains(supported_types, litert::TensorBufferType::kGlBuffer)) {
-    return false;
-  }
-  return true;
-}
-
 // Returns the best supported LiteRT tensor buffer type.
 absl::StatusOr<litert::TensorBufferType> ChooseBestBufferType(
     const litert::TensorBufferRequirements& buffer_requirements,
@@ -219,11 +201,6 @@ absl::StatusOr<litert::TensorBufferType> ChooseBestBufferType(
   LITERT_ASSIGN_OR_RETURN(const auto supported_types,
                           buffer_requirements.SupportedTypes());
   for (const auto& buffer_type : kPreferredBufferTypes) {
-    if (buffer_type == litert::TensorBufferType::kAhwb &&
-        input_tensor != nullptr &&
-        !CanUseAhwbForInput(*input_tensor, supported_types)) {
-      continue;
-    }
     if (absl::c_contains(supported_types, buffer_type)) {
       return buffer_type;
     }
@@ -1199,7 +1176,6 @@ InferenceRunnerLiteRt::CreateMetalOutputTensorBufferFromMpTensor(
 }
 #endif  // MEDIAPIPE_METAL_ENABLED
 
-
 absl::StatusOr<litert::TensorBuffer>
 InferenceRunnerLiteRt::CreateCpuInputTensorBufferFromMpTensor(
     const Tensor& tensor, const litert::RankedTensorType& tensor_type,
@@ -1254,16 +1230,9 @@ InferenceRunnerLiteRt::CreateCpuOutputTensorBufferFromMpTensor(
                           litert::TensorBuffer::CreateFromHostMemory(
                               *environment_, tensor_type, output_tensor_data,
                               output_tensor_size_bytes));
-  if (mp_output_tensor.ready_as_ahwb()) {
-    // An AHardwareBuffer is mapped to the CPU only while its view is alive, so
-    // keep the view until inference completes.
-    mp_output_tensor_views.push_back(std::move(output_tensor_view));
-  }
-  // Otherwise the tensor's CPU buffer stays valid without the view. Releasing
-  // the view here avoids holding the locks of all outputs at once, which
-  // records a lock order that downstream calculators may violate. AHWB-backed
-  // outputs (e.g. when a downstream calculator reads the tensor as a GPU
-  // buffer) still keep their views above and thus still record that order.
+  // The CPU buffer stays valid after its view is released. Release the view
+  // here to avoid holding all output locks at once and imposing a lock order
+  // that downstream calculators may violate.
   return output_buffer;
 }
 
@@ -1618,11 +1587,9 @@ absl::Status InferenceRunnerLiteRt::PrepareOutputBuffers(
   return absl::OkStatus();
 }
 
-
 absl::StatusOr<std::vector<Tensor>> InferenceRunnerLiteRt::Run(
     CalculatorContext* cc, const TensorSpan& tensor_span) {
   InferenceRunContext ctx;
-
 
 #if MEDIAPIPE_METAL_ENABLED
   auto cleanup_command_buffer = absl::MakeCleanup([this]() {
@@ -1681,7 +1648,7 @@ absl::StatusOr<std::vector<Tensor>> InferenceRunnerLiteRt::Run(
 
   // Execute model.
   if (run_async_) {
-    return absl::InternalError("LiteRT requires AHWB support to run async");
+    return absl::InternalError("Asynchronous LiteRT execution is unavailable in this build");
   } else {
     LITERT_RETURN_IF_ERROR(compiled_model_->Run(
         signature_index_, ctx.litert_inputs, ctx.litert_outputs));

@@ -30,14 +30,14 @@ mod test_socket;
 #[cfg(not(any(target_os = "redox")))]
 mod test_sockopt;
 mod test_stat;
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod test_sysinfo;
 #[cfg(not(any(target_os = "redox", target_os = "haiku")))]
 mod test_termios;
 mod test_uio;
 mod test_wait;
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod test_epoll;
 #[cfg(target_os = "linux")]
 mod test_fanotify;
@@ -45,9 +45,9 @@ mod test_fanotify;
 mod test_inotify;
 mod test_pthread;
 
-#[cfg(any(linux_android, freebsdlike, netbsdlike, apple_targets))]
+#[cfg(any(linux, freebsdlike, netbsdlike, apple_targets))]
 mod test_ptrace;
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod test_timerfd;
 
 #[cfg(all(
@@ -63,13 +63,13 @@ mod test_statvfs;
 mod test_time;
 mod test_utsname;
 
-#[cfg(any(linux_android, freebsdlike, apple_targets, target_os = "openbsd"))]
+#[cfg(any(linux, freebsdlike, apple_targets, target_os = "openbsd"))]
 mod test_statfs;
 
 #[cfg(not(any(target_os = "redox", solarish, target_os = "haiku")))]
 mod test_resource;
 
-// This test module should be enabled for both linux_android and freebsd, but
+// This test module should be enabled for both linux and freebsd, but
 // the `memfd_create(2)` symbol is not available under Linux QEMU,
 //
 // https://github.com/nix-rust/nix/actions/runs/9427112650/job/25970870477

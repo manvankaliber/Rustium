@@ -508,7 +508,7 @@ grit("resources") {
   source = "blink_resources.grd"
   inputs = [
     "//third_party/blink/renderer/core/css/fullscreen.css",
-    "//third_party/blink/renderer/core/css/fullscreenAndroid.css",
+    "//third_party/blink/renderer/core/css/fullscreenMobile.css",
     "//third_party/blink/renderer/core/css/json-document.css",
     "//third_party/blink/renderer/core/css/marker.css",
     "//third_party/blink/renderer/core/css/mathml.css",
@@ -521,7 +521,7 @@ grit("resources") {
     "//third_party/blink/renderer/core/skeleton/skeleton.css",
     "//third_party/blink/renderer/core/html/forms/resources/input_alert.svg",
     "//third_party/blink/renderer/core/html/forms/resources/validation_bubble.css",
-    "//third_party/blink/renderer/core/html/resources/android.css",
+    "//third_party/blink/renderer/core/html/resources/mobile.css",
     "//third_party/blink/renderer/core/html/resources/capability_element.css",
     "//third_party/blink/renderer/core/html/resources/forced_colors.css",
     "//third_party/blink/renderer/core/html/resources/html.css",

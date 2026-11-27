@@ -98,7 +98,7 @@ MEDIAPIPE_TASKS_C_RETRIEVAL_BORROWED_DEPS = [
 # application can load any subset of them. Handles (e.g. MpImage) must not be
 # shared across libraries.
 #
-# Desktop / Android (see release/build_locally.sh for the full flag sets):
+# Desktop (see release/build_locally.sh for the full flag sets):
 #   bazel build -c opt --define MEDIAPIPE_DISABLE_GPU=1 \
 #     //mediapipe/tasks/c:mediapipe_tasks_vision_lib
 # iOS (device + simulator xcframework):

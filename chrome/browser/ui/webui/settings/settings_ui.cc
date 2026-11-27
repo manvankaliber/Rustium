@@ -190,11 +190,7 @@
 
 namespace settings {
 
-namespace {
-
-
-
-}  // namespace
+namespace {}  // namespace
 
 // static
 void SettingsUI::RegisterProfilePrefs(
@@ -506,23 +502,12 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
       {"showAiSuggestionsControl",
        base::FeatureList::IsEnabled(contextual_cueing::kContextualCueingV2)},
 
-
       {"showIndigoControl", base::FeatureList::IsEnabled(features::kIndigo)},
-      {"showGoogleSearchAiModeWorkspaceControl",
-       base::FeatureList::IsEnabled(features::kGoogleSearchAiModeWorkspace)},
       {"showDictationControl", show_dictation_control},
   };
 
   html_source->AddString("aiSuggestionsHelpCenterArticleLink",
                          contextual_cueing::kHelpCenterArticleLink.Get());
-
-  const bool enable_ai_mode_search =
-      contextual_tasks::ContextualTasksContextService::
-          GetIsSmartTabSharingEnabled(profile) &&
-      base::FeatureList::IsEnabled(
-          contextual_tasks::
-              kContextualTasksContextSmartTabSharingDefaultOnAvailability);
-  html_source->AddBoolean("enableAiModeSearchSetting", enable_ai_mode_search);
 
   const bool show_ai_settings_for_testing = base::FeatureList::IsEnabled(
       optimization_guide::features::kAiSettingsPageForceAvailable);
@@ -548,9 +533,7 @@ SettingsUI::SettingsUI(content::WebUI* web_ui)
   // Within the AI subpage are separate sections for Glic, for GEIC, and for all
   // other AI features. The visibility of these is separately controlled, but
   // we want to show the subpage if any of them are enabled.
-  html_source->AddBoolean("showAiPage",
-                                            show_ai_features_section ||
-                                            enable_ai_mode_search);
+  html_source->AddBoolean("showAiPage", show_ai_features_section);
   html_source->AddBoolean("showAiPageAiFeatureSection",
                           show_ai_features_section);
 

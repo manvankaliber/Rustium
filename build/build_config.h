@@ -57,6 +57,10 @@
 #ifndef BUILD_BUILD_CONFIG_H_
 #define BUILD_BUILD_CONFIG_H_
 
+#if defined(__ANDROID__)
+#error Android target support has been removed from Rustium.
+#endif
+
 #include "build/buildflag.h"  // IWYU pragma: export
 
 // Clangd does not detect BUILDFLAG_INTERNAL_* indirect usage, so mark the
@@ -66,9 +70,6 @@
 
 // A set of macros to use for platform detection.
 #if defined(__APPLE__)
-// Only include TargetConditionals after testing ANDROID as some Android builds
-// on the Mac have this header available and it's not needed unless the target
-// is really an Apple platform.
 #include <TargetConditionals.h>
 #define OS_MAC 1
 #elif defined(__linux__)

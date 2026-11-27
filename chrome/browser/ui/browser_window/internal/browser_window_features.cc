@@ -68,7 +68,6 @@
 #include "chrome/browser/ui/focus/browser_focus_controller_webui.h"
 #include "chrome/browser/ui/fullscreen/browser_window_fullscreen_controller.h"
 #include "chrome/browser/ui/immersive/immersive_mode_controller.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/performance_controls/memory_saver_bubble_controller.h"
 #include "chrome/browser/ui/performance_controls/memory_saver_opt_in_iph_controller.h"
 #include "chrome/browser/ui/search/instant_controller.h"
@@ -110,7 +109,6 @@
 #include "chrome/browser/ui/views/animations/side_panel_animations.h"
 #include "chrome/browser/ui/views/animations/tab_strip_animations.h"
 #include "chrome/browser/ui/views/color_provider_browser_helper.h"
-#include "chrome/browser/ui/views/contextual_tasks/contextual_tasks_browser_controller.h"
 #include "chrome/browser/ui/views/data_sharing/data_sharing_bubble_controller.h"
 #include "chrome/browser/ui/views/extensions/extension_keybinding_registry_views.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
@@ -584,19 +582,6 @@ void BrowserWindowFeatures::Init(BrowserWindowInterface* browser) {
     }
   }
 
-  // Constructed last, out of alphabetical order:
-  //   EphemeralButtonController depends on SidePanelRegistry.
-  //   CloseButtonController depends on SidePanelRegistry.
-  //   CloseButtonController depends on VerticalTabStripStateController.
-  //   CloseButtonController depends on ImmersiveModeController.
-  // TODO(crbug.com/481268779): Pass these dependencies explicitly.
-  if (contextual_tasks::IsContextualTasksUIEnabled()) {
-    contextual_tasks_browser_controller_ =
-        GetUserDataFactory()
-            .CreateInstance<contextual_tasks::ContextualTasksBrowserController>(
-                *browser_, browser_);
-  }
-
   // Initialize embedder features last.
   embedder_browser_window_features_ =
       GetUserDataFactory().CreateInstance<EmbedderBrowserWindowFeatures>(
@@ -934,16 +919,6 @@ void BrowserWindowFeatures::InitPostWindowConstruction(
     if (browser_view) {
     }
 
-    if (browser_view && AiModeButtonServiceFactory::GetForProfile(profile)) {
-      LocationBar* location_bar = browser_view->GetLocationBar();
-      if (location_bar) {
-        ai_mode_page_action_controller_ =
-            GetUserDataFactory()
-                .CreateInstance<omnibox::AiModePageActionController>(
-                    *browser, *browser, *profile, *location_bar);
-      }
-    }
-
     if (browser_view) {
       if (media_router::MediaRouterEnabled(
               browser_view->browser()->GetProfile())) {
@@ -1088,7 +1063,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
     chrome_labs_coordinator_->TearDown();
   }
   cast_browser_controller_.reset();
-  ai_mode_page_action_controller_.reset();
 
   // Owned-by-all members.
   // Must be before user_education_: cancel delayed avatar IPHs first.
@@ -1164,13 +1138,6 @@ void BrowserWindowFeatures::TearDownPreBrowserWindowDestruction() {
   initial_web_ui_manager_.reset();
 
   // Owned-by-all members.
-  // contextual_tasks_* are reset first because the group is constructed last
-  // in Init (it observes other features such as immersive_mode_controller_
-  // via ScopedObservation), and ContextualTasksCloseButtonController must
-  // outlive nothing observable.
-  if (contextual_tasks_browser_controller_) {
-    contextual_tasks_browser_controller_->Shutdown();
-  }
   signin_view_controller_->TearDownPreBrowserWindowDestruction();
   // Must be before window_feature_controller_ (raw pointer).
   immersive_mode_controller_.reset();

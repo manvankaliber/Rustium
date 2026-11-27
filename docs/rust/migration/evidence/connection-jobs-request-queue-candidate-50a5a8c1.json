@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-21T23:02:00.592837+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_commit": "cfc7132c590692e35555f51f429b51d78aac3272",
+  "production_candidate": "50a5a8c1b8625c846adeae9f0ba68e674d4e4b7c",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "source_identity": {
+    "verified_files": 9,
+    "production_patch_sha256": "bb2d41f9de38cba399347134cf1f12ad3f60d21a607f8c41f264a1ddb1dce331",
+    "linkage_patch_sha256": "cc4d07c6bb5b4e1286b1f97d08687889cbaecb1f9cfe37de09f76159f9cba524",
+    "verification": "Both patch digests, before images, after-image SHA-256 and staged Git blob IDs matched exactly in an isolated index; byte-for-byte packet equivalence and whitespace checks passed."
+  },
+  "tests": {
+    "status": "pending",
+    "first_native_case": "ClientSocketPoolBaseTest.RetainedQueueSameAndChangedPriority",
+    "build_scope": "Existing warm Windows component net_unittests, Ninja -j4 and a one-link pool. The packet suggests -j1; that setting is outside the workspace build policy."
+  },
+  "review": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A52d078c6-f69b-403d-81ad-087f2b4cedbb"
+  },
+  "scope": "Rust queue stores authoritative transport Group order and returns scalar-token assignment recipients. Native map owns Request objects; jobs, callbacks, providers, preconnect accounting and timers remain native. Detach retains existing Rust and native nodes and snapshot output is value-initialized.",
+  "platform_limits": [
+    "No compilation, tests or publication for this candidate.",
+    "Existing component and platform linkage, lifecycle, allocation and performance checks still open."
+  ]
+}

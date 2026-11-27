@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 // Subpages
-import './ai_page/ai_mode_search_page.js';
 import './ai_page/ai_suggestions_page.js';
 import './ai_page/dictation_page.js';
 import './ai_page/offer_writing_help_page.js';
@@ -136,7 +135,6 @@ export {SettingsAxAnnotationsSectionElement} from './a11y_page/ax_annotations_se
 export {SettingsLiveCaptionElement} from './a11y_page/live_caption.js';
 export {SettingsLiveTranslateElement} from './a11y_page/live_translate.js';
 
-export {SettingsAiModeSearchPageElement} from './ai_page/ai_mode_search_page.js';
 export {isFeatureDisabledByPolicy, SettingsAiPolicyIndicatorElement} from './ai_page/ai_policy_indicator.js';
 export {SettingsAiSuggestionsPageElement} from './ai_page/ai_suggestions_page.js';
 export {AiEnterpriseFeaturePrefName, AiPageActions, FeatureOptInState, SettingsAiPageFeaturePrefName} from './ai_page/constants.js';

@@ -57,14 +57,14 @@
 //! the constant (`B9600` == `9600`). Therefore the `nix::termios` API uses the
 //! following conventions:
 //!
-//! * `cfgetispeed()` - Returns `u32` on BSDs, `BaudRate` on Android/Linux
-//! * `cfgetospeed()` - Returns `u32` on BSDs, `BaudRate` on Android/Linux
+//! * `cfgetispeed()` - Returns `u32` on BSDs, `BaudRate` on Linux
+//! * `cfgetospeed()` - Returns `u32` on BSDs, `BaudRate` on Linux
 //! * `cfsetispeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
-//!   Android/Linux
+//!   Linux
 //! * `cfsetospeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
-//!   Android/Linux
+//!   Linux
 //! * `cfsetspeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
-//!   Android/Linux
+//!   Linux
 //!
 //! The most common use case of specifying a baud rate using the enum will work
 //! the same across platforms:
@@ -171,7 +171,7 @@ pub struct Termios {
     /// Control characters (see `termios.c_cc` documentation)
     pub control_chars: [libc::cc_t; NCCS],
     /// Line discipline (see `termios.c_line` documentation)
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     pub line_discipline: libc::cc_t,
     /// Line discipline (see `termios.c_line` documentation)
     #[cfg(target_os = "haiku")]
@@ -192,7 +192,7 @@ impl Termios {
             termios.c_cflag = self.control_flags.bits();
             termios.c_lflag = self.local_flags.bits();
             termios.c_cc = self.control_chars;
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             {
                 termios.c_line = self.line_discipline;
             }
@@ -215,7 +215,7 @@ impl Termios {
             termios.c_cflag = self.control_flags.bits();
             termios.c_lflag = self.local_flags.bits();
             termios.c_cc = self.control_chars;
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             {
                 termios.c_line = self.line_discipline;
             }
@@ -232,7 +232,7 @@ impl Termios {
         self.control_flags = ControlFlags::from_bits_retain(termios.c_cflag);
         self.local_flags = LocalFlags::from_bits_truncate(termios.c_lflag);
         self.control_chars = termios.c_cc;
-        #[cfg(any(linux_android, target_os = "haiku"))]
+        #[cfg(any(linux, target_os = "haiku"))]
         {
             self.line_discipline = termios.c_line;
         }
@@ -248,7 +248,7 @@ impl From<libc::termios> for Termios {
             control_flags: ControlFlags::from_bits_truncate(termios.c_cflag),
             local_flags: LocalFlags::from_bits_truncate(termios.c_lflag),
             control_chars: termios.c_cc,
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             line_discipline: termios.c_line,
         }
     }
@@ -311,35 +311,35 @@ libc_enum! {
         B230400,
         #[cfg(solarish)]
         B307200,
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   solarish,
                   target_os = "freebsd",
                   target_os = "netbsd"))]
         B460800,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B500000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B576000,
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   solarish,
                   target_os = "freebsd",
                   target_os = "netbsd"))]
         B921600,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1000000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1152000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1500000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B2000000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B2500000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B3000000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B3500000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B4000000,
     }
     impl TryFrom<libc::speed_t>
@@ -468,7 +468,7 @@ impl SpecialCharacterIndices {
     pub const VTIME: SpecialCharacterIndices = SpecialCharacterIndices::VEOL;
 }
 
-#[cfg(any(bsd, linux_android, target_os = "aix", target_os = "solaris"))]
+#[cfg(any(bsd, linux, target_os = "aix", target_os = "solaris"))]
 pub use libc::_POSIX_VDISABLE;
 pub use libc::NCCS;
 
@@ -486,7 +486,7 @@ libc_bitflags! {
         ICRNL;
         IXON;
         IXOFF;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "aix",
                   target_os = "cygwin",
                   target_os = "haiku",
@@ -498,7 +498,7 @@ libc_bitflags! {
         IXANY;
         #[cfg(not(any(target_os = "redox", target_os = "haiku")))]
         IMAXBEL;
-        #[cfg(any(linux_android, apple_targets))]
+        #[cfg(any(linux, apple_targets))]
         IUTF8;
     }
 }
@@ -507,7 +507,7 @@ libc_bitflags! {
     /// Flags for configuring the output mode of a terminal
     pub struct OutputFlags: tcflag_t {
         OPOST;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   target_os = "openbsd"))]
         OLCUC;
@@ -515,77 +515,77 @@ libc_bitflags! {
         OCRNL as tcflag_t;
         ONOCR as tcflag_t;
         ONLRET as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         OFDEL as tcflag_t;
-        #[cfg(any(linux_android, target_os = "aix", target_os = "cygwin", target_os = "haiku", target_os = "hurd", target_os = "nto", target_os = "redox", solarish, apple_targets))]
+        #[cfg(any(linux, target_os = "aix", target_os = "cygwin", target_os = "haiku", target_os = "hurd", target_os = "nto", target_os = "redox", solarish, apple_targets))]
         OFILL as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NL0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NL1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR2 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR3 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TAB0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         TAB1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         TAB2 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TAB3 as tcflag_t;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         XTABS;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BS0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BS1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VT0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VT1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FF0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FF1 as tcflag_t;
@@ -598,28 +598,28 @@ libc_bitflags! {
         // These should be moved to be a mask once https://github.com/rust-lang-nursery/bitflags/issues/110
         // is resolved.
 
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NLDLY as tcflag_t; // FIXME: Datatype needs to be corrected in libc for mac
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CRDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TABDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BSDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VTDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FFDLY as tcflag_t;
@@ -643,15 +643,13 @@ libc_bitflags! {
         CLOCAL;
         #[cfg(not(any(target_os = "redox", target_os = "aix")))]
         CRTSCTS;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         CBAUD;
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "mips"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "mips")))]
         CMSPAR;
-        #[cfg(any(target_os = "android",
-                  all(target_os = "linux",
-                      not(any(target_arch = "powerpc", target_arch = "powerpc64")))))]
+        #[cfg(all(target_os = "linux", not(any(target_arch = "powerpc", target_arch = "powerpc64"))))]
         CIBAUD;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         CBAUDEX;
         #[cfg(bsd)]
         MDMBUF;
@@ -704,7 +702,7 @@ libc_bitflags! {
         #[cfg(not(any(target_os = "redox", target_os = "cygwin")))]
         PENDIN;
         NOFLSH;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "aix",
                   target_os = "haiku",
                   target_os = "nto"))]

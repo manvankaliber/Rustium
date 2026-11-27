@@ -17,9 +17,6 @@
 #include "components/search_engines/template_url_service.h"
 #include "components/search_engines/template_url_service_observer.h"
 
-namespace ai_mode_button_config {
-struct AiModeButtonConfig;
-}
 
 struct AiModeButtonUiConfig {
   AiModeButtonUiConfig(SearchEngineType id,
@@ -85,9 +82,6 @@ class AiModeButtonService : public KeyedService,
   // Build the UI config for the current DSE.
   std::optional<AiModeButtonUiConfig> BuildCurrentUiConfig() const;
 
-  // Checks all fields are populated as expected.
-  static bool IsValidConfig(
-      const ai_mode_button_config::AiModeButtonConfig& config);
 
   raw_ptr<TemplateURLService> template_url_service_;
   base::ScopedObservation<TemplateURLService, TemplateURLServiceObserver>

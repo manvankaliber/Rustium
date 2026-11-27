@@ -21,16 +21,16 @@ libc_bitflags!(
         #[cfg(not(target_os = "haiku"))]
         ST_NOSUID;
         /// Do not interpret character or block-special devices
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_NODEV;
         /// Do not allow execution of binaries on the filesystem
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_NOEXEC;
         /// All IO should be done synchronously
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_SYNCHRONOUS;
         /// Allow mandatory locks on the filesystem
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_MANDLOCK;
         /// Write on file/directory/symlink
         #[cfg(target_os = "linux")]
@@ -42,13 +42,13 @@ libc_bitflags!(
         #[cfg(target_os = "linux")]
         ST_IMMUTABLE;
         /// Do not update access times on files
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_NOATIME;
         /// Do not update access times on files
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         ST_NODIRATIME;
         /// Update access time relative to modify/change time
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_env = "musl"), not(target_env = "ohos"))))]
+        #[cfg(all(target_os = "linux", not(target_env = "musl"), not(target_env = "ohos")))]
         ST_RELATIME;
     }
 );

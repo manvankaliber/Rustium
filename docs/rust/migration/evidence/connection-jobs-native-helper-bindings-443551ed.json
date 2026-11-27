@@ -1,0 +1,193 @@
+{
+  "utc": "2026-11-22T02:27:37.728557+00:00",
+  "source_head": "443551ed26c4e893efb9c0aaa76660960a5802c8",
+  "before_auth_tokenizer_rust_integration": "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c",
+  "scope": "Source-only binding of remaining directly reached helpers before any future Rust ports.",
+  "native_source": {
+    "base/strings/string_tokenizer.h": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "3e7c1e5561b031a52cf7b9b1ea34ec47ed2fe82b",
+        "sha256": "7903a2d6c826af38d216ea1ff77baf24be17051bbf4baa647984c25d4db854a7"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "3e7c1e5561b031a52cf7b9b1ea34ec47ed2fe82b",
+        "sha256": "7903a2d6c826af38d216ea1ff77baf24be17051bbf4baa647984c25d4db854a7"
+      }
+    },
+    "net/base/net_string_util_icu.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "adaa40fb28f1bc13717af28cb66427436942ed8a",
+        "sha256": "ff9c1e2d7d2f75967bf8dedc7f8fc262e4df4b04fa6cf463d0afedf47cc79692"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "adaa40fb28f1bc13717af28cb66427436942ed8a",
+        "sha256": "ff9c1e2d7d2f75967bf8dedc7f8fc262e4df4b04fa6cf463d0afedf47cc79692"
+      }
+    },
+    "net/cert/x509_util.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "f60e50df8d1715706efba291f146a28c2ab830c2",
+        "sha256": "ca8320989bbd5c6964f7193a3208de517c7c8284b3a9a62790b9a2637ba3c971"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "f60e50df8d1715706efba291f146a28c2ab830c2",
+        "sha256": "ca8320989bbd5c6964f7193a3208de517c7c8284b3a9a62790b9a2637ba3c971"
+      }
+    },
+    "net/http/http_auth_challenge_tokenizer.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "49ea7d9e5213013143ecfcc9b7287611649966b3",
+        "sha256": "4267e21a3cf3003755a1acf766335f789894b8939d3e60a8ba6d1abe0c714463"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "1e6a29232674f57b4db2bd4224532319e62b041b",
+        "sha256": "7a5a92845526269feac062c5fd6f0a8720bfddb7ac85e8c405c3f84694a66f7e"
+      }
+    },
+    "net/http/http_auth_challenge_tokenizer.h": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "ac6ac54badfca070f87271664562eee3f70303e4",
+        "sha256": "dddba8120fa7077f9d9bb1e6293f4f47e1c0a6eef042195acebf3a04e0f3209f"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "78e8e88222906d2b0e5c60a04b1dc8324c6105ad",
+        "sha256": "bfcb6e6ce724c7a254f0e080e1ed914c818259c4156face82801799abf722f63"
+      }
+    },
+    "net/http/http_auth_handler_digest.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "b97412fc800be2f47658a87de89365c789b4329a",
+        "sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "b97412fc800be2f47658a87de89365c789b4329a",
+        "sha256": "86ef9eb23a8db1bdf479a124da8a55b8c9342754fb00007be64bcbdfd3f0c369"
+      }
+    },
+    "net/http/http_auth_handler_digest.h": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "38693f838aa08cba5ff6ed7b9fc6196cbdb6c1db",
+        "sha256": "b67a10b10cf155ab66b0c99d7839f921a0a51b6b8d3a3523525a218803369962"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "32b49957db3c0d13b6a6dd48ce5abe23c66b32e3",
+        "sha256": "1bff45cf61e13819e63a65abcedd8fe6583f31adabeafc9ae183331c4f45b9a0"
+      }
+    },
+    "net/http/http_util.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "1463d134da8b3965c4c99e16ccfa5788dcfe6571",
+        "sha256": "a229dc1b80c334eb041f99cb76bb75df9b9f231af49455b0b0aa8c0b3ad371f5"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "118f6f077fc7b12d5d4ee40d2d8ed21045d21dbe",
+        "sha256": "2af70e937192181a7ef74648a4531af0bcb71ebea3a82aff2dad1c5b1ae1fa24"
+      }
+    },
+    "net/http/http_util.h": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "003f5f2e43587954092e8bd0d7bef463a7c9ebad",
+        "sha256": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "003f5f2e43587954092e8bd0d7bef463a7c9ebad",
+        "sha256": "aeffa6e05f478ebe6b7a41325678148aeb5762996cac04584ac4f5396f871871"
+      }
+    },
+    "net/socket/ssl_client_socket.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "2a4c1b7bf3cac888135e2a9b0d4137ae098ebacf",
+        "sha256": "403481644b07b5cd3f83c37e170706f6784be81694e55df34bbb85b108490a9b"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "2a4c1b7bf3cac888135e2a9b0d4137ae098ebacf",
+        "sha256": "403481644b07b5cd3f83c37e170706f6784be81694e55df34bbb85b108490a9b"
+      }
+    },
+    "net/ssl/ssl_config_service.cc": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "object": "01aa93324f9a47e947be4fb73d7bd4fc242cd540",
+        "sha256": "67dab4c3610cd2a9a8c747037d4a31469edd7de24fd3f11cc05e602db25615fd"
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "object": "01aa93324f9a47e947be4fb73d7bd4fc242cd540",
+        "sha256": "67dab4c3610cd2a9a8c747037d4a31469edd7de24fd3f11cc05e602db25615fd"
+      }
+    }
+  },
+  "reference_source_at_head": {
+    "net/http/auth_challenge_reference_tokenizer.h": {
+      "object": "3c7a8ce86999fbb578e71aa3de02116f9857f779",
+      "sha256": "ddef8ddf8d23b94c46e610a3265ac6b5e213a8a6998208346770977e1729c199"
+    },
+    "net/http/connection_auth_original_basic.cc": {
+      "object": "8bb66b119b902ff6d1db6ca2938b7e34e735381a",
+      "sha256": "601bc0b197fa0c64d9ee35fd800b91d6f5b8c21eb46915f213a8d3c847b8b7c3"
+    },
+    "net/http/connection_auth_original_digest_factory.cc": {
+      "object": "f113418eec87a953286949676333a4618c2420ad",
+      "sha256": "46fa41f9c8a3b2b9a11c4c0088e0df1cf59dd230e717e2da37e6bb7fbed3c4b0"
+    },
+    "net/http/connection_auth_original_factory.cc": {
+      "object": "19dbceddb9d12a751f8a684fade88df040d3bb2b",
+      "sha256": "c9bf6bf07e9daee311d10c6b1799bd991448e5c474783affcae302760ef71739"
+    },
+    "net/socket/ssl_connect_job_rust_original.cc": {
+      "object": "a268de491ccbf313265a191f1729af30a63eac08",
+      "sha256": "32e39f850a83ff457b6bb4523a50dd8bf36b538adc8e5d8f56876c905c0f6a7c"
+    }
+  },
+  "http_util_sections": {
+    "TrimLWS implementation": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "sha256": "9349671ede630061d54147273888ec01973116e2c1a8705f0faad2b87e92a767",
+        "start_line": 43
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "sha256": "de623aa6340d683c9d710b391a6e95ffaf877394d9b8ad658485d57733af882d",
+        "start_line": 42
+      }
+    },
+    "TrimLWS overloads": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "sha256": "4c7d48fd68a71d1b690bf652a7a8caeae2e3825535436c7f6550ee0240ae9958",
+        "start_line": 550
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "sha256": "4c7d48fd68a71d1b690bf652a7a8caeae2e3825535436c7f6550ee0240ae9958",
+        "start_line": 407
+      }
+    },
+    "Quotes and escapes": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "sha256": "a8848988e9316fadc5cb3f431d00ff93abcbf30575259d684de537dd7d3eeb83",
+        "start_line": 620
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "sha256": "64fb33073a8aed7a299c05bb161b0bddb33cbee726f878aaa6230ec106b0ab40",
+        "start_line": 481
+      }
+    },
+    "Values and name/value iterators": {
+      "478cd0e02a3a22af2ce2b64bd5c440ba87c5943c": {
+        "sha256": "9a8994dbc00e7117c79c8b712b7b2a51c571bd4b1444edb73eaa99d134c157c1",
+        "start_line": 1076
+      },
+      "443551ed26c4e893efb9c0aaa76660960a5802c8": {
+        "sha256": "9a8994dbc00e7117c79c8b712b7b2a51c571bd4b1444edb73eaa99d134c157c1",
+        "start_line": 956
+      }
+    }
+  },
+  "results": [
+    "The reference auth factory creates native tokenizer storage with OriginalPolicyTag and initializes it using frozen StringViewTokenizer and whitespace trim. Basic and Digest then share native param_pairs/HttpUtil iteration.",
+    "The name/value iterators and TrimLWS wrappers match the predecessor bytes. The reached whitespace implementation and quote/unquote bodies differ only by added braces.",
+    "Digest's C++ implementation and base tokenizer source match prior native code; the Digest header adds a factory friend and an export for the native nonce-generator constructor. The connection reference registry uses original factory and handler initialization, then the shared native Digest handler implementation.",
+    "The directly reached native TLS ECH/config policy and transport-result recorder and trust-anchor ID formatter source blobs are unchanged. Some of these reach provider observations, metrics and utility code."
+  ],
+  "remaining": "This manifest pins directly inspected helper sources. It does not replace the shared Digest and TLS provider code with separate compiled copies, prove every reached transitive dependency, or establish native TLS, DNS, QUIC, platform or cutover acceptance.",
+  "runtime_follow_up": {
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A9326c15e-6cb3-497c-b76c-2b5cd92c3e9c",
+    "scope": "Existing exact-head DCHECK probe binary. Positive control plus Basic and Digest cases, runtime only."
+  }
+}

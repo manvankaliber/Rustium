@@ -90,9 +90,8 @@ DictationIphController::DictationIphController(tabs::TabInterface& tab)
         dictation_service->AddSessionEndedCallback(base::BindRepeating(
             &DictationIphController::OnSessionEnded, base::Unretained(this)));
   }
-  // Start audio device enumeration early so the cached list is populated by the
-  // time the user focuses a field.
-  MediaCaptureDevicesDispatcher::GetInstance()->GetAudioCaptureDevices();
+  // MaybeShowPromo() checks for a microphone only after the user focuses a
+  // suitable field. Enumerating here would launch media services for idle tabs.
 }
 
 DictationIphController::~DictationIphController() = default;

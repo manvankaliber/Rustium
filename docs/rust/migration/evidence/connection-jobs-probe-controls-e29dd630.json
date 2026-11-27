@@ -1,0 +1,39 @@
+{
+  "task": "NET-REFERENCE-WIRING-REVIEW",
+  "reviewed_source": "0c618a57b553adffaf1378843cc62d639ff4c684",
+  "test_repair": "e29dd630546aa884a494deee09abd1fa3b586e4d",
+  "branch": "rust/connection-jobs-probe-controls",
+  "result": "source-only repair; isolated build, link and tests pending",
+  "delta": "One qualification-only file. Seven named counters are each sampled around a single synchronous operation. Original later tests and expectations were preserved. Data-only window checks and git diff --check passed.",
+  "normal_output": "No probe test source in the flag-off GN branch. Preserve current normal and QUIC results on their original revision.",
+  "probe": {
+    "configuration": "Separate normal Windows component configuration with rustium_reference_probe=true; use evaluated platform and Kerberos build flags.",
+    "target": "//net:connection_jobs_family_rust_unittests",
+    "positive_first": "AuthReferenceQualificationTest.EachInstrumentedFamilyHasPositiveControl",
+    "gtests": [
+      "AuthReferenceQualificationTest.EachInstrumentedFamilyHasPositiveControl",
+      "AuthReferenceQualificationTest.FrozenBase64EncodingDoesNotEnterRust",
+      "AuthReferenceQualificationTest.DisabledCaptureDoesNotEvaluatePayload",
+      "AuthReferenceQualificationTest.BasicWireTokenAvoidsRustBase64",
+      "AuthReferenceQualificationTest.DigestNativeCaseUsesOriginalHandlerPath",
+      "AuthReferenceQualificationTest.NtlmWireTokenAndLaterRoundAvoidRust",
+      "AuthReferenceQualificationTest.DefaultProviderLaterRoundAndMalformed",
+      "AuthReferenceQualificationTest.DefaultSspiCancellationDropsReply",
+      "AuthReferenceQualificationTest.DefaultSspiCallbackMayDeleteHandler",
+      "AuthReferenceQualificationTest.InjectedReferenceCancellationAndReentrantDelete",
+      "AuthReferenceQualificationTest.InjectedReferenceLaterRoundAndMalformed",
+      "AuthReferenceQualificationTest.CapturePayloadOrderMatchesProduction",
+      "AuthReferenceQualificationTest.DefaultProviderCapturedContextMatchesProduction",
+      "ProxyReferenceComponentTest.ValuesSurviveSpdyComponentCopies"
+    ],
+    "coverage": "Run applicable cases one at a time, compare discovery and launcher results, record actual skips and build exclusions.",
+    "ownership_targets": [
+      "//base:base_unittests",
+      "//net:http_request_headers_rust_unittests",
+      "//net:net_error_rust_policy_unittests_exe",
+      "//net:connection_jobs_family_rust_unittests"
+    ],
+    "ownership_evidence": "Generated bindings, actual link inputs, DLL exports/imports and symbol ownership in the normal/probe configurations. A nonzero counter alone does not resolve duplicate-owner or platform questions."
+  },
+  "held_work": "Historical 984d2f06 cookie/store comparator still needs source and binary binding for both captures. It is outside Connection Jobs ownership."
+}

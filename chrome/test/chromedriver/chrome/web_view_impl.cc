@@ -2751,8 +2751,7 @@ FilePathStyle GetFileInputPathStyle(const BrowserInfo& browser_info) {
   // Android versions predating the File-Path-Style metadata still use POSIX
   // paths. Other unknown browsers retain ChromeDriver's legacy host-native
   // behavior rather than guessing the remote path grammar.
-  return browser_info.is_android ? FilePathStyle::kPosix
-                                 : browser_info.file_path_style;
+  return browser_info.file_path_style;
 }
 
 bool IsFileInputPathAbsolute(const base::FilePath& path,

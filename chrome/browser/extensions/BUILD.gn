@@ -541,7 +541,6 @@ source_set("extensions") {
     "//chrome/browser/resource_coordinator:utils",
     "//chrome/browser/resources:component_extension_resources",
     "//chrome/browser/resources/contextual_tasks/extension:resources",
-    "//chrome/browser/resources/omnibox_internals/aim_eligibility_extension:resources",
     "//chrome/browser/safe_browsing",
     "//chrome/browser/safe_browsing:metrics_collector",
     "//chrome/browser/search",
@@ -1777,10 +1776,7 @@ source_set("unit_tests") {
   }
 
   sources += [ "chrome_extension_web_contents_observer_unittest.cc" ]
-  deps += [
-    "//chrome/browser/ui/webui/omnibox_internals/aim_eligibility_extension",
-    "//components/crash/content/browser/error_reporting",
-  ]
+  deps += [ "//components/crash/content/browser/error_reporting" ]
 
   if (toolkit_views) {
     deps += [ "//chrome/browser/ui/views/web_apps:launch_dialogs" ]

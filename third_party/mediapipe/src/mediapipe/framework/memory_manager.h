@@ -16,10 +16,8 @@
 
 #include <memory>
 
-// Defines MEDIAPIPE_TENSOR_USE_AHWB
 #include "mediapipe/framework/port.h"
 #include "mediapipe/gpu/multi_pool.h"
-
 
 namespace mediapipe {
 
@@ -50,15 +48,11 @@ namespace mediapipe {
 //       Tensor tensor(Tensor::ElementType::kFloat32,
 //                     Tensor::Shape{kTensorSize}, &memory_manager_);
 
-
-// Dummy MemoryManager class for platforms that don't use AHWB.
+// MemoryManager service interface; desktop tensor storage is managed directly.
 class MemoryManager {
  public:
-  explicit MemoryManager(MultiPoolOptions options = kDefaultMultiPoolOptions,
-                         bool prefer_ahwb = false) {}
-  bool PreferAhwb() const { return false; }
+  explicit MemoryManager(MultiPoolOptions options = kDefaultMultiPoolOptions) {}
 };
-
 
 }  //  namespace mediapipe
 

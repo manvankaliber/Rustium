@@ -1,0 +1,31 @@
+{
+  "utc": "2026-11-21T21:34:06.360947+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+  "base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "reviewed_commit": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "review": {
+    "role": "independent Terra xhigh",
+    "decision": "Clear for publication as an unvalidated candidate and warm scoped laptop feedback.",
+    "review_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A633c0b50-baff-40f5-8536-e66b010c8c1f",
+    "verified": "All 19 frozen original blobs, strict priority and native tie order, bounded scalar FFI, native fixture path, and source-level GN and export wiring.",
+    "limits": [
+      "The independent ranking oracle is a transcription of the frozen C++ algorithm.",
+      "Native auth-bound saturation, reentry, timer and component linkage require applicable runtime evidence.",
+      "Packing priorities, pointer arrays and repeated batch calls have unmeasured cost."
+    ]
+  },
+  "feedback": {
+    "status": "dispatched",
+    "candidate_ref": "refs/heads/rust/transport-stalled-group-selection-review-20261121",
+    "native_thread": "t3-thread://v2/39b1955f-e0f8-4d4a-ad20-0a3449c1b0eb/mcp:launch:c571aac1fcd8df4cee3bb3135d31f41264d15290a9693deb43e098757d91b5cf",
+    "configuration": "Existing warm ordinary Windows component, Ninja -j4, one link, one launcher job, zero retries.",
+    "first_cases": [
+      "TransportSchedulingPolicyTest.DifferentialOrderedGroups",
+      "TransportSchedulingPolicyTest.EqualPriorityKeepsEarlierBatch",
+      "ClientSocketPoolBaseTest.StalledGroupTiesFollowGroupIdOrder"
+    ],
+    "selected_count": 16,
+    "pr_head": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca"
+  },
+  "remaining_implementation": "Request-to-job assignments, queue reprioritization, job stealing, preconnect claims and related lifecycle still execute in C++."
+}

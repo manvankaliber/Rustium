@@ -1,0 +1,36 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "validated_commit": "8a5e79b466161a70edd05f98edb74dc6015dc97a",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "host": "HQC-VAN_KALIBER",
+  "target": "//net:net_unittests",
+  "configuration": "Warm Windows x64 optimized QUIC-enabled component",
+  "compiler_jobs": 4,
+  "simultaneous_links": 1,
+  "results": {
+    "new_exact_cases_passed": [
+      "RfcV1/QuicProxyConnectJobSuccessTest.OriginalOpensTunnel/0",
+      "RfcV1/QuicProxyConnectJobSuccessTest.ProductionOpensTunnel/0"
+    ],
+    "representative_existing_rfcv1_socket_and_datagram_cases_passed": 4,
+    "launcher_jobs": 1,
+    "retries": 0,
+    "checkout_restored_clean": "4b1e24848d1080edce5e9bad8e27372760674736",
+    "independent_lock_release": true
+  },
+  "receipt": "C:/Users/micro/rb/network-quic-success-8a5e79b4-20261120a/receipt.md",
+  "result": "C:/Users/micro/rb/network-quic-success-8a5e79b4-20261120a/result.json",
+  "lock_probe": "C:/Users/micro/rb/network-quic-success-8a5e79b4-20261120a/release-probe.json",
+  "provider_boundary": "These comparisons use a shared native session and socket provider. The tests verify injection and release of its actual handle, QUIC stream acquisition, the priority update and CONNECT exchange, and teardown. Session-selection policy, handshake and overall protocol ownership are outside these cases.",
+  "next_laptop_work": {
+    "task_id": "NET-CI-BUILDER-READINESS",
+    "thread": "mcp:launch:1b636b34762ed72ee8714a6db6f211866ade51dad2f6b76fa6af00aa0497b8b4",
+    "status": "Dispatched the larger optimized components build and proxy preferences on the exact PR head."
+  },
+  "remaining": [
+    "Fresh affected-consumer qualification",
+    "POSIX and non-Kerberos reference checks",
+    "External provider and remaining native transport pool ownership",
+    "Performance acceptance"
+  ]
+}

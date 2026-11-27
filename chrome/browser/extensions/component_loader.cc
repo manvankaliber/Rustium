@@ -37,11 +37,9 @@
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/extensions/extension_constants.h"
-#include "chrome/grit/aim_eligibility_extension_resources.h"
 #include "chrome/grit/branded_strings.h"
 #include "chrome/grit/browser_resources.h"
 #include "chrome/grit/component_extension_resources.h"
-#include "chrome/grit/contextual_tasks_extension_resources.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/component_updater/component_updater_paths.h"
 #include "components/crx_file/id_util.h"
@@ -484,24 +482,6 @@ void ComponentLoader::AddNetworkSpeechSynthesisExtension() {
   }
 }
 
-void ComponentLoader::AddAimEligibilityExtension() {
-  if (!base::FeatureList::IsEnabled(
-          omnibox::kAimEligibilityComponentExtension)) {
-    return;
-  }
-
-  // Try to load a newer version from disk installed by the component updater.
-  if (omnibox::kAimEligibilityUseComponentUpdater.Get() &&
-      MaybeLoadStagedExtension(extension_misc::kAimEligibilityExtensionId,
-                               IDR_AIM_ELIGIBILITY_EXTENSION_MANIFEST_JSON)) {
-    return;
-  }
-
-  // Fallback to bundled extension if no newer version exists on disk.
-  Add(IDR_AIM_ELIGIBILITY_EXTENSION_MANIFEST_JSON,
-      base::FilePath(extension_misc::kAimEligibilityExtensionDirName));
-}
-
 void ComponentLoader::AddNewTabPageExtension() {
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   if (!base::FeatureList::IsEnabled(ntp_features::kNtpComponentExtension)) {
@@ -519,17 +499,6 @@ void ComponentLoader::AddNewTabPageExtension() {
   Add(IDR_NEW_TAB_PAGE_EXTENSION_MANIFEST_JSON,
       base::FilePath(extension_misc::kNewTabPageExtensionDirName));
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
-}
-
-
-void ComponentLoader::AddContextualTasksExtension() {
-  if (base::FeatureList::IsEnabled(
-          extensions_features::kApiContextualTasksPrivate) ||
-      base::FeatureList::IsEnabled(
-          extensions_features::kApiContextualTasksPrivateAba)) {
-    Add(IDR_CONTEXTUAL_TASKS_EXTENSION_MANIFEST_JSON,
-        base::FilePath(FILE_PATH_LITERAL("contextual_tasks_extension")));
-  }
 }
 
 void ComponentLoader::AddWithNameAndDescription(
@@ -656,9 +625,7 @@ void ComponentLoader::AddDefaultComponentExtensionsWithBackgroundPages(
 
   }
 
-  AddAimEligibilityExtension();
   AddNewTabPageExtension();
-  AddContextualTasksExtension();
 
 // http://crbug.com/41070702
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)

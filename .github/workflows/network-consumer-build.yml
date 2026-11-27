@@ -1,0 +1,148 @@
+name: Network laptop validation
+run-name: Network ${{ inputs.feedback_targets || 'selected consumer qualification' }} @ ${{ inputs.revision }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Full reviewed commit at the selected workflow ref
+        required: true
+        type: string
+      approved_inputs_sha256:
+        description: Approved input SHA-256 for fresh build qualification only
+        type: string
+      feedback_targets:
+        description: Warm feedback targets from the active family, comma-separated, first failure first
+        type: string
+      gtest_filter:
+        description: Exact gtest names separated by colons for a single focused target
+        type: string
+      rust_test:
+        description: Exact libtest case for one focused Rust target
+        type: string
+      full_suite:
+        description: Run all tests in the explicitly named feedback targets
+        type: boolean
+        default: false
+      reference_probe:
+        description: Build the separate reference-probe configuration
+        type: boolean
+        default: false
+      compiler_jobs:
+        description: Ninja jobs for this build (4 through 8).
+        type: choice
+        options: ['4', '5', '6', '7', '8']
+        default: '4'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rustium-windows-builder
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: ${{ inputs.feedback_targets && 'Focused Network feedback' || 'Fresh selected-consumer build' }}
+    if: github.repository == 'manvankaliber/Rustium'
+    runs-on: [self-hosted, Windows, X64, rustium-build]
+    timeout-minutes: 1440
+    defaults:
+      run:
+        shell: powershell
+    env:
+      RUSTIUM_REVISION: ${{ inputs.revision }}
+      RUSTIUM_APPROVED_INPUTS: ${{ inputs.approved_inputs_sha256 }}
+      RUSTIUM_FEEDBACK_TARGETS: ${{ inputs.feedback_targets }}
+      RUSTIUM_GTEST_FILTER: ${{ inputs.gtest_filter }}
+      RUSTIUM_RUST_TEST: ${{ inputs.rust_test }}
+      RUSTIUM_FULL_SUITE: ${{ inputs.full_suite }}
+      RUSTIUM_REFERENCE_PROBE: ${{ inputs.reference_probe }}
+      RUSTIUM_COMPILER_JOBS: ${{ inputs.compiler_jobs }}
+      DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
+      DEPOT_TOOLS_UPDATE: '0'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Build one reviewed revision from the prepared checkout
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $builder = Join-Path $env:USERPROFILE 'rb'
+          $evidence = Join-Path $builder ('evidence\build-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          New-Item -ItemType Directory -Path $evidence -ErrorAction Stop | Out-Null
+          "RUSTIUM_EVIDENCE=$evidence" | Add-Content -LiteralPath $env:GITHUB_ENV
+          $receipt = [ordered]@{
+            revision = $env:RUSTIUM_REVISION
+            workflow_revision = $env:GITHUB_SHA
+            approved_inputs_sha256 = $env:RUSTIUM_APPROVED_INPUTS
+            phase = 'preflight'
+            state = 'incomplete'
+          }
+          $progressFile = Join-Path $evidence 'workflow-progress.json'
+          $resultFile = Join-Path $evidence 'workflow-result.json'
+          $receipt | ConvertTo-Json | Set-Content -LiteralPath $progressFile -Encoding UTF8
+          try {
+            if ($env:COMPUTERNAME -ne 'HQC-VAN_KALIBER') { throw 'Wrong compilation machine.' }
+            if ($env:RUSTIUM_REVISION -cnotmatch '^[0-9a-f]{40}$' -or $env:RUSTIUM_REVISION -cne $env:GITHUB_SHA) { throw 'Select the reviewed commit as the workflow ref.' }
+            $focused = -not [string]::IsNullOrWhiteSpace($env:RUSTIUM_FEEDBACK_TARGETS)
+            if ($focused) {
+              if ($env:RUSTIUM_APPROVED_INPUTS -or $env:RUSTIUM_REFERENCE_PROBE -eq 'true') { throw 'Choose focused feedback or fresh qualification.' }
+            } elseif ($env:RUSTIUM_APPROVED_INPUTS -cnotmatch '^[0-9a-f]{64}$' -or $env:RUSTIUM_GTEST_FILTER -or $env:RUSTIUM_RUST_TEST -or $env:RUSTIUM_FULL_SUITE -eq 'true') { throw 'Fresh qualification requires an approved input SHA-256 and the complete scope.' }
+            $source = Join-Path $builder 'src'
+            $depot = Join-Path $env:USERPROFILE 'chromium-tools\depot_tools'
+            $checkoutDriver = Join-Path $source 'tools\ci\build_network_consumers.py'
+            if (-not (Test-Path -LiteralPath (Join-Path $source '.git'))) { throw 'Provision the dedicated checkout first.' }
+            if (-not (Test-Path -LiteralPath (Join-Path $builder '.gclient'))) { throw 'Provision the pinned dependency configuration first.' }
+            if (-not (Test-Path -LiteralPath (Join-Path $depot 'python3.bat'))) { throw 'Missing qualified depot_tools.' }
+            $origin = & git -C $source remote get-url origin
+            if ($LASTEXITCODE -ne 0 -or $origin -notin @('https://github.com/manvankaliber/Rustium', 'https://github.com/manvankaliber/Rustium.git')) { throw 'Unexpected checkout repository.' }
+            $actualHead = & git -C $source rev-parse HEAD
+            if ($LASTEXITCODE -ne 0 -or $actualHead -cne $env:RUSTIUM_REVISION) { throw 'Prepare this revision in the dedicated checkout before dispatch.' }
+            $expectedDriver = & git -C $source rev-parse ('{0}:tools/ci/build_network_consumers.py' -f $env:RUSTIUM_REVISION)
+            if ($LASTEXITCODE -ne 0) { throw 'Reviewed revision lacks the build driver.' }
+            $driver = Join-Path $evidence 'build_network_consumers.py'
+            Copy-Item -LiteralPath $checkoutDriver -Destination $driver
+            $actualDriver = & git -C $source hash-object --no-filters -- $driver
+            if ($LASTEXITCODE -ne 0 -or $actualDriver -cne $expectedDriver) { throw 'Build driver bytes differ from the reviewed commit.' }
+            $env:PATH = $depot + ';' + $env:PATH
+            $receipt.phase = if ($focused) { 'focused-feedback' } else { 'selected-consumer-build' }
+            $receipt | ConvertTo-Json | Set-Content -LiteralPath $progressFile -Encoding UTF8
+            $buildEvidence = Join-Path $evidence $receipt.phase
+            $runId = 'gh-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT
+            $arguments = @('-I', '-B', $driver, '--source', $source, '--revision', $env:RUSTIUM_REVISION, '--evidence', $buildEvidence)
+            if ($focused) {
+              $arguments += @('--feedback-targets', $env:RUSTIUM_FEEDBACK_TARGETS)
+              if ($env:RUSTIUM_GTEST_FILTER) { $arguments += @('--gtest-filter', $env:RUSTIUM_GTEST_FILTER) }
+              if ($env:RUSTIUM_RUST_TEST) { $arguments += @('--rust-test', $env:RUSTIUM_RUST_TEST) }
+              if ($env:RUSTIUM_FULL_SUITE -eq 'true') { $arguments += '--full-suite' }
+            } else {
+              $arguments += @('--approved-inputs-sha256', $env:RUSTIUM_APPROVED_INPUTS, '--run-id', $runId)
+            }
+            if ($env:RUSTIUM_COMPILER_JOBS) { $arguments += @('--jobs', $env:RUSTIUM_COMPILER_JOBS) }
+            if ($env:RUSTIUM_REFERENCE_PROBE -eq 'true') { $arguments += '--reference-probe' }
+            & (Join-Path $depot 'python3.bat') @arguments
+            if ($LASTEXITCODE -ne 0) { throw "$($receipt.phase) failed. See the first failing phase and its retained log." }
+            $buildResult = Get-Content -Raw -LiteralPath (Join-Path $buildEvidence 'result.json') | ConvertFrom-Json
+            if ($buildResult.source_revision -cne $env:RUSTIUM_REVISION) { throw 'Unexpected result revision.' }
+            if ($focused) {
+              if (-not $buildResult.feedback_passed) { throw 'Focused run did not pass.' }
+              "Focused feedback passed for $env:RUSTIUM_FEEDBACK_TARGETS at $env:RUSTIUM_REVISION. Family signoff is pending." | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+            } else {
+              if (-not $buildResult.build_passed -or $buildResult.approved_inputs_sha256 -cne $env:RUSTIUM_APPROVED_INPUTS) { throw 'Build result does not establish the approved run.' }
+              'Selected consumers compiled. Ordinary tests and subsystem qualification remain pending.' | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+            }
+            $receipt.state = 'passed'
+          } catch {
+            $receipt.state = 'failed'
+            $receipt.error = $_.Exception.Message
+            throw
+          } finally {
+            $receipt | ConvertTo-Json | Set-Content -LiteralPath $resultFile -Encoding UTF8
+          }
+      - name: Retain build records
+        if: always() && env.RUSTIUM_EVIDENCE != ''
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: network-consumer-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.RUSTIUM_EVIDENCE }}
+          if-no-files-found: error
+          retention-days: 3

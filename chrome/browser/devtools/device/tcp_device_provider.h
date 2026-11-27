@@ -9,10 +9,10 @@
 
 #include <set>
 
-#include "chrome/browser/devtools/device/android_device_manager.h"
+#include "chrome/browser/devtools/device/remote_device_manager.h"
 #include "net/base/host_port_pair.h"
 
-class TCPDeviceProvider : public AndroidDeviceManager::DeviceProvider {
+class TCPDeviceProvider : public RemoteDeviceManager::DeviceProvider {
  public:
   static scoped_refptr<TCPDeviceProvider> CreateForLocalhost(uint16_t port);
 

@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-22T10:41:16.394406+00:00",
+  "head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "status": "Five common cases passed. Corrected final selection dispatched.",
+  "configuration": "Windows x64 component DCHECK reference probe, USE_KERBEROS=false",
+  "build": {
+    "gn_include_check": "passed",
+    "compiler_jobs": 4,
+    "ninja_actions": 422,
+    "serialized_recorded_links": 15
+  },
+  "passed": [
+    "AuthReferenceQualificationTest.EachInstrumentedFamilyHasPositiveControl",
+    "AuthReferenceQualificationTest.FrozenBase64EncodingDoesNotEnterRust",
+    "AuthReferenceQualificationTest.DisabledCaptureDoesNotEvaluatePayload",
+    "AuthReferenceQualificationTest.BasicWireTokenAvoidsRustBase64",
+    "AuthReferenceQualificationTest.DigestNativeCaseUsesOriginalHandlerPath"
+  ],
+  "selection_reconciliation": "My requested sixth name CapturePayloadOrderMatchesProduction exercises guarded Negotiate. Source at both bb1359ebe and f27ce55c identifies NtlmWireTokenAndLaterRoundAvoidRust as the sixth common name outside the guard. Absence of guarded tests is expected. No source change is warranted.",
+  "pending": {
+    "test": "AuthReferenceQualificationTest.NtlmWireTokenAndLaterRoundAvoidRust",
+    "task": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3Af823166f-0a35-4a0c-8831-14ef7b6073c4"
+  },
+  "receipt": "C:/Users/micro/rb/network-f27ce55-nonkerberos-20261122b/result.json",
+  "discovery_log": "C:/Users/micro/rb/network-f27ce55-nonkerberos-20261122b/probe-discovery.log",
+  "independent_release": "C:/Users/micro/rb/network-f27ce55-nonkerberos-20261122b/independent-release.json"
+}

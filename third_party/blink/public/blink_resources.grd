@@ -12,8 +12,8 @@
       <include name="IDR_UASTYLE_HTML_CSS" file="../renderer/core/html/resources/html.css" flattenhtml="true" type="BINDATA" compress="brotli"/>
       <include name="IDR_UASTYLE_QUIRKS_CSS" file="../renderer/core/html/resources/quirks.css" type="BINDATA" compress="brotli"/>
       <include name="IDR_UASTYLE_VIEW_SOURCE_CSS" file="../renderer/core/css/view-source.css" type="BINDATA" compress="brotli"/>
-      <include name="IDR_UASTYLE_THEME_CHROMIUM_ANDROID_CSS" file="../renderer/core/html/resources/android.css" type="BINDATA" compress="brotli"/>
-      <include name="IDR_UASTYLE_FULLSCREEN_ANDROID_CSS" file="../renderer/core/css/fullscreenAndroid.css" type="BINDATA" compress="brotli"/>
+      <include name="IDR_UASTYLE_THEME_CHROMIUM_MOBILE_CSS" file="../renderer/core/html/resources/mobile.css" type="BINDATA" compress="brotli"/>
+      <include name="IDR_UASTYLE_FULLSCREEN_MOBILE_CSS" file="../renderer/core/css/fullscreenMobile.css" type="BINDATA" compress="brotli"/>
       <include name="IDR_UASTYLE_THEME_CHROMIUM_LINUX_CSS" file="../renderer/core/html/resources/linux.css" type="BINDATA" compress="brotli"/>
       <include name="IDR_UASTYLE_SCROLL_BUTTON_CSS" file="../renderer/core/css/scroll_button.css" type="BINDATA" compress="brotli"/>
       <include name="IDR_UASTYLE_SCROLL_MARKER_CSS" file="../renderer/core/css/scroll_marker.css" type="BINDATA" compress="brotli"/>

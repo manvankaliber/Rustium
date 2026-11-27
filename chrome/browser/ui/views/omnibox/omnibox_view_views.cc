@@ -607,13 +607,7 @@ void OmniboxViewViews::SetFocus(bool is_user_initiated) {
 }
 
 IconLabelBubbleView* OmniboxViewViews::GetAiModePageActionIconView() const {
-  // Verify location bar is fully initialized because the
-  // page_action_icon_controller may not be ready yet.
-  if (!location_bar_view_ || !location_bar_view_->IsInitialized()) {
-    return nullptr;
-  }
-  return location_bar_view_->page_action_container()->GetPageActionView(
-      kActionAiMode);
+  return nullptr;
 }
 
 void OmniboxViewViews::ApplyFocusRingToAimButton(bool force_focus) {

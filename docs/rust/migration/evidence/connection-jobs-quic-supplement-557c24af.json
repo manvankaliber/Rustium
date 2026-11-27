@@ -1,0 +1,30 @@
+{
+  "utc": "2026-11-22T09:35:15.302866+00:00",
+  "head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "configuration": "Optimized Windows component with QUIC proxy enabled on HQC-VAN_KALIBER",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "status": "passed",
+  "runtime": {
+    "run": 6,
+    "passed": 6,
+    "skipped": 0,
+    "failed": 0,
+    "launcher_jobs": 1,
+    "retries": 0
+  },
+  "ordinary_skip_reconciliation": {
+    "quic_cases_passed_here": 6,
+    "dual_race_enabled_counterparts_passed_in_ordinary_logs": 28
+  },
+  "build": {
+    "gn_include_check": "passed",
+    "compiler_jobs": 4,
+    "serialized_recorded_links": 2
+  },
+  "artifact_limit": "The executable and candidate DLL hashes were stable through the run, and the executable launched from the built-artifact path. No module observer snapshot landed during the 141 ms run, so the loaded DLL path was not independently observed.",
+  "pipeline": "Two preliminary controller checks ended before checkout or build. The passing run restored the detached 72ee5ddd base, seven metadata pins, pinned environment and designated previous DLL. Independent byte-zero release and processes checks passed.",
+  "receipt": "C:/Users/micro/rb/network-557c24-connection-jobs-quic-20261122c/result.json",
+  "build_log": "C:/Users/micro/rb/network-557c24-connection-jobs-quic-20261122c/build.log",
+  "test_log": "C:/Users/micro/rb/network-557c24-connection-jobs-quic-20261122c/test.log",
+  "independent_release": "C:/Users/micro/rb/network-557c24-connection-jobs-quic-20261122c/independent-release.json"
+}

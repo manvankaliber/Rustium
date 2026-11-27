@@ -56,7 +56,7 @@ libc_enum! {
         /// Software termination signal from kill
         SIGTERM,
         /// Stack fault (obsolete)
-        #[cfg(all(any(linux_android, target_os = "emscripten"), not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "sparc", target_arch = "sparc64"))))]
+        #[cfg(all(any(linux, target_os = "emscripten"), not(any(target_arch = "mips", target_arch = "mips32r6", target_arch = "mips64", target_arch = "mips64r6", target_arch = "sparc", target_arch = "sparc64"))))]
         SIGSTKFLT,
         /// To parent on child stop or exit
         SIGCHLD,
@@ -85,15 +85,15 @@ libc_enum! {
         /// Input/output possible signal
         #[cfg(not(target_os = "haiku"))]
         SIGIO,
-        #[cfg(any(linux_android, target_os = "emscripten", target_os = "aix"))]
+        #[cfg(any(linux, target_os = "emscripten", target_os = "aix"))]
         /// Power failure imminent.
         SIGPWR,
         /// Bad system call
         SIGSYS,
-        #[cfg(not(any(linux_android, target_os = "emscripten", target_os = "redox", target_os = "haiku")))]
+        #[cfg(not(any(linux, target_os = "emscripten", target_os = "redox", target_os = "haiku")))]
         /// Emulator trap
         SIGEMT,
-        #[cfg(not(any(linux_android, target_os = "emscripten", target_os = "redox", target_os = "haiku", target_os = "aix", target_os = "solaris", target_os = "cygwin")))]
+        #[cfg(not(any(linux, target_os = "emscripten", target_os = "redox", target_os = "haiku", target_os = "aix", target_os = "solaris", target_os = "cygwin")))]
         /// Information request
         SIGINFO,
     }
@@ -121,7 +121,7 @@ impl FromStr for Signal {
             "SIGALRM" => Signal::SIGALRM,
             "SIGTERM" => Signal::SIGTERM,
             #[cfg(all(
-                any(linux_android, target_os = "emscripten"),
+                any(linux, target_os = "emscripten"),
                 not(any(
                     target_arch = "mips",
                     target_arch = "mips32r6",
@@ -146,18 +146,18 @@ impl FromStr for Signal {
             "SIGWINCH" => Signal::SIGWINCH,
             #[cfg(not(target_os = "haiku"))]
             "SIGIO" => Signal::SIGIO,
-            #[cfg(any(linux_android, target_os = "emscripten"))]
+            #[cfg(any(linux, target_os = "emscripten"))]
             "SIGPWR" => Signal::SIGPWR,
             "SIGSYS" => Signal::SIGSYS,
             #[cfg(not(any(
-                linux_android,
+                linux,
                 target_os = "emscripten",
                 target_os = "redox",
                 target_os = "haiku"
             )))]
             "SIGEMT" => Signal::SIGEMT,
             #[cfg(not(any(
-                linux_android,
+                linux,
                 target_os = "emscripten",
                 target_os = "redox",
                 target_os = "aix",
@@ -196,7 +196,7 @@ impl Signal {
             Signal::SIGALRM => "SIGALRM",
             Signal::SIGTERM => "SIGTERM",
             #[cfg(all(
-                any(linux_android, target_os = "emscripten"),
+                any(linux, target_os = "emscripten"),
                 not(any(
                     target_arch = "mips",
                     target_arch = "mips32r6",
@@ -221,18 +221,18 @@ impl Signal {
             Signal::SIGWINCH => "SIGWINCH",
             #[cfg(not(target_os = "haiku"))]
             Signal::SIGIO => "SIGIO",
-            #[cfg(any(linux_android, target_os = "emscripten", target_os = "aix"))]
+            #[cfg(any(linux, target_os = "emscripten", target_os = "aix"))]
             Signal::SIGPWR => "SIGPWR",
             Signal::SIGSYS => "SIGSYS",
             #[cfg(not(any(
-                linux_android,
+                linux,
                 target_os = "emscripten",
                 target_os = "redox",
                 target_os = "haiku"
             )))]
             Signal::SIGEMT => "SIGEMT",
             #[cfg(not(any(
-                linux_android,
+                linux,
                 target_os = "emscripten",
                 target_os = "redox",
                 target_os = "aix",
@@ -277,7 +277,7 @@ const SIGNALS: [Signal; 28] = [
     SIGURG, SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPROF, SIGWINCH, SIGSYS,
 ];
 #[cfg(all(
-    any(linux_android, target_os = "emscripten"),
+    any(linux, target_os = "emscripten"),
     not(any(
         target_arch = "mips",
         target_arch = "mips32r6",
@@ -294,7 +294,7 @@ const SIGNALS: [Signal; 31] = [
     SIGTTOU, SIGURG, SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPROF, SIGWINCH, SIGIO, SIGPWR, SIGSYS,
 ];
 #[cfg(all(
-    any(linux_android, target_os = "emscripten"),
+    any(linux, target_os = "emscripten"),
     any(
         target_arch = "mips",
         target_arch = "mips32r6",
@@ -325,7 +325,7 @@ const SIGNALS: [Signal; 30] = [
     SIGURG, SIGXCPU, SIGXFSZ, SIGVTALRM, SIGPROF, SIGWINCH, SIGIO, SIGSYS, SIGEMT,
 ];
 #[cfg(not(any(
-    linux_android,
+    linux,
     target_os = "emscripten",
     target_os = "aix",
     target_os = "redox",
@@ -556,7 +556,7 @@ impl SigSet {
     ///
     /// For more information see the
     /// [`sigsuspend(2)`](https://pubs.opengroup.org/onlinepubs/9699919799/functions/sigsuspend.html).
-    #[cfg(any(bsd, linux_android, solarish, target_os = "haiku", target_os = "hurd", target_os = "aix"))]
+    #[cfg(any(bsd, linux, solarish, target_os = "haiku", target_os = "hurd", target_os = "aix"))]
     #[doc(alias("sigsuspend"))]
     pub fn suspend(&self) -> Result<()> {
         let res = unsafe {

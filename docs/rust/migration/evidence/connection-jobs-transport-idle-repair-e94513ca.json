@@ -1,0 +1,23 @@
+{
+  "task_id": "NET-CONNECTION-TRANSPORT-IDLE",
+  "candidate_commit": "e94513cabc66caa3a6bf7c44b21414013b4d9617",
+  "integration_parent": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+  "wired_review_head": "62cd081abc6f1879d95243552f5c2916fff9aff4",
+  "wired_oracle_commit": "dbd5cf7b5a72951b553494258311f89ce04d7964",
+  "local_ref": "refs/heads/rust/connection-transport-idle-wired-review-20261119",
+  "source_identity": {
+    "gn_patch_sha256": "18478224c798bb8c0c940faf25590ce9046d8b498fdccfe8d482a1e942d2178f",
+    "tree": "d9cb3dac760d6522f49ca48cd0dc36148649c43e"
+  },
+  "tests": {
+    "status": "pending",
+    "checked": "Candidate delta and shared GN patch applied to clean exact integration index, scoped diff check"
+  },
+  "review": {
+    "status": "pending",
+    "role": "Independent Terra/xhigh follow-up on exact wired candidate"
+  },
+  "platform_limits": [
+    "Source-only. No configured GN, linkage, tests or performance measurements."
+  ]
+}

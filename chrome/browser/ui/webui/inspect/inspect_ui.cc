@@ -101,12 +101,6 @@ const char kInspectUiPauseCommand[] = "pause";
 const char kInspectUiInspectBrowser[] = "inspect-browser";
 const char kInspectUiLocalHost[] = "localhost";
 
-const char kInspectUiDiscoverUsbDevicesEnabledCommand[] =
-    "set-discover-usb-devices-enabled";
-const char kInspectUiPortForwardingEnabledCommand[] =
-    "set-port-forwarding-enabled";
-const char kInspectUiPortForwardingConfigCommand[] =
-    "set-port-forwarding-config";
 const char kInspectUiDiscoverTCPTargetsEnabledCommand[] =
     "set-discover-tcp-targets-enabled";
 const char kInspectUiBubbleLockingCommand[] = "set-bubble-locking";
@@ -117,8 +111,6 @@ const char kInspectUiSetFocusCommand[] = "set-focus";
 const char kInspectUiSetRemoteDebuggingEnabledCommand[] =
     "set-remote-debugging-enabled";
 
-const char kInspectUiPortForwardingDefaultPort[] = "8080";
-const char kInspectUiPortForwardingDefaultLocation[] = "localhost:8080";
 
 const char kInspectUiNameField[] = "name";
 const char kInspectUiUrlField[] = "url";
@@ -245,7 +237,6 @@ class InspectMessageHandler : public WebUIMessageHandler {
   void HandleInspectBrowserCommand(const base::ListValue& args);
   void HandleBooleanPrefChanged(const char* pref_name,
                                 const base::ListValue& args);
-  void HandlePortForwardingConfigCommand(const base::ListValue& args);
   void HandleTCPDiscoveryConfigCommand(const base::ListValue& args);
   void HandleOpenNodeFrontendCommand(const base::ListValue& args);
   void HandleLaunchUIDevToolsCommand(const base::ListValue& args);
@@ -286,21 +277,6 @@ void InspectMessageHandler::RegisterMessages() {
       kInspectUiPauseCommand,
       base::BindRepeating(&InspectMessageHandler::HandlePauseCommand,
                           base::Unretained(this)));
-  web_ui()->RegisterMessageCallback(
-      kInspectUiDiscoverUsbDevicesEnabledCommand,
-      base::BindRepeating(&InspectMessageHandler::HandleBooleanPrefChanged,
-                          base::Unretained(this),
-                          &prefs::kDevToolsDiscoverUsbDevicesEnabled[0]));
-  web_ui()->RegisterMessageCallback(
-      kInspectUiPortForwardingEnabledCommand,
-      base::BindRepeating(&InspectMessageHandler::HandleBooleanPrefChanged,
-                          base::Unretained(this),
-                          &prefs::kDevToolsPortForwardingEnabled[0]));
-  web_ui()->RegisterMessageCallback(
-      kInspectUiPortForwardingConfigCommand,
-      base::BindRepeating(
-          &InspectMessageHandler::HandlePortForwardingConfigCommand,
-          base::Unretained(this)));
   web_ui()->RegisterMessageCallback(
       kInspectUiDiscoverTCPTargetsEnabledCommand,
       base::BindRepeating(&InspectMessageHandler::HandleBooleanPrefChanged,
@@ -481,20 +457,7 @@ void InspectMessageHandler::HandleSetRemoteDebuggingEnabled(
   }
 }
 
-void InspectMessageHandler::HandlePortForwardingConfigCommand(
-    const base::ListValue& args) {
-  Profile* profile = Profile::FromWebUI(web_ui());
-  if (!profile) {
-    return;
-  }
 
-  if (args.size() == 1) {
-    const base::Value& src = args[0];
-    if (src.is_dict()) {
-      profile->GetPrefs()->Set(prefs::kDevToolsPortForwardingConfig, src);
-    }
-  }
-}
 
 void InspectMessageHandler::HandleTCPDiscoveryConfigCommand(
     const base::ListValue& args) {
@@ -604,11 +567,7 @@ InspectUI::~InspectUI() {
 
 void InspectUI::InitUI() {
   SetHostVersion(version_info::GetVersion().GetString());
-  SetPortForwardingDefaults();
   StartListeningNotifications();
-  UpdateDiscoverUsbDevicesEnabled();
-  UpdatePortForwardingEnabled();
-  UpdatePortForwardingConfig();
   UpdateTCPDiscoveryEnabled();
   UpdateTCPDiscoveryConfig();
   UpdateBubbleLockingCheckbox();
@@ -787,27 +746,11 @@ void InspectUI::StartListeningNotifications() {
     ShowIncognitoWarning();
   } else {
     AddTargetUIHandler(
-        DevToolsTargetsUIHandler::CreateForAdb(callback, profile));
+        DevToolsTargetsUIHandler::CreateForRemote(callback, profile));
   }
 
-  port_status_serializer_ = std::make_unique<PortForwardingStatusSerializer>(
-      base::BindRepeating(&InspectUI::PopulatePortStatus,
-                          base::Unretained(this)),
-      profile);
 
   pref_change_registrar_.Init(profile->GetPrefs());
-  pref_change_registrar_.Add(
-      prefs::kDevToolsDiscoverUsbDevicesEnabled,
-      base::BindRepeating(&InspectUI::UpdateDiscoverUsbDevicesEnabled,
-                          base::Unretained(this)));
-  pref_change_registrar_.Add(
-      prefs::kDevToolsPortForwardingEnabled,
-      base::BindRepeating(&InspectUI::UpdatePortForwardingEnabled,
-                          base::Unretained(this)));
-  pref_change_registrar_.Add(
-      prefs::kDevToolsPortForwardingConfig,
-      base::BindRepeating(&InspectUI::UpdatePortForwardingConfig,
-                          base::Unretained(this)));
   pref_change_registrar_.Add(
       prefs::kDevToolsDiscoverTCPTargetsEnabled,
       base::BindRepeating(&InspectUI::UpdateTCPDiscoveryEnabled,
@@ -837,29 +780,16 @@ void InspectUI::StopListeningNotifications() {
 
   target_handlers_.clear();
 
-  port_status_serializer_.reset();
 
   pref_change_registrar_.RemoveAll();
   local_state_pref_change_registrar_.RemoveAll();
 }
 
-void InspectUI::UpdateDiscoverUsbDevicesEnabled() {
-  web_ui()->CallJavascriptFunctionUnsafe(
-      "updateDiscoverUsbDevicesEnabled",
-      *GetPrefValue(prefs::kDevToolsDiscoverUsbDevicesEnabled));
-}
 
-void InspectUI::UpdatePortForwardingEnabled() {
-  web_ui()->CallJavascriptFunctionUnsafe(
-      "updatePortForwardingEnabled",
-      *GetPrefValue(prefs::kDevToolsPortForwardingEnabled));
-}
 
-void InspectUI::UpdatePortForwardingConfig() {
-  web_ui()->CallJavascriptFunctionUnsafe(
-      "updatePortForwardingConfig",
-      *GetPrefValue(prefs::kDevToolsPortForwardingConfig));
-}
+
+
+
 
 void InspectUI::UpdateTCPDiscoveryEnabled() {
   web_ui()->CallJavascriptFunctionUnsafe(
@@ -900,43 +830,7 @@ void InspectUI::UpdateRemoteDebuggingEnabled() {
                                          enabled, allowed, false, address);
 }
 
-void InspectUI::SetPortForwardingDefaults() {
-  Profile* profile = Profile::FromWebUI(web_ui());
-  PrefService* prefs = profile->GetPrefs();
 
-  auto default_set =
-      GetPrefValue(prefs::kDevToolsPortForwardingDefaultSet)->GetIfBool();
-  if (!default_set || default_set.value()) {
-    return;
-  }
-
-  // This is the first chrome://inspect invocation on a fresh profile or after
-  // upgrade from a version that did not have kDevToolsPortForwardingDefaultSet.
-  prefs->SetBoolean(prefs::kDevToolsPortForwardingDefaultSet, true);
-
-  auto enabled =
-      GetPrefValue(prefs::kDevToolsPortForwardingEnabled)->GetIfBool();
-  if (!enabled) {
-    return;
-  }
-
-  const base::DictValue* config =
-      GetPrefValue(prefs::kDevToolsPortForwardingConfig)->GetIfDict();
-  if (!config) {
-    return;
-  }
-
-  // Do nothing if user already took explicit action.
-  if (enabled.value() || !config->empty()) {
-    return;
-  }
-
-  base::DictValue default_config;
-  default_config.Set(kInspectUiPortForwardingDefaultPort,
-                     kInspectUiPortForwardingDefaultLocation);
-  prefs->SetDict(prefs::kDevToolsPortForwardingConfig,
-                 std::move(default_config));
-}
 
 const base::Value* InspectUI::GetPrefValue(const char* name) {
   Profile* profile = Profile::FromWebUI(web_ui());
@@ -973,10 +867,7 @@ void InspectUI::PopulateNativeUITargets(const base::ListValue& targets) {
   web_ui()->CallJavascriptFunctionUnsafe("populateNativeUITargets", targets);
 }
 
-void InspectUI::PopulatePortStatus(base::Value status) {
-  web_ui()->CallJavascriptFunctionUnsafe("populatePortStatus",
-                                         std::move(status));
-}
+
 
 void InspectUI::ShowIncognitoWarning() {
   web_ui()->CallJavascriptFunctionUnsafe("showIncognitoWarning");

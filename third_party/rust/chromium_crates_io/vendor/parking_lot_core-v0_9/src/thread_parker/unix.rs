@@ -200,13 +200,7 @@ fn timespec_now() -> libc::timespec {
 #[inline]
 fn timespec_now() -> libc::timespec {
     let mut now = MaybeUninit::<libc::timespec>::uninit();
-    let clock = if cfg!(target_os = "android") {
-        // Android doesn't support pthread_condattr_setclock, so we need to
-        // specify the timeout in CLOCK_REALTIME.
-        libc::CLOCK_REALTIME
-    } else {
-        libc::CLOCK_MONOTONIC
-    };
+    let clock = libc::CLOCK_MONOTONIC;
     let r = unsafe { libc::clock_gettime(clock, now.as_mut_ptr()) };
     debug_assert_eq!(r, 0);
     // SAFETY: We know `libc::clock_gettime` has initialized the value.

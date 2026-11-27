@@ -1,0 +1,16 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "failed_commit": "a1a6a528bf4c3389995fc279345e36dd222e441d",
+  "case": "RfcV1/QuicProxyConnectJobSuccessTest.OriginalOpensTunnel/0",
+  "failure": "Actual packet 2 contained an incremental PRIORITY_UPDATE frame on stream 2 at offset 25. The baseline mock packet contained padding because its maker omitted the incremental flag.",
+  "actual_frame_data_hex": "800F0700020069",
+  "raw_failure": "C:/Users/micro/rb/network-quic-success-a1a6a528-20261120b/test-original.log",
+  "result": "C:/Users/micro/rb/network-quic-success-a1a6a528-20261120b/result.json",
+  "release_probe": "C:/Users/micro/rb/network-quic-success-a1a6a528-20261120b/release-probe.json",
+  "candidate_commit": "8a5e79b466161a70edd05f98edb74dc6015dc97a",
+  "source_path": "net/quic/quic_proxy_connect_job_success_unittest.cc",
+  "source_sha256": "11ee48942b58002f1093fcba84e94c4b9cdfdced816910ee237b14ac5e8136cf",
+  "repair": "One dedicated client packet maker uses incremental priority throughout. It expects a control-stream priority update before the CONNECT headers, and the headers packet does not duplicate the update.",
+  "native_status": "Exact original case replay, then production and representative socket cases pending.",
+  "laptop_thread": "mcp:launch:04e58bcd91a6117167770e60011b8324bc6852dbded5c0fd615d24774a724691"
+}

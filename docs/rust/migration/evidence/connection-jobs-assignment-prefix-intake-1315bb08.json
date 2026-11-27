@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-21T21:42:56.178867+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+  "proposal_commit": "1315bb0872dda47a9919ed845173869c36066ce0",
+  "base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+  "verified": "Both patch digests and all seven source entries matched after materialization into an isolated Git index. The applied diff passed git diff --cached --check.",
+  "proposal_status": "Design revision requested before native validation.",
+  "findings": [
+    "The standalone UseFront projection returns its Boolean input unchanged.",
+    "Sixteen iterator copies and projection up to fifteen requests past the original stopping point add work to assignment operations.",
+    "The successor should exercise concrete front, no-donor, donor, and release decisions, including the transient live job count during removal."
+  ],
+  "worker_revision_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Athread-send%3A45d10fad-69d8-45fd-a742-4bedfff9205d",
+  "native_validation": "Pending. No build or test was launched on the assignment proposal."
+}

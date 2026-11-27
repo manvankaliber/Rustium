@@ -32,17 +32,10 @@
 
 namespace {
 
-constexpr bool is_android = !!false;
-
-
 int Score(const AutocompleteInput& input,
           const query_parser::QueryNodeVector& input_query_nodes,
           const TabMatcher::TabWrapper& tab) {
 
-  if ((input.IsZeroSuggest() || input.text().empty()) && is_android) {
-    return omnibox::kOpenTabMatchZeroSuggestRelevance +
-           tab.last_shown_time.InSecondsFSinceUnixEpoch();
-  }
   // TODO(crbug.com/40211187): The bookmark provider also uses on `query_parser`
   //  and `ScoringFunctor` to compute its scores. However, it uses normalized
   //  match titles (see `Normalize()` in
@@ -97,9 +90,7 @@ int Score(const AutocompleteInput& input,
 bool ShouldRunProvider(AutocompleteProviderClient* client,
                        const AutocompleteInput& input) {
   bool zps_or_empty = input.IsZeroSuggest() || input.text().empty();
-  if (is_android) {
-    return !zps_or_empty || !client->IsPrimaryOTRProfileWithRegularParent();
-  } else {
+  {
     return !zps_or_empty;
   }
 }
@@ -208,7 +199,6 @@ AutocompleteMatch OpenTabProvider::CreateOpenTabMatch(
   if (input.in_keyword_mode()) {
     match.from_keyword = true;
   }
-
 
   return match;
 }

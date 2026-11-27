@@ -2,11 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include "net/ssl/ssl_client_session_cache.h"
 
-#include <tuple>
 #include <utility>
+#include <vector>
 
 #include "base/containers/flat_set.h"
 #include "base/memory_coordinator/memory_coordinator_features.h"
@@ -16,33 +15,61 @@
 #include "base/time/default_clock.h"
 #include "build/build_config.h"
 #include "net/base/features.h"
+#include "net/ssl/tls_session_cache_rust_abi.h"
 #include "third_party/boringssl/src/include/openssl/ssl.h"
 
 namespace net {
 
 namespace {
 
-// Returns a tuple of references to fields of |key|, for comparison purposes.
-auto TieKeyFields(const SSLClientSessionCache::Key& key) {
-  return std::tie(key.server, key.dest_ip_addr, key.network_anonymization_key,
-                  key.privacy_mode, key.session_usage, key.proxy_chain,
-                  key.proxy_chain_index);
+TlsSessionCacheRustServer ServerView(const HostPortPair& server) {
+  return {{reinterpret_cast<const uint8_t*>(server.host().data()),
+           server.host().size()},
+          server.port()};
+}
+
+// Storage views only: the tuple and every owned cache comparison run in Rust.
+TlsSessionCacheRustKey KeyView(const SSLClientSessionCache::Key& key,
+                               std::vector<TlsSessionCacheRustProxy>& proxies) {
+  if (key.proxy_chain.IsValid()) {
+    for (const auto& proxy : key.proxy_chain.proxy_servers()) {
+      proxies.push_back({ServerView(proxy.host_port_pair()), proxy.scheme()});
+    }
+  }
+  return {ServerView(key.server),
+          {key.dest_ip_addr ? key.dest_ip_addr->bytes().data() : nullptr,
+           key.dest_ip_addr ? key.dest_ip_addr->size() : 0},
+          &key.network_anonymization_key,
+          proxies.data(),
+          proxies.size(),
+          key.proxy_chain_index,
+          key.privacy_mode,
+          static_cast<int32_t>(key.session_usage),
+          key.proxy_chain.opaque_data().value_or(0),
+          key.dest_ip_addr.has_value(),
+          key.proxy_chain.IsValid(),
+          key.proxy_chain.opaque_data().has_value()};
+}
+
+int CompareKeys(const SSLClientSessionCache::Key& a,
+                const SSLClientSessionCache::Key& b) {
+  std::vector<TlsSessionCacheRustProxy> ap, bp;
+  auto av = KeyView(a, ap);
+  auto bv = KeyView(b, bp);
+  return tls_session_cache_rust_compare(&av, &bv);
 }
 
 constexpr base::MemoryConsumerTraits kSSLClientSessionCacheTraits(
     // Bounded capacity of sessions; way under 10MB.
     base::MemoryConsumerTraits::EstimatedMemoryUsage::kSmall,
-    // Iterates base::LRUCache, reading the BoringSSL sessions being freed.
+    // Rust traverses cache entries and releases native BoringSSL sessions.
     base::MemoryConsumerTraits::ReleaseMemoryDataAccess::kReads,
     // Full handshake can be done if not cached.
     base::MemoryConsumerTraits::InformationRetention::kLossless,
     // Cache trimming runs synchronously on the calling thread.
     base::MemoryConsumerTraits::ExecutionType::kSynchronous);
 
-// The SuppressMemoryListeners experiment showed that reacting to memory
-// pressure is not beneficial on Mac and Windows.
-constexpr bool kRegisterMemoryConsumer =
-    !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN);
+// Registration ownership remains native; Rust decides platform suppression.
 
 }  // namespace
 
@@ -56,218 +83,146 @@ SSLClientSessionCache::Key& SSLClientSessionCache::Key::operator=(Key&& other) =
     default;
 
 bool SSLClientSessionCache::Key::operator==(const Key& other) const {
-  return TieKeyFields(*this) == TieKeyFields(other);
+  return CompareKeys(*this, other) == 0;
 }
-
 bool SSLClientSessionCache::Key::operator<(const Key& other) const {
-  return TieKeyFields(*this) < TieKeyFields(other);
+  return CompareKeys(*this, other) < 0;
 }
 
 SSLClientSessionCache::SSLClientSessionCache(const Config& config)
     : clock_(base::DefaultClock::GetInstance()),
-      config_(config),
-      cache_(config.max_entries) {
-  if (kRegisterMemoryConsumer) {
+      state_(tls_session_cache_rust_new(config.max_entries,
+                                        config.expiration_check_count)) {
+  if (tls_session_cache_rust_register_memory_consumer(BUILDFLAG(IS_MAC),
+                                                      BUILDFLAG(IS_WIN))) {
     memory_consumer_registration_.emplace(
         "SSLClientSessionCache", kSSLClientSessionCacheTraits, this,
         base::AsyncMemoryConsumerRegistration::CheckUnregister::kDisabled);
   }
 }
-
 SSLClientSessionCache::~SSLClientSessionCache() {
-  Flush();
+  // Cancel queued observer callbacks before sessions can invoke ex-data frees.
+  memory_consumer_registration_.reset();
+  state_.reset();
 }
-
+void SSLClientSessionCache::StateDeleter::operator()(
+    TlsSessionCacheRustState* state) const {
+  tls_session_cache_rust_delete(state);
+}
 size_t SSLClientSessionCache::size() const {
-  return cache_.size();
+  return tls_session_cache_rust_stat(state_.get(), 0);
 }
-
 size_t SSLClientSessionCache::max_size() const {
-  return cache_.max_size();
+  return tls_session_cache_rust_stat(state_.get(), 1);
 }
-
+uint64_t SSLClientSessionCache::generation_number() const {
+  return tls_session_cache_rust_stat(state_.get(), 2);
+}
 bssl::UniquePtr<SSL_SESSION> SSLClientSessionCache::Lookup(
     const Key& cache_key) {
-  // Expire stale sessions.
-  lookups_since_flush_++;
-  if (lookups_since_flush_ >= config_.expiration_check_count) {
-    lookups_since_flush_ = 0;
-    FlushExpiredSessions();
-  }
-
-  auto iter = cache_.Get(cache_key);
-  if (iter == cache_.end())
-    return nullptr;
-
-  time_t now = clock_->Now().ToTimeT();
-  bssl::UniquePtr<SSL_SESSION> session = iter->second.Pop();
-  if (iter->second.ExpireSessions(now))
-    cache_.Erase(iter);
-
-  if (IsExpired(session.get(), now))
-    session = nullptr;
-
-  return session;
+  std::vector<TlsSessionCacheRustProxy> proxies;
+  auto key = KeyView(cache_key, proxies);
+  return bssl::UniquePtr<SSL_SESSION>(
+      reinterpret_cast<SSL_SESSION*>(tls_session_cache_rust_run(
+          state_.get(), 0, &key, 0, 0, clock_, nullptr, nullptr, 0)));
 }
-
 void SSLClientSessionCache::Insert(uint64_t generation_number,
                                    const Key& cache_key,
                                    bssl::UniquePtr<SSL_SESSION> session) {
-  if (generation_number != generation_number_) {
-    return;
-  }
-  auto iter = cache_.Get(cache_key);
-  if (iter == cache_.end()) {
-    iter = cache_.Put(cache_key, Entry());
-  }
-
-  // Insertion can fail if the max size was zero due to memory pressure.
-  if (iter == cache_.end()) {
-    CHECK_EQ(cache_.max_size(), 0U);
-    return;
-  }
-  iter->second.Push(std::move(session));
+  std::vector<TlsSessionCacheRustProxy> proxies;
+  auto key = KeyView(cache_key, proxies);
+  tls_session_cache_rust_run(state_.get(), 1, &key,
+                             reinterpret_cast<uintptr_t>(session.release()),
+                             generation_number, clock_, nullptr, nullptr, 0);
 }
-
 void SSLClientSessionCache::ClearEarlyData(const Key& cache_key) {
-  auto iter = cache_.Get(cache_key);
-  if (iter != cache_.end()) {
-    for (auto& session : iter->second.sessions) {
-      if (session) {
-        session.reset(SSL_SESSION_copy_without_early_data(session.get()));
-      }
-    }
-  }
+  std::vector<TlsSessionCacheRustProxy> proxies;
+  auto key = KeyView(cache_key, proxies);
+  tls_session_cache_rust_run(state_.get(), 2, &key, 0, 0, clock_, nullptr,
+                             nullptr, 0);
 }
-
 void SSLClientSessionCache::FlushForServers(
     const base::flat_set<HostPortPair>& servers) {
-  // The generation number is incremented here, which affects all hosts, even
-  // though this flush only applies to those matching `servers`. Only the
-  // sessions related to `servers` are cleared, so any other already cached
-  // sessions will remain valid despite the generation number changing. It
-  // could prevent sessions unrelated to `servers` that are in-flight at the
-  // time of this flush from being cached. That is not optimal but is a
-  // trade-off for implementation simplicity.
-  ++generation_number_;
-
-  auto iter = cache_.begin();
-  while (iter != cache_.end()) {
-    if (servers.contains(iter->first.server)) {
-      iter = cache_.Erase(iter);
-    } else {
-      ++iter;
-    }
+  std::vector<TlsSessionCacheRustServer> views;
+  for (const auto& server : servers) {
+    views.push_back(ServerView(server));
   }
+  tls_session_cache_rust_run(state_.get(), 3, nullptr, 0, 0, clock_, nullptr,
+                             views.data(), views.size());
 }
-
 void SSLClientSessionCache::Flush() {
-  ++generation_number_;
-  cache_.Clear();
+  tls_session_cache_rust_run(state_.get(), 4, nullptr, 0, 0, clock_, nullptr,
+                             nullptr, 0);
 }
-
 void SSLClientSessionCache::SetClockForTesting(base::Clock* clock) {
   clock_ = clock;
 }
-
 bool SSLClientSessionCache::IsExpired(SSL_SESSION* session, time_t now) {
-  if (now < 0)
-    return true;
-  uint64_t now_u64 = static_cast<uint64_t>(now);
-
-  // now_u64 may be slightly behind because of differences in how
-  // time is calculated at this layer versus BoringSSL.
-  // Add a second of wiggle room to account for this.
-  return now_u64 < SSL_SESSION_get_time(session) - 1 ||
-         now_u64 >=
-             SSL_SESSION_get_time(session) + SSL_SESSION_get_timeout(session);
+  return tls_session_cache_rust_expired(reinterpret_cast<uintptr_t>(session),
+                                        now);
+}
+void SSLClientSessionCache::OnUpdateMemoryLimit() {
+  const TlsSessionCacheRustMemory memory{memory_limit().percent()};
+  tls_session_cache_rust_run(state_.get(), 5, nullptr, 0, 0, clock_, &memory,
+                             nullptr, 0);
+}
+void SSLClientSessionCache::OnReleaseMemory() {
+  const TlsSessionCacheRustMemory memory{memory_limit().percent()};
+  tls_session_cache_rust_run(state_.get(), 6, nullptr, 0, 0, clock_, &memory,
+                             nullptr, 0);
 }
 
-SSLClientSessionCache::Entry::Entry() = default;
-SSLClientSessionCache::Entry::Entry(Entry&&) = default;
-SSLClientSessionCache::Entry::~Entry() = default;
-
-void SSLClientSessionCache::Entry::Push(bssl::UniquePtr<SSL_SESSION> session) {
-  if (sessions[0] != nullptr &&
-      SSL_SESSION_should_be_single_use(sessions[0].get())) {
-    sessions[1] = std::move(sessions[0]);
-  }
-  sessions[0] = std::move(session);
+extern "C" NET_EXPORT const base::Feature*
+tls_session_cache_rust_ignore_feature() {
+  return &features::kIgnoreMemoryPressureForSslClientSessionCache;
 }
 
-bssl::UniquePtr<SSL_SESSION> SSLClientSessionCache::Entry::Pop() {
-  if (sessions[0] == nullptr)
-    return nullptr;
-  bssl::UniquePtr<SSL_SESSION> session = bssl::UpRef(sessions[0]);
-  if (SSL_SESSION_should_be_single_use(session.get())) {
-    sessions[0] = std::move(sessions[1]);
-    sessions[1] = nullptr;
-  }
+// Explicit immutable value and BoringSSL ownership/crypto services. None of
+// the query/up-ref/copy services runs user callbacks or modifies cache policy.
+extern "C" bool tls_session_cache_rust_feature(uint32_t which) {
+  return base::FeatureList::IsEnabled(
+      which == 0 ? base::kStatefulMemoryPressure
+                 : features::kIgnoreMemoryPressureForSslClientSessionCache);
+}
+extern "C" uintptr_t tls_session_cache_rust_nak_clone(const void* nak) {
+  return reinterpret_cast<uintptr_t>(new NetworkAnonymizationKey(
+      *static_cast<const NetworkAnonymizationKey*>(nak)));
+}
+extern "C" void tls_session_cache_rust_nak_drop(uintptr_t nak) {
+  delete reinterpret_cast<NetworkAnonymizationKey*>(nak);
+}
+extern "C" int32_t tls_session_cache_rust_nak_compare(uintptr_t a,
+                                                      uintptr_t b) {
+  const auto order = *reinterpret_cast<const NetworkAnonymizationKey*>(a) <=>
+                     *reinterpret_cast<const NetworkAnonymizationKey*>(b);
+  return order < 0 ? -1 : order > 0 ? 1 : 0;
+}
+extern "C" int64_t tls_session_cache_rust_now(const void* clock) {
+  return static_cast<const base::Clock*>(clock)->Now().ToTimeT();
+}
+extern "C" uint64_t tls_session_cache_rust_time(uintptr_t session) {
+  return SSL_SESSION_get_time(reinterpret_cast<SSL_SESSION*>(session));
+}
+extern "C" uint64_t tls_session_cache_rust_timeout(uintptr_t session) {
+  return SSL_SESSION_get_timeout(reinterpret_cast<SSL_SESSION*>(session));
+}
+extern "C" bool tls_session_cache_rust_single(uintptr_t session) {
+  return SSL_SESSION_should_be_single_use(
+      reinterpret_cast<SSL_SESSION*>(session));
+}
+extern "C" uintptr_t tls_session_cache_rust_up_ref(uintptr_t session) {
+  SSL_SESSION_up_ref(reinterpret_cast<SSL_SESSION*>(session));
   return session;
 }
-
-bool SSLClientSessionCache::Entry::ExpireSessions(time_t now) {
-  if (sessions[0] == nullptr)
-    return true;
-
-  if (SSLClientSessionCache::IsExpired(sessions[0].get(), now)) {
-    return true;
-  }
-
-  if (sessions[1] != nullptr &&
-      SSLClientSessionCache::IsExpired(sessions[1].get(), now)) {
-    sessions[1] = nullptr;
-  }
-
-  return false;
+extern "C" uintptr_t tls_session_cache_rust_copy(uintptr_t session) {
+  return reinterpret_cast<uintptr_t>(SSL_SESSION_copy_without_early_data(
+      reinterpret_cast<SSL_SESSION*>(session)));
+}
+extern "C" void tls_session_cache_rust_free(uintptr_t session) {
+  SSL_SESSION_free(reinterpret_cast<SSL_SESSION*>(session));
 }
 
-void SSLClientSessionCache::FlushExpiredSessions() {
-  time_t now = clock_->Now().ToTimeT();
-  auto iter = cache_.begin();
-  while (iter != cache_.end()) {
-    if (iter->second.ExpireSessions(now)) {
-      iter = cache_.Erase(iter);
-    } else {
-      ++iter;
-    }
-  }
+bool TlsSessionCacheRegisterMemoryConsumerForTesting(bool is_mac, bool is_win) {
+  return tls_session_cache_rust_register_memory_consumer(is_mac, is_win);
 }
-
-void SSLClientSessionCache::OnUpdateMemoryLimit() {
-  if (!base::FeatureList::IsEnabled(base::kStatefulMemoryPressure)) {
-    return;
-  }
-
-  size_t target_size = memory_limit().Scale(config_.max_entries);
-
-  // IMPORTANT: Ensure no memory is released during this call.
-  // By using std::max, we ensure the new limit is at least the current size,
-  // preventing growth without triggering immediate eviction.
-  cache_.UpdateMaxSize(std::max(cache_.size(), target_size));
-}
-
-void SSLClientSessionCache::OnReleaseMemory() {
-  if (base::FeatureList::IsEnabled(
-          features::kIgnoreMemoryPressureForSslClientSessionCache)) {
-    // We don't want to clear the SSL session cache because the entries in it
-    // are highly likely to be used again soon, and it causes more
-    // fragmentation and increases user latency to clear it, then spend
-    // additional roundtrips replacing all of the entries.
-    return;
-  }
-  if (base::FeatureList::IsEnabled(base::kStatefulMemoryPressure)) {
-    // Now we actually evict entries to reach the target size.
-    cache_.UpdateMaxSize(memory_limit().Scale(config_.max_entries));
-    return;
-  }
-
-  // Preserve the traditional "one-shot" logic for legacy memory pressure.
-  if (memory_limit() <= base::kCriticalMemoryPressureThreshold) {
-    Flush();
-  } else if (memory_limit() <= base::kModerateMemoryPressureThreshold) {
-    FlushExpiredSessions();
-  }
-}
-
 }  // namespace net

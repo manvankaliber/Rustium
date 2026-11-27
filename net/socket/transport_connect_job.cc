@@ -2,7 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_span.h"
 #include "net/socket/transport_connect_job.h"
+#include "net/socket/transport_connect_job_rust_ffi.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
+#include "net/socket/connect_job_rust_native.h"
+#include "net/socket/tcp_connect_fallback_rust_native.h"
 
 #include <memory>
 #include <set>
@@ -56,6 +61,195 @@ HostPortPair ToLegacyDestinationEndpoint(
 
 }  // namespace
 
+
+// Invocation-local observer. Invalidated at the most-derived destructor entry.
+// No typed native pointer crosses the Rust ABI or survives a service call.
+struct transport_connect_jobRustBridge : connection_jobs_upper_rust::Invocation {
+
+  static_assert(TransportConnectJob::STATE_RESOLVE_HOST==0);
+  static_assert(TransportConnectJob::STATE_RESOLVE_HOST_COMPLETE==1);
+  static_assert(TransportConnectJob::STATE_RESOLVE_HOST_CALLBACK_COMPLETE==2);
+  static_assert(TransportConnectJob::STATE_TRANSPORT_CONNECT==3);
+  static_assert(TransportConnectJob::STATE_TRANSPORT_CONNECT_COMPLETE==4);
+  static_assert(TransportConnectJob::STATE_NONE==5);
+  static_assert(TransportConnectJob::SUB_JOB_IPV4==0 && TransportConnectJob::SUB_JOB_IPV6==1);
+  static_assert(ADDRESS_FAMILY_IPV4==1 && ADDRESS_FAMILY_IPV6==2);
+  static_assert(LOAD_STATE_IDLE==0 && LOAD_STATE_RESOLVING_HOST==10 && LOAD_STATE_CONNECTING==11);
+
+  using Op = transport_connect_job_rust::Operation;
+  using Action = transport_connect_job_rust::Action;
+  raw_ptr<const TransportConnectJob> owner;
+  raw_ptr<TransportConnectJob> mutable_owner = nullptr;
+
+  raw_ptr<std::optional<TransportConnectJob::EndpointResultOverride>> override_input = nullptr;
+  raw_ptr<const HostResolverEndpointResult> endpoint = nullptr;
+  raw_ptr<TransportConnectSubJob> subjob = nullptr;
+  base::raw_span<const HostResolverEndpointResult> results;
+  size_t result_index = 0;
+  std::set<IPEndPoint> seen;
+  std::vector<IPEndPoint> filtered, v4, v6;
+  std::optional<ConnectJobRustBridge> base;
+  std::unique_ptr<StreamSocket> socket_payload;
+  std::optional<base::flat_set<std::string>> aliases_payload;
+  base::TimeDelta delay;
+  TcpFallbackRustBridge fallback;
+
+  explicit transport_connect_jobRustBridge(TransportConnectJob* value) : Invocation(static_cast<const ConnectJob*>(value)), owner(value), mutable_owner(value) {
+    Register(&Clear); base.emplace(value);
+  }
+  explicit transport_connect_jobRustBridge(const TransportConnectJob* value) : Invocation(static_cast<const ConnectJob*>(value)), owner(value) {
+    Register(&Clear); base.emplace(value);
+  }
+  ~transport_connect_jobRustBridge() { base.reset(); Unregister(); }
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<transport_connect_jobRustBridge*>(value);
+    c.owner = nullptr; c.mutable_owner = nullptr;
+    c.endpoint = nullptr; c.subjob = nullptr; c.results = {}; c.override_input = nullptr;
+  }
+  int64_t Run(Op operation, int64_t argument = 0) {
+    return connection_jobs_rust_run(1, static_cast<uint32_t>(operation),
+                                    argument, this, &Service);
+  }
+  static bool Service(void* context, uint32_t module, uint32_t action,
+                      int64_t argument, int64_t* output) {
+    auto& c = *static_cast<transport_connect_jobRustBridge*>(context);
+    *output = 0;
+    if (!c.owner) return false;
+    if (action == UINT32_MAX) return true;
+    if (module == 0) {
+      CHECK(c.base);
+      return ConnectJobRustBridge::Service(&*c.base, action, argument, output);
+    }
+    const auto& j = *c.owner;
+    // Direct safe Rust fallback helpers project only native providers here.
+    if (module == 2 && action >= 1000 && action <= 1018) {
+      c.fallback.common = j.common_connect_job_params();
+      c.fallback.params = j.params_.get();
+      return TcpFallbackRustBridge::Service(&c.fallback, module, action, argument, output);
+    }
+    CHECK_EQ(module, 1u);
+    // Mutable access is requested only in action arms that require it. Const
+    // wrappers never obtain a mutable receiver and never commit a snapshot.
+    auto Mutable = [&]() -> TransportConnectJob& { CHECK(c.mutable_owner); return *c.mutable_owner; };
+    switch (static_cast<Action>(action)) {
+      case Action::State: { *output = j.next_state_; break; }
+      case Action::SetState: { Mutable().next_state_ = static_cast<TransportConnectJob::State>(argument); break; }
+      case Action::CheckLoop: { DCHECK_NE(j.next_state_, TransportConnectJob::STATE_NONE); break; }
+      case Action::CheckOk: { DCHECK_EQ(OK, argument); break; }
+      case Action::CheckNotPending: { DCHECK_NE(argument, ERR_IO_PENDING); break; }
+      case Action::NotReached: { NOTREACHED(); }
+      case Action::DnsStart: { auto now = base::TimeTicks::Now(); if (c.owner) Mutable().connect_timing_.domain_lookup_start = now; break; }
+      case Action::HasOverride: { *output = j.has_dns_override_; break; }
+      case Action::OverrideEnd: { DCHECK_EQ(j.endpoint_results_.size(), 1u); Mutable().connect_timing_.domain_lookup_end = j.connect_timing_.domain_lookup_start; break; }
+      case Action::SchemeDestination: { *output = std::holds_alternative<url::SchemeHostPort>(j.params_->destination()); break; }
+      case Action::MakeSchemeRequest: { HostResolver::ResolveHostParameters p;
+ p.initial_priority = j.priority(); p.secure_dns_policy = j.params_->secure_dns_policy();
+ auto request = j.common_connect_job_params()->host_resolver->CreateRequest(
+ std::get<url::SchemeHostPort>(j.params_->destination()),
+ j.params_->network_anonymization_key(), j.params_->target_network(), j.net_log(), p);
+ if (c.owner) Mutable().request_ = std::move(request); break; }
+      case Action::MakePairRequest: { HostResolver::ResolveHostParameters p;
+ p.initial_priority = j.priority(); p.secure_dns_policy = j.params_->secure_dns_policy();
+ auto request = j.common_connect_job_params()->host_resolver->CreateRequest(
+ std::get<HostPortPair>(j.params_->destination()),
+ j.params_->network_anonymization_key(), j.params_->target_network(), j.net_log(), p);
+ if (c.owner) Mutable().request_ = std::move(request); break; }
+      case Action::StartRequest: { *output = Mutable().request_->Start(base::BindOnce(&TransportConnectJob::OnIOComplete, base::Unretained(c.mutable_owner.get()))); break; }
+      case Action::ResolveTrace: { TRACE_EVENT0(NetTracingCategory(), "TransportConnectJob::DoResolveHostComplete");
+ *output = connection_jobs_rust_run(1, static_cast<uint32_t>(Op::ResolveComplete), argument, &c, &Service); break; }
+      case Action::DnsEnd: { auto now = base::TimeTicks::Now(); if (c.owner) { Mutable().connect_timing_.domain_lookup_end = now; Mutable().connect_timing_.connect_start = now; } break; }
+      case Action::StoreResolveError: { auto info = j.request_->GetResolveErrorInfo(); if(c.owner) Mutable().resolve_error_info_ = info; break; }
+      case Action::FailedDnsAttempt: { Mutable().connection_attempts_.emplace_back(IPEndPoint(), static_cast<int>(argument)); break; }
+      case Action::HasCallback: { *output = !j.params_->host_resolution_callback().is_null(); break; }
+      case Action::HostCallback: { *output = j.params_->host_resolution_callback().Run(
+ ToLegacyDestinationEndpoint(j.params_->destination()),
+ j.request_->GetEndpointResults(), j.request_->GetDnsAliasResults()) ==
+ OnHostResolutionCallbackResult::kMayBeDeletedAsync; break; }
+      case Action::PostResolution: { base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+ FROM_HERE, base::BindOnce(&TransportConnectJob::OnIOComplete,
+ Mutable().weak_ptr_factory_.GetWeakPtr(), OK)); break; }
+      case Action::SetResultsInput: { c.results = j.request_->GetEndpointResults(); break; }
+      case Action::ResultsCount: { *output = c.results.size(); break; }
+      case Action::SelectResult: { c.result_index = static_cast<size_t>(argument); c.endpoint = &c.results[c.result_index]; break; }
+      case Action::ResultIpCount: { *output = c.endpoint->ip_endpoints.size(); break; }
+      case Action::InsertSeenIp: { *output = c.seen.insert(c.endpoint->ip_endpoints[static_cast<size_t>(argument)]).second; break; }
+      case Action::AddFilteredIp: { c.filtered.push_back(c.endpoint->ip_endpoints[static_cast<size_t>(argument)]); break; }
+      case Action::BeginFiltered: { c.filtered.clear(); break; }
+      case Action::AppendFiltered: { HostResolverEndpointResult out;
+ out.ip_endpoints = std::move(c.filtered); out.metadata = c.endpoint->metadata;
+ Mutable().endpoint_results_.push_back(std::move(out)); break; }
+      case Action::CopyAliases: { Mutable().dns_aliases_ = j.request_->GetDnsAliasResults(); break; }
+      case Action::CopyResolution: { Mutable().resolution_details_ = j.request_->GetResolutionDetails(); break; }
+      case Action::ResetRequest: { c.endpoint = nullptr; c.results = {}; Mutable().request_.reset(); break; }
+      case Action::EndpointCount: { *output = j.endpoint_results_.size(); break; }
+      case Action::SelectCurrentEndpoint: { CHECK_LT(j.current_endpoint_result_, j.endpoint_results_.size());
+ c.endpoint = &j.endpoint_results_[j.current_endpoint_result_]; break; }
+      case Action::IpFamily: { *output = c.endpoint->ip_endpoints[static_cast<size_t>(argument)].GetFamily(); break; }
+      case Action::AppendV4: { c.v4.push_back(c.endpoint->ip_endpoints[static_cast<size_t>(argument)]); break; }
+      case Action::AppendV6: { c.v6.push_back(c.endpoint->ip_endpoints[static_cast<size_t>(argument)]); break; }
+      case Action::UnexpectedFamily: { DVLOG(1) << "Unexpected ADDRESS_FAMILY: " << argument; break; }
+      case Action::V4Count: { *output = c.v4.size(); break; }
+      case Action::V6Count: { *output = c.v6.size(); break; }
+      case Action::MakeV4: { Mutable().ipv4_job_ = std::make_unique<TransportConnectSubJob>(std::move(c.v4), c.mutable_owner.get(), TransportConnectJob::SUB_JOB_IPV4); break; }
+      case Action::MakeV6: { Mutable().ipv6_job_ = std::make_unique<TransportConnectSubJob>(std::move(c.v6), c.mutable_owner.get(), TransportConnectJob::SUB_JOB_IPV6); break; }
+      case Action::HasV4: { *output = !!j.ipv4_job_; break; }
+      case Action::HasV6: { *output = !!j.ipv6_job_; break; }
+      case Action::V4Started: { *output = j.ipv4_job_->started(); break; }
+      case Action::V6Started: { *output = j.ipv6_job_->started(); break; }
+      case Action::V4Load: { *output = j.ipv4_job_->GetLoadState(); break; }
+      case Action::V6Load: { *output = j.ipv6_job_->GetLoadState(); break; }
+      case Action::SelectV4: { c.subjob = j.ipv4_job_.get(); break; }
+      case Action::SelectV6: { c.subjob = j.ipv6_job_.get(); break; }
+      case Action::StartSelected: { *output = c.subjob->Start(); break; }
+      case Action::SubType: { *output = c.subjob->type(); break; }
+      case Action::AdoptSocket: { c.socket_payload = c.subjob->PassSocket();
+ if (!c.owner) return false;
+ c.aliases_payload = j.dns_aliases_;
+ c.base->socket_input = &c.socket_payload; c.base->aliases = &c.aliases_payload; break; }
+      case Action::ResetV4: { c.subjob = nullptr; Mutable().ipv4_job_.reset(); break; }
+      case Action::ResetV6: { c.subjob = nullptr; Mutable().ipv6_job_.reset(); break; }
+      case Action::StopFallback: { Mutable().fallback_timer_.Stop(); break; }
+      case Action::FallbackTime: { c.delay = c.fallback.delay; break; }
+      case Action::StartFallback: { Mutable().fallback_timer_.Start(FROM_HERE, c.delay,
+ base::BindOnce(&TransportConnectJob::StartIPv4JobAsync, base::Unretained(c.mutable_owner.get()))); break; }
+      case Action::Latency: { DCHECK(!j.connect_timing_.connect_start.is_null());
+ DCHECK(!j.connect_timing_.domain_lookup_start.is_null()); DCHECK(j.socket_);
+ const auto now = base::TimeTicks::Now(); if (!c.owner) return false;
+ UMA_HISTOGRAM_CUSTOM_TIMES("Net.DNS_Resolution_And_TCP_Connection_Latency2",
+ now - j.connect_timing_.domain_lookup_start, base::Milliseconds(1), base::Minutes(10), 100);
+ if (!c.owner) return false;
+ UMA_HISTOGRAM_CUSTOM_TIMES("Net.TCP_Connection_Latency",
+ now - j.connect_timing_.connect_start, base::Milliseconds(1), base::Minutes(10), 100); break; }
+      case Action::NextEndpoint: { ++Mutable().current_endpoint_result_; *output = j.current_endpoint_result_; break; }
+      case Action::Notify: { NOTREACHED(); }
+      case Action::FallbackEvent: { j.net_log().AddEvent(NetLogEventType::TRANSPORT_CONNECT_JOB_IPV6_FALLBACK); break; }
+      case Action::CheckV4: { DCHECK(j.ipv4_job_); break; }
+      case Action::CheckNoV6: { DCHECK(!j.ipv6_job_); break; }
+      case Action::Priority: { DCHECK(j.request_); Mutable().request_->ChangeRequestPriority(static_cast<RequestPriority>(argument)); break; }
+      case Action::Https: { const auto* p = std::get_if<url::SchemeHostPort>(&j.params_->destination());
+ *output = p && p->scheme() == url::kHttpsScheme; break; }
+      case Action::EchEnabled: { const auto* p = std::get_if<url::SchemeHostPort>(&j.params_->destination());
+ auto* ssl = j.common_connect_job_params()->ssl_client_context.get();
+ *output = ssl->IsEchEnabled(p->host()); break; }
+      case Action::ResultAlternative: { *output = !c.endpoint->metadata.supported_protocol_alpns.empty(); break; }
+      case Action::ResultEch: { *output = !c.endpoint->metadata.ech_config_list.empty(); break; }
+      case Action::AlpnCount: { *output = c.endpoint->metadata.supported_protocol_alpns.size(); break; }
+      case Action::AlpnSupported: { *output = j.params_->supported_alpns().contains(c.endpoint->metadata.supported_protocol_alpns[static_cast<size_t>(argument)]); break; }
+      case Action::HasInitOverride: { *output = c.override_input && c.override_input->has_value(); break; }
+      case Action::MoveInitOverride: { Mutable().has_dns_override_ = true;
+ Mutable().endpoint_results_ = {std::move(c.override_input->value().result)};
+ Mutable().dns_aliases_ = std::move(c.override_input->value().dns_aliases);
+ c.results = j.endpoint_results_; c.endpoint = &c.results.front(); break; }
+      case Action::CheckOverrideIps: { DCHECK(!c.endpoint->ip_endpoints.empty()); break; }
+      case Action::CheckUsable: { DCHECK(argument); break; }
+      case Action::CheckLegacy: { DCHECK(!base::FeatureList::IsEnabled(features::kHappyEyeballsV2)); break; }
+
+      case Action::HasSsl: { *output = j.common_connect_job_params()->ssl_client_context != nullptr; break; }
+      default: NOTREACHED();
+    }
+    return c.owner != nullptr;
+  }
+};
 TransportSocketParams::TransportSocketParams(
     Endpoint destination,
     NetworkAnonymizationKey network_anonymization_key,
@@ -115,7 +309,8 @@ std::unique_ptr<ConnectJob> TransportConnectJob::Factory::CreateJob(
     const scoped_refptr<TransportSocketParams>& params,
     Delegate* delegate,
     const NetLogWithSource* net_log) {
-  if (base::FeatureList::IsEnabled(features::kHappyEyeballsV2)) {
+  if (connection_jobs_rust_run(1, static_cast<uint32_t>(transport_connect_job_rust::Operation::Factory),
+      base::FeatureList::IsEnabled(features::kHappyEyeballsV2), nullptr, nullptr)) {
     return std::make_unique<TcpConnectJob>(
         priority, socket_tag, common_connect_job_params, params, delegate,
         net_log, /*endpoint_result_override=*/std::nullopt,
@@ -154,45 +349,19 @@ TransportConnectJob::TransportConnectJob(
                  NetLogSourceType::TRANSPORT_CONNECT_JOB,
                  NetLogEventType::TRANSPORT_CONNECT_JOB_CONNECT),
       params_(params) {
-  DCHECK(!base::FeatureList::IsEnabled(features::kHappyEyeballsV2));
-  if (endpoint_result_override) {
-    has_dns_override_ = true;
-    endpoint_results_ = {std::move(endpoint_result_override->result)};
-    dns_aliases_ = std::move(endpoint_result_override->dns_aliases);
-    DCHECK(!endpoint_results_.front().ip_endpoints.empty());
-    DCHECK(IsEndpointResultUsable(endpoint_results_.front(),
-                                  IsSvcbOptional(endpoint_results_)));
-  }
+  transport_connect_jobRustBridge c(this);
+  c.override_input = &endpoint_result_override;
+  c.Run(transport_connect_jobRustBridge::Op::Init);
 }
 
 // We don't worry about cancelling the host resolution and TCP connect, since
 // ~HostResolver::Request and ~TransportConnectSubJob will take care of it.
-TransportConnectJob::~TransportConnectJob() = default;
+TransportConnectJob::~TransportConnectJob() {
+  transport_connect_jobRustBridge::Invalidate(static_cast<const ConnectJob*>(this));
+}
 
 LoadState TransportConnectJob::GetLoadState() const {
-  switch (next_state_) {
-    case STATE_RESOLVE_HOST:
-    case STATE_RESOLVE_HOST_COMPLETE:
-    case STATE_RESOLVE_HOST_CALLBACK_COMPLETE:
-      return LOAD_STATE_RESOLVING_HOST;
-    case STATE_TRANSPORT_CONNECT:
-    case STATE_TRANSPORT_CONNECT_COMPLETE: {
-      LoadState load_state = LOAD_STATE_IDLE;
-      if (ipv6_job_ && ipv6_job_->started()) {
-        load_state = ipv6_job_->GetLoadState();
-      }
-      // This method should return LOAD_STATE_CONNECTING in preference to
-      // LOAD_STATE_WAITING_FOR_AVAILABLE_SOCKET when possible because "waiting
-      // for available socket" implies that nothing is happening.
-      if (ipv4_job_ && ipv4_job_->started() &&
-          load_state != LOAD_STATE_CONNECTING) {
-        load_state = ipv4_job_->GetLoadState();
-      }
-      return load_state;
-    }
-    case STATE_NONE:
-      return LOAD_STATE_IDLE;
-  }
+transport_connect_jobRustBridge c(this); return static_cast<LoadState>(c.Run(transport_connect_jobRustBridge::Op::LoadState));
 }
 
 bool TransportConnectJob::HasEstablishedConnection() const {
@@ -221,365 +390,68 @@ std::optional<ResolutionDetails> TransportConnectJob::GetResolutionDetails()
 }
 
 base::TimeDelta TransportConnectJob::ConnectionTimeout() {
-  // TODO(eroman): The use of this constant needs to be re-evaluated. The time
-  // needed for TCPClientSocketXXX::Connect() can be arbitrarily long, since
-  // the address list may contain many alternatives, and most of those may
-  // timeout. Even worse, the per-connect timeout threshold varies greatly
-  // between systems (anywhere from 20 seconds to 190 seconds).
-  // See comment #12 at http://crbug.com/23364 for specifics.
-  return base::Minutes(4);
+return base::Microseconds(connection_jobs_rust_run(1, static_cast<uint32_t>(transport_connect_job_rust::Operation::Timeout), 0, nullptr, nullptr));
 }
 
 void TransportConnectJob::OnIOComplete(int result) {
-  result = DoLoop(result);
-  if (result != ERR_IO_PENDING)
-    NotifyDelegateOfCompletion(result);  // Deletes |this|
+transport_connect_jobRustBridge c(this); c.Run(transport_connect_jobRustBridge::Op::OnIO, result);
 }
 
 int TransportConnectJob::DoLoop(int result) {
-  DCHECK_NE(next_state_, STATE_NONE);
-
-  int rv = result;
-  do {
-    State state = next_state_;
-    next_state_ = STATE_NONE;
-    switch (state) {
-      case STATE_RESOLVE_HOST:
-        DCHECK_EQ(OK, rv);
-        rv = DoResolveHost();
-        break;
-      case STATE_RESOLVE_HOST_COMPLETE:
-        rv = DoResolveHostComplete(rv);
-        break;
-      case STATE_RESOLVE_HOST_CALLBACK_COMPLETE:
-        DCHECK_EQ(OK, rv);
-        rv = DoResolveHostCallbackComplete();
-        break;
-      case STATE_TRANSPORT_CONNECT:
-        DCHECK_EQ(OK, rv);
-        rv = DoTransportConnect();
-        break;
-      case STATE_TRANSPORT_CONNECT_COMPLETE:
-        rv = DoTransportConnectComplete(rv);
-        break;
-      default:
-        NOTREACHED();
-    }
-  } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
-
-  return rv;
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::Loop, result);
 }
 
 int TransportConnectJob::DoResolveHost() {
-  connect_timing_.domain_lookup_start = base::TimeTicks::Now();
-
-  if (has_dns_override_) {
-    DCHECK_EQ(1u, endpoint_results_.size());
-    connect_timing_.domain_lookup_end = connect_timing_.domain_lookup_start;
-    next_state_ = STATE_TRANSPORT_CONNECT;
-    return OK;
-  }
-
-  next_state_ = STATE_RESOLVE_HOST_COMPLETE;
-
-  HostResolver::ResolveHostParameters parameters;
-  parameters.initial_priority = priority();
-  parameters.secure_dns_policy = params_->secure_dns_policy();
-  if (std::holds_alternative<url::SchemeHostPort>(params_->destination())) {
-    request_ = host_resolver()->CreateRequest(
-        std::get<url::SchemeHostPort>(params_->destination()),
-        params_->network_anonymization_key(), params_->target_network(),
-        net_log(), parameters);
-  } else {
-    request_ = host_resolver()->CreateRequest(
-        std::get<HostPortPair>(params_->destination()),
-        params_->network_anonymization_key(), params_->target_network(),
-        net_log(), parameters);
-  }
-
-  return request_->Start(base::BindOnce(&TransportConnectJob::OnIOComplete,
-                                        base::Unretained(this)));
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::Resolve);
 }
 
 int TransportConnectJob::DoResolveHostComplete(int result) {
-  TRACE_EVENT0(NetTracingCategory(),
-               "TransportConnectJob::DoResolveHostComplete");
-  connect_timing_.domain_lookup_end = base::TimeTicks::Now();
-  // Overwrite connection start time, since for connections that do not go
-  // through proxies, |connect_start| should not include dns lookup time.
-  connect_timing_.connect_start = connect_timing_.domain_lookup_end;
-  resolve_error_info_ = request_->GetResolveErrorInfo();
-
-  if (result != OK) {
-    // If hostname resolution failed, record an empty endpoint and the result.
-    connection_attempts_.emplace_back(IPEndPoint(), result);
-    return result;
-  }
-
-  // Invoke callback.  If it indicates |this| may be slated for deletion, then
-  // only continue after a PostTask.
-  next_state_ = STATE_RESOLVE_HOST_CALLBACK_COMPLETE;
-  if (!params_->host_resolution_callback().is_null()) {
-    OnHostResolutionCallbackResult callback_result =
-        params_->host_resolution_callback().Run(
-            ToLegacyDestinationEndpoint(params_->destination()),
-            request_->GetEndpointResults(), request_->GetDnsAliasResults());
-    if (callback_result == OnHostResolutionCallbackResult::kMayBeDeletedAsync) {
-      base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-          FROM_HERE, base::BindOnce(&TransportConnectJob::OnIOComplete,
-                                    weak_ptr_factory_.GetWeakPtr(), OK));
-      return ERR_IO_PENDING;
-    }
-  }
-
-  return result;
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::ResolveComplete, result);
 }
 
 int TransportConnectJob::DoResolveHostCallbackComplete() {
-  auto unfiltered_results = request_->GetEndpointResults();
-  bool svcb_optional = IsSvcbOptional(unfiltered_results);
-  std::set<IPEndPoint> ip_endpoints_seen;
-  for (const auto& result : unfiltered_results) {
-    if (!IsEndpointResultUsable(result, svcb_optional)) {
-      continue;
-    }
-    // The TCP connect itself does not depend on any metadata, so we can dedup
-    // by IP endpoint. In particular, the fallback A/AAAA route will often use
-    // the same IP endpoints as the HTTPS route. If they do not work for one
-    // route, there is no use in trying a second time.
-    std::vector<IPEndPoint> ip_endpoints;
-    for (const auto& ip_endpoint : result.ip_endpoints) {
-      auto [iter, inserted] = ip_endpoints_seen.insert(ip_endpoint);
-      if (inserted) {
-        ip_endpoints.push_back(ip_endpoint);
-      }
-    }
-    if (!ip_endpoints.empty()) {
-      HostResolverEndpointResult new_result;
-      new_result.ip_endpoints = std::move(ip_endpoints);
-      new_result.metadata = result.metadata;
-      endpoint_results_.push_back(std::move(new_result));
-    }
-  }
-  dns_aliases_ = request_->GetDnsAliasResults();
-  resolution_details_ = request_->GetResolutionDetails();
-
-  // No need to retain `request_` beyond this point.
-  request_.reset();
-
-  if (endpoint_results_.empty()) {
-    // In the general case, DNS may successfully return routes, but none are
-    // compatible with this `ConnectJob`. This should not happen for HTTPS
-    // because `HostResolver` will reject SVCB/HTTPS sets that do not cover the
-    // default "http/1.1" ALPN.
-    return ERR_NAME_NOT_RESOLVED;
-  }
-
-  next_state_ = STATE_TRANSPORT_CONNECT;
-  return OK;
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::Resolved);
 }
 
 int TransportConnectJob::DoTransportConnect() {
-  next_state_ = STATE_TRANSPORT_CONNECT_COMPLETE;
-
-  const HostResolverEndpointResult& endpoint =
-      GetEndpointResultForCurrentSubJobs();
-  std::vector<IPEndPoint> ipv4_addresses, ipv6_addresses;
-  for (const auto& ip_endpoint : endpoint.ip_endpoints) {
-    switch (ip_endpoint.GetFamily()) {
-      case ADDRESS_FAMILY_IPV4:
-        ipv4_addresses.push_back(ip_endpoint);
-        break;
-
-      case ADDRESS_FAMILY_IPV6:
-        ipv6_addresses.push_back(ip_endpoint);
-        break;
-
-      default:
-        DVLOG(1) << "Unexpected ADDRESS_FAMILY: " << ip_endpoint.GetFamily();
-        break;
-    }
-  }
-
-  if (!ipv4_addresses.empty()) {
-    ipv4_job_ = std::make_unique<TransportConnectSubJob>(
-        std::move(ipv4_addresses), this, SUB_JOB_IPV4);
-  }
-
-  if (!ipv6_addresses.empty()) {
-    ipv6_job_ = std::make_unique<TransportConnectSubJob>(
-        std::move(ipv6_addresses), this, SUB_JOB_IPV6);
-    int result = ipv6_job_->Start();
-    if (result != ERR_IO_PENDING)
-      return HandleSubJobComplete(result, ipv6_job_.get());
-    if (ipv4_job_) {
-      base::TimeDelta fallback_time = TcpConnectJob::GetIPv6FallbackTime(
-          common_connect_job_params(), params_.get());
-      // This use of base::Unretained is safe because |fallback_timer_| is
-      // owned by this object.
-      fallback_timer_.Start(
-          FROM_HERE, fallback_time,
-          base::BindOnce(&TransportConnectJob::StartIPv4JobAsync,
-                         base::Unretained(this)));
-    }
-    return ERR_IO_PENDING;
-  }
-
-  DCHECK(!ipv6_job_);
-  DCHECK(ipv4_job_);
-  int result = ipv4_job_->Start();
-  if (result != ERR_IO_PENDING)
-    return HandleSubJobComplete(result, ipv4_job_.get());
-  return ERR_IO_PENDING;
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::Transport);
 }
 
 int TransportConnectJob::DoTransportConnectComplete(int result) {
-  // Make sure nothing else calls back into this object.
-  ipv4_job_.reset();
-  ipv6_job_.reset();
-  fallback_timer_.Stop();
-
-  if (result == OK) {
-    DCHECK(!connect_timing_.connect_start.is_null());
-    DCHECK(!connect_timing_.domain_lookup_start.is_null());
-    // `HandleSubJobComplete` should have called `SetSocket`.
-    DCHECK(socket());
-    base::TimeTicks now = base::TimeTicks::Now();
-    base::TimeDelta total_duration = now - connect_timing_.domain_lookup_start;
-    UMA_HISTOGRAM_CUSTOM_TIMES("Net.DNS_Resolution_And_TCP_Connection_Latency2",
-                               total_duration, base::Milliseconds(1),
-                               base::Minutes(10), 100);
-
-    base::TimeDelta connect_duration = now - connect_timing_.connect_start;
-    UMA_HISTOGRAM_CUSTOM_TIMES("Net.TCP_Connection_Latency", connect_duration,
-                               base::Milliseconds(1), base::Minutes(10), 100);
-  } else {
-    // Don't try the next route if entering suspend mode.
-    if (result != ERR_NETWORK_IO_SUSPENDED) {
-      // If there is another endpoint available, try it.
-      current_endpoint_result_++;
-      if (current_endpoint_result_ < endpoint_results_.size()) {
-        next_state_ = STATE_TRANSPORT_CONNECT;
-        result = OK;
-      }
-    }
-  }
-
-  return result;
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::TransportComplete, result);
 }
 
 int TransportConnectJob::HandleSubJobComplete(int result,
                                               TransportConnectSubJob* job) {
-  DCHECK_NE(result, ERR_IO_PENDING);
-  if (result == OK) {
-    SetSocket(job->PassSocket(), dns_aliases_);
-    return result;
-  }
-
-  if (result == ERR_NETWORK_IO_SUSPENDED) {
-    // Don't try other jobs if entering suspend mode.
-    return result;
-  }
-
-  switch (job->type()) {
-    case SUB_JOB_IPV4:
-      ipv4_job_.reset();
-      break;
-
-    case SUB_JOB_IPV6:
-      ipv6_job_.reset();
-      // Start the other job, rather than wait for the fallback timer.
-      if (ipv4_job_ && !ipv4_job_->started()) {
-        fallback_timer_.Stop();
-        result = ipv4_job_->Start();
-        if (result != ERR_IO_PENDING) {
-          return HandleSubJobComplete(result, ipv4_job_.get());
-        }
-      }
-      break;
-  }
-
-  if (ipv4_job_ || ipv6_job_) {
-    // Wait for the other job to complete, rather than reporting |result|.
-    return ERR_IO_PENDING;
-  }
-
-  return result;
+transport_connect_jobRustBridge c(this); c.subjob = job; return c.Run(transport_connect_jobRustBridge::Op::Handle, result);
 }
 
 void TransportConnectJob::OnSubJobComplete(int result,
                                            TransportConnectSubJob* job) {
-  result = HandleSubJobComplete(result, job);
-  if (result != ERR_IO_PENDING) {
-    OnIOComplete(result);
-  }
+transport_connect_jobRustBridge c(this); c.subjob = job; c.Run(transport_connect_jobRustBridge::Op::OnSub, result);
 }
 
 void TransportConnectJob::StartIPv4JobAsync() {
-  DCHECK(ipv4_job_);
-  net_log().AddEvent(NetLogEventType::TRANSPORT_CONNECT_JOB_IPV6_FALLBACK);
-  int result = ipv4_job_->Start();
-  if (result != ERR_IO_PENDING)
-    OnSubJobComplete(result, ipv4_job_.get());
+transport_connect_jobRustBridge c(this); c.Run(transport_connect_jobRustBridge::Op::StartV4);
 }
 
 int TransportConnectJob::ConnectInternal() {
-  next_state_ = STATE_RESOLVE_HOST;
-  return DoLoop(OK);
+transport_connect_jobRustBridge c(this); return c.Run(transport_connect_jobRustBridge::Op::Connect);
 }
 
 void TransportConnectJob::ChangePriorityInternal(RequestPriority priority) {
-  if (next_state_ == STATE_RESOLVE_HOST_COMPLETE) {
-    DCHECK(request_);
-    // Change the request priority in the host resolver.
-    request_->ChangeRequestPriority(priority);
-  }
+transport_connect_jobRustBridge c(this); c.Run(transport_connect_jobRustBridge::Op::Priority, priority);
 }
 
 bool TransportConnectJob::IsSvcbOptional(
     base::span<const HostResolverEndpointResult> results) const {
-  // If SVCB/HTTPS resolution succeeded, the client supports ECH, and all routes
-  // support ECH, disable the A/AAAA fallback. See Section 5.1 of
-  // draft-ietf-tls-svcb-ech-08.
-
-  auto* scheme_host_port =
-      std::get_if<url::SchemeHostPort>(&params_->destination());
-  if (!scheme_host_port || scheme_host_port->scheme() != url::kHttpsScheme) {
-    return true;  // This is not a SVCB-capable request at all.
-  }
-
-  SSLClientContext* ssl_client_context =
-      common_connect_job_params()->ssl_client_context;
-  if (!ssl_client_context ||
-      !ssl_client_context->IsEchEnabled(scheme_host_port->host())) {
-    return true;  // ECH is not supported for this request.
-  }
-
-  return !HostResolver::AllAlternativeEndpointsHaveEch(results);
+transport_connect_jobRustBridge c(this); c.results = results; return c.Run(transport_connect_jobRustBridge::Op::Svcb);
 }
 
 bool TransportConnectJob::IsEndpointResultUsable(
     const HostResolverEndpointResult& result,
     bool svcb_optional) const {
-  // We assume the authority endpoint (i.e. not from SVCB/HTTPS) is TCP-based,
-  // so an authority endpoint.
-  if (!result.metadata.IsAlternative()) {
-    // See RFC 9460, Section 3.
-    return svcb_optional;
-  }
-
-  // See RFC 9460, Section 7.1.2. Alternative endpoints are usable if there is
-  // an overlap between the endpoint's ALPN protocols and the configured ones.
-  // This ensures we do not, e.g., connect to a QUIC-only endpoint with TCP.
-  // Note that, if `params_` did not specify any ALPN protocols, no
-  // SVCB/HTTPS-based endpoints will match and we will effectively ignore all
-  // but plain A/AAAA endpoints.
-  for (const auto& alpn : result.metadata.supported_protocol_alpns) {
-    if (params_->supported_alpns().contains(alpn)) {
-      return true;
-    }
-  }
-  return false;
+transport_connect_jobRustBridge c(this); c.endpoint = &result; return c.Run(transport_connect_jobRustBridge::Op::Usable, svcb_optional);
 }
 
 const HostResolverEndpointResult&

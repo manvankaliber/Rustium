@@ -836,13 +836,7 @@ TEST(SetFileInputFiles, UnknownStylePreservesNativeBehavior) {
   }
 }
 
-TEST(SetFileInputFiles, AndroidOverridesMissingOrConflictingMetadata) {
-  BrowserInfo browser_info;
-  browser_info.is_android = true;
-  browser_info.file_path_style = FilePathStyle::kWindows;
-  EXPECT_EQ(FilePathStyle::kPosix,
-            internal::GetFileInputPathStyle(browser_info));
-}
+
 
 TEST_F(SetFileInputFilesTest, WindowsMetadataForwardsEveryPathVerbatim) {
   Initialize("windows");

@@ -177,13 +177,6 @@ VariationsIdsProvider::ForceIdsResult VariationsIdsProvider::ForceVariationIds(
   return ForceVariationIdsImpl(variation_ids, command_line_variation_ids);
 }
 
-VariationsIdsProvider::ForceIdsResult VariationsIdsProvider::ForceVariationIds(
-    base::PassKey<android_webview::AwBrowserMainParts> pass_key,
-    const std::vector<std::string>& variation_ids,
-    const std::string& command_line_variation_ids) {
-  return ForceVariationIdsImpl(variation_ids, command_line_variation_ids);
-}
-
 VariationsIdsProvider::ForceIdsResult
 VariationsIdsProvider::ForceVariationIdsForTesting(
     const std::vector<std::string>& variation_ids,

@@ -1,0 +1,14 @@
+{
+  "task_id": "NET-CONNECTION-REFERENCE-INDEPENDENCE",
+  "reviewed_candidate": "447d37a92273b5b0f761c13c3beb4195d54e5071",
+  "source_review": "Terra/xhigh requested independent expected callback aliases, raw diagnostic error and socket-rule lifetime correction. No definite compile or link blocker found in the inspected source.",
+  "repaired_candidate": "dc8a79e51b3c881ea2c860fc25d568d068c9ad8f",
+  "changes": [
+    "Explicit expected callback aliases",
+    "DNS timeout diagnostic alongside squashed completion and attempt status",
+    "Rule lifetime covering the socket factory",
+    "Cancellation after mock resolver completion is queued"
+  ],
+  "provider_boundary": "Both passes use MockHostResolver, which calls shared migrated DNS name validation. This fixture compares job result consumption. Broader provider independence remains open.",
+  "validation": "Scoped diff checks passed. Native compile, link and the focused ConnectionJobsFamilyRustTest.ResolverRequestMatchesIndependentOriginal case remain pending."
+}

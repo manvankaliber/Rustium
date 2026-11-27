@@ -1,0 +1,32 @@
+{
+  "utc": "2026-11-22T09:58:11.298624+00:00",
+  "prior_pr_head": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+  "integration_commit": "a60281116646a3e3b78fd01607e56aa0448a3fc9",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "scope": "Freeze reference Basic grammar from the original HttpUtil matcher, including independently tokenized parameters and required-value/lenient-quote semantics.",
+  "environment": "Initial stops followed warm regeneration environment changes. A locked diagnostic reproduced the pinned file using the prior host configuration, which was used in the successful run.",
+  "build": {
+    "target": "//net:connection_jobs_family_rust_unittests",
+    "gn_include_check": "passed",
+    "elapsed_seconds": 180.828,
+    "compiler_jobs": 4,
+    "serialized_links": 2
+  },
+  "tests_passed": [
+    "BasicParsesOriginalParameterGrammar",
+    "BasicLaterChallengesUseOriginalParameterGrammar",
+    "DigestUsesRegistryAndOriginalHandlerInit"
+  ],
+  "launcher": {
+    "jobs": 1,
+    "retries": 0
+  },
+  "artifact_hashes": {
+    "net.dll": "c9c0d1e379ee87be6a749853f3fd5ac01f27b53ae37136c7144fcec1efac71e0",
+    "connection_jobs_family_rust_unittests.exe": "eb9df6cf1b87475b98ce25a93a6e6265ff1edb2b3708e01f4a4c8e0005db300f"
+  },
+  "limits": "Basic still uses the shared Latin-1 normalization provider. The focused Digest regression follows the still-shared native handler. Whole original-provider independence and wider platform and cutover evidence remain open.",
+  "receipt": "C:/Users/micro/rb/network-a60281-basic-focused-20261122c/result.json",
+  "independent_release": "C:/Users/micro/rb/network-a60281-basic-focused-20261122c/independent-release.json",
+  "environment_diagnostic": "C:/Users/micro/rb/network-a60281-env-diagnostic-20261122a/result.json"
+}

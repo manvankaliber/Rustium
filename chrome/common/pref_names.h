@@ -1405,9 +1405,6 @@ inline constexpr char kSeedColorChangeCount[] =
 // Whether the NTP footer is visible.
 inline constexpr char kNtpFooterVisible[] = "NewTabPage.FooterVisible";
 
-// A private RSA key for ADB handshake.
-inline constexpr char kDevToolsAdbKey[] = "devtools.adb_key";
-
 // Defines administrator-set availability of developer tools.
 inline constexpr char kDevToolsAvailability[] = "devtools.availability";
 
@@ -1442,29 +1439,11 @@ inline constexpr char kDevToolsRemoteDebuggingEnabled[] =
 inline constexpr char kDevToolsBackgroundServicesExpirationDict[] =
     "devtools.backgroundserviceexpiration";
 
-// Determines whether devtools should be discovering usb devices for
-// remote debugging at chrome://inspect.
-inline constexpr char kDevToolsDiscoverUsbDevicesEnabled[] =
-    "devtools.discover_usb_devices";
-
 // Maps of files edited locally using DevTools.
 inline constexpr char kDevToolsEditedFiles[] = "devtools.edited_files";
 
 // List of file system paths added in DevTools.
 inline constexpr char kDevToolsFileSystemPaths[] = "devtools.file_system_paths";
-
-// A boolean specifying whether port forwarding should be enabled.
-inline constexpr char kDevToolsPortForwardingEnabled[] =
-    "devtools.port_forwarding_enabled";
-
-// A boolean specifying whether default port forwarding configuration has been
-// set.
-inline constexpr char kDevToolsPortForwardingDefaultSet[] =
-    "devtools.port_forwarding_default_set";
-
-// A dictionary of port->location pairs for port forwarding.
-inline constexpr char kDevToolsPortForwardingConfig[] =
-    "devtools.port_forwarding_config";
 
 // A boolean specifying whether or not Chrome will scan for available remote
 // debugging targets.

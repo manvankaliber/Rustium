@@ -1,0 +1,19 @@
+{
+  "utc": "2026-11-21T23:13:29.037437+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate": "4685fd403bfa4075e42121a19d5866e302f1610a",
+  "pr_head": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "first_attempt": {
+    "status": "stopped in target discovery",
+    "scope": "Both scoped GN include checks passed. A wildcard unsupported by gn ls stopped the runner before Ninja or tests.",
+    "receipt": "C:/Users/micro/rb/network-4685fd-retained-feedback-20261122a/result.json",
+    "independent_release": "C:/Users/micro/rb/network-4685fd-retained-feedback-20261122a/independent-release.json",
+    "restored": "Exact detached 72ee5ddd and seven metadata pins restored; 217 protected fingerprints matched. Independent lock release and PR head checks passed."
+  },
+  "retry": {
+    "status": "dispatched, same candidate",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A683b51b0-9f63-4400-90fc-e9a1929d321e",
+    "target_discovery": "Use gn desc on //net:retained_request_order_rust_unittests or gn ls //net:* with local filtering. The pinned rust_target.gni emits <target>_unittests when native Rust tests are enabled.",
+    "scope": "Same existing warm output, GN, net_unittests and production Rust test target only. No source delta."
+  }
+}

@@ -1,4 +1,4 @@
-#[cfg(linux_android)]
+#[cfg(linux)]
 use crate::*;
 use libc::c_char;
 use nix::sys::socket::{getsockname, AddressFamily, UnixAddr};
@@ -167,7 +167,7 @@ pub fn test_addr_equality_path() {
     assert_eq!(calculate_hash(&addr1), calculate_hash(&addr2));
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_abstract_sun_path_too_long() {
     let name = String::from("nix\0abstract\0tesnix\0abstract\0tesnix\0abstract\0tesnix\0abstract\0tesnix\0abstract\0testttttnix\0abstract\0test\0make\0sure\0this\0is\0long\0enough");
@@ -175,7 +175,7 @@ pub fn test_abstract_sun_path_too_long() {
     addr.expect_err("assertion failed");
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_addr_equality_abstract() {
     let name = String::from("nix\0abstract\0test");
@@ -191,7 +191,7 @@ pub fn test_addr_equality_abstract() {
 }
 
 // Test getting/setting abstract addresses (without unix socket creation)
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_abstract_uds_addr() {
     let empty = String::new();
@@ -210,7 +210,7 @@ pub fn test_abstract_uds_addr() {
 }
 
 // Test getting an unnamed address (without unix socket creation)
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_unnamed_uds_addr() {
     use crate::nix::sys::socket::SockaddrLike;
@@ -365,7 +365,7 @@ mod recvfrom {
         assert_eq!(AddressFamily::Inet, from.unwrap().family().unwrap());
     }
 
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     mod udp_offload {
         use super::*;
         use nix::sys::socket::sockopt::{UdpGroSegment, UdpGsoSegment};
@@ -438,7 +438,7 @@ mod recvfrom {
         }
     }
 
-    #[cfg(any(linux_android, target_os = "freebsd", target_os = "netbsd"))]
+    #[cfg(any(linux, target_os = "freebsd", target_os = "netbsd"))]
     #[test]
     pub fn udp_sendmmsg() {
         use std::io::IoSlice;
@@ -490,7 +490,7 @@ mod recvfrom {
         assert_eq!(AddressFamily::Inet, from.unwrap().family().unwrap());
     }
 
-    #[cfg(any(linux_android, target_os = "freebsd", target_os = "netbsd"))]
+    #[cfg(any(linux, target_os = "freebsd", target_os = "netbsd"))]
     #[test]
     pub fn udp_recvmmsg() {
         use nix::sys::socket::{recvmmsg, MsgFlags};
@@ -540,7 +540,7 @@ mod recvfrom {
         send_thread.join().unwrap();
     }
 
-    #[cfg(any(linux_android, target_os = "freebsd", target_os = "netbsd"))]
+    #[cfg(any(linux, target_os = "freebsd", target_os = "netbsd"))]
     #[test]
     pub fn udp_recvmmsg_dontwait_short_read() {
         use nix::sys::socket::{recvmmsg, MsgFlags};
@@ -711,7 +711,7 @@ pub fn test_scm_rights() {
 // 2. Disable the test on aarch64/Linux, s390x/Linux, and powerpc64le/Linux
 //    because bind() fails with ENOENT:
 //    https://github.com/nix-rust/nix/issues/1352
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg_attr(
     any(
         qemu,
@@ -792,7 +792,7 @@ pub fn test_af_alg_cipher() {
 
 // Disable the test on emulated platforms due to not enabled support of AF_ALG
 // in QEMU from rust cross
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg_attr(qemu, ignore)]
 #[test]
 pub fn test_af_alg_aead() {
@@ -1107,28 +1107,28 @@ pub fn test_sendmsg_empty_cmsgs() {
     }
 }
 
-#[cfg(any(linux_android, freebsdlike))]
+#[cfg(any(linux, freebsdlike))]
 #[test]
 fn test_scm_credentials() {
     use nix::sys::socket::{
         recvmsg, sendmsg, socketpair, AddressFamily, ControlMessage, ControlMessageOwned, MsgFlags,
         SockFlag, SockType, UnixCredentials,
     };
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     use nix::sys::socket::{setsockopt, sockopt::PassCred};
     use nix::unistd::{getgid, getpid, getuid};
     use std::io::{IoSlice, IoSliceMut};
 
     let (send, recv) =
         socketpair(AddressFamily::Unix, SockType::Stream, None, SockFlag::empty()).unwrap();
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     setsockopt(&recv, PassCred, &true).unwrap();
 
     {
         let iov = [IoSlice::new(b"hello")];
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         let cred = UnixCredentials::new();
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         let cmsg = ControlMessage::ScmCredentials(&cred);
         #[cfg(freebsdlike)]
         let cmsg = ControlMessage::ScmCreds;
@@ -1150,7 +1150,7 @@ fn test_scm_credentials() {
 
         for cmsg in msg.cmsgs().unwrap() {
             let cred = match cmsg {
-                #[cfg(linux_android)]
+                #[cfg(linux)]
                 ControlMessageOwned::ScmCredentials(cred) => cred,
                 #[cfg(freebsdlike)]
                 ControlMessageOwned::ScmCreds(cred) => cred,
@@ -1170,7 +1170,7 @@ fn test_scm_credentials() {
 
 /// Ensure that we can send `SCM_CREDENTIALS` and `SCM_RIGHTS` with a single
 /// `sendmsg` call.
-#[cfg(linux_android)]
+#[cfg(linux)]
 // qemu's handling of multiple cmsgs is bugged, ignore tests under emulation
 // see https://bugs.launchpad.net/qemu/+bug/1781280
 #[cfg_attr(qemu, ignore)]
@@ -1182,7 +1182,7 @@ fn test_scm_credentials_and_rights() {
 
 /// Ensure that passing a an oversized control message buffer to recvmsg
 /// still works.
-#[cfg(linux_android)]
+#[cfg(linux)]
 // qemu's handling of multiple cmsgs is bugged, ignore tests under emulation
 // see https://bugs.launchpad.net/qemu/+bug/1781280
 #[cfg_attr(qemu, ignore)]
@@ -1192,14 +1192,14 @@ fn test_too_large_cmsgspace() {
     test_impl_scm_credentials_and_rights(space).unwrap();
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_too_small_cmsgspace() {
     let space = vec![0u8; 4];
     assert_eq!(test_impl_scm_credentials_and_rights(space), Err(nix::errno::Errno::ENOBUFS));
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn test_impl_scm_credentials_and_rights(mut space: Vec<u8>) -> Result<(), nix::errno::Errno> {
     use libc::ucred;
     use nix::sys::socket::sockopt::PassCred;
@@ -1326,7 +1326,7 @@ pub fn test_listen_wrongbacklog() {
 }
 
 // Test using unnamed unix domain addresses
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_unnamed_unixdomain() {
     use nix::sys::socket::{getsockname, socketpair};
@@ -1340,7 +1340,7 @@ pub fn test_unnamed_unixdomain() {
 }
 
 // Test creating and using unnamed unix domain addresses for autobinding sockets
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_unnamed_unixdomain_autobind() {
     use nix::sys::socket::{bind, getsockname, socket};
@@ -1386,7 +1386,7 @@ pub fn test_syscontrol() {
     // connect(fd.as_raw_fd(), &sockaddr).expect("connect failed");
 }
 
-#[cfg(any(bsd, linux_android))]
+#[cfg(any(bsd, linux))]
 fn loopback_address(family: AddressFamily) -> Option<nix::ifaddrs::InterfaceAddress> {
     use nix::ifaddrs::getifaddrs;
     use nix::net::if_::*;
@@ -1410,7 +1410,7 @@ fn loopback_address(family: AddressFamily) -> Option<nix::ifaddrs::InterfaceAddr
     })
 }
 
-#[cfg(any(linux_android, apple_targets, target_os = "netbsd"))]
+#[cfg(any(linux, apple_targets, target_os = "netbsd"))]
 // qemu doesn't seem to be emulating this correctly in these architectures
 #[cfg_attr(
     all(
@@ -1575,7 +1575,7 @@ pub fn test_recvif() {
     }
 }
 
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg_attr(qemu, ignore)]
 #[test]
 pub fn test_recvif_ipv4() {
@@ -1643,7 +1643,7 @@ pub fn test_recvif_ipv4() {
     }
 }
 
-#[cfg(any(all(linux_android, not(target_env = "uclibc")), target_os = "freebsd"))]
+#[cfg(any(all(linux, not(target_env = "uclibc")), target_os = "freebsd"))]
 #[cfg_attr(qemu, ignore)]
 #[test]
 pub fn test_recvif_ipv6() {
@@ -1711,7 +1711,7 @@ pub fn test_recvif_ipv6() {
     }
 }
 
-#[cfg(any(linux_android, target_os = "freebsd", apple_targets, netbsdlike))]
+#[cfg(any(linux, target_os = "freebsd", apple_targets, netbsdlike))]
 // qemu doesn't seem to be emulating this correctly in these architectures
 #[cfg_attr(
     all(
@@ -1782,7 +1782,7 @@ pub fn test_recv_ipv6pktinfo() {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 pub fn test_vsock() {
     use nix::sys::socket::SockaddrLike;
@@ -1955,7 +1955,7 @@ fn test_recvmmsg_timestampns() {
 // Disable the test on emulated platforms because it fails in Cirrus-CI.  Lack
 // of QEMU support is suspected.
 #[cfg_attr(qemu, ignore)]
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_recvmsg_rxq_ovfl() {
     use nix::sys::socket::sockopt::{RcvBuf, RxqOvfl};
@@ -2030,7 +2030,7 @@ fn test_recvmsg_rxq_ovfl() {
     assert_eq!(drop_counter, 1);
 }
 
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 // qemu doesn't seem to be emulating this correctly in these architectures
 #[cfg_attr(
@@ -2159,7 +2159,7 @@ pub fn test_ipv6_tclass_udp() {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod linux_errqueue {
     use super::FromStr;
     use nix::sys::socket::*;
@@ -2362,7 +2362,7 @@ pub fn test_txtime() {
 }
 
 // cfg needed for capability check.
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_icmp_protocol() {
     use nix::sys::socket::{
@@ -2479,7 +2479,7 @@ fn can_use_cmsg_space() {
     let _ = cmsg_space!(u8);
 }
 
-#[cfg(not(any(linux_android, target_os = "redox", target_os = "haiku", target_os = "cygwin")))]
+#[cfg(not(any(linux, target_os = "redox", target_os = "haiku", target_os = "cygwin")))]
 #[test]
 fn can_open_routing_socket() {
     use nix::sys::socket::{socket, AddressFamily, SockFlag, SockType};

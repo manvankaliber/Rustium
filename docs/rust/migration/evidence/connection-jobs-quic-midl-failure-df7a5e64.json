@@ -1,0 +1,37 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "dependency": "Optimized QUIC proxy preference acceptance requires components_unittests. Its Windows dependency closure runs MIDL actions from nested output directories.",
+  "source_commit": "df7a5e64f112b86c8b2292630649aecedcc313bb",
+  "failed_validation": {
+    "host": "HQC-VAN_KALIBER",
+    "target": "//components:components_unittests",
+    "first_failed_action": 15074,
+    "exit_code": 1,
+    "action_count_at_dry_run": 41752,
+    "compiler_jobs": 4,
+    "simultaneous_links": 1,
+    "first_failure": "ISimpleDOMDocument generated settings comment recorded ../../../third_party/... and the checked-in baseline ../../third_party/...",
+    "related_failure": "iaccessible2 MIDL generated-file comparison reported the same path prefix discrepancy.",
+    "receipts": [
+      "C:/Users/micro/rb/network-df7a5-quic-resume-20261120a/components-build.log",
+      "C:/Users/micro/rb/network-df7a5-quic-resume-20261120a/terminal-evidence.json"
+    ],
+    "postcheck": "Reporting operator confirmed clean source, stable font/args/graph identities, no live native children and independent lock reacquisition and release.",
+    "test_cases_executed": 0
+  },
+  "focused_reproduction": {
+    "source_commit": "df7a5e64f112b86c8b2292630649aecedcc313bb",
+    "thread": "mcp:launch:263f3d9d29652c5cbb7d7d6adbbb4f5e055a67a6d60ba55b9e01f905b58e872c",
+    "status": "Dispatched exact first-edge reproduction, then iaccessible2 under the same reservation."
+  },
+  "repair": {
+    "candidate_commit": "2c61fa63b0d2967ec6660a0edabe1792ddf2d193",
+    "local_ref": "refs/heads/rust/network-nested-output-midl-20261120",
+    "changed_file": "build/toolchain/win/midl.py",
+    "before_sha256": "8a805574f0140476837fcd2a5b6cdce8246cfbc416ca70c3b061e99242843564",
+    "candidate_sha256": "911a98f4fcdd4de29e178ce46909a9dd47a358e012b6fd5ea631c4c395dbca6b",
+    "scope": "Canonicalize the compiler-settings comment for the exact relative source IDL to its checked-in out/<config> spelling. Leave dynamic GUID input and TLB processing on the existing path. Preserve all other bytes for comparison.",
+    "data_checks": "36 assertions against six committed x64 baselines, standard and nested layout, unrelated path, nonmatching line and semantic-byte preservation. Passed.",
+    "review": "Independent source review requested. Native acceptance pending."
+  }
+}

@@ -53,6 +53,12 @@ struct UrlOriginAdapter;
 
 namespace net {
 class SchemefulSite;
+namespace cookie_partition_key_reference {
+class SchemefulSite;
+}  // namespace cookie_partition_key_reference
+namespace cookie_family_original {
+class SchemefulSite;
+}  // namespace cookie_family_original
 }  // namespace net
 
 namespace optimization_guide {
@@ -346,6 +352,9 @@ class COMPONENT_EXPORT(URL) Origin {
   // SchemefulSite needs access to the serialization/deserialization logic which
   // includes the nonce.
   friend class net::SchemefulSite;
+  friend class net::cookie_partition_key_reference::SchemefulSite;
+  // Frozen cookie reference uses the same Origin nonce primitive.
+  friend class net::cookie_family_original::SchemefulSite;
   friend class OriginTest;
   friend struct mojo::UrlOriginAdapter;
   friend struct mojo::StructTraits<url::mojom::OriginDataView, url::Origin>;

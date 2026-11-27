@@ -1,0 +1,54 @@
+{
+  "utc": "2026-11-22T00:31:57.119135+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_commit": "cfc7132c590692e35555f51f429b51d78aac3272",
+  "integration_commit": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "integration_pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "previous_pr_head": "f2e45f1e3e563288db8fb42bfbc65f302dcab6cd",
+  "source_identity": {
+    "reviewed_production": "9a136b6f4589e53516527d0ce1cb3dabfd6d9b9f",
+    "source_and_native_abi_parent": "5932850e6369eee45d8623cef0a06c6fdb7d2895",
+    "latest_delta": "Test source only; asserts the original aggregate callback result when one or more preconnect slots already contribute OK."
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Independent counter and ABI review and directed native regression follow-up."
+  },
+  "tests": {
+    "status": "passed",
+    "candidate_cpp_individual_checks": 9,
+    "candidate_pool_passes": 221,
+    "candidate_pool_failures": 0,
+    "rust_unchanged_parent_passes": 7,
+    "rust_parent": "5932850e6369eee45d8623cef0a06c6fdb7d2895",
+    "scope": "Retained and removed preconnect claim cancellation, failed and flushed jobs, proxy-auth binding, exact FIFO job identity, crate-state transitions and native layout."
+  },
+  "build": {
+    "scope": "warm ordinary Windows net_unittests",
+    "seconds": 513,
+    "ninja_jobs": 4,
+    "link_pool_depth": 1,
+    "links": 2,
+    "link_intervals_overlap": false
+  },
+  "abi": "C++ count accessor is exported by net.dll and imported by net_unittests. The Rust claim symbol remains private in the archive.",
+  "restoration": "Clean detached 72ee5ddd and seven metadata pins restored and independently checked; native process inventory empty and byte zero reacquired and released.",
+  "receipts": {
+    "directory": "C:/Users/micro/rb/network-295159-test-repair-validation-20261122c",
+    "paths": [
+      "result.json",
+      "artifact-manifest.json",
+      "independent-release.json",
+      "concurrency-analysis.json"
+    ]
+  },
+  "rust_ownership": "Transport Group request order and reprioritization, assignment recipient selection, stalled-group ranking, idle eligibility and aggregate preconnect claim state. Native retains objects, group routing and eligibility, provider calls, auth-bound pairing, callbacks, timers and teardown.",
+  "platform_limits": [
+    "Scoped warm Windows ordinary component. Other platform, named family, optimized configuration and performance evidence on this source remain open."
+  ],
+  "family_validation": {
+    "status": "dispatched",
+    "target": "//net:connection_jobs_family_rust_unittests",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A10b5adcb-ced2-48e3-bf32-530addd88bff"
+  }
+}

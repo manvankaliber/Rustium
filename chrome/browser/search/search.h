@@ -101,10 +101,6 @@ bool NavEntryIsInstantNTP(content::WebContents* contents,
 // in an Instant process.
 bool IsInstantNTPURL(const GURL& url, Profile* profile);
 
-// Returns whether the Web UI NTP is enabled for Desktop Android. In all other
-// cases and platforms, it returns false.
-bool IsWebUiNtpEnabledForDesktopAndroid();
-
 // Returns true if |url| corresponds to a Split View New Tab page.
 bool IsSplitViewNewTabPage(const GURL& url);
 

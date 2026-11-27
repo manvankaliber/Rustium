@@ -446,19 +446,6 @@ void ToolbarView::Init() {
         AddChildView(std::make_unique<SplitTabsToolbarButton>(browser_));
   }
 
-  if (contextual_tasks::IsContextualTasksUIEnabled() &&
-      contextual_tasks::kShowEntryPoint.Get() ==
-          contextual_tasks::EntryPointOption::kToolbarEphemeralBranded) {
-    auto button = std::make_unique<ContextualTasksButton>(browser_);
-    auto* vts_controller =
-        tabs::VerticalTabStripStateController::From(browser_);
-    if ((!vts_controller || !vts_controller->ShouldDisplayVerticalTabs()) &&
-        !contextual_tasks::ShouldPlaceCircularButtonBeforeProfile(browser_)) {
-      button->SetProperty(views::kMarginsKey, gfx::Insets());
-    }
-    contextual_tasks_button_ = AddChildViewAt(std::move(button), 0);
-  }
-
   if (location_bar_view) {
     location_bar_view_ = AddChildView(std::move(location_bar_view));
     location_bar_ = location_bar_view_;
@@ -553,12 +540,6 @@ void ToolbarView::Init() {
         l10n_util::GetStringUTF16(IDS_APPMENU_TOOLTIP));
     app_menu_button->SetID(VIEW_ID_APP_MENU);
     app_menu_button_ = AddChildView(std::move(app_menu_button));
-  }
-
-  if (base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks) &&
-      contextual_tasks::GetExpandButtonOption() ==
-          contextual_tasks::ExpandButtonOption::kToolbarCloseButton) {
-    AddChildView(std::make_unique<ContextualTasksCloseTabButton>(browser_));
   }
 
   if (contextual_tasks_button_) {

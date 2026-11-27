@@ -1,0 +1,9 @@
+{
+  "utc": "2026-11-22T10:51:47.707796+00:00",
+  "head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "status": "Reference helper inventory and exact optimized lifecycle gate dispatched.",
+  "count": "20 integrated of 27 task records after scoped Windows wiring acceptance.",
+  "helper_audit": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Adelegate-task%3A659615bd-b1d2-4e2f-8f1a-6634b88225c9",
+  "laptop": "node:delegated-task:command%3Amcp%3A61f7f2a7-2597-444e-b050-1d69cdc80412%3Aremote-delegate%3A88a91c2e-3a8b-462b-b090-2cc4803a3934",
+  "laptop_scope": "Existing optimized QUIC cache, 16 verify-only IDs and 16 paired lifecycle cases. No timing or broader builds."
+}

@@ -166,7 +166,7 @@ use crate::utils::{Pair, U128};
 #[rustfmt::skip]
 macro_rules! debug_assert_lse {
     () => {
-        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "android", target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows)))]
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         {
             debug_assert!(detect::detect().lse());
@@ -181,30 +181,9 @@ macro_rules! debug_assert_lse {
 #[rustfmt::skip]
 macro_rules! debug_assert_lse2 {
     () => {
-        #[cfg(all(not(portable_atomic_no_outline_atomics), any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LSE2.
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
                 //
-                target_vendor = "apple",
-                windows,
-            ),))]
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         {
             debug_assert!(detect::detect().lse2());
@@ -222,30 +201,9 @@ macro_rules! debug_assert_lse2 {
 #[rustfmt::skip]
 macro_rules! debug_assert_lse128 {
     () => {
-        #[cfg(all(not(portable_atomic_no_outline_atomics), any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LSE128.
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE128.
                 //
-                target_vendor = "apple",
-                windows,
-            ),))]
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
         {
             debug_assert!(detect::detect().lse128());
@@ -263,30 +221,9 @@ macro_rules! debug_assert_lse128 {
 #[rustfmt::skip]
 macro_rules! debug_assert_rcpc3 {
     () => {
-        #[cfg(all(not(portable_atomic_no_outline_atomics), any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LRCPC3.
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LRCPC3.
                 //
-                target_vendor = "apple",
-                windows,
-            ),))]
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
         {
             debug_assert!(detect::detect().rcpc3());
@@ -465,30 +402,9 @@ cfg_sel!({
         use self::_atomic_load_ldp as atomic_load;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
-    #[cfg(all(not(portable_atomic_no_outline_atomics), any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            // These don't support detection of FEAT_LSE2.
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
             //
-            target_vendor = "apple",
-            windows,
-        ),))]
+            target_vendor = "apple", windows)))]
     {
         #[inline]
         unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
@@ -846,30 +762,9 @@ cfg_sel!({
         use self::_atomic_store_stp as atomic_store;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
-    #[cfg(all(not(portable_atomic_no_outline_atomics), any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            // These don't support detection of FEAT_LSE2.
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
             //
-            target_vendor = "apple",
-            windows,
-        ),))]
+            target_vendor = "apple", windows)))]
     {
         #[inline]
         unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {

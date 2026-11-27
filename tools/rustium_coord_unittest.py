@@ -235,6 +235,35 @@ class CoordinationTest(unittest.TestCase):
             self.c.transition(self.token, "T0", "integrated", "not validated")
         self.assertEqual(before, self.c.state.read_bytes())
 
+    def test_integrate_against_verified_remote_tracking_ref(self):
+        tree = rc.git(self.root, "rev-parse", "HEAD^{tree}")
+        integrated = rc.git(self.root, "commit-tree", tree, "-p", self.head,
+                            "-m", "Reviewed integration")
+        with self.c.transaction(self.token) as q:
+            q["tasks"][0].update(state="merge-ready", delivery_commit=self.head)
+        evidence = self.root / "integration.json"
+        rc.atomic(evidence, {"task_id": "T0", "candidate_commit": self.head,
+                             "integration_commit": integrated})
+        ref = "refs/remotes/origin/network-integration"
+        rc.git(self.root, "update-ref", ref, self.head)
+        before = self.c.state.read_bytes()
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.c.transition(self.token, "T0", "integrated", "stale remote ref",
+                              evidence, integration_ref=ref)
+        self.assertEqual(before, self.c.state.read_bytes())
+        rc.git(self.root, "update-ref", ref, integrated)
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.c.transition(self.token, "T0", "integrated", "editing HEAD", evidence)
+        with self.assertRaisesRegex(ValueError, "remote-tracking"):
+            self.c.transition(self.token, "T0", "integrated", "unqualified ref",
+                              evidence, integration_ref=integrated)
+        self.c.transition(self.token, "T0", "integrated", "public integration",
+                          evidence, integration_ref=ref)
+        task = self.c.task(rc.read(self.c.state), "T0")
+        self.assertEqual(task["state"], "integrated")
+        self.assertEqual(task["integration_commit"], integrated)
+        self.assertEqual(rc.git(self.root, "rev-parse", "HEAD"), self.head)
+
     def test_new_task_and_cycle_rejection(self):
         t = copy.deepcopy(rc.read(self.c.state)["tasks"][0])
         t.update(id="FOLLOWUP", owned_files=["drafts/followup"], dependencies=["T0"])

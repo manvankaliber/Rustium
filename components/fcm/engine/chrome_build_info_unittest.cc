@@ -4,7 +4,7 @@
 
 #include "components/fcm/engine/chrome_build_info.h"
 
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
 namespace fcm {

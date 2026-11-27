@@ -1680,28 +1680,16 @@ void DevToolsUIBindings::ResetZoom() {
 }
 
 void DevToolsUIBindings::SetDevicesDiscoveryConfig(
-    bool discover_usb_devices,
-    bool port_forwarding_enabled,
-    const std::string& port_forwarding_config,
+    bool /*discover_usb_devices*/,
+    bool /*port_forwarding_enabled*/,
+    const std::string& /*port_forwarding_config*/,
     bool network_discovery_enabled,
     const std::string& network_discovery_config) {
-  std::optional<base::DictValue> parsed_port_forwarding =
-      base::JSONReader::ReadDict(port_forwarding_config,
-                                 base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!parsed_port_forwarding) {
-    return;
-  }
   std::optional<base::ListValue> parsed_network = base::JSONReader::ReadList(
       network_discovery_config, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
   if (!parsed_network) {
     return;
   }
-  profile_->GetPrefs()->SetBoolean(prefs::kDevToolsDiscoverUsbDevicesEnabled,
-                                   discover_usb_devices);
-  profile_->GetPrefs()->SetBoolean(prefs::kDevToolsPortForwardingEnabled,
-                                   port_forwarding_enabled);
-  profile_->GetPrefs()->SetDict(prefs::kDevToolsPortForwardingConfig,
-                                *std::move(parsed_port_forwarding));
   profile_->GetPrefs()->SetBoolean(prefs::kDevToolsDiscoverTCPTargetsEnabled,
                                    network_discovery_enabled);
   profile_->GetPrefs()->SetList(prefs::kDevToolsTCPDiscoveryConfig,
@@ -1710,21 +1698,9 @@ void DevToolsUIBindings::SetDevicesDiscoveryConfig(
 
 void DevToolsUIBindings::DevicesDiscoveryConfigUpdated() {
   base::DictValue config;
-  config.Set(kConfigDiscoverUsbDevices,
-             profile_->GetPrefs()
-                 ->FindPreference(prefs::kDevToolsDiscoverUsbDevicesEnabled)
-                 ->GetValue()
-                 ->Clone());
-  config.Set(kConfigPortForwardingEnabled,
-             profile_->GetPrefs()
-                 ->FindPreference(prefs::kDevToolsPortForwardingEnabled)
-                 ->GetValue()
-                 ->Clone());
-  config.Set(kConfigPortForwardingConfig,
-             profile_->GetPrefs()
-                 ->FindPreference(prefs::kDevToolsPortForwardingConfig)
-                 ->GetValue()
-                 ->Clone());
+  config.Set(kConfigPortForwardingConfig, base::DictValue());
+  config.Set(kConfigPortForwardingEnabled, false);
+  config.Set(kConfigDiscoverUsbDevices, false);
   config.Set(kConfigNetworkDiscoveryEnabled,
              profile_->GetPrefs()
                  ->FindPreference(prefs::kDevToolsDiscoverTCPTargetsEnabled)
@@ -1739,10 +1715,7 @@ void DevToolsUIBindings::DevicesDiscoveryConfigUpdated() {
                    base::Value(std::move(config)));
 }
 
-void DevToolsUIBindings::SendPortForwardingStatus(base::Value status) {
-  CallClientMethod("DevToolsAPI", "devicesPortForwardingStatusChanged",
-                   std::move(status));
-}
+
 
 void DevToolsUIBindings::SetDevicesUpdatesEnabled(bool enabled) {
   if (devices_updates_enabled_ == enabled) {
@@ -1750,23 +1723,11 @@ void DevToolsUIBindings::SetDevicesUpdatesEnabled(bool enabled) {
   }
   devices_updates_enabled_ = enabled;
   if (enabled) {
-    remote_targets_handler_ = DevToolsTargetsUIHandler::CreateForAdb(
+    remote_targets_handler_ = DevToolsTargetsUIHandler::CreateForRemote(
         base::BindRepeating(&DevToolsUIBindings::DevicesUpdated,
                             base::Unretained(this)),
         profile_);
     pref_change_registrar_.Init(profile_->GetPrefs());
-    pref_change_registrar_.Add(
-        prefs::kDevToolsDiscoverUsbDevicesEnabled,
-        base::BindRepeating(&DevToolsUIBindings::DevicesDiscoveryConfigUpdated,
-                            base::Unretained(this)));
-    pref_change_registrar_.Add(
-        prefs::kDevToolsPortForwardingEnabled,
-        base::BindRepeating(&DevToolsUIBindings::DevicesDiscoveryConfigUpdated,
-                            base::Unretained(this)));
-    pref_change_registrar_.Add(
-        prefs::kDevToolsPortForwardingConfig,
-        base::BindRepeating(&DevToolsUIBindings::DevicesDiscoveryConfigUpdated,
-                            base::Unretained(this)));
     pref_change_registrar_.Add(
         prefs::kDevToolsDiscoverTCPTargetsEnabled,
         base::BindRepeating(&DevToolsUIBindings::DevicesDiscoveryConfigUpdated,
@@ -1775,16 +1736,10 @@ void DevToolsUIBindings::SetDevicesUpdatesEnabled(bool enabled) {
         prefs::kDevToolsTCPDiscoveryConfig,
         base::BindRepeating(&DevToolsUIBindings::DevicesDiscoveryConfigUpdated,
                             base::Unretained(this)));
-    port_status_serializer_ = std::make_unique<PortForwardingStatusSerializer>(
-        base::BindRepeating(&DevToolsUIBindings::SendPortForwardingStatus,
-                            base::Unretained(this)),
-        profile_);
     DevicesDiscoveryConfigUpdated();
   } else {
     remote_targets_handler_.reset();
-    port_status_serializer_.reset();
     pref_change_registrar_.RemoveAll();
-    SendPortForwardingStatus(base::Value());
   }
 }
 

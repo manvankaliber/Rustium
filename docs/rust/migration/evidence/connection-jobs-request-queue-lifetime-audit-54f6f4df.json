@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-21T22:38:58.659001+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "prototype": "60adca89bdaf13042eee0709cd5cbad955088829",
+  "audit_task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Adelegate-task%3A55eea59b-81d6-4bf7-a914-528220c80155",
+  "scope": "Source-only lifetime audit of Group::SetPriority and reached ChangePriority provider calls.",
+  "original_contract": {
+    "sequence": [
+      "Return unchanged priority with original FIFO position.",
+      "Erase request into local ownership and release its assigned job.",
+      "Push job onto native unassigned back, assign the remaining target, then pop. Stop the backup timer at the original empty-queue point.",
+      "Check the original ignore-limits DCHECK after removal, update native priority, and reinsert before applying its assignment action."
+    ],
+    "precondition": "Group and relevant native ownership survive the priority propagation. Same-Group request/job mutation during the temporary assigned/unassigned overlap is outside the original Group algorithm assumptions.",
+    "allocation_policy": "Initial C++ and Rust allocation failure terminates per docs/memory/oom.md and build/rust/allocator/alloc_error_handler_impl.cc. No new recoverable socket error or artificial capacity limit."
+  },
+  "reached_calls": {
+    "resolver": "Transport or TCP forwards priority to HostResolverManager::Job. PrioritizedDispatcher::ChangePriority can synchronously start queued work; the examined ordinary DNS, system and mDNS completion contracts are asynchronous.",
+    "nested_jobs": "SOCKS, SSL and HTTP proxy forward priority to nested jobs. Current proxy stream-priority implementations are no-ops. The ConnectJob bridge validates its own invocation lifetime, not Group ownership.",
+    "test_seams": "Standalone ConnectJob priority recursion and deletion operate on the job bridge. The transport pool fixture priority implementation is empty. Preserve these behaviors without claiming Group support for arbitrary custom reentry or deletion."
+  },
+  "implementation_contract": "Retain the same occupied Rust token slot while detached, excluding it from order and native lookup. Relink without allocation at the original reinsertion step. End all Rust borrows before native work and resolve donor tokens at use. Preserve the original temporary native object lifecycle and callback order.",
+  "unresolved": "No production Group deletion path demonstrated in inspected priority closures. Virtual provider declarations alone do not prove the restriction for every injected provider, and the full resolver fallback graph was not exhaustively verified.",
+  "validation": "No compilation or runtime result. Validate actual transaction sequence and synchronous resolver dispatch start with asynchronous completion, plus existing priority, auth, cancellation and timer cases on the eventual patched candidate.",
+  "worker_steering": "message:mcp:35d73d71-4f63-49da-976b-7d5b697ab4ce:thread-send:484a404a-ee70-470a-a710-822b6f301e6d"
+}

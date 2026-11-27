@@ -1,0 +1,1667 @@
+{
+  "schema_version": 1,
+  "head": "ba1b723bc3341b3d28a77bd552aee06723170f86",
+  "metrics": {
+    "commit": "2d2db41824786f59c948e9d3c59890d1f4b91205",
+    "updated": "2026-11-12T07:08:36.319836+00:00",
+    "actual_loc": 7558333,
+    "files": 61587,
+    "languages": [
+      {
+        "name": "C++",
+        "lines": 4911156,
+        "share": 0.6497670848849872
+      },
+      {
+        "name": "C/C++",
+        "lines": 1639169,
+        "share": 0.21686911651021462
+      },
+      {
+        "name": "TypeScript",
+        "lines": 299054,
+        "share": 0.03956613184415135
+      },
+      {
+        "name": "Python",
+        "lines": 282497,
+        "share": 0.037375569454269876
+      },
+      {
+        "name": "Objective-C++",
+        "lines": 128875,
+        "share": 0.017050717400252144
+      },
+      {
+        "name": "CSS",
+        "lines": 68928,
+        "share": 0.009119471184982192
+      },
+      {
+        "name": "JavaScript",
+        "lines": 49675,
+        "share": 0.006572216386867316
+      },
+      {
+        "name": "HTML",
+        "lines": 47639,
+        "share": 0.00630284482041212
+      },
+      {
+        "name": "Mojo IDL",
+        "lines": 38997,
+        "share": 0.005159471010340508
+      },
+      {
+        "name": "Protocol Buffers",
+        "lines": 32151,
+        "share": 0.004253715733350197
+      },
+      {
+        "name": "Rust",
+        "lines": 28586,
+        "share": 0.0037820508834421557
+      },
+      {
+        "name": "Web IDL",
+        "lines": 8172,
+        "share": 0.001081190786381071
+      },
+      {
+        "name": "SQL",
+        "lines": 7066,
+        "share": 0.0009348622242497122
+      },
+      {
+        "name": "Java",
+        "lines": 5332,
+        "share": 0.0007054465581233323
+      },
+      {
+        "name": "Shell",
+        "lines": 5301,
+        "share": 0.000701345124645871
+      },
+      {
+        "name": "IDL",
+        "lines": 1823,
+        "share": 0.00024119074933586545
+      },
+      {
+        "name": "SVG",
+        "lines": 1415,
+        "share": 0.00018721059260024664
+      },
+      {
+        "name": "C",
+        "lines": 966,
+        "share": 0.00012780595932992102
+      },
+      {
+        "name": "Objective-C",
+        "lines": 910,
+        "share": 0.0001203969182093459
+      },
+      {
+        "name": "Batch",
+        "lines": 321,
+        "share": 4.246968213758245e-05
+      },
+      {
+        "name": "FlatBuffers",
+        "lines": 286,
+        "share": 3.7839031437223e-05
+      },
+      {
+        "name": "Ruby",
+        "lines": 14,
+        "share": 1.852260280143783e-06
+      }
+    ],
+    "definitions": {
+      "scope": "Committed snapshot only; local edits and untracked files are not counted. Maintained production source is the headline; tests and vendored source are separate.",
+      "lines_of_code": "Nonblank maintained production source lines, including comments.",
+      "lines_without_comment_only_lines": "Maintained production source excluding blank and comment-only lines.",
+      "actual_loc": "Maintained production source after recognized comments are stripped. Excludes docs, configuration, lockfiles, binaries, unsupported formats, generated code and fixtures; generated-header detection is heuristic.",
+      "comment_lines": "Maintained production source lines containing recognized comments.",
+      "source_gb": "Included maintained production source bytes divided by one billion.",
+      "configuration_files": "Configuration paths counted from the tree without reading their contents.",
+      "google_mentions": "Case-insensitive whole-word matches in maintained production source.",
+      "obsolete_functions": "Heuristic declarations within six lines of obsolete/removal markers."
+    }
+  },
+  "core_metrics": {
+    "counting_rules_version": 1,
+    "head": "ba1b723bc3341b3d28a77bd552aee06723170f86",
+    "scope": "Maintained implementation source in HEAD with local edits, deletions and non-ignored untracked files applied. Submodules and vendored sources are excluded.",
+    "actual_loc": 6356823,
+    "files": 50797,
+    "languages": [
+      {
+        "name": "C++",
+        "lines": 4354462,
+        "files": 21723,
+        "share": 0.685006016370127
+      },
+      {
+        "name": "C/C++",
+        "lines": 1528510,
+        "files": 25514,
+        "share": 0.24045187352235542
+      },
+      {
+        "name": "TypeScript",
+        "lines": 292138,
+        "files": 2485,
+        "share": 0.0459566044233102
+      },
+      {
+        "name": "Objective-C++",
+        "lines": 119911,
+        "files": 610,
+        "share": 0.018863353596600064
+      },
+      {
+        "name": "Rust",
+        "lines": 32053,
+        "files": 224,
+        "share": 0.005042298645093626
+      },
+      {
+        "name": "JavaScript",
+        "lines": 28290,
+        "files": 234,
+        "share": 0.00445033627647018
+      },
+      {
+        "name": "C",
+        "lines": 856,
+        "files": 5,
+        "share": 0.000134658460680752
+      },
+      {
+        "name": "Objective-C",
+        "lines": 603,
+        "files": 2,
+        "share": 9.4858705362726e-05
+      }
+    ],
+    "method": "Count nonblank lines after recognized comments are stripped; keep code beside trailing comments. C/C++ headers and FFI count. Remove Rust #[cfg(test)] and #[test] items. Lexical source inventory, not an AST or evaluated build graph.",
+    "included_languages": [
+      "C",
+      "C++",
+      "C/C++",
+      "Dart",
+      "Go",
+      "Java",
+      "JavaScript",
+      "Kotlin",
+      "Objective-C",
+      "Objective-C++",
+      "Rust",
+      "Swift",
+      "TypeScript"
+    ],
+    "excluded": {
+      "binary": 31076,
+      "configuration": 10554,
+      "dashboard": 3,
+      "deleted_or_non_regular": 116,
+      "documentation_tooling_examples_or_dashboard": 23982,
+      "fixture": 61,
+      "frozen_reference_or_validation_adapter": 116,
+      "generated": 7018,
+      "lockfile": 244,
+      "non_implementation_language": 3985,
+      "non_source": 59772,
+      "tests_fuzzers_benchmarks_or_test_helpers": 76720,
+      "vendored": 145992
+    },
+    "exclusion_rules": {
+      "support_directories": [
+        ".scratch",
+        "agents",
+        "benchmarks-site",
+        "build",
+        "buildtools",
+        "docs",
+        "examples",
+        "out",
+        "samples",
+        "scripts",
+        "tooling",
+        "tools"
+      ],
+      "test_directories": [
+        "benchmarks",
+        "fake",
+        "fuzz",
+        "fuzzers",
+        "fuzzing",
+        "javatests",
+        "junit",
+        "mock",
+        "mocks",
+        "perf_tests",
+        "perftests",
+        "test",
+        "test_data",
+        "test_helpers",
+        "test_support",
+        "test_util",
+        "test_utils",
+        "testdata",
+        "testing",
+        "tests"
+      ],
+      "test_filename_pattern": "(?:^|_)(?:test|tests|unittest|unittests|browsertest|browsertests|uitest|apitest|pixeltest|perftest|perftests|perf_test|perf_tests|fuzzer|fuzztest|fuzz|benchmark|benchmarks|mock|fake|testsupport|testing)(?:_|\\.|$)|(?:Test|Tests)\\.[^.]+$|(?:^|[a-z])(?:Test|Mock|Fake)[A-Z]",
+      "other": "Markdown/docs, configs, lockfiles, blank/comment-only lines, markup/styles, schemas/IDL, build scripts, generated files, fixtures, frozen net rewrite references and validation adapters; inherits classifier exclusions from .github/scripts/codebase_metrics.py"
+    },
+    "local_source_overrides": {
+      "base/allocator/partition_allocator/src/partition_alloc/partition_alloc_config.h": {
+        "sha256": "1fa815424d25fb246e64349b7fdebe8ac7a8bc93775e4f64058eaf77e0e7ec58",
+        "untracked": false
+      },
+      "base/functional/unretained_traits.h": {
+        "sha256": "0a90d0b9244ae7f751106715a2842b21b3ed8cfc9f65d6a42fc8bc05724e4f46",
+        "untracked": false
+      },
+      "base/i18n/icubridge/default_icu_locale.h": {
+        "sha256": "39ee9decec0b67cb6ffeed9ecc50e04f59da238d7cef77ac57eb882c7eebe69b",
+        "untracked": false
+      },
+      "base/path_service.cc": {
+        "sha256": "2cb9b5f6ad9297b20de1f98fe1a80cfe54f4b927fe9b6a6cd6b788655e32a02e",
+        "untracked": false
+      },
+      "base/task/sequenced_task_runner.h": {
+        "sha256": "21b3aa514f44880c6317ab4340aa1d9d72f8fb4f16440dcd9598bf9fcfea0438",
+        "untracked": false
+      },
+      "base/threading/thread_restrictions.h": {
+        "sha256": "911091412c78d77022408ab750129e54f9975c43f64edd62fd9803d48703fd95",
+        "untracked": false
+      },
+      "chrome/browser/about_flags.cc": {
+        "sha256": "6e103b6e9ad181f8d14cfaed3ec3a9115934200a886f4b0184a537d350808b5e",
+        "untracked": false
+      },
+      "chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc": {
+        "sha256": "9f7394cfbe0794ca317302a5b5e81831677d0694213a413789785a09f7b6033a",
+        "untracked": false
+      },
+      "chrome/browser/autocomplete/chrome_autocomplete_provider_client.h": {
+        "sha256": "8bfbeae6bb7536cdb7f44e1f5b687eda572a3d21ddf179691ea5005967c4dc63",
+        "untracked": false
+      },
+      "chrome/browser/chrome_browser_interface_binders_webui.cc": {
+        "sha256": "a6b454d0ec631d3b6ad1ab821cfddac245c15c4e0aafa87083f802b5775d804a",
+        "untracked": false
+      },
+      "chrome/browser/chrome_content_browser_client.cc": {
+        "sha256": "1dabc928f17a7453ee3789f90bf732508c4d406498ffe2904c7ba6ee134a6cc6",
+        "untracked": false
+      },
+      "chrome/browser/chrome_content_browser_client_navigation_throttles.cc": {
+        "sha256": "53c305d99b6691ed2ed23e42428bc1fec8dfb62e280c1ea0ab91c26b9d29748c",
+        "untracked": false
+      },
+      "chrome/browser/component_updater/component_extension_installer.cc": {
+        "sha256": "a34ec682d87c2343941a3f007bad9adca2da0085558dff79350c92b230dffef2",
+        "untracked": false
+      },
+      "chrome/browser/contextual_tasks/contextual_tasks_context_service_factory.cc": {
+        "sha256": "8da28f5c245f6215fc119eddff14e6fabd86eed682dd71f8c3608f6e8b0342b0",
+        "untracked": false
+      },
+      "chrome/browser/contextual_tasks/contextual_tasks_ui_service_factory.cc": {
+        "sha256": "2e333a5bf565b5f25e6a50dd19fe0835e0dbd46256042bbff583c7dd20d45c46",
+        "untracked": false
+      },
+      "chrome/browser/devtools/chrome_devtools_manager_delegate.cc": {
+        "sha256": "6a3e9c1f4427b818e01f8e1f35345e445a1535c856050aebe3df00647dee49c6",
+        "untracked": false
+      },
+      "chrome/browser/devtools/chrome_devtools_manager_delegate.h": {
+        "sha256": "0d438d6f40494f52bd76b25057adb476847349a80ba15c1f8d507743ffd23935",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/cast_device_provider.cc": {
+        "sha256": "ab468fc39656d23f1b19ebe9f7a3f487d83fd4ef2241c8736737e0444f8f5644",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/cast_device_provider.h": {
+        "sha256": "ac0553520550ebb7e02cbf8537ad3c561d635bc8e383aba49610c4a734ac3928",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/devtools_device_discovery.cc": {
+        "sha256": "545aa2bdc923a2dbeabc694b5ae2aeb836625afefc71a4c7923d499312f442fb",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/devtools_device_discovery.h": {
+        "sha256": "8f6cb00624431284e232aa779600242d72570840e7ef296b06a987586e3e02f2",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/devtools_remote_bridge.cc": {
+        "sha256": "3ac93f7008cdea68a5e2de3eecd02dbd656b4536d9941a48d355988a9b9e2195",
+        "untracked": true
+      },
+      "chrome/browser/devtools/device/devtools_remote_bridge.h": {
+        "sha256": "5a8428c7411dc6df28755514d1f0b1a6eb33e7e2f130e74d92355ca8352d2394",
+        "untracked": true
+      },
+      "chrome/browser/devtools/device/remote_device_manager.cc": {
+        "sha256": "e619f3f375adc732635dbf88eefc77d5cb2eb07007c839f16d9f5ba8c6c2bf89",
+        "untracked": true
+      },
+      "chrome/browser/devtools/device/remote_device_manager.h": {
+        "sha256": "1277ec1533b367020352685e8d700529d87ac706b4a03b1c5022fcb74d490724",
+        "untracked": true
+      },
+      "chrome/browser/devtools/device/remote_web_socket.cc": {
+        "sha256": "ebacbc3878eac1b09f8457f0f739519c1e070a9178b461b918752cd7c50ee60f",
+        "untracked": true
+      },
+      "chrome/browser/devtools/device/tcp_device_provider.cc": {
+        "sha256": "46a806dc729066d2359e518a0f2bc1484d37f72651c1266c9f0af7832c55cdb7",
+        "untracked": false
+      },
+      "chrome/browser/devtools/device/tcp_device_provider.h": {
+        "sha256": "17d69505682f7e6ae2b57fa75c449868b8a242ada843661ed7eec14fae1fa55c",
+        "untracked": false
+      },
+      "chrome/browser/devtools/devtools_targets_ui.cc": {
+        "sha256": "636ca72a453acb6bf998c7a9637516edf6c14878fb39ce4ffde01520a1b288f9",
+        "untracked": false
+      },
+      "chrome/browser/devtools/devtools_targets_ui.h": {
+        "sha256": "d154b165fc4cb69fc5bca7e613a16a9a16d4aeba6e908971d6506724d627a063",
+        "untracked": false
+      },
+      "chrome/browser/devtools/devtools_ui_bindings.cc": {
+        "sha256": "d44d8ee15fe304615fad4c61be1ecab4ad573e98eb3fe60ec61edbcc831a8ea7",
+        "untracked": false
+      },
+      "chrome/browser/devtools/devtools_ui_bindings.h": {
+        "sha256": "88a69a613cd4913a9bc19f7ed851d34cc37cc7f10a3598aca2a29645d81af267",
+        "untracked": false
+      },
+      "chrome/browser/devtools/devtools_window.cc": {
+        "sha256": "9741481fa08a01b922fb83f8415f15c58a1a029a71ea318daf6632e7e91251fa",
+        "untracked": false
+      },
+      "chrome/browser/extensions/chrome_component_extension_resource_manager.cc": {
+        "sha256": "ffd54532a2db4532fa3ed73c954dc1ea67ee4fabd2bd087b191a9e5c85474c96",
+        "untracked": false
+      },
+      "chrome/browser/extensions/component_extensions_allowlist/allowlist.cc": {
+        "sha256": "7ac9ad5d21777322bae11513b26c222a607059e85bcd05c8b2a39b4eb9bd7cac",
+        "untracked": false
+      },
+      "chrome/browser/extensions/component_loader.cc": {
+        "sha256": "d38bcd0e4a1bbdf1542fd1629170021b9880f1bd649f3eaab5c2bf423ca9b9c1",
+        "untracked": false
+      },
+      "chrome/browser/extensions/component_loader.h": {
+        "sha256": "0075171e28252e5f13104e2603b5473b59aac2b3036ffb3623a2a67ffd73d472",
+        "untracked": false
+      },
+      "chrome/browser/flag_descriptions.h": {
+        "sha256": "2602677f63d6ac7840fe6f57c6bb6c0be477845cfc5a4600b575379406326fce",
+        "untracked": false
+      },
+      "chrome/browser/prefs/pref_service_incognito_allowlist.cc": {
+        "sha256": "e8593a89ff18d936fabe0c351d418b906fa14892c2d9649f8c5f9c91d8d98060",
+        "untracked": false
+      },
+      "chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc": {
+        "sha256": "d9888553dfcdaa8becf63d5453a8b5740965272db048ac21a391e40cbf797d78",
+        "untracked": false
+      },
+      "chrome/browser/resources/inspect/inspect.js": {
+        "sha256": "20ccb7434748be76b924b475c65a5d4d3ef0edb347be591b43a5c33ff0838d21",
+        "untracked": false
+      },
+      "chrome/browser/resources/new_tab_page/lazy_load.ts": {
+        "sha256": "d5293a33283524671e67180a6937cfd324a4ff0bf19af7cbc6a7386b63eb5d87",
+        "untracked": false
+      },
+      "chrome/browser/resources/new_tab_page/ntp_searchbox.html.ts": {
+        "sha256": "845e9fd7195195df8488539337d591be2c612e11964e05d1ed47e2dccda5d013",
+        "untracked": false
+      },
+      "chrome/browser/resources/new_tab_page/ntp_searchbox.ts": {
+        "sha256": "6579b84462857105f7e2bb6b446022c95e9ad7bfb719160be76ee8225d670781",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/ai_page/ai_page.html.ts": {
+        "sha256": "a0e4db2e9c153202a5f3a7e205e614ed23504dcca020709371b6d81d176b08e5",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/ai_page/ai_page.ts": {
+        "sha256": "56320d1aa35eebac8ce000b079c53a8018d79d9bbbab4a0a49bb38aea5e940b8",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/ai_page/ai_page_index.html.ts": {
+        "sha256": "b12304802d74c02fd2a419207b9314fb6c55ced64d1863478bad55aeb2019d29",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/ai_page/ai_page_index.ts": {
+        "sha256": "a028dd1865d3ea29c2709f90ab5b8373cfd3e3b7e1c0864e104478985425812e",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/lazy_load.ts": {
+        "sha256": "08cd9fa42a09bf7e70d5f56900aaaca3db014acefa21fb3c08f724922d5d7cb1",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/route.ts": {
+        "sha256": "dcdf720f0b0396722803f01e2d304216e946fd8adbb77840f7fd7cbdd09753e6",
+        "untracked": false
+      },
+      "chrome/browser/resources/settings/router.ts": {
+        "sha256": "63643dd1c308bd69b38cc2ad113a392634b5e295d1235efbcb7b514dc59ad915",
+        "untracked": false
+      },
+      "chrome/browser/search/search.cc": {
+        "sha256": "375dab474be39bdfe5123a0c0a8f4f5acf52d3020a69616e7986267b52a9c024",
+        "untracked": false
+      },
+      "chrome/browser/search/search.h": {
+        "sha256": "20d82971fe1e08424e9aed2be61a3269b00a61a3fe228eb00355752fe182dda1",
+        "untracked": false
+      },
+      "chrome/browser/sync/sync_service_factory.cc": {
+        "sha256": "bc8041c6485c83733d678f1ec50008be7e7ecb541ab64dd7f76d10f4b26d7fa1",
+        "untracked": false
+      },
+      "chrome/browser/ui/browser_actions.cc": {
+        "sha256": "cf053adc660769884caa485bbd1d30cf08571b7668b0712cec41f93a829f0096",
+        "untracked": false
+      },
+      "chrome/browser/ui/browser_window/internal/browser_window_features.cc": {
+        "sha256": "3ecfa086c4b09993194cf29d69aa3cf5cc94ad39b2f9fab1978857c8afa4dd29",
+        "untracked": false
+      },
+      "chrome/browser/ui/browser_window/public/browser_window_features.h": {
+        "sha256": "fca45653b0c04e2701e16222ca433f1e98fcb9ef2f1876eae889d4d5fc748215",
+        "untracked": false
+      },
+      "chrome/browser/ui/omnibox/omnibox_edit_model.cc": {
+        "sha256": "60f908448416bd9da1557c4d815f3a68b0a0c91699d36ac006c0dbdacfe69225",
+        "untracked": false
+      },
+      "chrome/browser/ui/omnibox/omnibox_next_features.cc": {
+        "sha256": "52db466d6f40cfa1166f7fe6f50618b2447df4582681a3b89f93f51ad846249b",
+        "untracked": false
+      },
+      "chrome/browser/ui/omnibox/omnibox_popup_webui_creation.cc": {
+        "sha256": "c373fe3665c94a24d71d7b43aabcbb6e50a7a6f62585e26c208183b964f1f6c7",
+        "untracked": false
+      },
+      "chrome/browser/ui/omnibox/omnibox_popup_webui_creation.h": {
+        "sha256": "dbfdce7f5ae8d35a6f9aac8d0f7aa3bf2cd5fbf49106c5c8baf01cc40e176490",
+        "untracked": false
+      },
+      "chrome/browser/ui/page_action/action_ids.h": {
+        "sha256": "551fd895ad585f7a6e27393aaa904e3a6d3d7789850a6a676794087aa89ded79",
+        "untracked": false
+      },
+      "chrome/browser/ui/page_action/page_action_properties_provider.cc": {
+        "sha256": "8d532d0e22152b53b5dad20412de31d1b89da65739b84aa94e9ed6faa0a9ca89",
+        "untracked": false
+      },
+      "chrome/browser/ui/tabs/public/tab_features.h": {
+        "sha256": "3e789f374b9731620019075496d5f4bf41ae69440d07f401161b1b0de1a90881",
+        "untracked": false
+      },
+      "chrome/browser/ui/tabs/tab_features.cc": {
+        "sha256": "b94c96db4dd4e72a12decdfe44af6c392227ed11596ecf513be7d1d89ddd158d",
+        "untracked": false
+      },
+      "chrome/browser/ui/ui_features.cc": {
+        "sha256": "d0b053b4714150d5be6217304277c3f5ad08e633433ee0567f419811de373a25",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/dictation/dictation_iph_controller.cc": {
+        "sha256": "936a147352c667c943c1d597a78253b4d67903fc73f0d86e6b860c1ba6d6d88c",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/location_bar/location_bar_view.cc": {
+        "sha256": "bf283657b6352f19b9fd8265b9561e887c4891ed643dcd4e1261e2fc2413b0cd",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/location_bar/webui_location_bar.cc": {
+        "sha256": "3f221fea1bff808d3a79a28c190ccb69e7067dcf85b27b8b0e2d2069ab77e938",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/omnibox/omnibox_popup_full_presenter.cc": {
+        "sha256": "b1f864371ef04eb149e41fd964a9a4a2c7cf1459babaf2695a81197a91368b62",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/omnibox/omnibox_view_views.cc": {
+        "sha256": "6a004a0af8f366f78bda60c7096e96ab083eb40db8d08b97883858befd46fe88",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/omnibox/webui_readonly_omnibox.cc": {
+        "sha256": "80d52a80f8cdf920f6e24d0e1f5f9ea83c06b2e38d5214e2395d448130993317",
+        "untracked": false
+      },
+      "chrome/browser/ui/views/toolbar/toolbar_view.cc": {
+        "sha256": "d5d96e8e46b0d8640d3cf9f09c9e88fb5a5508e8783959e467fa98f2ff0cc0b4",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/chrome_web_ui_configs.cc": {
+        "sha256": "ca5cc86bd07f24627667225db559af183272a23bbc5ca207270d49f8c72eaa52",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.cc": {
+        "sha256": "36deadaa36d47b8286bbeee7fb2554ce998024258bfb3ad16a0593f1752636b1",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h": {
+        "sha256": "b9587b37b8d12682cac9e2bdb9c4f11306eadc70cea27aea1ec815c25054eff7",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/inspect/inspect_ui.cc": {
+        "sha256": "d46a2bc4b32adcd3dabe46043946b1c9e79d6e942083e0b1a28b4bd3cfd875e0",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/inspect/inspect_ui.h": {
+        "sha256": "21c3b845fa2c0c20df1cce61af61001360a4034792ce610ba08b2990c56d72bf",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/new_tab_page/composebox/variations/composebox_fieldtrial.cc": {
+        "sha256": "c37d9913e16f2bab6f3cff2961583fc4834e329bb9795d0748fed03f111eaebc",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.cc": {
+        "sha256": "199971893ff3c20f9b30ec50253c6cf5867f1a00d1873fa2a38f9347eaa14da0",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.h": {
+        "sha256": "2182865d343a355f2f139d283755ba2e1c8952c68947d660e9f3a695450e096c",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/searchbox/webui_omnibox_handler.cc": {
+        "sha256": "5f8d9d144d8366547a0ab66cab775b8a273f7e143ee08a7b7c0540a3c3666514",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc": {
+        "sha256": "cb2cf93f6b116abcd202ed3771352dcc82f40d09dd94ea5f5d2bb392f293b4c2",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/settings/settings_ui.cc": {
+        "sha256": "03794e57bcf7ed95ef228bb133c55074b8c8c8cc5f575b7970f37eac54920020",
+        "untracked": false
+      },
+      "chrome/browser/ui/webui/side_panel/customize_chrome/customize_toolbar/customize_toolbar_handler.cc": {
+        "sha256": "cc4fa3d1c9d89de43bd7bafacc85858796d73ab0901e89c7cda10230443e916a",
+        "untracked": false
+      },
+      "chrome/common/pref_names.h": {
+        "sha256": "b581aba6d3d6a44aff96f8575149cee1ea147e2ea713da8fd8ed7040f859e16c",
+        "untracked": false
+      },
+      "components/browser_sync/common_controller_builder.cc": {
+        "sha256": "2b0cf3124bd9c82d6e7c3fa3439620a332c7c47fbbdf54b661d7b92b066a2513",
+        "untracked": false
+      },
+      "components/contextual_tasks/public/features.cc": {
+        "sha256": "8d84b2ec23e4b5dbea881ae0b62a9a07d9a1b8db0cb6615176c718ca267922dd",
+        "untracked": false
+      },
+      "components/fcm/engine/chrome_build_info.cc": {
+        "sha256": "5ba909fa28183142d043c340751115ccc45a281f7a39fbb27c6cf0721a6fd7ce",
+        "untracked": false
+      },
+      "components/gcm_driver/gcm_client_impl.h": {
+        "sha256": "976779eb825a41233dec8f8c2b58dc9e5545b28c356421d08c3490c07b7f8cce",
+        "untracked": false
+      },
+      "components/history/core/browser/features.cc": {
+        "sha256": "b29cd7066a356160f3c2b75a726b10bc6c0e74985d20a40edbac8554acec779f",
+        "untracked": false
+      },
+      "components/omnibox/browser/aim_eligibility_service.cc": {
+        "sha256": "6aec3b628f359af96e230f92997e6c46e965ee3195f70096c18a56bcf18a1a46",
+        "untracked": false
+      },
+      "components/omnibox/browser/aim_eligibility_service.h": {
+        "sha256": "e16deaab42ebbbbb95bacc27cd775ffd1d1c6b0f55ac0312564d27cc5d774eac",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_controller.cc": {
+        "sha256": "11e289e33137e48396333c8941249df4e1507ef4e2a2ac9e6de6b4d2830a036e",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_controller.h": {
+        "sha256": "46971fa60d90af4218a54b089352f359d88f14f000bb32968f198b2aaeca2790",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_grouper_groups.cc": {
+        "sha256": "07c63bbeb1b56b0143140607c21d56b77165142141eb5e8f6edaafdd37b82dc8",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_grouper_sections.cc": {
+        "sha256": "f84b2c4133e7036ecf9a172deb8d8519ff738ef469315800e51afd18876fe3b5",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_grouper_sections.h": {
+        "sha256": "11be351398444331719cb60ac2162442fba813a4fcb1c0426db0d8d1808a8e32",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_match.cc": {
+        "sha256": "2398347a55490c596461a09bc10f35fc97ab42714f5d6da29503b1a631cb7fef",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_provider_client.cc": {
+        "sha256": "fa47ae6f6e2643ac8a583d6dd42308acab752958bd494de3f0720a4428e8f20f",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_provider_client.h": {
+        "sha256": "820d7411f52d1fb2788e080ef1f8ade18fcde2d6d1a8af69eafdea74c42611fc",
+        "untracked": false
+      },
+      "components/omnibox/browser/autocomplete_result.cc": {
+        "sha256": "98c0311f8b030013ec2f0b1e382a5b380370236999b39a001c686f05df0af66e",
+        "untracked": false
+      },
+      "components/omnibox/browser/base_search_provider.cc": {
+        "sha256": "91fd6ba248624ccfe371f9bafebaea3103385d5e0c29a1e402facad5ff5ed86f",
+        "untracked": false
+      },
+      "components/omnibox/browser/bookmark_provider.cc": {
+        "sha256": "41769aa62f4acc285413eaaf53c898bfb643fc6dde5eee81d9ae794a37979fd2",
+        "untracked": false
+      },
+      "components/omnibox/browser/clipboard_provider.cc": {
+        "sha256": "b5f181ccd3d9db6359b6adc353205e3c4c32059f6a9b4b7a09c0d21928beddb8",
+        "untracked": false
+      },
+      "components/omnibox/browser/history_quick_provider.cc": {
+        "sha256": "575c25d89f0f4e31e643095196288a4202da4f6b68e05d8c272fdf08cd1c249a",
+        "untracked": false
+      },
+      "components/omnibox/browser/omnibox_field_trial.cc": {
+        "sha256": "d0a40978f21dddc4f9368e380f21684fd1e27546e3c7a0d5cd36de2655127351",
+        "untracked": false
+      },
+      "components/omnibox/browser/open_tab_provider.cc": {
+        "sha256": "f7830ec3b8cc56eb78cdd728855a4125509e688fe1a23012e30e1b53d9245fbf",
+        "untracked": false
+      },
+      "components/omnibox/browser/page_classification_functions.cc": {
+        "sha256": "8ac4dd45fc117e0d8a8989e10ef5d489c13906ebbfd7d38421b8acbbc80423b0",
+        "untracked": false
+      },
+      "components/omnibox/browser/page_classification_functions.h": {
+        "sha256": "2af3bc5172d65b5348d7ad2348a4ec9227af2c06ea84e90f6ab2d00540e819b4",
+        "untracked": false
+      },
+      "components/omnibox/browser/recently_closed_tabs_provider.cc": {
+        "sha256": "bd92d886820ab56e1e52a4b62c5407cbeee4223bb71052987fb70983289a5f46",
+        "untracked": false
+      },
+      "components/omnibox/browser/recently_closed_tabs_provider.h": {
+        "sha256": "0285c33ebaa55add2a524b835ebf6f8ce9e3b86e709b8ef667d8acde35f1067a",
+        "untracked": false
+      },
+      "components/omnibox/browser/zero_suggest_verbatim_match_provider.cc": {
+        "sha256": "b3f1c7501ad641561e6b15c8b8c90072cfd56e7e7d2b5954c87f6ba86c2f4198",
+        "untracked": false
+      },
+      "components/omnibox/common/omnibox_feature_configs.cc": {
+        "sha256": "34933b8d2760e36c03b4b1a942f9db1e520dbbfc45ef52113c3f0a76d3fe6297",
+        "untracked": false
+      },
+      "components/omnibox/common/omnibox_features.cc": {
+        "sha256": "559a717d1e3ce142ddbc98151812532aec114dca66a9913f94edfcc1fedc5129",
+        "untracked": false
+      },
+      "components/omnibox/common/omnibox_features.h": {
+        "sha256": "7264cdf1962c924b732fd38e2fb6a9c4b3e7e0feb155e3d9c4c84da9f485d0b2",
+        "untracked": false
+      },
+      "components/search_engines/ai_mode_button_service.cc": {
+        "sha256": "3f6e9c83ae4200f78d3a03d04e42c89376fcf25229e4cf3ed295f4583ce2a9ea",
+        "untracked": false
+      },
+      "components/search_engines/ai_mode_button_service.h": {
+        "sha256": "e0aeec498e29f96253c1631791ba8576f198e8bc2833069e0cf31e7df2288ffe",
+        "untracked": false
+      },
+      "components/search_engines/template_url_service.cc": {
+        "sha256": "8fedd15dd07407a877b51e739feccd0b555a015c72cff9d2a27384d741306a0b",
+        "untracked": false
+      },
+      "components/search_engines/template_url_starter_pack_data.cc": {
+        "sha256": "da75139483ae437497c82a3680fb17304275f936e62dc7a2c64fd8b92b91634c",
+        "untracked": false
+      },
+      "components/search_engines/template_url_starter_pack_data.h": {
+        "sha256": "11491ebc77dbd79cf9b9674a27827aa88fe438e643f55aff89dedba71745a6eb",
+        "untracked": false
+      },
+      "components/search_engines/util.cc": {
+        "sha256": "59549e5e5484ca47e75ff1da95bd597a62d3b2c457a7fc54b483429a612716eb",
+        "untracked": false
+      },
+      "components/sync/protocol/proto_value_conversions.cc": {
+        "sha256": "4f5b46d00446dc812321b84afd2e8bca7c0e6e9e88cbc537100d1174e244f3d4",
+        "untracked": false
+      },
+      "components/sync/protocol/proto_value_conversions.h": {
+        "sha256": "bc902520cc0c10fd96081751404c6ba9d7a1366a0fad6f8cedcde28a6d46cf51",
+        "untracked": false
+      },
+      "components/sync/protocol/proto_visitors.h": {
+        "sha256": "81a4f2c42115925b47cb3bc7141727ae61c8b8a873d4903f536d4cf936d32736",
+        "untracked": false
+      },
+      "components/themes/cross_device/cross_device_theme_sync_bridge.h": {
+        "sha256": "c00f94b360bfe1fdba12945e9dd96b22eaf24db56df08f76e1ea0303c75d3edc",
+        "untracked": false
+      },
+      "components/themes/cross_device/theme_comparer.h": {
+        "sha256": "e2ed436f51862cfbbd654b350f56363de54b9e257f4f9e265ce2356ed8f5d687",
+        "untracked": false
+      },
+      "components/themes/cross_device/theme_translation.h": {
+        "sha256": "3e16e0a3f726e707922bca82d44de91db37c5a60bd1cfca1ceec7a00ae093532",
+        "untracked": false
+      },
+      "components/variations/seed_reader_writer.cc": {
+        "sha256": "247c57b6af2d80f404697f0ea4d990dc1256d7f2ad6c0eb751b8cc93e6145a62",
+        "untracked": false
+      },
+      "components/variations/synthetic_trial_registry.cc": {
+        "sha256": "31980a2554d515e3ffe749199c7aadecd159e80f2c05c68cccc490206b56cd53",
+        "untracked": false
+      },
+      "components/variations/synthetic_trial_registry.h": {
+        "sha256": "0b37a35d0677ca1b89d340f1e715c76691ed0a477c9b951c6af81a7235adf00f",
+        "untracked": false
+      },
+      "components/variations/variations_ids_provider.cc": {
+        "sha256": "7bbafbb5a4bbc89ae347bac881d3bfe42f12cf997821e5f3844f46e3b509bd40",
+        "untracked": false
+      },
+      "components/variations/variations_ids_provider.h": {
+        "sha256": "780141f5bbffc0885228cf4f968febcb9d088c684e340e99f5750b3910632c8a",
+        "untracked": false
+      },
+      "content/browser/gpu/browser_gpu_channel_host_factory.cc": {
+        "sha256": "2961c9de91095b462c09dbb4bc31b9dde9ad9918d5aa4542923026e9e090fc6d",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_extension_helper.cc": {
+        "sha256": "5a60bf8480ea393544fb0b04e5e7a202f3057a18f50dff2623c04ec34bcc8b6b",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_extension_helper.h": {
+        "sha256": "d9281e3c6fea24b65d2be2e2e1674f747a1d8890f499ef8c0e9615c196360e3a",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_anchor_manager.cc": {
+        "sha256": "c6f55096d52428a3d2c5b2d7632850b98aa6a27c1620bb604d92ff90d50f9619",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_anchor_manager.h": {
+        "sha256": "54131c2eb566ed8eea0de93beba9bf661793286a1ceccfa16f7a77b14d460e41",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_capability_configuration_base.cc": {
+        "sha256": "4762341bf56571da7e9ca11ba50fc8e5e45775ce4373919c8e036fa3f8a1139e",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_framework_manager.cc": {
+        "sha256": "88c59a8b6beabdb43be836fd809461a6bb9ad40ba87708e310f4ef60220ee2fb",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_framework_manager.h": {
+        "sha256": "c596d87f43f335de948785a7ac48044d8a06c1b08e3cb929d3593b90e53840f0",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_plane_manager.cc": {
+        "sha256": "06fc1931ada12829e3324e2ca438f13adfb8f4c438e205f89d7a22bbf369ad0b",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_spatial_plane_manager.h": {
+        "sha256": "057d9b8c9b3a0ae91255bc4a2e8bb17b6a216e6c8021285ff1063fa62cb610cb",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_util.cc": {
+        "sha256": "2f3bdd40eec08d49569390402b72695d1983b32173e4e62a6f1b73c122bdb29f",
+        "untracked": false
+      },
+      "device/vr/openxr/openxr_util.h": {
+        "sha256": "144f9758a5e6d974591d957ea644506a698e919efd74a78ceeae91139b9a5744",
+        "untracked": false
+      },
+      "device/vr/public/cpp/features.cc": {
+        "sha256": "20706f9c03e4acddc7dd90886d0910b186e2f1661a1d2489fa32bc96b8f1fc86",
+        "untracked": false
+      },
+      "device/vr/public/cpp/features.h": {
+        "sha256": "6a2fe82216a99b406bd8a9e99e38a1892ac084a87cec611c2aa19b4d99313462",
+        "untracked": false
+      },
+      "google_apis/gcm/engine/checkin_request.h": {
+        "sha256": "09124a58a8cfad615478c15e8b2bf786b065daf6b6bb0664b01734c3737da12f",
+        "untracked": false
+      },
+      "net/base/backoff_entry.cc": {
+        "sha256": "18f80b4f9fc4481ac4b6f24df4265378779a6a323fce3785fa6d1129eb5b8243",
+        "untracked": false
+      },
+      "net/base/backoff_entry.h": {
+        "sha256": "f1108e52b9beaf2789f79404e415028aa795a180713a23782c7883d49a07e4b8",
+        "untracked": false
+      },
+      "net/base/backoff_entry_serializer.cc": {
+        "sha256": "1d02a418265aa44c44c8e6b4e786e443e23f980800311a46ec4d5270ceeecd97",
+        "untracked": false
+      },
+      "net/base/backoff_rust_core.rs": {
+        "sha256": "0d72a9d50eb636636c38a2d7dd6a264e092481f10bcb35796f2c589331576aa8",
+        "untracked": true
+      },
+      "net/base/backoff_rust_ffi.h": {
+        "sha256": "a3ef8ac8f8e5c3ddf2489a687d48435108d645676bd63a067078de215596a9ca",
+        "untracked": true
+      },
+      "net/base/backoff_rust_ffi.rs": {
+        "sha256": "f5432983af23a76f22778268624ec91375be0acb0ce00ff29fd23fc60b77605e",
+        "untracked": true
+      },
+      "net/base/host_mapping_rules.cc": {
+        "sha256": "13e200a6d4d543ca0000b65e6a5aeeb8c4e7325a681789025a6ff80e65884fd0",
+        "untracked": false
+      },
+      "net/base/host_mapping_rules.h": {
+        "sha256": "a02505f47d8c231f1740a966fd960cedd1a44cd28671be5b3728ce4f56e623d1",
+        "untracked": false
+      },
+      "net/base/host_mapping_rust_core.rs": {
+        "sha256": "a531ffb0db189224191f3c987f4617c351f42344793bc091d9530717470d0045",
+        "untracked": true
+      },
+      "net/base/host_mapping_rust_ffi.h": {
+        "sha256": "92f0366b6ecc37b3571d04d0938d7c61ad4ae7b41b27129348426d7e2ad9ce8b",
+        "untracked": true
+      },
+      "net/base/host_mapping_rust_ffi.rs": {
+        "sha256": "01444d435813dbf41f3049e6756a8bbfd62f9e6a99b3f98df5a047bf803294e3",
+        "untracked": true
+      },
+      "net/base/host_mapping_rust_services.cc": {
+        "sha256": "6b405e0afdf759b4412786a1bf44fc360a646dde6fc17646a69e523eaccf0d00",
+        "untracked": true
+      },
+      "net/base/host_port_pair.cc": {
+        "sha256": "ee71fb54cf905e2bb17138d198b14937b5909b15598babf6c05ee97638d3b7f9",
+        "untracked": false
+      },
+      "net/base/host_port_pair.h": {
+        "sha256": "17be622020d8d160cc008b1db08822fd30c8833fb1de6b89b54f17461d5466e2",
+        "untracked": false
+      },
+      "net/base/host_port_rust_core.rs": {
+        "sha256": "fce9b42761d94d6c8023882ff664219f4f1caee171f2335e56e1f1e8601e30c7",
+        "untracked": true
+      },
+      "net/base/host_port_rust_ffi.h": {
+        "sha256": "6121a2df9f3645531a51f2fb82d24cf4489b80773ef693b5b663a22b67684730",
+        "untracked": true
+      },
+      "net/base/host_port_rust_ffi.rs": {
+        "sha256": "50ac988cf9a39473a87a6be889b3322b6812e4a9b481bfda7edcce4fcba32d35",
+        "untracked": true
+      },
+      "net/base/host_port_rust_services.cc": {
+        "sha256": "7bca39dd401779b8809751a0233f54bf61d4988674a7425f462d596a6f53bd5a",
+        "untracked": true
+      },
+      "net/base/parse_number_parser.rs": {
+        "sha256": "25592317374c48f318435eacdd562d7ed68b1ba889ccb7dbca647dab8b0ee1d3",
+        "untracked": false
+      },
+      "net/base/port_policy_core.rs": {
+        "sha256": "784f8ff9d52d0b0b151ef3d84f4eea44843b318009853d17dab04bc276c2e806",
+        "untracked": false
+      },
+      "net/base/port_util.cc": {
+        "sha256": "56b976f5af0455bc0fdd34802bea4b3c3bd1d569c211448a7cc69deb2146db47",
+        "untracked": false
+      },
+      "net/base/proxy_chain.cc": {
+        "sha256": "d655f964040669e4fcd50bb0f1c763648e75d33395c50906298ba9a912c59630",
+        "untracked": false
+      },
+      "net/base/proxy_chain.h": {
+        "sha256": "c2fa510ccf67b43a1a9d925c3602b0964a58c722ca8540aeca67e6025ffd1d06",
+        "untracked": false
+      },
+      "net/base/proxy_matching_rust_core.rs": {
+        "sha256": "591a9aa702e5c5367dfaae7eced18b37ec6e05cc4772c6ff342465495e48b758",
+        "untracked": true
+      },
+      "net/base/proxy_matching_rust_ffi.cc": {
+        "sha256": "768826945b95b98935617252a6b9d72505fb4095f2d08e8d9004c36e71320b77",
+        "untracked": true
+      },
+      "net/base/proxy_matching_rust_ffi.h": {
+        "sha256": "7aadffc0d58dfa72bfcae2e8b4e5ec5993ba1aa350c80796ca3f9ecad958dc57",
+        "untracked": true
+      },
+      "net/base/proxy_matching_rust_ffi.rs": {
+        "sha256": "3cf9d3b6190f5851ed1cf9362839bb8eb87ab027a33067394c2eda84c2b8dc29",
+        "untracked": true
+      },
+      "net/base/proxy_server.cc": {
+        "sha256": "c70c3419f4b86d5fad99b97242a1eaffcd9c19b5cd74fabe5e775e9c97bdddb9",
+        "untracked": false
+      },
+      "net/base/proxy_server.h": {
+        "sha256": "764b2b6345710f9806ff28aa8f63a6eaf69851583dbfa35a05d18dd9ee5dd2f6",
+        "untracked": false
+      },
+      "net/base/proxy_string_util.cc": {
+        "sha256": "356c374112b71127fcc4c9e5d55938e9402a422bc6c6d40fd83e5ccdb8d0916b",
+        "untracked": false
+      },
+      "net/base/proxy_value_rust_adapter.cc": {
+        "sha256": "b03fcebb1bf4d1794c0d5693e9212c3720c1b28dd500200f4473b4aa4fde85ed",
+        "untracked": true
+      },
+      "net/base/proxy_value_rust_core.rs": {
+        "sha256": "fb333d2a81037c8d5be0c9b35f761d1b89d54144cdbe769ba4a3e1b4ec4939e3",
+        "untracked": true
+      },
+      "net/base/proxy_value_rust_ffi.h": {
+        "sha256": "db97a07b9d6b98db62e876124ce286226d1d4a5a3b729e2a823a62c7c0840b3e",
+        "untracked": true
+      },
+      "net/base/proxy_value_rust_ffi.rs": {
+        "sha256": "c69fee9796ec953d5b1ea88a8ee2fc45d8a4676f71eace431b910b1b7785b2d3",
+        "untracked": true
+      },
+      "net/base/scheme_host_port_matcher.cc": {
+        "sha256": "f25fcbda45fd6158b2e47f15b44e7994067a8c0167ba04cdf6773155d709a981",
+        "untracked": false
+      },
+      "net/base/scheme_host_port_matcher.h": {
+        "sha256": "d41f86719d56bcbf9576e57d1b3a6b9e347ed18c13e06227c940ccf305dc0b76",
+        "untracked": false
+      },
+      "net/base/scheme_host_port_matcher_rule.cc": {
+        "sha256": "4b4101255560e23aa27e14378f8ec56bd7294740f41c5f5ced2e3ea437c9792b",
+        "untracked": false
+      },
+      "net/base/scheme_host_port_matcher_rule.h": {
+        "sha256": "44f2adc204632d83731c5da39692dd0a6ae5e9244b6bfb70ff5499de85e40c3e",
+        "untracked": false
+      },
+      "net/base/url_util.cc": {
+        "sha256": "33956e2a2385e56d96f73905a9e96b1f92760ec6e8c29f59ffbc7b87110501fb",
+        "untracked": false
+      },
+      "net/cookies/cookie_inclusion_status.cc": {
+        "sha256": "2abb8670654109d2e40d1b3bcc7fe74bd791d5fc4262eacdbb1e0aacd0ac2b08",
+        "untracked": false
+      },
+      "net/cookies/cookie_inclusion_status.h": {
+        "sha256": "de1029f820d2ce82ada7dcccce70122d2bc9820846f39dfa5f4a1986aa23d84e",
+        "untracked": false
+      },
+      "net/cookies/cookie_inclusion_status_rust_core.rs": {
+        "sha256": "e28a7859b9f7288e4d2c6c97493ec1bbcfa0d4061ca39d328260598a94699c8a",
+        "untracked": true
+      },
+      "net/cookies/cookie_inclusion_status_rust_enum_set.h": {
+        "sha256": "6a651ff19dae3966319970f0450deaf1ec158f2f87b49d5e4e1d3093cbe71b0f",
+        "untracked": true
+      },
+      "net/cookies/cookie_inclusion_status_rust_ffi.h": {
+        "sha256": "5e6d98355a6744b6dcf5cd1b53e3cfe0e2634ee7ebee66d89c363d21ef7be8cb",
+        "untracked": true
+      },
+      "net/cookies/cookie_inclusion_status_rust_ffi.rs": {
+        "sha256": "dddb13ebe0c515a4fcafe966acea21b819d2097b75e6d24afb4c1f4a6450db69",
+        "untracked": true
+      },
+      "net/cookies/parsed_cookie.cc": {
+        "sha256": "a4310dd5d14f7edb27a3274033127501a3364f0b648d8778e5e56e7e550242ae",
+        "untracked": false
+      },
+      "net/cookies/parsed_cookie.h": {
+        "sha256": "5be23780804d6d1cccb49a329eee5cea9fa55563238ad028e5683e0034ca1c9a",
+        "untracked": false
+      },
+      "net/cookies/parsed_cookie_rust_core.rs": {
+        "sha256": "9b1da4744cb2a3e6f8b44c89b6d3df1e5421434869ed1517d986532d8bba28f8",
+        "untracked": true
+      },
+      "net/cookies/parsed_cookie_rust_ffi.h": {
+        "sha256": "bc7959a46d487249f6bd98c647063ef420f584f3375310796a0a47ce693feb48",
+        "untracked": true
+      },
+      "net/cookies/parsed_cookie_rust_ffi.rs": {
+        "sha256": "ae3940a4d2bdf2e0092d0773136f6fd7e9536c65d863c1501644de2b29921bda",
+        "untracked": true
+      },
+      "net/disk_cache/disk_cache.cc": {
+        "sha256": "d60119ef08f20ec18358287bbe218b5cc39f1b6af6b482b27ef96376506820ea",
+        "untracked": false
+      },
+      "net/disk_cache/disk_cache.h": {
+        "sha256": "181bb7d208829fc305e5da07ac7a8f6347648b118115b39943af1f5a4f9a26b0",
+        "untracked": false
+      },
+      "net/disk_cache/simple/disk_simple_index_rust.h": {
+        "sha256": "817b51335484502f946d88576ddbb159497ac3b4e8e805e171bcbcec2d2f23ce",
+        "untracked": true
+      },
+      "net/disk_cache/simple/disk_simple_index_rust.rs": {
+        "sha256": "d3ef342b2aa07f58b63a4d02ed4d9f224daecfb430f4a952e94996b67cc5150c",
+        "untracked": true
+      },
+      "net/disk_cache/simple/disk_simple_index_rust_ffi.rs": {
+        "sha256": "6b82a9b9f62c62e5ae8121b6fa6630462708c7fe4de448cd014e671dba462962",
+        "untracked": true
+      },
+      "net/disk_cache/simple/simple_index.cc": {
+        "sha256": "1731930d8659f952e5c03cfdb4c672f433f57ec68951a2c8609e37c158d052f0",
+        "untracked": false
+      },
+      "net/disk_cache/simple/simple_index.h": {
+        "sha256": "a04cffe8459678e83305caf39719649b4c5143c68ca4608f384cdd9f90588655",
+        "untracked": false
+      },
+      "net/dns/dns_host_cache_rust_core.rs": {
+        "sha256": "244611cdee186418d64b80ae3586c647d948f71523d6dedbf8b006e7b963d99e",
+        "untracked": true
+      },
+      "net/dns/dns_host_cache_rust_ffi.h": {
+        "sha256": "6d48a2f7298856bafd813faa8d7f181adba475bc824b48f0317124fc160e7e7c",
+        "untracked": true
+      },
+      "net/dns/dns_host_cache_rust_ffi.rs": {
+        "sha256": "8a2e69a98b99b9f69b4115e64466f27e086e9f8bdb453ba18b8b2e5fe9cc9e96",
+        "untracked": true
+      },
+      "net/dns/dns_host_cache_rust_ops.rs": {
+        "sha256": "ae6024fa5812750d1de65f1bd97d129a4ff322a9728a3f74edf378b08b18a865",
+        "untracked": true
+      },
+      "net/dns/dns_query.cc": {
+        "sha256": "f24a41eb04359d18aa36599453161beef00c981882249a18d830109e6bcbd896",
+        "untracked": false
+      },
+      "net/dns/dns_query.h": {
+        "sha256": "8f429e52f3ab7278e0506988ba68e6800e37df05bbed9f45b17a182ed21b50d7",
+        "untracked": false
+      },
+      "net/dns/dns_query_rust_core.rs": {
+        "sha256": "34345e861ea072d445299b3b186df57c3d44a7b6c0a60b2664e4500eb39f3c5a",
+        "untracked": true
+      },
+      "net/dns/dns_query_rust_ffi.h": {
+        "sha256": "198e95781e067befec598873ccf2db9d216aaa070d334af0c60a5d766755b22f",
+        "untracked": true
+      },
+      "net/dns/dns_query_rust_ffi.rs": {
+        "sha256": "d228d659cb893e0dd43d1fb4a23ee170ab7af24c5545807b66a9d7e677ad084b",
+        "untracked": true
+      },
+      "net/dns/dns_response.cc": {
+        "sha256": "a4795b77b148f3f68dc0c13a6fa1f9ce5a8802f627d2ef90ec4a23cf62ff33ab",
+        "untracked": false
+      },
+      "net/dns/dns_response.h": {
+        "sha256": "324398798855eaffb62aadb708bb61f337c5fdd769a50d213335cb1920144059",
+        "untracked": false
+      },
+      "net/dns/dns_response_rust_core.rs": {
+        "sha256": "a823202f2e5b071d28d3865331f95bcf4e013a96dda8650503f704a343c40a87",
+        "untracked": true
+      },
+      "net/dns/dns_response_rust_ffi.h": {
+        "sha256": "d8ee29e4bc1ff2c0d72dd71129c88b6308d1299aa363e1eb9afba9d4ae56f39b",
+        "untracked": true
+      },
+      "net/dns/dns_response_rust_ffi.rs": {
+        "sha256": "0c7cd596e5a63d0b0da5a0bb7774af47f6dcb37bf45f36b626878c0bb3207790",
+        "untracked": true
+      },
+      "net/dns/host_cache.cc": {
+        "sha256": "09ade8bc5a4c4d891bd0f7c3994ad192847ffde2872a060d74d5bb6872814e8d",
+        "untracked": false
+      },
+      "net/dns/host_cache.h": {
+        "sha256": "a186bea948cba2b86d74c25c18311cf480e244bad65c3fff428e53a748db6f8b",
+        "untracked": false
+      },
+      "net/http/http_auth_cache.cc": {
+        "sha256": "ac4f7dc27e5f7c716ddabc97daf2f6a879d835e919ab5b3e57902668516a149c",
+        "untracked": false
+      },
+      "net/http/http_auth_cache.h": {
+        "sha256": "63214f5c18e2fdbab1829fb174eb5635b8f445c794bbac4ecb002463de5fa7a1",
+        "untracked": false
+      },
+      "net/http/http_auth_cache_rust_core.rs": {
+        "sha256": "a2f50b1bc25850f157cf34da973c313920db1eb0301a13fca7bb21423b4ceb82",
+        "untracked": true
+      },
+      "net/http/http_auth_cache_rust_ffi.h": {
+        "sha256": "04352eb31fd8f05bca3ce797cf6778c81bab03eaff7547b1bd72ac42b020b5b7",
+        "untracked": true
+      },
+      "net/http/http_auth_cache_rust_ffi.rs": {
+        "sha256": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+        "untracked": true
+      },
+      "net/http/http_byte_range.cc": {
+        "sha256": "ad20c805ce829350401c9826ffa3ddd3382e02897fec14f825e8c0296a129683",
+        "untracked": false
+      },
+      "net/http/http_byte_range.h": {
+        "sha256": "eabe50dc45f0976b3404fa63d50086dcfde05022fdd32de1c95aaec1e38f0d8d",
+        "untracked": false
+      },
+      "net/http/http_byte_range_rust_core.rs": {
+        "sha256": "85ce2512fc8a558c0071bb32c8da761e4cd3ffc8b3f0d125d7ab0ebdf401cb92",
+        "untracked": true
+      },
+      "net/http/http_byte_range_rust_ffi.h": {
+        "sha256": "9f136c8e565bdda2ef3f1bc8bef055ec041791fe1a10c47c139234355fc038cf",
+        "untracked": true
+      },
+      "net/http/http_byte_range_rust_ffi.rs": {
+        "sha256": "5d2686512e2e468db85f857768af2dc1859d16e3150dac626a00dfc8cb5914e7",
+        "untracked": true
+      },
+      "net/http/http_range_ffi.h": {
+        "sha256": "e3f696a226a1248d9b5b7a23889af72ce4d502e90bf9cfd414ff5138af5228ce",
+        "untracked": false
+      },
+      "net/http/http_range_ffi.rs": {
+        "sha256": "7666679870e5cd0c807f76c6eaf93934e13113d8137738d85964a74b0274670d",
+        "untracked": false
+      },
+      "net/http/http_range_parser.rs": {
+        "sha256": "5f71d4062e55e578b2c0111c681ebbec3d0c36086aca2aa53ae6d96dd93166d8",
+        "untracked": false
+      },
+      "net/http/http_request_headers.cc": {
+        "sha256": "c4e6db1dcd3be578c2fdbc4b0f77375f85147aa64835cc5334aec3bba2bccfad",
+        "untracked": false
+      },
+      "net/http/http_request_headers_rust_core.rs": {
+        "sha256": "1e6985ac1be02f6f7cc67fe4f6037ecaec1bfab83e36edc5b631c945231b009d",
+        "untracked": true
+      },
+      "net/http/http_request_headers_rust_ffi.h": {
+        "sha256": "97661754192b2973200751b9ec7f39da2900f83da5339e5fb44ba5d5a8900f98",
+        "untracked": true
+      },
+      "net/http/http_request_headers_rust_ffi.rs": {
+        "sha256": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+        "untracked": true
+      },
+      "net/http/http_response_info.cc": {
+        "sha256": "e2b72641f34b11fb49e9e30e56e26581881fc3a5df56088feeef6e26bb2450bf",
+        "untracked": false
+      },
+      "net/http/http_response_info.h": {
+        "sha256": "e5e1df26ddbcb4cd0d8884a27251ce6778f07d791184191925cdbe4f84fa8f3f",
+        "untracked": false
+      },
+      "net/http/http_response_info_rust_core.rs": {
+        "sha256": "b6be4a7222876d90f12d880edefedf1fa768a24b0d6e947e9d9589e82ecac664",
+        "untracked": true
+      },
+      "net/http/http_response_info_rust_ffi.h": {
+        "sha256": "c8acca1b6a0e74356cdaa7f7406afc0078ff0058b663eef55d0a1e9bd85f6aa4",
+        "untracked": true
+      },
+      "net/http/http_response_info_rust_ffi.rs": {
+        "sha256": "98b21451bef7f79e819a5e36e79a6b48ec5758156a409fa3a7ad1d2200bf968c",
+        "untracked": true
+      },
+      "net/http/http_response_info_rust_ids.rs": {
+        "sha256": "e400cf6427bee134cf11549f04704352980542e57405285218c6fd763e0d7eea",
+        "untracked": true
+      },
+      "net/http/http_util.cc": {
+        "sha256": "29456bdf22926fe3f62567acaf5f7cee49120357b29b9ecbbbb68483e732185f",
+        "untracked": false
+      },
+      "net/http/http_vary_data.cc": {
+        "sha256": "a34b3a903dbc8fe8fae4c49f8ef20d4904dcc4e272604626786f2869c014ac29",
+        "untracked": false
+      },
+      "net/http/http_vary_data_rust_core.rs": {
+        "sha256": "0151a83e6a9fab250892532b13f8bd98d652563954019bafb60cde3748eaa4b1",
+        "untracked": true
+      },
+      "net/http/http_vary_data_rust_ffi.h": {
+        "sha256": "db31e03c7968e89c3dc5bb6524fce77a563c0374d55005f3e2957a9e8e42264e",
+        "untracked": true
+      },
+      "net/http/http_vary_data_rust_ffi.rs": {
+        "sha256": "da486e26c73b502afbee2baf084ba022b54cba9a819b85f4c4ef2bfff78df59d",
+        "untracked": true
+      },
+      "net/log/net_log_values.cc": {
+        "sha256": "6e2b1cf9b544d7642a07c797efe98724cd7351f8c0c83fe60d103b0b8525855b",
+        "untracked": false
+      },
+      "net/log/net_log_values_rust_core.rs": {
+        "sha256": "121f019ee03c6c0d808fa9adbd474cf3d0e275b3d248c49ea655f4aa6e99ca15",
+        "untracked": true
+      },
+      "net/log/net_log_values_rust_ffi.h": {
+        "sha256": "f91ba574fb2c44f2fa4969669780276543fedaae23f13ee8ed0c24cc00fd541f",
+        "untracked": true
+      },
+      "net/log/net_log_values_rust_ffi.rs": {
+        "sha256": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa",
+        "untracked": true
+      },
+      "net/proxy_resolution/proxy_host_matching_rules.cc": {
+        "sha256": "c4a9be9b7fb1302cfb8841ab125c127b6f16ce6c488980ce92ee0e3bf3aff49b",
+        "untracked": false
+      },
+      "net/quic/http3_client_stream_rust_core.rs": {
+        "sha256": "2017c43bea36f841acb049764d23d9d4bfce6edcc1c75be348d45b92a2aa2c05",
+        "untracked": true
+      },
+      "net/quic/http3_client_stream_rust_ffi.h": {
+        "sha256": "b50eb808d2d967df3495c4b589669512ba7dd8d4899127126d082e9b4fbf759f",
+        "untracked": true
+      },
+      "net/quic/http3_client_stream_rust_ffi.rs": {
+        "sha256": "04b660cca9061df8b2e1d1f643c0d28797fce511aed39220183b3246983aea09",
+        "untracked": true
+      },
+      "net/quic/quic_chromium_client_stream.cc": {
+        "sha256": "d324fa774a15153f654aa96723cf5316061d3528d5e256943ac32c897a436962",
+        "untracked": false
+      },
+      "net/socket/tcp_client_socket.cc": {
+        "sha256": "bc7f7a9b5ea1754183d61e0b1c41de6cf39558f9fad7cff8cf2299da3ab1b82f",
+        "untracked": false
+      },
+      "net/socket/tcp_client_socket.h": {
+        "sha256": "702677105dfbed0527bdf6b85ce0a7310e84704f55417a41b722fd05c31f9288",
+        "untracked": false
+      },
+      "net/socket/tcp_client_socket_rust_core.rs": {
+        "sha256": "a50a5620dfbcef747b54b5715df19860ceb5024bc9404781230c44ac25e2a8ab",
+        "untracked": true
+      },
+      "net/socket/tcp_client_socket_rust_ffi.h": {
+        "sha256": "6e8fc0e82e78af948c424e47898a9dac0708541d3e44ce7194001e6bd98f1d9d",
+        "untracked": true
+      },
+      "net/socket/tcp_client_socket_rust_ffi.rs": {
+        "sha256": "89d75c39f3a93ca89f88bec1976089a8bc06bbbc623d5b0f41f08fcc23ef0a71",
+        "untracked": true
+      },
+      "net/spdy/http2_write_queue_rust_core.rs": {
+        "sha256": "ccb50253652180b03c078dd4c3ea90ad4699beaea5329bb898d61a93e4cd1c1a",
+        "untracked": true
+      },
+      "net/spdy/http2_write_queue_rust_ffi.h": {
+        "sha256": "a176b6ed7fe874fab6475002c331145b9c67c699cf5932d02b8bbf0ebe7f9f2b",
+        "untracked": true
+      },
+      "net/spdy/http2_write_queue_rust_ffi.rs": {
+        "sha256": "414ff83883b857828aa93b80fef00c04764b59854ff76f15a93dabeee4384b08",
+        "untracked": true
+      },
+      "net/spdy/spdy_write_queue.cc": {
+        "sha256": "c934344c3186d60481422c278f026cad4f3e45320537f436aefed92d341bc9ee",
+        "untracked": false
+      },
+      "net/spdy/spdy_write_queue.h": {
+        "sha256": "7897236a12371b9a25b906e1f34bf6f6cb6a3d7cb6c3b6670e8084a63d15de8f",
+        "untracked": false
+      },
+      "net/ssl/ssl_client_session_cache.cc": {
+        "sha256": "b48b6561fb0f2da1476a8326f2270c4dc6c63a7eab171d79eef81c0cf2f7f44f",
+        "untracked": false
+      },
+      "net/ssl/ssl_client_session_cache.h": {
+        "sha256": "20d70e696be8fe56db61fbf0ecff57659a765d897aecc149cdd486db8a251044",
+        "untracked": false
+      },
+      "net/ssl/tls_session_cache_rust_abi.h": {
+        "sha256": "ddc9c518816eef173b6d130ef9cb7fd7235cfbee9e7276fd3bd53625f75aeee8",
+        "untracked": true
+      },
+      "net/ssl/tls_session_cache_rust_core.rs": {
+        "sha256": "e966ddd81eeb7c1576e54042d5820ba37fbc4f7263da73d101f7fbf2109d7ed8",
+        "untracked": true
+      },
+      "net/ssl/tls_session_cache_rust_ffi.rs": {
+        "sha256": "4d981fa7c7c3b77811ef81789f1eb4440ecc4da0566dcfb5e7a56ade6f3b035f",
+        "untracked": true
+      },
+      "net/websockets/websocket_extension.cc": {
+        "sha256": "95dc9af540a09e1a29a5dd2bfea5ff6a5682dbb48bd017d17123255feee9c309",
+        "untracked": false
+      },
+      "net/websockets/websocket_extension_parser.cc": {
+        "sha256": "84f016ff7343b93be0421b389283c0604e9a90c809758d795d165367cd4fa543",
+        "untracked": false
+      },
+      "net/websockets/websocket_extension_rust_core.rs": {
+        "sha256": "0608e6e0e903fcfd96ff3d7be919ec3c43aa8f54f4917fa354db5685f753c615",
+        "untracked": true
+      },
+      "net/websockets/websocket_extension_rust_ffi.h": {
+        "sha256": "d8f81d0c7d126ff940499006b61e5dba716351f15ffe3bea64844d8ace335ffb",
+        "untracked": true
+      },
+      "net/websockets/websocket_extension_rust_ffi.rs": {
+        "sha256": "4f86c562636e6a2628bbb93e4aa94c02a7fdc85fb9d6f162b8be69b3d9df5f1a",
+        "untracked": true
+      },
+      "net/websockets/websocket_frame.cc": {
+        "sha256": "daa21825bfd6324165147a198a68f3fb80066fd2a5a8000e596216d9f1783e3f",
+        "untracked": false
+      },
+      "net/websockets/websocket_frame.h": {
+        "sha256": "405c49352309768279274d5b3d48ddbe72c18d8d31de1c913f7793b12e2e19aa",
+        "untracked": false
+      },
+      "net/websockets/websocket_frame_parser.cc": {
+        "sha256": "fa959c7acbfced11d09b941bc4d6149efd67748e50c62f7e5471d132cf94d5c7",
+        "untracked": false
+      },
+      "net/websockets/websocket_frame_parser.h": {
+        "sha256": "0c9f06ebeb5956068e94ac590b028ae5ed5fa6c026619e534470629accac3c5d",
+        "untracked": false
+      },
+      "net/websockets/websocket_frame_rust_core.rs": {
+        "sha256": "35d9d4a08ed47a82c771aece24aed2554606c69655e4a1d51136b6e7f66de0d1",
+        "untracked": true
+      },
+      "net/websockets/websocket_frame_rust_ffi.h": {
+        "sha256": "83b32793a9649f502d47dc017b073b13d4eac52bf0b3f09f1deeca1bfce031ad",
+        "untracked": true
+      },
+      "net/websockets/websocket_frame_rust_ffi.rs": {
+        "sha256": "3da17b5182c15b3625bddc042b84ca96f5505e4e510987982df0f4e54f4aab06",
+        "untracked": true
+      },
+      "services/resource_coordinator/memory_instrumentation/aggregate_metrics_processor.cc": {
+        "sha256": "79f976bd0fcb9c41134354f478842fde9d7c5e1e9fd5fa1f0a12d463c8c9f185",
+        "untracked": false
+      }
+    },
+    "included_manifest_sha256": "a412a5f2345f12276085723dafcf6dc4c8c6f2aab360033bfeec95153df1755c",
+    "scanner_sha256": {
+      "tools/core_source_metrics.py": "f045c092b0fe5f6972cf56104f328e4d0a8e74d98710bb2e9a8195827ca1d363",
+      ".github/scripts/codebase_metrics.py": "3ce58af598ebb4cfc4a1551d3b50e55239a320df7c18b7a30baec4a17941f9a1"
+    },
+    "limitations": "Includes unaccepted local Rust implementations. Path/header rules are heuristic; platform branches and embedded test code outside recognized Rust test items are not evaluated. Not a shipped-binary or migration-completion percentage."
+  },
+  "accepted": {
+    "count": 14,
+    "meaning": "Production-integrated feature slices implemented in this rewrite effort, not whole modules or a percentage of Chromium. Pre-existing unrelated Rust is not credited.",
+    "platform": "Windows x64 out/Default; no cross-platform completion claim",
+    "evidence": "docs/rust/benchmarks/net-wave1-optimized-validation-2026-11-12/report.json",
+    "slices": [
+      {
+        "id": "datapack",
+        "rust_scope": "DataPack resource parsing and lookup",
+        "remaining_cpp_seams": "C++ resource ownership and public API"
+      },
+      {
+        "id": "gzip-header",
+        "rust_scope": "Gzip header state machine",
+        "remaining_cpp_seams": "C++ stream ownership; compression codec services"
+      },
+      {
+        "id": "hsts",
+        "rust_scope": "HSTS header grammar",
+        "remaining_cpp_seams": "C++ transport-security state and policy application"
+      },
+      {
+        "id": "mime-sniffer",
+        "rust_scope": "MIME sniffing policy",
+        "remaining_cpp_seams": "C++ public API and string ownership"
+      },
+      {
+        "id": "http-range",
+        "rust_scope": "Range, Fetch single-range and Content-Range header grammar",
+        "remaining_cpp_seams": "C++ HttpByteRange value policy and public containers"
+      },
+      {
+        "id": "protocol-numbers",
+        "rust_scope": "Four public decimal numeric APIs",
+        "remaining_cpp_seams": "C++ public scalar API; historical CXX candidate preserved"
+      },
+      {
+        "id": "http-status-code",
+        "rust_scope": "HTTP reason phrases and status recognition",
+        "remaining_cpp_seams": "C++ view/optional return construction"
+      },
+      {
+        "id": "mime-type",
+        "rust_scope": "MIME grammar/parameters and Content-Type selection",
+        "remaining_cpp_seams": "C++ strings/ownership; other MIME lookup/matching/formatting algorithms"
+      },
+      {
+        "id": "content-disposition",
+        "rust_scope": "Content-Disposition parser and decoder policy",
+        "remaining_cpp_seams": "C++ ownership and ICU/native charset services"
+      },
+      {
+        "id": "dns-names",
+        "rust_scope": "DNS name/wire utility policy and ordering",
+        "remaining_cpp_seams": "C++ buffers/cursors, URL/IDNA/IP/localhost services; DNS resolver/records remain"
+      },
+      {
+        "id": "referrer-policy",
+        "rust_scope": "Referrer-Policy header-to-enum parser",
+        "remaining_cpp_seams": "C++ enum/optional adapter; request/redirect policy application"
+      },
+      {
+        "id": "auth-challenges",
+        "rust_scope": "Authentication challenge tokenizer and round policy/decoder",
+        "remaining_cpp_seams": "C++ string ownership, shared parameter iterator and auth scheme metadata"
+      },
+      {
+        "id": "net-diagnostics-debug-formatting",
+        "rust_scope": "Load-flag formatting and privacy labels",
+        "remaining_cpp_seams": "C++ string ownership and CHECK/NOTREACHED diagnostics"
+      },
+      {
+        "id": "port-policy",
+        "rust_scope": "Restricted-port policy, exceptions and mutable state",
+        "remaining_cpp_seams": "C++ feature discovery, IP classification, logging and metrics"
+      }
+    ]
+  },
+  "acceptance_ledger_refreshed_utc": "2026-11-12T21:59:48.763344+00:00",
+  "network_inventory_groups": 24,
+  "groups_with_cpp_ownership": 24,
+  "ownership_statuses": [
+    "C++ ownership remains"
+  ],
+  "active_work": [
+    {
+      "name": "Backoff state and serialization",
+      "source": "net/base/backoff_rust_core.rs",
+      "report": "docs/rust/benchmarks/backoff-entry-wave2-20261112T234219-native/report.json",
+      "archived_status": "Rust-backed source implementation; native validation only, parent integration pending",
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "Host and port utilities",
+      "source": "net/base/host_port_rust_core.rs",
+      "report": "docs/rust/benchmarks/host-port-wave2-20261112T224540Z/report.json",
+      "archived_status": "production source implemented; shared wrapper, GN integration, configured builds and benchmark measurements remain parent-owned",
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "Cookie parsing",
+      "source": "net/cookies/parsed_cookie_rust_core.rs",
+      "report": "docs/rust/benchmarks/parsed-cookie-wave2-20261112T222023Z/report.json",
+      "archived_status": "Full assigned runtime policy rewrite implemented in production source and native-validated; configured GN/Ninja integration, configured validation and canonical timing/publication remain parent-owned.",
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "DNS query construction and parsing",
+      "source": "net/dns/dns_query_rust_core.rs",
+      "report": "docs/rust/benchmarks/dns-query-wave2-20261113T000105282582Z-auth-cache/report.json",
+      "archived_status": {
+        "production_adapter_implemented": true,
+        "native_whole_public_api_validated": true,
+        "configured_build_integration": "Parent-owned, pending",
+        "canonical_benchmark_execution": "Parent-owned, not run",
+        "publication": "Held; no page/site edits",
+        "shared_files_edited": []
+      },
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "WebSocket extension grammar",
+      "source": "net/websockets/websocket_extension_rust_core.rs",
+      "report": "docs/rust/benchmarks/websocket-extensions-wave2-20261112T223155Z/report.json",
+      "archived_status": "Implemented in editing worktree and native-validated; not GN-integrated or configured-validated.",
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "Numeric and range optimizations",
+      "source": "net/base/parse_number_parser.rs",
+      "report": "docs/rust/benchmarks/number-range-optimization-wave2-20261112T223430Z/report.json",
+      "archived_status": "Implemented in editing tree and native-validated; additive small-list API adoption requires parent shared wrapper/adapter patches. Configured validation, integration and timing remain parent-owned.",
+      "status": "In progress; no additional acceptance recorded"
+    },
+    {
+      "name": "Port policy optimizations",
+      "source": "net/base/port_policy_core.rs",
+      "report": "docs/rust/benchmarks/port-optimization-wave2-20261112T222543Z/report.json",
+      "archived_status": "Integrated port policy optimization; native validation only; no performance timing",
+      "status": "In progress; no additional acceptance recorded"
+    }
+  ],
+  "local_rust_inventory": {
+    "scope": "net/**/*.rs and ui/base/resource/*.rs; includes tests, FFI and generated sources; excludes archives and build tree",
+    "files": 84
+  },
+  "inputs_sha256": {
+    ".github/scripts/codebase_metrics.py": "3ce58af598ebb4cfc4a1551d3b50e55239a320df7c18b7a30baec4a17941f9a1",
+    "docs/rust/benchmarks/backoff-entry-wave2-20261112T234219-native/report.json": "661d13744effd9f52db92f39270e491d0b9b15cb7c68e01afd8d1b708dfc7abc",
+    "docs/rust/benchmarks/dns-query-wave2-20261113T000105282582Z-auth-cache/report.json": "cd5b49bf2c65795ddb2249cd56acacb217c73e5d044c09cd8c72cb8e0bf1a456",
+    "docs/rust/benchmarks/host-port-wave2-20261112T224540Z/report.json": "c66ae7bf3d3c3fc69edfec10c1304efaff3f5b511e7ff8fe4e9a3b1665366e2f",
+    "docs/rust/benchmarks/net-wave1-optimized-validation-2026-11-12/report.json": "3fe40a88cf1fde2248395b6f142593c75b8c0764b01f0178b89ff453d216f458",
+    "docs/rust/benchmarks/number-range-optimization-wave2-20261112T223430Z/report.json": "62d6d42f984cc0884301958e82af141f8a1430d5968bacce3d0003f76c8910e3",
+    "docs/rust/benchmarks/parsed-cookie-wave2-20261112T222023Z/report.json": "da3f45d8bfa8016016e3ec4938db84ac46366db02d7ed146ec132acd19ff2b13",
+    "docs/rust/benchmarks/port-optimization-wave2-20261112T222543Z/report.json": "9539457f6aecafbe6befd1a7fe87601005078705b101f86abc9ee3fedeca17d7",
+    "docs/rust/benchmarks/websocket-extensions-wave2-20261112T223155Z/report.json": "fb9206611959f513df5a7165a7c6a9e470204f1d25e72f2f7a50dca806ed126b",
+    "docs/rust/language-scope-audit.json": "40356089b43be0aaa37060ae678b570f2eb0141e2ed5d58edff3a76a9d75cd89",
+    "docs/rust/net-migration-status.json": "516c17442d70003975a394705da285b89ae3c034723f6cf716ab383bd2845280",
+    "metrics.json": "b78ae6ee1cc006525588d756714b53642b21d0fa23575b17c31d837b2876bd6a",
+    "net/base/backoff_rust_core.rs": "0d72a9d50eb636636c38a2d7dd6a264e092481f10bcb35796f2c589331576aa8",
+    "net/base/backoff_rust_ffi.rs": "f5432983af23a76f22778268624ec91375be0acb0ce00ff29fd23fc60b77605e",
+    "net/base/filename_util.rs": "e3136e5d34be456ee453a06183a40f417d73d55fdad40e47a595806cbee7e3d1",
+    "net/base/filename_util_unittest.rs": "3e4727cfdfbd37ff1528dc3f774e8f78efaf81e76c7134d9109ff7dfc5b58b9e",
+    "net/base/host_mapping_rust_core.rs": "a531ffb0db189224191f3c987f4617c351f42344793bc091d9530717470d0045",
+    "net/base/host_mapping_rust_ffi.rs": "01444d435813dbf41f3049e6756a8bbfd62f9e6a99b3f98df5a047bf803294e3",
+    "net/base/host_port_rust_core.rs": "fce9b42761d94d6c8023882ff664219f4f1caee171f2335e56e1f1e8601e30c7",
+    "net/base/host_port_rust_ffi.rs": "50ac988cf9a39473a87a6be889b3322b6812e4a9b481bfda7edcce4fcba32d35",
+    "net/base/mime_sniffer_ffi.rs": "ff6f57a9b101daa559a3d636cc5ba6772385e4a678220e936b1ed41f5823501a",
+    "net/base/mime_sniffer_parser.rs": "2b5f894d5fa507154cf74e61aa1c3a3d4e88b721016af23f894689a2cb4c70a5",
+    "net/base/mime_type_ffi.rs": "63004e370f312309f3270fb7e6fbbd66bc0229fb0156042550e0520855855ea1",
+    "net/base/mime_type_parser.rs": "a4a7fc9a08d2c9bda44171dbd62d0b4bcd76b8f32c0d79051a539747ce473ddb",
+    "net/base/net_diagnostics_debug_formatting_core.rs": "fe6da98fc0584fd3973806152f915333998e628cb1d621c65febdc94944a1254",
+    "net/base/net_diagnostics_debug_formatting_ffi.rs": "1e7f5f368687fb7dbc107ba1d6ed109518abebb875b80b3185b50230ff69d517",
+    "net/base/net_diagnostics_load_flags_generated.rs": "6f123571363d93ae13b1a792de6c0626f9004cba66c7ae1ab840ac5b972bc08c",
+    "net/base/parse_number_ffi.rs": "b06069dde253cb71653521f2f9142fb1a090cc74e289628fa411f99434a434a1",
+    "net/base/parse_number_native_core_unittest.rs": "9449f440db6f390a8b21806631c7e707703ccda9863b086ca3fa3b83592b113d",
+    "net/base/parse_number_native_ffi.rs": "ba91578e7ca1c80d1c40cf2f405e5da3e7e3ca8a5b9caa0a45b62cd38dc666a6",
+    "net/base/parse_number_parser.rs": "25592317374c48f318435eacdd562d7ed68b1ba889ccb7dbca647dab8b0ee1d3",
+    "net/base/port_policy_core.rs": "784f8ff9d52d0b0b151ef3d84f4eea44843b318009853d17dab04bc276c2e806",
+    "net/base/port_policy_ffi.rs": "1463124eddce0f70bb2aab4a7ab3d8d535ec5721bf5478faf165b4c497beda1b",
+    "net/base/proxy_matching_rust_core.rs": "591a9aa702e5c5367dfaae7eced18b37ec6e05cc4772c6ff342465495e48b758",
+    "net/base/proxy_matching_rust_ffi.rs": "3cf9d3b6190f5851ed1cf9362839bb8eb87ab027a33067394c2eda84c2b8dc29",
+    "net/base/proxy_value_rust_core.rs": "fb333d2a81037c8d5be0c9b35f761d1b89d54144cdbe769ba4a3e1b4ec4939e3",
+    "net/base/proxy_value_rust_core_tests.rs": "73d9375e6bb716329ed99607ee8cb4417d24c42b020979b297b0e52169046348",
+    "net/base/proxy_value_rust_ffi.rs": "c69fee9796ec953d5b1ea88a8ee2fc45d8a4676f71eace431b910b1b7785b2d3",
+    "net/cookies/cookie_inclusion_status_rust_core.rs": "e28a7859b9f7288e4d2c6c97493ec1bbcfa0d4061ca39d328260598a94699c8a",
+    "net/cookies/cookie_inclusion_status_rust_ffi.rs": "dddb13ebe0c515a4fcafe966acea21b819d2097b75e6d24afb4c1f4a6450db69",
+    "net/cookies/parsed_cookie_rust_core.rs": "9b1da4744cb2a3e6f8b44c89b6d3df1e5421434869ed1517d986532d8bba28f8",
+    "net/cookies/parsed_cookie_rust_ffi.rs": "ae3940a4d2bdf2e0092d0773136f6fd7e9536c65d863c1501644de2b29921bda",
+    "net/disk_cache/simple/disk_simple_index_rust.rs": "d3ef342b2aa07f58b63a4d02ed4d9f224daecfb430f4a952e94996b67cc5150c",
+    "net/disk_cache/simple/disk_simple_index_rust_ffi.rs": "6b82a9b9f62c62e5ae8121b6fa6630462708c7fe4de448cd014e671dba462962",
+    "net/dns/dns_host_cache_rust_core.rs": "244611cdee186418d64b80ae3586c647d948f71523d6dedbf8b006e7b963d99e",
+    "net/dns/dns_host_cache_rust_ffi.rs": "8a2e69a98b99b9f69b4115e64466f27e086e9f8bdb453ba18b8b2e5fe9cc9e96",
+    "net/dns/dns_host_cache_rust_ops.rs": "ae6024fa5812750d1de65f1bd97d129a4ff322a9728a3f74edf378b08b18a865",
+    "net/dns/dns_names_core.rs": "d691d071d7d8fa5a3ec8df59d3fa163d19c763b5bfd16e5e66dc21c2a48bb393",
+    "net/dns/dns_names_ffi.rs": "4e3aebacc6aca312150d6d4f03d64608bf7bb0c193708ce2d21aac583669f76d",
+    "net/dns/dns_query_rust_core.rs": "34345e861ea072d445299b3b186df57c3d44a7b6c0a60b2664e4500eb39f3c5a",
+    "net/dns/dns_query_rust_ffi.rs": "d228d659cb893e0dd43d1fb4a23ee170ab7af24c5545807b66a9d7e677ad084b",
+    "net/dns/dns_response_rust_core.rs": "a823202f2e5b071d28d3865331f95bcf4e013a96dda8650503f704a343c40a87",
+    "net/dns/dns_response_rust_ffi.rs": "0c7cd596e5a63d0b0da5a0bb7774af47f6dcb37bf45f36b626878c0bb3207790",
+    "net/filter/gzip_header_ffi.rs": "d1b2d56fc582eb5101e32d65d1a0eb21243d419f961b918f2e053767a947359a",
+    "net/filter/gzip_header_parser.rs": "667d54a4d28dae223d057cb19a94b33f4173548fca5c766cc8932a4dde20f10f",
+    "net/http/auth_challenge_core.rs": "3141f903e1b6d2369ba516ba777a629dfabed8dd0465f4118570aa2b5a8f1716",
+    "net/http/auth_challenge_ffi.rs": "2593e00890e7d99f6e99ae1ce155280ed1ca140049a857918476b8012167bb54",
+    "net/http/content_disposition_ffi.rs": "f30bf1fc731269b70bfcdde8904e9934893cccb737e2a8654f2dfe3a8f845ecf",
+    "net/http/content_disposition_parser.rs": "157c5b9660b2055dbf8a5fe9acdef7e3ee58fbca665226c932399fbb119e9618",
+    "net/http/hsts_ffi.rs": "9688df15151c07bd02b6b7aff96b9d371f8e85f24ef1c1e14316e31b3e86eade",
+    "net/http/hsts_parser.rs": "0651fe453fdd21d3384ace327d41d7f49f0b4cd99393e6d358a1fd2d0697d566",
+    "net/http/http_auth_cache_rust_core.rs": "a2f50b1bc25850f157cf34da973c313920db1eb0301a13fca7bb21423b4ceb82",
+    "net/http/http_auth_cache_rust_ffi.rs": "882c35093ee33fdd4d4cfa2a9567153cbacc02ee740b09f1089c5b8c42f8fd9e",
+    "net/http/http_byte_range_rust_core.rs": "85ce2512fc8a558c0071bb32c8da761e4cd3ffc8b3f0d125d7ab0ebdf401cb92",
+    "net/http/http_byte_range_rust_ffi.rs": "5d2686512e2e468db85f857768af2dc1859d16e3150dac626a00dfc8cb5914e7",
+    "net/http/http_chunked_decoder.rs": "5992f485cf321a8b5831a40e1aee8ac223a13d18a67dd36676387b3bf334f254",
+    "net/http/http_range_ffi.rs": "7666679870e5cd0c807f76c6eaf93934e13113d8137738d85964a74b0274670d",
+    "net/http/http_range_parser.rs": "5f71d4062e55e578b2c0111c681ebbec3d0c36086aca2aa53ae6d96dd93166d8",
+    "net/http/http_request_headers_rust_core.rs": "1e6985ac1be02f6f7cc67fe4f6037ecaec1bfab83e36edc5b631c945231b009d",
+    "net/http/http_request_headers_rust_ffi.rs": "df7fdac8258d78150e534887bba910073980eab9a1e1bd51c212459533f89765",
+    "net/http/http_response_info_rust_core.rs": "b6be4a7222876d90f12d880edefedf1fa768a24b0d6e947e9d9589e82ecac664",
+    "net/http/http_response_info_rust_ffi.rs": "98b21451bef7f79e819a5e36e79a6b48ec5758156a409fa3a7ad1d2200bf968c",
+    "net/http/http_response_info_rust_ids.rs": "e400cf6427bee134cf11549f04704352980542e57405285218c6fd763e0d7eea",
+    "net/http/http_status_code_core.rs": "9846fc43f2414ff50f7eb7942231d57e4fdbeccf6b8498aa7d45def45dc4006b",
+    "net/http/http_status_code_ffi.rs": "020ce2122c34d49a17acbaf2e640037800680b13290693251612f7f3657285e2",
+    "net/http/http_status_code_generated.rs": "316a44fe3e06f99b9b765a8af91c057daf29f6208b68ef91d9ec56c5a7d07375",
+    "net/http/http_vary_data_rust_core.rs": "0151a83e6a9fab250892532b13f8bd98d652563954019bafb60cde3748eaa4b1",
+    "net/http/http_vary_data_rust_ffi.rs": "da486e26c73b502afbee2baf084ba022b54cba9a819b85f4c4ef2bfff78df59d",
+    "net/log/net_log_values_rust_core.rs": "121f019ee03c6c0d808fa9adbd474cf3d0e275b3d248c49ea655f4aa6e99ca15",
+    "net/log/net_log_values_rust_ffi.rs": "a6a7fbf28696421c3485247a2cea82a24c917366bafb83d6130ebedc2ca894fa",
+    "net/quic/http3_client_stream_rust_core.rs": "2017c43bea36f841acb049764d23d9d4bfce6edcc1c75be348d45b92a2aa2c05",
+    "net/quic/http3_client_stream_rust_ffi.rs": "04b660cca9061df8b2e1d1f643c0d28797fce511aed39220183b3246983aea09",
+    "net/socket/tcp_client_socket_rust_core.rs": "a50a5620dfbcef747b54b5715df19860ceb5024bc9404781230c44ac25e2a8ab",
+    "net/socket/tcp_client_socket_rust_ffi.rs": "89d75c39f3a93ca89f88bec1976089a8bc06bbbc623d5b0f41f08fcc23ef0a71",
+    "net/spdy/http2_write_queue_rust_core.rs": "ccb50253652180b03c078dd4c3ea90ad4699beaea5329bb898d61a93e4cd1c1a",
+    "net/spdy/http2_write_queue_rust_ffi.rs": "414ff83883b857828aa93b80fef00c04764b59854ff76f15a93dabeee4384b08",
+    "net/ssl/tls_session_cache_rust_core.rs": "e966ddd81eeb7c1576e54042d5820ba37fbc4f7263da73d101f7fbf2109d7ed8",
+    "net/ssl/tls_session_cache_rust_ffi.rs": "4d981fa7c7c3b77811ef81789f1eb4440ecc4da0566dcfb5e7a56ade6f3b035f",
+    "net/url_request/referrer_policy_ffi.rs": "5d7ab45fea448103764deb0e85c6397ba8bdb6902640ba93d2f6d717f9787529",
+    "net/url_request/referrer_policy_parser.rs": "cbf8ed09ab16af96cf05a47b042b550087bbc709bb6f046a57f71e7a9704919c",
+    "net/websockets/websocket_extension_rust_core.rs": "0608e6e0e903fcfd96ff3d7be919ec3c43aa8f54f4917fa354db5685f753c615",
+    "net/websockets/websocket_extension_rust_ffi.rs": "4f86c562636e6a2628bbb93e4aa94c02a7fdc85fb9d6f162b8be69b3d9df5f1a",
+    "net/websockets/websocket_frame_rust_core.rs": "35d9d4a08ed47a82c771aece24aed2554606c69655e4a1d51136b6e7f66de0d1",
+    "net/websockets/websocket_frame_rust_ffi.rs": "3da17b5182c15b3625bddc042b84ca96f5505e4e510987982df0f4e54f4aab06",
+    "tools/core_source_metrics.py": "f045c092b0fe5f6972cf56104f328e4d0a8e74d98710bb2e9a8195827ca1d363",
+    "ui/base/resource/data_pack_parser.rs": "1fdbd1d18c60f9cefb8ca8bdff7b28b99b1c6c367839b5cc181ebe25c35f1bcb",
+    "ui/base/resource/data_pack_parser_ffi.rs": "bad719ba04ac661f7db815f4ff71e0ebeb3cbaaee38d10d087899fba7f888975"
+  },
+  "limitations": [
+    "Core implementation source counts include local edits and untracked rewrite files; source share is not migration completion.",
+    "The working tree is scanned file by file; this is a timestamped source snapshot, and concurrent rewrites can make it stale immediately.",
+    "Acceptance applies to archived Windows x64 source snapshots, not automatically to current mutable files.",
+    "Working source presence and archived native validation do not prove configured integration or acceptance.",
+    "Work reports are selected by run slug, never filesystem modification time; current work may be newer than those reports.",
+    "Full desktop shipped-dependency closure and cross-platform acceptance remain unverified."
+  ],
+  "observed_utc": "2026-11-13T01:02:19.485544+00:00"
+}

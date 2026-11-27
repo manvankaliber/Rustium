@@ -1,0 +1,17 @@
+{
+  "utc": "2026-11-22T00:37:05.075570+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "candidate_and_pr_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "target": "//net:connection_jobs_family_rust_unittests",
+  "first_attempt": {
+    "outcome": "Controller stopped after 19 completed actions and zero links when three transitive Rust archives rebuilt. No compiler failure, discovery or test result.",
+    "receipt": "C:/Users/micro/rb/network-295159-connection-jobs-ordinary-20261122a/result.json",
+    "analysis": "C:/Users/micro/rb/network-295159-connection-jobs-ordinary-20261122a/scope-stop-analysis.json",
+    "restored": "Checkout 72ee5ddd and seven pins restored; protected evidence, native inventory, exact PR and independent lock release checked."
+  },
+  "retry": {
+    "status": "dispatched",
+    "task": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Aremote-delegate%3A53049519-7525-4aa3-9888-bc90e5772631",
+    "scope": "Allow all transitive rebuilds selected by the single named target in the same warm output, including Rust, with -j4 and one simultaneous link. Do not request separate targets."
+  }
+}

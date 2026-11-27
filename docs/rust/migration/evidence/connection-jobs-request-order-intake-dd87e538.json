@@ -1,0 +1,15 @@
+{
+  "utc": "2026-11-21T22:26:11.978811+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "proposal": "dd87e538a5fb00581b22c4d648767898c29417b1",
+  "original_oracle": "bd8b1077791e6e3001bd4290ccde86fa1be0946e",
+  "production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+  "verified": "Both patch digests and all nine materialized file identities matched. Isolated applied diff passed git diff --cached --check.",
+  "production_patch_sha256": "0dcf6526d0325b42a0b8f6ca194c4600cca44f220be0db1253e05d6edbda66df",
+  "linkage_patch_sha256": "3de94b17de191742189eff8a2102c0e3ffa43c2665f1bcd1a8d47e89716ccc7b",
+  "disposition": "Hold policy-only patch and preserve the exact original freeze. Rework on same worker branch.",
+  "findings": "Native queue retains ordered state and mutation. Hot paths gain FFI for a priority equality check and bucket-count arithmetic, and native rank helpers overlap.",
+  "next_design": "Move authoritative request order, insertion/removal and reprioritization into Rust without exposing native object pointers or duplicating ordered state; preserve native job, callback, provider and timer ownership.",
+  "worker_followup": "node:delegated-task:command%3Amcp%3A35d73d71-4f63-49da-976b-7d5b697ab4ce%3Athread-send%3A69799f35-bacc-4964-9b43-d571725990b3",
+  "native_validation": "No build or test on this draft."
+}

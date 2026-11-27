@@ -3931,12 +3931,6 @@ inline constexpr char kNotebookHomeURLDescription[] =
 inline constexpr char kNotebooksName[] = "Notebooks";
 inline constexpr char kNotebooksDescription[] = "Enables Notebooks.";
 
-inline constexpr char kSpatialEntitesDepthHitTestName[] =
-    "Spatial Entities Depth-based Hit Test";
-inline constexpr char kSpatialEntitesDepthHitTestDescription[] =
-    "Controls whether the spatial entities framework is allowed to use "
-    "depth-based hit tests or only plane-based ones.";
-
 inline constexpr char kTrustedVaultSharedRecoveryFactorsAndEncryptionName[] =
     "Trusted Vault shared recovery factors and encryption";
 inline constexpr char

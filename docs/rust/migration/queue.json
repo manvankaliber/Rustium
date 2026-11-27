@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": 470,
-  "updated_utc": "2026-11-17T17:17:58.088722+00:00",
+  "revision": 755,
+  "updated_utc": "2026-11-22T11:03:21.622587+00:00",
   "mode": "active; Network only by user instruction",
   "roles": {
     "director": {
@@ -31,10 +31,12 @@
     "requested_children_per_session": 10,
     "observed_total_native_slots": 11,
     "substantial_jobs": 1,
-    "compiler_jobs": 2,
+    "compiler_jobs": 8,
     "pending_validation": 8,
     "minimum_free_disk_bytes": 8589934592,
-    "coding_workers": 8
+    "coding_workers": 8,
+    "minimum_compiler_jobs": 4,
+    "default_compiler_jobs": 4
   },
   "network_acceptance_authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake",
   "tasks": [
@@ -2678,7 +2680,7 @@
         "status": "unmeasured"
       },
       "state": "validating",
-      "next_action": "Finish current Network consumer/ABI qualification, rebuild all selected connected-family consumers, then run complete ordinary four-family batch. No unrelated subsystem implementation.",
+      "next_action": "Preserve current scoped runtime and ABI pass. Windows-wide overload is source-identical and retains native ownership; a wchar_t runtime case was not present in the pinned suite. Retain performance and platform scope.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-87249590a1c0fee5214db9ec4a79ebb2a2dae463dd9aae095b5780548f7405af.json",
@@ -2707,11 +2709,23 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\foundation-strings-bridge-sha256-fd174030a9876f2179f76666a083c19fc7e912a2bb3225d5eaae83e4b3134d4a.json",
           "sha256": "fd174030a9876f2179f76666a083c19fc7e912a2bb3225d5eaae83e4b3134d4a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-abi-strings-72ee5ddd.json",
+          "sha256": "27a8247a8e4d180aa8119abf81a6b051a473c594dc64fb5b102f2740da62ec4b"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-sealed-strings-replay-72ee5ddd.json",
+          "sha256": "412b1b28cc0e3760de6f556196b71c01b4f50d1fc2cacfe4ef51046282d62387"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-bounded-abi-acceptance-72ee5ddd.json",
+          "sha256": "57cbe97c5eaf6890b73e82838a999f2674f35299e564dc65aff2009cd45b7ee4"
         }
       ],
       "stages": {
         "implementation": "Typed Rust/CXX policy proposal plus diagnostic ordering and Windows launcher logging repairs; complete accepted policy retained byte-exact",
-        "configured_validation": "Current1261-source serial base/net build and attestation passed;62/62 selected Windows native cases,0skips, diagnostic contract and all before/after identities passed",
+        "configured_validation": "62 sealed original and bridge tests passed on 72ee5ddd; fresh component exports passed. The Windows-wide source is byte-identical to the before-image, with no equivalent runtime claim.",
         "production_integration": "56 guarded Network dependency inputs applied; current selected runtime validated, remaining coupled consumer/acceptance gates pending",
         "rust_ownership": "PhaseA8 out-of-line byte API policy executes Rust behind typed CXX bridge; C++ public containers/logging/ABI and headerinline/UTF16/wchar/constexpr policy ownership remain explicit",
         "subsystem_cutover": "incomplete"
@@ -2799,6 +2813,21 @@
         },
         {
           "utc": "2026-11-17T11:48:37.388237+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:01:11.853923+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:07:46.069547+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:15:16.557045+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
         }
@@ -3106,7 +3135,7 @@
       },
       "base_revision": "81291cc0961405a9e9c3f8cf742fa0d9d1756d7f",
       "delivery_commit": "3e676d6c3cb85aa35aab76f7e78a362e98a99236",
-      "integration_commit": null,
+      "integration_commit": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
       "acceptance_tests": [
         "Reconcile selected36 runtime roots and82 retained provisional consumer targets with current evaluated graph and source ABI changes",
         "Director captures fresh GN evidence and completes all required consumers before frozen native execution"
@@ -3119,8 +3148,8 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Make Codex CLI available to the laptop T3 provider, then dispatch the scoped setup task there and qualify the GitHub runner. Portable Network profile preparation can continue locally without compilation.",
+      "state": "integrated",
+      "next_action": "Read-only consumer review integrated at f149b6a193; no change to production Rust ownership, whole-browser or platform status.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-current-consumer-closure-sha256-52a9c4ba23a26ae781aabd1cf55a8b362ad5224c95566e30cf749a3fa926393a.json",
@@ -3145,12 +3174,24 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
           "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-network-runtime-dispatch-72ee5ddd.json",
+          "sha256": "637f0fb69f558c79e6535a0ad8fd2f6aa99f306e677f7aefc137002c85903a2f"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-consumer-runtime-acceptance-72ee5ddd.json",
+          "sha256": "f23142218e36f40eaaf4a8e846c278cc5ffbe5e09707652417ef56677ae0677d"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-consumer-runtime-acceptance-72ee5ddd.json",
+          "sha256": "f23142218e36f40eaaf4a8e846c278cc5ffbe5e09707652417ef56677ae0677d"
         }
       ],
       "stages": {
-        "implementation": "Read-only current Network consumer/ABI assessment requested",
-        "configured_validation": "1261-input current conservative155-target rebuild in progress; prior failed source-bound compiler/preflight runs retained. Complete header/inline/ABI closure still pending",
-        "production_integration": "not accepted",
+        "implementation": "Independent consumer boundary review retained. All 82 provisional labels reconciled to the fresh 96-root build.",
+        "configured_validation": "Exact 72ee5ddd 36-program Windows runtime inventory met its contracts. The 232 workload IDs retain their individual or checked-loop evidence limits.",
+        "production_integration": "Read-only consumer review integrated at f149b6a193; no change to production Rust ownership, whole-browser or platform status.",
         "rust_ownership": "remaining C++ ownership explicit",
         "subsystem_cutover": "incomplete"
       },
@@ -3214,6 +3255,26 @@
           "utc": "2026-11-17T16:55:33.589484+00:00",
           "action": "amended",
           "note": "next_action"
+        },
+        {
+          "utc": "2026-11-21T20:15:16.777610+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:47:08.709047+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T20:47:08.895279+00:00",
+          "action": "merge-ready",
+          "note": "Exact 72ee5ddd 36-program Windows runtime inventory met its contracts. The 232 workload IDs retain their individual or checked-loop evidence limits."
+        },
+        {
+          "utc": "2026-11-21T20:47:09.114796+00:00",
+          "action": "integrated",
+          "note": "Read-only consumer review integrated at f149b6a193; no change to production Rust ownership, whole-browser or platform status."
         }
       ],
       "context_directories": [
@@ -3256,7 +3317,7 @@
       },
       "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
       "delivery_commit": "adcbf06ce7926b5f85273d6aa7cd7b7211fb6818",
-      "integration_commit": null,
+      "integration_commit": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
       "acceptance_tests": [
         "Complete connection auth/header/HTTP2/SSL original helper call-path inventory and exact original source bindings",
         "Executable verification sources for repaired independent reference paths and lifecycle behavior, preserving original expected assertions",
@@ -3275,8 +3336,8 @@
         "status": "unmeasured",
         "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
       },
-      "state": "validating",
-      "next_action": "Complete actual-registry auth verification and per-family observations; injected mechanism requires separately reviewed reference implementation; remaining non-auth closure still open",
+      "state": "integrated",
+      "next_action": "Scoped Windows reference-independence delivery accepted with exact pinned helper inventory and lifecycle evidence at f27ce55c. Shared providers, platform, performance and family cutover remain open.",
       "evidence": [
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T125456569946Z/record.json",
@@ -3297,12 +3358,169 @@
         {
           "path": "docs/rust/migration/evidence/network-consumer-progress-20261117T134123849028Z/record.json",
           "sha256": "76b6a0e0c42c21960707691de8fd0fc6d0bcc55dad8f5a489fd714783b00dbe1"
+        },
+        "docs/rust/migration/evidence/connection-jobs-non-auth-reference-review-bb1359.json",
+        {
+          "sha256": "e3ac9fcd39d2d4ffd0b8a36f9d85f3287b44d2546b3b792aa0121db5874a3419",
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-fixture-intake-df7a5e64.json"
+        },
+        {
+          "sha256": "67149831c99cbca657324c730ffe44706934098f9caf2fef67ecbe060b55d07f",
+          "path": "docs/rust/migration/evidence/connection-jobs-resolver-reference-447d37a9.json"
+        },
+        {
+          "sha256": "1851da164908718dd906c8258dd7243a658a7adc6c693de98358e2d31a7229a6",
+          "path": "docs/rust/migration/evidence/connection-jobs-resolver-review-repair-dc8a79e5.json"
+        },
+        {
+          "sha256": "a9c1f5cad4a836aede4191151d3cf8373bb474a234275132b0eb5bab3320a53b",
+          "path": "docs/rust/migration/evidence/connection-jobs-happy-eyeballs-candidate-9e1aca35.json"
+        },
+        {
+          "sha256": "d2626406067d82d4ecbe187d04a3fd0bb3259889dd46284a99314cb8f7cf11c3",
+          "path": "docs/rust/migration/evidence/connection-jobs-happy-eyeballs-review-repair-450b5cf7.json"
+        },
+        {
+          "sha256": "8990dca393705b4462627824d3391c974be02f6b9cffdb33ec042e0b6734ffd5",
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-laptop-4b1e2484.json"
+        },
+        {
+          "sha256": "ec2f2827aa24735d6d1f00cf647b8fca4ceadeed942fa81fed876598ae4e3fa7",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-success-candidate-6757e9b5.json"
+        },
+        {
+          "sha256": "17bcf0d269e0c8d5a4608613451ab00454652618d7af1cfa212197c490b81a0e",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-gn-review-repair-4bb3d1b5.json"
+        },
+        {
+          "sha256": "9e8341722eb970485701a32831dbcd88c643fd61a39e2371e12a477d5c32a177",
+          "path": "docs/rust/migration/evidence/connection-jobs-grit-laptop-76992d0e.json"
+        },
+        {
+          "sha256": "3062965456dafb2bdd2c07822f93a2749004d9de9cf66cd600a4e024e8cfa124",
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-laptop-d106f563.json"
+        },
+        {
+          "sha256": "21174099be995e069c1c04b8795d0ccad17c947ee9719df3464d18d9d6694b4c",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-fixture-style-repair-011bcc5f.json"
+        },
+        {
+          "sha256": "0a0c4c08a2762e87611a1171edf0efbbac654696a2155599b2b14cd6b5fe4e3d",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-tunnel-object-repair-3c7c4c05.json"
+        },
+        {
+          "sha256": "4b482fc672bf72ae0402d36c0f9f227f287a36dc898c0ad1020ee0f5cbae2799",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-priority-packet-repair-a1a6a528.json"
+        },
+        {
+          "sha256": "c7f04af07a055bd2b514efe26c4796281eb84437e748d954c410f9ea3d8ed923",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-incremental-priority-8a5e79b4.json"
+        },
+        {
+          "sha256": "1e9704080bcd05b6474c992ef5de71a50e424b571309eaad8d417c12802d1eea",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-success-laptop-8a5e79b4.json"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-ordinary-runtime-72ee5ddd.json",
+          "sha256": "b9603850c0037e4d789edb1c8678ca724b7f226830a7075f04ac397e0a587167"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-optimized-quic-runtime-72ee5ddd.json",
+          "sha256": "eee05894dfa497e603fc145bb824ad80152cbf241f8bf8fbff778d3832096aca"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-reconciliation-dispatch-295159ef.json",
+          "sha256": "6c9acd18e4e706489875e685c6ea6ee9379d0c043393dcb69156d67c12336171"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-candidate-0f5f6e3c.json",
+          "sha256": "0324d4e8a46af9b06a03f4c2abf9076afe19b227666c1ec5e3339ee50758d852"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-dispatch-443551ed.json",
+          "sha256": "748f3f50f476b9131b5a64533df7b4db3bd120d0e946d838da16ee943cf1b7d3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-ordinary-feedback-443551ed.json",
+          "sha256": "591dcc73556be6565ea6441414e29c1d345e7e5f6b51cf063285aaf6d8e37baf"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+          "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-native-helper-bindings-443551ed.json",
+          "sha256": "5fbcd5089808a71a6d3e3016a2cc43f631319d6b5aa7566d4da3fcece0303fa6"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-auth-runtime-443551ed.json",
+          "sha256": "2bfd4a9a75822a9ca72939d464333c3dc897a3e6455d082a1d4e354aba02e61d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-557c24af.json",
+          "sha256": "e9b843bfd8468f013403f16db9079495fb6fe25006c7e9e63aebb7b3344f254d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-basic-reference-candidate-8f5306fe.json",
+          "sha256": "6b68640a88d6c612edbd75acadd7ee1093ad1b3b1a6767d90df845dcfed38581"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-basic-reference-dispatch-a6028111.json",
+          "sha256": "afcebe2410ec4ee5e13ec60290d4653cd4743f94a665231b85e37a4aa8809e1f"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-basic-reference-integration-a6028111.json",
+          "sha256": "fae38f9196e38c05a92b828d19721a53bc10c3fbdeacaddf336bb8b706035305"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-candidate-f27ce55c.json",
+          "sha256": "99ff71e3e321ada2c7b0ec2839dec2f2f3c939dfce2bc5eb2927d24625f7ffd9"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-dispatch-f27ce55c.json",
+          "sha256": "07a3e78d74a83ca0af625e45a7712d40873dc4cedd1d6599b632dae43d8b1a93"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-integration-f27ce55c.json",
+          "sha256": "ded503833268a523a0dedfc0605835595b283099a95b94b10f09f957ca11fd7d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-selection-reconciliation-f27ce55c.json",
+          "sha256": "98dab1359f023bfdf0fe31744272f098b3df7e1f98c291f90c60d4a7920a56d3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-pass-f27ce55c.json",
+          "sha256": "23fd2ffc88c286a63dab2a4ee0d6f132b56f6d90e02bf949f14eda5917b94e98"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-wiring-windows-acceptance-f27ce55c.json",
+          "sha256": "4614966b09270514ff31b7437754770ca5004b9f099b6c55c270eef374f20798"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-lifecycle-dispatch-f27ce55c.json",
+          "sha256": "90d4762e52a1dd7fc376d0334574f6adec6a22dd962ce966f3f85498cf2f255c"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-header-http2-ssl-source-audit-f27ce55c.json",
+          "sha256": "8e09ddc93baa675bcb00415581f4574cf435c48f500777d0b19dc1059579ad75"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-windows-acceptance-f27ce55c.json",
+          "sha256": "7434c0f530333ec5df5ca28b6ea71e056dba9a7334121af5cc93986a28ac3429"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-reference-windows-acceptance-f27ce55c.json",
+          "sha256": "7434c0f530333ec5df5ca28b6ea71e056dba9a7334121af5cc93986a28ac3429"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-reference-windows-acceptance-f27ce55c.json",
+          "sha256": "7434c0f530333ec5df5ca28b6ea71e056dba9a7334121af5cc93986a28ac3429"
         }
       ],
       "stages": {
-        "implementation": "Terra checkpoints6862a026/e591719d preserved; named reference provider candidates and frozen source proposals prepared; missing verification being completed",
-        "configured_validation": "not run",
-        "production_integration": "not integrated",
+        "implementation": "Frozen references and paired scripted resolver, Happy Eyeballs, and successful QUIC tunnel cases are present on PR #1.",
+        "configured_validation": "At 72ee5ddd fresh ordinary paired tests and 52 verifier workloads passed, and the optimized QUIC supplement passed 16 verifier workloads and 16 paired lifecycle cases. Enabled counterparts account for all 28 dual-race skips. At 443551ed, both ordinary resolver cases, scoped GN and flag-off ownership passed. The opt-in DCHECK probe stopped before compilation on a Windows cache-copy path limit. The exact-head follow-up passed three opt-in DCHECK component cases with matching ordinary/probe CXX bindings and scoped Rust archive and DLL ownership. Three exact-head positive-control, Basic and Digest cases passed from the same built DCHECK artifacts. Warm ordinary a6028111 GN/build and both Basic and existing Digest routing cases passed. f27ce55c passed four ordinary and two DCHECK probe auth cases, including fixed-nonce full Digest wire output and seven counter controls. Exact f27ce55c evaluated no-Kerberos Windows probe passed five common cases. The sixth intended NTLM case is queued from the dedicated output. The sixth intended NTLM case passed using the same f27ce55c evaluated no-Kerberos probe artifacts. All six common cases now pass in that configuration. f27ce55c cross-DLL copied proxy values through the SPDY reference component successfully, with selected binary imports/exports. Exact f27ce55c optimized Windows passed all 16 verify-only workloads and 16 paired lifecycle tests with zero skips or retries.",
+        "production_integration": "Reviewed test evidence is on PR #1 at 8a5e79b4. The successful QUIC comparison shares a native session and socket provider. The paired HostPortPair case and opt-in counts are integrated on PR #1 at 443551ed. Reference Basic grammar separated at a6028111 while the normalization provider remains shared. Independent Digest reference policy and shared frozen Basic/Digest parameter helpers landed at f27ce55c.",
         "rust_ownership": "Existing Rust policy retained; independent reference/provider debt under repair",
         "subsystem_cutover": "incomplete"
       },
@@ -3356,13 +3574,234 @@
           "utc": "2026-11-17T13:41:42.543939+00:00",
           "action": "amended",
           "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769925+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-18T22:03:25.251419+00:00",
+          "action": "validation",
+          "note": "Windows named auth and proxy controls passed on 0eaf99456e03232b7ed8ad5837c739542f0ffbb1 (14/14) with the repaired request-headers observer. The injected mechanism evidence applies to the reviewed test implementation only. Receipt C:/Users/micro/rb/network-reference-0eaf99-20261118a/receipt.md."
+        },
+        {
+          "utc": "2026-11-18T23:31:54.665452+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T16:05:30.848690+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-20T16:09:59.426963+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T16:14:22.032087+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:38:57.919616+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:52:04.266159+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:57:43.348683+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:00:20.306244+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:07:43.193905+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:15:00.873458+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:15:37.106404+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-20T21:54:41.154313+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:02:32.743903+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:12:34.316725+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:21:04.795014+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:28:32.493008+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:34:34.939743+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:40:14.004483+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:45:50.377870+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T19:36:20.632505+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:51:41.030495+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:43.081358+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:24:10.243739+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:26:01.021899+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T01:39:36.920196+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:25:26.064859+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:27:38.578154+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T02:31:39.059043+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:36:42.376322+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T09:42:02.025227+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T09:58:11.624417+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:01:00.726259+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T10:03:41.628183+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T10:17:49.947827+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:41:16.710226+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:46:00.567890+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:50:47.278103+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:51:48.057724+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T10:57:08.719890+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T11:01:37.643203+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T11:01:37.817599+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows reference-independence delivery accepted with exact pinned helper inventory and lifecycle evidence at f27ce55c. Shared providers, platform, performance and family cutover remain open."
+        },
+        {
+          "utc": "2026-11-22T11:01:38.033580+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows reference-independence delivery accepted with exact pinned helper inventory and lifecycle evidence at f27ce55c. Shared providers, platform, performance and family cutover remain open."
         }
       ],
       "context_directories": [
         "docs/rust",
         "net/spdy",
         "net/http"
-      ]
+      ],
+      "network_family": "connection-jobs"
     },
     {
       "id": "NET-CURRENT-ABI-QUALIFICATION",
@@ -3398,7 +3837,7 @@
       },
       "base_revision": "f149b6a1935b268dc4aa9cf99f0c953659e96138",
       "delivery_commit": "7009cb3c3c211d9b459d06ca2b5e233e1f6d82c5",
-      "integration_commit": null,
+      "integration_commit": "c8cf6db51e3aa19afe69eb74cb518f708fed2d09",
       "acceptance_tests": [
         "Compare exact six shared HTTP headers and typed Strings CXX ABI against hash-bound before-images; identify actual layout/public/virtual/inline/export changes",
         "Reconcile evaluated target owners/deps/outputs and conservative155 build; derive evidence-supported required consumer boundary or precise missing capture",
@@ -3412,18 +3851,47 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable.",
+      "state": "integrated",
+      "next_action": "Exact review artifact integrated at c8cf6db51e; validated current Windows bounded scope at 72ee5ddd. Preserved wider runtime, platform and cutover obligations.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-current-abi-qualification-sha256-93c02a13d9d3fa7803bd072d0a7aa3d2502dac07da0b21547a89ab3e08ea6d96.json",
           "sha256": "93c02a13d9d3fa7803bd072d0a7aa3d2502dac07da0b21547a89ab3e08ea6d96"
+        },
+        "docs/rust/migration/evidence/connection-jobs-transport-idle-baseline-bb1359.json",
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-consumer-laptop-72ee5ddd.json",
+          "sha256": "43f1e5c32d0d8a3554599cf3115f335bfbbac4fd66991687bd3ccfdbbefa50da"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-ordinary-runtime-72ee5ddd.json",
+          "sha256": "b9603850c0037e4d789edb1c8678ca724b7f226830a7075f04ac397e0a587167"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-optimized-quic-runtime-72ee5ddd.json",
+          "sha256": "eee05894dfa497e603fc145bb824ad80152cbf241f8bf8fbff778d3832096aca"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-abi-strings-72ee5ddd.json",
+          "sha256": "27a8247a8e4d180aa8119abf81a6b051a473c594dc64fb5b102f2740da62ec4b"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-sealed-strings-replay-72ee5ddd.json",
+          "sha256": "412b1b28cc0e3760de6f556196b71c01b4f50d1fc2cacfe4ef51046282d62387"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-bounded-abi-acceptance-72ee5ddd.json",
+          "sha256": "57cbe97c5eaf6890b73e82838a999f2674f35299e564dc65aff2009cd45b7ee4"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-bounded-abi-acceptance-72ee5ddd.json",
+          "sha256": "57cbe97c5eaf6890b73e82838a999f2674f35299e564dc65aff2009cd45b7ee4"
         }
       ],
       "stages": {
-        "implementation": "Independent review requested",
-        "configured_validation": "Current necessary consumer build in progress; complete qualification pending",
-        "production_integration": "not accepted",
+        "implementation": "Independent source review retained byte-exact. Director reconciled current changes and legacy aliases.",
+        "configured_validation": "Verified the current 84-object dependency cohort, 155 legacy target entries, eight Strings and three auth-cache boundaries and 62 sealed Strings tests on 72ee5ddd.",
+        "production_integration": "Review artifact retained at c8cf6db51e. Prechange binary export baseline unavailable; no extra production ownership or cutover credit.",
         "rust_ownership": "Existing bridge/C++ ownership explicit",
         "subsystem_cutover": "incomplete"
       },
@@ -3457,11 +3925,67 @@
           "utc": "2026-11-17T13:11:59.595248+00:00",
           "action": "validating",
           "note": "Finish current build, capture exact generated/link artifacts and compilerdeps for reference owner+5executables, then full36-program232-workload ordinary snapshot. Preserve unavailable prechange binary export comparison as unavailable."
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769955+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-18T23:25:45.087792+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-18T23:27:13.907910+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-21T14:19:18.333138+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:36:20.229098+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:51:40.826430+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:01:11.672592+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:07:45.886975+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:15:15.623308+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:15:16.001636+00:00",
+          "action": "merge-ready",
+          "note": "Bounded independent ABI review and current-artifact consumer evidence accepted. Broader cutover and platform validation tracked separately."
+        },
+        {
+          "utc": "2026-11-21T20:15:16.326659+00:00",
+          "action": "integrated",
+          "note": "Exact review artifact integrated at c8cf6db51e; validated current Windows bounded scope at 72ee5ddd. Preserved wider runtime, platform and cutover obligations."
         }
       ],
       "context_directories": [
         "base/strings"
-      ]
+      ],
+      "network_family": "connection-jobs"
     },
     {
       "id": "NET-CONNECTION-REFERENCE-REVIEW",
@@ -3497,7 +4021,7 @@
       },
       "base_revision": "df2d4ce1036f96917c9b7482f99de7747a88a5b7",
       "delivery_commit": "1fd755aa78d20d08e724283f77a6a025d2853338",
-      "integration_commit": null,
+      "integration_commit": "baf5ec4a1226f78697d3a3bc778dee9a3d2e2c7b",
       "acceptance_tests": [
         "Compare proposed named provider algorithms/OS handles/callback paths to71frozen inputs",
         "Inspect seven separate instrumentation coverage/positive controls and source-preserving copies, GN/CXX/export isolation and lifetimes",
@@ -3511,18 +4035,26 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application",
+      "state": "integrated",
+      "next_action": "Closed only the locally retained review delivery. Exact-head Windows probe and matching ownership artifacts recorded; POSIX/non-Kerberos and broader closure remain open.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-connection-reference-review-sha256-1c11ca3d69805c4879c7be3ffdc17093f07a364589c642e3beb6fee15742b761.json",
           "sha256": "1c11ca3d69805c4879c7be3ffdc17093f07a364589c642e3beb6fee15742b761"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-auth-review-intake-bb1359.json",
+          "sha256": "e640fa0984f3d3e1408a21fb54c1085e2e8042efb60c88dda34c19d613c6090d"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-auth-review-intake-bb1359.json",
+          "sha256": "e640fa0984f3d3e1408a21fb54c1085e2e8042efb60c88dda34c19d613c6090d"
         }
       ],
       "stages": {
         "implementation": "Independent Terra review requested",
-        "configured_validation": "Provider/probe proposal uncompiled and unrun",
-        "production_integration": "not applied",
+        "configured_validation": "Windows scoped probe follow-up passed at bb1359ebe9. POSIX/non-Kerberos runtime open.",
+        "production_integration": "Independent review artifact retained locally at baf5ec4a. Production ownership remains tracked separately.",
         "rust_ownership": "Existing Rust policy retained; original-reference correctness debt under repair",
         "subsystem_cutover": "incomplete"
       },
@@ -3556,11 +4088,32 @@
           "utc": "2026-11-17T13:41:23.365173+00:00",
           "action": "validating",
           "note": "Retain review artifact locally, fix small observation/test gating findings and make isolated probe wiring concrete; independent re-review before application"
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769962+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-18T23:42:04.012501+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-18T23:42:04.195912+00:00",
+          "action": "merge-ready",
+          "note": "Accept the independent auth-reference review artifact and Windows follow-up. Keep platform validation and all remaining production work open."
+        },
+        {
+          "utc": "2026-11-18T23:42:04.411194+00:00",
+          "action": "integrated",
+          "note": "Closed only the locally retained review delivery. Exact-head Windows probe and matching ownership artifacts recorded; POSIX/non-Kerberos and broader closure remain open."
         }
       ],
       "context_directories": [
         "base/strings"
-      ]
+      ],
+      "network_family": "connection-jobs"
     },
     {
       "id": "NET-ORDINARY-COMPILE-REPAIR",
@@ -3595,7 +4148,7 @@
       },
       "base_revision": "006c94bba4f4658b74c8f527455703228f6ae39c",
       "delivery_commit": "f00b0d0c0667a634436f7c75fff11ea3ae25441e",
-      "integration_commit": null,
+      "integration_commit": "e70c4fbe094e73024f7c1301ba40c3543949e2a3",
       "acceptance_tests": [
         "All remaining diagnostics outside5director-owned connection fixtures mapped to exact unchanged source/assertions",
         "Minimal reference-safe namespace/type/callback/borrow adapter proposals with supplemental helper closure and before/after hashes",
@@ -3614,8 +4167,8 @@
         "status": "unmeasured",
         "policy": "Fixed performance batch and all cases retained; no timing/publication until complete gate"
       },
-      "state": "validating",
-      "next_action": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch",
+      "state": "integrated",
+      "next_action": "Proposal artifact integrated at e70c4fbe09. Current tested repair sources are on PR #1.",
       "evidence": [
         {
           "path": "docs/rust/migration/evidence/network-preparation-wait-20261117.json",
@@ -3624,12 +4177,20 @@
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-ordinary-compile-repair-sha256-59e8373c52e1a659b60c09c8df0cb2568297a5416a8e7504f79164dac0efa7ef.json",
           "sha256": "59e8373c52e1a659b60c09c8df0cb2568297a5416a8e7504f79164dac0efa7ef"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-ordinary-compile-repair-acceptance-72ee5ddd.json",
+          "sha256": "5e086bb5c34bd7f470a4c9e4002560b65a6724907047323b6db8c8fa83d7f6a7"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\network-ordinary-compile-repair-acceptance-72ee5ddd.json",
+          "sha256": "5e086bb5c34bd7f470a4c9e4002560b65a6724907047323b6db8c8fa83d7f6a7"
         }
       ],
       "stages": {
-        "implementation": "not started",
-        "configured_validation": "Compiler failures captured; no runtime validation",
-        "production_integration": "not applied",
+        "implementation": "Reviewed 19-file repair proposal retained; 15 applied bytes match and four reviewed successors were reconciled.",
+        "configured_validation": "Fresh 96-root compile and 36-program ordinary Windows runtime met their exact contracts at 72ee5ddd.",
+        "production_integration": "Proposal artifact integrated at e70c4fbe09. Current tested repair sources are on PR #1.",
         "rust_ownership": "Existing Rust policy retained; independent original adapter compile debt under repair",
         "subsystem_cutover": "incomplete"
       },
@@ -3668,6 +4229,21 @@
           "utc": "2026-11-17T14:22:56.150374+00:00",
           "action": "validating",
           "note": "Independently review19-source proposal and director auth export packet before guarded current-cohort application; complete consumer rebuild and ordinary full batch"
+        },
+        {
+          "utc": "2026-11-21T20:47:09.303671+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T20:47:09.474590+00:00",
+          "action": "merge-ready",
+          "note": "Fresh 96-root compile and 36-program ordinary Windows runtime met their exact contracts at 72ee5ddd."
+        },
+        {
+          "utc": "2026-11-21T20:47:09.699829+00:00",
+          "action": "integrated",
+          "note": "Proposal artifact integrated at e70c4fbe09. Current tested repair sources are on PR #1."
         }
       ],
       "context_directories": [
@@ -3828,7 +4404,7 @@
       },
       "base_revision": "ee1739128e28d664266b57a8b604cb266fe7a322",
       "delivery_commit": "984d2f066384b3827843c9e9d34bfea4b186252d",
-      "integration_commit": null,
+      "integration_commit": "f04597b5a94edaf4d780554d03c36a1f1b66522d",
       "acceptance_tests": [
         "Check exact seven same-label Rust/counter ownership, paired CXX roots and no probe leakage in normal graph; identify actual GN/link qualification still required",
         "Review Windows teardown/in-flight cancellation/reentry and six common non-Kerberos cases at c36d, without promoting compile-only evidence",
@@ -3842,18 +4418,79 @@
         "status": "investigating build throughput only",
         "policy": "No workload benchmark/publication or remote runner; preserve correctness acceptance"
       },
-      "state": "validating",
-      "next_action": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs.",
+      "state": "integrated",
+      "next_action": "Scoped Windows reference wiring review accepted. Remaining POSIX, live providers, performance and Connection Jobs cutover stay open.",
       "evidence": [
         {
           "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\immutable\\net-reference-wiring-review-sha256-92eac8de38e1e837ec63f86bba35f0c0a2bb3565e6dbccf5562e2300365efdbb.json",
           "sha256": "92eac8de38e1e837ec63f86bba35f0c0a2bb3565e6dbccf5562e2300365efdbb"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-probe-controls-e29dd630.json",
+          "sha256": "23f5a010ba07498d21ae6829b7cd1741d3948b31245a9c563c4b46ff16ab9e0d"
+        },
+        "docs/rust/migration/evidence/connection-jobs-auth-review-intake-bb1359.json",
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-reconciliation-dispatch-295159ef.json",
+          "sha256": "6c9acd18e4e706489875e685c6ea6ee9379d0c043393dcb69156d67c12336171"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-candidate-0f5f6e3c.json",
+          "sha256": "0324d4e8a46af9b06a03f4c2abf9076afe19b227666c1ec5e3339ee50758d852"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-dispatch-443551ed.json",
+          "sha256": "748f3f50f476b9131b5a64533df7b4db3bd120d0e946d838da16ee943cf1b7d3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-ordinary-feedback-443551ed.json",
+          "sha256": "591dcc73556be6565ea6441414e29c1d345e7e5f6b51cf063285aaf6d8e37baf"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+          "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-native-helper-bindings-443551ed.json",
+          "sha256": "5fbcd5089808a71a6d3e3016a2cc43f631319d6b5aa7566d4da3fcece0303fa6"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-auth-runtime-443551ed.json",
+          "sha256": "2bfd4a9a75822a9ca72939d464333c3dc897a3e6455d082a1d4e354aba02e61d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-557c24af.json",
+          "sha256": "e9b843bfd8468f013403f16db9079495fb6fe25006c7e9e63aebb7b3344f254d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-integration-f27ce55c.json",
+          "sha256": "ded503833268a523a0dedfc0605835595b283099a95b94b10f09f957ca11fd7d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-selection-reconciliation-f27ce55c.json",
+          "sha256": "98dab1359f023bfdf0fe31744272f098b3df7e1f98c291f90c60d4a7920a56d3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-pass-f27ce55c.json",
+          "sha256": "23fd2ffc88c286a63dab2a4ee0d6f132b56f6d90e02bf949f14eda5917b94e98"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-reference-wiring-windows-acceptance-f27ce55c.json",
+          "sha256": "4614966b09270514ff31b7437754770ca5004b9f099b6c55c270eef374f20798"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-reference-wiring-windows-acceptance-f27ce55c.json",
+          "sha256": "4614966b09270514ff31b7437754770ca5004b9f099b6c55c270eef374f20798"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-reference-wiring-windows-acceptance-f27ce55c.json",
+          "sha256": "4614966b09270514ff31b7437754770ca5004b9f099b6c55c270eef374f20798"
         }
       ],
       "stages": {
-        "implementation": "Independent concrete wiring and repaired observation review requested",
-        "configured_validation": "Current1270-input build in progress; no pass claim",
-        "production_integration": "Auth/probe proposal unapplied; normal compiler/proxy repairs applied under guards",
+        "implementation": "Current-head reconciliation confirmed existing auth reference registry and probe wiring. A separate HostPortPair candidate is under review.",
+        "configured_validation": "Scoped warm Windows x64 probes and ownership checks passed at bb1359ebe9. Broader platform and reference qualification pending. At 443551ed, both ordinary resolver cases, scoped GN and flag-off ownership passed. The opt-in DCHECK probe stopped before compilation on a Windows cache-copy path limit. The exact-head follow-up passed three opt-in DCHECK component cases with matching ordinary/probe CXX bindings and scoped Rust archive and DLL ownership. Three exact-head positive-control, Basic and Digest cases passed from the same built DCHECK artifacts. f27ce55c passed four ordinary and two DCHECK probe auth cases, including fixed-nonce full Digest wire output and seven counter controls. Exact f27ce55c evaluated no-Kerberos Windows probe passed five common cases. The sixth intended NTLM case is queued from the dedicated output. The sixth intended NTLM case passed using the same f27ce55c evaluated no-Kerberos probe artifacts. All six common cases now pass in that configuration. f27ce55c cross-DLL copied proxy values through the SPDY reference component successfully, with selected binary imports/exports.",
+        "production_integration": "Auth reference sources, provider registry and opt-in probe targets already present on PR #1 at 295159ef. The paired HostPortPair case and opt-in counts are integrated on PR #1 at 443551ed.",
         "rust_ownership": "Existing policy preserved; independent reference/probe qualification pending",
         "subsystem_cutover": "incomplete"
       },
@@ -3887,11 +4524,152 @@
           "utc": "2026-11-17T15:27:40.425788+00:00",
           "action": "validating",
           "note": "Continue same live Network build; fix comparator provenance binding and reconcile complete parent auth closure before isolated probe application. Do not alter running build inputs."
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769967+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-18T16:13:06.231207+00:00",
+          "action": "amended",
+          "note": "Read-only Terra review of existing validating Connection Jobs delivery dispatched in parallel with ordinary laptop workload feedback."
+        },
+        {
+          "utc": "2026-11-18T16:25:46.365848+00:00",
+          "action": "amended",
+          "note": "Integrated auth sources and single proxy component confirmed at source level. Aggregate positive-control observation repaired on scoped public task branch; old cookie comparator is held with its own family. Actual counter ownership remains unproved."
+        },
+        {
+          "utc": "2026-11-18T18:50:22.672449+00:00",
+          "action": "amended",
+          "note": "Fast-forwarded PR #1 after the parent QUIC pass. Linked laptop owns the next reference-control diagnostic. Focused and QUIC successes remain attached to 0c618a57."
+        },
+        {
+          "utc": "2026-11-18T18:57:12.790735+00:00",
+          "action": "amended",
+          "note": "GN stopped before compilation on e29dd630 at base/BUILD.gn:2147. Its probe assigned an already populated cxx_bindings list, with a second instance at line 2177. Posted failure on prior SHA, pushed one-file successor efd4b881 and dispatched the laptop retry. Evidence: C:/Users/micro/rb/network-reference-e29dd6-20261118a/terminal.json."
+        },
+        {
+          "utc": "2026-11-18T19:03:02.867471+00:00",
+          "action": "policy",
+          "note": "User requires 4 to 8 Ninja jobs for all laptop builds, default 4 and one simultaneous link. The efd4b881 probe stopped at GN generation before any Ninja invocation."
+        },
+        {
+          "utc": "2026-11-18T19:04:28.907151+00:00",
+          "action": "validation",
+          "note": "Pushed 2c3b13810fe7797a92ad774f9c499bb7e8b8d7c5. Reference component assertion and instrumentation now exclude Rust host build tools. Retrying the exact successor on the laptop at -j4 with one simultaneous link."
+        },
+        {
+          "utc": "2026-11-18T19:10:27.098180+00:00",
+          "action": "validation",
+          "note": "GN at 2c3b1381 stopped before Ninja in win_clang_x64_with_system_allocator. Terminal receipt on HQC-VAN_KALIBER: C:/Users/micro/rb/network-reference-2c3b13-20261118b/terminal.json. Public PR successor 5b0241f743dc8f1cdb9d0c3134b7f1ebb4d2a523 restricts instrumentation to the default component toolchain. GN format passed. Laptop probe dispatched at -j4 with one concurrent link; PR status pending."
+        },
+        {
+          "utc": "2026-11-18T19:25:27.846184+00:00",
+          "action": "validation",
+          "note": "5b0241f passed GN generation and focused checks with probe roots limited to the default toolchain. Early object build failed on unexpected cfg(test) in string_split_rust_policy.rs:276 under -Dwarnings. Zero tests ran. Source, GN evidence and partial base64 archive evidence: HQC-VAN_KALIBER C:/Users/micro/rb/network-reference-5b0241-20261118a/terminal.json. PR successor ad0fcfa487670e8fc63c4fadebfae37e8041b769 declares the test cfg for string split, auth challenge and net error in the probe configuration. Laptop retry dispatched at -j4, one link. PR status pending."
+        },
+        {
+          "utc": "2026-11-18T21:20:52.005476+00:00",
+          "action": "validation",
+          "note": "At ad0fcfa487670e8fc63c4fadebfae37e8041b769 the Windows default-toolchain component probe built with -j4 and one concurrent link. String split, auth challenge and net error compiled with -Dwarnings and expected cfg(test). Passed 13 discovered Auth tests plus the proxy control (14/14, zero skips). Evidence C:/Users/micro/rb/network-reference-ad0fcf-20261118a/terminal.json and ownership-pdb.json: seven corresponding archives; base.dll owns two counters and net.dll five; family executable imports seven accessors and has no matching counter public symbols. PR reference control status success. Warm follow-up dispatched for the three unbuilt direct consumers. This result supplies no C++ retirement credit."
+        },
+        {
+          "utc": "2026-11-18T21:51:23.049385+00:00",
+          "action": "validation",
+          "note": "At ad0fcfa4 all three direct-consumer EXEs linked. Base imported the component strings bridge. The standalone net-error test owned a private counter. Request-headers tests retained local Rust and a second counter alongside net.dll (family 14/14 intact). Report C:/Users/micro/rb/network-reference-ad0fcf-direct-consumers-20261118a/receipt.md on HQC-VAN_KALIBER. Prior flag-off evidence was historical only. At 0eaf99456e03232b7ed8ad5837c739542f0ffbb1 the probe-only header tests import three ABI shims from net.dll; regression asserts direct validate advances component counter. Raw expectations preserved; laptop build dispatched with -j4 and one link, including same-head ordinary graph/symbol checks."
+        },
+        {
+          "utc": "2026-11-18T22:03:25.251396+00:00",
+          "action": "validation",
+          "note": "Windows component configurations passed on 0eaf99456e03232b7ed8ad5837c739542f0ffbb1. Probe headers 29/29, auth and proxy 14/14, ordinary headers 28/28. Probe headers executable imports the three wrappers and accessor from net.dll; DLL ownership and cross-boundary increment verified. Same-head ordinary graph and exports lacked probe markers. Warm ordinary build reused component DLLs and family executable. Both scoped PR statuses set to success. Receipt C:/Users/micro/rb/network-reference-0eaf99-20261118a/receipt.md."
+        },
+        {
+          "utc": "2026-11-18T23:31:54.474078+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T23:42:04.594006+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:43.311254+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:24:10.515304+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:26:01.200246+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T01:39:37.108109+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:25:26.262951+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:27:38.796712+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T02:31:39.260074+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:36:42.563864+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T10:17:50.146634+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:41:16.886094+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:46:00.746156+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:50:47.455295+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T10:50:47.634380+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows reference wiring review accepted. Remaining POSIX, live providers, performance and Connection Jobs cutover stay open."
+        },
+        {
+          "utc": "2026-11-22T10:50:47.842602+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows reference wiring review accepted. Remaining POSIX, live providers, performance and Connection Jobs cutover stay open."
         }
       ],
       "context_directories": [
         "base/strings"
-      ]
+      ],
+      "network_family": "connection-jobs"
     },
     {
       "id": "NET-CI-BUILDER-READINESS",
@@ -3918,7 +4696,7 @@
       "role": "subsystem_manager",
       "assignment": {
         "active": true,
-        "session": "terra-remote-runner-readiness-20261117",
+        "session": "terra-laptop-public-pr1-inputs-20261117",
         "worktree": null,
         "branch": null,
         "model": "gpt-6.1-terra",
@@ -3941,14 +4719,111 @@
         "status": "not measured"
       },
       "state": "assigned",
-      "next_action": "Host maintenance completed and explicitly released. Director authorizes dedicated per-user runner setup at C:/Users/micro/actions-runner-rustium using pinned tools/ci/Install-WindowsRunner.ps1. Verify runner execution before requesting a token; generate token locally through authenticated gh and never return/log it. Register/start rustium-build only if execution works. No service/elevation, compiler/test, checkout, policy/security changes or publication.",
+      "next_action": "Registered HQC-VAN_KALIBER-rustium runner verified online and idle. Direct qualified laptop workflow remains usable. GitHub's workflow catalogue does not yet list the Network consumer workflow. No registration or dispatch changed.",
       "evidence": [
-        "docs/rust/migration/evidence/linked-builder-readiness-20261117.json"
+        "docs/rust/migration/evidence/linked-builder-readiness-20261117.json",
+        "docs/rust/migration/evidence/linked-builder-runner-online-20261117.json",
+        "docs/rust/migration/evidence/linked-builder-dependency-sync-20261117.json",
+        "docs/rust/migration/evidence/linked-builder-host-toolchain-20261117.json",
+        "docs/rust/migration/evidence/connection-jobs-warm-validation-bb1359.json",
+        "docs/rust/migration/evidence/connection-jobs-quic-components-fonts.json",
+        {
+          "sha256": "2ffcb31fa8fbf513bc695f0046511082154b44304e1fc3f1cb5a9e1f6e2ef40b",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-midl-failure-df7a5e64.json"
+        },
+        {
+          "sha256": "bb1776d5dfd0ea2372e0760b8a9389db82992408b474e2b2dc2521db5db093e9",
+          "path": "docs/rust/migration/evidence/connection-jobs-midl-edge-repro-df7a5e64.json"
+        },
+        {
+          "sha256": "13864a955ea648a954ad1be96581a85b24c1238493e810184f11a98963f40a1b",
+          "path": "docs/rust/migration/evidence/connection-jobs-midl-repair-review-2c61fa63.json"
+        },
+        {
+          "sha256": "6833e1b6eb810797b4be131352ee6a8b6bd801ee641cbd20cef707eb29216b0f",
+          "path": "docs/rust/migration/evidence/connection-jobs-midl-laptop-2c61fa63.json"
+        },
+        {
+          "sha256": "8990dca393705b4462627824d3391c974be02f6b9cffdb33ec042e0b6734ffd5",
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-laptop-4b1e2484.json"
+        },
+        {
+          "sha256": "a8ce4ced44e83d55aa523d39303091c296466d1bc8952f4004a1a38e16a98cda",
+          "path": "docs/rust/migration/evidence/connection-jobs-grit-path-repair-18f8c741.json"
+        },
+        {
+          "sha256": "dd155b6b0819070fafb9baa629e932029807bd202d275e2f60f68314cb35b653",
+          "path": "docs/rust/migration/evidence/connection-jobs-grit-mode-review-76992d0e.json"
+        },
+        {
+          "sha256": "9e8341722eb970485701a32831dbcd88c643fd61a39e2371e12a477d5c32a177",
+          "path": "docs/rust/migration/evidence/connection-jobs-grit-laptop-76992d0e.json"
+        },
+        {
+          "sha256": "1e9704080bcd05b6474c992ef5de71a50e424b571309eaad8d417c12802d1eea",
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-success-laptop-8a5e79b4.json"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-proxy-feedback-dc811953.json",
+          "sha256": "1564ebcf6045db118ec5fcb0f45743d226da439f6f7694d46ad1e024f91cedaf"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-proxy-feedback-laptop-dc811953.json",
+          "sha256": "8b46fe50b178f38c9842166d2c0e312cc13cda99ad0d0dc78d740e73340b4e08"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-annotation-index-feedback-c4058976.json",
+          "sha256": "eae4fcc17efc377d39fd79638a9837d23a92ba6b8d802be7a74f370ac482ae6e"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-filter-suggestion-feedback-1c843c0c.json",
+          "sha256": "6c2869e877cda5c7bdeab6b5163383fad9e212973d4ae6c4e2b6ac384fe93248"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-merchant-trust-feedback-e41c0f7.json",
+          "sha256": "3c439c2994c8f4aafe6bcee0d2fd008f361dab96d6c1650f6be7907753c23608"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-personal-context-feedback-16de62f.json",
+          "sha256": "497c59518c21ac3f2284d9df38dbf1cadea208ef7dfa418f47da74c730c713f2"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-session-proto-db-feedback-d08074af.json",
+          "sha256": "31af3fc1bda0f5472ae0df0bc1da32b185ea147d8ba5bef243f541135b18fbde"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-study-filtering-feedback-72ee5ddd.json",
+          "sha256": "b0f53fcf8c8c8c622fedf9dc68df3eac64ef5bfadd11d44f11fc5a1600a03b9d"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-optimized-components-laptop-72ee5ddd.json",
+          "sha256": "339a795e7e0cd301737fb2c832e25188d8ce9c92d607db8025ee2cd0307ef97e"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-consumer-dispatch-72ee5ddd.json",
+          "sha256": "dcd0c3ad2625bb3fd191198938344873094c3dd2b4bf6ed0825f810267eb9947"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-consumer-laptop-72ee5ddd.json",
+          "sha256": "43f1e5c32d0d8a3554599cf3115f335bfbbac4fd66991687bd3ccfdbbefa50da"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-ordinary-runtime-72ee5ddd.json",
+          "sha256": "b9603850c0037e4d789edb1c8678ca724b7f226830a7075f04ac397e0a587167"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-optimized-quic-runtime-72ee5ddd.json",
+          "sha256": "eee05894dfa497e603fc145bb824ad80152cbf241f8bf8fbff778d3832096aca"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-ci-readonly-recheck-f27ce55c.json",
+          "sha256": "4d762c19369e5bfb589a3685beeb0d38ae3320de59b5e1dfbff1594d41197971"
+        }
       ],
       "stages": {
-        "implementation": "Read-only preflight completed on Terra/xhigh. Next director-authorized phase is dedicated host runner setup; no repository editing by remote manager.",
-        "configured_validation": "GitHub login/admin verified. Runner executable/registration/online status pending; Network build/test profile unqualified.",
-        "production_integration": "No Network source changes",
+        "implementation": "Runner registered, dependencies synced without hooks, and host tool paths recorded. Byte-0 contention passed on the laptop.",
+        "configured_validation": "At 72ee5ddd the fresh 96-root build, ordinary and optimized Connection Jobs stages, and all 36 selected consumer programs passed their Windows contracts.",
+        "production_integration": "PR #1 advanced to exact warm-tested 72ee5ddd.",
         "rust_ownership": "Unchanged",
         "subsystem_cutover": "Incomplete"
       },
@@ -3967,10 +4842,1723 @@
           "utc": "2026-11-17T17:17:58.088383+00:00",
           "action": "amended",
           "note": "acceptance_tests, evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T17:35:57.642532+00:00",
+          "action": "amended",
+          "note": "blockers, evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T17:35:57.832322+00:00",
+          "action": "blocked",
+          "note": "Runner21 installed/online/idle verified independently; host executable and ATL/MFC prerequisites remain. Completed manager released; no fabricated Git-worktree submission."
+        },
+        {
+          "utc": "2026-11-17T17:38:22.747171+00:00",
+          "action": "amended",
+          "note": "blockers, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T17:38:22.927284+00:00",
+          "action": "ready",
+          "note": "User personally manages laptop and explicitly allows disabling Smart App Control; only that protection setting authorized."
+        },
+        {
+          "utc": "2026-11-17T17:38:23.100778+00:00",
+          "action": "assigned",
+          "note": "terra-remote-runner-prerequisite-20261117"
+        },
+        {
+          "utc": "2026-11-17T18:50:05.523208+00:00",
+          "action": "amended",
+          "note": "blockers, evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-17T18:50:05.714062+00:00",
+          "action": "blocked",
+          "note": "Host evidence pass finished; exact candidate checkout and input qualification remain pending."
+        },
+        {
+          "utc": "2026-11-17T21:07:14.602885+00:00",
+          "action": "amended",
+          "note": "blockers, next_action"
+        },
+        {
+          "utc": "2026-11-17T21:07:14.793258+00:00",
+          "action": "ready",
+          "note": "Reviewed candidate now public with only policy documentation changes after review."
+        },
+        {
+          "utc": "2026-11-17T21:07:14.981693+00:00",
+          "action": "assigned",
+          "note": "terra-laptop-public-pr1-inputs-20261117"
+        },
+        {
+          "utc": "2026-11-17T21:14:20.567112+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T21:28:38.834468+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T21:53:40.767505+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T22:11:19.108376+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T22:17:28.163462+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T22:22:07.074868+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T22:49:42.312526+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T23:11:18.907902+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-17T23:27:23.762337+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T01:21:16.168652+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T02:03:42.832490+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T02:43:43.714253+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T02:53:27.483848+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T03:09:49.782774+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T03:50:21.311876+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T04:21:18.532711+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T05:02:59.029172+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T05:59:43.046940+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T08:56:57.024137+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769971+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-18T11:52:28.363698+00:00",
+          "action": "amended",
+          "note": "Scoped feedback driver and public instructions pushed. Exact-head focused PR check pending. Terra reviewed diagnostic scope; laptop trial queued in native slot."
+        },
+        {
+          "utc": "2026-11-18T16:07:11.214462+00:00",
+          "action": "amended",
+          "note": "d228644a ordinary check posted as error. Its parent dependency command bootstrapped a second vpython environment with 200 bytecode files. It produced no build or verifier result, the lock was released. Receipt C:/Users/micro/rb/network-d228-verifiers-20261118a/terminal.json. In-flight focused trial notified."
+        },
+        {
+          "utc": "2026-11-18T16:13:06.231191+00:00",
+          "action": "amended",
+          "note": "Focused PR check published as success: exact regression passed in 42.4 s; native 2568 pass + 34 skip, Rust 23 pass; final test at 51.8 s. Source-bound warm diagnostic, no Ninja work. Receipts C:/Users/micro/rb/network-focus-0c618a-{case,family}-20261118a/result.json. Three ordinary verify-only targets dispatched."
+        },
+        {
+          "utc": "2026-11-18T16:19:47.066599+00:00",
+          "action": "amended",
+          "note": "Ordinary Connection Jobs workload PR check passed at 0c618a57. Three exact completion markers cover 15/16/21 planned IDs, without individual case results. Three C++ compilations and three links, 94.46 s. Laptop receipt C:/Users/micro/rb/network-focus-0c618a-connection-jobs-20261118a/result.json. Separate QUIC lifecycle diagnostic requested."
+        },
+        {
+          "utc": "2026-11-18T18:50:22.672433+00:00",
+          "action": "amended",
+          "note": "0c618a57 QUIC status posted as success. Upper verifier emitted the 16-lifecycle marker; the 16 named JobsFamilyTest cases all passed with 0 skips/retries. Laptop upper/family receipts: C:/Users/micro/rb/network-focus-0c618a-quic-jobs-20261118a/upper-receipt.json and C:/Users/micro/rb/network-focus-0c618a-quic-family-20261118a/result.json. Earlier report-gate EOF happened after verifier pass, before family continuation."
+        },
+        {
+          "utc": "2026-11-18T18:57:12.790697+00:00",
+          "action": "amended",
+          "note": "GN stopped before compilation on e29dd630 at base/BUILD.gn:2147. Its probe assigned an already populated cxx_bindings list, with a second instance at line 2177. Posted failure on prior SHA, pushed one-file successor efd4b881 and dispatched the laptop retry. Evidence: C:/Users/micro/rb/network-reference-e29dd6-20261118a/terminal.json."
+        },
+        {
+          "utc": "2026-11-18T23:00:12.852631+00:00",
+          "action": "validation",
+          "note": "PR #1 bb1359ebe90ffbefb5f67a85bdf001f44415de3d binds both launcher/spec/lock pairs and cached interpreters, checks the warm GN graph via Ninja and requires exact cases or an explicit suite selection. Both prepared Python 3.11.9 environments were reused on the laptop with fresh temp paths; C:/Users/micro/rb/vpython-cache-receipt-20261118.md. The two-pass exact-case run and sign-in supervisor verification were dispatched; awaiting receipt."
+        },
+        {
+          "utc": "2026-11-18T23:06:56.620153+00:00",
+          "action": "validation",
+          "note": "Verified warm feedback on HQC-VAN_KALIBER at bb1359ebe90ffbefb5f67a85bdf001f44415de3d. Exact HTTP/2 case passed twice, one per run, with no skips or Ninja actions. Test completion after 20.03s and 18.38s, Python checks 0.77s each. One exact Rust test passed, 22 filtered out. Missing selection rejected before issuing graph/build/test commands. Both spec-bound Python environments reused offline with fresh temp directories and unchanged store entries. Repeated logon installer left one supervisor, original listener, unchanged registration, runner online; reboot and listener crash not exercised. Scoped PR check published success. Laptop receipt: C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/bb1359-test-receipt.md"
+        },
+        {
+          "utc": "2026-11-18T23:20:48.628604+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T23:25:44.893750+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-18T23:31:54.288361+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-18T23:42:04.781798+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-19T00:20:49.021802+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T15:54:28.594816+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-20T16:02:47.178759+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-20T18:30:40.240428+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:33:56.165604+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:38:57.514642+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:00:20.117071+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T21:45:25.627347+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T21:50:15.517720+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T21:54:40.942436+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:40:14.222054+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T22:45:50.580345+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T02:20:05.699461+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T02:29:23.536119+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T02:42:03.599541+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T03:05:30.598032+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T03:18:12.024156+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T03:37:55.736268+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T03:59:52.352554+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T04:30:56.937373+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T04:38:43.535755+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T07:24:39.206359+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T14:19:18.155770+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:36:20.030992+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:51:40.543228+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T20:47:09.878051+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T11:03:21.445977+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
         }
       ],
       "context_directories": [
         "base/strings"
+      ],
+      "network_family": "connection-jobs"
+    },
+    {
+      "id": "NET-CI-SOURCE-REVIEW",
+      "subsystem": "network-services",
+      "priority": 0,
+      "objective": "Independently review fixed clean Network integration-source candidate fe18b237 for portable source completeness, exact proposal preservation and exclusion of unrelated platform changes before PR publication",
+      "behavioral_contract": "Preserve complete36-program232-workload inventory; current source authority and current graph/header/service ABI evidence required; retained provisional targets never silently promoted",
+      "original_cpp_reference": {
+        "paths": [
+          "docs/rust/network-integration-candidate.md",
+          "tools/ci/network-validation-inventory.json"
+        ],
+        "revision": "fe18b237de48d2fbc0026a534c61ae8281dbddef",
+        "freeze_status": "Review fixed Git source candidate and retained assembly provenance; no new implementation"
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-ci-source-review"
+      ],
+      "shared_interfaces": {
+        "policy": "Only review report files. No production, GN, exports, configured, queue, CI or candidate changes. Director owns repairs."
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "reviewer",
+      "assignment": {
+        "active": true,
+        "session": "terra-ci-source-review-20261117",
+        "worktree": "D:\\RustiumReview",
+        "branch": "rust/net-ci-source-review-20261117",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "fe18b237de48d2fbc0026a534c61ae8281dbddef",
+      "delivery_commit": null,
+      "integration_commit": null,
+      "acceptance_tests": [
+        "Revalidate all actual candidate entrypoint hashes and raw archive/index/member identities without machine-local inputs",
+        "Verify three previous P2 findings are repaired/triaged without modifying literal fixture bytes or ordinary membership",
+        "Review driver/workflow source/ref/dirty/process/resource/target resolution/failure/provenance gates and trusted same-repo approved-PR trigger; no false ordinary/native/cutover pass",
+        "Run only data-level tests, PowerShell parsing and actionlint; no compilation, GN generation, native tests or campaigns"
+      ],
+      "build_targets": {
+        "proposed": [],
+        "qualification": "No build or native test authorized"
+      },
+      "performance": {
+        "status": "not measured"
+      },
+      "state": "implementing",
+      "next_action": "Exact f27ce55c CI source matches prior pinned planning inputs. 18 data-only cases and both PowerShell parse checks passed. No new actionlint result; preserve the V4 review worktree and untracked inputs. Hosted Network workflow is not registered; no dispatch attempted.",
+      "evidence": [
+        "docs/rust/migration/evidence/network-ci-source-v2-preparation-20261117.json",
+        {
+          "path": "docs/rust/migration/evidence/network-ci-planning-recheck-295159ef.json",
+          "sha256": "14a40d67b861ded34a1872465337a72a8954eb58fe774fc442f37c8358dd9dd7"
+        },
+        {
+          "path": "docs/rust/migration/evidence/network-ci-readonly-recheck-f27ce55c.json",
+          "sha256": "4d762c19369e5bfb589a3685beeb0d38ae3320de59b5e1dfbff1594d41197971"
+        }
+      ],
+      "stages": {
+        "rust_ownership": "Unchanged",
+        "production_integration": "Review artifact awaits intake. No production source change from this review.",
+        "configured_validation": "All 18 data-only planning tests and 18 entrypoint hashes passed at exact PR head 295159ef. Archived raw inputs match recorded hash and member CRCs. No compiler or GN.",
+        "subsystem_cutover": "Incomplete",
+        "implementation": "V1-V4 review reports retained on the task branch through 4c8c55fa00f6ed761bd0f777d35dac568756f125"
+      },
+      "history": [
+        {
+          "utc": "2026-11-17T17:38:50.848331+00:00",
+          "action": "enqueued",
+          "note": "Independently review fixed clean Network integration-source candidate fe18b237 for portable source completeness, exact proposal preservation and exclusion of unrelated platform changes before PR publication"
+        },
+        {
+          "utc": "2026-11-17T17:38:51.086931+00:00",
+          "action": "assigned",
+          "note": "terra-ci-source-review-20261117"
+        },
+        {
+          "utc": "2026-11-17T17:38:52.342600+00:00",
+          "action": "workspace-bound",
+          "note": "D:\\RustiumReview"
+        },
+        {
+          "utc": "2026-11-17T17:38:52.613895+00:00",
+          "action": "implementing",
+          "note": "Exclusive clean review branch bound to fixed fe18b237; report-only ownership"
+        },
+        {
+          "utc": "2026-11-17T18:13:00.381155+00:00",
+          "action": "amended",
+          "note": "acceptance_tests, evidence, next_action"
+        },
+        {
+          "utc": "2026-11-18T11:42:08.769976+00:00",
+          "action": "amended",
+          "note": "New dispatch limited to Connection Jobs and its required builder, reference and ABI support; existing evidence retained."
+        },
+        {
+          "utc": "2026-11-20T15:58:07.847790+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:19:28.758076+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:43.520064+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T11:03:21.622138+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        }
+      ],
+      "context_directories": [
+        "docs/rust/migration",
+        "base/strings"
+      ],
+      "network_family": "connection-jobs"
+    },
+    {
+      "id": "NET-CONNECTION-TRANSPORT-IDLE",
+      "subsystem": "network-services",
+      "network_family": "connection-jobs",
+      "priority": 0,
+      "objective": "Move production TransportClientSocketPool idle-socket disposition, expiry and reuse selection into Rust as one bounded lifecycle",
+      "behavioral_contract": "Preserve release and close-reason priority, generation, used and unused timeouts, observation/selection order, load timing and reuse metadata, counts, expansion updates, queued destruction, logging and pending-request wakeup. Keep the C++ caller ABI, sequence and socket/handle ownership stable.",
+      "original_cpp_reference": {
+        "paths": [
+          "net/socket/transport_client_socket_pool.cc",
+          "net/socket/transport_client_socket_pool.h",
+          "docs/rust/migration/evidence/connection-jobs-transport-idle-baseline-bb1359.json"
+        ],
+        "revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+        "source_manifest_sha256": "4e0821ca8f4db402dd677f02f35b3b02b46051445c9d794560452770e70b96b5",
+        "freeze_status": "Pinned original policy and immediate helper inputs. Freeze any additional dependencies and implement executable independent reference before changing policy."
+      },
+      "owned_files": [
+        "net/socket/transport_client_socket_pool.cc",
+        "net/socket/transport_client_socket_pool.h",
+        "net/socket/transport_client_socket_pool_unittest.cc",
+        "net/socket/client_socket_pool_base_unittest.cc",
+        "net/socket/transport_client_socket_pool_idle_rust_core.rs",
+        "net/socket/transport_client_socket_pool_idle_rust_original.cc",
+        "net/socket/transport_client_socket_pool_idle_rust_original.h"
+      ],
+      "shared_interfaces": {
+        "policy": "Director owns GN, shared FFI and exports, common pool and handle interfaces. Worker proposes changes to those surfaces. Use native typed socket/clock/log/callback operations with policy in Rust."
+      },
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": "terra-connection-transport-idle-repair-20261119",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-c703d46f-d7506056ff34cc03",
+        "branch": "rust/connection-transport-idle-20261119",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "4fadffffebb3a76fd8604245b29e9f4f5cd2cddc",
+      "delivery_commit": "e94513cabc66caa3a6bf7c44b21414013b4d9617",
+      "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+      "acceptance_tests": [
+        "Verify original source and helper identities before adapting. Exercise frozen independent C++ policy against Rust on the same native-equivalent observations.",
+        "Retain existing derived-pool tests, including timeout boundaries, stale generation, unexpected unread data, used-versus-unused reuse and idle reuse timing.",
+        "Validate reviewed exact head on the laptop with the derived-pool cases and Connection Jobs suite, plus affected caller build and ABI checks. Retire the replaced production C++ decisions."
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net",
+          "//net:net_unittests",
+          "//net:connection_jobs_family_rust_unittests"
+        ],
+        "qualification": "Laptop only, warm targeted feedback first, four Ninja jobs and one link by default."
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Retain batch archive and publication gates."
+      },
+      "state": "integrated",
+      "next_action": "Scoped Windows idle-policy delivery accepted and integrated on PR #1 at 557c24af. Retain broader platform, provider and performance obligations separately.",
+      "evidence": [
+        "docs/rust/migration/evidence/connection-jobs-transport-idle-baseline-bb1359.json",
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-transport-idle-delivery-fe5d79e2.json",
+          "sha256": "a4656bc8058a59783bed460544a7ec2902cf1aae0c6e2312de8fae4c166dada4"
+        },
+        "docs/rust/migration/evidence/connection-jobs-transport-idle-review-fe5d79e2.json",
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-transport-idle-repair-e94513ca.json",
+          "sha256": "13208b10c6f26134e7801ab1ac52f8df4ab3d9659d5d8e25438e8a89caa5efd3"
+        },
+        "docs/rust/migration/evidence/connection-jobs-transport-idle-selection-repair.json",
+        "docs/rust/migration/evidence/connection-jobs-transport-idle-review-67907d09.json",
+        {
+          "sha256": "6833e1b6eb810797b4be131352ee6a8b6bd801ee641cbd20cef707eb29216b0f",
+          "path": "docs/rust/migration/evidence/connection-jobs-midl-laptop-2c61fa63.json"
+        },
+        {
+          "sha256": "27cd1047f90d432df16e077ee688c0965c114969640ea3ff0e42899787955a10",
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-fixture-repair-4b1e2484.json"
+        },
+        {
+          "sha256": "8990dca393705b4462627824d3391c974be02f6b9cffdb33ec042e0b6734ffd5",
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-idle-laptop-4b1e2484.json"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-fresh-ordinary-runtime-72ee5ddd.json",
+          "sha256": "b9603850c0037e4d789edb1c8678ca724b7f226830a7075f04ac397e0a587167"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+          "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+          "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-idle-windows-acceptance-557c24af.json",
+          "sha256": "e8548d46e8a50de1e4faff1fab1020e7b280cdcf6b2d1d10b2b393ecedd0aa8c"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-idle-windows-acceptance-557c24af.json",
+          "sha256": "e8548d46e8a50de1e4faff1fab1020e7b280cdcf6b2d1d10b2b393ecedd0aa8c"
+        }
+      ],
+      "stages": {
+        "rust_ownership": "Rust owns idle eligibility, expiry, cleanup, release and candidate selection policy. Native code retains socket/request ownership, provider calls, scheduling and teardown.",
+        "production_integration": "Validated scoped idle slice on Network PR #1 at 4b1e24848d1080edce5e9bad8e27372760674736. The idle Rust core blob matches the validated 4b1e2484 ancestor.",
+        "configured_validation": "11 focused and 308 pool cases passed at 4b1e2484. At fresh 72ee5ddd the family suite passed 2570 with 34 configuration skips, and net.dll linked the idle Rust crate and shared all five projections with net_unittests. Exact 557c24af scoped ordinary Windows aggregate: 221 affected pool passes, then 2571 named family passes and 34 configuration skips.",
+        "subsystem_cutover": "Incomplete. Remaining Connect Jobs C++ ownership and applicable fresh build, platform and performance qualification open.",
+        "implementation": "Reviewed Rust idle policy, independent C++ oracle, new differential and production pool tests, and one-line fixture repair."
+      },
+      "history": [
+        {
+          "utc": "2026-11-18T23:34:41.702332+00:00",
+          "action": "enqueued",
+          "note": "Move production TransportClientSocketPool idle-socket disposition, expiry and reuse selection into Rust as one bounded lifecycle"
+        },
+        {
+          "utc": "2026-11-18T23:43:14.373115+00:00",
+          "action": "amended",
+          "note": "base_revision, next_action"
+        },
+        {
+          "utc": "2026-11-18T23:43:14.565442+00:00",
+          "action": "assigned",
+          "note": "terra-connection-transport-idle-20261119"
+        },
+        {
+          "utc": "2026-11-18T23:44:58.946826+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-18T23:53:21.442140+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-c703d46f-d7506056ff34cc03"
+        },
+        {
+          "utc": "2026-11-18T23:53:21.628183+00:00",
+          "action": "implementing",
+          "note": "Terra/xhigh checkout and branch bound at exact clean setup base. Original C++ and immediate helpers are pinned at bb1359ebe9. Authorized to author the independent executable reference and connected idle-socket policy migration, with director-owned shared build/ABI proposals."
+        },
+        {
+          "utc": "2026-11-18T23:54:34.440011+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-19T00:02:25.638875+00:00",
+          "action": "submitted",
+          "note": "Verified clean worker HEAD and two scoped commits. Preserve oracle as a separate milestone. Await independent review and director build wiring."
+        },
+        {
+          "utc": "2026-11-19T00:02:26.014924+00:00",
+          "action": "validating",
+          "note": "Independent Terra/xhigh source, lifecycle, oracle and ABI review dispatched on fe5d79e2. Director is preparing an isolated GN proposal. Native validation follows the active laptop owner."
+        },
+        {
+          "utc": "2026-11-19T00:05:42.952753+00:00",
+          "action": "amended",
+          "note": "evidence"
+        },
+        {
+          "utc": "2026-11-19T00:05:43.148821+00:00",
+          "action": "needs-repair",
+          "note": "Independent Terra review found real-pool test coverage missing and redundant FFI crossings. Director owns linkage. Preserve candidate and oracle commits; warm build after linked repair."
+        },
+        {
+          "utc": "2026-11-19T00:05:43.345590+00:00",
+          "action": "assigned",
+          "note": "terra-connection-transport-idle-repair-20261119"
+        },
+        {
+          "utc": "2026-11-19T00:05:43.891436+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-c703d46f-d7506056ff34cc03"
+        },
+        {
+          "utc": "2026-11-19T00:05:44.069103+00:00",
+          "action": "implementing",
+          "note": "Clean exact fe5d79e2 bound for repair. Add real production lifecycle tests, intentional component test access, and consolidate policy protocol. Retain independent scalar oracle."
+        },
+        {
+          "utc": "2026-11-19T00:06:40.939040+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-19T00:14:25.591067+00:00",
+          "action": "submitted",
+          "note": "Verified clean repair commit e94513ca. Retained original oracle and prior candidate. Wired exact review head locally without modifying configured inputs."
+        },
+        {
+          "utc": "2026-11-19T00:15:07.721233+00:00",
+          "action": "validating",
+          "note": "Review 62cd081a including single-owner wiring, exact worker repair e94513ca and new real-pool cases. Previous findings and candidate remain retained. No build while the QUIC consumer run owns the laptop."
+        },
+        {
+          "utc": "2026-11-19T00:25:25.961952+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-19T00:28:51.869265+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-20T16:02:46.880819+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-20T18:38:57.725424+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T18:49:32.727944+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-20T19:00:19.903162+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T19:36:20.415100+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:22:30.951900+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:22:31.130152+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows idle-policy delivery accepted and integrated on PR #1 at 557c24af. Retain broader platform, provider and performance obligations separately."
+        },
+        {
+          "utc": "2026-11-22T09:22:31.374735+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows idle-policy delivery accepted and integrated on PR #1 at 557c24af. Retain broader platform, provider and performance obligations separately."
+        }
+      ],
+      "context_directories": [
+        "net/socket",
+        "net/http",
+        "docs/rust/migration"
+      ]
+    },
+    {
+      "id": "NET-CONNECTION-TRANSPORT-SCHEDULING",
+      "subsystem": "network-services",
+      "network_family": "connection-jobs",
+      "priority": 40,
+      "objective": "Move transport pool request-to-job assignment and stalled-group selection policy into Rust behind the existing native object and callback boundaries.",
+      "behavioral_contract": [
+        "Respect-limits requests preserve FIFO within each priority, except max-priority requests ignoring limits are put at the front. Reprioritizing removes and reinserts the request; setting the same priority preserves position.",
+        "Assigned jobs cover a contiguous highest-priority prefix. New eligible requests take the job at the front of the unassigned list or take the last lower-ranked assigned job. A released job can immediately serve the first eligible unassigned request.",
+        "Job priority follows the associated request. Preconnect jobs can be claimed later. Auth-bound request and job pairs leave the unbound queues and retain generation and first pending error.",
+        "Stalled groups are eligible only with an available group slot and more unbound requests than jobs. Equal top priority preserves the first group in native GroupId map order.",
+        "Preserve native request and job destruction, callback ordering, cancellation, preconnect completion, backup timer behavior and existing public errors. Keep native job / socket providers behind the existing ownership boundary."
+      ],
+      "original_cpp_reference": {
+        "revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+        "current_production_base": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+        "manifest": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+        "manifest_sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0",
+        "freeze_status": "All 19 manifest source blobs verified. Freeze an executable independent C++ oracle and any newly reached helper dependencies before changing policy."
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-connection-transport-scheduling"
+      ],
+      "shared_interfaces": [
+        "net/BUILD.gn and Rust export/link wiring remain director-owned; worker supplies exact current-PR patch and reviewed ABI proposal."
+      ],
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": "terra-connection-transport-scheduling-20261121",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b",
+        "branch": "rust/connection-transport-scheduling-20261121",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "4fadffffebb3a76fd8604245b29e9f4f5cd2cddc",
+      "delivery_commit": "157c435f186f098c102e255c6af7f86c57f349bc",
+      "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+      "acceptance_tests": [
+        "Verify an independent original C++ decision model and immediate helpers from frozen sources before production changes.",
+        "Compare FIFO, ignore-limits, reprioritization, unassigned order and job stealing/return, preconnect claims, and equal-priority stalled groups.",
+        "Preserve actual priority propagation, callbacks, cancellation, auth binding, native ownership and errors at production call sites.",
+        "Run focused ordinary/differential laptop cases before the named Connection Jobs suite. Retire the replaced C++ scheduling decisions and retain external/native scope."
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net",
+          "//net:net_unittests",
+          "//net:connection_jobs_family_rust_unittests"
+        ],
+        "qualification": "Laptop warm focused validation, default four jobs, one simultaneous link."
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Keep fixed batch and archive gates; no desktop timing."
+      },
+      "state": "integrated",
+      "next_action": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open.",
+      "evidence": [
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+          "sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-rebind-72ee5ddd.json",
+          "sha256": "200389b63f6297d22042665b7439a2ca33fff0f5d9d86a8d3069731aaebd6ee6"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-stalled-group-candidate-712ca01f.json",
+          "sha256": "cb91ad409588a122666cf0711c76df0faa45c638142cc5d21df085d2a8b02df0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-review-712ca01f.json",
+          "sha256": "465e2f800ba8d2613b98d2803c9c7d819ff290844d1e6c7e07d19a7a04674c63"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-auth-review-80374a37.json",
+          "sha256": "5550b5e3097150af28e28cfa1bbdb8b6e6cbf9841e658cf2334d9fdb88ad7207"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-laptop-712ca01f.json",
+          "sha256": "e4ce7f0c0411a3e874bc4722e32c1f946b94e6e299aa1f5bd8f22cacebf33b41"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-auth-laptop-80374a37.json",
+          "sha256": "b84c2c59ed9b8db3d90f6c06c5292e485ef75ddb6c79e9c7cb5cdee461483b07"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-integration-80374a37.json",
+          "sha256": "5f399309cd6da5dd91330c4c7c91cda9107c8a9d84bd8ba5326fc60f5c76e07b"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-integration-54f6f4df.json",
+          "sha256": "55a3f9f5971caafbacc71446c64f4c848ab1f251a7cd7c4d33db541e50e20a94"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-pool-runtime-54f6f4df.json",
+          "sha256": "d779fd630694d2b968dcd4ff50f8ba4ba14f831b1bd6a28d739ef748112cf550"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-integration-f2e45f1e.json",
+          "sha256": "587a4da620b56f9c9da2cd996d3766a2bd25e6464bc7cb15b54a479766d98503"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-integration-295159ef.json",
+          "sha256": "3494d88d54746995b4179cdf51fa3ea6c29cb938eda3307d1f76e1862e29c854"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-295159ef.json",
+          "sha256": "183ef4f24e795eed5830ba7a748916346146ba29a36825b8f629f569fade9680"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-295159ef.json",
+          "sha256": "a6c0d953a979919d833525225ad4c9ec8a6065368b0af29d5db09fe97dff64b5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-retained-queue-trace-295159ef.json",
+          "sha256": "dbeb0405b6092a0cb9aa1659a4b273ef80f773bb674686d9dd286a6e4fe31f9a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+          "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-candidate-f59000ad.json",
+          "sha256": "03397a25bafdf2cc01034c79f0c091f582a44bdfdf555a9fc8a55efd15786f53"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-dispatch-557c24af.json",
+          "sha256": "afa83a018ff49b7d8b8c717a6c1c58ec0521a69c6d4e17c4c817088edb4f1fde"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-integration-557c24af.json",
+          "sha256": "6fec4b5680dd66555fbf64cf4bc25407803aa875bc4143b6ef931f4a8f54f5de"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-recovery-557c24af.json",
+          "sha256": "cf8e76f3ac07d97d7723c9457a9e7deac1f5993ce3bf8664fd90af00c6d90dfb"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+          "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+          "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-scheduling-windows-acceptance-557c24af.json",
+          "sha256": "c4656a59950e2656634fa966bfa8edc6c26ae44f568c1b807e9bea2c50ee020f"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-scheduling-windows-acceptance-557c24af.json",
+          "sha256": "c4656a59950e2656634fa966bfa8edc6c26ae44f568c1b807e9bea2c50ee020f"
+        }
+      ],
+      "stages": {
+        "implementation": "Production retained Rust order, ranking and preconnect claims integrated on PR #1. Replaced C++ request-order and assignment decisions removed; native provider and object authority remains.",
+        "configured_validation": "Exact 295159ef warm net_unittests, nine focused cases, 221 pool cases and Windows component linkage passed. Unchanged Rust source passed seven tests on 5932850e. Named ordinary family at exact head: 2,570 passed, 34 configuration skips. All six QUIC-specific cases passed on the same source, and all 28 dual-race skips have passing enabled counterparts. Standalone original-loop and exact Rust traces match all 18 records; Rust detach/relink allocation probe passed. 557c24af passed 7 configured Rust tests, 7 direct crate-root tests, 3 frozen scalar C++ cases, 5 real pool cases, and single-archive DLL linkage. All 221 affected pool cases passed at 557c24af using the exact rebuilt DLL/executable before restoration. Named ordinary Connection Jobs at 557c24af: 2571 passed, 34 configuration skips, zero failures, disabled or unrun cases.",
+        "production_integration": "Rust transport scheduler and authoritative aggregate preconnect claim accounting are on PR #1 295159ef. At 557c24af, the superseded assignment crate is retired and scalar oracles use the production retained queue's decisions.",
+        "rust_ownership": "Transport Group request order and reprioritization, assignment recipient selection, stalled-group ranking, idle eligibility and aggregate preconnect claim state. Native retains objects, group routing and eligibility, provider calls, auth-bound pairing, callbacks, timers and teardown.",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-21T21:11:19.747611+00:00",
+          "action": "enqueued",
+          "note": "Move transport pool request-to-job assignment and stalled-group selection policy into Rust behind the existing native object and callback boundaries."
+        },
+        {
+          "utc": "2026-11-21T21:11:19.915665+00:00",
+          "action": "assigned",
+          "note": "terra-connection-transport-scheduling-20261121"
+        },
+        {
+          "utc": "2026-11-21T21:13:11.681826+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:17:50.848194+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b"
+        },
+        {
+          "utc": "2026-11-21T21:17:51.013502+00:00",
+          "action": "implementing",
+          "note": "Reserved exact clean T3 worktree rebound to its rust/ task branch. Authorize frozen original and production proposal edits only at the owned draft path."
+        },
+        {
+          "utc": "2026-11-21T21:19:28.568338+00:00",
+          "action": "amended",
+          "note": "next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:27:53.637331+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T21:27:55.664321+00:00",
+          "action": "submitted",
+          "note": "Clean terminal worker delivered exact source packet and frozen original. Scope is stalled-group ranking."
+        },
+        {
+          "utc": "2026-11-21T21:27:55.843965+00:00",
+          "action": "validating",
+          "note": "Independently source-review exact production candidate 712ca01f before focused laptop checks. Assignment migration remains pending."
+        },
+        {
+          "utc": "2026-11-21T21:34:06.702489+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:36:31.390446+00:00",
+          "action": "amended",
+          "note": "next_action"
+        },
+        {
+          "utc": "2026-11-21T21:39:16.841386+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-21T21:45:26.202390+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:54:26.403299+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:00:32.142059+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:34:24.727037+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:45:01.140667+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:39:05.974503+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:31:57.659401+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:44:05.108982+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:07:23.347699+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:43.718288+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:25:26.463648+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:33:20.886311+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T02:37:31.559697+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T08:52:37.970330+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T08:55:56.063212+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T09:10:21.161665+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:00.138989+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:00.319632+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows delivery accepted and on PR #1 at 557c24af. The local editing branch does not contain the PR head. Retain wider platform, provider and performance limitations and incomplete family cutover."
+        },
+        {
+          "utc": "2026-11-22T09:21:52.127373+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open."
+        }
+      ],
+      "context_directories": [
+        "net/socket",
+        "net/base"
+      ]
+    },
+    {
+      "id": "NET-CONNECTION-TRANSPORT-REQUEST-ASSIGNMENT",
+      "subsystem": "network-services",
+      "network_family": "connection-jobs",
+      "priority": 41,
+      "objective": "Migrate transport pool unbound request-to-job assignment as the remaining implementation slice of NET-CONNECTION-TRANSPORT-SCHEDULING.",
+      "behavioral_contract": [
+        "Respect-limits requests preserve FIFO within each priority, except max-priority requests ignoring limits are put at the front. Reprioritizing removes and reinserts the request; setting the same priority preserves position.",
+        "Assigned jobs cover a contiguous highest-priority prefix. New eligible requests take the job at the front of the unassigned list or take the last lower-ranked assigned job. A released job can immediately serve the first eligible unassigned request.",
+        "Job priority follows the associated request. Preconnect jobs can be claimed later. Auth-bound request and job pairs leave the unbound queues and retain generation and first pending error.",
+        "Preserve native request and job destruction, callback ordering, cancellation, preconnect completion, backup timer behavior and existing public errors. Keep native job / socket providers behind the existing ownership boundary."
+      ],
+      "original_cpp_reference": {
+        "revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+        "current_production_base": "712ca01f84b44e86ca53fb197ac54ac95b47b425",
+        "manifest": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+        "manifest_sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0",
+        "freeze_status": "Reuse the 19 frozen originals and extend the separate queue oracle wherever the reached cases need additional original behavior."
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-connection-transport-request-assignment"
+      ],
+      "shared_interfaces": [
+        "net/BUILD.gn and Rust export/link wiring remain director-owned; worker supplies exact current-PR patch and reviewed ABI proposal."
+      ],
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": "terra-connection-transport-request-assignment-20261121",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b",
+        "branch": "rust/connection-transport-request-assignment-20261121",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "157c435f186f098c102e255c6af7f86c57f349bc",
+      "delivery_commit": "b4435e701df258a50c8746812a949b37b4e02e9d",
+      "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+      "acceptance_tests": [
+        "Verify an independent original C++ decision model and immediate helpers from frozen sources before production changes.",
+        "Compare FIFO, ignore-limits, reprioritization, unassigned order and job stealing/return, preconnect claims, and equal-priority stalled groups.",
+        "Preserve actual priority propagation, callbacks, cancellation, auth binding, native ownership and errors at production call sites.",
+        "Run focused ordinary/differential laptop cases before the named Connection Jobs suite. Retire the replaced C++ scheduling decisions and retain external/native scope."
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net",
+          "//net:net_unittests",
+          "//net:connection_jobs_family_rust_unittests"
+        ],
+        "qualification": "Laptop warm focused validation, default four jobs, one simultaneous link."
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Keep fixed batch and archive gates; no desktop timing."
+      },
+      "state": "integrated",
+      "next_action": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open.",
+      "evidence": [
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+          "sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-rebind-72ee5ddd.json",
+          "sha256": "200389b63f6297d22042665b7439a2ca33fff0f5d9d86a8d3069731aaebd6ee6"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-prefix-intake-1315bb08.json",
+          "sha256": "9c7872f4c171cb22c2a0d132d1f8d96c8be4d9851dc1ec5d8e0eebe4a161a46f"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-assignment-candidate-4304d7e0.json",
+          "sha256": "c52c9c626618d75d3b28b0337c29f742642ed4a572a54aadce25c61b843da37a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-review-4304d7e0.json",
+          "sha256": "eb075cf0535b32d7f4c3aaf647e41ed0984fbfe402395ff8f1542507021102de"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-stalled-group-integration-80374a37.json",
+          "sha256": "5f399309cd6da5dd91330c4c7c91cda9107c8a9d84bd8ba5326fc60f5c76e07b"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-job-order-review-54f6f4df.json",
+          "sha256": "55e2f730c7e9f7f3f83a3a97fa2406bf96ef72247bbf62fb51588cc7ff8d3ea3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-laptop-4304d7e0.json",
+          "sha256": "5b53f4d0007ddea596258eba00c0e94c96d439fe1e18770c9452ff29ea2dac47"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-integration-54f6f4df.json",
+          "sha256": "55a3f9f5971caafbacc71446c64f4c848ab1f251a7cd7c4d33db541e50e20a94"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-integration-f2e45f1e.json",
+          "sha256": "587a4da620b56f9c9da2cd996d3766a2bd25e6464bc7cb15b54a479766d98503"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-integration-295159ef.json",
+          "sha256": "3494d88d54746995b4179cdf51fa3ea6c29cb938eda3307d1f76e1862e29c854"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-295159ef.json",
+          "sha256": "183ef4f24e795eed5830ba7a748916346146ba29a36825b8f629f569fade9680"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-295159ef.json",
+          "sha256": "a6c0d953a979919d833525225ad4c9ec8a6065368b0af29d5db09fe97dff64b5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-retained-queue-trace-295159ef.json",
+          "sha256": "dbeb0405b6092a0cb9aa1659a4b273ef80f773bb674686d9dd286a6e4fe31f9a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+          "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-candidate-f59000ad.json",
+          "sha256": "03397a25bafdf2cc01034c79f0c091f582a44bdfdf555a9fc8a55efd15786f53"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-dispatch-557c24af.json",
+          "sha256": "afa83a018ff49b7d8b8c717a6c1c58ec0521a69c6d4e17c4c817088edb4f1fde"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-retirement-integration-557c24af.json",
+          "sha256": "6fec4b5680dd66555fbf64cf4bc25407803aa875bc4143b6ef931f4a8f54f5de"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-recovery-557c24af.json",
+          "sha256": "cf8e76f3ac07d97d7723c9457a9e7deac1f5993ce3bf8664fd90af00c6d90dfb"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+          "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+          "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-request-assignment-windows-acceptance-557c24af.json",
+          "sha256": "387a4ee020a2e9650177c3f1c38079d6b2516d78e501ef751b2b1e1e1dee5928"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-request-assignment-windows-acceptance-557c24af.json",
+          "sha256": "387a4ee020a2e9650177c3f1c38079d6b2516d78e501ef751b2b1e1e1dee5928"
+        }
+      ],
+      "stages": {
+        "implementation": "Production retained Rust order, ranking and preconnect claims integrated on PR #1. Replaced C++ request-order and assignment decisions removed; native provider and object authority remains.",
+        "configured_validation": "Exact 295159ef warm net_unittests, nine focused cases, 221 pool cases and Windows component linkage passed. Unchanged Rust source passed seven tests on 5932850e. Named ordinary family at exact head: 2,570 passed, 34 configuration skips. All six QUIC-specific cases passed on the same source, and all 28 dual-race skips have passing enabled counterparts. Standalone original-loop and exact Rust traces match all 18 records; Rust detach/relink allocation probe passed. 557c24af passed 7 configured Rust tests, 7 direct crate-root tests, 3 frozen scalar C++ cases, 5 real pool cases, and single-archive DLL linkage. All 221 affected pool cases passed at 557c24af using the exact rebuilt DLL/executable before restoration. Named ordinary Connection Jobs at 557c24af: 2571 passed, 34 configuration skips, zero failures, disabled or unrun cases.",
+        "production_integration": "Rust transport scheduler and authoritative aggregate preconnect claim accounting are on PR #1 295159ef. At 557c24af, the superseded assignment crate is retired and scalar oracles use the production retained queue's decisions.",
+        "rust_ownership": "Transport Group request order and reprioritization, assignment recipient selection, stalled-group ranking, idle eligibility and aggregate preconnect claim state. Native retains objects, group routing and eligibility, provider calls, auth-bound pairing, callbacks, timers and teardown.",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-21T21:35:56.195275+00:00",
+          "action": "enqueued",
+          "note": "Migrate transport pool unbound request-to-job assignment as the remaining implementation slice of NET-CONNECTION-TRANSPORT-SCHEDULING."
+        },
+        {
+          "utc": "2026-11-21T21:35:56.372506+00:00",
+          "action": "assigned",
+          "note": "terra-connection-transport-request-assignment-20261121"
+        },
+        {
+          "utc": "2026-11-21T21:35:58.739840+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b"
+        },
+        {
+          "utc": "2026-11-21T21:35:58.920560+00:00",
+          "action": "implementing",
+          "note": "Reuse the clean, exclusive T3 worker worktree on a new branch at exact oracle-and-proposal commit. Preserve the earlier scheduling branch and its packet."
+        },
+        {
+          "utc": "2026-11-21T21:42:56.503307+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T21:51:10.991284+00:00",
+          "action": "submitted",
+          "note": "Clean terminal Terra worker delivered the verified source-only count-based assignment packet."
+        },
+        {
+          "utc": "2026-11-21T21:51:11.174314+00:00",
+          "action": "validating",
+          "note": "Independently review 4304d7e0 on the auth fixture parent. Wait for the separate auth laptop result before starting native feedback for assignment."
+        },
+        {
+          "utc": "2026-11-21T21:51:11.353047+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T21:57:27.237560+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:00:32.320733+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:07:37.224928+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-21T22:19:18.841937+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:34:24.996418+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:39:06.163860+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:31:57.846410+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:44:05.320810+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:07:23.569345+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:43.912962+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:25:26.664790+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:33:21.119716+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T02:37:31.787590+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T08:52:38.309728+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T08:55:56.279966+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T09:10:21.338290+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:00.501526+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:00.680875+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows delivery accepted and on PR #1 at 557c24af. The local editing branch does not contain the PR head. Retain wider platform, provider and performance limitations and incomplete family cutover."
+        },
+        {
+          "utc": "2026-11-22T09:21:52.372882+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open."
+        }
+      ],
+      "context_directories": [
+        "net/socket",
+        "net/base"
+      ]
+    },
+    {
+      "id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+      "subsystem": "network-services",
+      "network_family": "connection-jobs",
+      "priority": 42,
+      "objective": "Move transport pool request ordering, reprioritization and related preconnect claim policy to Rust as the remaining scheduling implementation slice.",
+      "behavioral_contract": [
+        "Respect-limits requests preserve priority then FIFO order. Ignore-limits maximum priority requests use front insertion. Same-priority updates preserve position, while effective reprioritization removes and reinserts.",
+        "Keep the highest-priority assignment prefix, front/back unassigned job rules, auth-bound exclusion, generation, pending error and preconnect one-time claiming semantics.",
+        "Keep C++ request, job, callback, timer and provider ownership. Preserve cancellation, release, callback and reentry order and public errors."
+      ],
+      "original_cpp_reference": {
+        "revision": "bb1359ebe90ffbefb5f67a85bdf001f44415de3d",
+        "current_production_base": "54f6f4df827d30db2762557c7442056cc8a3a0a4",
+        "manifest": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+        "manifest_sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0",
+        "freeze_status": "Use 19-file original freeze and additional reached priority/iterator helpers. Establish a separate old behavior oracle before implementation."
+      },
+      "owned_files": [
+        "docs/rust/migration/drafts/net-connection-transport-request-order"
+      ],
+      "shared_interfaces": [
+        "net/BUILD.gn and Rust export/link wiring remain director-owned; worker supplies exact current-PR patch and reviewed ABI proposal."
+      ],
+      "dependencies": [],
+      "blockers": [],
+      "role": "coding_worker",
+      "assignment": {
+        "active": false,
+        "session": "terra-connection-transport-request-order-20261121",
+        "worktree": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b",
+        "branch": "rust/connection-transport-request-order-20261121",
+        "model": "gpt-6.1-terra",
+        "effort": "xhigh"
+      },
+      "base_revision": "b4435e701df258a50c8746812a949b37b4e02e9d",
+      "delivery_commit": "cfc7132c590692e35555f51f429b51d78aac3272",
+      "integration_commit": "557c24af5c675fb5f6f9aa49935967bfcbb72e03",
+      "acceptance_tests": [
+        "Verify an independent original C++ decision model and immediate helpers from frozen sources before production changes.",
+        "Compare FIFO, ignore-limits, reprioritization, unassigned order and job stealing/return, preconnect claims, and equal-priority stalled groups.",
+        "Preserve actual priority propagation, callbacks, cancellation, auth binding, native ownership and errors at production call sites.",
+        "Run focused ordinary/differential laptop cases before the named Connection Jobs suite. Retire the replaced C++ scheduling decisions and retain external/native scope."
+      ],
+      "build_targets": {
+        "proposed": [
+          "//net:net",
+          "//net:net_unittests",
+          "//net:connection_jobs_family_rust_unittests"
+        ],
+        "qualification": "Laptop warm focused validation, default four jobs, one simultaneous link."
+      },
+      "performance": {
+        "status": "unmeasured",
+        "policy": "Keep fixed batch and archive gates; no desktop timing."
+      },
+      "state": "integrated",
+      "next_action": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open.",
+      "evidence": [
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-baseline-bb1359.json",
+          "sha256": "7cd4e984cbe95175eda3776669f6f608c17a6c2136853d385f2f856950c8f9a0"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-transport-scheduling-rebind-72ee5ddd.json",
+          "sha256": "200389b63f6297d22042665b7439a2ca33fff0f5d9d86a8d3069731aaebd6ee6"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-order-intake-dd87e538.json",
+          "sha256": "f7d1bb31292fc6d31099a2db609076224dbf802b979786a9e4752a495771b319"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-prototype-60adca89.json",
+          "sha256": "55a93b371199f3e00f627db24eafbf3586a6e0f12d76a15006dadb95caafe9a9"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-lifetime-audit-54f6f4df.json",
+          "sha256": "0aab37a1fe8156de3faeb95e72d75ec603ba09522e7d18835fd7e99d36228894"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-retained-45f14af5.json",
+          "sha256": "6fe7d515a01cd844edcb6966382606c99ee940e7bffdcf0513b90fcd13ddf29e"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-abi-review-45f14af5.json",
+          "sha256": "97ac7ea55bb0532a71ea394878c3097e52a6fed599557cd2e90460f330e4d14e"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\connection-jobs-request-queue-candidate-50a5a8c1.json",
+          "sha256": "5d5c9640510bacc83cf133aa12fb716375cae9e98197d9d14addcd4529aae780"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-feedback-4685fd40.json",
+          "sha256": "e76a7b228521fe2e0b07d9383c9e7c32458fcd5cfe77526d36e3bc1df9ee08cf"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-dispatch-review-7f88361a.json",
+          "sha256": "73d836a3ba2f30ab17ad51772c92cf5b07644aa611c231cb9a23fdb65afdf285"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-gn-discovery-4685fd40.json",
+          "sha256": "83eb30165602854b1af40ed819054b840a39dace7a548ccb229853d009c1685e"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-compile-repair-f2e45f1e.json",
+          "sha256": "e6466ff3161fd3b814a6bf57270d0c38d94d76fe382a89d5b6d0433901632916"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-request-queue-integration-f2e45f1e.json",
+          "sha256": "587a4da620b56f9c9da2cd996d3766a2bd25e6464bc7cb15b54a479766d98503"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-candidate-9a136b6f.json",
+          "sha256": "19eb45eff554de4e4cb9cf537537e6c397390fc34a97094dbba514a40811ce37"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-retained-pool-runtime-f2e45f1e.json",
+          "sha256": "c9ed478f380c959b74bdbc0716887efd5181d4f85d43b3acc9eabe3546c0e6d3"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-feedback-60105b29.json",
+          "sha256": "fc8b4ba7c4400331ce0a0e550dcfa10a213777cec8133c587b08d61e23efbe67"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-component-repair-5932850e.json",
+          "sha256": "0aa5be834c71a043916f0bf7f61c3e174b7d499d3fe4b3404af5f234b3bae852"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-result-repair-295159ef.json",
+          "sha256": "c6bc47be859db73910e9d6153aac619326a276cf3cfdc2e85458f0d25d31b21c"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-replay-scope-295159ef.json",
+          "sha256": "a5712529b8539705614e4986f325b8dadd5b91c80f5308252b2d051e76fdbc7a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-preconnect-claims-integration-295159ef.json",
+          "sha256": "3494d88d54746995b4179cdf51fa3ea6c29cb938eda3307d1f76e1862e29c854"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-retry-295159ef.json",
+          "sha256": "dc6e368a5caabd92502a940c6521e3a79de8593e9ad3834fc31c6a76c30db9bc"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-295159ef.json",
+          "sha256": "183ef4f24e795eed5830ba7a748916346146ba29a36825b8f629f569fade9680"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-quic-supplement-295159ef.json",
+          "sha256": "a6c0d953a979919d833525225ad4c9ec8a6065368b0af29d5db09fe97dff64b5"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-retained-queue-trace-295159ef.json",
+          "sha256": "dbeb0405b6092a0cb9aa1659a4b273ef80f773bb674686d9dd286a6e4fe31f9a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+          "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-assignment-pool-pass-557c24af.json",
+          "sha256": "27dee2fc87226ece98fdd6a254efddb2e5bb618e63981273ce10d1e3dc1b225a"
+        },
+        {
+          "path": "docs/rust/migration/evidence/connection-jobs-named-family-runtime-557c24af.json",
+          "sha256": "efcc71df4e890890e04574862ed1dc2588662dcbdb0f1d78e8904814f22c9f59"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-request-order-windows-acceptance-557c24af.json",
+          "sha256": "6f43986ee209c9dd71eee08ddcffb06833dc12b206dba81522982eb82ca8c871"
+        },
+        {
+          "path": "D:\\Rustium\\docs\\rust\\migration\\evidence\\net-connection-transport-request-order-windows-acceptance-557c24af.json",
+          "sha256": "6f43986ee209c9dd71eee08ddcffb06833dc12b206dba81522982eb82ca8c871"
+        }
+      ],
+      "stages": {
+        "implementation": "Production retained Rust order, ranking and preconnect claims integrated on PR #1. Replaced C++ request-order and assignment decisions removed; native provider and object authority remains.",
+        "configured_validation": "Exact 295159ef warm net_unittests, nine focused cases, 221 pool cases and Windows component linkage passed. Unchanged Rust source passed seven tests on 5932850e. Named ordinary family at exact head: 2,570 passed, 34 configuration skips. All six QUIC-specific cases passed on the same source, and all 28 dual-race skips have passing enabled counterparts. Standalone original-loop and exact Rust traces match all 18 records; Rust detach/relink allocation probe passed. All 221 affected pool cases passed at 557c24af using the exact rebuilt DLL/executable before restoration. Named ordinary Connection Jobs at 557c24af: 2571 passed, 34 configuration skips, zero failures, disabled or unrun cases.",
+        "production_integration": "Rust transport scheduler and authoritative aggregate preconnect claim accounting are on PR #1 295159ef.",
+        "rust_ownership": "Transport Group request order and reprioritization, assignment recipient selection, stalled-group ranking, idle eligibility and aggregate preconnect claim state. Native retains objects, group routing and eligibility, provider calls, auth-bound pairing, callbacks, timers and teardown.",
+        "subsystem_cutover": "incomplete"
+      },
+      "history": [
+        {
+          "utc": "2026-11-21T22:18:31.236822+00:00",
+          "action": "enqueued",
+          "note": "Move transport pool request ordering, reprioritization and related preconnect claim policy to Rust as the remaining scheduling implementation slice."
+        },
+        {
+          "utc": "2026-11-21T22:18:31.405868+00:00",
+          "action": "assigned",
+          "note": "terra-connection-transport-request-order-20261121"
+        },
+        {
+          "utc": "2026-11-21T22:18:33.228829+00:00",
+          "action": "workspace-bound",
+          "note": "C:\\Users\\jackv\\.t3\\worktrees\\Rustium\\t3-0a26167d-99fc400673ef1f1b"
+        },
+        {
+          "utc": "2026-11-21T22:18:33.396578+00:00",
+          "action": "implementing",
+          "note": "Reused the clean exclusive T3 workspace on an independent task branch. Assignment test is in separate laptop feedback."
+        },
+        {
+          "utc": "2026-11-21T22:26:12.488243+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:36:03.029657+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:38:59.012737+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:50:12.308446+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T22:52:56.807072+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:02:03.387511+00:00",
+          "action": "submitted",
+          "note": "Clean terminal Terra worktree delivered an exact production Group patch; released worker slot."
+        },
+        {
+          "utc": "2026-11-21T23:02:03.620172+00:00",
+          "action": "validating",
+          "note": "Independent unsafe and lifecycle source review of 50a5a8c1 before warm -j4 one-link feedback."
+        },
+        {
+          "utc": "2026-11-21T23:02:03.839851+00:00",
+          "action": "amended",
+          "note": "stages"
+        },
+        {
+          "utc": "2026-11-21T23:07:53.782916+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:11:46.111833+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-21T23:13:29.368461+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-21T23:24:38.793689+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:39:05.780040+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:41:13.285824+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-21T23:41:42.969375+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-21T23:46:35.971117+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:01:40.710366+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:15:28.981690+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:20:06.063257+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T00:31:57.467532+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T00:37:05.423828+00:00",
+          "action": "amended",
+          "note": "evidence, next_action"
+        },
+        {
+          "utc": "2026-11-22T00:44:05.557205+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:07:23.769057+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T01:15:44.117421+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T02:25:26.872821+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:10:21.515465+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:00.857318+00:00",
+          "action": "amended",
+          "note": "evidence, next_action, stages"
+        },
+        {
+          "utc": "2026-11-22T09:20:01.032935+00:00",
+          "action": "merge-ready",
+          "note": "Scoped Windows delivery accepted and on PR #1 at 557c24af. The local editing branch does not contain the PR head. Retain wider platform, provider and performance limitations and incomplete family cutover."
+        },
+        {
+          "utc": "2026-11-22T09:21:52.612078+00:00",
+          "action": "integrated",
+          "note": "Scoped Windows transport delivery integrated at 557c24af on PR #1. Retain provider, platform and performance limits. Connection Jobs cutover remains open."
+        }
+      ],
+      "context_directories": [
+        "net/socket",
+        "net/base"
       ]
     }
   ],
@@ -3983,6 +6571,7 @@
     "scope": "Finish Network connected families, production ownership and acceptance before unrelated subsystem implementation",
     "dependency_reason": "Already applied Foundation Strings bridge changes are dependencies of the current Network consumer cohort; validate/repair them as Network work, not a separate foundation expansion",
     "user_directive_utc": "2026-11-17T11:16:15.030706+00:00",
-    "other_work": "Preserve clean checkpoints, integrated artifacts and historical evidence; no new non-Network dispatch"
+    "other_work": "Preserve clean checkpoints, integrated artifacts and historical evidence; no new non-Network dispatch",
+    "single_network_family": true
   }
 }

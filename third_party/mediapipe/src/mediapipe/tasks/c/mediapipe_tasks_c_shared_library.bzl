@@ -65,8 +65,6 @@ _SHARED_LIBRARY_TAGS = [
 # *   `--strip-all` / `-x` drop the symbol table and debug info, which can be
 #     a third of an unstripped library. The exported `Mp*` symbols are kept.
 #
-# Together with `-legacy_whole_archive` (see `cc_binary` below) this is what
-# the MediaPipe Android AAR (`mediapipe_tasks_aar.bzl`) does.
 _ELF_SIZE_LINKOPTS = [
     "-Wl,--gc-sections",
     "-Wl,--icf=all",
@@ -188,11 +186,7 @@ def mediapipe_tasks_c_shared_library(
             ":" + exported_symbols,
         ],
         linkopts = select({
-            "@platforms//os:android": [
-                "-Wl,-soname=lib%s.so" % name,
-                "-Wl,--version-script=$(location %s)" % version_script,
-                "-Wl,-Bsymbolic",
-            ] + _ELF_SIZE_LINKOPTS,
+
             "@platforms//os:linux": [
                 "-Wl,-soname=lib%s.so" % name,
                 "-Wl,--version-script=$(location %s)" % version_script,

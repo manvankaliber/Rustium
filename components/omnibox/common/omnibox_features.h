@@ -182,12 +182,6 @@ BASE_DECLARE_FEATURE(kOmniboxFuseboxUserEdGuidedTour);
 BASE_DECLARE_FEATURE(kDefaultTypedNavigationsToHttps);
 extern const char kDefaultTypedNavigationsToHttpsTimeoutParam[];
 
-BASE_DECLARE_FEATURE(kOverrideAndroidOmniboxSpareRendererDelay);
-// The delay value in milliseconds.
-inline constexpr base::FeatureParam<int> kOmniboxSpareRendererDelayMs{
-    &kOverrideAndroidOmniboxSpareRendererDelay,
-    "omnibox_spare_renderer_delay_ms", 1000};
-
 // Omnibox ML scoring.
 BASE_DECLARE_FEATURE(kLogUrlScoringSignals);
 BASE_DECLARE_FEATURE(kEnableHistoryScoringSignalsAnnotatorForSearches);
@@ -204,18 +198,15 @@ BASE_DECLARE_FEATURE(kOmniboxTouchDownTriggerForPrefetch);
 
 // Allows for off-main-thread (OMT) prefetch of search suggestions upon touch
 // down on Android.
-BASE_DECLARE_FEATURE(kOmniboxPrefetchSelectedSuggestionsOmtAndroid);
 
 // Enables simultaneous prefetch and navigation on Enter KeyDown in Omnibox.
 BASE_DECLARE_FEATURE(kOmniboxSearchPrefetchOnEnterKeyDown);
 
 // Surfaces recent tabs, including tabs from other devices, as suggestions in
 // the Android Tab Search overlay.
-BASE_DECLARE_FEATURE(kAndroidTabSearchRecentTabs);
 
 // Shows a close button on open tab suggestions in the Android Tab Search
 // overlay, allowing users to close tabs directly from the suggestions list.
-BASE_DECLARE_FEATURE(kAndroidTabSearchCloseTabButton);
 
 // Site search/Keyword mode related features.
 BASE_DECLARE_FEATURE(kOmniboxSiteSearch);
@@ -314,7 +305,6 @@ extern const base::FeatureParam<bool>
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxAutoEndpoint;
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxHelperText;
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxKeepLegacyUi;
-
 
 // If enabled, X-Geo headers are sent for all search navigations on all
 // platforms.

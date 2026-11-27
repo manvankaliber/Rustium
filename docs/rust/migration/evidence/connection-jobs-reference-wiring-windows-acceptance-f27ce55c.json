@@ -1,0 +1,62 @@
+{
+  "utc": "2026-11-22T10:50:46.949125+00:00",
+  "task_id": "NET-REFERENCE-WIRING-REVIEW",
+  "candidate_commit": "984d2f066384b3827843c9e9d34bfea4b186252d",
+  "integration_commit": "f04597b5a94edaf4d780554d03c36a1f1b66522d",
+  "qualified_pr_head": "f27ce55cc1e84f8848583d679d7224e21d28e483",
+  "pr": "https://github.com/manvankaliber/Rustium/pull/1",
+  "source_identity": {
+    "original_review_delivery": {
+      "path": "docs/rust/migration/evidence/net-reference-wiring-review-delivery-20261117.json",
+      "sha256": "92eac8de38e1e837ec63f86bba35f0c0a2bb3565e6dbccf5562e2300365efdbb"
+    },
+    "windows_prior_probe": {
+      "path": "docs/rust/migration/evidence/connection-jobs-auth-review-intake-bb1359.json",
+      "sha256": "e640fa0984f3d3e1408a21fb54c1085e2e8042efb60c88dda34c19d613c6090d"
+    },
+    "host_port_flag_on_and_off": {
+      "path": "docs/rust/migration/evidence/connection-jobs-host-port-probe-integration-443551ed.json",
+      "sha256": "4a018f28577c3161de7139a9ca84f733400e7934c45a02d9ce025f06b2b88994"
+    },
+    "current_probe_digest_and_controls": {
+      "path": "docs/rust/migration/evidence/connection-jobs-digest-reference-integration-f27ce55c.json",
+      "sha256": "ded503833268a523a0dedfc0605835595b283099a95b94b10f09f957ca11fd7d"
+    }
+  },
+  "review": {
+    "status": "accepted",
+    "scope": "Scoped Windows review delivery. Prior repaired auth teardown, seven controls, component ownership, and ordinary/probe flag isolation retain their exact build identities. Pinned seven probe sources and proxy reference bodies match the prior revisions; HostPortPair adds separate C++ counter declarations and definitions."
+  },
+  "tests": {
+    "status": "passed",
+    "non_kerberos_common": {
+      "path": "docs/rust/migration/evidence/connection-jobs-nonkerberos-pass-f27ce55c.json",
+      "sha256": "23fd2ffc88c286a63dab2a4ee0d6f132b56f6d90e02bf949f14eda5917b94e98"
+    },
+    "cross_dll_lifecycle": {
+      "test": "ProxyReferenceComponentTest.ValuesSurviveSpdyComponentCopies",
+      "passed": 1,
+      "launcher_jobs": 1,
+      "retries": 0,
+      "receipt": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/proxy-ownership-evidence-20261122/result.json",
+      "raw_test": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/proxy-ownership-evidence-20261122/test.log",
+      "independent_release": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/proxy-ownership-evidence-20261122/independent-release.json"
+    }
+  },
+  "proxy_abi": {
+    "owner": "net_proxy_value_rust_reference.dll",
+    "objects": [
+      "host_port_pair",
+      "proxy_chain",
+      "proxy_server",
+      "proxy_string_util"
+    ],
+    "selected_dependencies": "SPDY DLL and test executable import the proxy DLL. The executable also imports the SPDY reference key constructor, copy, destructor and ordering. No selected reference exports from the executable and no opposite-component reference exports.",
+    "graph": "C:/Users/micro/.t3/projects/laptop-buildvoorbereiding/proxy-ownership-evidence-20261122/graph-edges.txt",
+    "limits": "Relevant component Ninja files were fingerprinted during inspection. PE tables show selected relationships on this build and do not identify every execution path."
+  },
+  "platform_limits": [
+    "Windows x64 component configurations. NTLM uses mocked SSPI. POSIX, live providers, static linkage and full platform ABI are outside this scoped acceptance.",
+    "Comparator performance and before/after capture qualification remain separate from the source-bound runtime receipts. No performance or family cutover credit."
+  ]
+}

@@ -1,0 +1,11 @@
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -30,6 +30,8 @@
+ 
+ Identify measured C++/Rust FFI boundaries with bridge badges and accessible context. Bridge presence does not establish the amount or cause of overhead; label separately measured bridge costs only when supporting evidence exists. Never infer benchmark dates from file modification times or fabricate timings, migration status, categories with results, or summary counts.
+ 
++After canonical benchmark imports, refresh the dashboard with `npm --prefix benchmarks-site run sync`. Use `npm --prefix benchmarks-site run sync:check` to detect stale generated data/evidence. The dashboard production build synchronizes before building and checks again afterward; rerun a build that reports a concurrent canonical change. Importers continue writing the canonical HTML and evidence only.
++
+ # Parallel net migration
+ 
+ The user explicitly requested multiple concurrent subagents: Sol at medium through xhigh reasoning effort, and also authorized Terra or Luna when suitable for the component. Give each agent exclusive component/source ownership. The parent owns shared GN files, shared `http_util.cc` edits, the benchmark gallery, aggregate/backlog updates, configured build-tree synchronization, Ninja and final integration. Agents provide wrapper patches for shared files and GN fragments rather than editing those files. Preserve frozen original C++ references before changing production algorithms, including helper dependencies; a reference must not silently start calling a newly migrated Rust helper. Native tests may run in isolated scratch directories, but benchmark timing requires a quiet coordinated window. Do not call an adapter-only stub a completed Rust migration; inventory remaining C++ policy, ownership and platform seams explicitly.

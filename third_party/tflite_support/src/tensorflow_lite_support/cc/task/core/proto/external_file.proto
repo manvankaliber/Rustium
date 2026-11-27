@@ -56,15 +56,12 @@ message FileDescriptorMeta {
   // Optional length of the mapped memory. If not specified, the actual file
   // size is used at runtime.
   //
-  // This is an advanced option, e.g. this can be used on Android to specify the
-  // length of a given asset obtained from AssetFileDescriptor#getLength().
+  // This can select a region within a larger model container.
   optional int64 length = 2;
 
   // Optional starting offset in the file referred to by the file descriptor
   // `fd`.
   //
-  // This is an advanced option, e.g. this can be used on Android to specify the
-  // offset of a given asset obtained from AssetFileDescriptor#getStartOffset().
+  // This can select a region within a larger model container.
   optional int64 offset = 3;
 }
-

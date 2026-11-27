@@ -69,7 +69,11 @@ if (current_toolchain == default_toolchain) {
   # unconditionally.
   action("generate_libcxx_modulemap") {
     script = "//build/modules/unified/generate_system_modulemap.py"
-    inputs = [ "//third_party/libc++/src/include/module.modulemap.in" ]
+    inputs = [
+      "//build/action_helpers.py",
+      "//build/gn_helpers.py",
+      "//third_party/libc++/src/include/module.modulemap.in",
+    ]
     outputs = [
       "${root_build_dir}/gen/third_party/libc++/src/include/module.modulemap",
     ]

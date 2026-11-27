@@ -20,7 +20,6 @@ group("strings") {
 grit_strings("components_strings") {
   source = "../components_strings.grd"
   inputs = [
-    "../android_system_error_page_strings.grdp",
     "../arc_strings.grdp",
     "../autofill_payments_strings.grdp",
     "../autofill_strings.grdp",

@@ -1,9 +1,9 @@
-//! Implementation for Linux / Android using `asm!`-based syscalls.
+//! Implementation for Linux using `asm!`-based syscalls.
 pub use crate::util::{inner_u32, inner_u64};
 use crate::{Error, MaybeUninit};
 
 #[cfg(not(target_os = "linux"))]
-compile_error!("`linux_raw` backend can be enabled only for Linux/Android targets!");
+compile_error!("`linux_raw` backend can be enabled only for Linux targets!");
 
 #[path = "../utils/sanitizer.rs"]
 mod utils;

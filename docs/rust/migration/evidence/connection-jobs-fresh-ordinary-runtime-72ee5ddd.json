@@ -1,0 +1,36 @@
+{
+  "family": "connection-jobs",
+  "host": "HQC-VAN_KALIBER",
+  "validated_commit": "72ee5ddd7129a311a92b49f3705a031e68cbf4ca",
+  "pull_request": "https://github.com/manvankaliber/Rustium/pull/1",
+  "build_output": "out/NetworkCI/qual-72ee5d-1121b",
+  "approved_input_sha256": "1f8f4a36994e16d4425ae9648b13242c22f3bf7bd70df536246e8f27a18bff02",
+  "family_gtest": {
+    "discovered": 2604,
+    "passed": 2570,
+    "skipped": 34,
+    "failed": 0,
+    "disabled": 0,
+    "pre": 0,
+    "unrun": 0,
+    "skip_reasons": {
+      "dual_race_mode": 28,
+      "quic_proxy_feature": 4,
+      "quic_proxy_provider": 2
+    }
+  },
+  "rust_core_passed": 23,
+  "verify_only_workloads": {
+    "connect_job_rust_perftests": 15,
+    "connection_jobs_family_rust_perftests": 16,
+    "connection_jobs_upper_rust_perftests": 21
+  },
+  "scoped_idle_abi": "Fresh net.dll owns the idle Rust crate and exports the five policy projections imported by fresh net_unittests.exe.",
+  "sealed_runtime_files": 67,
+  "before_and_after_source_graph_and_runtime_matched": true,
+  "independent_lock_release": true,
+  "result": "C:/Users/micro/rb/network-72ee5ddd-connection-jobs-ordinary-20261121a/result.json",
+  "independent_probe": "C:/Users/micro/rb/network-72ee5ddd-connection-jobs-ordinary-20261121a/independent-release-probe.json",
+  "next_scope": "Focused warm optimized QUIC supplement, including the 16 inventory workloads and paired lifecycle cases and exact applicable skips. No umbrella build.",
+  "next_thread": "mcp:launch:29c2f5c2604dd8099aff039150ad28bf65dd3fe743784f6ce68dd1a979685d06"
+}

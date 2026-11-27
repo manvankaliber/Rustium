@@ -14,7 +14,6 @@
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
 #include "components/omnibox/common/omnibox_features.h"
-#include "components/search_engines/ai_mode_button_config.h"
 #include "components/search_engines/search_engine_type.h"
 #include "components/search_engines/search_terms_data.h"
 #include "components/search_engines/template_url.h"
@@ -98,15 +97,7 @@ void AiModeButtonService::OnTemplateURLServiceShuttingDown() {
 
 std::optional<AiModeButtonUiConfig> AiModeButtonService::BuildCurrentUiConfig()
     const {
-  if (!template_url_service_) {
-    return std::nullopt;
-  }
-  const TemplateURL* dse = template_url_service_->GetDefaultSearchProvider();
-  if (!dse) {
-    return std::nullopt;
-  }
-  return GetUiConfigForTemplateUrl(*dse,
-                                   template_url_service_->search_terms_data());
+  return std::nullopt;
 }
 
 // static
@@ -114,76 +105,7 @@ std::optional<AiModeButtonUiConfig>
 AiModeButtonService::GetUiConfigForTemplateUrl(
     const TemplateURL& template_url,
     const SearchTermsData& search_terms_data) {
-  SearchEngineType type = template_url.GetEngineType(search_terms_data);
-
-  if (type == SearchEngineType::SEARCH_ENGINE_GOOGLE) {
-    return AiModeButtonUiConfig(
-        type, l10n_util::GetStringUTF16(IDS_AI_MODE_ENTRYPOINT_LABEL),
-        template_url.short_name(), /*favicon_url=*/"", /*navigation_url=*/"",
-        /*navigation_url_empty=*/"");
-  }
-
-  for (const auto& config : ai_mode_button_config::kAiModeButtonConfigs) {
-    if (config->id == type) {
-      CHECK(IsValidConfig(*config));
-      return AiModeButtonUiConfig(type, config->name, template_url.short_name(),
-                                  config->favicon_url, config->navigation_url,
-                                  config->navigation_url_empty);
-    }
-  }
-
-  if (type != SearchEngineType::SEARCH_ENGINE_OTHER &&
-      omnibox::kAim3pEntrypointDebug.Get()) {
-    std::string short_name = base::UTF16ToUTF8(template_url.short_name());
-    return AiModeButtonUiConfig(
-        type,
-        base::StrCat({u"AI Mode for ", template_url.short_name(), u" (ĄÜÔ)"}),
-        template_url.short_name(),
-        template_url.favicon_url().is_valid()
-            ? template_url.favicon_url().spec()
-            : "https://www.google.com/favicon.ico",
-        base::StrCat({"https://google.com/search?q=this opens aimode for ",
-                      short_name, " with search terms: {searchTerms}"}),
-        base::StrCat(
-            {"https://google.com/search?q=this opens aimode landing page for ",
-             short_name}));
-  }
-
   return std::nullopt;
 }
 
 // static
-bool AiModeButtonService::IsValidConfig(
-    const ai_mode_button_config::AiModeButtonConfig& config) {
-  // Google "AI Mode" is translated and there's no guarantee the translation
-  // will be of expected lengths. Google config also doesn't require the URL
-  // fields.
-  CHECK_NE(config.id, SearchEngineType::SEARCH_ENGINE_GOOGLE);
-
-  if (!config.name || config.name[0] == u'\0' ||
-      std::u16string_view(config.name).length() > 16) {
-    return false;
-  }
-
-  if (!config.favicon_url || !config.navigation_url ||
-      !config.navigation_url_empty) {
-    return false;
-  }
-
-  if (!GURL(config.favicon_url).is_valid() ||
-      !GURL(config.navigation_url).is_valid() ||
-      !GURL(config.navigation_url_empty).is_valid()) {
-    return false;
-  }
-
-  TemplateURLData turl_data;
-  turl_data.SetURL(config.navigation_url);
-  TemplateURL turl(turl_data);
-  SearchTermsData search_terms_data;
-  if (!turl.url_ref().IsValid(search_terms_data) ||
-      !turl.url_ref().SupportsReplacement(search_terms_data)) {
-    return false;
-  }
-
-  return true;
-}

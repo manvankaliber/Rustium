@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-22T01:15:42.622950+00:00",
+  "task_id": "NET-CONNECTION-TRANSPORT-REQUEST-ORDER",
+  "production_head": "295159ef54ff616d04e9bf6acbc1a9a234727cf7",
+  "evidence_packet": "49412f30ff56a7d85cb6656b101b1588ddcacc56",
+  "host": "HQC-VAN_KALIBER",
+  "trace": {
+    "status": "passed",
+    "records": 18,
+    "normalized_difference": "none",
+    "raw_bytes": {
+      "cpp": 602,
+      "rust": 584
+    },
+    "raw_difference": "CRLF versus LF"
+  },
+  "allocation_probe": {
+    "status": "passed",
+    "scope": "No allocations observed between Rust detach and relink in standalone probe."
+  },
+  "identity": "Exact production Rust queue blob and frozen original-loop oracle; source, tools, ordinary and optimized output fingerprints unchanged.",
+  "receipt_directory": "C:/Users/micro/rb/transport-request-queue-trace-validation-49412f-20261122a",
+  "files": [
+    "result.json",
+    "independent-release.json",
+    "ninja-build.log",
+    "original_trace.stdout",
+    "rust_trace.stdout",
+    "rust_alloc_probe.stdout",
+    "preflight-failure.json"
+  ],
+  "limits": "Mocked assignment/provider observations only; allocation probe excludes native map nodes and no performance timing. Standalone warnings for unused items. Initial exact-object intake recovered after FETCH_HEAD was replaced by blob fetch.",
+  "restoration": "Original detached 72ee5ddd and seven pins remained unchanged. Independent byte zero proof and empty native owner list passed."
+}

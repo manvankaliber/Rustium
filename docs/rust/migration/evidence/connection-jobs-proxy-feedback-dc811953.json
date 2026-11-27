@@ -1,0 +1,19 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "connection_jobs_dependency": "The optimized proxy preference acceptance suite is part of components_unittests, which currently stops in Feed.",
+  "failed_commit": "8a5e79b466161a70edd05f98edb74dc6015dc97a",
+  "failed_object": "feed_api_notice_card_unittest.obj",
+  "first_error": "components/feed/core/v2/types.h:32 did not see the feed::Experiments declaration",
+  "proxy_preference_cases_run": 0,
+  "failure_log": "C:/Users/micro/rb/network-quic-components-8a5e79b4-20261120a/components-build.log",
+  "failure_result": "C:/Users/micro/rb/network-quic-components-8a5e79b4-20261120a/result.json",
+  "release_probe": "C:/Users/micro/rb/network-quic-components-8a5e79b4-20261120a/release-probe.json",
+  "source_diagnosis": "55cef5a6c6 removed the retired header include and emptied the old source set while moving the implementation to desktop filenames. The new names were never registered in the surviving Feed source set.",
+  "source_repair": "a7212a5d997c4e0b25c7f6af0bae4cf417d89ca1",
+  "focused_candidate": "dc811953201f580f575653242de04468e4d61fd8",
+  "published_ref": "refs/heads/rust/quic-proxy-feedback-20261121",
+  "focused_target": "//components/proxy_config:proxy_config_unittests",
+  "test_filter": "PrefProxyConfigTrackerImplTest.*",
+  "validation_thread": "mcp:launch:cf9d259987434dccd8986043780cb58c9dcd612d7b0ee26e2d4af5bcfc8831df",
+  "validation_state": "Serialized laptop feedback dispatched. Focused target and Feed repair require native evidence. Broad acceptance remains pending."
+}

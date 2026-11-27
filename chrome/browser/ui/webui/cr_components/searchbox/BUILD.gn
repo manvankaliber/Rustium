@@ -120,7 +120,7 @@ source_set("searchbox_impl") {
   ]
 
   if (enable_dice_support) {
-    deps += [ "//chrome/browser/ui/views/search_ai_mode" ]
+    deps += []
   }
 }
 

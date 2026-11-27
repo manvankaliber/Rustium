@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on RISC-V Linux/Android by using riscv_hwprobe.
+Run-time CPU feature detection on RISC-V Linux by using riscv_hwprobe.
 
 On RISC-V, detection using auxv only supports single-letter extensions.
 So, we use riscv_hwprobe that supports multi-letter extensions.
@@ -50,7 +50,6 @@ mod ffi {
 
     cfg_sel!({
         // Use asm-based syscall on Linux for compatibility with non-libc targets if possible.
-        // Do not use this on Android. See comments on syscall_helper module in src/utils.rs for details.
         #[cfg(all(
             target_os = "linux",
             any(

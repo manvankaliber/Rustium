@@ -125,10 +125,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-#include "chrome/browser/ui/views/search_ai_mode/signin_promo_controller.h"
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
-
 namespace {
 
 constexpr int kThumbnailWidth = 125;
@@ -687,9 +683,6 @@ void ContextualSearchboxHandler::OnTabAdded(TabListInterface& tab_list,
 void ContextualSearchboxHandler::OnActiveTabChanged(TabListInterface& tab_list,
                                                     tabs::TabInterface* tab) {
   active_tab_nav_observer_->ObserveTab(tab);
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  composebox_drive_signin_promo_controller_.reset();
-#endif
   contextual_tasks::ContextualTasksWebContentsUserData::
       UpdateInputStateModelIdentity(GetActiveTabWebContents(web_contents_),
                                     input_state_model_.get());
@@ -697,9 +690,6 @@ void ContextualSearchboxHandler::OnActiveTabChanged(TabListInterface& tab_list,
 }
 
 void ContextualSearchboxHandler::OnActiveTabNavigated() {
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  composebox_drive_signin_promo_controller_.reset();
-#endif
   contextual_tasks::ContextualTasksWebContentsUserData::
       UpdateInputStateModelIdentity(GetActiveTabWebContents(web_contents_),
                                     input_state_model_.get());
@@ -1523,9 +1513,6 @@ void ContextualSearchboxHandler::CleanupDrivePicker() {
   drive_picker_controller_.reset();
   drive_disclaimer_controller_.reset();
   drive_picker_deactivation_blocker_.reset();
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  composebox_drive_signin_promo_controller_.reset();
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 }
 
 void ContextualSearchboxHandler::OnDriveUploadClicked(
@@ -1565,36 +1552,6 @@ void ContextualSearchboxHandler::OnDriveUploadClicked(
     std::move(callback).Run(searchbox::mojom::DriveUploadResponse::New());
     return;
   }
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  // Show the sign-in promo if the user is not signed in with valid credentials.
-  if (base::FeatureList::IsEnabled(
-          omnibox::kComposeboxDriveContextMenuOptionSigninPromo) &&
-      !IsSignedInWithValidCredentials()) {
-    std::move(callback).Run(searchbox::mojom::DriveUploadResponse::New());
-    // TODO(crbug.com/545561312): Handle visibility of the Drive option when
-    // `browser_window_interface` is null (e.g., with `kOmniboxEverywhere`).
-    if (browser_window_interface) {
-      if (auto* helper = OmniboxPopupWebContentsHelper::FromWebContents(
-              web_contents_.get())) {
-        if (auto* controller = helper->get_omnibox_controller()) {
-          controller->StopAutocomplete(/*clear_result=*/true);
-          controller->popup_state_manager()->SetPopupState(
-              OmniboxPopupState::kNone);
-        }
-      }
-      if (content::WebContents* target_web_contents =
-              GetActiveTabWebContents(web_contents_)) {
-        composebox_drive_signin_promo_controller_ =
-            std::make_unique<ComposeboxDriveSignInPromoController>(
-                target_web_contents);
-        composebox_drive_signin_promo_controller_->MaybeShowPromo(
-            browser_window_interface);
-      }
-    }
-    return;
-  }
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
   drive_upload_click_callback_ = std::move(callback);
 
@@ -2062,20 +2019,6 @@ void ContextualSearchboxHandler::GetDriveDisclaimerStatus(
         searchbox::mojom::DriveDisclaimerStatus::kRestricted);
     return;
   }
-
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  // Bypass backend disclaimer check when not signed in with valid credentials
-  // so WebUI allows the click to proceed to `OnDriveUploadClicked` to show
-  // promo.
-  if (base::FeatureList::IsEnabled(
-          omnibox::kComposeboxDriveContextMenuOptionSigninPromo) &&
-      !IsSignedInWithValidCredentials()) {
-    std::move(callback).Run(
-        searchbox::mojom::DriveDisclaimerStatus::kNotAccepted);
-    return;
-  }
-#endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
   if (base::FeatureList::IsEnabled(omnibox::kForceDriveDisclaimerAccepted)) {
     std::move(callback).Run(searchbox::mojom::DriveDisclaimerStatus::kAccepted);

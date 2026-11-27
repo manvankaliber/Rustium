@@ -45,19 +45,11 @@ protobuf-java-util package:
 </dependency>
 ```
 
-### Use Java Protocol Buffers on Android
-
-For Android users, it's recommended to use protobuf Java Lite runtime because
-of its smaller code size. Java Lite runtime also works better with Proguard
-because it doesn't rely on Java reflection and is optimized to allow as much
-code stripping as possible. You can following these [instructions to use Java
-Lite runtime](lite.md).
-
 ### Use Java Protocol Buffers with Bazel
 
 Bazel has native build rules to work with protobuf. For Java, you can use the
-`java_proto_library` rule for server and the `java_lite_proto_library` rule for
-Android. Check out [our build files examples](../examples/BUILD.bazel) to learn
+`java_proto_library` rule for the full runtime and the `java_lite_proto_library`
+rule for the lite runtime. Check out [our build files examples](../examples/BUILD.bazel) to learn
 how to use them.
 
 ## Build from Source
@@ -142,12 +134,10 @@ such as `4.28.2`.
 Make sure the version number of the runtimes match each other and match (or are 
 newer than) the version number of the protoc.
 
-### Use Kotlin Protocol Buffers on Android
+### Use Kotlin Protocol Buffers with the Lite Runtime
 
-For Android users, it's recommended to use the Java Lite runtime for its smaller
-code size. We provide a `protobuf-kotlin-lite` package in Maven and Bazel to
-pair with the Java Lite runtime. Use these if you want to use Kotlin on
-Android or in another context where you want to use Java Lite. Similar to the
+The Java Lite runtime offers smaller code size. We provide a `protobuf-kotlin-lite` package in Maven and Bazel to
+pair with the Java Lite runtime. Use these when you want Kotlin with Java Lite. Similar to the
 full runtime, `protobuf-kotlin-lite` requires a dependency on
 `protobuf-java-lite`.
 

@@ -149,7 +149,7 @@ void ReusablePool<Item>::TrimAvailable(
         "Maximum number of pooled buffers reached (set to keep at most %d "
         "buffers of the same type and size). MP buffer allocation patterns can "
         "be observed with Perfetto by inspecting the "
-        "PerfettoScopedMemoryObjectCounters-based GpuBuffer and AhwbBuffer "
+        "PerfettoScopedMemoryObjectCounters-based GpuBuffer "
         "counters. Then consider adjusting the MultiPoolOptions.keep_count",
         keep_count_);
     auto trim_it = std::next(available_.begin(), keep);

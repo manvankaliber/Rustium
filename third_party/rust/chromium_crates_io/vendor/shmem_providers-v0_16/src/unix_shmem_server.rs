@@ -1,5 +1,5 @@
 /*!
-On `Android`, we can only share maps between processes by serializing fds over sockets.
+Maps are shared between processes by serializing file descriptors over sockets.
 On `MacOS`, we cannot rely on reference counting for Maps.
 Hence, the `unix_shmem_server` keeps track of existing maps, creates new maps for clients,
 and forwards them over unix domain sockets.
@@ -60,7 +60,7 @@ const UNIX_SERVER_NAME: &str = "./libafl_unix_shmem_server";
 /// Env variable. If set, we won't try to spawn the service
 const AFL_SHMEM_SERVICE_STARTED: &str = "AFL_SHMEM_SERVICE_STARTED";
 
-///     s out served shared maps, as used on Android.
+/// A provider for shared maps served over Unix domain sockets.
 #[derive(Debug)]
 pub struct ServedShMemProvider<SP> {
     stream: UnixStream,
@@ -73,7 +73,6 @@ pub struct ServedShMemProvider<SP> {
 }
 
 /// [`ShMem`] that got served from a [`ShMemService`] via domain sockets and can now be used in this program.
-/// It works around Android's lack of "proper" shared maps.
 #[derive(Debug, Clone)]
 pub struct ServedShMem<SHM> {
     inner: ManuallyDrop<SHM>,
@@ -178,7 +177,7 @@ where
     /// Connect to the server and return a new [`ServedShMemProvider`]
     /// Will try to spawn a [`ShMemService`]. This will only work for the first try.
     fn new() -> Result<Self, Error> {
-        // Needed for `MacOS` and Android to get sharedmaps working.
+        // Needed for `MacOS` to get sharedmaps working.
         let service = ShMemService::<SP>::start();
 
         let mut res = Self {
@@ -318,7 +317,6 @@ enum ShMemServiceStatus {
 }
 
 /// The [`ShMemService`] is a service handing out [`ShMem`] pages via unix domain sockets.
-/// It is mainly used and needed on Android.
 #[derive(Debug, Clone)]
 pub enum ShMemService<SP> {
     /// A started service
@@ -496,7 +494,7 @@ where
     fn handle_request(&mut self, client_id: RawFd) -> Result<ServedShMemResponse<SHM>, Error> {
         let request = self.read_request(client_id)?;
 
-        // log::trace!("got ashmem client: {}, request:{:?}", client_id, request);
+        // log::trace!("got shared-memory client: {}, request:{:?}", client_id, request);
 
         // Handle the client request
         match request {
@@ -593,7 +591,7 @@ where
                 Err(Error::shutting_down())
             }
         }
-        // log::info!("send ashmem client: {}, response: {:?}", client_id, &response);
+        // log::info!("send shared-memory client: {}, response: {:?}", client_id, &response);
     }
 
     fn read_request(&mut self, client_id: RawFd) -> Result<ServedShMemRequest, Error> {

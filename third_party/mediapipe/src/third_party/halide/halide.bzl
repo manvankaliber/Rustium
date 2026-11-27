@@ -71,24 +71,17 @@ def halide_runtime_linkopts():
         "-ldl",
         "-lpthread",
     ]
-    _android_opts = [
-        "-llog",
-    ]
     _msvc_opts = []
 
     return select({
         "//conditions:default": _posix_opts,
-        "@mediapipe//mediapipe:android": _android_opts,
+
         "@mediapipe//mediapipe:windows": _msvc_opts,
     })
 
 # Map of halide-target-base -> config_settings
 _HALIDE_TARGET_CONFIG_SETTINGS_MAP = {
-    # Android
-    "arm-32-android": ["@mediapipe//mediapipe:android_arm"],
-    "arm-64-android": ["@mediapipe//mediapipe:android_arm64"],
-    "x86-32-android": ["@mediapipe//mediapipe:android_x86"],
-    "x86-64-android": ["@mediapipe//mediapipe:android_x86_64"],
+
     # iOS
     "arm-32-ios": ["@mediapipe//mediapipe:ios_armv7"],
     "arm-64-ios": ["@mediapipe//mediapipe:ios_arm64", "@mediapipe//mediapipe:ios_arm64e"],

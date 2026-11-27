@@ -94,7 +94,7 @@ impl UnixSeqpacketConn {
     /// Returns the SELinux security context of the process that created the other
     /// end of this connection.
     ///
-    /// Will return an error on other operating systems than Linux or Android,
+    /// Will return an error on other operating systems than Linux,
     /// and also if running inside kubernetes.
     /// On success the number of bytes used is returned. (like `Read`)
     ///

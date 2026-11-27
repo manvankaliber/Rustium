@@ -1,0 +1,695 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-11-13T05:55:42.024784+00:00",
+  "scope": "Current networking migration batch; not whole-net completion or a source-conversion percentage.",
+  "accepted_feature_slices_from_prior_checkpoint": 14,
+  "acceptance_note": "Configured networking targets now build successfully. Full runtime, genuine ASan/fuzz, Chrome consumer rebuild and performance acceptance remain separate gates. Read configured_checkpoint for current recorded execution evidence; historical follow-up descriptions below retain their original scope. No batch acceptance or new speedup is claimed.",
+  "implementation_counts": {
+    "prior_accepted_slices": 14,
+    "new_native_validated_slices": 22,
+    "additional_existing_host_mapping_implementation": "GN and source integration completed; final configured validation remains pending.",
+    "meaning": "Scoped feature/API slices; not whole subsystems or a codebase percentage."
+  },
+  "configured_build_coordination": {
+    "exclusive_owner": "Parent",
+    "parent_rule": "Only the parent runs GN/Ninja and synchronizes ready sources. Sol workers own isolated native validation; active modules are excluded from configured synchronization.",
+    "host_mapping_handoff": "docs/rust/benchmarks/host-mapping-terra-integration-20261113T001659Z/report.json"
+  },
+  "publication_gate": "Publish all cases only after the complete batch meets improvement/no-measurable-regression requirements or every residual regression has a demonstrated hard blocker and a concrete near-term rewrite. Archive all experiments immediately; bridge presence alone is not causal evidence.",
+  "components": [
+    {
+      "component": "dns-query",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T224308295864Z/report.json",
+      "native_handoff_report_sha256": "b265dd412472cef7c12acecd7f114eeeac5a61560ddbc65c0e84da0113061170",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {},
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "parsed-cookie",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/parsed-cookie-wave2-20261112T222023Z/report.json",
+      "native_handoff_report_sha256": "da3f45d8bfa8016016e3ec4938db84ac46366db02d7ed146ec132acd19ff2b13",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/cookies/parsed_cookie_rust_fuzz.cc": {
+          "native_handoff_sha256": "1f03e771e6bc327d09bfbf5022f3130af181874400f86253f7fd05b6c25b996f",
+          "current_sha256": "0f95335e1c0de71ce79ae746c88fa1a00b6bf2cd94046a408bac988890f9bd4e"
+        },
+        "net/cookies/parsed_cookie_rust_perftest.cc": {
+          "native_handoff_sha256": "03fbb351051eb0101794c85ba2c929ec6e929bd8eeab29086be70246c69f7fb5",
+          "current_sha256": "c843605c65968ed3b935347be4c80a9979287eb06c09935e83c503773f826b7e"
+        },
+        "net/cookies/parsed_cookie_rust_reference.cc": {
+          "native_handoff_sha256": "d7e3ea9633eddb928a27010d75cce06396a358da62c5af7e05df106140b9c9c2",
+          "current_sha256": "57ffefc513c00d3ade38e3733597f3e4c777788845b22814428bea1af8fc12e9"
+        },
+        "net/cookies/parsed_cookie_rust_reference.h": {
+          "native_handoff_sha256": "1ebd00bc041b1e3f308bb770010f1a993bbefd2e62f5b79ac830603e62069794",
+          "current_sha256": "c4212f90a839df7981a3bc571bb4a6657278fcf973e5a7c4a5580ff94bee59ae"
+        },
+        "net/cookies/parsed_cookie_rust_test_support.h": {
+          "native_handoff_sha256": "f3ee2abb002dee9ff53267b7c6dde6c093a6433bff063157fef796ac6a485b12",
+          "current_sha256": "41987728168b324d5224968c00ef80f7d194ed5a7e256f35ef7ad639bab50578"
+        },
+        "net/cookies/parsed_cookie_rust_unittest.cc": {
+          "native_handoff_sha256": "e4842de58a6eae7910d2d1ec457bbebc32c905b1889cee3e0ce5cfd9866b4dfa",
+          "current_sha256": "fac5a3c0cc38e2dc816d5965aa245d72b73cdf2ec349540975edd3935b941be5"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "host-port",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/host-port-wave2-20261112T224540Z/report.json",
+      "native_handoff_report_sha256": "c66ae7bf3d3c3fc69edfec10c1304efaff3f5b511e7ff8fe4e9a3b1665366e2f",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/base/host_port_rust_reference.h": {
+          "native_handoff_sha256": "f5e5a8bb401e59f2ea3ddef3146a0f7779d0f6d768c37d6213c1d74d3f4515c4",
+          "current_sha256": "86a1bfdef8c1185bd0f9a30ee0d7986ee65ac65c10025ff752d85c2ff8fb3453"
+        },
+        "net/base/host_port_rust_unittest.cc": {
+          "native_handoff_sha256": "4762869696f24c97d9b5071403e1d0a1cfa5e83fd27d900f321b110a4173f24f",
+          "current_sha256": "7d0b5ae70323ca04c8187cf21d5d3f8b712f8527523cd1f2b912e4261b98f7c6"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "backoff-entry",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/backoff-entry-wave2-20261112T234219-native/report.json",
+      "native_handoff_report_sha256": "661d13744effd9f52db92f39270e491d0b9b15cb7c68e01afd8d1b708dfc7abc",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/base/backoff_rust_ffi.rs": {
+          "native_handoff_sha256": "7fe1764423f792182252d44e53933bb3df51f612f27b8bc72b5d0919cf178576",
+          "current_sha256": "f5432983af23a76f22778268624ec91375be0acb0ce00ff29fd23fc60b77605e"
+        },
+        "net/base/backoff_rust_original_entry.h": {
+          "native_handoff_sha256": "4dd38b9799ac2d20b822c07119cb4878e32a273db1d520c22eb761455f5d36e4",
+          "current_sha256": "522068e6b2100b447ff409b30cf7d12fdbb7dcdb2b2dee67a7cbfbd9f45158d1"
+        },
+        "net/base/backoff_rust_original_serializer.h": {
+          "native_handoff_sha256": "9af567906c989e0ddd26be734802fa39a461676103114eb2dab329ab227dbb5c",
+          "current_sha256": "31c89d94a430fe141c62322be0e6e118d8f99a38847610e276c5314f587836ab"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "websocket-extensions",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/websocket-extensions-wave2-20261112T223155Z/report.json",
+      "native_handoff_report_sha256": "fb9206611959f513df5a7165a7c6a9e470204f1d25e72f2f7a50dca806ed126b",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/websockets/websocket_extension_rust_test_support.h": {
+          "native_handoff_sha256": "c8bbc64ea8804cbd95d30300afbe9efcdfb47c8f06866d0250174235c2664cc1",
+          "current_sha256": "3a8cec71becf379c1eac3c5e0c10d743ce8ac8e5e87d01b18f7476be2e638107"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "number-range-optimization",
+      "kind": "optimization of accepted slice",
+      "native_handoff_report": "docs/rust/benchmarks/number-range-optimization-wave2-20261112T223430Z/report.json",
+      "native_handoff_report_sha256": "62d6d42f984cc0884301958e82af141f8a1430d5968bacce3d0003f76c8910e3",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/http/http_range_promote_unittest.cc": {
+          "native_handoff_sha256": "09c6c2fcaeeb93bf7428de8e5c339ca7e493344be0f7073cd3e2ee8bcca4163e",
+          "current_sha256": "c4e884861411e11b5ce379cbb2c07ebc2006c447a9e02d9e5fa4d6608a305557"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "port-optimization",
+      "kind": "optimization of accepted slice",
+      "native_handoff_report": "docs/rust/benchmarks/port-optimization-wave2-20261112T222543Z/report.json",
+      "native_handoff_report_sha256": "9539457f6aecafbe6befd1a7fe87601005078705b101f86abc9ee3fedeca17d7",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/base/port_policy_core.rs": {
+          "native_handoff_sha256": "8ab96df3613adb8c064123bd27add3fc2e4317113bcfe12ebf7d940e3592f5e4",
+          "current_sha256": "784f8ff9d52d0b0b151ef3d84f4eea44843b318009853d17dab04bc276c2e806"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "net-log-values",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T232550234294Z-net-log-values/report.json",
+      "native_handoff_report_sha256": "d8c5e8f4e133ae7d7bc2868695d7d1d18cb1d30531f30a315f528620b9b66d20",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/log/net_log_values_rust_perftest.cc": {
+          "native_handoff_sha256": "c4c391fcae9e3cdd64f4343127af8bf4c7326768bde96e331765fdc7667edc0b",
+          "current_sha256": "fd8fb78c7e53f9d838c1cc8eaf5552b43ad11c51739b51613172be4b103f1297"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "request-headers",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T233044670778Z/report.json",
+      "native_handoff_report_sha256": "bd6231eea77119e72b2a56521ff33537c192bc29a50324fd993db76af29e74c4",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/http/http_request_headers_rust_original.h": {
+          "native_handoff_sha256": "572fd44b8b3b74ba565ec5dd2f8f8534e0377716f1ed1dce9958f8e8909489d6",
+          "current_sha256": "2e4e533d85c9861986e5169e817a6b6ff5618d57cfe3bf9a4d0049f3017f017d"
+        },
+        "net/http/http_request_headers_rust_perftest.cc": {
+          "native_handoff_sha256": "f32980d83bec69691cab994ce5c7917d675999ffd1f8b8294b9397cd2a77401e",
+          "current_sha256": "0a6df04f852926e2e7dd5f2a78a0b395d15c1ff77a1997d7cb27f6e03476a6a6"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "vary-data",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T233426194096Z/report.json",
+      "native_handoff_report_sha256": "35d467db5d09d4b135400995feda022bd8d9160ceadf9e6aee8cb26f49a546a4",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/http/http_vary_data_rust_perftest.cc": {
+          "native_handoff_sha256": "6599cc3da76e8726193a87cdc6940aaabc3e12a66d09623af4a1054b1a521974",
+          "current_sha256": "ec1007e1fb19e9901124c3684ed25dc10c41d9008cd7bc55fff628428d4c8581"
+        },
+        "net/http/http_vary_data_rust_reference.h": {
+          "native_handoff_sha256": "685a2ff188052e14acaf18fcbf534b50f07abd1c1089216196f49a65a23cf3a3",
+          "current_sha256": "00739ea5390e0e8a55953820544dd46c5d3f58f6b10cc5bea1df57d64ee7241c"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "websocket-frames",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T233649Z-websocket-frames/report.json",
+      "native_handoff_report_sha256": "77b4fd0ca4e9a292fa5f00a6811b672b6142162ad1a4d41b5b15fccbf63aea1f",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/websockets/websocket_frame_rust_core.rs": {
+          "native_handoff_sha256": "73ba277b1838007edc12486db15d7b740168a0e2625874fb6cacdb97855fadbe",
+          "current_sha256": "35d9d4a08ed47a82c771aece24aed2554606c69655e4a1d51136b6e7f66de0d1"
+        },
+        "net/websockets/websocket_frame_rust_ffi.rs": {
+          "native_handoff_sha256": "b94ad574c42bc47578c2e76a8f04b2c24a9809d906bac0bfe8a17feb1612ace9",
+          "current_sha256": "3da17b5182c15b3625bddc042b84ca96f5505e4e510987982df0f4e54f4aab06"
+        },
+        "net/websockets/websocket_frame_rust_reference.h": {
+          "native_handoff_sha256": "85bb0206adf9aa5eb36f0bed03e3837ea869ee18767f9a64637587305eb24844",
+          "current_sha256": "24cfeb02d5bf85ce4d1b8f2767f039406d300153bf90c780d7c4289c174f6d87"
+        },
+        "net/websockets/websocket_frame_rust_reference_parser.h": {
+          "native_handoff_sha256": "e5adf56f37cd00876233c05a03e4575afd74cead8db3777f2af21512069d0509",
+          "current_sha256": "e904dec806bba437615bf3c2002eea3a41ad31d1fe6ea6b4b591e2d67f4494f4"
+        },
+        "net/websockets/websocket_frame_rust_test.cc": {
+          "native_handoff_sha256": "affc3d339ca14fa0ce31628b6a9aa9d22a9cdba389380ed68bfc60a545318f0c",
+          "current_sha256": "c8d70fe5630c1a7be27e2e0b185955980340648d55e96789fc87a9f81dacc88b"
+        },
+        "net/websockets/websocket_frame_rust_test_support.h": {
+          "native_handoff_sha256": "28a61e045824425a5fec354485edca04587fe750c3731299ffbfd5e4a069a7d4",
+          "current_sha256": "8cdd480d68afe095285738e032dcd0a390c6544ae16925e7c0391c3502b2d95d"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "response-info",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T234202Z-response-info/report.json",
+      "native_handoff_report_sha256": "72fc7d2b22b0187da85e564f939695abdcb78d87be1ca6619b38a5d6ac7e39c1",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/http/http_response_info.cc": {
+          "native_handoff_sha256": "91982f9d37b67f6c245443ed11545c8eb3a7f0afa3f30b34a1a4f92a1631fe92",
+          "current_sha256": "e2b72641f34b11fb49e9e30e56e26581881fc3a5df56088feeef6e26bb2450bf"
+        },
+        "net/http/http_response_info_rust_core.rs": {
+          "native_handoff_sha256": "0f107d7ec2de4864a67ca015af46c588045ef483e66a1acbad1a142d6714b39f",
+          "current_sha256": "b6be4a7222876d90f12d880edefedf1fa768a24b0d6e947e9d9589e82ecac664"
+        },
+        "net/http/http_response_info_rust_ffi.h": {
+          "native_handoff_sha256": "b63acffedcc4b3b41376df69a118e2c3ebe56063969173ee04fe18aaed25bbb7",
+          "current_sha256": "c8acca1b6a0e74356cdaa7f7406afc0078ff0058b663eef55d0a1e9bd85f6aa4"
+        },
+        "net/http/http_response_info_rust_ids.rs": {
+          "native_handoff_sha256": "2c539bb3e58f8a6aa083570be7b4a416b15af9440d5755a71a03f89400ff3ef6",
+          "current_sha256": "e400cf6427bee134cf11549f04704352980542e57405285218c6fd763e0d7eea"
+        },
+        "net/http/http_response_info_rust_original_vary.cc": {
+          "native_handoff_sha256": "292b6c5a33c14a08779c0dd7312f49d1bc18583ea4575f96464726cd106e5ab1",
+          "current_sha256": "13cb7c6e9eb0443ca762e82782b47a3521eb7cfe49b4c3c894e23958949baa00"
+        },
+        "net/http/http_response_info_rust_original_vary.h": {
+          "native_handoff_sha256": "65fac73093c5929a641afe0a95686fc9924999e6c845543c0e341a07c4be2383",
+          "current_sha256": "7cf70be15dcf5b4a87d54b04527cbc3653c5352c3bd70177de04c401c28c481b"
+        },
+        "net/http/http_response_info_rust_reference.h": {
+          "native_handoff_sha256": "a90ac2699550971dd8469612059b74c7b895f5662e57f9f0d3483a5cb1738ffc",
+          "current_sha256": "a709dc8dc2cd09e1ff4ec65764050c118fd1e5eab2317f4e89d54f7218ec1f3f"
+        },
+        "net/http/http_response_info_unittest.cc": {
+          "native_handoff_sha256": "379d7fe824a885d6dc6b59170f29c7ed4fb708a710b1a7c58e291140db0318e8",
+          "current_sha256": "9c793ed20eb95a30efd3dd21b166a6b818e0ee1e4e94360e6899816558296b08"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "proxy-values",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T235226376247Z/report.json",
+      "native_handoff_report_sha256": "1804916f1bbe3d7e889c2e9af5f27de3ee0f560fb3f9d18d946ade2ec41fdeef",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {},
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "proxy-matching",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T235035Z-proxy-matching/report.json",
+      "native_handoff_report_sha256": "795f5a3f1fcc4e621cd8d0cec5855fdd3d55fd789cfe59efcd7158380b15638c",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/base/proxy_matching_rust_ffi.cc": {
+          "native_handoff_sha256": "768826945b95b98935617252a6b9d72505fb4095f2d08e8d9004c36e71320b77",
+          "current_sha256": "7857160c840e0ce20edeb32774f762582ff2f2822f41f03914123e87de306ad2"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "dns-response",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261112T235349713025Z/report.json",
+      "native_handoff_report_sha256": "d1974206cfb1171a73a32a13f880a484a4d2b248cb514c6f3080f0db02e0772e",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {},
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "http-byte-range",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/http-byte-range-wave2-20261112T235852Z/report.json",
+      "native_handoff_report_sha256": "501c0ecc78eb73355717796df3dd6b10d884b96edcbb8bf16452fc1737109a7e",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/http/http_byte_range_rust_perftest.cc": {
+          "native_handoff_sha256": "d7cd3af035aadacd1cd4eb68501cd17f3b2e4be78688c92fd89bf0cf33f15e9c",
+          "current_sha256": "8da164252f904f1457c1d2d3c52a4ccdb657c4f2196e607f4e96aad2b07f04d4"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "cookie-inclusion-status",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/cookie-inclusion-status-wave2-20261112T234457Z/report.json",
+      "native_handoff_report_sha256": "0ff4739625448f81bb57ace0b13602da7099c9f48b7387b2af02209fe852de4e",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/cookies/cookie_inclusion_status_rust_perftest.cc": {
+          "native_handoff_sha256": "bf984a20d925e53b0aa84efcc73971b284b5e0d877ae7969bb97cdf7387259c7",
+          "current_sha256": "8e380c41250b08e98f19778dc1dc9b3c2b4ba61457071f2fe4df34f4100cafba"
+        },
+        "net/cookies/cookie_inclusion_status_rust_unittest.cc": {
+          "native_handoff_sha256": "552bd11cccfcf4c3256c32f8ffd262d5e33d476a4202fbce31ff7ab5903fad38",
+          "current_sha256": "5b074d4baf1d23e3a9127679ccaf7fdcf1bd3b3120a6248b2e9f30e4f8993e25"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "auth-cache",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-query-wave2-20261113T000105282582Z-auth-cache/report.json",
+      "native_handoff_report_sha256": "cd5b49bf2c65795ddb2249cd56acacb217c73e5d044c09cd8c72cb8e0bf1a456",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {},
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "http2-write-queue",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/http2-write-queue-wave3-20261113T010622717436Z/report.json",
+      "native_handoff_report_sha256": "cfb91d1f1a8f858a3a31d8eb32d12a257a1f8b034edeb203bdd7ddb902635c9d",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/spdy/http2_write_queue_rust_perftest.cc": {
+          "native_handoff_sha256": "454b890fe999d97dac9dfd5879e69e39e715d5bc050c62ad728be7c3afe1367e",
+          "current_sha256": "eabcf9d18ef5b77eac70dc40a2f75f913a65e02e7311320d402b27cdea7585ed"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "tcp-client-socket",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/tcp-client-socket-wave3-20261113T011525367533Z/report.json",
+      "native_handoff_report_sha256": "b0a334170b1ab80da258eeef165a7da9b4b94efdccfd8f2daa4e93dc2b627e50",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/socket/tcp_client_socket.cc": {
+          "native_handoff_sha256": "f0cb8ed43a4b81c3fc542b8bba1d6f43e6b17690483b2d3ec0cdb60b953f7724",
+          "current_sha256": "e73854929b4e60e36fd73dc8c7f7a204048348ee0bd0bc816a39b225785c2442"
+        },
+        "net/socket/tcp_client_socket_rust_test.cc": {
+          "native_handoff_sha256": "5513dfcbbfc8be79273abf909ef44472a92534e2a04667194dd660b465635cde",
+          "current_sha256": "e2c8ff9967744dc6aecce939167b56e74aaf0a0baa8144d819a820dbb64b4880"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "tls-session-cache",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/tls-session-cache-wave3-20261113T012014Z-7e31/report.json",
+      "native_handoff_report_sha256": "a4c03ea5c722892c121e24e8ba97560b34f490b9b101f902e47a1a7c19f80568",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/ssl/ssl_client_session_cache.cc": {
+          "native_handoff_sha256": "ca5780977b04004b2d97753d59869afa6fec1c04479954345709bdf79eb826ee",
+          "current_sha256": "a624f8906301a5ab0c9622665a7e16d9ba6939f218c4f454cd5990d1c119d93d"
+        },
+        "net/ssl/tls_session_cache_rust_abi.h": {
+          "native_handoff_sha256": "76e5ebb26423d17e1e1fffa305885f7e34d68e819fe23e32137ab80331b31c92",
+          "current_sha256": "12a1c897c052c28c726a6b336203e44856cf1b0fd80402e1277e4159edb24644"
+        },
+        "net/ssl/tls_session_cache_rust_perftest.cc": {
+          "native_handoff_sha256": "7b13ec9bd28afc59de91c203ab9dee9b0633b37c685d994d6c1ccfc05d4589be",
+          "current_sha256": "4f76b5f06c1cf31e7a81e24c6ca8310092b934d0fd094422977414e4cb4a496c"
+        },
+        "net/ssl/tls_session_cache_rust_unittest.cc": {
+          "native_handoff_sha256": "4b382232669ff859f511299913bd8334bfcb840846e8c457b633815e3e051ce9",
+          "current_sha256": "a0e9f52ecc11b6282c4e3ee9bf6b43f4619503339b962972ca1eec069a903d6e"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "dns-host-cache",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/dns-host-cache-wave3-20261113T012833135746Z/report.json",
+      "native_handoff_report_sha256": "faba5642ad46c48ea4743778afe8381208e0effe6d8ffc7c9072285969f75c7d",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/dns/host_cache.cc": {
+          "native_handoff_sha256": "3b9d64372c4a7d88de4430ea5638b3a50502bd14cb2093accb782249b45dbe08",
+          "current_sha256": "338dc0626ff0326679a5e3f41b4be22922ebc8b5f2b53642cb380901b525d1d0"
+        },
+        "net/dns/dns_host_cache_rust_perftest.cc": {
+          "native_handoff_sha256": "88504f43c8e37d2915bd783d2237126bb65e5f08497fd78804d12c35f3efc713",
+          "current_sha256": "25d25d045ed9b54305fb5da7e60b1311cae3228da2352843d69c8c962467b57c"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "disk-simple-index",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/disk-simple-index-wave3-20261113T013501Z/report.json",
+      "native_handoff_report_sha256": "a3c2c4f1dd6689ca0afe01f985797ed7827be10fcdbd4853953df82079ce0503",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/disk_cache/simple/disk_simple_index_rust_perftest.cc": {
+          "native_handoff_sha256": "5f5f414fe61427dea857d6d79fae79b798c5314b17a93fb334eb35d49eda3d07",
+          "current_sha256": "272531a5c3ae1e5614d1b6d9a64628e5882daa3154f6dd5191bb532420d0f829"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    },
+    {
+      "component": "http3-client-stream",
+      "kind": "new module policy",
+      "native_handoff_report": "docs/rust/benchmarks/http3-client-stream-wave3-20261113T014456Z/report.json",
+      "native_handoff_report_sha256": "0ff5d87aaab9e477391d67320265a4052068c5016d7721725e144d0b52862e58",
+      "handoff_hashes_verified_before_parent_refinements": true,
+      "parent_refinements": {
+        "net/quic/http3_client_stream_rust_perftest.cc": {
+          "native_handoff_sha256": "3ea2c89fec4ab49b27207d3c66385bdfce330ae372d86e4ad1a5a936a2f79659",
+          "current_sha256": "ac13348a903e004436aa882311bb2880a5c74e31a73d3af77110ad0b1d0295b0"
+        },
+        "net/quic/http3_client_stream_rust_test_support.h": {
+          "native_handoff_sha256": "918ba084155ef9c8259bf0784181915310e3dd5b668fbf45a0c9d370d467d8cc",
+          "current_sha256": "eb4c5cc2afb021d3e3c7da26d76c3f7886b5cbf8fa3073b6519233a7d9ebacea"
+        },
+        "net/quic/quic_chromium_client_stream.cc": {
+          "native_handoff_sha256": "7361cef6a83c1693154703f24d6e97799d57e9662b3c2408e6effb9c3afae0db",
+          "current_sha256": "33aac0b0e4fea51cb0a7e90781f83abac57ee032f414d19870f1f8a22bb36333"
+        },
+        "net/quic/quic_chromium_client_stream_test.cc": {
+          "native_handoff_sha256": "25748bf789ece75a803c1864d6dea5631f3f575c640cdbdb60e555ff1f1aea2f",
+          "current_sha256": "6eac1affe2919e67748e33aa522f9a7bdb6e23715a2af37d3ba0b5d4648180ac"
+        }
+      },
+      "configured_source_sync": "all owned files match recorded snapshot",
+      "configured_validation": "pending; current build and test evidence must be audited before promotion",
+      "benchmark_timing": "not performed for this batch",
+      "publication": "held by batch gate"
+    }
+  ],
+  "known_validation_followups": [
+    {
+      "component": "websocket-frames",
+      "finding": "Uninitialized header output must use MaybeUninit rather than initialized u8 slices.",
+      "state": "Fixed and exact-source native validation passed: 27 C++ tests, 3 Rust tests and 1M guided fuzz inputs; configured revalidation pending.",
+      "evidence": "docs/rust/benchmarks/websocket-frames-parent-safety-20261113T001944279748Z/report.json"
+    },
+    {
+      "component": "http-response-info",
+      "finding": "Restore original invalid-version debug diagnostic.",
+      "state": "Fixed; 77 isolated native tests and Clippy passed. Configured revalidation pending.",
+      "evidence": ".scratch/net-wave2/response-info-parent/unit-parent-execution.json"
+    },
+    {
+      "component": "http-range",
+      "finding": "Prevent the frozen C++ Range baseline from calling migrated public HttpByteRange values.",
+      "state": "Independent original value closure and parent GN wiring prepared. Native 30 tests, all 35 untimed workload checks, 1M whole-API inputs and defined-input value-state comparisons passed. Configured acceptance/remeasurement pending.",
+      "evidence": "docs/rust/benchmarks/range-baseline-closure-wave3-20261113T011854Z/report.md"
+    },
+    {
+      "component": "http2-write-queue",
+      "finding": "Native owner-lifetime guard changes SpdyWriteQueue storage layout.",
+      "state": "All configured consumers must be rebuilt together. Native 31-test validation and 1,048,576 differential operations passed; no configured acceptance or timing yet.",
+      "evidence": "docs/rust/benchmarks/http2-write-queue-wave3-20261113T010622717436Z/report.json"
+    },
+    {
+      "component": "tcp-client-socket",
+      "finding": "Windows-only native validation and incomplete failure-path coverage.",
+      "state": "Original native 52-test suite and 1M differential IO inputs passed. Independent callback/reentry review completed; const-getter finding repaired and separately revalidated with 53 tests. Configured integration, fault-injected Open/rebind failures and POSIX checks remain pending.",
+      "evidence": "docs/rust/benchmarks/tcp-client-socket-wave3-20261113T011525367533Z/report.json"
+    },
+    {
+      "component": "tcp-client-socket const getter",
+      "finding": "Independent P2: const GetLocalAddress entered a state-writing bridge.",
+      "state": "Repaired with const-only observations and no state commit/WeakPtr factory access. Native 53 tests and 1M IO comparisons passed; protected const storage tests cover all three getter paths. Frozen pre-fix adapter fails that regression with 0xC0000005. Configured revalidation pending.",
+      "evidence": "docs/rust/benchmarks/tcp-const-getter-parent-20261113T015608943211Z/report.json"
+    },
+    {
+      "component": "tls-session-cache",
+      "finding": "Rust-owned cache state changes native object storage.",
+      "state": "Native 31-test suite, 1M differential operations and finalizer/observer tests passed. Independent callback/finalizer review found no additional confirmed defects. Rebuild all configured consumers and execute configured validation before acceptance.",
+      "evidence": "docs/rust/benchmarks/tls-session-cache-wave3-20261113T012014Z-7e31/report.json"
+    },
+    {
+      "component": "dns-host-cache",
+      "finding": "Native cache storage adds callback lifetime tracking; FuzzTest runtime was unavailable in isolated validation.",
+      "state": "Native 90 tests, 1M stateful comparisons and 17 workload checks passed. Rebuild all consumers and execute original FuzzTest registration in configured validation.",
+      "evidence": "docs/rust/benchmarks/dns-host-cache-wave3-20261113T012833135746Z/report.json"
+    },
+    {
+      "component": "disk-simple-index",
+      "finding": "Whole index and metadata native validation still needs configured consumer/file/IO integration.",
+      "state": "62 native tests, 1,048,576 state inputs, 1M metadata inputs and 13 untimed workload checks passed. Configured builds/tests and all performance measurements remain pending.",
+      "evidence": "docs/rust/benchmarks/disk-simple-index-wave3-20261113T013501Z/report.json"
+    },
+    {
+      "component": "http3-client-stream",
+      "finding": "QUICHE/native service integration needs configured acceptance.",
+      "state": "128 native tests across RFCv1/RFCv2 and 1,048,576 differential actions per implementation passed. Configured builds/tests and all performance measurements remain pending.",
+      "evidence": "docs/rust/benchmarks/http3-client-stream-wave3-20261113T014456Z/report.json"
+    },
+    {
+      "component": "dns-host-cache, disk-simple-index, http3-client-stream",
+      "finding": "Independent review of the cache and stream Rust policies and native lifetime boundaries.",
+      "state": "No confirmed actionable defects or review blockers; 28 targeted checks passed and all 625 frozen source/evidence files remained unchanged. Later parent bounded-container compile fixes still require configured runtime validation.",
+      "evidence": "docs/rust/benchmarks/net-cache-stream-review-20261113T021804187673Z/review.json"
+    },
+    {
+      "component": "dns-host-cache, proxy-matching, http3-client-stream",
+      "finding": "Configured unsafe-buffer diagnostics in private native adapter views/tables.",
+      "state": "Replaced private raw tables with std::array and constructed the proxy byte span from the existing contiguous CXX slice. All three actual configured production objects compile with existing warnings-as-errors and no suppression. Rust policy and public headers/layout are unchanged by these fixes. Joint linking/runtime tests and timings remain pending.",
+      "evidence": "docs/rust/benchmarks/net-parent-bounded-adapters-20261113T031857161885Z/report.json"
+    },
+    {
+      "component": "new networking test/benchmark harnesses",
+      "finding": "Configured strict buffer diagnostics and one signed comparison in native harness sources.",
+      "state": "Sixteen owned harness files repaired and synchronized: bounded tables/counters/key views, IOBuffer spans, narrow documented static-format/argument contracts and checked numeric conversion. No production policy/layout or warning-setting changes. Successful incremental compilation and runtime revalidation remain pending.",
+      "evidence": "docs/rust/benchmarks/net-configured-harness-bounds-20261113T034319743234Z/report.json"
+    },
+    {
+      "component": "http2-write-queue benchmark coverage",
+      "finding": "Independent review A-01: historical remove_stream and change_priority fixtures target a MEDIUM stream with zero queued writes.",
+      "state": "Retained and honestly relabeled historical misses; appended two hit workloads acting on 43 LOW-stream writes. Added independent untimed removal/count/FIFO/destruction checks for each implementation. Static historical-fixture/token/RNG checks pass; configured execution and timings remain pending.",
+      "evidence": "docs/rust/benchmarks/http2-queue-hit-fixtures-parent-20261113T035713448107Z/report.json"
+    },
+    {
+      "component": "benchmark validity and labels",
+      "finding": "Two independent audits cover all 34 prepared modules / 487 original cases.",
+      "state": "A-01 HTTP2 coverage repair adds two cases. Vary reference-component/conditional-persistence descriptions and TCP timer-setup label corrected in new prepared descriptors only. No other confirmed audit blocker; parent is additionally isolating ParsedCookie status policy from migrated helpers before timing.",
+      "evidence": "docs/rust/benchmarks/net-benchmark-validity-review-b-20261113T034015778129Z/review.json"
+    },
+    {
+      "component": "parsed-cookie baseline status closure",
+      "finding": "Ensure original parser validation and timing use original C++ inclusion-status/EnumSet policy rather than shared migrated status helpers.",
+      "state": "Six final sources and three original helper hashes verified. Actual 47-test native result and 1M deterministic differential inputs passed; no guided-fuzz claim. Parent added four GN dependencies and new cumulative-original baseline metadata. Checked count parsing added only to deterministic driver; configured sync/gen/rebuild and acceptance remain pending.",
+      "evidence": "docs/rust/benchmarks/parsed-cookie-baseline-closure-20261113T040315875560Z/report.json"
+    },
+    {
+      "component": "configured fuzz campaigns",
+      "finding": "Default Windows fuzzer_test labels are no-op groups with no enabled engine.",
+      "state": "Default validation now explicitly excludes fuzz campaigns and rejects attempted fuzz execution without real use_libfuzzer=true and Windows is_asan=true. Separate output/engine compatibility and completion-proof preparation is delegated. No configured campaign or ASan acceptance claimed.",
+      "evidence": ".scratch/net-wave3/fuzz-engine-config/observed-source-sha256.json"
+    }
+  ],
+  "parent_tooling_validation": {
+    "archive_only_importer": "Nine tests pass under host and configured Python, including native cpp_ns/pair aliases with unchanged raw samples and hashes, conflict rejection, gallery-independent archiving, identical later publication, immutable evidence, final provenance and full case coverage. Evidence: docs/rust/benchmarks/paired-benchmark-schema-parent-20261113T032913632974Z/report.json",
+    "timing_runner": "Windows launch now creates only the owned child suspended, sets and verifies affinity, then resumes its primary thread. Host/configured discovery and 14 focused Windows child tests pass; final source hashes verified by parent. Evidence: docs/rust/benchmarks/benchmark-affinity-20261113T031249Z/report.json. Actual configured benchmark measurements remain pending.",
+    "measurement_plan": "34 modules and 489 cases prepared with complete descriptors in .scratch/net-wave3/measurement-plan-v2/plan.json. The original 487 case IDs remain; two HTTP2 mutation-hit cases were appended. No timings collected; batch publication remains held."
+  },
+  "limitations": [
+    "Windows x64 evidence only; cross-platform validation remains outstanding.",
+    "Configured build passes; complete runtime/fuzz/browser/performance acceptance remains pending.",
+    "C++ ownership and service seams remain explicit; these modules do not complete net/."
+  ],
+  "configured_checkpoint": {
+    "network_build": {
+      "execution_record": ".scratch/net-wave2/parent/build-20261113T052754Z-44b868d0b0.json",
+      "record_sha256": "afe8102ae2542a95a1184fede9a4f3ebe117b5eac2b9b73e24d6204a4e6e9cdf",
+      "exit_code": 0,
+      "scope": "Configured networking unit/perftest/stateful targets; does not include a full Chrome rebuild."
+    },
+    "successful_targeted_runtime_runs": [
+      {
+        "evidence_directory": "docs/rust/benchmarks/net-configured-validation-20261113T053036077605Z",
+        "completion_sha256": "e06e488ed34c1b58bd5a3ab8cb3f7b8a2bcf5f4fae8de20747db3e75b67e0e02",
+        "executions_sha256": "2b5acf9e704c70a2a8adb25955878345c0ce55d2cd15014e006e42275d13376e",
+        "partial_validation": true,
+        "executions": 1,
+        "units_passed": 55,
+        "units_skipped": 0
+      },
+      {
+        "evidence_directory": "docs/rust/benchmarks/net-configured-validation-20261113T053046391233Z",
+        "completion_sha256": "d3b1f9a91863000e6da83dc1c728cfaa36d33c63a76e802566adc6457ef33cd7",
+        "executions_sha256": "a5d3860783f6f6885a1b9d271e372bde34ccc6a97731ac2faf7f2d2c516f71e9",
+        "partial_validation": true,
+        "executions": 9,
+        "units_passed": 0,
+        "units_skipped": 0
+      },
+      {
+        "evidence_directory": "docs/rust/benchmarks/net-configured-validation-20261113T053213247881Z",
+        "completion_sha256": "38724c9d26f19933b643cf6ea85a818cec80ca58d675c42f8ebc67a070d0db6c",
+        "executions_sha256": "de21f066da9602a288ee04f2c98029192fe1e5aad3c1a3c30443dbc15a771357",
+        "partial_validation": false,
+        "executions": 62,
+        "units_passed": 34765,
+        "units_skipped": 114
+      }
+    ],
+    "fixture_repair": "docs/rust/benchmarks/net-runtime-fixture-repair-parent-20261113T052241419759Z/validation-followup.json",
+    "full_runtime_attempt": {
+      "directory": "docs/rust/benchmarks/net-configured-validation-20261113T053213247881Z",
+      "completion_proven": true
+    },
+    "genuine_fuzz": "Fifteen requested ASan/libFuzzer executables pass individual GN checks and are building separately. Evaluated Rust ASan/coverage flags are recorded; engine campaigns and actual final linked instrumentation remain unvalidated.",
+    "new_parallel_modules": [
+      "HTTP2 read queue",
+      "HTTP2 priority dependencies"
+    ],
+    "new_parallel_module_status": "Both native handoffs received; unintegrated, layout-changing, awaiting independent review and parent integration. Not counted among accepted slices."
+  }
+}

@@ -43,9 +43,8 @@ config_setting(
 # depending on the platform, compilation mode, and MEDIAPIPE_PROFILING value.
 # This requires three levels of aliases because of limitations with select.
 #
-# Right now it must be explicitly enabled on mobile platforms, and
-# it must be explictly disabled on other platforms including non-release
-# android builds.
+# Mobile builds explicitly enable profiling; other platforms use their
+# configured compilation-mode defaults.
 alias(
     name = "graph_profiler",
     actual = select({
@@ -303,8 +302,7 @@ cc_library(
     name = "profiler_resource_util",
     srcs = ["profiler_resource_util_common.cc"] + select({
         "//conditions:default": ["profiler_resource_util.cc"],
-        "//mediapipe/framework:android_no_jni": ["profiler_resource_util_android_hal.cc"],
-        "//mediapipe:android": ["profiler_resource_util_android.cc"],
+
         "//mediapipe:ios": ["profiler_resource_util_ios.cc"],
     }),
     hdrs = ["profiler_resource_util.h"],
@@ -329,13 +327,7 @@ cc_library(
         "//conditions:default": [
             "//mediapipe/framework/port:file_helpers",
         ],
-        "//mediapipe/framework:android_no_jni": [
-            "//mediapipe/framework/port:file_helpers",
-        ],
-        "//mediapipe:android": [
-            "//mediapipe/framework/port:file_helpers",
-            "//mediapipe/java/com/google/mediapipe/framework/jni:jni_util",
-        ],
+
         "//mediapipe:apple": [
             "//mediapipe/framework/port:file_helpers",
         ],

@@ -26,7 +26,6 @@
 #include "mediapipe/gpu/gl_simple_shaders.h"
 #include "mediapipe/gpu/gpu_buffer.h"
 #include "mediapipe/gpu/gpu_buffer_format.h"
-#include "mediapipe/gpu/gpu_buffer_storage_ahwb.h"  // IWYU pragma: keep (GpuBufferStorageAhwb)
 #include "mediapipe/gpu/shader_util.h"
 
 typedef int DimensionsPacketType[2];
@@ -110,7 +109,6 @@ class GlScalerCalculator : public CalculatorBase {
   bool use_input_format_for_output_ = false;
   GlScalerCalculatorOptions::OutputTarget output_target_ =
       GlScalerCalculatorOptions::UNSPECIFIED;
-  bool use_ahwb_ = false;
 };
 REGISTER_CALCULATOR(GlScalerCalculator);
 
@@ -310,11 +308,7 @@ absl::Status GlScalerCalculator::Process(CalculatorContext* cc) {
     const GpuBufferFormat output_format = GetOutputFormat(input.format());
     GlTexture dst;
 
-    if (use_ahwb_) {
-    } else {
-      dst = helper_.CreateDestinationTexture(dst_width, dst_height,
-                                             output_format);
-    }
+    dst = helper_.CreateDestinationTexture(dst_width, dst_height, output_format);
 
     helper_.BindFramebuffer(dst);
 

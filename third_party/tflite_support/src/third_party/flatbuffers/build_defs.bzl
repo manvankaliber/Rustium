@@ -1,6 +1,5 @@
 """BUILD rules for generating flatbuffer files."""
 
-load("@build_bazel_rules_android//android:rules.bzl", "android_library")
 load("//third_party/bazel_rules/rules_cc/cc:cc_library.bzl", "cc_library")
 load("//third_party/bazel_rules/rules_java/java:java_library.bzl", "java_library")
 
@@ -590,56 +589,4 @@ def flatbuffer_java_srcjar(
         outs = [out],
         tools = [flatc_path, zip_files],
         cmd = genrule_cmd,
-    )
-
-def flatbuffer_android_library(
-        name,
-        srcs,
-        custom_package = "",
-        package_prefix = "",
-        include_paths = DEFAULT_INCLUDE_PATHS,
-        flatc_args = DEFAULT_FLATC_ARGS,
-        visibility = None):
-    """An android_library with the generated reader/writers for the given flatbuffer definitions.
-
-    Args:
-      name: Rule name. (required)
-      srcs: List of source .fbs files including all includes. (required)
-      custom_package: Package name of generated Java files. If not specified
-          namespace in the schema files will be used. (optional)
-      package_prefix: like custom_package, but prefixes to the existing
-          namespace. (optional)
-      include_paths: List of paths that includes files can be found in. (optional)
-      flatc_args: List of additional arguments to pass to flatc. (optional)
-      visibility: Visibility setting for the android_library rule. (optional)
-    """
-    out_srcjar = "android_%s_all.srcjar" % name
-    flatbuffer_java_srcjar(
-        name = "%s_srcjar" % name,
-        srcs = srcs,
-        out = out_srcjar,
-        custom_package = custom_package,
-        flatc_args = flatc_args,
-        include_paths = include_paths,
-        package_prefix = package_prefix,
-    )
-
-    native.filegroup(
-        name = "%s.srcjar" % name,
-        srcs = [out_srcjar],
-    )
-
-    # To support org.checkerframework.dataflow.qual.Pure.
-    checkerframework_annotations = [
-        "@org_checkerframework_qual",
-    ] if "--java-checkerframework" in flatc_args else []
-
-    android_library(
-        name = name,
-        srcs = [out_srcjar],
-        javacopts = ["-source 7 -target 7"],
-        visibility = visibility,
-        deps = [
-            "@flatbuffers//:runtime_android",
-        ] + checkerframework_annotations,
     )

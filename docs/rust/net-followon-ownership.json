@@ -1,0 +1,27 @@
+{
+  "status": "Connected follow-on drafts only, outside fixed35-module first milestone. Do not delay current integration or count as accepted migration.",
+  "source_ownership": [
+    {
+      "family": "http2",
+      "owner": "/root/header_coalescer_measured_optimization",
+      "stage_root": ".scratch/net-wave5/http2-followon/header_coalescer_measured_optimization",
+      "modules": [
+        "net/spdy/spdy_session_key",
+        "net/spdy/buffered_spdy_framer",
+        "net/spdy/multiplexed_http_stream",
+        "net/spdy/multiplexed_session"
+      ]
+    },
+    {
+      "family": "dns-resolution",
+      "owner": "/root/net_percentage_credit",
+      "stage_root": ".scratch/net-wave5/dns-result-followon/net_percentage_credit",
+      "modules": [
+        "net/dns/host_resolver_internal_result"
+      ]
+    }
+  ],
+  "canonical_or_configured_edits_authorized": false,
+  "compiler_or_timing_granted": false,
+  "first_milestone_membership_unchanged": true
+}

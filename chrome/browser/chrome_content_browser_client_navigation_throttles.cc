@@ -8,19 +8,21 @@
 #include "base/feature_list.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/autocomplete/aim_eligibility_refresh_navigation_throttle.h"
+#include "chrome/browser/background/background_contents_navigation_throttle.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_navigation_throttle.h"
 #include "chrome/browser/contextual_tasks/guest_opener_user_data.h"
 #include "chrome/browser/custom_handlers/chrome_protocol_handler_navigation_throttle.h"
 #include "chrome/browser/custom_handlers/protocol_handler_registry_factory.h"
 #include "chrome/browser/data_sharing/data_sharing_navigation_throttle.h"
+#include "chrome/browser/devtools/devtools_navigation_throttle.h"
 #include "chrome/browser/enterprise/connectors/device_trust/navigation_throttle.h"
 #include "chrome/browser/enterprise/data_protection/view_source_navigation_throttle.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/interstitials/enterprise_util.h"
 #include "chrome/browser/lookalikes/lookalike_url_navigation_throttle.h"
 #include "chrome/browser/omnibox/geolocation_navigation_throttle.h"
+#include "chrome/browser/page_info/web_view_side_panel_throttle.h"
 #include "chrome/browser/plugins/pdf_iframe_navigation_throttle.h"
 #include "chrome/browser/policy/chrome_policy_blocklist_service_factory.h"
 #include "chrome/browser/policy/policy_util.h"
@@ -37,12 +39,19 @@
 #include "chrome/browser/ssl/typed_navigation_upgrade_throttle.h"
 #include "chrome/browser/supervised_user/classify_url_navigation_throttle.h"
 #include "chrome/browser/supervised_user/supervised_user_google_auth_navigation_throttle.h"
+#include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/blocked_content/ad_script_navigation_throttle.h"
 #include "chrome/browser/ui/blocked_content/tab_under_navigation_throttle.h"
 #include "chrome/browser/ui/login/login_navigation_throttle.h"
 #include "chrome/browser/ui/passwords/password_manager_navigation_throttle.h"
 #include "chrome/browser/ui/passwords/well_known_change_password_navigation_throttle.h"
+#include "chrome/browser/ui/read_anything/read_anything_side_panel_navigation_throttle.h"
 #include "chrome/browser/ui/web_applications/navigation_capturing_redirection_throttle.h"
+#include "chrome/browser/ui/web_applications/tabbed_web_app_navigation_throttle.h"
+#include "chrome/browser/ui/web_applications/webui_web_app_navigation_throttle.h"
+#include "chrome/browser/ui/webui/image/image_navigation_throttle.h"
+#include "chrome/browser/ui/webui/ntp_microsoft_auth/ntp_microsoft_auth_response_capture_navigation_throttle.h"
+#include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_throttle.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/pref_names.h"
@@ -84,18 +93,6 @@
 #include "third_party/blink/public/mojom/loader/referrer.mojom.h"
 #include "ui/webui/buildflags.h"
 #include "url/gurl.h"
-
-#include "chrome/browser/background/background_contents_navigation_throttle.h"
-#include "chrome/browser/devtools/devtools_navigation_throttle.h"
-#include "chrome/browser/page_info/web_view_side_panel_throttle.h"
-#include "chrome/browser/themes/theme_service_factory.h"
-#include "chrome/browser/ui/read_anything/read_anything_side_panel_navigation_throttle.h"
-#include "chrome/browser/ui/web_applications/tabbed_web_app_navigation_throttle.h"
-#include "chrome/browser/ui/web_applications/webui_web_app_navigation_throttle.h"
-#include "chrome/browser/ui/webui/image/image_navigation_throttle.h"
-#include "chrome/browser/ui/webui/ntp_microsoft_auth/ntp_microsoft_auth_response_capture_navigation_throttle.h"
-#include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_throttle.h"
-
 
 #if BUILDFLAG(ENABLE_PLATFORM_APPS)
 #include "chrome/browser/apps/platform_apps/platform_app_navigation_redirector.h"
@@ -410,20 +407,6 @@ void CreateAndAddChromeThrottlesForNavigation(
   enterprise_connectors::DeviceTrustNavigationThrottle::MaybeCreateAndAdd(
       registry);
 
-  // AimEligibilityRefreshNavigationThrottle must be registered before
-  // ContextualTasksNavigationThrottle so it can detect AIM URL navigations
-  // before ContextualTasksNavigationThrottle intercepts them.
-  AimEligibilityRefreshNavigationThrottle::MaybeCreateAndAdd(registry);
-
-  if (contextual_tasks::IsContextualTasksUIEnabled() ||
-      base::FeatureList::IsEnabled(
-          contextual_tasks::kContextualTasksUrlRedirectToAimUrl) ||
-      contextual_tasks::GuestOpenerUserData::IsGuestOpener(
-          registry.GetNavigationHandle().GetWebContents())) {
-    contextual_tasks::ContextualTasksNavigationThrottle::MaybeCreateAndAdd(
-        registry);
-  }
-
 #if BUILDFLAG(ENABLE_DEVTOOLS_FRONTEND)
   DevToolsWindow::MaybeCreateAndAddNavigationThrottle(registry);
 #endif  // BUILDFLAG(ENABLE_DEVTOOLS_FRONTEND)
@@ -539,13 +522,6 @@ void CreateAndAddChromeThrottlesForNavigation(
 
 void CreateAndAddChromeThrottlesForCommitWithoutUrlLoader(
     content::NavigationThrottleRegistry& registry) {
-  if (contextual_tasks::GuestOpenerUserData::IsGuestOpener(
-          registry.GetNavigationHandle().GetWebContents())) {
-    contextual_tasks::ContextualTasksNavigationThrottle::MaybeCreateAndAdd(
-        registry);
-  }
-
-
   // PwcNavigationThrottle must also cancel off-allowlist main-frame
   // navigations that commit without a URL loader (e.g. a subframe navigating
   // the main frame to about:blank), which never reach WillStartRequest().
